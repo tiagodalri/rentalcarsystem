@@ -1,6 +1,6 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check } from "lucide-react";
+import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
@@ -9,6 +9,8 @@ import WhatsAppBubble from "@/components/WhatsAppBubble";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { useVehiclesDB, categoryToKey, buildPriceMap } from "@/hooks/useVehiclesDB";
 import { getCoverImage } from "@/data/vehicleImages";
+import { useAuth } from "@/hooks/useAuth";
+import { calculateAge, isBlockedAge, isYoungDriver, YOUNG_DRIVER_SURCHARGE } from "@/lib/age";
 
 interface SearchVehicle {
   name: string;
@@ -33,6 +35,7 @@ const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const { formatPrice } = useCurrency();
   const { vehicles: dbVehicles } = useVehiclesDB();
+  const { customer } = useAuth();
   const vehiclePrices = buildPriceMap(dbVehicles);
 
   // Build vehicles list from DB
@@ -51,8 +54,11 @@ const SearchResults = () => {
   const pickupLocation = searchParams.get("pickupLocation") || "";
   const returnLocation = searchParams.get("returnLocation") || pickupLocation;
   const driverAgeParam = searchParams.get("driverAge");
-  const isUnder26 = driverAgeParam ? parseInt(driverAgeParam) < 26 : false;
-  const YOUNG_DRIVER_SURCHARGE = 0.08;
+  const effectiveAge: number | null = customer?.date_of_birth
+    ? calculateAge(customer.date_of_birth)
+    : (driverAgeParam ? parseInt(driverAgeParam) : null);
+  const youngDriver = effectiveAge !== null && isYoungDriver(effectiveAge);
+  const blockedByAge = effectiveAge !== null && isBlockedAge(effectiveAge);
   const pickupDate = pickupDateStr ? new Date(pickupDateStr) : null;
   const returnDate = returnDateStr ? new Date(returnDateStr) : null;
 
