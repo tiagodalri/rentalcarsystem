@@ -69,7 +69,7 @@ const MyAccount = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto max-w-5xl px-4 pt-24 pb-16">
+      <div className="container mx-auto max-w-5xl px-3 sm:px-4 pt-20 sm:pt-24 pb-16">
         {/* Header */}
         <ClientHeader user={user} onLogout={handleLogout} />
 
@@ -111,11 +111,11 @@ const MyAccount = () => {
         {/* All bookings */}
         <div className="mt-10">
           <Tabs value={tab} onValueChange={setTab}>
-            <TabsList className="bg-muted/50 mb-4">
-              <TabsTrigger value="all" className="text-xs uppercase tracking-wider">Todas</TabsTrigger>
-              <TabsTrigger value="active" className="text-xs uppercase tracking-wider">Ativas</TabsTrigger>
-              <TabsTrigger value="future" className="text-xs uppercase tracking-wider">Futuras</TabsTrigger>
-              <TabsTrigger value="completed" className="text-xs uppercase tracking-wider">Concluídas</TabsTrigger>
+            <TabsList className="bg-muted/50 mb-4 w-full grid grid-cols-4 h-auto p-1">
+              <TabsTrigger value="all" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">Todas</TabsTrigger>
+              <TabsTrigger value="active" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">Ativas</TabsTrigger>
+              <TabsTrigger value="future" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">Futuras</TabsTrigger>
+              <TabsTrigger value="completed" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">Concluídas</TabsTrigger>
             </TabsList>
             <TabsContent value={tab}>
               <div className="space-y-3">
