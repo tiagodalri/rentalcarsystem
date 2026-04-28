@@ -19,12 +19,19 @@ type Vehicle = {
   status: string;
   features: string[] | null;
   published: boolean;
+  color: string | null;
+  purchase_price: number | null;
+  initial_odometer: number | null;
+  current_odometer: number | null;
+  acquired_date: string | null;
 };
 
 const emptyVehicle = {
   name: "", category: "Economy", daily_price_usd: 0, image_url: "",
   passengers: 5, bags: 2, transmission: "Automatic", fuel: "Gasoline",
   year: new Date().getFullYear(), status: "available", features: [] as string[],
+  color: "", purchase_price: 0, initial_odometer: 0, current_odometer: 0,
+  acquired_date: null as string | null,
 };
 
 export default function AdminFleet() {
@@ -64,6 +71,11 @@ export default function AdminFleet() {
       year: editing.year || null,
       status: editing.status || "available",
       features: editing.features || [],
+      color: editing.color || null,
+      purchase_price: editing.purchase_price ?? 0,
+      initial_odometer: editing.initial_odometer ?? 0,
+      current_odometer: editing.current_odometer ?? 0,
+      acquired_date: editing.acquired_date || null,
     };
 
     if (isNew) {
