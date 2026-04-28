@@ -179,7 +179,7 @@ export default function AdminLive() {
   };
 
   return (
-    <div className="space-y-4 h-[calc(100vh-7rem)]">
+    <div className="space-y-4 lg:h-[calc(100vh-7rem)] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -220,11 +220,11 @@ export default function AdminLive() {
       </div>
 
       {/* Main content */}
-      <div className="flex gap-4 flex-1 min-h-0" style={{ height: "calc(100% - 8rem)" }}>
+      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0 lg:h-[calc(100%-8rem)]">
         {/* Vehicle list sidebar */}
-        <div className="w-72 shrink-0 flex flex-col gap-2 overflow-hidden">
+        <div className="w-full lg:w-72 lg:shrink-0 flex flex-col gap-2 lg:overflow-hidden">
           {/* Filter tabs */}
-          <div className="flex gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {(["all", "moving", "idle", "parked"] as const).map((f) => (
               <button
                 key={f}
@@ -241,7 +241,7 @@ export default function AdminLive() {
           </div>
 
           {/* Vehicle cards */}
-          <div className="flex-1 overflow-y-auto space-y-1.5 pr-1 scrollbar-thin">
+          <div className="lg:flex-1 lg:overflow-y-auto space-y-1.5 lg:pr-1 scrollbar-thin">
             {filtered.map((v) => (
               <button
                 key={v.id}
@@ -280,7 +280,7 @@ export default function AdminLive() {
         </div>
 
         {/* Map */}
-        <div className="flex-1 rounded-xl overflow-hidden border border-border/40 relative">
+        <div className="flex-1 rounded-xl overflow-hidden border border-border/40 relative h-[60vh] lg:h-auto min-h-[400px]">
           {/* Zeus watermark */}
           <div className="absolute top-3 left-3 z-[1000] flex items-center gap-2 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-border/30">
             <span className="text-sm font-bold text-primary">ZEUS</span>
