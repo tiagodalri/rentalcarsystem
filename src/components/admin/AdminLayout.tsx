@@ -4,6 +4,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { Loader2 } from "lucide-react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import MinimalFooter from "@/components/MinimalFooter";
 
 export default function AdminLayout() {
   const { user, isAdmin, loading, signOut } = useAdminAuth();
@@ -33,6 +35,7 @@ export default function AdminLayout() {
           <header className="h-14 flex items-center gap-4 border-b border-border/40 px-4 bg-background/80 backdrop-blur-sm sticky top-0 z-30">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
             <div className="flex-1" />
+            <LanguageSwitcher />
             <span className="text-xs text-muted-foreground">
               {user.email}
             </span>
@@ -40,6 +43,7 @@ export default function AdminLayout() {
           <main className="flex-1 p-6 overflow-auto">
             <Outlet />
           </main>
+          <MinimalFooter />
         </div>
       </div>
     </SidebarProvider>
