@@ -472,6 +472,7 @@ export type Database = {
           next_service_km: number | null
           notes: string | null
           passengers: number
+          published: boolean
           purchase_price: number | null
           registration_expiry: string | null
           status: string
@@ -508,6 +509,7 @@ export type Database = {
           next_service_km?: number | null
           notes?: string | null
           passengers?: number
+          published?: boolean
           purchase_price?: number | null
           registration_expiry?: string | null
           status?: string
@@ -544,6 +546,7 @@ export type Database = {
           next_service_km?: number | null
           notes?: string | null
           passengers?: number
+          published?: boolean
           purchase_price?: number | null
           registration_expiry?: string | null
           status?: string

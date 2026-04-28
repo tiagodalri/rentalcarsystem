@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, Pencil, Trash2, Car, Users as UsersIcon, Briefcase, X, History } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Car, Users as UsersIcon, Briefcase, X, History, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 type Vehicle = {
@@ -18,6 +18,7 @@ type Vehicle = {
   year: number | null;
   status: string;
   features: string[] | null;
+  published: boolean;
 };
 
 const emptyVehicle = {
@@ -80,6 +81,13 @@ export default function AdminFleet() {
     if (!confirm("Excluir este veículo?")) return;
     await supabase.from("vehicles").delete().eq("id", id);
     toast({ title: "Veículo excluído" });
+    load();
+  };
+
+  const togglePublished = async (v: Vehicle) => {
+    const next = !v.published;
+    await supabase.from("vehicles").update({ published: next }).eq("id", v.id);
+    toast({ title: next ? "Publicado no site" : "Removido do site" });
     load();
   };
 
@@ -217,9 +225,14 @@ export default function AdminFleet() {
                     <h3 className="font-semibold text-foreground">{v.name}</h3>
                     <p className="text-xs text-muted-foreground">{v.category} · {v.year}</p>
                   </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColors[v.status] || "bg-muted text-muted-foreground"}`}>
-                    {v.status === "available" ? "Disponível" : v.status === "rented" ? "Alugado" : v.status === "maintenance" ? "Manutenção" : "Indisponível"}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColors[v.status] || "bg-muted text-muted-foreground"}`}>
+                      {v.status === "available" ? "Disponível" : v.status === "rented" ? "Alugado" : v.status === "maintenance" ? "Manutenção" : "Indisponível"}
+                    </span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1 ${v.published ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                      {v.published ? <><Eye size={10} /> No site</> : <><EyeOff size={10} /> Oculto</>}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -231,6 +244,13 @@ export default function AdminFleet() {
                   <div className="flex items-center justify-between pt-2 border-t border-border/30">
                     <span className="text-lg font-bold text-primary">${v.daily_price_usd}/dia</span>
                     <div className="flex gap-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); togglePublished(v); }}
+                        className={`transition-colors ${v.published ? "text-primary hover:text-primary/70" : "text-muted-foreground hover:text-primary"}`}
+                        title={v.published ? "Despublicar do site" : "Publicar no site"}
+                      >
+                        {v.published ? <Eye size={14} /> : <EyeOff size={14} />}
+                      </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); navigate(`/admin/vehicle-history/${v.id}`); }}
                         className="text-muted-foreground hover:text-primary transition-colors"

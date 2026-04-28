@@ -14,6 +14,7 @@ export interface DBVehicle {
   status: string;
   features: string[] | null;
   image_url: string | null;
+  published?: boolean;
 }
 
 let cachedVehicles: DBVehicle[] | null = null;
@@ -35,6 +36,7 @@ export function useVehiclesDB() {
     supabase
       .from("vehicles")
       .select("*")
+      .eq("published", true)
       .order("daily_price_usd", { ascending: false })
       .then(({ data }) => {
         const list = (data || []) as DBVehicle[];
