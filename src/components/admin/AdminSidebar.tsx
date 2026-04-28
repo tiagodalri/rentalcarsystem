@@ -38,7 +38,9 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
   const collapsed = state === "collapsed";
 
   const isActive = (url: string) =>
-    url === "/admin" ? location.pathname === "/admin" : location.pathname.startsWith(url);
+    url === "/admin" || url === "/admin/report"
+      ? location.pathname === url
+      : location.pathname.startsWith(url);
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
