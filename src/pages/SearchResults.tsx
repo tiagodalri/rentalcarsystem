@@ -142,7 +142,7 @@ const SearchResults = () => {
                   className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm hover:border-primary/30 transition-all duration-300 cursor-pointer"
                 >
                   {/* Image */}
-                  <div className="relative h-64 overflow-hidden">
+                  <div className="relative h-48 sm:h-64 overflow-hidden">
                     <img
                       src={v.coverImage}
                       alt={v.name}
@@ -191,7 +191,7 @@ const SearchResults = () => {
                     </div>
 
                     {/* Price */}
-                    <div className="border-t border-border/40 pt-4 flex items-end justify-between">
+                    <div className="border-t border-border/40 pt-4 flex flex-col xs:flex-row items-stretch xs:items-end justify-between gap-3">
                       <div>
                         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">A partir de</p>
                         <p className="text-2xl font-black text-foreground">
@@ -208,7 +208,7 @@ const SearchResults = () => {
                       <Link
                         to={bookingUrl}
                         onClick={(e) => e.stopPropagation()}
-                        className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap"
+                        className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center"
                       >
                         Ver detalhes
                       </Link>
