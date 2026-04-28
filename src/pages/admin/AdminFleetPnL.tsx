@@ -166,7 +166,7 @@ export default function AdminFleetPnL() {
   const TH = ({ k, children, align = "right" }: { k: keyof Row; children: React.ReactNode; align?: "left" | "right" }) => (
     <th
       onClick={() => toggleSort(k)}
-      className={`px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground cursor-pointer hover:text-foreground select-none ${align === "right" ? "text-right" : "text-left"}`}
+      className={`px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground cursor-pointer hover:text-foreground select-none whitespace-nowrap ${align === "right" ? "text-right" : "text-left"}`}
     >
       {children}
       {sortKey === k && <span className="ml-1">{sortDir === "asc" ? "▲" : "▼"}</span>}
@@ -174,7 +174,7 @@ export default function AdminFleetPnL() {
   );
 
   return (
-    <div className="space-y-6 max-w-[1400px] mx-auto">
+    <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">Relatório de Frota — Lucro por Veículo</h1>
@@ -259,11 +259,13 @@ export default function AdminFleetPnL() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="text-sm min-w-full" style={{ minWidth: "1400px" }}>
               <thead className="bg-muted/30 border-y border-border/40">
                 <tr>
                   <TH k="name" align="left">Veículo</TH>
+                  <TH k="category" align="left">Categoria</TH>
                   <TH k="acquired_date" align="left">Comprado</TH>
+                  <TH k="daysOwned">Dias</TH>
                   <TH k="purchase_price">Valor Pago</TH>
                   <TH k="bookings">Locações</TH>
                   <TH k="rentalRevenue">Rec. Locação</TH>
@@ -272,47 +274,45 @@ export default function AdminFleetPnL() {
                   <TH k="expenses">Gastos</TH>
                   <TH k="netProfit">Lucro Líquido</TH>
                   <TH k="roiPct">ROI</TH>
-                  <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-center">Status</th>
+                  <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-center whitespace-nowrap">Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((r) => (
                   <tr key={r.id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
-                    <td className="px-3 py-3">
-                      <div className="font-medium text-foreground">{r.name}</div>
-                      <div className="text-[11px] text-muted-foreground">{r.category}</div>
-                    </td>
-                    <td className="px-3 py-3 text-xs text-muted-foreground">
+                    <td className="px-3 py-3 whitespace-nowrap font-medium text-foreground">{r.name}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-xs text-muted-foreground">{r.category}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-xs text-muted-foreground">
                       {r.acquired_date
                         ? format(parseISO(r.acquired_date), "dd MMM yyyy", { locale: ptBR })
                         : "—"}
-                      {r.daysOwned > 0 && (
-                        <div className="text-[10px] text-muted-foreground/70">{r.daysOwned} dias</div>
-                      )}
                     </td>
-                    <td className="px-3 py-3 text-right tabular-nums text-foreground">
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-xs text-muted-foreground">
+                      {r.daysOwned > 0 ? r.daysOwned : "—"}
+                    </td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">
                       {r.purchase_price > 0 ? `$${fmt(r.purchase_price)}` : "—"}
                     </td>
-                    <td className="px-3 py-3 text-right tabular-nums text-foreground">{r.bookings}</td>
-                    <td className="px-3 py-3 text-right tabular-nums text-foreground">${fmt(r.rentalRevenue)}</td>
-                    <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">${fmt(r.addonRevenue)}</td>
-                    <td className="px-3 py-3 text-right tabular-nums font-medium text-foreground">${fmt(r.totalRevenue)}</td>
-                    <td className="px-3 py-3 text-right tabular-nums text-destructive">
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">{r.bookings}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">${fmt(r.rentalRevenue)}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-muted-foreground">${fmt(r.addonRevenue)}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium text-foreground">${fmt(r.totalRevenue)}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">
                       {r.expenses > 0 ? `-$${fmt(r.expenses)}` : "—"}
                     </td>
-                    <td className={`px-3 py-3 text-right tabular-nums font-bold ${r.netProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-bold ${r.netProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
                       {r.netProfit >= 0 ? "" : "-"}${fmt(Math.abs(r.netProfit))}
                     </td>
-                    <td className={`px-3 py-3 text-right tabular-nums font-medium ${r.roiPct >= 0 ? "text-green-500" : "text-destructive"}`}>
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.roiPct >= 0 ? "text-green-500" : "text-destructive"}`}>
                       {r.purchase_price > 0 ? `${r.roiPct}%` : "—"}
                     </td>
-                    <td className="px-3 py-3 text-center">
+                    <td className="px-3 py-3 whitespace-nowrap text-center">
                       {r.purchase_price === 0 ? (
-                        <Badge variant="outline" className="text-[10px]">Sem dados</Badge>
+                        <Badge variant="outline" className="text-[10px] whitespace-nowrap">Sem dados</Badge>
                       ) : r.paidOff ? (
-                        <Badge className="bg-green-500/15 text-green-500 hover:bg-green-500/20 border-0 text-[10px]">Pagou-se</Badge>
+                        <Badge className="bg-green-500/15 text-green-500 hover:bg-green-500/20 border-0 text-[10px] whitespace-nowrap">Pagou-se</Badge>
                       ) : (
-                        <Badge variant="outline" className="border-yellow-500/40 text-yellow-500 text-[10px]">
+                        <Badge variant="outline" className="border-yellow-500/40 text-yellow-500 text-[10px] whitespace-nowrap">
                           Falta ${fmt(r.purchase_price - (r.totalRevenue - r.expenses))}
                         </Badge>
                       )}
@@ -323,20 +323,20 @@ export default function AdminFleetPnL() {
               {filtered.length > 0 && (
                 <tfoot className="bg-muted/40 border-t-2 border-border/60 font-semibold">
                   <tr>
-                    <td className="px-3 py-3 text-foreground" colSpan={2}>Totais</td>
-                    <td className="px-3 py-3 text-right tabular-nums text-foreground">${fmt(totals.purchase)}</td>
-                    <td className="px-3 py-3 text-right tabular-nums text-foreground">
+                    <td className="px-3 py-3 whitespace-nowrap text-foreground" colSpan={4}>Totais</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">${fmt(totals.purchase)}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">
                       {filtered.reduce((s, r) => s + r.bookings, 0)}
                     </td>
-                    <td className="px-3 py-3 text-right tabular-nums text-foreground">
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">
                       ${fmt(filtered.reduce((s, r) => s + r.rentalRevenue, 0))}
                     </td>
-                    <td className="px-3 py-3 text-right tabular-nums text-foreground">
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">
                       ${fmt(filtered.reduce((s, r) => s + r.addonRevenue, 0))}
                     </td>
-                    <td className="px-3 py-3 text-right tabular-nums text-foreground">${fmt(totals.revenue)}</td>
-                    <td className="px-3 py-3 text-right tabular-nums text-destructive">-${fmt(totals.expenses)}</td>
-                    <td className={`px-3 py-3 text-right tabular-nums ${totals.profit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">${fmt(totals.revenue)}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">-${fmt(totals.expenses)}</td>
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums ${totals.profit >= 0 ? "text-green-500" : "text-destructive"}`}>
                       {totals.profit >= 0 ? "" : "-"}${fmt(Math.abs(totals.profit))}
                     </td>
                     <td colSpan={2} />
