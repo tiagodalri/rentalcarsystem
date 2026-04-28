@@ -78,6 +78,40 @@ const SearchResults = () => {
     )}`;
   };
 
+  if (blockedByAge) {
+    return (
+      <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+        <Navbar />
+        <section className="pt-32 pb-16">
+          <div className="container mx-auto px-4 max-w-2xl">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm mb-6"
+            >
+              <ArrowLeft size={16} />
+              Voltar à página inicial
+            </Link>
+            <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-6 sm:p-8">
+              <div className="flex items-start gap-3">
+                <AlertTriangle size={22} className="text-destructive shrink-0 mt-0.5" />
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-destructive mb-2">
+                    Reserva não permitida
+                  </h2>
+                  <p className="text-sm text-foreground/80 leading-relaxed">
+                    Não atendemos condutores menores de 21 anos.
+                    {customer?.date_of_birth && " A idade foi verificada com base na sua data de nascimento cadastrada."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <Navbar />
@@ -133,7 +167,7 @@ const SearchResults = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {vehicles.map((v, i) => {
               const basePrice = vehiclePrices[v.name] || 99;
-              const dailyPrice = isUnder26 ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
+              const dailyPrice = youngDriver ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
               const totalPrice = dailyPrice * days;
 
               const bookingUrl = `/reserva/${encodeURIComponent(v.name)}?${searchParams.toString()}`;
