@@ -16,15 +16,11 @@ const formatShortDate = (iso: string) => {
 };
 
 const MyAccount = () => {
-  const { isLoggedIn, user, logout } = useAuth();
+  const { user, customer, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState("all");
 
-  useEffect(() => {
-    if (!isLoggedIn) navigate("/login", { replace: true });
-  }, [isLoggedIn, navigate]);
-
-  if (!isLoggedIn || !user) return null;
+  if (loading || !user) return null;
 
   const activeBooking = mockBookings.find((b) => b.status === "active" || b.status === "in_progress");
   const completedCount = mockBookings.filter((b) => b.status === "completed").length;
@@ -45,10 +41,12 @@ const MyAccount = () => {
     (a, b) => new Date(b.pickupDate).getTime() - new Date(a.pickupDate).getTime()
   );
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     navigate("/");
   };
+
+  const profileIncomplete = !customer || !customer.phone || !customer.document_number;
 
   const stats = [
     { icon: Car, label: "Total de reservas", value: mockBookings.length.toString() },
