@@ -71,6 +71,23 @@ const MyAccount = () => {
         {/* Header */}
         <ClientHeader user={user} onLogout={handleLogout} />
 
+        {profileIncomplete && (
+          <div className="mt-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-500">Complete seu cadastro</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Para reservar veículos, precisamos de telefone, documento e endereço.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/cadastro")}
+              className="text-xs font-bold uppercase tracking-wider gold-gradient text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Completar agora
+            </button>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
           {stats.map((stat, i) => (

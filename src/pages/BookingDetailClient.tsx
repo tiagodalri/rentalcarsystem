@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+// auth handled by RequireAuth wrapper
 import { useParams, useNavigate } from "react-router-dom";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { motion } from "framer-motion";
@@ -21,7 +21,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useAuth } from "@/hooks/useAuth";
+
 import { mockBookings } from "@/data/mockBookings";
 import BookingStatusBadge from "@/components/client/BookingStatusBadge";
 import BookingTimeline from "@/components/client/BookingTimeline";
@@ -33,17 +33,10 @@ import ContractButton from "@/components/client/ContractButton";
 
 const BookingDetailClient = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
-  const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const { formatPrice } = useCurrency();
 
-  useEffect(() => {
-    if (!isLoggedIn) navigate("/login", { replace: true });
-  }, [isLoggedIn, navigate]);
-
   const booking = mockBookings.find((b) => b.id === bookingId);
-
-  if (!isLoggedIn) return null;
 
   if (!booking) {
     return (
