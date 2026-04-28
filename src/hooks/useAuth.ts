@@ -175,6 +175,20 @@ export function useAuth() {
         });
         if (insErr) throw new Error("Conta criada, mas falhou ao salvar perfil: " + insErr.message);
       }
+
+      // Força re-hidratação do customer após INSERT
+      cachedCustomer = null;
+      const { data: { session: refreshedSession } } = await supabase.auth.getSession();
+      if (refreshedSession?.user) {
+        const { data: refreshedCustomer } = await supabase
+          .from("customers")
+          .select("*")
+          .eq("user_id", refreshedSession.user.id)
+          .maybeSingle();
+        if (refreshedCustomer) {
+          cachedCustomer = { userId: refreshedSession.user.id, customer: refreshedCustomer as CustomerRecord };
+        }
+      }
     },
     []
   );
