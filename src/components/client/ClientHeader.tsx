@@ -1,6 +1,7 @@
 import { LogOut } from "lucide-react";
 import { AuthUser } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface ClientHeaderProps {
   user: AuthUser;
@@ -34,13 +35,16 @@ const ClientHeader = ({ user, onLogout }: ClientHeaderProps) => {
           Aqui você acompanha todas as suas reservas com a Zeus Rental Car
         </p>
       </div>
-      <button
-        onClick={onLogout}
-        className="flex items-center gap-2 text-xs text-muted-foreground hover:text-destructive transition-colors uppercase tracking-wider"
-      >
-        <LogOut size={14} />
-        Sair
-      </button>
+      <div className="flex items-center gap-4 shrink-0">
+        <LanguageSwitcher />
+        <button
+          onClick={onLogout}
+          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-destructive transition-colors uppercase tracking-wider"
+        >
+          <LogOut size={14} />
+          Sair
+        </button>
+      </div>
     </motion.div>
   );
 };
