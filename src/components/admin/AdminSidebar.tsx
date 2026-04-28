@@ -1,4 +1,4 @@
-import { LayoutDashboard, Car, CalendarRange, Users, LogOut, Settings, Radio, BarChart3, DollarSign, UsersRound } from "lucide-react";
+import { LayoutDashboard, Car, CalendarRange, Users, LogOut, Settings, Radio, BarChart3, DollarSign, UsersRound, TrendingUp } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -23,6 +23,7 @@ const menuItems = [
   { title: "Financeiro", url: "/admin/finance", icon: DollarSign },
   { title: "Equipe", url: "/admin/team", icon: UsersRound },
   { title: "Relatório", url: "/admin/report", icon: BarChart3 },
+  { title: "Lucro Frota", url: "/admin/report/fleet-pnl", icon: TrendingUp },
   { title: "Configurações", url: "/admin/settings", icon: Settings },
 ];
 

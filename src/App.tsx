@@ -28,6 +28,7 @@ import AdminInspectionCompare from "./pages/admin/AdminInspectionCompare.tsx";
 import AdminVehicleHistory from "./pages/admin/AdminVehicleHistory.tsx";
 import AdminVehicleDetail from "./pages/admin/AdminVehicleDetail.tsx";
 import AdminFleetReport from "./pages/admin/AdminFleetReport.tsx";
+import AdminFleetPnL from "./pages/admin/AdminFleetPnL.tsx";
 import AdminBookingDetail from "./pages/admin/AdminBookingDetail.tsx";
 import AdminFinance from "./pages/admin/AdminFinance.tsx";
 import AdminTeam from "./pages/admin/AdminTeam.tsx";
@@ -79,6 +80,7 @@ const App = () => (
                 <Route path="vehicle-history/:vehicleId" element={<AdminVehicleHistory />} />
                 <Route path="fleet/:vehicleId" element={<AdminVehicleDetail />} />
                 <Route path="report" element={<AdminFleetReport />} />
+                <Route path="report/fleet-pnl" element={<AdminFleetPnL />} />
                 <Route path="finance" element={<AdminFinance />} />
                 <Route path="team" element={<AdminTeam />} />
               </Route>
