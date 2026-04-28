@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, Pencil, Trash2, Car, Users as UsersIcon, Briefcase, X, History } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Car, Users as UsersIcon, Briefcase, X, History, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 type Vehicle = {
@@ -18,6 +18,7 @@ type Vehicle = {
   year: number | null;
   status: string;
   features: string[] | null;
+  published: boolean;
 };
 
 const emptyVehicle = {
@@ -80,6 +81,13 @@ export default function AdminFleet() {
     if (!confirm("Excluir este veículo?")) return;
     await supabase.from("vehicles").delete().eq("id", id);
     toast({ title: "Veículo excluído" });
+    load();
+  };
+
+  const togglePublished = async (v: Vehicle) => {
+    const next = !v.published;
+    await supabase.from("vehicles").update({ published: next }).eq("id", v.id);
+    toast({ title: next ? "Publicado no site" : "Removido do site" });
     load();
   };
 
