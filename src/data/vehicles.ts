@@ -1,4 +1,7 @@
 // Shared vehicle data with pricing
+// Atualizado em 2026-04-28: adicionados Jeep Renegade, Porsche Macan,
+// BMW 330, Nissan Rogue e Volkswagen Passat (ainda sem preço diário definido).
+
 export interface VehicleData {
   name: string;
   categoryLabel: string;
@@ -14,6 +17,7 @@ export const vehiclePrices: Record<string, number> = {
   "Mitsubishi Outlander": 81,
   "Volkswagen Tiguan": 81,
   "VOLKSWAGEN TIGUAN": 81,
+  "Volkswagen Tiguan RLine": 91,
   "Dodge Durango": 101,
   "Chevrolet Suburban": 151,
   "Volkswagen Atlas": 151,
@@ -27,6 +31,11 @@ export const vehiclePrices: Record<string, number> = {
   "Mustang Conversível": 321,
   "MUSTANG CONVERSÍVEL": 321,
   "Corvette Stingray C8": 652,
+  "Jeep Renegade": 0,
+  "Porsche Macan": 0,
+  "BMW 330": 0,
+  "Nissan Rogue": 0,
+  "Volkswagen Passat": 0,
 };
 
 export const vehicleTrims: Record<string, string> = {
@@ -36,6 +45,7 @@ export const vehicleTrims: Record<string, string> = {
   "Mitsubishi Outlander": "ES / SE",
   "Volkswagen Tiguan": "SE / SEL",
   "VOLKSWAGEN TIGUAN": "SE / SEL",
+  "Volkswagen Tiguan RLine": "RLine",
   "Dodge Durango": "GT / SXT",
   "Chevrolet Suburban": "LT / Premier",
   "Volkswagen Atlas": "SE / SEL",
@@ -49,4 +59,9 @@ export const vehicleTrims: Record<string, string> = {
   "Mustang Conversível": "EcoBoost / GT",
   "MUSTANG CONVERSÍVEL": "EcoBoost / GT",
   "Corvette Stingray C8": "6.2 V8",
+  "Jeep Renegade": "Sport / Limited",
+  "Porsche Macan": "Base / S",
+  "BMW 330": "330i xDrive",
+  "Nissan Rogue": "S / SV / SL",
+  "Volkswagen Passat": "S / SE",
 };
