@@ -1,6 +1,6 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check } from "lucide-react";
+import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
@@ -9,6 +9,8 @@ import WhatsAppBubble from "@/components/WhatsAppBubble";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { useVehiclesDB, categoryToKey, buildPriceMap } from "@/hooks/useVehiclesDB";
 import { getCoverImage } from "@/data/vehicleImages";
+import { useAuth } from "@/hooks/useAuth";
+import { calculateAge, isBlockedAge, isYoungDriver, YOUNG_DRIVER_SURCHARGE } from "@/lib/age";
 
 interface SearchVehicle {
   name: string;
@@ -33,6 +35,7 @@ const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const { formatPrice } = useCurrency();
   const { vehicles: dbVehicles } = useVehiclesDB();
+  const { customer } = useAuth();
   const vehiclePrices = buildPriceMap(dbVehicles);
 
   // Build vehicles list from DB
@@ -51,8 +54,11 @@ const SearchResults = () => {
   const pickupLocation = searchParams.get("pickupLocation") || "";
   const returnLocation = searchParams.get("returnLocation") || pickupLocation;
   const driverAgeParam = searchParams.get("driverAge");
-  const isUnder26 = driverAgeParam ? parseInt(driverAgeParam) < 26 : false;
-  const YOUNG_DRIVER_SURCHARGE = 0.08;
+  const effectiveAge: number | null = customer?.date_of_birth
+    ? calculateAge(customer.date_of_birth)
+    : (driverAgeParam ? parseInt(driverAgeParam) : null);
+  const youngDriver = effectiveAge !== null && isYoungDriver(effectiveAge);
+  const blockedByAge = effectiveAge !== null && isBlockedAge(effectiveAge);
   const pickupDate = pickupDateStr ? new Date(pickupDateStr) : null;
   const returnDate = returnDateStr ? new Date(returnDateStr) : null;
 
@@ -71,6 +77,40 @@ const SearchResults = () => {
       `Olá! Tenho interesse no ${name}.${dateInfo}${returnInfo}\n\nGostaria de mais informações!`
     )}`;
   };
+
+  if (blockedByAge) {
+    return (
+      <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+        <Navbar />
+        <section className="pt-32 pb-16">
+          <div className="container mx-auto px-4 max-w-2xl">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors text-sm mb-6"
+            >
+              <ArrowLeft size={16} />
+              Voltar à página inicial
+            </Link>
+            <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-6 sm:p-8">
+              <div className="flex items-start gap-3">
+                <AlertTriangle size={22} className="text-destructive shrink-0 mt-0.5" />
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-destructive mb-2">
+                    Reserva não permitida
+                  </h2>
+                  <p className="text-sm text-foreground/80 leading-relaxed">
+                    Não atendemos condutores menores de 21 anos.
+                    {customer?.date_of_birth && " A idade foi verificada com base na sua data de nascimento cadastrada."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -127,7 +167,7 @@ const SearchResults = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {vehicles.map((v, i) => {
               const basePrice = vehiclePrices[v.name] || 99;
-              const dailyPrice = isUnder26 ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
+              const dailyPrice = youngDriver ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
               const totalPrice = dailyPrice * days;
 
               const bookingUrl = `/reserva/${encodeURIComponent(v.name)}?${searchParams.toString()}`;

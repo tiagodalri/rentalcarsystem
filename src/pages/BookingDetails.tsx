@@ -20,6 +20,8 @@ import { useToast } from "@/hooks/use-toast";
 import PlanSelector from "@/components/booking/PlanSelector";
 import CustomerDataStep, { type CustomerData } from "@/components/booking/CustomerDataStep";
 import { PLANS, type PlanId } from "@/data/rentalPlans";
+import { useAuth } from "@/hooks/useAuth";
+import { calculateAge, isBlockedAge, isYoungDriver, YOUNG_DRIVER_SURCHARGE } from "@/lib/age";
 
 interface VehicleInfo {
   name: string;
@@ -48,7 +50,7 @@ const LONG_RENTAL_DISCOUNT_RATE = 0.05;
 const LONG_RENTAL_MIN_DAYS = 10;
 const BASIC_DEPOSIT = 550;
 const DEDUCTIBLE_MULTIPLIER = 11;
-const YOUNG_DRIVER_SURCHARGE = 0.08;
+
 
 const vehicleFeaturesMap: Record<string, string[]> = {
   "Corvette Stingray C8": ["Motor 6.2L V8", "495 HP", "Câmbio automático 8 marchas", "Apple CarPlay / Android Auto", "Modo Track", "Teto Targa removível"],
@@ -100,7 +102,12 @@ const BookingDetails = () => {
   const pickupLocation = searchParams.get("pickupLocation") || "";
   const returnLocation = searchParams.get("returnLocation") || pickupLocation;
   const driverAgeParam = searchParams.get("driverAge");
-  const isUnder26 = driverAgeParam ? parseInt(driverAgeParam) < 26 : false;
+  const { customer } = useAuth();
+  const effectiveAge: number | null = customer?.date_of_birth
+    ? calculateAge(customer.date_of_birth)
+    : (driverAgeParam ? parseInt(driverAgeParam) : null);
+  const youngDriver = effectiveAge !== null && isYoungDriver(effectiveAge);
+  const blockedByAge = effectiveAge !== null && isBlockedAge(effectiveAge);
 
   const pickupDate = pickupDateStr ? new Date(pickupDateStr) : null;
   const returnDate = returnDateStr ? new Date(returnDateStr) : null;
@@ -172,7 +179,7 @@ const BookingDetails = () => {
 
   // Pricing calculations
   const basePrice = vehiclePrices[decodedName] || 99;
-  const dailyPrice = isUnder26 ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
+  const dailyPrice = youngDriver ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
   const basicDeductible = dailyPrice * DEDUCTIBLE_MULTIPLIER;
 
   const pricing = useMemo(() => {
@@ -387,7 +394,7 @@ const BookingDetails = () => {
       `Remarcação: ${currentPlan.rescheduleLabel}`,
       ``,
       `💰 *Resumo:*`,
-      isUnder26 ? `⚠️ Condutor menor de 26 anos (idade: ${driverAgeParam})` : "",
+      youngDriver ? `⚠️ Condutor entre 21-25 anos (young driver fee aplicado, idade: ${effectiveAge})` : "",
       `Diária: ${formatPrice(dailyPrice)}`,
       currentPlan.dailyExtra > 0 ? `${currentPlan.name}: ${formatPrice(currentPlan.dailyExtra)}/dia` : "",
       pricing.addonInsuranceTotal > 0 ? `Seguro Premium (avulso): ${formatPrice(pricing.addonInsuranceTotal)}` : "",
@@ -411,6 +418,40 @@ const BookingDetails = () => {
           <h1 className="text-2xl font-bold mb-4">Veículo não encontrado</h1>
           <Link to="/buscar" className="text-primary hover:underline">Voltar à busca</Link>
         </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (blockedByAge) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Navbar />
+        <section className="pt-32 pb-16">
+          <div className="container mx-auto px-4 max-w-2xl">
+            <Link
+              to={`/buscar?${searchParams.toString()}`}
+              className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-xs tracking-wide mb-6"
+            >
+              <ArrowLeft size={14} />
+              Voltar aos resultados
+            </Link>
+            <div className="rounded-xl border border-destructive/40 bg-destructive/10 p-6 sm:p-8">
+              <div className="flex items-start gap-3">
+                <AlertTriangle size={22} className="text-destructive shrink-0 mt-0.5" />
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-destructive mb-2">
+                    Reserva não permitida
+                  </h2>
+                  <p className="text-sm text-foreground/80 leading-relaxed">
+                    Não atendemos condutores menores de 21 anos.
+                    {customer?.date_of_birth && " A idade foi verificada com base na sua data de nascimento cadastrada."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
         <Footer />
       </div>
     );
@@ -562,10 +603,10 @@ const BookingDetails = () => {
                     {days} {days === 1 ? "diária" : "diárias"} · {formatPrice(dailyPrice)}/dia
                   </p>
                 </div>
-                {isUnder26 && (
+                {youngDriver && (
                   <div className="mt-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
                     <p className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
-                      Condutor com {driverAgeParam} anos, acréscimo de 8% aplicado
+                      Condutor com {effectiveAge} anos. Acréscimo young driver de 8% aplicado.
                     </p>
                   </div>
                 )}

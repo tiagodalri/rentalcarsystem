@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
+import { isBlockedAge, isYoungDriver } from "@/lib/age";
 
 const locations = [
   "Aeroporto de Orlando (MCO)",
@@ -36,11 +37,13 @@ const SearchBar = () => {
   const [pickupLocation, setPickupLocation] = useState("");
   const [returnLocation, setReturnLocation] = useState("");
   const [differentReturnLocation, setDifferentReturnLocation] = useState(false);
-  const [driverOver26, setDriverOver26] = useState(true);
+  const [driverOver25, setDriverOver25] = useState(true);
   const [driverAge, setDriverAge] = useState("");
   const [openPicker, setOpenPicker] = useState<string | null>(null);
 
-  const isUnderageBlocked = !driverOver26 && !!driverAge && Number(driverAge) < 21;
+  const ageNum = driverAge ? Number(driverAge) : null;
+  const isUnderageBlocked = !driverOver25 && ageNum !== null && isBlockedAge(ageNum);
+  const isYoungDriverFee = !driverOver25 && ageNum !== null && isYoungDriver(ageNum);
 
   const handleSearch = () => {
     if (isUnderageBlocked) return;
@@ -51,7 +54,7 @@ const SearchBar = () => {
     if (returnTime) params.set("returnTime", returnTime);
     if (pickupLocation) params.set("pickupLocation", pickupLocation);
     params.set("returnLocation", differentReturnLocation ? returnLocation : pickupLocation);
-    if (!driverOver26 && driverAge) params.set("driverAge", driverAge);
+    if (!driverOver25 && driverAge) params.set("driverAge", driverAge);
     navigate(`/buscar?${params.toString()}`);
   };
 
@@ -275,31 +278,31 @@ const SearchBar = () => {
           {/* Driver age toggle */}
           <div className="flex items-center gap-3">
             <Switch
-              checked={driverOver26}
+              checked={driverOver25}
               onCheckedChange={(checked) => {
-                setDriverOver26(checked);
+                setDriverOver25(checked);
                 if (checked) setDriverAge("");
               }}
               className="data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-muted"
             />
             <UserCheck size={16} className="text-primary" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
-              Condutor tem 26 anos ou mais?
+              Condutor tem 21 anos ou mais?
             </span>
           </div>
 
           <AnimatePresence>
-            {!driverOver26 && (
+            {!driverOver25 && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="overflow-hidden"
+                className="overflow-hidden space-y-2"
               >
                 <div className={cn(
                   "flex items-center gap-2 px-4 py-3 rounded-xl border bg-background/50 w-full sm:w-auto sm:min-w-[280px]",
-                  isUnderageBlocked ? "border-destructive/60" : "border-primary/40"
+                  isUnderageBlocked ? "border-destructive/60" : isYoungDriverFee ? "border-amber-500/50" : "border-primary/40"
                 )}>
                   <UserCheck size={16} className={cn("shrink-0", isUnderageBlocked ? "text-destructive" : "text-primary")} />
                   <div className="min-w-0 flex-1">
@@ -307,21 +310,28 @@ const SearchBar = () => {
                     <input
                       type="number"
                       min="18"
-                      max="25"
+                      max="99"
                       value={driverAge}
                       onChange={(e) => setDriverAge(e.target.value)}
                       placeholder="Ex: 22"
                       className="text-sm text-foreground bg-transparent outline-none w-full placeholder:text-muted-foreground/50"
                     />
                   </div>
-                  {!isUnderageBlocked && (
-                    <span className="text-[10px] text-primary font-semibold whitespace-nowrap">+8% na diária</span>
+                  {isYoungDriverFee && (
+                    <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold whitespace-nowrap">+8% na diária</span>
                   )}
                 </div>
                 {isUnderageBlocked && (
                   <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-destructive/10 border border-destructive/20">
                     <span className="text-xs text-destructive font-medium">
-                      ⚠ Idade mínima para locação: 21 anos. Não é possível prosseguir.
+                      ⚠ Não atendemos condutores menores de 21 anos
+                    </span>
+                  </div>
+                )}
+                {isYoungDriverFee && (
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <span className="text-xs text-amber-700 dark:text-amber-400 font-medium">
+                      Será aplicado young driver fee de +8% na diária
                     </span>
                   </div>
                 )}
