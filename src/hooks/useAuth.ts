@@ -62,7 +62,8 @@ export function useAuth() {
         return;
       }
 
-      if (cachedCustomer && cachedCustomer.userId === currentUser.id) {
+      // Só usa cache se houver customer real cacheado (nunca cacheia null)
+      if (cachedCustomer && cachedCustomer.userId === currentUser.id && cachedCustomer.customer) {
         setCustomer(cachedCustomer.customer);
         setLoading(false);
         return;
@@ -76,7 +77,10 @@ export function useAuth() {
           .eq("user_id", currentUser.id)
           .maybeSingle();
         const rec = (data as CustomerRecord) ?? null;
-        cachedCustomer = { userId: currentUser.id, customer: rec };
+        // Só cacheia se encontrou customer real
+        if (rec) {
+          cachedCustomer = { userId: currentUser.id, customer: rec };
+        }
         if (mounted) {
           setCustomer(rec);
           setLoading(false);
@@ -170,6 +174,20 @@ export function useAuth() {
           complement: extra.complement || null,
         });
         if (insErr) throw new Error("Conta criada, mas falhou ao salvar perfil: " + insErr.message);
+      }
+
+      // Força re-hidratação do customer após INSERT
+      cachedCustomer = null;
+      const { data: { session: refreshedSession } } = await supabase.auth.getSession();
+      if (refreshedSession?.user) {
+        const { data: refreshedCustomer } = await supabase
+          .from("customers")
+          .select("*")
+          .eq("user_id", refreshedSession.user.id)
+          .maybeSingle();
+        if (refreshedCustomer) {
+          cachedCustomer = { userId: refreshedSession.user.id, customer: refreshedCustomer as CustomerRecord };
+        }
       }
     },
     []
