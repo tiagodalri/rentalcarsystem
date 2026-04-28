@@ -1,20 +1,37 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { Check, Upload, Camera, Loader2, User, Mail, Phone, FileText, MapPin, Calendar, Globe } from "lucide-react";
+import { Check, Upload, Camera, Loader2, User, Mail, Phone, FileText, MapPin, Calendar, Globe, Lock, Eye, EyeOff } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 
+const passwordSchema = z
+  .string()
+  .min(8, "Senha precisa de no mínimo 8 caracteres")
+  .regex(/[A-Z]/, "Senha precisa de uma letra maiúscula")
+  .regex(/[a-z]/, "Senha precisa de uma letra minúscula")
+  .regex(/[0-9]/, "Senha precisa de um número");
+
 const CustomerRegistration = () => {
+  const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [form, setForm] = useState({
-    full_name: "", email: "", phone: "", document_number: "",
+    full_name: "", email: "", password: "", confirmPassword: "",
+    phone: "", document_number: "",
     nationality: "", date_of_birth: "", address: "", zip_code: "",
     house_number: "", complement: "",
   });
+  const [showPwd, setShowPwd] = useState(false);
+  const [showPwd2, setShowPwd2] = useState(false);
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [cepLoading, setCepLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const update = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
@@ -45,15 +62,21 @@ const CustomerRegistration = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.full_name.trim()) return toast({ title: "Nome é obrigatório", variant: "destructive" });
-    if (!form.email.trim()) return toast({ title: "E-mail é obrigatório", variant: "destructive" });
-    if (!form.phone.trim()) return toast({ title: "Telefone é obrigatório", variant: "destructive" });
+    setError(null);
+
+    if (!form.full_name.trim()) return setError("Nome é obrigatório.");
+    if (!form.email.trim()) return setError("E-mail é obrigatório.");
+    if (!form.phone.trim()) return setError("Telefone é obrigatório.");
+
+    const pwdParse = passwordSchema.safeParse(form.password);
+    if (!pwdParse.success) return setError(pwdParse.error.errors[0].message);
+    if (form.password !== form.confirmPassword) return setError("As senhas não coincidem.");
 
     setSubmitting(true);
 
     try {
+      // Upload license first (anonymous-friendly bucket); we'll save URL after signup
       let driverLicenseUrl: string | null = null;
-
       if (licenseFile) {
         const ext = licenseFile.name.split(".").pop();
         const path = `licenses/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
@@ -63,42 +86,35 @@ const CustomerRegistration = () => {
         driverLicenseUrl = urlData.publicUrl;
       }
 
-      const email = form.email.trim().toLowerCase();
-      const { data: existing } = await supabase
-        .from("customers").select("id").eq("email", email).maybeSingle();
+      await signUp(form.email, form.password, form.full_name.trim(), {
+        phone: form.phone.trim(),
+        document_number: form.document_number.trim() || undefined,
+        nationality: form.nationality.trim() || undefined,
+        date_of_birth: form.date_of_birth || undefined,
+        address: form.address.trim() || undefined,
+        zip_code: form.zip_code.trim() || undefined,
+        house_number: form.house_number.trim() || undefined,
+        complement: form.complement.trim() || undefined,
+      });
 
-      if (existing) {
-        await supabase.from("customers").update({
-          full_name: form.full_name.trim(),
-          phone: form.phone.trim(),
-          document_number: form.document_number.trim() || null,
-          nationality: form.nationality.trim() || null,
-          date_of_birth: form.date_of_birth || null,
-          address: form.address.trim() || null,
-          house_number: form.house_number.trim() || null,
-          complement: form.complement.trim() || null,
-          zip_code: form.zip_code.trim() || null,
-          ...(driverLicenseUrl ? { driver_license_file_url: driverLicenseUrl } : {}),
-        }).eq("id", existing.id);
-      } else {
-        await supabase.from("customers").insert({
-          full_name: form.full_name.trim(),
-          email,
-          phone: form.phone.trim(),
-          document_number: form.document_number.trim() || null,
-          nationality: form.nationality.trim() || null,
-          date_of_birth: form.date_of_birth || null,
-          address: form.address.trim() || null,
-          house_number: form.house_number.trim() || null,
-          complement: form.complement.trim() || null,
-          zip_code: form.zip_code.trim() || null,
-          driver_license_file_url: driverLicenseUrl,
-        });
+      // Save driver license URL if uploaded (after signUp so user_id exists & RLS allows)
+      if (driverLicenseUrl) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase
+            .from("customers")
+            .update({ driver_license_file_url: driverLicenseUrl })
+            .eq("user_id", user.id);
+        }
       }
 
       setSuccess(true);
+      setTimeout(() => navigate("/minha-conta"), 1500);
     } catch (err: any) {
-      toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
+      const msg = err?.message?.includes("already registered") || err?.message?.includes("already been registered")
+        ? "Este e-mail já está cadastrado. Faça login."
+        : err?.message || "Erro ao cadastrar.";
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -114,15 +130,14 @@ const CustomerRegistration = () => {
           </div>
           <h1 className="text-2xl font-bold text-foreground">Cadastro Realizado!</h1>
           <p className="text-muted-foreground text-sm">
-            Obrigado, <strong>{form.full_name}</strong>! Seus dados foram cadastrados com sucesso.
-            Nossa equipe entrará em contato em breve.
+            Bem-vindo(a), <strong>{form.full_name}</strong>! Redirecionando para sua conta...
           </p>
         </div>
       </div>
     );
   }
 
-  const fields = [
+  const fields: Array<{ key: keyof typeof form; label: string; icon: any; type: string; placeholder: string }> = [
     { key: "full_name", label: "Nome Completo *", icon: User, type: "text", placeholder: "Seu nome completo" },
     { key: "email", label: "E-mail *", icon: Mail, type: "email", placeholder: "seu@email.com" },
     { key: "phone", label: "Celular (WhatsApp) *", icon: Phone, type: "tel", placeholder: "+55 11 99999-0000" },
@@ -145,11 +160,23 @@ const CustomerRegistration = () => {
 
       <div className="container mx-auto px-4 py-10 max-w-lg">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Cadastro de Cliente</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Criar conta</h1>
           <p className="text-sm text-muted-foreground mt-2">
-            Preencha seus dados para agilizar sua experiência conosco.
+            Cadastre-se para reservar veículos e gerenciar suas locações.
+          </p>
+          <p className="text-xs text-muted-foreground/70 mt-3">
+            Já tem conta?{" "}
+            <button onClick={() => navigate("/login")} className="text-primary hover:text-primary/80 font-medium">
+              Entrar
+            </button>
           </p>
         </div>
+
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertDescription className="text-xs">{error}</AlertDescription>
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {fields.map(({ key, label, icon: Icon, type, placeholder }) => (
@@ -161,14 +188,14 @@ const CustomerRegistration = () => {
               <div className="relative">
                 {key === "phone" ? (
                   <PhoneInput
-                    value={(form as any)[key]}
+                    value={form[key]}
                     onChange={(val) => update(key, val)}
                     inputClassName="h-10 px-3 text-sm"
                   />
                 ) : (
                   <input
                     type={type}
-                    value={(form as any)[key]}
+                    value={form[key]}
                     onChange={(e) => {
                       update(key, e.target.value);
                       if (key === "zip_code") lookupCep(e.target.value);
@@ -183,6 +210,58 @@ const CustomerRegistration = () => {
               </div>
             </div>
           ))}
+
+          {/* Password */}
+          <div>
+            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <Lock size={11} className="text-primary/60" />
+              Senha *
+            </label>
+            <div className="relative">
+              <input
+                type={showPwd ? "text" : "password"}
+                value={form.password}
+                onChange={(e) => update("password", e.target.value)}
+                placeholder="••••••••"
+                autoComplete="new-password"
+                className="w-full h-10 pl-3 pr-10 rounded-lg border border-border/40 bg-card text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPwd(!showPwd)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+            <p className="text-[10px] text-muted-foreground/70 mt-1">
+              Mínimo 8 caracteres, com maiúscula, minúscula e número.
+            </p>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <Lock size={11} className="text-primary/60" />
+              Confirmar senha *
+            </label>
+            <div className="relative">
+              <input
+                type={showPwd2 ? "text" : "password"}
+                value={form.confirmPassword}
+                onChange={(e) => update("confirmPassword", e.target.value)}
+                placeholder="••••••••"
+                autoComplete="new-password"
+                className="w-full h-10 pl-3 pr-10 rounded-lg border border-border/40 bg-card text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPwd2(!showPwd2)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPwd2 ? <EyeOff size={14} /> : <Eye size={14} />}
+              </button>
+            </div>
+          </div>
 
           {/* Driver License Upload */}
           <div>
@@ -236,10 +315,10 @@ const CustomerRegistration = () => {
             {submitting ? (
               <>
                 <Loader2 size={14} className="animate-spin" />
-                Enviando...
+                Criando conta...
               </>
             ) : (
-              "Enviar Cadastro"
+              "Criar conta"
             )}
           </button>
         </form>
