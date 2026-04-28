@@ -287,7 +287,7 @@ const SearchBar = () => {
             />
             <UserCheck size={16} className="text-primary" />
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
-              Condutor tem 26 anos ou mais?
+              Condutor tem 21 anos ou mais?
             </span>
           </div>
 
