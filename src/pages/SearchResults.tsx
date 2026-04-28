@@ -1,6 +1,6 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle } from "lucide-react";
+import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
@@ -35,7 +35,7 @@ const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const { formatPrice } = useCurrency();
   const { vehicles: dbVehicles } = useVehiclesDB();
-  const { customer } = useAuth();
+  const { customer, loading: authLoading } = useAuth();
   const vehiclePrices = buildPriceMap(dbVehicles);
 
   // Build vehicles list from DB
@@ -77,6 +77,20 @@ const SearchResults = () => {
       `Olá! Tenho interesse no ${name}.${dateInfo}${returnInfo}\n\nGostaria de mais informações!`
     )}`;
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-12 flex items-center justify-center">
+          <div className="flex items-center gap-3 text-muted-foreground">
+            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+            <span className="text-sm">Carregando...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (blockedByAge) {
     return (

@@ -102,7 +102,7 @@ const BookingDetails = () => {
   const pickupLocation = searchParams.get("pickupLocation") || "";
   const returnLocation = searchParams.get("returnLocation") || pickupLocation;
   const driverAgeParam = searchParams.get("driverAge");
-  const { customer } = useAuth();
+  const { customer, loading: authLoading } = useAuth();
   const effectiveAge: number | null = customer?.date_of_birth
     ? calculateAge(customer.date_of_birth)
     : (driverAgeParam ? parseInt(driverAgeParam) : null);
@@ -419,6 +419,20 @@ const BookingDetails = () => {
           <Link to="/buscar" className="text-primary hover:underline">Voltar à busca</Link>
         </div>
         <Footer />
+      </div>
+    );
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-12 flex items-center justify-center">
+          <div className="flex items-center gap-3 text-muted-foreground">
+            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+            <span className="text-sm">Carregando...</span>
+          </div>
+        </div>
       </div>
     );
   }
