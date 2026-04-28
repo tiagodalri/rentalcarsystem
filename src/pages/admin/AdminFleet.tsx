@@ -192,6 +192,59 @@ export default function AdminFleet() {
                 </div>
               </div>
 
+              {/* Financeiro & Aquisição */}
+              <div className="pt-2">
+                <h3 className="text-xs font-semibold text-primary uppercase tracking-wider mb-3">Financeiro & Aquisição</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Cor</label>
+                    <input
+                      type="text"
+                      value={editing.color ?? ""}
+                      onChange={(e) => setEditing({ ...editing, color: e.target.value })}
+                      placeholder="Ex: Preto"
+                      className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Valor de Compra (USD)</label>
+                    <input
+                      type="number"
+                      value={editing.purchase_price ?? 0}
+                      onChange={(e) => setEditing({ ...editing, purchase_price: Number(e.target.value) })}
+                      className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Data de Aquisição</label>
+                    <input
+                      type="date"
+                      value={editing.acquired_date ?? ""}
+                      onChange={(e) => setEditing({ ...editing, acquired_date: e.target.value || null })}
+                      className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Odômetro Inicial (mi)</label>
+                    <input
+                      type="number"
+                      value={editing.initial_odometer ?? 0}
+                      onChange={(e) => setEditing({ ...editing, initial_odometer: Number(e.target.value) })}
+                      className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Odômetro Atual (mi)</label>
+                    <input
+                      type="number"
+                      value={editing.current_odometer ?? 0}
+                      onChange={(e) => setEditing({ ...editing, current_odometer: Number(e.target.value) })}
+                      className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Status</label>
                 <select
