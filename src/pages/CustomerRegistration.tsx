@@ -75,17 +75,7 @@ const CustomerRegistration = () => {
     setSubmitting(true);
 
     try {
-      // Upload license first (anonymous-friendly bucket); we'll save URL after signup
-      let driverLicenseUrl: string | null = null;
-      if (licenseFile) {
-        const ext = licenseFile.name.split(".").pop();
-        const path = `licenses/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("inspections").upload(path, licenseFile);
-        if (uploadError) throw uploadError;
-        const { data: urlData } = supabase.storage.from("inspections").getPublicUrl(path);
-        driverLicenseUrl = urlData.publicUrl;
-      }
-
+      // 1. Sign up first — creates auth user, authenticates, links/creates customer row
       await signUp(form.email, form.password, form.full_name.trim(), {
         phone: form.phone.trim(),
         document_number: form.document_number.trim() || undefined,
@@ -97,14 +87,31 @@ const CustomerRegistration = () => {
         complement: form.complement.trim() || undefined,
       });
 
-      // Save driver license URL if uploaded (after signUp so user_id exists & RLS allows)
-      if (driverLicenseUrl) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
+      // 2. Upload CNH AFTER signup so RLS sees an authenticated user.
+      // If upload fails, don't fail the whole signup — just warn the user.
+      if (licenseFile) {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) throw new Error("Sessão não encontrada após cadastro.");
+
+          const ext = licenseFile.name.split(".").pop();
+          const path = `licenses/${user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+          const { error: uploadError } = await supabase.storage
+            .from("inspections")
+            .upload(path, licenseFile);
+          if (uploadError) throw uploadError;
+
+          const { data: urlData } = supabase.storage.from("inspections").getPublicUrl(path);
           await supabase
             .from("customers")
-            .update({ driver_license_file_url: driverLicenseUrl })
+            .update({ driver_license_file_url: urlData.publicUrl })
             .eq("user_id", user.id);
+        } catch (uploadErr: any) {
+          console.error("CNH upload failed:", uploadErr);
+          toast({
+            title: "Conta criada com sucesso",
+            description: "A foto da CNH não pôde ser anexada. Tente novamente em Minha Conta.",
+          });
         }
       }
 
