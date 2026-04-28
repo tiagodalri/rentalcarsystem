@@ -62,13 +62,13 @@ const SearchBar = () => {
       transition={{ duration: 0.8, delay: 1 }}
       className="mt-6 md:mt-10 w-full max-w-5xl mx-auto"
     >
-      <div className="glass-card p-4 sm:p-5 md:p-7 rounded-2xl border border-border/15">
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3.5">
+      <div className="glass-card p-3 sm:p-5 md:p-7 rounded-2xl border border-border/15">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3.5">
           {/* Pickup Date */}
           <Popover open={openPicker === "pickupDate"} onOpenChange={(o) => setOpenPicker(o ? "pickupDate" : null)}>
             <PopoverTrigger asChild>
               <button className={cn(
-                "flex items-center gap-2 px-4 py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full",
+                "flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full",
                 pickupDate && "border-primary/30"
               )}>
                 <CalendarIcon size={16} className="text-primary shrink-0" />
@@ -95,7 +95,7 @@ const SearchBar = () => {
           {/* Pickup Time */}
           <Popover open={openPicker === "pickupTime"} onOpenChange={(o) => setOpenPicker(o ? "pickupTime" : null)}>
             <PopoverTrigger asChild>
-              <button className="flex items-center gap-2 px-4 py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full">
+              <button className="flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full">
                 <Clock size={16} className="text-primary shrink-0" />
                 <div className="min-w-0">
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Horário Retirada</p>
@@ -123,7 +123,7 @@ const SearchBar = () => {
           <Popover open={openPicker === "pickupLoc"} onOpenChange={(o) => setOpenPicker(o ? "pickupLoc" : null)}>
             <PopoverTrigger asChild>
               <button className={cn(
-                "flex items-center gap-2 px-4 py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full",
+                "flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full",
                 pickupLocation && "border-primary/30"
               )}>
                 <MapPin size={16} className="text-primary shrink-0" />
@@ -153,7 +153,7 @@ const SearchBar = () => {
           <Popover open={openPicker === "returnDate"} onOpenChange={(o) => setOpenPicker(o ? "returnDate" : null)}>
             <PopoverTrigger asChild>
               <button className={cn(
-                "flex items-center gap-2 px-4 py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full",
+                "flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full",
                 returnDate && "border-primary/30"
               )}>
                 <CalendarIcon size={16} className="text-primary shrink-0" />
@@ -180,7 +180,7 @@ const SearchBar = () => {
           {/* Return Time */}
           <Popover open={openPicker === "returnTime"} onOpenChange={(o) => setOpenPicker(o ? "returnTime" : null)}>
             <PopoverTrigger asChild>
-              <button className="flex items-center gap-2 px-4 py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full">
+              <button className="flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full">
                 <Clock size={16} className="text-primary shrink-0" />
                 <div className="min-w-0">
                   <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Horário Devolução</p>
@@ -208,7 +208,7 @@ const SearchBar = () => {
           <Button
             onClick={handleSearch}
             disabled={isUnderageBlocked}
-            className="gold-gradient text-primary-foreground font-bold uppercase tracking-widest h-auto py-3 rounded-xl hover:opacity-90 transition-opacity text-sm gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="gold-gradient text-primary-foreground font-bold uppercase tracking-widest h-auto py-3 rounded-xl hover:opacity-90 transition-opacity text-sm gap-2 disabled:opacity-40 disabled:cursor-not-allowed col-span-2 lg:col-span-1"
           >
             <Search size={16} />
             Buscar
@@ -243,7 +243,7 @@ const SearchBar = () => {
                 <Popover open={openPicker === "returnLoc"} onOpenChange={(o) => setOpenPicker(o ? "returnLoc" : null)}>
                   <PopoverTrigger asChild>
                     <button className={cn(
-                      "flex items-center gap-2 px-4 py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full sm:w-auto sm:min-w-[280px]",
+                      "flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full sm:w-auto sm:min-w-[280px]",
                       returnLocation && "border-primary/30"
                     )}>
                       <MapPin size={16} className="text-primary shrink-0" />

@@ -94,7 +94,7 @@ const BookingDetailClient = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto max-w-5xl px-4 pt-24 pb-16">
+      <div className="container mx-auto max-w-5xl px-3 sm:px-4 pt-20 sm:pt-24 pb-16">
         {/* Back */}
         <button
           onClick={() => navigate("/minha-conta")}

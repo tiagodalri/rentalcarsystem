@@ -38,7 +38,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-lg sm:text-2xl md:text-3xl lg:text-5xl font-black uppercase tracking-tight leading-tight max-w-5xl"
+          className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-black uppercase tracking-tight leading-[1.15] max-w-5xl px-2"
         >
           {t.hero.title}
           <span className="gold-text">{t.hero.titleHighlight}</span>
@@ -49,7 +49,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="text-[11px] sm:text-base md:text-lg lg:text-xl text-muted-foreground font-light tracking-wide max-w-2xl italic whitespace-nowrap"
+          className="text-xs sm:text-base md:text-lg lg:text-xl text-muted-foreground font-light tracking-wide max-w-2xl italic px-3 leading-relaxed"
         >
           {t.hero.subtitle}
         </motion.p>
@@ -59,11 +59,11 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-col sm:flex-row gap-3 justify-center"
+          className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center w-full max-w-sm sm:max-w-none px-4 sm:px-0"
         >
           <a
             href="#frota"
-            className="gold-gradient text-primary-foreground px-7 py-3 md:px-9 md:py-4 rounded-xl text-xs md:text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-lg shadow-primary/15"
+            className="gold-gradient text-primary-foreground px-6 py-3 md:px-9 md:py-4 rounded-xl text-xs md:text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-lg shadow-primary/15 text-center"
           >
             {t.hero.exploreFleet}
           </a>
@@ -71,7 +71,7 @@ const HeroSection = () => {
             href={`https://wa.me/16892981754?text=${encodeURIComponent("Olá, venho do site da Zeus e gostaria de realizar uma reserva!")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="border-2 border-primary/60 text-primary px-7 py-3 md:px-9 md:py-4 rounded-xl text-xs md:text-sm font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300 backdrop-blur-sm"
+            className="border-2 border-primary/60 text-primary px-6 py-3 md:px-9 md:py-4 rounded-xl text-xs md:text-sm font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300 backdrop-blur-sm text-center"
           >
             {t.hero.contactUs}
           </a>
