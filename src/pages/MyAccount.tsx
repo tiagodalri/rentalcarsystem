@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Car, CheckCircle, Clock, CalendarDays } from "lucide-react";
@@ -16,15 +16,11 @@ const formatShortDate = (iso: string) => {
 };
 
 const MyAccount = () => {
-  const { isLoggedIn, user, logout } = useAuth();
+  const { user, customer, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState("all");
 
-  useEffect(() => {
-    if (!isLoggedIn) navigate("/login", { replace: true });
-  }, [isLoggedIn, navigate]);
-
-  if (!isLoggedIn || !user) return null;
+  if (loading || !user) return null;
 
   const activeBooking = mockBookings.find((b) => b.status === "active" || b.status === "in_progress");
   const completedCount = mockBookings.filter((b) => b.status === "completed").length;
@@ -45,10 +41,12 @@ const MyAccount = () => {
     (a, b) => new Date(b.pickupDate).getTime() - new Date(a.pickupDate).getTime()
   );
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
     navigate("/");
   };
+
+  const profileIncomplete = !customer || !customer.phone || !customer.document_number;
 
   const stats = [
     { icon: Car, label: "Total de reservas", value: mockBookings.length.toString() },
@@ -72,6 +70,23 @@ const MyAccount = () => {
       <div className="container mx-auto max-w-5xl px-3 sm:px-4 pt-20 sm:pt-24 pb-16">
         {/* Header */}
         <ClientHeader user={user} onLogout={handleLogout} />
+
+        {profileIncomplete && (
+          <div className="mt-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-500">Complete seu cadastro</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Para reservar veículos, precisamos de telefone, documento e endereço.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/cadastro")}
+              className="text-xs font-bold uppercase tracking-wider gold-gradient text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Completar agora
+            </button>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">

@@ -34,6 +34,8 @@ import AdminFinance from "./pages/admin/AdminFinance.tsx";
 import AdminTeam from "./pages/admin/AdminTeam.tsx";
 import BookingConfirmed from "./pages/BookingConfirmed.tsx";
 import CustomerRegistration from "./pages/CustomerRegistration.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
+import RequireAuth from "./components/RequireAuth.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,8 +63,9 @@ const App = () => (
               <Route path="/reserva/confirmada" element={<BookingConfirmed />} />
               <Route path="/cadastro" element={<CustomerRegistration />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/minha-conta" element={<MyAccount />} />
-              <Route path="/minha-conta/reserva/:bookingId" element={<BookingDetailClient />} />
+              <Route path="/redefinir-senha" element={<ResetPassword />} />
+              <Route path="/minha-conta" element={<RequireAuth><MyAccount /></RequireAuth>} />
+              <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><BookingDetailClient /></RequireAuth>} />
 
               {/* Admin routes */}
               <Route path="/admin/login" element={<AdminLogin />} />

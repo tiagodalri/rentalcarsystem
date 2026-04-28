@@ -21,7 +21,7 @@ const Navbar = () => {
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme } = useThemeMode();
   const navigate = useNavigate();
-  const { isLoggedIn, user } = useAuth();
+  const { isLoggedIn, user, loading: authLoading } = useAuth();
   const { currency, toggleCurrency } = useCurrency();
 
   const toggleFullscreen = () => {
@@ -163,7 +163,9 @@ const Navbar = () => {
             className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors duration-300"
             title={t.nav.myBookings}
           >
-            {isLoggedIn && user ? (
+            {authLoading ? (
+              <span className="w-6 h-6 rounded-full bg-muted animate-pulse" />
+            ) : isLoggedIn && user ? (
               <>
                 <span className="w-6 h-6 rounded-full gold-gradient flex items-center justify-center text-primary-foreground text-[10px] font-bold">
                   {user.name.charAt(0)}
