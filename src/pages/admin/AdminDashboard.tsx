@@ -1,24 +1,41 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { CalendarRange, Car, Users, DollarSign, TrendingUp, Clock } from "lucide-react";
+import {
+  CalendarRange, Car, Users, DollarSign, TrendingUp, Clock,
+  CheckCircle2, Wrench, Gauge, Calculator, Percent,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface DashboardStats {
   totalBookings: number;
   activeBookings: number;
+  pendingBookings: number;
+  totalCustomers: number;
   totalVehicles: number;
   availableVehicles: number;
-  totalCustomers: number;
+  maintenanceVehicles: number;
+  avgOdometer: number;
+  totalInvestment: number;
   totalRevenue: number;
-  pendingBookings: number;
+  avgCostPerCar: number;
+  roiPct: number | null;
 }
+
+type StatCard = {
+  label: string;
+  value: string | number;
+  icon: typeof Car;
+  color: string;
+  onClick: () => void;
+};
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
-    totalBookings: 0, activeBookings: 0, totalVehicles: 0,
-    availableVehicles: 0, totalCustomers: 0, totalRevenue: 0, pendingBookings: 0,
+    totalBookings: 0, activeBookings: 0, pendingBookings: 0, totalCustomers: 0,
+    totalVehicles: 0, availableVehicles: 0, maintenanceVehicles: 0, avgOdometer: 0,
+    totalInvestment: 0, totalRevenue: 0, avgCostPerCar: 0, roiPct: null,
   });
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,14 +52,32 @@ export default function AdminDashboard() {
       const vList = vehicles.data || [];
       const cList = customers.data || [];
 
+      const totalRevenue = bList.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
+      const totalInvestment = vList.reduce((sum, v) => sum + (Number(v.purchase_price) || 0), 0);
+      const vehiclesWithPurchase = vList.filter((v) => Number(v.purchase_price) > 0);
+      const avgCostPerCar = vehiclesWithPurchase.length > 0
+        ? totalInvestment / vehiclesWithPurchase.length
+        : 0;
+      const roiPct = totalInvestment > 0 ? (totalRevenue / totalInvestment) * 100 : null;
+
+      const vehiclesWithOdo = vList.filter((v) => Number(v.current_odometer) > 0);
+      const avgOdometer = vehiclesWithOdo.length > 0
+        ? vehiclesWithOdo.reduce((s, v) => s + Number(v.current_odometer), 0) / vehiclesWithOdo.length
+        : 0;
+
       setStats({
         totalBookings: bList.length,
         activeBookings: bList.filter((b) => b.status === "confirmed" || b.status === "active" || b.status === "in_progress").length,
         pendingBookings: bList.filter((b) => b.status === "pending").length,
+        totalCustomers: cList.length,
         totalVehicles: vList.length,
         availableVehicles: vList.filter((v) => v.status === "available").length,
-        totalCustomers: cList.length,
-        totalRevenue: bList.reduce((sum, b) => sum + (b.total_price || 0), 0),
+        maintenanceVehicles: vList.filter((v) => v.status === "maintenance" || v.status === "preparing").length,
+        avgOdometer,
+        totalInvestment,
+        totalRevenue,
+        avgCostPerCar,
+        roiPct,
       });
 
       setRecentBookings(bList.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 8));
@@ -51,14 +86,63 @@ export default function AdminDashboard() {
     load();
   }, []);
 
-  const cards = [
-    { label: "Reservas Totais", value: stats.totalBookings, icon: CalendarRange, color: "text-primary" },
-    { label: "Ativas / Em Andamento", value: stats.activeBookings, icon: TrendingUp, color: "text-emerald-500" },
-    { label: "Pendentes", value: stats.pendingBookings, icon: Clock, color: "text-yellow-500" },
-    { label: "Veículos Disponíveis", value: `${stats.availableVehicles}/${stats.totalVehicles}`, icon: Car, color: "text-blue-400" },
-    { label: "Clientes", value: stats.totalCustomers, icon: Users, color: "text-purple-400" },
-    { label: "Receita Total", value: `$${stats.totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, icon: DollarSign, color: "text-primary" },
+  const fmtUSD = (n: number) =>
+    `$${n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const fmtNum = (n: number) => Math.round(n).toLocaleString("pt-BR");
+
+  const goBookings = () => navigate("/admin/bookings");
+  const goCustomers = () => navigate("/admin/customers");
+  const goFleet = () => navigate("/admin/fleet");
+  const goFinance = () => navigate("/admin/finance");
+
+  const operationalCards: StatCard[] = [
+    { label: "Reservas Totais", value: stats.totalBookings, icon: CalendarRange, color: "text-primary", onClick: goBookings },
+    { label: "Ativas / Em Andamento", value: stats.activeBookings, icon: TrendingUp, color: "text-emerald-500", onClick: goBookings },
+    { label: "Pendentes", value: stats.pendingBookings, icon: Clock, color: "text-yellow-500", onClick: goBookings },
+    { label: "Clientes", value: stats.totalCustomers, icon: Users, color: "text-purple-400", onClick: goCustomers },
   ];
+
+  const fleetCards: StatCard[] = [
+    { label: "Total de Veículos", value: stats.totalVehicles, icon: Car, color: "text-blue-400", onClick: goFleet },
+    { label: "Disponíveis", value: stats.availableVehicles, icon: CheckCircle2, color: "text-emerald-500", onClick: goFleet },
+    { label: "Em Manutenção", value: stats.maintenanceVehicles, icon: Wrench, color: "text-yellow-500", onClick: goFleet },
+    { label: "Km Média", value: `${fmtNum(stats.avgOdometer)} mi`, icon: Gauge, color: "text-foreground", onClick: goFleet },
+  ];
+
+  const financeCards: StatCard[] = [
+    { label: "Investimento Total", value: fmtUSD(stats.totalInvestment), icon: DollarSign, color: "text-primary", onClick: goFleet },
+    { label: "Receita Total", value: fmtUSD(stats.totalRevenue), icon: TrendingUp, color: "text-emerald-500", onClick: goFinance },
+    { label: "Custo Médio/Carro", value: fmtUSD(stats.avgCostPerCar), icon: Calculator, color: "text-foreground", onClick: goFleet },
+    {
+      label: "ROI da Frota",
+      value: stats.roiPct === null ? "—" : `${stats.roiPct.toFixed(1)}%`,
+      icon: Percent,
+      color: stats.roiPct !== null && stats.roiPct >= 100 ? "text-emerald-500" : "text-yellow-500",
+      onClick: goFleet,
+    },
+  ];
+
+  const renderCardGrid = (cards: StatCard[]) => (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {cards.map((card) => (
+        <Card
+          key={card.label}
+          onClick={card.onClick}
+          className="bg-card/80 border-border/30 hover:border-primary/30 hover:bg-card/95 transition-all duration-200 cursor-pointer"
+        >
+          <CardContent className="p-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium leading-tight">{card.label}</p>
+              <card.icon className={`h-4 w-4 ${card.color} opacity-50`} />
+            </div>
+            <p className={`text-xl font-bold tabular-nums ${card.color}`}>
+              {loading ? "—" : card.value}
+            </p>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 
   const statusMap: Record<string, { label: string; className: string }> = {
     pending: { label: "Pendente", className: "bg-yellow-500/10 text-yellow-600 border border-yellow-500/20" },
@@ -76,22 +160,23 @@ export default function AdminDashboard() {
         <p className="text-sm text-muted-foreground mt-1">Visão geral do sistema Zeus Rental Car</p>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {cards.map((card) => (
-          <Card key={card.label} className="bg-card/80 border-border/30 hover:border-primary/20 transition-all duration-200">
-            <CardContent className="p-4 flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium leading-tight">{card.label}</p>
-                <card.icon className={`h-4 w-4 ${card.color} opacity-50`} />
-              </div>
-              <p className={`text-xl font-bold ${card.color}`}>
-                {loading ? "—" : card.value}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {/* Bloco 1 — Operacional */}
+      <section className="space-y-3">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Operacional</h2>
+        {renderCardGrid(operationalCards)}
+      </section>
+
+      {/* Bloco 2 — Frota */}
+      <section className="space-y-3">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Frota</h2>
+        {renderCardGrid(fleetCards)}
+      </section>
+
+      {/* Bloco 3 — Financeiro */}
+      <section className="space-y-3">
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Financeiro</h2>
+        {renderCardGrid(financeCards)}
+      </section>
 
       {/* Recent bookings */}
       <Card className="bg-card/80 border-border/30">
