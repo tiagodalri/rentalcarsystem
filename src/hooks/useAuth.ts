@@ -62,7 +62,8 @@ export function useAuth() {
         return;
       }
 
-      if (cachedCustomer && cachedCustomer.userId === currentUser.id) {
+      // Só usa cache se houver customer real cacheado (nunca cacheia null)
+      if (cachedCustomer && cachedCustomer.userId === currentUser.id && cachedCustomer.customer) {
         setCustomer(cachedCustomer.customer);
         setLoading(false);
         return;
@@ -76,7 +77,10 @@ export function useAuth() {
           .eq("user_id", currentUser.id)
           .maybeSingle();
         const rec = (data as CustomerRecord) ?? null;
-        cachedCustomer = { userId: currentUser.id, customer: rec };
+        // Só cacheia se encontrou customer real
+        if (rec) {
+          cachedCustomer = { userId: currentUser.id, customer: rec };
+        }
         if (mounted) {
           setCustomer(rec);
           setLoading(false);
