@@ -208,7 +208,7 @@ const SearchBar = () => {
           <Button
             onClick={handleSearch}
             disabled={isUnderageBlocked}
-            className="gold-gradient text-primary-foreground font-bold uppercase tracking-widest h-auto py-3 rounded-xl hover:opacity-90 transition-opacity text-sm gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="gold-gradient text-primary-foreground font-bold uppercase tracking-widest h-auto py-3 rounded-xl hover:opacity-90 transition-opacity text-sm gap-2 disabled:opacity-40 disabled:cursor-not-allowed col-span-2 lg:col-span-1"
           >
             <Search size={16} />
             Buscar
