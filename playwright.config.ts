@@ -26,9 +26,9 @@ export default defineConfig({
     timeout: 60_000,
   },
   projects: [
-    { name: "admin",      use: { ...devices["Desktop Chrome"], storageState: "e2e/.auth/admin.json" } },
-    { name: "finance",    use: { ...devices["Desktop Chrome"], storageState: "e2e/.auth/finance.json" } },
-    { name: "operations", use: { ...devices["Desktop Chrome"], storageState: "e2e/.auth/operations.json" } },
-    { name: "support",    use: { ...devices["Desktop Chrome"], storageState: "e2e/.auth/support.json" } },
+    { name: "admin",      use: { ...devices["Desktop Chrome"], storageState: "e2e/.auth/admin.json",      launchOptions: { executablePath: process.env.CHROMIUM_PATH || "/bin/chromium" } } },
+    { name: "finance",    use: { ...devices["Desktop Chrome"], storageState: "e2e/.auth/finance.json",    launchOptions: { executablePath: process.env.CHROMIUM_PATH || "/bin/chromium" } } },
+    { name: "operations", use: { ...devices["Desktop Chrome"], storageState: "e2e/.auth/operations.json", launchOptions: { executablePath: process.env.CHROMIUM_PATH || "/bin/chromium" } } },
+    { name: "support",    use: { ...devices["Desktop Chrome"], storageState: "e2e/.auth/support.json",    launchOptions: { executablePath: process.env.CHROMIUM_PATH || "/bin/chromium" } } },
   ],
 });

@@ -12,7 +12,7 @@ const ACCOUNTS = [
 ];
 
 export default async function globalSetup(_config: FullConfig) {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/bin/chromium" });
   try {
     for (const acc of ACCOUNTS) {
       const ctx = await browser.newContext({ baseURL: BASE_URL });
