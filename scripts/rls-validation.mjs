@@ -285,23 +285,64 @@ function printReport() {
   return failed.length === 0;
 }
 
+async function cleanupInsertedRows() {
+  if (insertedRows.length === 0) {
+    log("\n🧹 Cleanup: nada a limpar (nenhum INSERT bem-sucedido).");
+    return;
+  }
+  log(`\n🧹 Cleanup: removendo ${insertedRows.length} linha(s) criada(s) durante os testes...`);
+  const admin = ACCOUNTS.find((a) => a.role === "admin");
+  let client;
+  try {
+    ({ client } = await loginAccount(admin));
+  } catch (e) {
+    log(`   ⚠️  Falha ao logar como admin para cleanup: ${e.message}`);
+    return;
+  }
+  // Agrupa por tabela
+  const byTable = insertedRows.reduce((acc, r) => {
+    (acc[r.table] ||= []).push(r.id);
+    return acc;
+  }, {});
+  for (const [table, ids] of Object.entries(byTable)) {
+    const { error } = await client.from(table).delete().in("id", ids);
+    if (error) {
+      log(`   ❌ ${table}: falhou (${error.message}) — ids: ${ids.join(", ")}`);
+    } else {
+      log(`   ✅ ${table}: ${ids.length} removida(s)`);
+    }
+  }
+  await client.auth.signOut();
+}
+
 async function main() {
   log("🔒 RLS Validation — 4 sessões reais contra o Supabase");
   log("\n📊 Coletando contagens base (como admin)...");
-  const adminCounts = await collectAdminCounts();
-  for (const [t, c] of Object.entries(adminCounts)) log(`   ${t}: ${c} linhas`);
+  let exitCode = 0;
+  try {
+    const adminCounts = await collectAdminCounts();
+    for (const [t, c] of Object.entries(adminCounts)) log(`   ${t}: ${c} linhas`);
 
-  for (const acc of ACCOUNTS) {
-    try {
-      await runForAccount(acc, adminCounts);
-    } catch (e) {
-      log(`💥 Erro fatal em ${acc.role}: ${e.message}`);
-      process.exit(2);
+    for (const acc of ACCOUNTS) {
+      try {
+        await runForAccount(acc, adminCounts);
+      } catch (e) {
+        log(`💥 Erro fatal em ${acc.role}: ${e.message}`);
+        exitCode = 2;
+        break;
+      }
     }
+    if (exitCode === 0) {
+      const ok = printReport();
+      exitCode = ok ? 0 : 1;
+    }
+  } finally {
+    // SEMPRE limpa, mesmo em caso de falha/erro
+    await cleanupInsertedRows();
   }
-  const ok = printReport();
-  process.exit(ok ? 0 : 1);
+  process.exit(exitCode);
 }
 
 main();
+
 
