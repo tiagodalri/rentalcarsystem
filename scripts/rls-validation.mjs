@@ -179,10 +179,16 @@ async function trySelect(client, table, adminCount) {
   return "allowed";
 }
 
+// Track inserted rows for cleanup: { table, id }[]
+const insertedRows = [];
+
 /** Returns "allowed" | "denied" | "error" */
 async function tryInsert(client, table, row) {
-  const { error } = await client.from(table).insert(row).select().limit(1);
-  if (!error) return "allowed";
+  const { data, error } = await client.from(table).insert(row).select("id").limit(1);
+  if (!error) {
+    if (data && data[0]?.id) insertedRows.push({ table, id: data[0].id });
+    return "allowed";
+  }
   if (error.code === "42501" || /row-level security|new row violates/i.test(error.message)) {
     return "denied";
   }
