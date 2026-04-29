@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
-// Cache admin role check to avoid redundant RPC calls
-let cachedAdminResult: { userId: string; isAdmin: boolean } | null = null;
+export type AppRole = "admin" | "finance" | "operations" | "support";
+
+// Module-level cache of roles per user
+let cachedRoles: { userId: string; roles: AppRole[] } | null = null;
 
 export function useAdminAuth() {
   const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const initialCheckDone = useRef(false);
@@ -16,42 +18,45 @@ export function useAdminAuth() {
   useEffect(() => {
     let mounted = true;
 
-    const checkRole = async (currentUser: User | null) => {
+    const loadRoles = async (currentUser: User | null) => {
       if (!currentUser) {
-        if (mounted) { setUser(null); setIsAdmin(false); setLoading(false); }
+        if (mounted) { setUser(null); setRoles([]); setLoading(false); }
         return;
       }
 
       if (mounted) setUser(currentUser);
 
-      // Use cached result if same user
-      if (cachedAdminResult && cachedAdminResult.userId === currentUser.id) {
-        if (mounted) { setIsAdmin(cachedAdminResult.isAdmin); setLoading(false); }
+      if (cachedRoles && cachedRoles.userId === currentUser.id) {
+        if (mounted) { setRoles(cachedRoles.roles); setLoading(false); }
         return;
       }
 
-      const { data } = await supabase.rpc("has_role", {
-        _user_id: currentUser.id,
-        _role: "admin",
-      });
-      const result = !!data;
-      cachedAdminResult = { userId: currentUser.id, isAdmin: result };
-      if (mounted) { setIsAdmin(result); setLoading(false); }
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", currentUser.id);
+
+      const rs = ((data || []) as { role: AppRole }[])
+        .map((r) => r.role)
+        .filter((r): r is AppRole =>
+          r === "admin" || r === "finance" || r === "operations" || r === "support"
+        );
+
+      cachedRoles = { userId: currentUser.id, roles: rs };
+      if (mounted) { setRoles(rs); setLoading(false); }
     };
 
-    // Initial session check
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!initialCheckDone.current) {
         initialCheckDone.current = true;
-        checkRole(session?.user ?? null);
+        loadRoles(session?.user ?? null);
       }
     });
 
-    // Listen for auth changes (sign in/out only, skip INITIAL_SESSION)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "INITIAL_SESSION") return;
-      cachedAdminResult = null; // Invalidate cache on auth change
-      checkRole(session?.user ?? null);
+      cachedRoles = null;
+      loadRoles(session?.user ?? null);
     });
 
     return () => {
@@ -61,16 +66,20 @@ export function useAdminAuth() {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    cachedAdminResult = null;
+    cachedRoles = null;
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
   };
 
   const signOut = async () => {
-    cachedAdminResult = null;
+    cachedRoles = null;
     await supabase.auth.signOut();
     navigate("/admin/login");
   };
 
-  return { user, isAdmin, loading, signIn, signOut };
+  const hasRole = (r: AppRole) => roles.includes(r);
+  const hasAny = (rs: AppRole[]) => rs.some((r) => roles.includes(r));
+  const isAdmin = roles.includes("admin");
+
+  return { user, roles, isAdmin, hasRole, hasAny, loading, signIn, signOut };
 }

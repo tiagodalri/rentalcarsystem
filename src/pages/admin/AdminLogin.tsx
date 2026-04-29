@@ -7,17 +7,17 @@ import zeusLogo from "@/assets/zeus-logo-hd.png";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const { user, isAdmin, loading, signIn } = useAdminAuth();
+  const { user, roles, loading, signIn } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!loading && user && isAdmin) {
+    if (!loading && user && roles.length > 0) {
       navigate("/admin", { replace: true });
     }
-  }, [loading, user, isAdmin, navigate]);
+  }, [loading, user, roles, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

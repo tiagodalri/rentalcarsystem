@@ -36,6 +36,7 @@ import BookingConfirmed from "./pages/BookingConfirmed.tsx";
 import CustomerRegistration from "./pages/CustomerRegistration.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
+import { RequireRole } from "./components/admin/RequireRole.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -70,22 +71,22 @@ const App = () => (
               {/* Admin routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="bookings" element={<AdminBookings />} />
-                <Route path="bookings/:bookingId" element={<AdminBookingDetail />} />
-                <Route path="live" element={<AdminLive />} />
-                <Route path="fleet" element={<AdminFleet />} />
-                <Route path="customers" element={<AdminCustomers />} />
-                <Route path="customers/:customerId" element={<AdminCustomerDetail />} />
-                <Route path="settings" element={<AdminSettings />} />
-                <Route path="inspection/:bookingId" element={<AdminInspection />} />
-                <Route path="inspection/compare/:bookingId" element={<AdminInspectionCompare />} />
-                <Route path="vehicle-history/:vehicleId" element={<AdminVehicleHistory />} />
-                <Route path="fleet/:vehicleId" element={<AdminVehicleDetail />} />
-                <Route path="report" element={<AdminFleetReport />} />
-                <Route path="report/fleet-pnl" element={<AdminFleetPnL />} />
-                <Route path="finance" element={<AdminFinance />} />
-                <Route path="team" element={<AdminTeam />} />
+                <Route index element={<RequireRole roles={["admin","finance","operations","support"]}><AdminDashboard /></RequireRole>} />
+                <Route path="bookings" element={<RequireRole roles={["admin","operations","support"]}><AdminBookings /></RequireRole>} />
+                <Route path="bookings/:bookingId" element={<RequireRole roles={["admin","operations","support"]}><AdminBookingDetail /></RequireRole>} />
+                <Route path="live" element={<RequireRole roles={["admin","operations"]}><AdminLive /></RequireRole>} />
+                <Route path="fleet" element={<RequireRole roles={["admin","operations"]}><AdminFleet /></RequireRole>} />
+                <Route path="customers" element={<RequireRole roles={["admin","operations","support"]}><AdminCustomers /></RequireRole>} />
+                <Route path="customers/:customerId" element={<RequireRole roles={["admin","operations","support"]}><AdminCustomerDetail /></RequireRole>} />
+                <Route path="settings" element={<RequireRole roles={["admin"]}><AdminSettings /></RequireRole>} />
+                <Route path="inspection/:bookingId" element={<RequireRole roles={["admin","operations"]}><AdminInspection /></RequireRole>} />
+                <Route path="inspection/compare/:bookingId" element={<RequireRole roles={["admin","operations"]}><AdminInspectionCompare /></RequireRole>} />
+                <Route path="vehicle-history/:vehicleId" element={<RequireRole roles={["admin","finance","operations"]}><AdminVehicleHistory /></RequireRole>} />
+                <Route path="fleet/:vehicleId" element={<RequireRole roles={["admin","operations"]}><AdminVehicleDetail /></RequireRole>} />
+                <Route path="report" element={<RequireRole roles={["admin","finance"]}><AdminFleetReport /></RequireRole>} />
+                <Route path="report/fleet-pnl" element={<RequireRole roles={["admin","finance"]}><AdminFleetPnL /></RequireRole>} />
+                <Route path="finance" element={<RequireRole roles={["admin","finance"]}><AdminFinance /></RequireRole>} />
+                <Route path="team" element={<RequireRole roles={["admin"]}><AdminTeam /></RequireRole>} />
               </Route>
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
