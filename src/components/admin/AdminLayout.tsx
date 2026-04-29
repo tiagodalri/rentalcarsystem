@@ -8,14 +8,14 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import MinimalFooter from "@/components/MinimalFooter";
 
 export default function AdminLayout() {
-  const { user, isAdmin, loading, signOut } = useAdminAuth();
+  const { user, roles, loading, signOut } = useAdminAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
+    if (!loading && (!user || roles.length === 0)) {
       navigate("/admin/login", { replace: true });
     }
-  }, [loading, user, isAdmin, navigate]);
+  }, [loading, user, roles, navigate]);
 
   if (loading) {
     return (
