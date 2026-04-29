@@ -232,7 +232,7 @@ export default function AdminTeam() {
     total: members.length,
     active: members.filter((m) => m.is_active).length,
     admins: members.filter((m) => m.role === "admin").length,
-    agents: members.filter((m) => m.role === "agent").length,
+    agents: members.filter((m) => m.role === "support").length,
   };
 
   const perms = getPerms();
