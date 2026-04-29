@@ -72,6 +72,21 @@ type TeamMember = {
   notes: string | null;
   permissions: Permissions | null;
   created_at: string;
+  last_login_at: string | null;
+};
+
+const formatLastLogin = (iso: string | null): string => {
+  if (!iso) return "Nunca acessou";
+  const d = new Date(iso);
+  const diffMs = Date.now() - d.getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "Agora mesmo";
+  if (mins < 60) return `Há ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `Há ${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `Há ${days}d`;
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 };
 
 const roleLabels: Record<string, string> = {
@@ -535,6 +550,11 @@ export default function AdminTeam() {
                         <span className="text-[9px] text-muted-foreground/60">{capCount} funções</span>
                       </>
                     )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5 mb-2 text-[10px] text-muted-foreground/70">
+                    <span className={`inline-block w-1.5 h-1.5 rounded-full ${m.last_login_at ? "bg-emerald-500" : "bg-muted-foreground/30"}`} />
+                    <span className="tabular-nums">Último acesso: {formatLastLogin(m.last_login_at)}</span>
                   </div>
 
                   {m.notes && <p className="text-[10px] text-muted-foreground/60 mb-3 line-clamp-2">{m.notes}</p>}
