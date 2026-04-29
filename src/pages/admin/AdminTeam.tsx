@@ -270,7 +270,7 @@ export default function AdminTeam() {
           { label: "Total", value: stats.total, icon: UsersRound },
           { label: "Ativos", value: stats.active, icon: CheckCircle2 },
           { label: "Admins", value: stats.admins, icon: Shield },
-          { label: "Agentes", value: stats.agents, icon: UsersRound },
+          { label: "Atendimento", value: stats.agents, icon: UsersRound },
         ].map((s) => (
           <Card key={s.label} className="border-border/30">
             <CardContent className="p-4 flex items-center gap-3">
