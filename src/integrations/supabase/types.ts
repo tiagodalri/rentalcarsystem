@@ -202,6 +202,7 @@ export type Database = {
           full_name: string
           id: string
           is_active: boolean
+          last_login_at: string | null
           notes: string | null
           permissions: Json | null
           phone: string | null
@@ -217,6 +218,7 @@ export type Database = {
           full_name: string
           id?: string
           is_active?: boolean
+          last_login_at?: string | null
           notes?: string | null
           permissions?: Json | null
           phone?: string | null
@@ -232,6 +234,7 @@ export type Database = {
           full_name?: string
           id?: string
           is_active?: boolean
+          last_login_at?: string | null
           notes?: string | null
           permissions?: Json | null
           phone?: string | null
@@ -580,6 +583,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      record_last_login: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user" | "finance" | "operations" | "support"
