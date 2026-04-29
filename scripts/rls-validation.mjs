@@ -154,17 +154,29 @@ async function loginAccount(account) {
   return { client, userId: data.user.id };
 }
 
-/** Returns "allowed" | "denied" | "error" */
-async function trySelect(client, table) {
-  const { error } = await client.from(table).select("*").limit(1);
-  if (!error) return "allowed";
-  // Códigos comuns: 42501 (insufficient_privilege), PGRST301 (RLS), etc.
-  if (error.code === "42501" || /permission denied|row-level security|policy/i.test(error.message)) {
-    return "denied";
+/**
+ * Returns "allowed" | "denied" | "error".
+ * "denied" cobre dois casos:
+ *  1) Erro de policy explícito (42501 / mensagem RLS)
+ *  2) Sem erro mas count=0 quando a tabela TEM linhas (admin viu N>0).
+ *     Nesse caso a RLS está filtrando silenciosamente todas as linhas, o que
+ *     é equivalente a bloqueio do ponto de vista de segurança.
+ */
+async function trySelect(client, table, adminCount) {
+  const { error, count } = await client
+    .from(table)
+    .select("*", { count: "exact", head: true });
+  if (error) {
+    if (error.code === "42501" || /permission denied|row-level security|policy/i.test(error.message)) {
+      return "denied";
+    }
+    return `error:${error.code || ""}:${error.message}`;
   }
-  // Sem policy retornando 0 linhas geralmente vem como sucesso — então um erro
-  // aqui é divergência real (esquema, etc).
-  return `error:${error.code || ""}:${error.message}`;
+  // Sem erro: se admin viu linhas e este user vê 0, RLS filtrou tudo => denied.
+  if (adminCount > 0 && (count ?? 0) === 0) return "denied";
+  // Se admin viu 0 também, não conseguimos distinguir. Marcamos "indeterminate".
+  if (adminCount === 0) return "indeterminate";
+  return "allowed";
 }
 
 /** Returns "allowed" | "denied" | "error" */
