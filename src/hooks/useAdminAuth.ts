@@ -58,6 +58,13 @@ export function useAdminAuth() {
       if (event === "INITIAL_SESSION") return;
       cachedRoles = null;
       loadRoles(session?.user ?? null);
+      if (event === "SIGNED_IN" && session?.user) {
+        // Fire-and-forget: function is scoped to auth.uid() and is a no-op
+        // for users that aren't in team_members.
+        supabase.rpc("record_last_login").then(({ error }) => {
+          if (error) console.warn("[useAdminAuth] record_last_login failed:", error.message);
+        });
+      }
     });
 
     return () => {
