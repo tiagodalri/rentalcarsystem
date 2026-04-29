@@ -1,0 +1,1 @@
+DELETE FROM public.team_members WHERE full_name LIKE 'RLS Test %';
