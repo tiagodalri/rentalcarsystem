@@ -36,6 +36,7 @@ import BookingConfirmed from "./pages/BookingConfirmed.tsx";
 import CustomerRegistration from "./pages/CustomerRegistration.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
+import { RequireRole } from "./components/admin/RequireRole.tsx";
 
 const queryClient = new QueryClient({
   defaultOptions: {
