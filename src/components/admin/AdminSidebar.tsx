@@ -1,6 +1,7 @@
 import { LayoutDashboard, Car, CalendarRange, Users, LogOut, Settings, Radio, BarChart3, DollarSign, UsersRound, TrendingUp } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
 import {
   Sidebar,
   SidebarContent,
@@ -14,17 +15,19 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const menuItems = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Live", url: "/admin/live", icon: Radio },
-  { title: "Reservas", url: "/admin/bookings", icon: CalendarRange },
-  { title: "Frota", url: "/admin/fleet", icon: Car },
-  { title: "Clientes", url: "/admin/customers", icon: Users },
-  { title: "Financeiro", url: "/admin/finance", icon: DollarSign },
-  { title: "Equipe", url: "/admin/team", icon: UsersRound },
-  { title: "Relatório", url: "/admin/report", icon: BarChart3 },
-  { title: "Lucro Frota", url: "/admin/report/fleet-pnl", icon: TrendingUp },
-  { title: "Configurações", url: "/admin/settings", icon: Settings },
+type MenuItem = { title: string; url: string; icon: typeof LayoutDashboard; allowedRoles: AppRole[] };
+
+const menuItems: MenuItem[] = [
+  { title: "Dashboard",     url: "/admin",                  icon: LayoutDashboard, allowedRoles: ["admin","finance","operations","support"] },
+  { title: "Live",          url: "/admin/live",             icon: Radio,           allowedRoles: ["admin","operations"] },
+  { title: "Reservas",      url: "/admin/bookings",         icon: CalendarRange,   allowedRoles: ["admin","operations","support"] },
+  { title: "Frota",         url: "/admin/fleet",            icon: Car,             allowedRoles: ["admin","operations"] },
+  { title: "Clientes",      url: "/admin/customers",        icon: Users,           allowedRoles: ["admin","operations","support"] },
+  { title: "Financeiro",    url: "/admin/finance",          icon: DollarSign,      allowedRoles: ["admin","finance"] },
+  { title: "Equipe",        url: "/admin/team",             icon: UsersRound,      allowedRoles: ["admin"] },
+  { title: "Relatório",     url: "/admin/report",           icon: BarChart3,       allowedRoles: ["admin","finance"] },
+  { title: "Lucro Frota",   url: "/admin/report/fleet-pnl", icon: TrendingUp,      allowedRoles: ["admin","finance","operations"] },
+  { title: "Configurações", url: "/admin/settings",         icon: Settings,        allowedRoles: ["admin"] },
 ];
 
 interface AdminSidebarProps {
