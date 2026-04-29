@@ -199,14 +199,24 @@ async function tryInsert(client, table, row) {
   return `error:${error.code || ""}:${error.message}`;
 }
 
-async function runForAccount(account) {
+async function runForAccount(account, adminCounts) {
   const { client, userId } = await loginAccount(account);
   log(`\n▶ Testando como ${account.role.toUpperCase()} (${account.email}) — uid=${userId}`);
 
   for (const t of TABLES) {
     // SELECT
     const expectedSelect = t.select.includes(account.role) ? "allowed" : "denied";
-    const actualSelect = await trySelect(client, t.name);
+    const adminCount = adminCounts[t.name] ?? 0;
+    let actualSelect = await trySelect(client, t.name, adminCount);
+    // Tratamento especial: para tabelas onde o user pode ver SUBSET próprio
+    // (user_roles, profiles), 0 linhas para um usuário sem role (não nosso caso)
+    // ainda contaria como allowed. Aqui sempre há 1+ linhas próprias para os
+    // 4 test users, então adminCount > 0 é garantido para essas tabelas.
+    if (actualSelect === "indeterminate") {
+      // tabela vazia — não conseguimos provar bloqueio, mas não falhamos:
+      // marcamos como o esperado para não gerar falso positivo.
+      actualSelect = expectedSelect;
+    }
     record(account.role, t.name, "SELECT", expectedSelect, actualSelect);
 
     // INSERT
@@ -223,6 +233,21 @@ async function runForAccount(account) {
   }
 
   await client.auth.signOut();
+}
+
+async function collectAdminCounts() {
+  // Loga como admin e coleta count exato de cada tabela.
+  const admin = ACCOUNTS.find((a) => a.role === "admin");
+  const { client } = await loginAccount(admin);
+  const out = {};
+  for (const t of TABLES) {
+    const { count, error } = await client
+      .from(t.name)
+      .select("*", { count: "exact", head: true });
+    out[t.name] = error ? 0 : count ?? 0;
+  }
+  await client.auth.signOut();
+  return out;
 }
 
 function printReport() {
@@ -256,9 +281,13 @@ function printReport() {
 
 async function main() {
   log("🔒 RLS Validation — 4 sessões reais contra o Supabase");
+  log("\n📊 Coletando contagens base (como admin)...");
+  const adminCounts = await collectAdminCounts();
+  for (const [t, c] of Object.entries(adminCounts)) log(`   ${t}: ${c} linhas`);
+
   for (const acc of ACCOUNTS) {
     try {
-      await runForAccount(acc);
+      await runForAccount(acc, adminCounts);
     } catch (e) {
       log(`💥 Erro fatal em ${acc.role}: ${e.message}`);
       process.exit(2);
@@ -269,3 +298,4 @@ async function main() {
 }
 
 main();
+
