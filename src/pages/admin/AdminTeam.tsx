@@ -504,7 +504,7 @@ export default function AdminTeam() {
                         {m.position && <p className="text-[11px] text-muted-foreground">{m.position}</p>}
                       </div>
                     </div>
-                    <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${roleColors[m.role] || roleColors.agent}`}>
+                    <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${roleColors[m.role] || roleColors.support}`}>
                       {roleLabels[m.role] || m.role}
                     </span>
                   </div>
