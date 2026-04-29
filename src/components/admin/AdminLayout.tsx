@@ -1,19 +1,30 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import MinimalFooter from "@/components/MinimalFooter";
 
 export default function AdminLayout() {
   const { user, roles, loading, signOut } = useAdminAuth();
   const navigate = useNavigate();
+  const restrictedToastShown = useRef(false);
 
   useEffect(() => {
-    if (!loading && (!user || roles.length === 0)) {
+    if (loading) return;
+    if (!user) {
       navigate("/admin/login", { replace: true });
+      return;
+    }
+    if (roles.length === 0) {
+      if (!restrictedToastShown.current) {
+        restrictedToastShown.current = true;
+        toast.error("Esta área é restrita à equipe Zeus Rental Car. Faça login com sua conta de equipe.");
+      }
+      navigate("/", { replace: true });
     }
   }, [loading, user, roles, navigate]);
 
