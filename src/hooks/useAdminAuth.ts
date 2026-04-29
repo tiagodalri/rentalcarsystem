@@ -31,6 +31,10 @@ export function useAdminAuth() {
         return;
       }
 
+      // Reset roles + mark loading while we (re)fetch, so consumers don't
+      // momentarily see "user logged in but with 0 roles" and redirect away.
+      if (mounted) { setRoles([]); setLoading(true); }
+
       const { data } = await supabase
         .from("user_roles")
         .select("role")
