@@ -25,7 +25,7 @@ export default function AdminLayout() {
     );
   }
 
-  if (!user || !isAdmin) return null;
+  if (!user || roles.length === 0) return null;
 
   return (
     <SidebarProvider>
