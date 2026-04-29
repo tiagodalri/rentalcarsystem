@@ -43,6 +43,7 @@ export function useAdminAuth() {
         );
 
       cachedRoles = { userId: currentUser.id, roles: rs };
+      console.log("[useAdminAuth] roles loaded:", { email: currentUser.email, userId: currentUser.id, roles: rs });
       if (mounted) { setRoles(rs); setLoading(false); }
     };
 
