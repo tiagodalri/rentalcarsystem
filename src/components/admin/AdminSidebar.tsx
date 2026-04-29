@@ -58,7 +58,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
 
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton
                     onClick={() => navigate(item.url)}
