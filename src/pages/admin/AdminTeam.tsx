@@ -552,6 +552,11 @@ export default function AdminTeam() {
                     )}
                   </div>
 
+                  <div className="flex items-center gap-1.5 mb-2 text-[10px] text-muted-foreground/70">
+                    <span className={`inline-block w-1.5 h-1.5 rounded-full ${m.last_login_at ? "bg-emerald-500" : "bg-muted-foreground/30"}`} />
+                    <span className="tabular-nums">Último acesso: {formatLastLogin(m.last_login_at)}</span>
+                  </div>
+
                   {m.notes && <p className="text-[10px] text-muted-foreground/60 mb-3 line-clamp-2">{m.notes}</p>}
 
                   <div className="flex items-center justify-between pt-2 border-t border-border/20">
