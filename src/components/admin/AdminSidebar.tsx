@@ -39,6 +39,9 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
   const navigate = useNavigate();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { hasAny } = useAdminAuth();
+
+  const visibleItems = menuItems.filter((item) => hasAny(item.allowedRoles));
 
   const isActive = (url: string) =>
     url === "/admin" || url === "/admin/report"
