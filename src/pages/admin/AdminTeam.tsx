@@ -72,6 +72,21 @@ type TeamMember = {
   notes: string | null;
   permissions: Permissions | null;
   created_at: string;
+  last_login_at: string | null;
+};
+
+const formatLastLogin = (iso: string | null): string => {
+  if (!iso) return "Nunca acessou";
+  const d = new Date(iso);
+  const diffMs = Date.now() - d.getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "Agora mesmo";
+  if (mins < 60) return `Há ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `Há ${hours}h`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `Há ${days}d`;
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 };
 
 const roleLabels: Record<string, string> = {
