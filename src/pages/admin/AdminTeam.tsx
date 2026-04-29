@@ -99,7 +99,7 @@ type FormData = {
 };
 
 const emptyForm: FormData = {
-  full_name: "", email: "", phone: "", role: "agent", position: "", notes: "",
+  full_name: "", email: "", phone: "", role: "support", position: "", notes: "",
   permissions: { ...DEFAULT_PERMISSIONS },
 };
 
