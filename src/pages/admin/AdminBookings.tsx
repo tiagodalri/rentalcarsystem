@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Trash2, LogIn, LogOut, GitCompare, CalendarDays, List, ChevronLeft, ChevronRight, Clock, SlidersHorizontal, ArrowUpDown, X, Check, Download, FileText, FileSpreadsheet, CalendarIcon } from "lucide-react";
+import { EmptyState } from "@/components/admin/EmptyState";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -994,7 +995,23 @@ export default function AdminBookings() {
         <Card className="bg-card/80 border-border/30 overflow-hidden">
           <CardContent className="p-0">
             {filtered.length === 0 ? (
-              <p className="p-8 text-sm text-muted-foreground text-center">Nenhuma reserva encontrada.</p>
+              bookings.length > 0 ? (
+                <EmptyState
+                  icon={Search}
+                  title="Nenhuma reserva encontrada"
+                  description="Nenhum resultado para os filtros aplicados. Tente ajustar os critérios de busca."
+                  actionLabel="Limpar filtros"
+                  onAction={() => { setSearch(""); setFilters(defaultFilters); }}
+                  compact
+                />
+              ) : (
+                <EmptyState
+                  icon={CalendarDays}
+                  title="Nenhuma reserva registrada"
+                  description="As reservas aparecerão aqui assim que forem criadas pelo site ou manualmente."
+                  compact
+                />
+              )
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
