@@ -196,6 +196,8 @@ function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (
       </Card>
 
       <CalendarLegend />
+      </>
+      )}
     </div>
   );
 }
