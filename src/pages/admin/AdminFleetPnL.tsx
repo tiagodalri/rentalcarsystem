@@ -353,6 +353,7 @@ export default function AdminFleetPnL() {
               )}
             </table>
           </div>
+          )}
         </CardContent>
       </Card>
     </div>
