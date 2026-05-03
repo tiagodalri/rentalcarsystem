@@ -317,7 +317,7 @@ export default function AdminFleetReport() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-10">Sem dados de ocupação neste mês</p>
+              <EmptyState icon={Percent} title="Sem dados de ocupação" description="Os dados de ocupação por veículo aparecerão quando houver reservas neste mês." compact />
             )}
           </CardContent>
         </Card>
@@ -390,10 +390,7 @@ export default function AdminFleetReport() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-10 text-sm text-muted-foreground">
-                <AlertTriangle size={24} className="mx-auto mb-2 opacity-30" />
-                Nenhuma avaria registrada neste mês
-              </div>
+              <EmptyState icon={AlertTriangle} title="Nenhuma avaria registrada" description="As avarias por veículo aparecerão aqui quando forem registradas nas inspeções." compact />
             )}
           </CardContent>
         </Card>
@@ -430,10 +427,7 @@ export default function AdminFleetReport() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="text-center py-10 text-sm text-muted-foreground">
-                <Sparkles size={24} className="mx-auto mb-2 opacity-30" />
-                Nenhuma receita de opcionais registrada neste mês
-              </div>
+              <EmptyState icon={Sparkles} title="Sem receita de opcionais" description="A receita de opcionais aparecerá quando houver reservas com adicionais neste mês." compact />
             )}
           </CardContent>
         </Card>
