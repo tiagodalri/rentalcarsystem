@@ -13,6 +13,8 @@ import {
   Plus, Wrench, Shield, CircleAlert, TrendingDown, TrendingUp,
   Trash2, Activity, Heart, AlertCircle, Ban
 } from "lucide-react";
+import { EmptyState } from "@/components/admin/EmptyState";
+import { Receipt, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import VehicleAgenda from "@/components/admin/VehicleAgenda";
 
