@@ -294,6 +294,14 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
         </button>
       </div>
 
+      {bookings.length === 0 ? (
+        <EmptyState
+          icon={CalendarDays}
+          title="Nenhuma reserva registrada"
+          description="As reservas aparecerão aqui assim que forem criadas pelo site ou manualmente."
+        />
+      ) : (
+      <>
       <div className="grid grid-cols-7 gap-3">
         {weekDays.map((day, i) => {
           const key = day.toISOString().slice(0, 10);
