@@ -9,8 +9,9 @@ import {
 } from "recharts";
 import {
   Loader2, TrendingUp, DollarSign, AlertTriangle, Car, CalendarDays,
-  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles
+  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart
 } from "lucide-react";
+import { EmptyState } from "@/components/admin/EmptyState";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -289,7 +290,7 @@ export default function AdminFleetReport() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-10">Sem dados de receita neste mês</p>
+              <EmptyState icon={TrendingUp} title="Sem dados de receita" description="Os dados de receita por veículo aparecerão quando houver reservas neste mês." compact />
             )}
           </CardContent>
         </Card>
