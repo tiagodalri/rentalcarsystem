@@ -475,10 +475,7 @@ export default function AdminFleetReport() {
                 </div>
               </>
             ) : (
-              <div className="text-center py-10 text-sm text-muted-foreground">
-                <Shield size={24} className="mx-auto mb-2 opacity-30" />
-                Sem dados de planos neste mês
-              </div>
+              <EmptyState icon={Shield} title="Sem dados de planos" description="A distribuição de planos aparecerá quando houver reservas neste mês." compact />
             )}
           </CardContent>
         </Card>
