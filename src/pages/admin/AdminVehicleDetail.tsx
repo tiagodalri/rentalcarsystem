@@ -439,7 +439,7 @@ export default function AdminVehicleDetail() {
           <Card className="border-border/40">
             <CardContent className="p-6">
               <h3 className="font-bold text-foreground mb-4">Resumo de Gastos por Categoria</h3>
-              {expenses.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum gasto registrado.</p> : (
+              {expenses.length === 0 ? <EmptyState icon={Receipt} title="Nenhum gasto registrado" description="Registre manutenções, combustível e outros custos operacionais deste veículo." compact /> : (
                 <div className="space-y-2">
                   {Object.entries(expenses.reduce((acc, e) => { acc[e.type] = (acc[e.type] || 0) + e.amount; return acc; }, {} as Record<string, number>))
                     .sort((a, b) => b[1] - a[1])
@@ -650,7 +650,7 @@ export default function AdminVehicleDetail() {
         {/* ── Timeline Tab ── */}
         <TabsContent value="timeline" className="mt-4">
           {timelineEvents.length === 0 ? (
-            <Card className="border-border/40"><CardContent className="p-8 text-center"><Clock size={32} className="mx-auto text-muted-foreground mb-3" /><p className="text-muted-foreground">Nenhum evento registrado.</p></CardContent></Card>
+            <Card className="border-border/40"><CardContent className="p-0"><EmptyState icon={Clock} title="Nenhum evento registrado" description="O histórico de eventos deste veículo aparecerá aqui conforme ações forem registradas." compact /></CardContent></Card>
           ) : (
             <div className="relative pl-8">
               <div className="absolute left-[15px] top-2 bottom-2 w-px bg-border" />
@@ -674,7 +674,7 @@ export default function AdminVehicleDetail() {
         {/* ── History Tab ── */}
         <TabsContent value="history" className="mt-4">
           {bookings.length === 0 ? (
-            <Card className="border-border/40"><CardContent className="p-8 text-center"><Car size={32} className="mx-auto text-muted-foreground mb-3" /><p className="text-muted-foreground">Nenhuma locação registrada.</p></CardContent></Card>
+            <Card className="border-border/40"><CardContent className="p-0"><EmptyState icon={Car} title="Nenhuma locação registrada" description="O histórico de locações deste veículo será exibido aqui." compact /></CardContent></Card>
           ) : (
             <div className="space-y-3">
               {bookings.map(b => {
