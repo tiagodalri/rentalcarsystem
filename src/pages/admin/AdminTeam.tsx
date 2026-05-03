@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/admin/EmptyState";
 import {
   UsersRound, Plus, X, Search, Pencil, Trash2, Phone, Mail, Shield,
   CheckCircle2, XCircle, Eye, Edit3, Check,
@@ -496,8 +497,10 @@ export default function AdminTeam() {
       {/* Members list */}
       {loading ? (
         <div className="p-8 flex justify-center"><div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>
+      ) : filtered.length === 0 && members.length > 0 ? (
+        <EmptyState icon={Search} title="Nenhum membro encontrado" description="Nenhum membro corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} />
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-8">Nenhum membro encontrado.</p>
+        <EmptyState icon={UsersRound} title="Nenhum membro na equipe" description="Adicione membros e defina permissões de acesso para cada função." actionLabel="Adicionar Membro" onAction={() => { setForm({ ...emptyForm, permissions: { ...DEFAULT_PERMISSIONS } }); setEditingId(null); setShowForm(true); setPermTab("menus"); }} />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
           {filtered.map((m) => {
