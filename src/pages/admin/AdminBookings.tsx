@@ -398,6 +398,8 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
       </div>
 
       <CalendarLegend />
+      </>
+      )}
     </div>
   );
 }
