@@ -515,7 +515,7 @@ export default function AdminVehicleDetail() {
           )}
 
           {expenses.length === 0 ? (
-            <Card className="border-border/40"><CardContent className="p-8 text-center"><DollarSign size={32} className="mx-auto text-muted-foreground mb-3" /><p className="text-muted-foreground">Nenhum gasto registrado.</p></CardContent></Card>
+            <Card className="border-border/40"><CardContent className="p-0"><EmptyState icon={Receipt} title="Nenhum gasto registrado" description="Registre manutenções, combustível e outros custos operacionais deste veículo." compact /></CardContent></Card>
           ) : (
             <div className="space-y-2">
               {expenses.map(e => {
@@ -604,7 +604,7 @@ export default function AdminVehicleDetail() {
           )}
 
           {incidents.length === 0 ? (
-            <Card className="border-border/40"><CardContent className="p-8 text-center"><CheckCircle2 size={32} className="mx-auto text-emerald-500 mb-3" /><p className="text-muted-foreground">Nenhuma ocorrência registrada. Tudo certo!</p></CardContent></Card>
+            <Card className="border-border/40"><CardContent className="p-0"><EmptyState icon={ShieldCheck} title="Nenhuma ocorrência registrada" description="Ocorrências como avarias, multas e sinistros serão listadas aqui." compact /></CardContent></Card>
           ) : (
             <div className="space-y-2">
               {incidents.map(inc => {
