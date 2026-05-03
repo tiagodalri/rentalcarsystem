@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, TrendingUp, TrendingDown, DollarSign, Car, Search } from "lucide-react";
+import { EmptyState } from "@/components/admin/EmptyState";
 import { format, parseISO, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -258,6 +259,13 @@ export default function AdminFleetPnL() {
           <CardTitle className="text-sm">Demonstrativo por Veículo ({filtered.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
+          {filtered.length === 0 ? (
+            rows.length > 0 ? (
+              <EmptyState icon={Search} title="Nenhum veículo encontrado" description="Nenhum veículo corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} />
+            ) : (
+              <EmptyState icon={TrendingUp} title="Sem dados de rentabilidade" description="A análise de lucro por veículo será exibida quando houver reservas e despesas registradas." />
+            )
+          ) : (
           <div className="overflow-x-auto">
             <table className="text-sm min-w-full" style={{ minWidth: "1400px" }}>
               <thead className="bg-muted/30 border-y border-border/40">
@@ -345,6 +353,7 @@ export default function AdminFleetPnL() {
               )}
             </table>
           </div>
+          )}
         </CardContent>
       </Card>
     </div>

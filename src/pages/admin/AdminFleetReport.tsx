@@ -9,8 +9,9 @@ import {
 } from "recharts";
 import {
   Loader2, TrendingUp, DollarSign, AlertTriangle, Car, CalendarDays,
-  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles
+  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart
 } from "lucide-react";
+import { EmptyState } from "@/components/admin/EmptyState";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -289,7 +290,7 @@ export default function AdminFleetReport() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-10">Sem dados de receita neste mês</p>
+              <EmptyState icon={TrendingUp} title="Sem dados de receita" description="Os dados de receita por veículo aparecerão quando houver reservas neste mês." compact />
             )}
           </CardContent>
         </Card>
@@ -316,7 +317,7 @@ export default function AdminFleetReport() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-10">Sem dados de ocupação neste mês</p>
+              <EmptyState icon={Percent} title="Sem dados de ocupação" description="Os dados de ocupação por veículo aparecerão quando houver reservas neste mês." compact />
             )}
           </CardContent>
         </Card>
@@ -356,7 +357,7 @@ export default function AdminFleetReport() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-10">Sem dados neste mês</p>
+              <EmptyState icon={DollarSign} title="Sem dados de receita" description="A receita por categoria aparecerá quando houver reservas neste mês." compact />
             )}
           </CardContent>
         </Card>
@@ -389,10 +390,7 @@ export default function AdminFleetReport() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-10 text-sm text-muted-foreground">
-                <AlertTriangle size={24} className="mx-auto mb-2 opacity-30" />
-                Nenhuma avaria registrada neste mês
-              </div>
+              <EmptyState icon={AlertTriangle} title="Nenhuma avaria registrada" description="As avarias por veículo aparecerão aqui quando forem registradas nas inspeções." compact />
             )}
           </CardContent>
         </Card>
@@ -429,10 +427,7 @@ export default function AdminFleetReport() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="text-center py-10 text-sm text-muted-foreground">
-                <Sparkles size={24} className="mx-auto mb-2 opacity-30" />
-                Nenhuma receita de opcionais registrada neste mês
-              </div>
+              <EmptyState icon={Sparkles} title="Sem receita de opcionais" description="A receita de opcionais aparecerá quando houver reservas com adicionais neste mês." compact />
             )}
           </CardContent>
         </Card>
@@ -480,10 +475,7 @@ export default function AdminFleetReport() {
                 </div>
               </>
             ) : (
-              <div className="text-center py-10 text-sm text-muted-foreground">
-                <Shield size={24} className="mx-auto mb-2 opacity-30" />
-                Sem dados de planos neste mês
-              </div>
+              <EmptyState icon={Shield} title="Sem dados de planos" description="A distribuição de planos aparecerá quando houver reservas neste mês." compact />
             )}
           </CardContent>
         </Card>

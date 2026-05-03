@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Plus, Pencil, Trash2, Car, Users as UsersIcon, Briefcase, X, History, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/admin/EmptyState";
 
 type Vehicle = {
   id: string;
@@ -273,8 +274,10 @@ export default function AdminFleet() {
       {/* Grid */}
       {loading ? (
         <p className="text-sm text-muted-foreground">Carregando...</p>
+      ) : filtered.length === 0 && vehicles.length > 0 ? (
+        <EmptyState icon={Search} title="Nenhum veículo encontrado" description="Nenhum veículo corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} />
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nenhum veículo encontrado.</p>
+        <EmptyState icon={Car} title="Nenhum veículo cadastrado" description="Adicione veículos à frota para começar a gerenciar disponibilidade e locações." actionLabel="Adicionar Veículo" onAction={() => { setEditing({ ...emptyVehicle }); setIsNew(true); }} />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((v) => (

@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, BarChart3 } from "lucide-react";
+import { EmptyState } from "@/components/admin/EmptyState";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from "recharts";
 
 type Booking = {
@@ -207,7 +208,7 @@ export default function AdminFinance() {
           <CardContent className="p-5">
             <h3 className="text-sm font-bold text-foreground mb-4">Receita vs Despesas</h3>
             {monthlyData.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">Sem dados no período</p>
+              <EmptyState icon={BarChart3} title="Sem movimentação financeira" description="Os indicadores serão calculados automaticamente conforme reservas e despesas forem registradas." compact />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={monthlyData} barGap={2}>
@@ -233,7 +234,7 @@ export default function AdminFinance() {
           <CardContent className="p-5">
             <h3 className="text-sm font-bold text-foreground mb-4">Fluxo de Caixa Acumulado</h3>
             {cashFlowData.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">Sem dados no período</p>
+              <EmptyState icon={Wallet} title="Sem movimentação financeira" description="Os indicadores serão calculados automaticamente conforme reservas e despesas forem registradas." compact />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <LineChart data={cashFlowData}>
@@ -259,7 +260,7 @@ export default function AdminFinance() {
           <CardContent className="p-5">
             <h3 className="text-sm font-bold text-foreground mb-4">Lucro Mensal</h3>
             {monthlyData.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">Sem dados</p>
+              <EmptyState icon={TrendingUp} title="Sem movimentação financeira" description="Os indicadores serão calculados automaticamente conforme reservas e despesas forem registradas." compact />
             ) : (
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={monthlyData}>
@@ -282,7 +283,7 @@ export default function AdminFinance() {
           <CardContent className="p-5">
             <h3 className="text-sm font-bold text-foreground mb-4">Despesas por Categoria</h3>
             {expensesByType.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">Sem despesas</p>
+              <EmptyState icon={DollarSign} title="Sem despesas registradas" description="As despesas por categoria aparecerão aqui conforme forem registradas." compact />
             ) : (
               <div className="space-y-3">
                 {expensesByType.map((et) => {
