@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Car, Signal, Battery, Gauge, Clock, MapPin, ExternalLink } from "lucide-react";
+import { Car, Signal, Battery, Gauge, Clock, MapPin, ExternalLink, CalendarDays } from "lucide-react";
+import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
 
 // --- Simulated fleet data ---
@@ -240,9 +241,10 @@ export default function AdminLive() {
             ))}
           </div>
 
-          {/* Vehicle cards */}
           <div className="lg:flex-1 lg:overflow-y-auto space-y-1.5 lg:pr-1 scrollbar-thin">
-            {filtered.map((v) => (
+            {filtered.length === 0 ? (
+              <EmptyState icon={CalendarDays} title="Nenhuma locação ativa" description="As reservas em andamento aparecerão aqui em tempo real durante o período de locação." compact />
+            ) : filtered.map((v) => (
               <button
                 key={v.id}
                 onClick={() => focusVehicle(v.id)}
