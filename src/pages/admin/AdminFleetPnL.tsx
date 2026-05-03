@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, TrendingUp, TrendingDown, DollarSign, Car, Search } from "lucide-react";
+import { Loader2, TrendingUp, TrendingDown, DollarSign, Car, Search as SearchIcon } from "lucide-react";
+import { EmptyState } from "@/components/admin/EmptyState";
 import { format, parseISO, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
