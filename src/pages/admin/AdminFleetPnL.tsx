@@ -260,7 +260,7 @@ export default function AdminFleetPnL() {
         </CardHeader>
         <CardContent className="p-0">
           {filtered.length === 0 ? (
-            data.length > 0 ? (
+            rows.length > 0 ? (
               <EmptyState icon={Search} title="Nenhum veículo encontrado" description="Nenhum veículo corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} />
             ) : (
               <EmptyState icon={TrendingUp} title="Sem dados de rentabilidade" description="A análise de lucro por veículo será exibida quando houver reservas e despesas registradas." />
