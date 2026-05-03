@@ -357,7 +357,7 @@ export default function AdminFleetReport() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-10">Sem dados neste mês</p>
+              <EmptyState icon={DollarSign} title="Sem dados de receita" description="A receita por categoria aparecerá quando houver reservas neste mês." compact />
             )}
           </CardContent>
         </Card>
