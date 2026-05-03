@@ -124,6 +124,7 @@ function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (
           description="As reservas aparecerão aqui assim que forem criadas pelo site ou manualmente."
         />
       ) : (
+      <>
       <Card className="border-border/30 overflow-hidden">
         <CardContent className="p-0">
           <div className="grid grid-cols-7 border-b border-border/30 bg-muted/20">
