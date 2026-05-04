@@ -6,6 +6,7 @@ import {
   Baby, CircleDollarSign, Zap, ChevronRight, Check, AlertTriangle, Percent, Car, Fuel, Gauge,
   CreditCard, Lock, Loader2, MessageCircle, X
 } from "lucide-react";
+import { BookingDetailsSkeleton } from "@/components/skeletons/PublicSkeletons";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
@@ -424,17 +425,7 @@ const BookingDetails = () => {
   }
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-12 flex items-center justify-center">
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <Loader2 className="w-5 h-5 animate-spin text-primary" />
-            <span className="text-sm">Carregando...</span>
-          </div>
-        </div>
-      </div>
-    );
+    return <BookingDetailsSkeleton />;
   }
 
   if (blockedByAge) {
