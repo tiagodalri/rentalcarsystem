@@ -8,6 +8,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line, Area, AreaChart
 } from "recharts";
+import { darkTooltipProps } from "@/components/admin/ChartTooltip";
 import {
   Loader2, TrendingUp, DollarSign, AlertTriangle, Car, CalendarDays,
   ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart
