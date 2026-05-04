@@ -137,7 +137,7 @@ export default function AdminDashboard() {
               <card.icon className={`h-4 w-4 ${card.color} opacity-50`} />
             </div>
             <p className={`text-xl font-bold tabular-nums ${card.color}`}>
-              {loading ? "—" : card.value}
+              {card.value}
             </p>
           </CardContent>
         </Card>
@@ -153,6 +153,8 @@ export default function AdminDashboard() {
     completed: { label: "Concluída", className: "bg-muted text-muted-foreground border border-border/30" },
     cancelled: { label: "Cancelada", className: "bg-destructive/10 text-destructive border border-destructive/20" },
   };
+
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="space-y-8">
