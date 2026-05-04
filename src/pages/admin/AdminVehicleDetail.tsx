@@ -17,6 +17,7 @@ import { EmptyState } from "@/components/admin/EmptyState";
 import { Receipt, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import VehicleAgenda from "@/components/admin/VehicleAgenda";
+import { VehicleDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 
 // ─── Types ────────────────────────────────────────────────────────────
 type Vehicle = {
@@ -228,7 +229,7 @@ export default function AdminVehicleDetail() {
     toast({ title: "Ocorrência excluída" }); loadData();
   };
 
-  if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  if (loading) return <VehicleDetailSkeleton />;
   if (!vehicle) return <p className="text-muted-foreground">Veículo não encontrado.</p>;
 
   // ─── Computed ────────────────

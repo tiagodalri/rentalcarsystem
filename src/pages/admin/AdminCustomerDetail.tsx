@@ -8,6 +8,7 @@ import {
   DollarSign, Calendar, AlertTriangle, Car, TrendingUp,
   Globe, CreditCard, Pencil
 } from "lucide-react";
+import { CustomerDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 
 type Customer = {
   id: string;
@@ -98,11 +99,7 @@ export default function AdminCustomerDetail() {
     load();
   }, [customerId]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) return <CustomerDetailSkeleton />;
   if (!customer) return (
     <div className="flex flex-col items-center justify-center py-20 gap-3">
       <p className="text-muted-foreground">Cliente não encontrado.</p>
