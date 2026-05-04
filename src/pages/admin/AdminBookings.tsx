@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Trash2, LogIn, LogOut, GitCompare, CalendarDays, List, ChevronLeft, ChevronRight, Clock, SlidersHorizontal, ArrowUpDown, X, Check, Download, FileText, FileSpreadsheet, CalendarIcon } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -1003,9 +1004,11 @@ export default function AdminBookings() {
       </div>
 
       {loading ? (
-        <div className="p-8 flex justify-center">
-          <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-        </div>
+        <TableSkeleton rows={10} columns={[
+          { width: "w-24" }, { width: "w-28" }, { width: "w-16" }, { width: "w-20" },
+          { width: "w-14", align: "right" }, { width: "w-16" }, { width: "w-24" },
+          { width: "w-10", align: "center" }, { width: "w-6" },
+        ]} />
       ) : viewMode === "calendar" ? (
         <CalendarView bookings={filtered} navigate={navigate} />
       ) : viewMode === "week" ? (

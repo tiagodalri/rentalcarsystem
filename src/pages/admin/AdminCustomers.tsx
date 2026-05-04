@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Search, Plus, Pencil, Trash2, X, FileText, Upload, Camera, Loader2, ExternalLink, Copy, Check, Users } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { PhoneInput } from "@/components/ui/phone-input";
 
 type Customer = {
@@ -298,9 +299,10 @@ export default function AdminCustomers() {
       <Card className="bg-card/80 border-border/30 overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-8 flex justify-center">
-              <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-            </div>
+            <TableSkeleton rows={8} columns={[
+              { width: "w-28" }, { width: "w-36" }, { width: "w-20" },
+              { width: "w-16" }, { width: "w-20" }, { width: "w-10", align: "center" }, { width: "w-8" },
+            ]} />
           ) : filtered.length === 0 && customers.length > 0 ? (
             <EmptyState icon={Search} title="Nenhum cliente encontrado" description="Nenhum cliente corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} compact />
           ) : filtered.length === 0 ? (

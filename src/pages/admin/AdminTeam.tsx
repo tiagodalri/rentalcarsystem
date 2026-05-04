@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
 import {
   UsersRound, Plus, X, Search, Pencil, Trash2, Phone, Mail, Shield,
   CheckCircle2, XCircle, Eye, Edit3, Check,
@@ -496,7 +497,7 @@ export default function AdminTeam() {
 
       {/* Members list */}
       {loading ? (
-        <div className="p-8 flex justify-center"><div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" /></div>
+        <CardGridSkeleton count={6} variant="team" />
       ) : filtered.length === 0 && members.length > 0 ? (
         <EmptyState icon={Search} title="Nenhum membro encontrado" description="Nenhum membro corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} />
       ) : filtered.length === 0 ? (
