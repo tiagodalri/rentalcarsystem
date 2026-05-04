@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { InspectionSkeleton } from "@/components/skeletons/MinorPageSkeletons";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -557,11 +558,7 @@ export default function AdminInspection() {
   ];
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <InspectionSkeleton />;
   }
 
   if (!booking) {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FleetReportSkeleton } from "@/components/skeletons/MinorPageSkeletons";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -180,11 +181,7 @@ export default function AdminFleetReport() {
   ].filter((d) => d.value > 0);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <FleetReportSkeleton />;
   }
 
   return (

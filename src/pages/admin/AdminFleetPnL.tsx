@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { FleetPnLSkeleton } from "@/components/skeletons/MinorPageSkeletons";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -157,11 +158,7 @@ export default function AdminFleetPnL() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <FleetPnLSkeleton />;
   }
 
   const TH = ({ k, children, align = "right" }: { k: keyof Row; children: React.ReactNode; align?: "left" | "right" }) => (
