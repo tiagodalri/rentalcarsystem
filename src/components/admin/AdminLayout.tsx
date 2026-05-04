@@ -3,10 +3,10 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import MinimalFooter from "@/components/MinimalFooter";
+import { AdminShellSkeleton } from "@/components/skeletons/AdminShellSkeleton";
 
 export default function AdminLayout() {
   const { user, roles, loading, signOut } = useAdminAuth();
@@ -29,11 +29,7 @@ export default function AdminLayout() {
   }, [loading, user, roles, navigate]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AdminShellSkeleton />;
   }
 
   if (!user || roles.length === 0) return null;
