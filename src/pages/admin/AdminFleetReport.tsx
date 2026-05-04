@@ -281,8 +281,8 @@ export default function AdminFleetReport() {
                   <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
                   <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
                   <Tooltip
+                    {...darkTooltipProps}
                     formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
-                    contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                   />
                   <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={22} />
                 </BarChart>
@@ -308,8 +308,8 @@ export default function AdminFleetReport() {
                   <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `${v}%`} />
                   <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
                   <Tooltip
+                    {...darkTooltipProps}
                     formatter={(v: number) => [`${v}%`, "Ocupação"]}
-                    contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                   />
                   <Bar dataKey="occupancy" fill="hsl(var(--chart-2, 160 60% 45%))" radius={[0, 4, 4, 0]} barSize={22} />
                 </BarChart>
@@ -349,8 +349,8 @@ export default function AdminFleetReport() {
                     ))}
                   </Pie>
                   <Tooltip
+                    {...darkTooltipProps}
                     formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
-                    contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -414,8 +414,8 @@ export default function AdminFleetReport() {
                   <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
                   <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
                   <Tooltip
+                    {...darkTooltipProps}
                     formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
-                    contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                   />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
                     {addonChartData.map((_, i) => (
@@ -457,8 +457,8 @@ export default function AdminFleetReport() {
                       ))}
                     </Pie>
                     <Tooltip
+                      {...darkTooltipProps}
                       formatter={(v: number) => [`${v} reserva${v > 1 ? "s" : ""}`, "Qtd."]}
-                      contentStyle={{ backgroundColor: "hsl(var(--background))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
