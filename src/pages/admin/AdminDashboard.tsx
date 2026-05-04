@@ -187,11 +187,7 @@ export default function AdminDashboard() {
           <div className="px-5 py-4 border-b border-border/20">
             <h2 className="text-sm font-semibold text-foreground">Reservas Recentes</h2>
           </div>
-          {loading ? (
-            <div className="p-6 flex justify-center">
-              <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-            </div>
-          ) : recentBookings.length === 0 ? (
+          {recentBookings.length === 0 ? (
             <p className="p-6 text-sm text-muted-foreground text-center">Nenhuma reserva encontrada.</p>
           ) : (
             <div className="overflow-x-auto">
