@@ -8,6 +8,7 @@ import {
   Fuel, Gauge, CheckCircle2, AlertTriangle, ChevronRight,
   Camera, PenTool, Image, Check, X as XIcon
 } from "lucide-react";
+import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 
 type Booking = {
   id: string;
@@ -111,11 +112,7 @@ export default function AdminBookingDetail() {
     load();
   }, [bookingId]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-    </div>
-  );
+  if (loading) return <BookingDetailSkeleton />;
   if (!booking) return (
     <div className="flex flex-col items-center justify-center py-20 gap-3">
       <p className="text-muted-foreground">Reserva não encontrada.</p>
