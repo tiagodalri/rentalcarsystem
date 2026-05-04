@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, BarChart3 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from "recharts";
+import { FinanceSkeleton } from "@/components/skeletons/FinanceSkeleton";
 
 type Booking = {
   id: string;
@@ -144,11 +145,7 @@ export default function AdminFinance() {
   }, [monthlyData]);
 
   if (loading) {
-    return (
-      <div className="p-8 flex justify-center">
-        <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-      </div>
-    );
+    return <FinanceSkeleton />;
   }
 
   const kpis = [

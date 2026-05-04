@@ -6,6 +6,7 @@ import {
   CheckCircle2, Wrench, Gauge, Calculator, Percent,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 
 interface DashboardStats {
   totalBookings: number;
@@ -136,7 +137,7 @@ export default function AdminDashboard() {
               <card.icon className={`h-4 w-4 ${card.color} opacity-50`} />
             </div>
             <p className={`text-xl font-bold tabular-nums ${card.color}`}>
-              {loading ? "—" : card.value}
+              {card.value}
             </p>
           </CardContent>
         </Card>
@@ -152,6 +153,8 @@ export default function AdminDashboard() {
     completed: { label: "Concluída", className: "bg-muted text-muted-foreground border border-border/30" },
     cancelled: { label: "Cancelada", className: "bg-destructive/10 text-destructive border border-destructive/20" },
   };
+
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="space-y-8">
@@ -184,11 +187,7 @@ export default function AdminDashboard() {
           <div className="px-5 py-4 border-b border-border/20">
             <h2 className="text-sm font-semibold text-foreground">Reservas Recentes</h2>
           </div>
-          {loading ? (
-            <div className="p-6 flex justify-center">
-              <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-            </div>
-          ) : recentBookings.length === 0 ? (
+          {recentBookings.length === 0 ? (
             <p className="p-6 text-sm text-muted-foreground text-center">Nenhuma reserva encontrada.</p>
           ) : (
             <div className="overflow-x-auto">
