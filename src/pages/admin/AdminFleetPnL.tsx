@@ -3,9 +3,10 @@ import { FleetPnLSkeleton } from "@/components/skeletons/MinorPageSkeletons";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, TrendingUp, TrendingDown, DollarSign, Car, Search } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TrendingUp, TrendingDown, DollarSign, Car, Search, Percent, Clock } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
-import { format, parseISO, differenceInDays } from "date-fns";
+import { format, parseISO, differenceInDays, differenceInMonths, subMonths, startOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 type Row = {
@@ -20,8 +21,8 @@ type Row = {
   addonRevenue: number;
   totalRevenue: number;
   expenses: number;
-  netProfit: number;
-  roiPct: number;
+  operatingProfit: number;
+  roiPct: number | null;
   paidOff: boolean;
   daysOwned: number;
 };
@@ -33,8 +34,9 @@ export default function AdminFleetPnL() {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<keyof Row>("netProfit");
+  const [sortKey, setSortKey] = useState<keyof Row>("operatingProfit");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [avgMonthlyRevenue3m, setAvgMonthlyRevenue3m] = useState<number | null>(null);
 
   useEffect(() => {
     load();
@@ -54,13 +56,28 @@ export default function AdminFleetPnL() {
 
     const today = new Date();
 
+    // Calculate average monthly revenue over last 3 months
+    const threeMonthsAgo = startOfMonth(subMonths(today, 3));
+    const revenueByMonth = new Map<string, number>();
+    bks.forEach((b: any) => {
+      const pd = parseISO(b.pickup_date);
+      if (pd >= threeMonthsAgo) {
+        const key = format(pd, "yyyy-MM");
+        revenueByMonth.set(key, (revenueByMonth.get(key) || 0) + (Number(b.total_price) || 0));
+      }
+    });
+    const monthlyValues = Array.from(revenueByMonth.values());
+    const avg3m = monthlyValues.length > 0
+      ? monthlyValues.reduce((a, b) => a + b, 0) / monthlyValues.length
+      : null;
+    setAvgMonthlyRevenue3m(avg3m);
+
     const result: Row[] = vehs.map((v: any) => {
       const vBookings = bks.filter((b: any) => b.vehicle_id === v.id);
 
       const rentalRevenue = vBookings.reduce((s: number, b: any) => {
         const days = Math.max(differenceInDays(parseISO(b.return_date), parseISO(b.pickup_date)), 1);
         const dailyTotal = days * Number(v.daily_price_usd || 0);
-        // fallback: subtract addons total to isolate base rental
         const addons = b.addons || {};
         const addonSum =
           (Number(addons.plan_extra) || 0) +
@@ -90,8 +107,10 @@ export default function AdminFleetPnL() {
       const expenses = vExpenses.reduce((s: number, e: any) => s + (Number(e.amount) || 0), 0);
 
       const purchasePrice = Number(v.purchase_price) || 0;
-      const netProfit = totalRevenue - expenses - purchasePrice;
-      const roiPct = purchasePrice > 0 ? Math.round((netProfit / purchasePrice) * 100) : 0;
+      const operatingProfit = totalRevenue - expenses;
+      const roiPct = purchasePrice > 0
+        ? Math.round(((totalRevenue - expenses - purchasePrice) / purchasePrice) * 1000) / 10
+        : null;
       const paidOff = totalRevenue - expenses >= purchasePrice && purchasePrice > 0;
 
       const daysOwned = v.acquired_date
@@ -110,7 +129,7 @@ export default function AdminFleetPnL() {
         addonRevenue,
         totalRevenue,
         expenses,
-        netProfit,
+        operatingProfit,
         roiPct,
         paidOff,
         daysOwned,
@@ -127,8 +146,8 @@ export default function AdminFleetPnL() {
       (r) => r.name.toLowerCase().includes(q) || r.category.toLowerCase().includes(q)
     );
     return list.sort((a, b) => {
-      const av = a[sortKey] as any;
-      const bv = b[sortKey] as any;
+      const av = (a[sortKey] ?? -Infinity) as any;
+      const bv = (b[sortKey] ?? -Infinity) as any;
       if (typeof av === "string") {
         return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
       }
@@ -142,12 +161,23 @@ export default function AdminFleetPnL() {
         acc.purchase += r.purchase_price;
         acc.revenue += r.totalRevenue;
         acc.expenses += r.expenses;
-        acc.profit += r.netProfit;
+        acc.opProfit += r.operatingProfit;
         return acc;
       },
-      { purchase: 0, revenue: 0, expenses: 0, profit: 0 }
+      { purchase: 0, revenue: 0, expenses: 0, opProfit: 0 }
     );
   }, [rows]);
+
+  const globalRoiPct = totals.purchase > 0
+    ? Math.round(((totals.revenue - totals.expenses - totals.purchase) / totals.purchase) * 1000) / 10
+    : null;
+
+  const paybackMonths = useMemo(() => {
+    if (!avgMonthlyRevenue3m || avgMonthlyRevenue3m <= 0) return null;
+    const remaining = totals.purchase - (totals.revenue - totals.expenses);
+    if (remaining <= 0) return "recovered" as const;
+    return Math.ceil(remaining / avgMonthlyRevenue3m);
+  }, [totals, avgMonthlyRevenue3m]);
 
   const toggleSort = (key: keyof Row) => {
     if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -172,17 +202,19 @@ export default function AdminFleetPnL() {
   );
 
   return (
+    <TooltipProvider>
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">Relatório de Frota — Lucro por Veículo</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Compra, gastos, receitas e lucro líquido de cada carro desde a aquisição
+          Compra, gastos, receitas e lucro operacional de cada carro desde a aquisição
         </p>
       </div>
 
-      {/* KPI cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* KPI cards — 3 cols desktop, 2 cols tablet, 1 col mobile */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* 1. Investimento */}
         <Card className="border-border/40">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -196,6 +228,8 @@ export default function AdminFleetPnL() {
             </div>
           </CardContent>
         </Card>
+
+        {/* 2. Receita Total */}
         <Card className="border-border/40">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -209,6 +243,8 @@ export default function AdminFleetPnL() {
             </div>
           </CardContent>
         </Card>
+
+        {/* 3. Gastos Totais */}
         <Card className="border-border/40">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -222,21 +258,71 @@ export default function AdminFleetPnL() {
             </div>
           </CardContent>
         </Card>
+
+        {/* 4. Lucro Operacional */}
         <Card className="border-border/40">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${totals.profit >= 0 ? "bg-green-500/10" : "bg-destructive/10"}`}>
-                <TrendingUp size={18} className={totals.profit >= 0 ? "text-green-500" : "text-destructive"} />
+              <div className={`p-2 rounded-lg ${totals.opProfit >= 0 ? "bg-green-500/10" : "bg-destructive/10"}`}>
+                <TrendingUp size={18} className={totals.opProfit >= 0 ? "text-green-500" : "text-destructive"} />
               </div>
               <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Lucro Líquido</p>
-                <p className={`text-xl font-bold tabular-nums ${totals.profit >= 0 ? "text-green-500" : "text-destructive"}`}>
-                  {totals.profit >= 0 ? "" : "-"}${fmt(Math.abs(totals.profit))}
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Lucro Operacional</p>
+                <p className={`text-xl font-bold tabular-nums ${totals.opProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                  {totals.opProfit >= 0 ? "" : "-"}${fmt(Math.abs(totals.opProfit))}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* 5. ROI */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Card className="border-border/40 cursor-help">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${(globalRoiPct ?? 0) >= 0 ? "bg-green-500/10" : "bg-destructive/10"}`}>
+                    <Percent size={18} className={(globalRoiPct ?? 0) >= 0 ? "text-green-500" : "text-destructive"} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Retorno sobre Investimento</p>
+                    <p className={`text-xl font-bold tabular-nums ${globalRoiPct === null ? "text-muted-foreground" : (globalRoiPct >= 0 ? "text-green-500" : "text-destructive")}`}>
+                      {globalRoiPct === null ? "—" : `${globalRoiPct.toFixed(1)}%`}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-[220px]">
+            <p className="text-xs">Quanto foi recuperado do investimento total na frota</p>
+          </TooltipContent>
+        </Tooltip>
+
+        {/* 6. Payback Estimado */}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Card className="border-border/40 cursor-help">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${paybackMonths === "recovered" ? "bg-green-500/10" : "bg-muted"}`}>
+                    <Clock size={18} className={paybackMonths === "recovered" ? "text-green-500" : "text-foreground"} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Payback Estimado</p>
+                    <p className={`text-xl font-bold tabular-nums ${paybackMonths === "recovered" ? "text-green-500" : "text-foreground"}`}>
+                      {paybackMonths === null ? "—" : paybackMonths === "recovered" ? "Recuperado" : `${paybackMonths} meses`}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TooltipTrigger>
+          <TooltipContent side="bottom" className="max-w-[240px]">
+            <p className="text-xs">Meses estimados para recuperar o investimento, baseado na receita média dos últimos 3 meses</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Search */}
@@ -264,7 +350,7 @@ export default function AdminFleetPnL() {
             )
           ) : (
           <div className="overflow-x-auto">
-            <table className="text-sm min-w-full" style={{ minWidth: "1400px" }}>
+            <table className="text-sm min-w-full" style={{ minWidth: "1500px" }}>
               <thead className="bg-muted/30 border-y border-border/40">
                 <tr>
                   <TH k="name" align="left">Veículo</TH>
@@ -277,8 +363,8 @@ export default function AdminFleetPnL() {
                   <TH k="addonRevenue">Rec. Taxas</TH>
                   <TH k="totalRevenue">Receita Total</TH>
                   <TH k="expenses">Gastos</TH>
-                  <TH k="netProfit">Lucro Líquido</TH>
-                  <TH k="roiPct">ROI</TH>
+                  <TH k="operatingProfit">Lucro Oper.</TH>
+                  <TH k="roiPct">ROI %</TH>
                   <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-center whitespace-nowrap">Status</th>
                 </tr>
               </thead>
@@ -305,11 +391,11 @@ export default function AdminFleetPnL() {
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">
                       {r.expenses > 0 ? `-$${fmt(r.expenses)}` : "—"}
                     </td>
-                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-bold ${r.netProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
-                      {r.netProfit >= 0 ? "" : "-"}${fmt(Math.abs(r.netProfit))}
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-bold ${r.operatingProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                      {r.operatingProfit >= 0 ? "" : "-"}${fmt(Math.abs(r.operatingProfit))}
                     </td>
-                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.roiPct >= 0 ? "text-green-500" : "text-destructive"}`}>
-                      {r.purchase_price > 0 ? `${r.roiPct}%` : "—"}
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.roiPct === null ? "text-muted-foreground" : (r.roiPct >= 0 ? "text-green-500" : "text-destructive")}`}>
+                      {r.roiPct === null ? "—" : `${r.roiPct.toFixed(1)}%`}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-center">
                       {r.purchase_price === 0 ? (
@@ -340,11 +426,16 @@ export default function AdminFleetPnL() {
                       ${fmt(filtered.reduce((s, r) => s + r.addonRevenue, 0))}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">${fmt(totals.revenue)}</td>
-                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">-${fmt(totals.expenses)}</td>
-                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums ${totals.profit >= 0 ? "text-green-500" : "text-destructive"}`}>
-                      {totals.profit >= 0 ? "" : "-"}${fmt(Math.abs(totals.profit))}
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">
+                      {totals.expenses > 0 ? `-$${fmt(totals.expenses)}` : "—"}
                     </td>
-                    <td colSpan={2} />
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-bold ${totals.opProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                      {totals.opProfit >= 0 ? "" : "-"}${fmt(Math.abs(totals.opProfit))}
+                    </td>
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums ${(globalRoiPct ?? 0) >= 0 ? "text-green-500" : "text-destructive"}`}>
+                      {globalRoiPct === null ? "—" : `${globalRoiPct.toFixed(1)}%`}
+                    </td>
+                    <td />
                   </tr>
                 </tfoot>
               )}
@@ -354,5 +445,6 @@ export default function AdminFleetPnL() {
         </CardContent>
       </Card>
     </div>
+    </TooltipProvider>
   );
 }
