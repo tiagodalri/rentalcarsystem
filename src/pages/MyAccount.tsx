@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { mockBookings, Booking } from "@/data/mockBookings";
 import ClientHeader from "@/components/client/ClientHeader";
 import BookingCard from "@/components/client/BookingCard";
+import { AccountSkeleton } from "@/components/skeletons/AccountSkeleton";
 
 const formatShortDate = (iso: string) => {
   const d = new Date(iso);
@@ -20,7 +21,8 @@ const MyAccount = () => {
   const navigate = useNavigate();
   const [tab, setTab] = useState("all");
 
-  if (loading || !user) return null;
+  if (loading) return <AccountSkeleton />;
+  if (!user) return null;
 
   const activeBooking = mockBookings.find((b) => b.status === "active" || b.status === "in_progress");
   const completedCount = mockBookings.filter((b) => b.status === "completed").length;
