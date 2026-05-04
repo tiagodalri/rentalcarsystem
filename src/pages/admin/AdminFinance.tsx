@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, BarChart3 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from "recharts";
+import { darkTooltipProps } from "@/components/admin/ChartTooltip";
 import { FinanceSkeleton } from "@/components/skeletons/FinanceSkeleton";
 
 type Booking = {
