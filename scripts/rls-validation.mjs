@@ -286,11 +286,6 @@ function printReport() {
 }
 
 async function cleanupInsertedRows() {
-  if (insertedRows.length === 0) {
-    log("\n🧹 Cleanup: nada a limpar (nenhum INSERT bem-sucedido).");
-    return;
-  }
-  log(`\n🧹 Cleanup: removendo ${insertedRows.length} linha(s) criada(s) durante os testes...`);
   const admin = ACCOUNTS.find((a) => a.role === "admin");
   let client;
   try {
@@ -299,19 +294,43 @@ async function cleanupInsertedRows() {
     log(`   ⚠️  Falha ao logar como admin para cleanup: ${e.message}`);
     return;
   }
-  // Agrupa por tabela
-  const byTable = insertedRows.reduce((acc, r) => {
-    (acc[r.table] ||= []).push(r.id);
-    return acc;
-  }, {});
-  for (const [table, ids] of Object.entries(byTable)) {
-    const { error } = await client.from(table).delete().in("id", ids);
-    if (error) {
-      log(`   ❌ ${table}: falhou (${error.message}) — ids: ${ids.join(", ")}`);
-    } else {
-      log(`   ✅ ${table}: ${ids.length} removida(s)`);
+
+  // 1) Delete tracked rows by ID
+  if (insertedRows.length > 0) {
+    log(`\n🧹 Cleanup: removendo ${insertedRows.length} linha(s) rastreada(s)...`);
+    const byTable = insertedRows.reduce((acc, r) => {
+      (acc[r.table] ||= []).push(r.id);
+      return acc;
+    }, {});
+    for (const [table, ids] of Object.entries(byTable)) {
+      const { error } = await client.from(table).delete().in("id", ids);
+      if (error) {
+        log(`   ❌ ${table}: falhou (${error.message}) — ids: ${ids.join(", ")}`);
+      } else {
+        log(`   ✅ ${table}: ${ids.length} removida(s)`);
+      }
     }
   }
+
+  // 2) Safety-net: delete any leftover "RLS Test %" rows from previous runs
+  log("🧹 Cleanup: varrendo registros órfãos 'RLS Test %'...");
+  const safetyTargets = [
+    { table: "vehicles", column: "name" },
+    { table: "customers", column: "full_name" },
+    { table: "team_members", column: "full_name" },
+  ];
+  for (const { table, column } of safetyTargets) {
+    const { error, count } = await client
+      .from(table)
+      .delete({ count: "exact" })
+      .like(column, "RLS Test %");
+    if (error) {
+      log(`   ⚠️  ${table}: ${error.message}`);
+    } else if (count && count > 0) {
+      log(`   🗑️  ${table}: ${count} órfão(s) removido(s)`);
+    }
+  }
+
   await client.auth.signOut();
 }
 

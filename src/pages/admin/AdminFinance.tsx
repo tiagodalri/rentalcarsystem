@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, BarChart3 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from "recharts";
+import { darkTooltipProps } from "@/components/admin/ChartTooltip";
 import { FinanceSkeleton } from "@/components/skeletons/FinanceSkeleton";
 
 type Booking = {
@@ -213,7 +214,7 @@ export default function AdminFinance() {
                   <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
                   <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                   <Tooltip
-                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                    {...darkTooltipProps}
                     formatter={(value: number, name: string) => [`$${value.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, name === "revenue" ? "Receita" : name === "expenses" ? "Despesas" : "Incidentes"]}
                   />
                   <Legend formatter={(v) => v === "revenue" ? "Receita" : v === "expenses" ? "Despesas" : "Incidentes"} />
@@ -239,7 +240,7 @@ export default function AdminFinance() {
                   <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
                   <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                   <Tooltip
-                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                    {...darkTooltipProps}
                     formatter={(value: number) => [`$${value.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, "Caixa Acumulado"]}
                   />
                   <Line type="monotone" dataKey="cashFlow" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 4, fill: "hsl(var(--primary))" }} />
@@ -265,7 +266,7 @@ export default function AdminFinance() {
                   <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
                   <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                   <Tooltip
-                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                    {...darkTooltipProps}
                     formatter={(value: number) => [`$${value.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, "Lucro"]}
                   />
                   <Bar dataKey="profit" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
