@@ -144,11 +144,7 @@ export default function AdminFinance() {
   }, [monthlyData]);
 
   if (loading) {
-    return (
-      <div className="p-8 flex justify-center">
-        <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-      </div>
-    );
+    return <FinanceSkeleton />;
   }
 
   const kpis = [

@@ -6,6 +6,7 @@ import {
   CheckCircle2, Wrench, Gauge, Calculator, Percent,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 
 interface DashboardStats {
   totalBookings: number;
