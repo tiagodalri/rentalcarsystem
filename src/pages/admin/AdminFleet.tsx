@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Search, Plus, Pencil, Trash2, Car, Users as UsersIcon, Briefcase, X, History, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
 
 type Vehicle = {
   id: string;
@@ -273,7 +274,7 @@ export default function AdminFleet() {
 
       {/* Grid */}
       {loading ? (
-        <p className="text-sm text-muted-foreground">Carregando...</p>
+        <CardGridSkeleton count={6} variant="fleet" />
       ) : filtered.length === 0 && vehicles.length > 0 ? (
         <EmptyState icon={Search} title="Nenhum veículo encontrado" description="Nenhum veículo corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} />
       ) : filtered.length === 0 ? (
