@@ -1,6 +1,7 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle, Loader2 } from "lucide-react";
+import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle } from "lucide-react";
+import { SearchResultsSkeleton } from "@/components/skeletons/PublicSkeletons";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
@@ -79,17 +80,7 @@ const SearchResults = () => {
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-12 flex items-center justify-center">
-          <div className="flex items-center gap-3 text-muted-foreground">
-            <Loader2 className="w-5 h-5 animate-spin text-primary" />
-            <span className="text-sm">Carregando...</span>
-          </div>
-        </div>
-      </div>
-    );
+    return <SearchResultsSkeleton />;
   }
 
   if (blockedByAge) {
