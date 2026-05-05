@@ -39,23 +39,21 @@ async function sendViaResend(
   subject: string,
   html: string
 ): Promise<{ success: boolean; error?: string }> {
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
-  if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
-    return { success: false, error: "Missing API keys" };
+  if (!RESEND_API_KEY) {
+    return { success: false, error: "Missing RESEND_API_KEY" };
   }
 
   // Allow override for dev/testing
   const overrideTo = Deno.env.get("EMAIL_OVERRIDE_TO");
   const finalTo = overrideTo || to;
 
-  const response = await fetch(`${GATEWAY_URL}/emails`, {
+  const response = await fetch(RESEND_API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${LOVABLE_API_KEY}`,
-      "X-Connection-Api-Key": RESEND_API_KEY,
+      Authorization: `Bearer ${RESEND_API_KEY}`,
     },
     body: JSON.stringify({
       from: FROM_EMAIL,
