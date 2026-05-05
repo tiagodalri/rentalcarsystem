@@ -1,0 +1,263 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
+
+// Resend gateway config
+const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
+const FROM_EMAIL = "Zeus Rental Car <noreply@zeusrentalcar.com>";
+const REPLY_TO = "contato@zeusrentalcar.com";
+
+// Retry config: 1s, 4s, 9s
+const RETRY_DELAYS = [1000, 4000, 9000];
+
+interface SendEmailRequest {
+  templateName: string;
+  recipientEmail: string;
+  idempotencyKey: string;
+  templateData?: Record<string, unknown>;
+  language?: "pt" | "en";
+}
+
+function getSupabaseAdmin() {
+  return createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+  );
+}
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function sendViaResend(
+  to: string,
+  subject: string,
+  html: string
+): Promise<{ success: boolean; error?: string }> {
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+
+  if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
+    return { success: false, error: "Missing API keys" };
+  }
+
+  // Allow override for dev/testing
+  const overrideTo = Deno.env.get("EMAIL_OVERRIDE_TO");
+  const finalTo = overrideTo || to;
+
+  const response = await fetch(`${GATEWAY_URL}/emails`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": RESEND_API_KEY,
+    },
+    body: JSON.stringify({
+      from: FROM_EMAIL,
+      to: [finalTo],
+      subject,
+      html,
+      reply_to: REPLY_TO,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    return { success: false, error: `Resend ${response.status}: ${body}` };
+  }
+
+  await response.json(); // consume body
+  return { success: true };
+}
+
+async function sendWithRetry(
+  to: string,
+  subject: string,
+  html: string,
+  supabase: ReturnType<typeof getSupabaseAdmin>,
+  logId: string
+): Promise<{ success: boolean; attempts: number; error?: string }> {
+  let lastError = "";
+
+  for (let attempt = 0; attempt <= RETRY_DELAYS.length; attempt++) {
+    if (attempt > 0) {
+      await sleep(RETRY_DELAYS[attempt - 1]);
+    }
+
+    // Update attempt count
+    await supabase
+      .from("email_logs")
+      .update({ attempt_count: attempt + 1, status: "sending" })
+      .eq("id", logId);
+
+    const result = await sendViaResend(to, subject, html);
+
+    if (result.success) {
+      return { success: true, attempts: attempt + 1 };
+    }
+
+    lastError = result.error || "Unknown error";
+    console.error(`Attempt ${attempt + 1} failed: ${lastError}`);
+  }
+
+  return {
+    success: false,
+    attempts: RETRY_DELAYS.length + 1,
+    error: lastError,
+  };
+}
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const body: SendEmailRequest = await req.json();
+    const { templateName, recipientEmail, idempotencyKey, templateData, language } = body;
+
+    // Input validation
+    if (!templateName || !recipientEmail || !idempotencyKey) {
+      return new Response(
+        JSON.stringify({
+          error: "Missing required fields: templateName, recipientEmail, idempotencyKey",
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabase = getSupabaseAdmin();
+
+    // Idempotency check — if already sent, skip
+    const { data: existing } = await supabase
+      .from("email_logs")
+      .select("id, status")
+      .eq("idempotency_key", idempotencyKey)
+      .maybeSingle();
+
+    if (existing) {
+      if (existing.status === "sent") {
+        return new Response(
+          JSON.stringify({ success: true, message: "Already sent (idempotent)", logId: existing.id }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      // If pending/failed, we'll retry below using existing log
+    }
+
+    // Render template — this is a placeholder until Phase 3/4 adds React Email
+    const rendered = renderTemplate(templateName, templateData, language || "pt");
+
+    if (!rendered) {
+      return new Response(
+        JSON.stringify({ error: `Unknown template: ${templateName}` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Create or reuse log entry
+    let logId: string;
+    if (existing) {
+      logId = existing.id;
+      await supabase
+        .from("email_logs")
+        .update({ status: "pending", error_message: null })
+        .eq("id", logId);
+    } else {
+      const { data: logEntry, error: logError } = await supabase
+        .from("email_logs")
+        .insert({
+          template_name: templateName,
+          recipient_email: recipientEmail,
+          idempotency_key: idempotencyKey,
+          status: "pending",
+          metadata: { templateData, language: language || "pt" },
+        })
+        .select("id")
+        .single();
+
+      if (logError) {
+        console.error("Failed to create email log:", logError);
+        return new Response(
+          JSON.stringify({ error: "Failed to log email" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      logId = logEntry.id;
+    }
+
+    // Send with retry
+    const result = await sendWithRetry(
+      recipientEmail,
+      rendered.subject,
+      rendered.html,
+      supabase,
+      logId
+    );
+
+    // Update final status
+    await supabase
+      .from("email_logs")
+      .update({
+        status: result.success ? "sent" : "failed",
+        attempt_count: result.attempts,
+        error_message: result.error || null,
+      })
+      .eq("id", logId);
+
+    if (result.success) {
+      console.log(`✅ Email sent: ${templateName} → ${recipientEmail} (${result.attempts} attempt(s))`);
+      return new Response(
+        JSON.stringify({ success: true, logId, attempts: result.attempts }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    } else {
+      console.error(`❌ Email failed: ${templateName} → ${recipientEmail}: ${result.error}`);
+      return new Response(
+        JSON.stringify({ success: false, error: result.error, logId, attempts: result.attempts }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+  } catch (err) {
+    console.error("send-email error:", err);
+    return new Response(
+      JSON.stringify({ error: err.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+
+// ─── Template Registry (stub — Phase 3/4 will replace with React Email) ───
+
+interface RenderedEmail {
+  subject: string;
+  html: string;
+}
+
+function renderTemplate(
+  templateName: string,
+  _data?: Record<string, unknown>,
+  _lang?: string
+): RenderedEmail | null {
+  // Placeholder templates for testing the pipeline
+  const templates: Record<string, () => RenderedEmail> = {
+    test: () => ({
+      subject: "Zeus Rental Car — Test Email",
+      html: `
+        <div style="font-family: Inter, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+          <h1 style="color: #0a0a0a; font-size: 24px;">🏎️ Zeus Rental Car</h1>
+          <p style="color: #555; font-size: 16px;">This is a test email from the send-email Edge Function.</p>
+          <p style="color: #999; font-size: 12px;">Template: test | Pipeline is working correctly.</p>
+        </div>
+      `,
+    }),
+  };
+
+  const factory = templates[templateName];
+  return factory ? factory() : null;
+}
