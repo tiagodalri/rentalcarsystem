@@ -7,8 +7,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-// Resend gateway config
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
+// Resend direct API
+const RESEND_API_URL = "https://api.resend.com/emails";
 const FROM_EMAIL = "Zeus Rental Car <noreply@zeusrentalcar.com>";
 const REPLY_TO = "contato@zeusrentalcar.com";
 
