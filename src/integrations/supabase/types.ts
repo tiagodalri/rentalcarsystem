@@ -117,6 +117,7 @@ export type Database = {
           nationality: string | null
           notes: string | null
           phone: string | null
+          preferred_language: string
           updated_at: string
           user_id: string | null
           zip_code: string | null
@@ -136,6 +137,7 @@ export type Database = {
           nationality?: string | null
           notes?: string | null
           phone?: string | null
+          preferred_language?: string
           updated_at?: string
           user_id?: string | null
           zip_code?: string | null
@@ -155,9 +157,49 @@ export type Database = {
           nationality?: string | null
           notes?: string | null
           phone?: string | null
+          preferred_language?: string
           updated_at?: string
           user_id?: string | null
           zip_code?: string | null
+        }
+        Relationships: []
+      }
+      email_logs: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          error_message: string | null
+          id: string
+          idempotency_key: string
+          metadata: Json | null
+          recipient_email: string
+          status: string
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          idempotency_key: string
+          metadata?: Json | null
+          recipient_email: string
+          status?: string
+          template_name: string
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          idempotency_key?: string
+          metadata?: Json | null
+          recipient_email?: string
+          status?: string
+          template_name?: string
+          updated_at?: string
         }
         Relationships: []
       }
