@@ -18,6 +18,9 @@ export type Database = {
         Row: {
           addons: Json | null
           booking_number: string | null
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           created_at: string
           customer_email: string | null
           customer_id: string | null
@@ -43,6 +46,9 @@ export type Database = {
         Insert: {
           addons?: Json | null
           booking_number?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           customer_email?: string | null
           customer_id?: string | null
@@ -68,6 +74,9 @@ export type Database = {
         Update: {
           addons?: Json | null
           booking_number?: string | null
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           customer_email?: string | null
           customer_id?: string | null
