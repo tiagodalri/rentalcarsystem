@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Car, Signal, Battery, Gauge, Clock, MapPin, ExternalLink, CalendarDays } from "lucide-react";
+import { Car, Signal, Battery, Gauge, Clock, MapPin, ExternalLink, CalendarDays, AlertTriangle } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
 
@@ -202,6 +202,14 @@ export default function AdminLive() {
           <Clock size={12} />
           {new Date().toLocaleTimeString("pt-BR")}
         </div>
+      </div>
+
+      {/* DEMO banner */}
+      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/10">
+        <AlertTriangle size={16} className="text-[#D4AF37] shrink-0" />
+        <p className="text-xs text-[#D4AF37] font-medium">
+          DEMO — Dados simulados. Mapa em tempo real disponível após integração com rastreadores GPS nos veículos.
+        </p>
       </div>
 
       {/* Stats bar */}

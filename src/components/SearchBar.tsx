@@ -41,19 +41,32 @@ const SearchBar = () => {
   const [driverAge, setDriverAge] = useState("");
   const [openPicker, setOpenPicker] = useState<string | null>(null);
 
+  const [locationErrors, setLocationErrors] = useState<{ pickup?: string; return?: string }>({});
+
   const ageNum = driverAge ? Number(driverAge) : null;
   const isUnderageBlocked = !driverOver25 && ageNum !== null && isBlockedAge(ageNum);
   const isYoungDriverFee = !driverOver25 && ageNum !== null && isYoungDriver(ageNum);
 
   const handleSearch = () => {
     if (isUnderageBlocked) return;
+
+    const errors: { pickup?: string; return?: string } = {};
+    if (!pickupLocation) errors.pickup = "Selecione o local de retirada";
+    const effectiveReturn = differentReturnLocation ? returnLocation : pickupLocation;
+    if (!effectiveReturn) errors.return = "Selecione o local de devolução";
+    if (Object.keys(errors).length > 0) {
+      setLocationErrors(errors);
+      return;
+    }
+    setLocationErrors({});
+
     const params = new URLSearchParams();
     if (pickupDate) params.set("pickupDate", pickupDate.toISOString());
     if (returnDate) params.set("returnDate", returnDate.toISOString());
     if (pickupTime) params.set("pickupTime", pickupTime);
     if (returnTime) params.set("returnTime", returnTime);
-    if (pickupLocation) params.set("pickupLocation", pickupLocation);
-    params.set("returnLocation", differentReturnLocation ? returnLocation : pickupLocation);
+    params.set("pickupLocation", pickupLocation);
+    params.set("returnLocation", effectiveReturn);
     if (!driverOver25 && driverAge) params.set("driverAge", driverAge);
     navigate(`/buscar?${params.toString()}`);
   };
@@ -140,7 +153,7 @@ const SearchBar = () => {
               {locations.map((loc) => (
                 <button
                   key={loc}
-                  onClick={() => { setPickupLocation(loc); setOpenPicker(null); }}
+                  onClick={() => { setPickupLocation(loc); setLocationErrors((e) => ({ ...e, pickup: undefined })); setOpenPicker(null); }}
                   className={cn(
                     "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors",
                     pickupLocation === loc ? "text-primary font-semibold bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
@@ -151,6 +164,9 @@ const SearchBar = () => {
               ))}
             </PopoverContent>
           </Popover>
+          {locationErrors.pickup && (
+            <p className="text-xs text-destructive col-span-2 lg:col-span-1 -mt-1">{locationErrors.pickup}</p>
+          )}
 
           {/* Return Date */}
           <Popover open={openPicker === "returnDate"} onOpenChange={(o) => setOpenPicker(o ? "returnDate" : null)}>
@@ -260,7 +276,7 @@ const SearchBar = () => {
                     {locations.map((loc) => (
                       <button
                         key={loc}
-                        onClick={() => { setReturnLocation(loc); setOpenPicker(null); }}
+                        onClick={() => { setReturnLocation(loc); setLocationErrors((e) => ({ ...e, return: undefined })); setOpenPicker(null); }}
                         className={cn(
                           "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors",
                           returnLocation === loc ? "text-primary font-semibold bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/30"

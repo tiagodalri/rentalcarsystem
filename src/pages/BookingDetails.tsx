@@ -309,6 +309,11 @@ const BookingDetails = () => {
         throw new Error("Veículo não encontrado. Atualize a página e tente novamente.");
       }
 
+      // Validate locations are present
+      if (!pickupLocation || !returnLocation) {
+        throw new Error("Local de retirada e devolução são obrigatórios. Volte à busca e selecione.");
+      }
+
       // Create booking record
       const bookingPayload = {
         customer_name: customerData.full_name.trim(),
@@ -318,8 +323,8 @@ const BookingDetails = () => {
         vehicle_id: dbVehicle.id,
         pickup_date: pickupDate ? format(pickupDate, "yyyy-MM-dd") : "",
         return_date: returnDate ? format(returnDate, "yyyy-MM-dd") : "",
-        pickup_location: pickupLocation || null,
-        return_location: returnLocation || null,
+        pickup_location: pickupLocation,
+        return_location: returnLocation,
         total_price: pricing.total,
         status: "pending",
         plan_id: selectedPlanId,
@@ -594,7 +599,7 @@ const BookingDetails = () => {
                       </div>
                       <div>
                         <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground">Local de Retirada</p>
-                        <p className="text-sm font-medium text-foreground">{pickupLocation || "Não informado"}</p>
+                        <p className="text-sm font-medium text-foreground">{pickupLocation || "—"}</p>
                       </div>
                     </div>
                   </div>
@@ -617,7 +622,7 @@ const BookingDetails = () => {
                       </div>
                       <div>
                         <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground">Local de Devolução</p>
-                        <p className="text-sm font-medium text-foreground">{returnLocation || "Não informado"}</p>
+                        <p className="text-sm font-medium text-foreground">{returnLocation || "—"}</p>
                         {isDifferentCity && (
                           <p className="text-[10px] text-amber-400 flex items-center gap-1 mt-1">
                             <AlertTriangle size={9} /> Cidade diferente
