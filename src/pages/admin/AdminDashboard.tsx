@@ -121,6 +121,12 @@ export default function AdminDashboard() {
         v.next_service_km != null && v.current_odometer != null && Number(v.current_odometer) >= Number(v.next_service_km)
       ).length;
 
+      // Expired driver licenses
+      const todayDate = todayStr;
+      const expiredLicenses = cList.filter((c: any) =>
+        c.driver_license_expiry && c.driver_license_expiry < todayDate
+      ).length;
+
       setStats({
         totalBookings: bList.length,
         activeBookings: bList.filter((b) => b.status === "confirmed" || b.status === "active" || b.status === "in_progress").length,
@@ -139,6 +145,7 @@ export default function AdminDashboard() {
         returnsToday,
         pendingOver24h,
         maintenanceOverdue,
+        expiredLicenses,
       });
 
       setRecentBookings(bList.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 8));
