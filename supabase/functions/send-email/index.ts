@@ -269,6 +269,7 @@ function renderTemplate(
       ),
     }),
     welcome: () => renderWelcome(_data, l),
+    "booking-confirmation": () => renderBookingConfirmation(_data, l),
   };
 
   const factory = templates[templateName];
