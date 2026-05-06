@@ -124,6 +124,7 @@ export type Database = {
           date_of_birth: string | null
           document_number: string | null
           driver_license: string | null
+          driver_license_expiry: string | null
           driver_license_file_url: string | null
           email: string | null
           full_name: string
@@ -145,6 +146,7 @@ export type Database = {
           date_of_birth?: string | null
           document_number?: string | null
           driver_license?: string | null
+          driver_license_expiry?: string | null
           driver_license_file_url?: string | null
           email?: string | null
           full_name: string
@@ -166,6 +168,7 @@ export type Database = {
           date_of_birth?: string | null
           document_number?: string | null
           driver_license?: string | null
+          driver_license_expiry?: string | null
           driver_license_file_url?: string | null
           email?: string | null
           full_name?: string
