@@ -36,6 +36,7 @@ interface SignUpExtra {
   zip_code?: string;
   house_number?: string;
   complement?: string;
+  language?: "pt" | "en";
 }
 
 let cachedCustomer: { userId: string; customer: CustomerRecord | null } | null = null;
