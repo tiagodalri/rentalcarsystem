@@ -112,6 +112,8 @@ export function useUserBookings() {
         notes: b.notes,
         created_at: b.created_at,
         customer_id: b.customer_id,
+        customer_email: b.customer_email,
+        customer_name: b.customer_name,
         vehicle: vehicleMap.get(b.vehicle_id) || null,
       }));
 

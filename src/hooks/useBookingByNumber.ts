@@ -87,6 +87,8 @@ export function useBookingByNumber(bookingNumber: string | undefined) {
             notes: bookingRow.notes,
             created_at: bookingRow.created_at,
             customer_id: bookingRow.customer_id,
+            customer_email: bookingRow.customer_email,
+            customer_name: bookingRow.customer_name,
             vehicle,
           });
           setLoading(false);
