@@ -123,7 +123,7 @@ const BookingDetailClient = () => {
   const hasFuelData = booking.status === "completed" && booking.fuelDropoff;
   const hasExtraCharges = booking.extraCharges && booking.extraCharges.length > 0;
 
-  const [cancelling, setCancelling] = useState(false);
+
 
   const handleCancelBooking = async () => {
     setCancelling(true);
