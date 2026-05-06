@@ -17,6 +17,7 @@ export type Database = {
       bookings: {
         Row: {
           addons: Json | null
+          booking_number: string | null
           created_at: string
           customer_email: string | null
           customer_id: string | null
@@ -34,12 +35,14 @@ export type Database = {
           return_location: string | null
           return_time: string | null
           status: string
+          stripe_session_id: string | null
           total_price: number | null
           updated_at: string
-          vehicle_id: string | null
+          vehicle_id: string
         }
         Insert: {
           addons?: Json | null
+          booking_number?: string | null
           created_at?: string
           customer_email?: string | null
           customer_id?: string | null
@@ -57,12 +60,14 @@ export type Database = {
           return_location?: string | null
           return_time?: string | null
           status?: string
+          stripe_session_id?: string | null
           total_price?: number | null
           updated_at?: string
-          vehicle_id?: string | null
+          vehicle_id: string
         }
         Update: {
           addons?: Json | null
+          booking_number?: string | null
           created_at?: string
           customer_email?: string | null
           customer_id?: string | null
@@ -80,9 +85,10 @@ export type Database = {
           return_location?: string | null
           return_time?: string | null
           status?: string
+          stripe_session_id?: string | null
           total_price?: number | null
           updated_at?: string
-          vehicle_id?: string | null
+          vehicle_id?: string
         }
         Relationships: [
           {

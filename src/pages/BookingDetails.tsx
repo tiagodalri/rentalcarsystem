@@ -295,13 +295,18 @@ const BookingDetails = () => {
         extra_driver: hasExtraDriver,
       };
 
+      // Validate vehicle exists in DB
+      if (!dbVehicle?.id) {
+        throw new Error("Veículo não encontrado. Atualize a página e tente novamente.");
+      }
+
       // Create booking record
       const bookingPayload = {
         customer_name: customerData.full_name.trim(),
         customer_email: email,
         customer_phone: customerData.phone.trim(),
         customer_id: customerId || null,
-        vehicle_id: null,
+        vehicle_id: dbVehicle.id,
         pickup_date: pickupDate ? format(pickupDate, "yyyy-MM-dd") : "",
         return_date: returnDate ? format(returnDate, "yyyy-MM-dd") : "",
         pickup_location: pickupLocation || null,
@@ -314,12 +319,22 @@ const BookingDetails = () => {
         notes: `Plano: ${currentPlan.name}`,
       };
 
-      // Insert booking (ignore errors for anon)
-      await supabase.from("bookings").insert(bookingPayload as any);
+      // Insert booking and get back id + booking_number
+      const { data: insertedBooking, error: insertError } = await supabase
+        .from("bookings")
+        .insert(bookingPayload as any)
+        .select("id, booking_number")
+        .single();
+
+      if (insertError) {
+        console.error("Booking insert error:", insertError);
+        throw new Error("Não foi possível criar a reserva. Tente novamente.");
+      }
 
       // Proceed to checkout
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
+          bookingId: insertedBooking.id,
           vehicleName: decodedName,
           vehicleCategory: categoryLabels[vehicle?.categoryKey || ""],
           dailyRate: dailyPrice,
