@@ -272,6 +272,8 @@ function renderTemplate(
     }),
     welcome: () => renderWelcome(_data, l),
     "booking-confirmation": () => renderBookingConfirmation(_data, l),
+    "pickup-reminder": () => renderPickupReminder(_data, l),
+    "payment-receipt": () => renderPaymentReceipt(_data, l),
   };
 
   const factory = templates[templateName];
