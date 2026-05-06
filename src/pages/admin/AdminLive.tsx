@@ -204,6 +204,14 @@ export default function AdminLive() {
         </div>
       </div>
 
+      {/* DEMO banner */}
+      <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg border border-[#D4AF37]/40 bg-[#D4AF37]/10">
+        <AlertTriangle size={16} className="text-[#D4AF37] shrink-0" />
+        <p className="text-xs text-[#D4AF37] font-medium">
+          DEMO — Dados simulados. Mapa em tempo real disponível após integração com rastreadores GPS nos veículos.
+        </p>
+      </div>
+
       {/* Stats bar */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
         {[
