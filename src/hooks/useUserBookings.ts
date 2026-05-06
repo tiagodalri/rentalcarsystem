@@ -67,7 +67,7 @@ export function useUserBookings() {
 
       const { data, error: bookErr } = await supabase
         .from("bookings")
-        .select("id, booking_number, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, plan_id, addons, extra_driver, driver_age, notes, created_at, customer_id, vehicle_id")
+        .select("id, booking_number, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, plan_id, addons, extra_driver, driver_age, notes, created_at, customer_id, vehicle_id, customer_email, customer_name")
         .eq("customer_id", customer.id)
         .order("pickup_date", { ascending: false });
 
