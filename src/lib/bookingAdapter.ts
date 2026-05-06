@@ -1,4 +1,4 @@
-import type { Booking, BookingStatus } from "@/data/mockBookings";
+import type { Booking, BookingStatus } from "@/data/bookingTypes";
 import type { DbBookingWithVehicle } from "@/hooks/useUserBookings";
 import { getCoverImage } from "@/data/vehicleImages";
 

@@ -1,4 +1,4 @@
-import { ExtraCharge } from "@/data/mockBookings";
+import { ExtraCharge } from "@/data/bookingTypes";
 import { useCurrency } from "@/i18n/CurrencyContext";
 
 interface ExtraChargesTableProps {

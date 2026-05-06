@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Calendar, MapPin, ChevronRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { Booking } from "@/data/mockBookings";
+import { Booking } from "@/data/bookingTypes";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import BookingStatusBadge from "./BookingStatusBadge";
 import { Progress } from "@/components/ui/progress";

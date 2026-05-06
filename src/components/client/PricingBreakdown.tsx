@@ -1,5 +1,5 @@
 import { Separator } from "@/components/ui/separator";
-import { BookingPricing } from "@/data/mockBookings";
+import { BookingPricing } from "@/data/bookingTypes";
 import { useCurrency } from "@/i18n/CurrencyContext";
 
 interface PricingBreakdownProps {
