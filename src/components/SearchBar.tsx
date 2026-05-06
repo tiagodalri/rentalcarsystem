@@ -290,6 +290,9 @@ const SearchBar = () => {
               </motion.div>
             )}
           </AnimatePresence>
+          {locationErrors.return && (
+            <p className="text-xs text-destructive -mt-1">{locationErrors.return}</p>
+          )}
 
           {/* Driver age toggle */}
           <div className="flex items-center gap-3">
