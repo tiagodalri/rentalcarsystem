@@ -41,19 +41,32 @@ const SearchBar = () => {
   const [driverAge, setDriverAge] = useState("");
   const [openPicker, setOpenPicker] = useState<string | null>(null);
 
+  const [locationErrors, setLocationErrors] = useState<{ pickup?: string; return?: string }>({});
+
   const ageNum = driverAge ? Number(driverAge) : null;
   const isUnderageBlocked = !driverOver25 && ageNum !== null && isBlockedAge(ageNum);
   const isYoungDriverFee = !driverOver25 && ageNum !== null && isYoungDriver(ageNum);
 
   const handleSearch = () => {
     if (isUnderageBlocked) return;
+
+    const errors: { pickup?: string; return?: string } = {};
+    if (!pickupLocation) errors.pickup = "Selecione o local de retirada";
+    const effectiveReturn = differentReturnLocation ? returnLocation : pickupLocation;
+    if (!effectiveReturn) errors.return = "Selecione o local de devolução";
+    if (Object.keys(errors).length > 0) {
+      setLocationErrors(errors);
+      return;
+    }
+    setLocationErrors({});
+
     const params = new URLSearchParams();
     if (pickupDate) params.set("pickupDate", pickupDate.toISOString());
     if (returnDate) params.set("returnDate", returnDate.toISOString());
     if (pickupTime) params.set("pickupTime", pickupTime);
     if (returnTime) params.set("returnTime", returnTime);
-    if (pickupLocation) params.set("pickupLocation", pickupLocation);
-    params.set("returnLocation", differentReturnLocation ? returnLocation : pickupLocation);
+    params.set("pickupLocation", pickupLocation);
+    params.set("returnLocation", effectiveReturn);
     if (!driverOver25 && driverAge) params.set("driverAge", driverAge);
     navigate(`/buscar?${params.toString()}`);
   };
