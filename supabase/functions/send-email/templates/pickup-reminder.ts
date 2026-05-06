@@ -104,7 +104,7 @@ export function renderPickupReminder(
   const checklistItems = t.checklist
     .map(
       (item) =>
-        `<tr><td style="padding: 6px 0; font-size: 14px; color: ${colors.textSecondary}; line-height: 1.5;">◆ ${item}</td></tr>`
+        `<tr><td style="padding: 6px 0; font-size: 14px; color: ${colors.textSecondary}; line-height: 1.5;">• ${item}</td></tr>`
     )
     .join("");
 
