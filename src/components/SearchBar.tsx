@@ -15,11 +15,12 @@ const locations = [
   "Aeroporto de Orlando (MCO)",
   "Aeroporto de Miami (MIA)",
   "Aeroporto de Tampa (TPA)",
+  "Aeroporto de Jacksonville (JAX)",
+  "Aeroporto de Fort Lauderdale (FLL)",
+  "Aeroporto de Daytona Beach (DAB)",
+  "Kissimmee",
   "Orlando (Entrega no Hotel)",
   "Miami (Entrega no Hotel)",
-  "Kissimmee",
-  "International Drive",
-  "Lake Buena Vista",
 ];
 
 const timeSlots = [
