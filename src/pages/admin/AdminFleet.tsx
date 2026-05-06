@@ -285,7 +285,7 @@ export default function AdminFleet() {
             <Card key={v.id} className="bg-card/50 border-border/40 hover:border-primary/20 transition-colors overflow-hidden cursor-pointer" onClick={() => navigate(`/admin/fleet/${v.id}`)}>
               {v.image_url && (
                 <div className="h-40 bg-muted/30 overflow-hidden">
-                  <img src={v.image_url} alt={v.name} className="w-full h-full object-cover" />
+                  <img src={v.image_url} alt={v.name} className="w-full h-full object-cover" loading="lazy" width={640} height={360} />
                 </div>
               )}
               <CardContent className="p-4 space-y-3">

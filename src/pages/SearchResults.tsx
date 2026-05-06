@@ -193,6 +193,8 @@ const SearchResults = () => {
                       alt={v.name}
                       className="w-full h-full object-cover object-[center_40%] transition-transform duration-700 group-hover:scale-110"
                       loading="lazy"
+                      width={1280}
+                      height={720}
                     />
                     {/* no fade overlay */}
 

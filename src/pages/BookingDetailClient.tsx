@@ -232,6 +232,9 @@ const BookingDetailClient = () => {
                   src={booking.coverImage}
                   alt={booking.vehicle}
                   className="w-full h-48 sm:h-64 object-cover"
+                  loading="lazy"
+                  width={640}
+                  height={360}
                 />
               </div>
             )}

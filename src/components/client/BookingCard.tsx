@@ -55,6 +55,9 @@ const BookingCard = ({ booking, index, featured }: BookingCardProps) => {
               src={booking.coverImage}
               alt={booking.vehicle}
               className="w-full h-full object-cover"
+              loading="lazy"
+              width={640}
+              height={360}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute bottom-3 left-3">
@@ -122,6 +125,9 @@ const BookingCard = ({ booking, index, featured }: BookingCardProps) => {
           src={booking.coverImage}
           alt={booking.vehicle}
           className="w-full h-full object-cover"
+          loading="lazy"
+          width={320}
+          height={220}
         />
       </div>
       <div className="p-4 flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
