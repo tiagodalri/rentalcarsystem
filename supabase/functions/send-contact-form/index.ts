@@ -1,0 +1,96 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const { nome, email, telefone, mensagem, website } = await req.json();
+
+    // Honeypot
+    if (website && website.length > 0) {
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Server-side validation
+    if (!nome || nome.trim().length < 3) {
+      return new Response(JSON.stringify({ error: "Nome inválido" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (!email || !email.includes("@")) {
+      return new Response(JSON.stringify({ error: "Email inválido" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (!mensagem || mensagem.trim().length < 10) {
+      return new Response(JSON.stringify({ error: "Mensagem muito curta" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const resendKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendKey) {
+      throw new Error("RESEND_API_KEY não configurada");
+    }
+
+    // Check for test override
+    const overrideTo = Deno.env.get("EMAIL_OVERRIDE_TO");
+    const recipient = overrideTo || "contato@gruposigna.com.br";
+
+    const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Contato Zeus</title></head>
+<body style="font-family:Arial,sans-serif;background:#f9f9f9;padding:30px;">
+  <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:8px;padding:30px;border:1px solid #e0e0e0;">
+    <h2 style="color:#0a0a0a;border-bottom:2px solid #d4af37;padding-bottom:10px;">Nova mensagem do site Zeus Rental Car</h2>
+    <p><strong>Nome:</strong> ${nome}</p>
+    <p><strong>Email:</strong> ${email}</p>
+    <p><strong>Telefone:</strong> ${telefone || "—"}</p>
+    <p><strong>Mensagem:</strong></p>
+    <p style="background:#f5f5f5;padding:15px;border-radius:6px;white-space:pre-wrap;">${mensagem}</p>
+  </div>
+</body></html>`;
+
+    const resp = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${resendKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Zeus Rental Car <contato@zeusrentalcar.com>",
+        to: [recipient],
+        reply_to: email,
+        subject: `Contato site — ${nome}`,
+        html,
+      }),
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`Resend retornou ${resp.status}: ${errText}`);
+    }
+
+    return new Response(JSON.stringify({ success: true }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("send-contact-form error:", e);
+    return new Response(JSON.stringify({ error: (e as Error).message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
