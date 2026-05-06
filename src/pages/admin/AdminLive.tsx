@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Car, Signal, Battery, Gauge, Clock, MapPin, ExternalLink, CalendarDays } from "lucide-react";
+import { Car, Signal, Battery, Gauge, Clock, MapPin, ExternalLink, CalendarDays, AlertTriangle } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
 
