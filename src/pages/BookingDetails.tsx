@@ -309,6 +309,11 @@ const BookingDetails = () => {
         throw new Error("Veículo não encontrado. Atualize a página e tente novamente.");
       }
 
+      // Validate locations are present
+      if (!pickupLocation || !returnLocation) {
+        throw new Error("Local de retirada e devolução são obrigatórios. Volte à busca e selecione.");
+      }
+
       // Create booking record
       const bookingPayload = {
         customer_name: customerData.full_name.trim(),
@@ -318,8 +323,8 @@ const BookingDetails = () => {
         vehicle_id: dbVehicle.id,
         pickup_date: pickupDate ? format(pickupDate, "yyyy-MM-dd") : "",
         return_date: returnDate ? format(returnDate, "yyyy-MM-dd") : "",
-        pickup_location: pickupLocation || null,
-        return_location: returnLocation || null,
+        pickup_location: pickupLocation,
+        return_location: returnLocation,
         total_price: pricing.total,
         status: "pending",
         plan_id: selectedPlanId,
