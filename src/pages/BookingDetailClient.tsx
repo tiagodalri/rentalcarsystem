@@ -19,10 +19,12 @@ import {
   X,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-import { mockBookings } from "@/data/mockBookings";
+import { useBookingByNumber } from "@/hooks/useBookingByNumber";
+import { adaptBookingFromDb } from "@/lib/bookingAdapter";
 import BookingStatusBadge from "@/components/client/BookingStatusBadge";
 import BookingTimeline from "@/components/client/BookingTimeline";
 import PricingBreakdown from "@/components/client/PricingBreakdown";
@@ -36,14 +38,29 @@ const BookingDetailClient = () => {
   const navigate = useNavigate();
   const { formatPrice } = useCurrency();
 
-  const booking = mockBookings.find((b) => b.id === bookingId);
+  const { booking: dbBooking, loading, error } = useBookingByNumber(bookingId);
 
-  if (!booking) {
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto max-w-5xl px-4 pt-24 pb-16 space-y-6">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-64 w-full rounded-xl" />
+          <Skeleton className="h-40 w-full rounded-xl" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error / not found
+  if (error || !dbBooking) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto max-w-5xl px-4 pt-24 pb-16 text-center">
-          <p className="text-muted-foreground">Reserva não encontrada.</p>
+          <p className="text-muted-foreground">{error || "Reserva não encontrada."}</p>
           <button onClick={() => navigate("/minha-conta")} className="text-primary mt-4 text-sm">
             Voltar ao painel
           </button>
@@ -51,6 +68,8 @@ const BookingDetailClient = () => {
       </div>
     );
   }
+
+  const booking = adaptBookingFromDb(dbBooking);
 
   const pickupDate = new Date(booking.pickupDate);
   const dropoffDate = new Date(booking.dropoffDate);
@@ -83,6 +102,9 @@ const BookingDetailClient = () => {
   ];
 
   const isFuture = booking.status === "confirmed" || booking.status === "pending";
+  const hasContractUrl = booking.contractUrl && booking.contractUrl !== "" && booking.contractUrl !== "#";
+  const hasFuelData = booking.status === "completed" && booking.fuelDropoff;
+  const hasExtraCharges = booking.extraCharges && booking.extraCharges.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -116,13 +138,15 @@ const BookingDetailClient = () => {
             </div>
 
             {/* Cover */}
-            <div className="rounded-xl overflow-hidden">
-              <img
-                src={booking.coverImage}
-                alt={booking.vehicle}
-                className="w-full h-48 sm:h-64 object-cover"
-              />
-            </div>
+            {booking.coverImage && (
+              <div className="rounded-xl overflow-hidden">
+                <img
+                  src={booking.coverImage}
+                  alt={booking.vehicle}
+                  className="w-full h-48 sm:h-64 object-cover"
+                />
+              </div>
+            )}
 
             {/* Timeline */}
             <div className="glass-card rounded-xl p-4">
@@ -142,20 +166,24 @@ const BookingDetailClient = () => {
                 Detalhes da locação
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div className="flex items-start gap-2">
-                  <MapPin size={16} className="text-primary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-muted-foreground text-xs">Retirada</p>
-                    <p className="text-foreground">{booking.pickupLocation}</p>
+                {booking.pickupLocation && (
+                  <div className="flex items-start gap-2">
+                    <MapPin size={16} className="text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-muted-foreground text-xs">Retirada</p>
+                      <p className="text-foreground">{booking.pickupLocation}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-2">
-                  <MapPin size={16} className="text-primary mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-muted-foreground text-xs">Devolução</p>
-                    <p className="text-foreground">{booking.dropoffLocation}</p>
+                )}
+                {booking.dropoffLocation && (
+                  <div className="flex items-start gap-2">
+                    <MapPin size={16} className="text-primary mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-muted-foreground text-xs">Devolução</p>
+                      <p className="text-foreground">{booking.dropoffLocation}</p>
+                    </div>
                   </div>
-                </div>
+                )}
                 <div className="flex items-start gap-2">
                   <Calendar size={16} className="text-primary mt-0.5 shrink-0" />
                   <div>
@@ -211,8 +239,8 @@ const BookingDetailClient = () => {
               </div>
             </div>
 
-            {/* Fuel */}
-            {booking.status === "completed" && booking.fuelDropoff && (
+            {/* Fuel — only show if data exists */}
+            {hasFuelData && (
               <div className="glass-card rounded-xl p-5">
                 <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">
                   <Fuel size={14} className="inline mr-1.5" />
@@ -220,7 +248,7 @@ const BookingDetailClient = () => {
                 </h3>
                 <div className="flex gap-6">
                   <FuelGauge level={booking.fuelPickup} label="Retirada" />
-                  <FuelGauge level={booking.fuelDropoff} label="Devolução" />
+                  <FuelGauge level={booking.fuelDropoff!} label="Devolução" />
                 </div>
                 {booking.fuelPickup !== booking.fuelDropoff && (
                   <p className="text-xs text-amber-400 mt-3">
@@ -230,8 +258,8 @@ const BookingDetailClient = () => {
               </div>
             )}
 
-            {/* Extra charges */}
-            {booking.extraCharges.length > 0 && (
+            {/* Extra charges — only show if data exists */}
+            {hasExtraCharges && (
               <div className="glass-card rounded-xl p-5">
                 <ExtraChargesTable charges={booking.extraCharges} />
               </div>
@@ -277,8 +305,8 @@ const BookingDetailClient = () => {
                 )}
               </div>
 
-              {/* Contract */}
-              <ContractButton url={booking.contractUrl} />
+              {/* Contract — only show if URL exists */}
+              {hasContractUrl && <ContractButton url={booking.contractUrl} />}
 
               {/* Actions for future */}
               {isFuture && (
@@ -299,8 +327,8 @@ const BookingDetailClient = () => {
                 </div>
               )}
 
-              {/* Rating */}
-              {booking.status === "completed" && (
+              {/* Rating — only show for completed with rating */}
+              {booking.status === "completed" && booking.rating && (
                 <div className="glass-card rounded-xl p-4 text-center">
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">
                     Sua avaliação
