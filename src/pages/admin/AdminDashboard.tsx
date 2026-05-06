@@ -57,7 +57,7 @@ export default function AdminDashboard() {
       const [bookings, vehicles, customers] = await Promise.all([
         supabase.from("bookings").select("*"),
         supabase.from("vehicles").select("*"),
-        supabase.from("customers").select("id"),
+        supabase.from("customers").select("id, driver_license_expiry"),
       ]);
 
       const bList = bookings.data || [];
