@@ -622,7 +622,7 @@ const BookingDetails = () => {
                       </div>
                       <div>
                         <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground">Local de Devolução</p>
-                        <p className="text-sm font-medium text-foreground">{returnLocation || "Não informado"}</p>
+                        <p className="text-sm font-medium text-foreground">{returnLocation || "—"}</p>
                         {isDifferentCity && (
                           <p className="text-[10px] text-amber-400 flex items-center gap-1 mt-1">
                             <AlertTriangle size={9} /> Cidade diferente
