@@ -35,6 +35,7 @@ import AdminTeam from "./pages/admin/AdminTeam.tsx";
 import BookingConfirmed from "./pages/BookingConfirmed.tsx";
 import CustomerRegistration from "./pages/CustomerRegistration.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
+import Contato from "./pages/Contato.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
 import { RequireRole } from "./components/admin/RequireRole.tsx";
 
