@@ -1012,7 +1012,7 @@ const BookingDetails = () => {
                   {/* Payment CTA */}
                   <button
                     onClick={handleCheckout}
-                    disabled={isProcessing}
+                    disabled={isProcessing || vehiclesLoading || !dbVehicle}
                     className="mt-5 w-full gold-gradient text-primary-foreground py-3 rounded-lg text-xs font-bold uppercase tracking-[0.12em] flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {isProcessing ? (
