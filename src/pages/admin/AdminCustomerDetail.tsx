@@ -65,6 +65,8 @@ export default function AdminCustomerDetail() {
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [vehicles, setVehicles] = useState<VehicleMap>({});
   const [inspections, setInspections] = useState<InspectionRow[]>([]);
+  const [favoriteCategory, setFavoriteCategory] = useState<string | null>(null);
+  const [incidentCount, setIncidentCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
