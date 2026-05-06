@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { supabase as sbClient } from "@/integrations/supabase/client";
 
 export interface DbBookingWithVehicle {
   id: string;
