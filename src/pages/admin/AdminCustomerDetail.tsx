@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   ChevronRight, User, Mail, Phone, FileText, MapPin,
   DollarSign, Calendar, AlertTriangle, Car, TrendingUp,
-  Globe, CreditCard, Pencil
+  Globe, CreditCard, Pencil, Star, ShieldAlert,
 } from "lucide-react";
 import { CustomerDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 type Customer = {
   id: string;
@@ -57,12 +58,15 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 };
 
 export default function AdminCustomerDetail() {
+  const { hasAny } = useAdminAuth();
   const { customerId } = useParams();
   const navigate = useNavigate();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [vehicles, setVehicles] = useState<VehicleMap>({});
   const [inspections, setInspections] = useState<InspectionRow[]>([]);
+  const [favoriteCategory, setFavoriteCategory] = useState<string | null>(null);
+  const [incidentCount, setIncidentCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -94,6 +98,41 @@ export default function AdminCustomerDetail() {
         setInspections(insp || []);
       }
 
+      // Favorite category
+      const vehIds = bookingList.map(b => b.vehicle_id).filter(Boolean) as string[];
+      if (vehIds.length > 0) {
+        const catCount: Record<string, number> = {};
+        const vMap = vehicles || {};
+        // Use already-loaded vehicles map built above
+        bookingList.forEach(b => {
+          if (b.vehicle_id) {
+            // vMap may not be set yet, use vehs from above
+          }
+        });
+        // Re-query vehicles for categories
+        const { data: allVehs } = await supabase.from("vehicles").select("id, category").in("id", vehIds);
+        const catMap: Record<string, string> = {};
+        (allVehs || []).forEach(v => { catMap[v.id] = v.category; });
+        bookingList.forEach(b => {
+          if (b.vehicle_id && catMap[b.vehicle_id]) {
+            const cat = catMap[b.vehicle_id];
+            catCount[cat] = (catCount[cat] || 0) + 1;
+          }
+        });
+        const sorted = Object.entries(catCount).sort((a, b) => b[1] - a[1]);
+        if (sorted.length > 0) setFavoriteCategory(sorted[0][0]);
+      }
+
+      // Incident count from vehicle_incidents via bookings
+      const bIds = bookingList.map(b => b.id);
+      if (bIds.length > 0) {
+        const { count } = await supabase
+          .from("vehicle_incidents")
+          .select("id", { count: "exact", head: true })
+          .in("booking_id", bIds);
+        setIncidentCount(count || 0);
+      }
+
       setLoading(false);
     };
     load();
@@ -108,7 +147,7 @@ export default function AdminCustomerDetail() {
   );
 
   // Computed stats
-  const totalRevenue = bookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
+  const totalRevenue = bookings.filter(b => b.status === "completed").reduce((sum, b) => sum + (b.total_price || 0), 0);
   const completedBookings = bookings.filter(b => b.status === "completed").length;
   const activeBookings = bookings.filter(b => ["active", "in_progress", "confirmed"].includes(b.status)).length;
   const cancelledBookings = bookings.filter(b => b.status === "cancelled").length;
@@ -187,6 +226,34 @@ export default function AdminCustomerDetail() {
         <MetricCard icon={AlertTriangle} label="Avarias Causadas" value={totalNewDamages} color={totalNewDamages > 0 ? "text-red-500" : "text-emerald-500"} />
         <MetricCard icon={CreditCard} label="Canceladas" value={cancelledBookings} color={cancelledBookings > 0 ? "text-red-400" : "text-muted-foreground"} />
       </div>
+
+      {/* Customer metrics section — visible to admin, support, operations */}
+      {hasAny(["admin", "support", "operations"]) && (
+        <div className="space-y-3">
+          <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.1em]">Metricas do Cliente</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <MetricCard icon={FileText} label="Total de Locacoes" value={bookings.length} />
+            <MetricCard
+              icon={DollarSign}
+              label="Valor Total Gasto"
+              value={totalRevenue > 0 ? `$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "—"}
+              color="text-primary"
+            />
+            <MetricCard
+              icon={Star}
+              label="Categoria Favorita"
+              value={favoriteCategory || "—"}
+              color="text-primary"
+            />
+            <MetricCard
+              icon={ShieldAlert}
+              label="Historico de Avarias"
+              value={incidentCount}
+              color={incidentCount > 0 ? "text-red-500" : "text-emerald-500"}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left - Customer info */}

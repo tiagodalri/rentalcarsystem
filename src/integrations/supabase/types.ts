@@ -629,6 +629,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_occupancy_rate: { Args: never; Returns: number }
       has_any_role: {
         Args: {
           _roles: Database["public"]["Enums"]["app_role"][]
