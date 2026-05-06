@@ -166,7 +166,7 @@ export default function AdminDashboard() {
   const goFinance = () => navigate("/admin/finance");
 
   const showFinancial = hasAny(["admin", "finance"]);
-  const showAlerts = hasAny(["admin", "operations"]);
+  const showAlerts = hasAny(["admin", "operations", "support"]);
 
   const operationalCards: StatCard[] = [
     { label: "Reservas Totais", value: stats.totalBookings, icon: CalendarRange, color: "text-primary", onClick: goBookings },
