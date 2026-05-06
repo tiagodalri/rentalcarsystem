@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { emailLayout, emailButton, colors } from "./email-components.ts";
+import { renderWelcome } from "./templates/welcome.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -266,6 +267,7 @@ function renderTemplate(
         l
       ),
     }),
+    welcome: () => renderWelcome(_data, l),
   };
 
   const factory = templates[templateName];
