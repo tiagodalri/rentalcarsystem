@@ -42,7 +42,7 @@ export function useBookingByNumber(bookingNumber: string | undefined) {
         // Get the booking by booking_number, scoped to this customer (RLS also enforces)
         const { data: bookingRow, error: bookErr } = await supabase
           .from("bookings")
-          .select("id, booking_number, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, plan_id, addons, extra_driver, driver_age, notes, created_at, customer_id, vehicle_id")
+          .select("id, booking_number, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, plan_id, addons, extra_driver, driver_age, notes, created_at, customer_id, vehicle_id, customer_email, customer_name")
           .eq("booking_number", bookingNumber)
           .eq("customer_id", customer.id)
           .maybeSingle();
