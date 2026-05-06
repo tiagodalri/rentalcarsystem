@@ -28,6 +28,7 @@ interface DashboardStats {
   returnsToday: number;
   pendingOver24h: number;
   maintenanceOverdue: number;
+  expiredLicenses: number;
 }
 
 type StatCard = {
@@ -46,7 +47,7 @@ export default function AdminDashboard() {
     totalVehicles: 0, availableVehicles: 0, maintenanceVehicles: 0, avgOdometer: 0,
     totalInvestment: 0, monthlyRevenue: 0, avgCostPerCar: 0, roiPct: null,
     avgTicket: null, occupancyRate: null,
-    returnsToday: 0, pendingOver24h: 0, maintenanceOverdue: 0,
+    returnsToday: 0, pendingOver24h: 0, maintenanceOverdue: 0, expiredLicenses: 0,
   });
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
