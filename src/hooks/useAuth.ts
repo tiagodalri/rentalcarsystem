@@ -36,6 +36,7 @@ interface SignUpExtra {
   zip_code?: string;
   house_number?: string;
   complement?: string;
+  driver_license_expiry?: string;
   language?: "pt" | "en";
 }
 
