@@ -35,6 +35,7 @@ import AdminTeam from "./pages/admin/AdminTeam.tsx";
 import BookingConfirmed from "./pages/BookingConfirmed.tsx";
 import CustomerRegistration from "./pages/CustomerRegistration.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
+import Contato from "./pages/Contato.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
 import { RequireRole } from "./components/admin/RequireRole.tsx";
 
@@ -65,6 +66,7 @@ const App = () => (
               <Route path="/cadastro" element={<CustomerRegistration />} />
               <Route path="/login" element={<Login />} />
               <Route path="/redefinir-senha" element={<ResetPassword />} />
+              <Route path="/contato" element={<Contato />} />
               <Route path="/minha-conta" element={<RequireAuth><MyAccount /></RequireAuth>} />
               <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><BookingDetailClient /></RequireAuth>} />
 
