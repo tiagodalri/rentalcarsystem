@@ -36,6 +36,7 @@ interface SignUpExtra {
   zip_code?: string;
   house_number?: string;
   complement?: string;
+  driver_license_expiry?: string;
   language?: "pt" | "en";
 }
 
@@ -164,6 +165,7 @@ export function useAuth() {
             zip_code: extra.zip_code || null,
             house_number: extra.house_number || null,
             complement: extra.complement || null,
+            driver_license_expiry: extra.driver_license_expiry || null,
           })
           .eq("id", existing.id);
         if (updErr) throw new Error("Conta criada, mas falhou ao salvar perfil: " + updErr.message);
@@ -180,6 +182,7 @@ export function useAuth() {
           zip_code: extra.zip_code || null,
           house_number: extra.house_number || null,
           complement: extra.complement || null,
+          driver_license_expiry: extra.driver_license_expiry || null,
         }).select("id").single();
         if (insErr) throw new Error("Conta criada, mas falhou ao salvar perfil: " + insErr.message);
         customerId = inserted.id;

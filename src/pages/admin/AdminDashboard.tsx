@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   CalendarRange, Car, Users, DollarSign, TrendingUp, Clock,
   CheckCircle2, Wrench, Gauge, Calculator, Percent,
-  CalendarClock, AlertCircle, Receipt,
+  CalendarClock, AlertCircle, Receipt, FileText,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
@@ -28,6 +28,7 @@ interface DashboardStats {
   returnsToday: number;
   pendingOver24h: number;
   maintenanceOverdue: number;
+  expiredLicenses: number;
 }
 
 type StatCard = {
@@ -46,7 +47,7 @@ export default function AdminDashboard() {
     totalVehicles: 0, availableVehicles: 0, maintenanceVehicles: 0, avgOdometer: 0,
     totalInvestment: 0, monthlyRevenue: 0, avgCostPerCar: 0, roiPct: null,
     avgTicket: null, occupancyRate: null,
-    returnsToday: 0, pendingOver24h: 0, maintenanceOverdue: 0,
+    returnsToday: 0, pendingOver24h: 0, maintenanceOverdue: 0, expiredLicenses: 0,
   });
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +57,7 @@ export default function AdminDashboard() {
       const [bookings, vehicles, customers] = await Promise.all([
         supabase.from("bookings").select("*"),
         supabase.from("vehicles").select("*"),
-        supabase.from("customers").select("id"),
+        supabase.from("customers").select("id, driver_license_expiry"),
       ]);
 
       const bList = bookings.data || [];
@@ -120,6 +121,12 @@ export default function AdminDashboard() {
         v.next_service_km != null && v.current_odometer != null && Number(v.current_odometer) >= Number(v.next_service_km)
       ).length;
 
+      // Expired driver licenses
+      const todayDate = todayStr;
+      const expiredLicenses = cList.filter((c: any) =>
+        c.driver_license_expiry && c.driver_license_expiry < todayDate
+      ).length;
+
       setStats({
         totalBookings: bList.length,
         activeBookings: bList.filter((b) => b.status === "confirmed" || b.status === "active" || b.status === "in_progress").length,
@@ -138,6 +145,7 @@ export default function AdminDashboard() {
         returnsToday,
         pendingOver24h,
         maintenanceOverdue,
+        expiredLicenses,
       });
 
       setRecentBookings(bList.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 8));
@@ -158,7 +166,7 @@ export default function AdminDashboard() {
   const goFinance = () => navigate("/admin/finance");
 
   const showFinancial = hasAny(["admin", "finance"]);
-  const showAlerts = hasAny(["admin", "operations"]);
+  const showAlerts = hasAny(["admin", "operations", "support"]);
 
   const operationalCards: StatCard[] = [
     { label: "Reservas Totais", value: stats.totalBookings, icon: CalendarRange, color: "text-primary", onClick: goBookings },
@@ -236,6 +244,12 @@ export default function AdminDashboard() {
       icon: Wrench,
       onClick: () => navigate("/admin/fleet"),
     },
+    {
+      label: "CNH Vencida",
+      value: stats.expiredLicenses,
+      icon: FileText,
+      onClick: () => navigate("/admin/customers"),
+    },
   ];
 
   const statusMap: Record<string, { label: string; className: string }> = {
@@ -280,7 +294,7 @@ export default function AdminDashboard() {
       {showAlerts && (
         <section className="space-y-3">
           <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Alertas Operacionais</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {alertCards.map((alert) => {
               const hasAlert = alert.value > 0;
               return (

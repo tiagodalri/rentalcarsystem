@@ -25,7 +25,7 @@ const CustomerRegistration = () => {
     full_name: "", email: "", password: "", confirmPassword: "",
     phone: "", document_number: "",
     nationality: "", date_of_birth: "", address: "", zip_code: "",
-    house_number: "", complement: "",
+    house_number: "", complement: "", driver_license_expiry: "",
   });
   const [showPwd, setShowPwd] = useState(false);
   const [showPwd2, setShowPwd2] = useState(false);
@@ -69,6 +69,8 @@ const CustomerRegistration = () => {
     if (!form.full_name.trim()) return setError("Nome é obrigatório.");
     if (!form.email.trim()) return setError("E-mail é obrigatório.");
     if (!form.phone.trim()) return setError("Telefone é obrigatório.");
+    if (!form.driver_license_expiry) return setError("Validade da CNH é obrigatória.");
+    if (new Date(form.driver_license_expiry) <= new Date()) return setError("CNH vencida — não é possível prosseguir com a reserva.");
 
     const pwdParse = passwordSchema.safeParse(form.password);
     if (!pwdParse.success) return setError(pwdParse.error.errors[0].message);
@@ -87,6 +89,7 @@ const CustomerRegistration = () => {
         zip_code: form.zip_code.trim() || undefined,
         house_number: form.house_number.trim() || undefined,
         complement: form.complement.trim() || undefined,
+        driver_license_expiry: form.driver_license_expiry || undefined,
         language: language === "en" ? "en" : "pt",
       });
 
@@ -154,6 +157,7 @@ const CustomerRegistration = () => {
     { key: "date_of_birth", label: "Data de Nascimento", icon: Calendar, type: "date", placeholder: "" },
     { key: "nationality", label: "Nacionalidade", icon: Globe, type: "text", placeholder: "Brasileira" },
     { key: "document_number", label: "CPF (se brasileiro)", icon: FileText, type: "text", placeholder: "000.000.000-00" },
+    { key: "driver_license_expiry", label: "Validade da CNH *", icon: Calendar, type: "date", placeholder: "" },
     { key: "zip_code", label: "CEP / Zip Code", icon: MapPin, type: "text", placeholder: "00000-000" },
     { key: "address", label: "Rua / Logradouro", icon: MapPin, type: "text", placeholder: "Rua, bairro, cidade, estado" },
     { key: "house_number", label: "Número", icon: MapPin, type: "text", placeholder: "123" },
