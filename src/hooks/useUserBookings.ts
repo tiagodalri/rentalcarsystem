@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { supabase as sbClient } from "@/integrations/supabase/client";
 
 export interface DbBookingWithVehicle {
   id: string;
@@ -29,7 +28,6 @@ export interface DbBookingWithVehicle {
 }
 
 export function useUserBookings() {
-  const { user } = useAuth();
   const [bookings, setBookings] = useState<DbBookingWithVehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
