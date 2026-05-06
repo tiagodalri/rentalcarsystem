@@ -69,6 +69,8 @@ const CustomerRegistration = () => {
     if (!form.full_name.trim()) return setError("Nome é obrigatório.");
     if (!form.email.trim()) return setError("E-mail é obrigatório.");
     if (!form.phone.trim()) return setError("Telefone é obrigatório.");
+    if (!form.driver_license_expiry) return setError("Validade da CNH é obrigatória.");
+    if (new Date(form.driver_license_expiry) <= new Date()) return setError("CNH vencida — não é possível prosseguir com a reserva.");
 
     const pwdParse = passwordSchema.safeParse(form.password);
     if (!pwdParse.success) return setError(pwdParse.error.errors[0].message);
