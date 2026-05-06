@@ -244,6 +244,12 @@ export default function AdminDashboard() {
       icon: Wrench,
       onClick: () => navigate("/admin/fleet"),
     },
+    {
+      label: "CNH Vencida",
+      value: stats.expiredLicenses,
+      icon: FileText,
+      onClick: () => navigate("/admin/customers"),
+    },
   ];
 
   const statusMap: Record<string, { label: string; className: string }> = {
