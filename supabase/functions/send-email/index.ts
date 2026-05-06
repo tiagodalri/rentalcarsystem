@@ -253,7 +253,7 @@ function renderTemplate(
       html: emailLayout(
         `
           <h1 style="margin: 0 0 16px; font-size: 22px; font-weight: 800; color: ${colors.textPrimary};">
-            🏎️ ${l === "pt" ? "Pipeline funcionando!" : "Pipeline is working!"}
+            ${l === "pt" ? "Pipeline funcionando!" : "Pipeline is working!"}
           </h1>
           <p style="margin: 0 0 12px; font-size: 15px; color: ${colors.textSecondary}; line-height: 1.6;">
             ${l === "pt"
