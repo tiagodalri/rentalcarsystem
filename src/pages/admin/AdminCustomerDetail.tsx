@@ -58,6 +58,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 };
 
 export default function AdminCustomerDetail() {
+  const { hasAny } = useAdminAuth();
   const { customerId } = useParams();
   const navigate = useNavigate();
   const [customer, setCustomer] = useState<Customer | null>(null);
