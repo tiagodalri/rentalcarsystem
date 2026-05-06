@@ -19,6 +19,8 @@ export interface DbBookingWithVehicle {
   notes: string | null;
   created_at: string;
   customer_id: string | null;
+  customer_email: string | null;
+  customer_name: string | null;
   vehicle: {
     id: string;
     name: string;
