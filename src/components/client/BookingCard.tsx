@@ -147,7 +147,7 @@ const BookingCard = ({ booking, index, featured }: BookingCardProps) => {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <p className="text-lg font-bold gold-text">{formatPrice(booking.pricing.total)}</p>
+          <p className="text-lg font-bold gold-text">{formatPrice(booking.pricing?.total ?? 0)}</p>
           <ChevronRight size={18} className="text-muted-foreground" />
         </div>
       </div>
