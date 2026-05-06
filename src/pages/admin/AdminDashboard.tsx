@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   CalendarRange, Car, Users, DollarSign, TrendingUp, Clock,
   CheckCircle2, Wrench, Gauge, Calculator, Percent,
-  CalendarClock, AlertCircle, Receipt,
+  CalendarClock, AlertCircle, Receipt, FileText,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
