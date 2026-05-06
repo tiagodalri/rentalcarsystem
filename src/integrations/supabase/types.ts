@@ -120,6 +120,7 @@ export type Database = {
           preferred_language: string
           updated_at: string
           user_id: string | null
+          welcome_sent: boolean
           zip_code: string | null
         }
         Insert: {
@@ -140,6 +141,7 @@ export type Database = {
           preferred_language?: string
           updated_at?: string
           user_id?: string | null
+          welcome_sent?: boolean
           zip_code?: string | null
         }
         Update: {
@@ -160,6 +162,7 @@ export type Database = {
           preferred_language?: string
           updated_at?: string
           user_id?: string | null
+          welcome_sent?: boolean
           zip_code?: string | null
         }
         Relationships: []
