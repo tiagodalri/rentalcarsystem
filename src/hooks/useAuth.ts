@@ -175,6 +175,18 @@ export function useAuth() {
           complement: extra.complement || null,
         });
         if (insErr) throw new Error("Conta criada, mas falhou ao salvar perfil: " + insErr.message);
+
+        // Fire-and-forget: send welcome email only for brand-new customers
+        const emailLang = extra.language === "en" ? "en" : "pt";
+        supabase.functions.invoke("send-email", {
+          body: {
+            templateName: "welcome",
+            recipientEmail: cleanEmail,
+            idempotencyKey: `welcome-${newUserId}`,
+            language: emailLang,
+            templateData: { firstName: fullName.split(" ")[0] },
+          },
+        }).catch((err: unknown) => console.warn("welcome email failed silently:", err));
       }
 
       // Força re-hidratação do customer após INSERT
