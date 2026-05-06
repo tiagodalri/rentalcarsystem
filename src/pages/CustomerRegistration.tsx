@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { Check, Upload, Camera, Loader2, User, Mail, Phone, FileText, MapPin, Calendar, Globe, Lock, Eye, EyeOff } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
