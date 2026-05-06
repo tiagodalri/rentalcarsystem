@@ -269,6 +269,9 @@ export default function AdminLive() {
                     src={getCoverImage(v.name)}
                     alt={v.name}
                     className="w-12 h-9 rounded object-cover flex-shrink-0 border border-border/20"
+                    loading="lazy"
+                    width={48}
+                    height={36}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
@@ -326,6 +329,9 @@ export default function AdminLive() {
                       src={getCoverImage(v.name)}
                       alt={v.name}
                       className="w-full h-24 object-cover rounded-md -mt-1"
+                      loading="lazy"
+                      width={180}
+                      height={96}
                     />
                     <p className="font-bold text-sm">{v.name}</p>
                     <p className="font-mono text-muted-foreground">{v.plate}</p>
@@ -356,6 +362,9 @@ export default function AdminLive() {
                 src={getCoverImage(selectedVehicle.name)}
                 alt={selectedVehicle.name}
                 className="w-full h-32 object-cover"
+                loading="lazy"
+                width={288}
+                height={128}
               />
               <div className="p-4">
               <div className="flex items-center justify-between mb-3">
