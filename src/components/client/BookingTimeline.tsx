@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BookingStatus } from "@/data/mockBookings";
+import { BookingStatus } from "@/data/bookingTypes";
 import { Check } from "lucide-react";
 
 interface Step {

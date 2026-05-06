@@ -1,4 +1,4 @@
-import { BookingStatus, statusConfig } from "@/data/mockBookings";
+import { BookingStatus, statusConfig } from "@/data/bookingTypes";
 
 interface BookingStatusBadgeProps {
   status: BookingStatus;

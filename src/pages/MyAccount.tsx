@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserBookings } from "@/hooks/useUserBookings";
 import { adaptBookingFromDb } from "@/lib/bookingAdapter";
-import { Booking } from "@/data/mockBookings";
+import { Booking } from "@/data/bookingTypes";
 import ClientHeader from "@/components/client/ClientHeader";
 import BookingCard from "@/components/client/BookingCard";
 import { AccountSkeleton } from "@/components/skeletons/AccountSkeleton";
