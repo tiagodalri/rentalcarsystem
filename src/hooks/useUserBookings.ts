@@ -119,7 +119,7 @@ export function useUserBookings() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     fetchBookings();
