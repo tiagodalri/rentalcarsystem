@@ -61,9 +61,9 @@ export function renderWelcome(
 
   const benefitsHtml = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      ${emailInfoRow(`✨ ${t.benefit1Label}`, t.benefit1Value)}
-      ${emailInfoRow(`🚗 ${t.benefit2Label}`, t.benefit2Value)}
-      ${emailInfoRow(`💻 ${t.benefit3Label}`, t.benefit3Value)}
+      ${emailInfoRow(`▸ ${t.benefit1Label}`, t.benefit1Value)}
+      ${emailInfoRow(`▸ ${t.benefit2Label}`, t.benefit2Value)}
+      ${emailInfoRow(`▸ ${t.benefit3Label}`, t.benefit3Value)}
     </table>
   `;
 
