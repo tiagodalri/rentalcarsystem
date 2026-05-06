@@ -20,6 +20,7 @@ const passwordSchema = z
 const CustomerRegistration = () => {
   const navigate = useNavigate();
   const { signUp } = useAuth();
+  const { language } = useLanguage();
   const [form, setForm] = useState({
     full_name: "", email: "", password: "", confirmPassword: "",
     phone: "", document_number: "",
