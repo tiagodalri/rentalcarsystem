@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   ChevronRight, User, Mail, Phone, FileText, MapPin,
   DollarSign, Calendar, AlertTriangle, Car, TrendingUp,
-  Globe, CreditCard, Pencil
+  Globe, CreditCard, Pencil, Star, ShieldAlert,
 } from "lucide-react";
 import { CustomerDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 type Customer = {
   id: string;
