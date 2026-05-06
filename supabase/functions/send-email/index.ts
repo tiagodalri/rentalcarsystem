@@ -3,6 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { emailLayout, emailButton, colors } from "./email-components.ts";
 import { renderWelcome } from "./templates/welcome.ts";
 import { renderBookingConfirmation } from "./templates/booking-confirmation.ts";
+import { renderPickupReminder } from "./templates/pickup-reminder.ts";
+import { renderPaymentReceipt } from "./templates/payment-receipt.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -270,6 +272,8 @@ function renderTemplate(
     }),
     welcome: () => renderWelcome(_data, l),
     "booking-confirmation": () => renderBookingConfirmation(_data, l),
+    "pickup-reminder": () => renderPickupReminder(_data, l),
+    "payment-receipt": () => renderPaymentReceipt(_data, l),
   };
 
   const factory = templates[templateName];
