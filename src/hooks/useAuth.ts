@@ -143,11 +143,14 @@ export function useAuth() {
       // The trigger may have linked an existing customer; check first
       const { data: existing } = await supabase
         .from("customers")
-        .select("id")
+        .select("id, welcome_sent")
         .eq("user_id", newUserId)
-        .maybeSingle();
+        .maybeSingle() as { data: { id: string; welcome_sent: boolean } | null; error: unknown };
+
+      let customerId: string;
 
       if (existing) {
+        customerId = existing.id;
         // Update with new info from form
         const { error: updErr } = await supabase
           .from("customers")
@@ -165,7 +168,7 @@ export function useAuth() {
           .eq("id", existing.id);
         if (updErr) throw new Error("Conta criada, mas falhou ao salvar perfil: " + updErr.message);
       } else {
-        const { error: insErr } = await supabase.from("customers").insert({
+        const { data: inserted, error: insErr } = await supabase.from("customers").insert({
           user_id: newUserId,
           full_name: fullName,
           email: cleanEmail,
@@ -177,10 +180,14 @@ export function useAuth() {
           zip_code: extra.zip_code || null,
           house_number: extra.house_number || null,
           complement: extra.complement || null,
-        });
+        }).select("id").single();
         if (insErr) throw new Error("Conta criada, mas falhou ao salvar perfil: " + insErr.message);
+        customerId = inserted.id;
+      }
 
-        // Fire-and-forget: send welcome email only for brand-new customers
+      // Fire-and-forget: send welcome email if not already sent
+      const shouldSendWelcome = !existing || existing.welcome_sent === false;
+      if (shouldSendWelcome) {
         const emailLang = extra.language === "en" ? "en" : "pt";
         supabase.functions.invoke("send-email", {
           body: {
@@ -188,7 +195,7 @@ export function useAuth() {
             recipientEmail: cleanEmail,
             idempotencyKey: `welcome-${newUserId}`,
             language: emailLang,
-            templateData: { firstName: fullName.split(" ")[0] },
+            templateData: { firstName: fullName.split(" ")[0], customerId },
           },
         }).catch((err: unknown) => console.warn("welcome email failed silently:", err));
       }
