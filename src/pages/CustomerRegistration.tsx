@@ -87,6 +87,7 @@ const CustomerRegistration = () => {
         zip_code: form.zip_code.trim() || undefined,
         house_number: form.house_number.trim() || undefined,
         complement: form.complement.trim() || undefined,
+        language: language === "en" ? "en" : "pt",
       });
 
       // 2. Upload CNH AFTER signup so RLS sees an authenticated user.
