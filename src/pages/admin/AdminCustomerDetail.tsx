@@ -255,6 +255,7 @@ export default function AdminCustomerDetail() {
         </div>
       )}
 
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left - Customer info */}
         <div className="lg:col-span-4 space-y-6">
           <Card className="bg-card/80 border-border/30">
