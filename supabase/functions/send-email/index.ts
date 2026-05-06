@@ -233,7 +233,7 @@ serve(async (req) => {
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } else {
-      console.error(`❌ Email failed: ${templateName} → ${recipientEmail}: ${result.error}`);
+      console.error(`Email failed: ${templateName} -> ${recipientEmail}: ${result.error}`);
       return new Response(
         JSON.stringify({ success: false, error: result.error, logId, attempts: result.attempts }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
