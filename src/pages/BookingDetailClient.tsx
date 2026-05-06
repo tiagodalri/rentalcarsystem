@@ -1,4 +1,5 @@
 // auth handled by RequireAuth wrapper
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { motion } from "framer-motion";
@@ -17,9 +18,23 @@ import {
   Fuel,
   Check,
   X,
+  Loader2,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -101,10 +116,82 @@ const BookingDetailClient = () => {
     },
   ];
 
-  const isFuture = booking.status === "confirmed" || booking.status === "pending";
+  const pickupIsInFuture = new Date(booking.pickupDate) > new Date();
+  const isFuture = (booking.status === "confirmed" || booking.status === "pending") && pickupIsInFuture;
   const hasContractUrl = booking.contractUrl && booking.contractUrl !== "" && booking.contractUrl !== "#";
   const hasFuelData = booking.status === "completed" && booking.fuelDropoff;
   const hasExtraCharges = booking.extraCharges && booking.extraCharges.length > 0;
+
+  const [cancelling, setCancelling] = useState(false);
+
+  const handleCancelBooking = async () => {
+    setCancelling(true);
+    try {
+      // Re-validate client-side
+      if (!["pending", "confirmed"].includes(dbBooking.status)) {
+        toast.error("Esta reserva não pode mais ser cancelada.");
+        setCancelling(false);
+        return;
+      }
+      if (new Date(dbBooking.pickup_date) <= new Date()) {
+        toast.error("Não é possível cancelar reservas com data de retirada passada.");
+        setCancelling(false);
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Sessão expirada. Faça login novamente.");
+        setCancelling(false);
+        return;
+      }
+
+      const { error: updateError } = await supabase
+        .from("bookings")
+        .update({
+          status: "cancelled",
+          cancelled_at: new Date().toISOString(),
+          cancelled_by: user.id,
+          cancellation_reason: "Cancelado pelo cliente",
+        } as any)
+        .eq("id", dbBooking.id);
+
+      if (updateError) {
+        console.error("Cancel error:", updateError);
+        toast.error("Não foi possível cancelar. Tente novamente.");
+        setCancelling(false);
+        return;
+      }
+
+      // Fire-and-forget email
+      supabase.functions.invoke("send-email", {
+        body: {
+          templateName: "booking-cancellation",
+          recipientEmail: dbBooking.customer_email || "",
+          idempotencyKey: `booking-cancellation-${dbBooking.id}`,
+          language: "pt",
+          templateData: {
+            firstName: (dbBooking.customer_name || "").split(" ")[0] || "",
+            bookingNumber: dbBooking.booking_number || "",
+            vehicleName: dbBooking.vehicle?.name || "—",
+            originalPickupDate: dbBooking.pickup_date,
+            cancellationDate: new Date().toISOString().split("T")[0],
+            refundAmount: "A definir",
+            refundMethod: "Estorno via cartão de origem",
+            refundDeadline: "Até 10 dias úteis",
+            bookingDetailsUrl: `https://zeusrentalcar.com/minha-conta/reserva/${dbBooking.booking_number}`,
+          },
+        },
+      });
+
+      toast.success("Reserva cancelada. Você receberá um email de confirmação.");
+      setTimeout(() => navigate("/minha-conta"), 1500);
+    } catch (err) {
+      console.error("Cancel exception:", err);
+      toast.error("Erro inesperado ao cancelar. Tente novamente.");
+      setCancelling(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -320,10 +407,38 @@ const BookingDetailClient = () => {
                     <MessageCircle size={16} />
                     Falar com a Zeus
                   </a>
-                  <button className="w-full flex items-center justify-center gap-2 border border-destructive/30 rounded-lg px-4 py-3 text-sm font-medium text-destructive/70 hover:text-destructive hover:border-destructive/50 transition-colors">
-                    <XCircle size={16} />
-                    Cancelar reserva
-                  </button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        disabled={cancelling}
+                        className="w-full flex items-center justify-center gap-2 border border-destructive/30 rounded-lg px-4 py-3 text-sm font-medium text-destructive/70 hover:text-destructive hover:border-destructive/50 transition-colors disabled:opacity-50"
+                      >
+                        {cancelling ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <XCircle size={16} />
+                        )}
+                        {cancelling ? "Cancelando..." : "Cancelar reserva"}
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Cancelar reserva?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta ação não pode ser desfeita. Você receberá um email de confirmação.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Voltar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleCancelBooking}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Sim, cancelar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               )}
 

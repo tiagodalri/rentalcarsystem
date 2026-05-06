@@ -19,6 +19,8 @@ export interface DbBookingWithVehicle {
   notes: string | null;
   created_at: string;
   customer_id: string | null;
+  customer_email: string | null;
+  customer_name: string | null;
   vehicle: {
     id: string;
     name: string;
@@ -65,7 +67,7 @@ export function useUserBookings() {
 
       const { data, error: bookErr } = await supabase
         .from("bookings")
-        .select("id, booking_number, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, plan_id, addons, extra_driver, driver_age, notes, created_at, customer_id, vehicle_id")
+        .select("id, booking_number, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, plan_id, addons, extra_driver, driver_age, notes, created_at, customer_id, vehicle_id, customer_email, customer_name")
         .eq("customer_id", customer.id)
         .order("pickup_date", { ascending: false });
 
@@ -110,6 +112,8 @@ export function useUserBookings() {
         notes: b.notes,
         created_at: b.created_at,
         customer_id: b.customer_id,
+        customer_email: b.customer_email,
+        customer_name: b.customer_name,
         vehicle: vehicleMap.get(b.vehicle_id) || null,
       }));
 
