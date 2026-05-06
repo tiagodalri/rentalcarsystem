@@ -334,6 +334,7 @@ const BookingDetails = () => {
       // Proceed to checkout
       const { data, error } = await supabase.functions.invoke("create-checkout", {
         body: {
+          bookingId: insertedBooking.id,
           vehicleName: decodedName,
           vehicleCategory: categoryLabels[vehicle?.categoryKey || ""],
           dailyRate: dailyPrice,
