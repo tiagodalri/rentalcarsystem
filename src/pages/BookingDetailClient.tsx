@@ -54,6 +54,7 @@ const BookingDetailClient = () => {
   const { formatPrice } = useCurrency();
 
   const { booking: dbBooking, loading, error } = useBookingByNumber(bookingId);
+  const [cancelling, setCancelling] = useState(false);
 
   // Loading state
   if (loading) {
