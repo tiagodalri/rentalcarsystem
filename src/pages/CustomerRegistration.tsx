@@ -25,7 +25,7 @@ const CustomerRegistration = () => {
     full_name: "", email: "", password: "", confirmPassword: "",
     phone: "", document_number: "",
     nationality: "", date_of_birth: "", address: "", zip_code: "",
-    house_number: "", complement: "",
+    house_number: "", complement: "", driver_license_expiry: "",
   });
   const [showPwd, setShowPwd] = useState(false);
   const [showPwd2, setShowPwd2] = useState(false);
