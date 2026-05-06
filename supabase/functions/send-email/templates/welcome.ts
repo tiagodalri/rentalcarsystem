@@ -33,7 +33,7 @@ const content = {
     team: "— Equipe Zeus Rental Car",
   },
   en: {
-    subject: "Welcome to Zeus Rental Car! 🏎️",
+    subject: "Welcome to Zeus Rental Car",
     greeting: (name: string) =>
       name ? `Hello, ${name}!` : "Hello!",
     intro:
