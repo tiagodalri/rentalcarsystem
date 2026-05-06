@@ -39,6 +39,10 @@ interface SignUpExtra {
   language?: "pt" | "en";
 }
 
+interface CustomerRecordWithWelcome extends CustomerRecord {
+  welcome_sent?: boolean;
+}
+
 let cachedCustomer: { userId: string; customer: CustomerRecord | null } | null = null;
 
 export function useAuth() {
