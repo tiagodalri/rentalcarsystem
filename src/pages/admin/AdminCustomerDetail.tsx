@@ -227,7 +227,34 @@ export default function AdminCustomerDetail() {
         <MetricCard icon={CreditCard} label="Canceladas" value={cancelledBookings} color={cancelledBookings > 0 ? "text-red-400" : "text-muted-foreground"} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Customer metrics section — visible to admin, support, operations */}
+      {hasAny(["admin", "support", "operations"]) && (
+        <div className="space-y-3">
+          <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.1em]">Metricas do Cliente</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <MetricCard icon={FileText} label="Total de Locacoes" value={bookings.length} />
+            <MetricCard
+              icon={DollarSign}
+              label="Valor Total Gasto"
+              value={totalRevenue > 0 ? `$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "—"}
+              color="text-primary"
+            />
+            <MetricCard
+              icon={Star}
+              label="Categoria Favorita"
+              value={favoriteCategory || "—"}
+              color="text-primary"
+            />
+            <MetricCard
+              icon={ShieldAlert}
+              label="Historico de Avarias"
+              value={incidentCount}
+              color={incidentCount > 0 ? "text-red-500" : "text-emerald-500"}
+            />
+          </div>
+        </div>
+      )}
+
         {/* Left - Customer info */}
         <div className="lg:col-span-4 space-y-6">
           <Card className="bg-card/80 border-border/30">
