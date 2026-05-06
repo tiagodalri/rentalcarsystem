@@ -231,7 +231,7 @@ serve(async (req) => {
   }
 });
 
-// ─── Template Registry (stub — Phase 3/4 will replace with React Email) ───
+// ─── Template Registry ───
 
 interface RenderedEmail {
   subject: string;
@@ -241,19 +241,30 @@ interface RenderedEmail {
 function renderTemplate(
   templateName: string,
   _data?: Record<string, unknown>,
-  _lang?: string
+  lang: string = "pt"
 ): RenderedEmail | null {
-  // Placeholder templates for testing the pipeline
+  const l = (lang === "en" ? "en" : "pt") as "pt" | "en";
+
   const templates: Record<string, () => RenderedEmail> = {
     test: () => ({
       subject: "Zeus Rental Car — Test Email",
-      html: `
-        <div style="font-family: Inter, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-          <h1 style="color: #0a0a0a; font-size: 24px;">🏎️ Zeus Rental Car</h1>
-          <p style="color: #555; font-size: 16px;">This is a test email from the send-email Edge Function.</p>
-          <p style="color: #999; font-size: 12px;">Template: test | Pipeline is working correctly.</p>
-        </div>
-      `,
+      html: emailLayout(
+        `
+          <h1 style="margin: 0 0 16px; font-size: 22px; font-weight: 800; color: ${colors.textPrimary};">
+            🏎️ ${l === "pt" ? "Pipeline funcionando!" : "Pipeline is working!"}
+          </h1>
+          <p style="margin: 0 0 12px; font-size: 15px; color: ${colors.textSecondary}; line-height: 1.6;">
+            ${l === "pt"
+              ? "Este é um e-mail de teste da Edge Function send-email. O layout base Zeus está ativo."
+              : "This is a test email from the send-email Edge Function. The Zeus base layout is active."}
+          </p>
+          ${emailButton(l === "pt" ? "VISITAR SITE" : "VISIT WEBSITE", "https://zeusrentalcar.com")}
+          <p style="margin: 16px 0 0; font-size: 12px; color: ${colors.textMuted};">
+            Template: test | Layout: emailLayout v1
+          </p>
+        `,
+        l
+      ),
     }),
   };
 
