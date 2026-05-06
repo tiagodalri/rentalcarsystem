@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   ChevronRight, User, Mail, Phone, FileText, MapPin,
   DollarSign, Calendar, AlertTriangle, Car, TrendingUp,
-  Globe, CreditCard, Pencil, Star, ShieldAlert,
+  Globe, CreditCard, Pencil, Star, ShieldAlert, AlertCircle,
 } from "lucide-react";
 import { CustomerDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -19,6 +19,7 @@ type Customer = {
   document_number: string | null;
   nationality: string | null;
   driver_license: string | null;
+  driver_license_expiry: string | null;
   notes: string | null;
   created_at: string;
 };
