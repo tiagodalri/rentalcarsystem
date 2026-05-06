@@ -294,7 +294,7 @@ export default function AdminDashboard() {
       {showAlerts && (
         <section className="space-y-3">
           <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Alertas Operacionais</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {alertCards.map((alert) => {
               const hasAlert = alert.value > 0;
               return (
