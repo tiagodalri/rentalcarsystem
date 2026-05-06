@@ -268,6 +268,40 @@ export default function AdminCustomerDetail() {
               <DetailItem label="Data de Nascimento" value={(customer as any).date_of_birth ? new Date((customer as any).date_of_birth).toLocaleDateString("pt-BR") : null} />
               <DetailItem label="CPF" value={customer.document_number} />
               <DetailItem label="CNH" value={customer.driver_license} />
+              {/* CNH Expiry Badge */}
+              {(() => {
+                const expiry = customer.driver_license_expiry;
+                if (!expiry) return null;
+                const expiryDate = new Date(expiry + "T00:00:00");
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const diffDays = Math.ceil((expiryDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                if (diffDays < 0) {
+                  return (
+                    <div className="flex items-center gap-1.5 py-1.5">
+                      <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/30 text-[10px] gap-1">
+                        <AlertCircle size={10} /> CNH VENCIDA
+                      </Badge>
+                    </div>
+                  );
+                }
+                if (diffDays <= 30) {
+                  return (
+                    <div className="flex items-center gap-1.5 py-1.5">
+                      <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-500/30 text-[10px] gap-1">
+                        <AlertCircle size={10} /> CNH vence em {diffDays} dias
+                      </Badge>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="flex items-center gap-1.5 py-1.5">
+                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-[10px]">
+                      CNH valida ate {expiryDate.toLocaleDateString("pt-BR")}
+                    </Badge>
+                  </div>
+                );
+              })()}
               <DetailItem label="Nacionalidade" value={customer.nationality} />
               <DetailItem label="Endereço" value={(customer as any).address} />
               <DetailItem label="CEP / Zip" value={(customer as any).zip_code} />
