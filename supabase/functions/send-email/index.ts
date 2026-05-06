@@ -5,6 +5,7 @@ import { renderWelcome } from "./templates/welcome.ts";
 import { renderBookingConfirmation } from "./templates/booking-confirmation.ts";
 import { renderPickupReminder } from "./templates/pickup-reminder.ts";
 import { renderPaymentReceipt } from "./templates/payment-receipt.ts";
+import { renderBookingCancellation } from "./templates/booking-cancellation.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
