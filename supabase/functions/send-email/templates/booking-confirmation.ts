@@ -80,12 +80,12 @@ export function renderBookingConfirmation(
 
   const detailsHtml = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      ${emailInfoRow(`📋 ${t.labels.booking}`, bookingNumber)}
-      ${emailInfoRow(`🚗 ${t.labels.vehicle}`, vehicleName)}
-      ${emailInfoRow(`📅 ${t.labels.pickup}`, pickupFull)}
-      ${emailInfoRow(`📍 ${t.labels.location}`, pickupLocation)}
-      ${emailInfoRow(`🔄 ${t.labels.return}`, returnFull)}
-      ${emailInfoRow(`💰 ${t.labels.total}`, totalPrice)}
+      ${emailInfoRow(`▸ ${t.labels.booking}`, bookingNumber)}
+      ${emailInfoRow(`▸ ${t.labels.vehicle}`, vehicleName)}
+      ${emailInfoRow(`▸ ${t.labels.pickup}`, pickupFull)}
+      ${emailInfoRow(`▸ ${t.labels.location}`, pickupLocation)}
+      ${emailInfoRow(`▸ ${t.labels.return}`, returnFull)}
+      ${emailInfoRow(`▸ ${t.labels.total}`, totalPrice)}
     </table>
   `;
 
