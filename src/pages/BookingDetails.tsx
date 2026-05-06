@@ -599,7 +599,7 @@ const BookingDetails = () => {
                       </div>
                       <div>
                         <p className="text-[9px] uppercase tracking-[0.15em] text-muted-foreground">Local de Retirada</p>
-                        <p className="text-sm font-medium text-foreground">{pickupLocation || "Não informado"}</p>
+                        <p className="text-sm font-medium text-foreground">{pickupLocation || "—"}</p>
                       </div>
                     </div>
                   </div>
