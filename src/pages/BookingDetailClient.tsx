@@ -1,4 +1,5 @@
 // auth handled by RequireAuth wrapper
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { motion } from "framer-motion";
@@ -17,9 +18,23 @@ import {
   Fuel,
   Check,
   X,
+  Loader2,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
