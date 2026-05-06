@@ -267,6 +267,7 @@ function renderTemplate(
         l
       ),
     }),
+    welcome: () => renderWelcome(_data, l),
   };
 
   const factory = templates[templateName];
