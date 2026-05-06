@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -12,32 +13,38 @@ import SearchResults from "./pages/SearchResults.tsx";
 import BookingDetails from "./pages/BookingDetails.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
-import MyAccount from "./pages/MyAccount.tsx";
-import BookingDetailClient from "./pages/BookingDetailClient.tsx";
-import AdminLogin from "./pages/admin/AdminLogin.tsx";
-import AdminLayout from "./components/admin/AdminLayout.tsx";
-import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
-import AdminBookings from "./pages/admin/AdminBookings.tsx";
-import AdminFleet from "./pages/admin/AdminFleet.tsx";
-import AdminCustomers from "./pages/admin/AdminCustomers.tsx";
-import AdminCustomerDetail from "./pages/admin/AdminCustomerDetail.tsx";
-import AdminSettings from "./pages/admin/AdminSettings.tsx";
-import AdminLive from "./pages/admin/AdminLive.tsx";
-import AdminInspection from "./pages/admin/AdminInspection.tsx";
-import AdminInspectionCompare from "./pages/admin/AdminInspectionCompare.tsx";
-import AdminVehicleHistory from "./pages/admin/AdminVehicleHistory.tsx";
-import AdminVehicleDetail from "./pages/admin/AdminVehicleDetail.tsx";
-import AdminFleetReport from "./pages/admin/AdminFleetReport.tsx";
-import AdminFleetPnL from "./pages/admin/AdminFleetPnL.tsx";
-import AdminBookingDetail from "./pages/admin/AdminBookingDetail.tsx";
-import AdminFinance from "./pages/admin/AdminFinance.tsx";
-import AdminTeam from "./pages/admin/AdminTeam.tsx";
 import BookingConfirmed from "./pages/BookingConfirmed.tsx";
 import CustomerRegistration from "./pages/CustomerRegistration.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Contato from "./pages/Contato.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
 import { RequireRole } from "./components/admin/RequireRole.tsx";
+import AdminLayout from "./components/admin/AdminLayout.tsx";
+import AdminLogin from "./pages/admin/AdminLogin.tsx";
+import { AdminShellSkeleton } from "./components/skeletons/AdminShellSkeleton.tsx";
+import { AccountSkeleton } from "./components/skeletons/AccountSkeleton.tsx";
+
+// Lazy-loaded: client authenticated pages
+const MyAccount = lazy(() => import("./pages/MyAccount.tsx"));
+const BookingDetailClient = lazy(() => import("./pages/BookingDetailClient.tsx"));
+
+// Lazy-loaded: admin pages
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.tsx"));
+const AdminBookings = lazy(() => import("./pages/admin/AdminBookings.tsx"));
+const AdminFleet = lazy(() => import("./pages/admin/AdminFleet.tsx"));
+const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers.tsx"));
+const AdminCustomerDetail = lazy(() => import("./pages/admin/AdminCustomerDetail.tsx"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings.tsx"));
+const AdminLive = lazy(() => import("./pages/admin/AdminLive.tsx"));
+const AdminInspection = lazy(() => import("./pages/admin/AdminInspection.tsx"));
+const AdminInspectionCompare = lazy(() => import("./pages/admin/AdminInspectionCompare.tsx"));
+const AdminVehicleHistory = lazy(() => import("./pages/admin/AdminVehicleHistory.tsx"));
+const AdminVehicleDetail = lazy(() => import("./pages/admin/AdminVehicleDetail.tsx"));
+const AdminFleetReport = lazy(() => import("./pages/admin/AdminFleetReport.tsx"));
+const AdminFleetPnL = lazy(() => import("./pages/admin/AdminFleetPnL.tsx"));
+const AdminBookingDetail = lazy(() => import("./pages/admin/AdminBookingDetail.tsx"));
+const AdminFinance = lazy(() => import("./pages/admin/AdminFinance.tsx"));
+const AdminTeam = lazy(() => import("./pages/admin/AdminTeam.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +54,14 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const AdminSuspense = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<AdminShellSkeleton />}>{children}</Suspense>
+);
+
+const ClientSuspense = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<AccountSkeleton />}>{children}</Suspense>
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -67,28 +82,28 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/redefinir-senha" element={<ResetPassword />} />
               <Route path="/contato" element={<Contato />} />
-              <Route path="/minha-conta" element={<RequireAuth><MyAccount /></RequireAuth>} />
-              <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><BookingDetailClient /></RequireAuth>} />
+              <Route path="/minha-conta" element={<RequireAuth><ClientSuspense><MyAccount /></ClientSuspense></RequireAuth>} />
+              <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><ClientSuspense><BookingDetailClient /></ClientSuspense></RequireAuth>} />
 
               {/* Admin routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<RequireRole roles={["admin","finance","operations","support"]}><AdminDashboard /></RequireRole>} />
-                <Route path="bookings" element={<RequireRole roles={["admin","operations","support"]}><AdminBookings /></RequireRole>} />
-                <Route path="bookings/:bookingId" element={<RequireRole roles={["admin","operations","support"]}><AdminBookingDetail /></RequireRole>} />
-                <Route path="live" element={<RequireRole roles={["admin","operations"]}><AdminLive /></RequireRole>} />
-                <Route path="fleet" element={<RequireRole roles={["admin","operations"]}><AdminFleet /></RequireRole>} />
-                <Route path="customers" element={<RequireRole roles={["admin","operations","support"]}><AdminCustomers /></RequireRole>} />
-                <Route path="customers/:customerId" element={<RequireRole roles={["admin","operations","support"]}><AdminCustomerDetail /></RequireRole>} />
-                <Route path="settings" element={<RequireRole roles={["admin"]}><AdminSettings /></RequireRole>} />
-                <Route path="inspection/:bookingId" element={<RequireRole roles={["admin","operations"]}><AdminInspection /></RequireRole>} />
-                <Route path="inspection/compare/:bookingId" element={<RequireRole roles={["admin","operations"]}><AdminInspectionCompare /></RequireRole>} />
-                <Route path="vehicle-history/:vehicleId" element={<RequireRole roles={["admin","finance","operations"]}><AdminVehicleHistory /></RequireRole>} />
-                <Route path="fleet/:vehicleId" element={<RequireRole roles={["admin","operations"]}><AdminVehicleDetail /></RequireRole>} />
-                <Route path="report" element={<RequireRole roles={["admin","finance"]}><AdminFleetReport /></RequireRole>} />
-                <Route path="report/fleet-pnl" element={<RequireRole roles={["admin","finance"]}><AdminFleetPnL /></RequireRole>} />
-                <Route path="finance" element={<RequireRole roles={["admin","finance"]}><AdminFinance /></RequireRole>} />
-                <Route path="team" element={<RequireRole roles={["admin"]}><AdminTeam /></RequireRole>} />
+                <Route index element={<RequireRole roles={["admin","finance","operations","support"]}><AdminSuspense><AdminDashboard /></AdminSuspense></RequireRole>} />
+                <Route path="bookings" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookings /></AdminSuspense></RequireRole>} />
+                <Route path="bookings/:bookingId" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookingDetail /></AdminSuspense></RequireRole>} />
+                <Route path="live" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminLive /></AdminSuspense></RequireRole>} />
+                <Route path="fleet" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminFleet /></AdminSuspense></RequireRole>} />
+                <Route path="customers" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminCustomers /></AdminSuspense></RequireRole>} />
+                <Route path="customers/:customerId" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminCustomerDetail /></AdminSuspense></RequireRole>} />
+                <Route path="settings" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminSettings /></AdminSuspense></RequireRole>} />
+                <Route path="inspection/:bookingId" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminInspection /></AdminSuspense></RequireRole>} />
+                <Route path="inspection/compare/:bookingId" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminInspectionCompare /></AdminSuspense></RequireRole>} />
+                <Route path="vehicle-history/:vehicleId" element={<RequireRole roles={["admin","finance","operations"]}><AdminSuspense><AdminVehicleHistory /></AdminSuspense></RequireRole>} />
+                <Route path="fleet/:vehicleId" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminVehicleDetail /></AdminSuspense></RequireRole>} />
+                <Route path="report" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminFleetReport /></AdminSuspense></RequireRole>} />
+                <Route path="report/fleet-pnl" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminFleetPnL /></AdminSuspense></RequireRole>} />
+                <Route path="finance" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminFinance /></AdminSuspense></RequireRole>} />
+                <Route path="team" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminTeam /></AdminSuspense></RequireRole>} />
               </Route>
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
