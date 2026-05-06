@@ -80,13 +80,22 @@ const BookingDetails = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const { formatPrice, currencySymbol } = useCurrency();
-  const { vehicles: dbVehicles } = useVehiclesDB();
+  const { vehicles: dbVehicles, loading: vehiclesLoading } = useVehiclesDB();
   const vehiclePrices = buildPriceMap(dbVehicles);
   const vehicleTrims = buildTrimMap(dbVehicles);
 
   const decodedName = decodeURIComponent(vehicleName || "");
 
-  const dbVehicle = dbVehicles.find((v) => v.name === decodedName);
+  const dbVehicle = dbVehicles.find((v) => v.name === decodedName)
+    || dbVehicles.find((v) => v.name.toLowerCase() === decodedName.toLowerCase());
+
+  // Debug: log mismatch for future investigation
+  if (!vehiclesLoading && dbVehicles.length > 0 && !dbVehicle) {
+    console.warn("[BookingDetails] Vehicle not found in DB.", {
+      decodedName,
+      availableNames: dbVehicles.map((v) => v.name),
+    });
+  }
   const vehicle: VehicleInfo | undefined = dbVehicle ? {
     name: dbVehicle.name,
     categoryKey: categoryToKey(dbVehicle.category),
