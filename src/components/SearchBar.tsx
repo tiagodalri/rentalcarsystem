@@ -153,7 +153,7 @@ const SearchBar = () => {
               {locations.map((loc) => (
                 <button
                   key={loc}
-                  onClick={() => { setPickupLocation(loc); setOpenPicker(null); }}
+                  onClick={() => { setPickupLocation(loc); setLocationErrors((e) => ({ ...e, pickup: undefined })); setOpenPicker(null); }}
                   className={cn(
                     "w-full text-left px-3 py-2.5 rounded-lg text-sm transition-colors",
                     pickupLocation === loc ? "text-primary font-semibold bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
@@ -164,6 +164,9 @@ const SearchBar = () => {
               ))}
             </PopoverContent>
           </Popover>
+          {locationErrors.pickup && (
+            <p className="text-xs text-destructive col-span-2 lg:col-span-1 -mt-1">{locationErrors.pickup}</p>
+          )}
 
           {/* Return Date */}
           <Popover open={openPicker === "returnDate"} onOpenChange={(o) => setOpenPicker(o ? "returnDate" : null)}>
