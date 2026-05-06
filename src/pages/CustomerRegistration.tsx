@@ -89,6 +89,7 @@ const CustomerRegistration = () => {
         zip_code: form.zip_code.trim() || undefined,
         house_number: form.house_number.trim() || undefined,
         complement: form.complement.trim() || undefined,
+        driver_license_expiry: form.driver_license_expiry || undefined,
         language: language === "en" ? "en" : "pt",
       });
 
