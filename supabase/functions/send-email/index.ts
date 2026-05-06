@@ -275,6 +275,7 @@ function renderTemplate(
     "booking-confirmation": () => renderBookingConfirmation(_data, l),
     "pickup-reminder": () => renderPickupReminder(_data, l),
     "payment-receipt": () => renderPaymentReceipt(_data, l),
+    "booking-cancellation": () => renderBookingCancellation(_data, l),
   };
 
   const factory = templates[templateName];
