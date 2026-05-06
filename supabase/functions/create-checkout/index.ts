@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.14.0?target=deno";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,6 +19,7 @@ serve(async (req) => {
     });
 
     const {
+      bookingId,
       vehicleName,
       vehicleCategory,
       dailyRate,
@@ -41,6 +43,15 @@ serve(async (req) => {
     if (!vehicleName || !pricing?.total) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+
+    // Validate bookingId format (UUID)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (bookingId && !uuidRegex.test(bookingId)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid bookingId format" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
@@ -160,6 +171,7 @@ serve(async (req) => {
         extraDriver: String(extraDriver),
         isDifferentCity: String(isDifferentCity),
         total: String(pricing.total),
+        ...(bookingId ? { bookingId } : {}),
       },
     };
 
@@ -175,6 +187,25 @@ serve(async (req) => {
     }
 
     const session = await stripe.checkout.sessions.create(sessionParams);
+
+    // Persist stripe_session_id on the booking record
+    if (bookingId && session.id) {
+      try {
+        const supabase = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+        );
+        const { error: updateErr } = await supabase
+          .from("bookings")
+          .update({ stripe_session_id: session.id })
+          .eq("id", bookingId);
+        if (updateErr) {
+          console.warn("Failed to persist stripe_session_id:", updateErr.message);
+        }
+      } catch (e) {
+        console.warn("Error updating booking with stripe_session_id:", e.message);
+      }
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
