@@ -33,21 +33,22 @@ export function useUserBookings() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchBookings = useCallback(async () => {
-    if (!user) {
-      setBookings([]);
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
     try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (!authUser) {
+        setBookings([]);
+        setLoading(false);
+        return;
+      }
+
       // First get the customer id for this user
       const { data: customer, error: custErr } = await supabase
         .from("customers")
         .select("id")
-        .eq("user_id", user.id)
+        .eq("user_id", authUser.id)
         .maybeSingle();
 
       if (custErr) {
