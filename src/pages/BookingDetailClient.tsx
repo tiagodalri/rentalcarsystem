@@ -407,10 +407,38 @@ const BookingDetailClient = () => {
                     <MessageCircle size={16} />
                     Falar com a Zeus
                   </a>
-                  <button className="w-full flex items-center justify-center gap-2 border border-destructive/30 rounded-lg px-4 py-3 text-sm font-medium text-destructive/70 hover:text-destructive hover:border-destructive/50 transition-colors">
-                    <XCircle size={16} />
-                    Cancelar reserva
-                  </button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <button
+                        disabled={cancelling}
+                        className="w-full flex items-center justify-center gap-2 border border-destructive/30 rounded-lg px-4 py-3 text-sm font-medium text-destructive/70 hover:text-destructive hover:border-destructive/50 transition-colors disabled:opacity-50"
+                      >
+                        {cancelling ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <XCircle size={16} />
+                        )}
+                        {cancelling ? "Cancelando..." : "Cancelar reserva"}
+                      </button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Cancelar reserva?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta ação não pode ser desfeita. Você receberá um email de confirmação.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Voltar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleCancelBooking}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Sim, cancelar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               )}
 
