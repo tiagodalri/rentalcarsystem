@@ -72,6 +72,7 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl }: VehicleM
       >
         <button
           onClick={onClose}
+          aria-label="Fechar"
           className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors"
         >
           <X size={20} />
@@ -103,12 +104,14 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl }: VehicleM
 
           <button
             onClick={prevImage}
+            aria-label="Imagem anterior"
             className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
           >
             <ChevronLeft size={22} />
           </button>
           <button
             onClick={nextImage}
+            aria-label="Próxima imagem"
             className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
           >
             <ChevronRight size={22} />
@@ -207,6 +210,7 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl }: VehicleM
           >
             <button
               onClick={toggleFullscreen}
+              aria-label="Sair da tela cheia"
               className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-colors"
             >
               <Minimize size={20} />
@@ -214,6 +218,7 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl }: VehicleM
 
             <button
               onClick={(e) => { e.stopPropagation(); prevImage(); }}
+              aria-label="Imagem anterior"
               className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-colors"
             >
               <ChevronLeft size={24} />
@@ -228,6 +233,7 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl }: VehicleM
 
             <button
               onClick={(e) => { e.stopPropagation(); nextImage(); }}
+              aria-label="Próxima imagem"
               className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-colors"
             >
               <ChevronRight size={24} />

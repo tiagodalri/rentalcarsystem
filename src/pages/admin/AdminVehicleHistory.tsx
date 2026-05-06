@@ -126,7 +126,7 @@ export default function AdminVehicleHistory() {
         </Button>
         <div className="flex items-center gap-4 flex-1">
           {vehicle.image_url && (
-            <img src={vehicle.image_url} alt={vehicle.name} className="w-20 h-14 object-cover rounded-lg border border-border/40" />
+            <img src={vehicle.image_url} alt={vehicle.name} className="w-20 h-14 object-cover rounded-lg border border-border/40" loading="lazy" width={80} height={56} />
           )}
           <div>
             <h1 className="text-2xl font-bold text-foreground">{vehicle.name}</h1>

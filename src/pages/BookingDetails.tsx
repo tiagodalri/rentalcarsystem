@@ -538,6 +538,9 @@ const BookingDetails = () => {
                     src={vehicle.coverImage}
                     alt={vehicle.name}
                     className="w-full h-full object-cover object-[center_40%]"
+                    loading="eager"
+                    width={1280}
+                    height={720}
                   />
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <h1 className="text-xl sm:text-2xl font-bold uppercase tracking-wide text-white drop-shadow-lg">
