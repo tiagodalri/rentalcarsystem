@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { Check, Upload, Camera, Loader2, User, Mail, Phone, FileText, MapPin, Calendar, Globe, Lock, Eye, EyeOff } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
@@ -19,6 +20,7 @@ const passwordSchema = z
 const CustomerRegistration = () => {
   const navigate = useNavigate();
   const { signUp } = useAuth();
+  const { language } = useLanguage();
   const [form, setForm] = useState({
     full_name: "", email: "", password: "", confirmPassword: "",
     phone: "", document_number: "",
@@ -85,6 +87,7 @@ const CustomerRegistration = () => {
         zip_code: form.zip_code.trim() || undefined,
         house_number: form.house_number.trim() || undefined,
         complement: form.complement.trim() || undefined,
+        language: language === "en" ? "en" : "pt",
       });
 
       // 2. Upload CNH AFTER signup so RLS sees an authenticated user.
