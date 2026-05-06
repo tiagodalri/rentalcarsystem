@@ -15,7 +15,7 @@ interface WelcomeData {
 
 const content = {
   pt: {
-    subject: "Bem-vindo à Zeus Rental Car! 🏎️",
+    subject: "Bem-vindo à Zeus Rental Car",
     greeting: (name: string) =>
       name ? `Olá, ${name}!` : "Olá!",
     intro:
