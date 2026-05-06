@@ -66,6 +66,7 @@ const App = () => (
               <Route path="/cadastro" element={<CustomerRegistration />} />
               <Route path="/login" element={<Login />} />
               <Route path="/redefinir-senha" element={<ResetPassword />} />
+              <Route path="/contato" element={<Contato />} />
               <Route path="/minha-conta" element={<RequireAuth><MyAccount /></RequireAuth>} />
               <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><BookingDetailClient /></RequireAuth>} />
 
