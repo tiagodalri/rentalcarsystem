@@ -215,13 +215,25 @@ serve(async (req) => {
       .eq("id", logId);
 
     if (result.success) {
-      console.log(`✅ Email sent: ${templateName} → ${recipientEmail} (${result.attempts} attempt(s))`);
+      console.log(`Email sent: ${templateName} -> ${recipientEmail} (${result.attempts} attempt(s))`);
+
+      // Set welcome_sent flag on customer after successful welcome send
+      if (templateName === "welcome" && templateData?.customerId) {
+        const { error: flagErr } = await supabase
+          .from("customers")
+          .update({ welcome_sent: true })
+          .eq("id", templateData.customerId as string);
+        if (flagErr) {
+          console.error("Failed to set welcome_sent flag:", flagErr);
+        }
+      }
+
       return new Response(
         JSON.stringify({ success: true, logId, attempts: result.attempts }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } else {
-      console.error(`❌ Email failed: ${templateName} → ${recipientEmail}: ${result.error}`);
+      console.error(`Email failed: ${templateName} -> ${recipientEmail}: ${result.error}`);
       return new Response(
         JSON.stringify({ success: false, error: result.error, logId, attempts: result.attempts }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
