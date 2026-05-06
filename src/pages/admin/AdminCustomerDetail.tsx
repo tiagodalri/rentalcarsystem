@@ -98,6 +98,41 @@ export default function AdminCustomerDetail() {
         setInspections(insp || []);
       }
 
+      // Favorite category
+      const vehIds = bookingList.map(b => b.vehicle_id).filter(Boolean) as string[];
+      if (vehIds.length > 0) {
+        const catCount: Record<string, number> = {};
+        const vMap = vehicles || {};
+        // Use already-loaded vehicles map built above
+        bookingList.forEach(b => {
+          if (b.vehicle_id) {
+            // vMap may not be set yet, use vehs from above
+          }
+        });
+        // Re-query vehicles for categories
+        const { data: allVehs } = await supabase.from("vehicles").select("id, category").in("id", vehIds);
+        const catMap: Record<string, string> = {};
+        (allVehs || []).forEach(v => { catMap[v.id] = v.category; });
+        bookingList.forEach(b => {
+          if (b.vehicle_id && catMap[b.vehicle_id]) {
+            const cat = catMap[b.vehicle_id];
+            catCount[cat] = (catCount[cat] || 0) + 1;
+          }
+        });
+        const sorted = Object.entries(catCount).sort((a, b) => b[1] - a[1]);
+        if (sorted.length > 0) setFavoriteCategory(sorted[0][0]);
+      }
+
+      // Incident count from vehicle_incidents via bookings
+      const bIds = bookingList.map(b => b.id);
+      if (bIds.length > 0) {
+        const { count } = await supabase
+          .from("vehicle_incidents")
+          .select("id", { count: "exact", head: true })
+          .in("booking_id", bIds);
+        setIncidentCount(count || 0);
+      }
+
       setLoading(false);
     };
     load();
