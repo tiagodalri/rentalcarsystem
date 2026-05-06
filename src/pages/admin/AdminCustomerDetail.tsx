@@ -147,7 +147,7 @@ export default function AdminCustomerDetail() {
   );
 
   // Computed stats
-  const totalRevenue = bookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
+  const totalRevenue = bookings.filter(b => b.status === "completed").reduce((sum, b) => sum + (b.total_price || 0), 0);
   const completedBookings = bookings.filter(b => b.status === "completed").length;
   const activeBookings = bookings.filter(b => ["active", "in_progress", "confirmed"].includes(b.status)).length;
   const cancelledBookings = bookings.filter(b => b.status === "cancelled").length;
