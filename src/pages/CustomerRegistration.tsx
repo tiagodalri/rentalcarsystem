@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,6 +62,16 @@ const CustomerRegistration = () => {
     }
   };
 
+  const isFormValid = useMemo(() => {
+    if (!form.full_name.trim()) return false;
+    if (!form.email.trim()) return false;
+    if (!form.phone.trim()) return false;
+    if (!form.driver_license_expiry || new Date(form.driver_license_expiry) <= new Date()) return false;
+    if (!form.password || form.password.length < 8 || !/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/[0-9]/.test(form.password)) return false;
+    if (form.password !== form.confirmPassword) return false;
+    return true;
+  }, [form]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -70,7 +80,7 @@ const CustomerRegistration = () => {
     if (!form.email.trim()) return setError("E-mail é obrigatório.");
     if (!form.phone.trim()) return setError("Telefone é obrigatório.");
     if (!form.driver_license_expiry) return setError("Validade da CNH é obrigatória.");
-    if (new Date(form.driver_license_expiry) <= new Date()) return setError("CNH vencida — não é possível prosseguir com a reserva.");
+    if (new Date(form.driver_license_expiry) <= new Date()) return setError("CNH vencida — informe uma data válida.");
 
     const pwdParse = passwordSchema.safeParse(form.password);
     if (!pwdParse.success) return setError(pwdParse.error.errors[0].message);
@@ -323,8 +333,8 @@ const CustomerRegistration = () => {
 
           <button
             type="submit"
-            disabled={submitting}
-            className="w-full h-11 gold-gradient text-primary-foreground rounded-lg text-xs font-bold uppercase tracking-[0.12em] flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-60 mt-6"
+            disabled={!isFormValid || submitting}
+            className="w-full h-11 gold-gradient text-primary-foreground rounded-lg text-xs font-bold uppercase tracking-[0.12em] flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50 mt-6"
           >
             {submitting ? (
               <>
