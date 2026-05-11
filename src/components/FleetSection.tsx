@@ -234,7 +234,7 @@ const FleetSection = () => {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
                   className="group relative overflow-hidden rounded-2xl cursor-pointer hover-lift border border-border/10 hover:border-primary/20"
-                  onClick={() => setSelectedVehicle(v)}
+                  onClick={() => navigate(`/veiculo/${encodeURIComponent(v.name)}`)}
                 >
                   <div className="relative h-64 overflow-hidden">
                     <img
