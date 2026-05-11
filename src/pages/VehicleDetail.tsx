@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, Maximize, X, Share2, Check } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import WhatsAppBubble from "@/components/WhatsAppBubble";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useVehiclesDB, categoryToKey } from "@/hooks/useVehiclesDB";
 import { coverImageMap, galleryMap } from "@/data/fleetAssets";
@@ -29,6 +28,9 @@ const VehicleDetail = () => {
 
   const nextImage = useCallback(() => setCurrentImage((p) => (p + 1) % images.length), [images.length]);
   const prevImage = useCallback(() => setCurrentImage((p) => (p - 1 + images.length) % images.length), [images.length]);
+  const handleReserve = useCallback(() => {
+    navigate(`/reserva/${encodeURIComponent(decodedName)}`);
+  }, [decodedName, navigate]);
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -228,7 +230,8 @@ const VehicleDetail = () => {
               )}
 
               <button
-                onClick={() => navigate(`/reserva/${encodeURIComponent(decodedName)}`)}
+                type="button"
+                onClick={handleReserve}
                 className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 {t.fleet.book}
@@ -239,7 +242,6 @@ const VehicleDetail = () => {
       </main>
 
       <Footer />
-      <WhatsAppBubble />
 
       {/* Fullscreen lightbox */}
       <AnimatePresence>
