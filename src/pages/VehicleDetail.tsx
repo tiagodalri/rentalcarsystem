@@ -17,6 +17,21 @@ const VehicleDetail = () => {
   const { toast } = useToast();
   const [currentImage, setCurrentImage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const touchStartX = useState({ x: 0 })[0];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [vehicleName]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.x = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = e.changedTouches[0].clientX - touchStartX.x;
+    if (Math.abs(diff) < 50) return;
+    if (diff < 0) setCurrentImage((p) => (p + 1) % images.length);
+    else setCurrentImage((p) => (p - 1 + images.length) % images.length);
+  };
 
   const decodedName = vehicleName ? decodeURIComponent(vehicleName) : "";
   const dbv = dbVehicles.find((v) => v.name === decodedName);
