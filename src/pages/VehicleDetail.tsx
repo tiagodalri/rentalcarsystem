@@ -20,8 +20,15 @@ const VehicleDetail = () => {
   const touchStartX = useState({ x: 0 })[0];
 
   useLayoutEffect(() => {
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-  }, [vehicleName]);
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+
+    root.style.scrollBehavior = "auto";
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    root.scrollTop = 0;
+    document.body.scrollTop = 0;
+    root.style.scrollBehavior = previousScrollBehavior;
+  }, [vehicleName, loading]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.x = e.touches[0].clientX;
