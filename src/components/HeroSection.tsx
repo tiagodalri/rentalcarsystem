@@ -8,7 +8,7 @@ const HeroSection = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-start overflow-hidden pt-24 sm:pt-28 pb-8 sm:pb-12">
+    <section className="relative min-h-screen min-h-[100svh] flex flex-col items-center justify-start overflow-hidden pt-24 sm:pt-28 pb-8 sm:pb-12">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(40,100%,48%,0.06)_0%,_transparent_70%)]" />
 
