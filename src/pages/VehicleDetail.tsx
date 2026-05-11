@@ -17,6 +17,21 @@ const VehicleDetail = () => {
   const { toast } = useToast();
   const [currentImage, setCurrentImage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const touchStartX = useState({ x: 0 })[0];
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [vehicleName]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.x = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = e.changedTouches[0].clientX - touchStartX.x;
+    if (Math.abs(diff) < 50) return;
+    if (diff < 0) setCurrentImage((p) => (p + 1) % images.length);
+    else setCurrentImage((p) => (p - 1 + images.length) % images.length);
+  };
 
   const decodedName = vehicleName ? decodeURIComponent(vehicleName) : "";
   const dbv = dbVehicles.find((v) => v.name === decodedName);
@@ -82,11 +97,11 @@ const VehicleDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden w-full max-w-[100vw]">
       <Navbar />
 
-      <main className="flex-1 pt-24 sm:pt-28">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <main className="flex-1 pt-24 sm:pt-28 w-full">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full">
           <div className="flex items-center justify-between mb-5">
             <button
               onClick={() => navigate(-1)}
@@ -105,7 +120,11 @@ const VehicleDetail = () => {
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-10">
             {/* Gallery */}
             <div>
-              <div className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted/30">
+              <div
+                className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted/30 max-w-full touch-pan-y"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={currentImage}
