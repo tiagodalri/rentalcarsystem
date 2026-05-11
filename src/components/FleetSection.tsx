@@ -447,6 +447,11 @@ const FleetSection = () => {
             categoryLabel={categoryLabels[selectedVehicle.categoryKey]}
             onClose={() => setSelectedVehicle(null)}
             whatsappUrl={whatsappMsg(selectedVehicle.name)}
+            onReserve={() => {
+              const name = selectedVehicle.name;
+              setSelectedVehicle(null);
+              navigate(`/reserva/${encodeURIComponent(name)}`);
+            }}
           />
         )}
       </AnimatePresence>
