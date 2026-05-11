@@ -14,11 +14,10 @@ interface VehicleModalProps {
   };
   categoryLabel: string;
   onClose: () => void;
-  whatsappUrl: string;
-  onReserve?: () => void;
+  onReserve: () => void;
 }
 
-const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl, onReserve }: VehicleModalProps) => {
+const VehicleModal = ({ vehicle, categoryLabel, onClose, onReserve }: VehicleModalProps) => {
   const [currentImage, setCurrentImage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { t } = useLanguage();
