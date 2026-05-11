@@ -152,6 +152,7 @@ const matchPassenger = (p: number, filter: string) => {
 };
 
 const FleetSection = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("all");
   const [activePassengers, setActivePassengers] = useState("all");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
