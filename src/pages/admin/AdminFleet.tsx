@@ -10,6 +10,7 @@ import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
 type Vehicle = {
   id: string;
   name: string;
+  license_plate: string | null;
   category: string;
   daily_price_usd: number;
   image_url: string | null;
@@ -29,7 +30,7 @@ type Vehicle = {
 };
 
 const emptyVehicle = {
-  name: "", category: "Economy", daily_price_usd: 0, image_url: "",
+  name: "", license_plate: "", category: "Economy", daily_price_usd: 0, image_url: "",
   passengers: 5, bags: 2, transmission: "Automatic", fuel: "Gasoline",
   year: new Date().getFullYear(), status: "available", features: [] as string[],
   color: "", purchase_price: 0, initial_odometer: 0, current_odometer: 0,
@@ -60,9 +61,12 @@ export default function AdminFleet() {
 
   const save = async () => {
     if (!editing?.name) return toast({ title: "Nome obrigatório", variant: "destructive" });
+    const plate = (editing.license_plate || "").trim();
+    if (plate.length < 3) return toast({ title: "Placa obrigatória", description: "Informe ao menos 3 caracteres.", variant: "destructive" });
 
     const payload = {
       name: editing.name,
+      license_plate: plate.toUpperCase(),
       category: editing.category || "Economy",
       daily_price_usd: editing.daily_price_usd || 0,
       image_url: editing.image_url || null,
@@ -149,6 +153,7 @@ export default function AdminFleet() {
             <div className="space-y-4">
               {[
                 { label: "Nome", key: "name", type: "text" },
+                { label: "Placa", key: "license_plate", type: "text" },
                 { label: "Categoria", key: "category", type: "text" },
                 { label: "Diária (USD)", key: "daily_price_usd", type: "number" },
                 { label: "URL da Imagem", key: "image_url", type: "text" },
