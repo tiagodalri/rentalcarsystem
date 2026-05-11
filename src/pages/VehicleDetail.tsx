@@ -115,7 +115,7 @@ const VehicleDetail = () => {
                   title="Tela cheia"
                   aria-label="Tela cheia"
                 >
-                  <Maximize size={16} />
+                  <Maximize2 size={16} />
                 </button>
 
                 <AnimatePresence mode="wait">
