@@ -86,15 +86,14 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, onReserve }: VehicleMod
           >
             <Maximize size={16} />
           </button>
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="popLayout" initial={false}>
             <motion.img
               key={currentImage}
               src={vehicle.images[currentImage]}
               alt={`${vehicle.name} - ${currentImage + 1}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.15 }}
               className="w-full h-full object-cover cursor-zoom-in"
               loading="eager"
               decoding="async"
