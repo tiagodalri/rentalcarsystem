@@ -32,7 +32,7 @@ const FleetSection = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("all");
   const [activePassengers, setActivePassengers] = useState("all");
-  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [openFilter2, _setOpenFilter2] = useState(false); // placeholder removed below
   const [openFilter, setOpenFilter] = useState<"category" | "passengers" | null>(null);
   const { t } = useLanguage();
   const { vehicles: dbVehicles } = useVehiclesDB();
