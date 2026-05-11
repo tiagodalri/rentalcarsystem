@@ -19,8 +19,8 @@ const VehicleDetail = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const touchStartX = useState({ x: 0 })[0];
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, [vehicleName]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
