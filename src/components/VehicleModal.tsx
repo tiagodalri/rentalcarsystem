@@ -15,9 +15,10 @@ interface VehicleModalProps {
   categoryLabel: string;
   onClose: () => void;
   whatsappUrl: string;
+  onReserve?: () => void;
 }
 
-const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl }: VehicleModalProps) => {
+const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl, onReserve }: VehicleModalProps) => {
   const [currentImage, setCurrentImage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { t } = useLanguage();
@@ -187,15 +188,24 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl }: VehicleM
             </div>
           </div>
 
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
-          >
-            <MessageCircle size={18} />
-            {t.fleet.book}
-          </a>
+          {onReserve ? (
+            <button
+              onClick={onReserve}
+              className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
+            >
+              {t.fleet.book}
+            </button>
+          ) : (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
+            >
+              <MessageCircle size={18} />
+              {t.fleet.book}
+            </a>
+          )}
         </div>
       </motion.div>
 

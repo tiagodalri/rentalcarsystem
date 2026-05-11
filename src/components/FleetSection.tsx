@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, Briefcase, SlidersHorizontal, UserRound, ChevronDown, Check, Diamond } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -151,6 +152,7 @@ const matchPassenger = (p: number, filter: string) => {
 };
 
 const FleetSection = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("all");
   const [activePassengers, setActivePassengers] = useState("all");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
@@ -445,6 +447,11 @@ const FleetSection = () => {
             categoryLabel={categoryLabels[selectedVehicle.categoryKey]}
             onClose={() => setSelectedVehicle(null)}
             whatsappUrl={whatsappMsg(selectedVehicle.name)}
+            onReserve={() => {
+              const name = selectedVehicle.name;
+              setSelectedVehicle(null);
+              navigate(`/reserva/${encodeURIComponent(name)}`);
+            }}
           />
         )}
       </AnimatePresence>
