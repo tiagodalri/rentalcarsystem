@@ -64,6 +64,18 @@ const VehicleDetail = () => {
   const nextImage = useCallback(() => setCurrentImage((p) => (p + 1) % images.length), [images.length]);
   const prevImage = useCallback(() => setCurrentImage((p) => (p - 1 + images.length) % images.length), [images.length]);
 
+  // Preload adjacent images so swipes/clicks feel instant
+  useEffect(() => {
+    if (images.length < 2) return;
+    const next = (currentImage + 1) % images.length;
+    const prev = (currentImage - 1 + images.length) % images.length;
+    [images[next], images[prev]].forEach((src) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = src;
+    });
+  }, [currentImage, images]);
+
   useEffect(() => {
     if (!isFullscreen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -145,21 +157,16 @@ const VehicleDetail = () => {
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
               >
-                <AnimatePresence mode="wait">
-                  <motion.img
-                    key={currentImage}
-                    src={images[currentImage]}
-                    alt={`${decodedName} - ${currentImage + 1}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                    className="w-full h-full object-contain cursor-zoom-in"
-                    loading="eager"
-                    decoding="async"
-                    onClick={() => setIsFullscreen(true)}
-                  />
-                </AnimatePresence>
+                <img
+                  key={currentImage}
+                  src={images[currentImage]}
+                  alt={`${decodedName} - ${currentImage + 1}`}
+                  className="w-full h-full object-contain cursor-zoom-in animate-fade-in"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  onClick={() => setIsFullscreen(true)}
+                />
 
                 {images.length > 1 && (
                   <>
