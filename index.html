@@ -7,8 +7,8 @@
     <meta name="description" content="Locadora de carros premium para brasileiros em Orlando. Corvette, Mustang, Escalade, BMW X5 e mais. Atendimento 100% em português.">
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://zeusrentalcar.com" />
-    
-    
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#D4AF37" />
     <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,6 +19,17 @@
   <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/eJRDSYFo9SVAiVDZ22i9nrIZiHm1/social-images/social-1774539847105-Captura_de_Tela_2026-03-26_às_12.43.49.webp">
   <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/eJRDSYFo9SVAiVDZ22i9nrIZiHm1/social-images/social-1774539847105-Captura_de_Tela_2026-03-26_às_12.43.49.webp">
   <meta name="twitter:card" content="summary_large_image">
+  <script>
+    if ("serviceWorker" in navigator) {
+      const isInIframe = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+      const isPreviewHost = window.location.hostname.includes("id-preview--") || window.location.hostname.includes("lovableproject.com");
+      if (!isPreviewHost && !isInIframe) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js").catch(() => {});
+        });
+      }
+    }
+  </script>
 </head>
   <body>
     <div id="root"></div>
