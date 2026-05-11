@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useLayoutEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, X, Share2, Check, Calendar } from "lucide-react";
@@ -19,8 +19,8 @@ const VehicleDetail = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const touchStartX = useState({ x: 0 })[0];
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, [vehicleName]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
