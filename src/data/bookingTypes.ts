@@ -42,6 +42,7 @@ export interface Booking {
   fuelDropoff: string | null;
   extraCharges: ExtraCharge[];
   contractUrl: string;
+  contractAvailable: boolean;
   rating?: number;
   daysRemaining?: number;
   discountApplied?: string;

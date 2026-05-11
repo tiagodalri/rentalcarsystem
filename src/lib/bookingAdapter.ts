@@ -53,5 +53,6 @@ export function adaptBookingFromDb(db: DbBookingWithVehicle): Booking {
     fuelDropoff: null,
     extraCharges: [],
     contractUrl: "",
+    contractAvailable: ["confirmed", "in_progress", "completed"].includes(db.status),
   };
 }
