@@ -195,7 +195,7 @@ const VehicleDetail = () => {
               </div>
 
               {images.length > 1 && (
-                <div className="flex gap-2 mt-3 overflow-x-auto">
+                <div className="flex gap-2 mt-3 max-w-full overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {images.map((img, i) => (
                     <button
                       key={i}
@@ -226,19 +226,19 @@ const VehicleDetail = () => {
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-muted-foreground">
-                <span className="flex items-center gap-2">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-4 sm:gap-6 text-sm text-muted-foreground max-w-full">
+                <span className="flex min-w-0 items-center gap-2">
                   <Users size={16} className="text-primary" /> {dbv.passengers} {dbv.passengers === 1 ? "passageiro" : "passageiros"}
                 </span>
                 {dbv.bags > 0 && (
-                  <span className="flex items-center gap-2">
+                  <span className="flex min-w-0 items-center gap-2">
                     <Briefcase size={16} className="text-primary" /> {dbv.bags} {dbv.bags === 1 ? "mala" : "malas"}
                   </span>
                 )}
-                <span className="flex items-center gap-2">
+                <span className="flex min-w-0 items-center gap-2">
                   <Settings size={16} className="text-primary" /> Auto
                 </span>
-                <span className="flex items-center gap-2">
+                <span className="flex min-w-0 items-center gap-2">
                   <Smartphone size={16} className="text-primary" /> CarPlay
                 </span>
               </div>
