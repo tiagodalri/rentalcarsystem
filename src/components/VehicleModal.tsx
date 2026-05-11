@@ -188,24 +188,12 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl, onReserve 
             </div>
           </div>
 
-          {onReserve ? (
-            <button
-              onClick={onReserve}
-              className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
-            >
-              {t.fleet.book}
-            </button>
-          ) : (
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
-            >
-              <MessageCircle size={18} />
-              {t.fleet.book}
-            </a>
-          )}
+          <button
+            onClick={onReserve}
+            className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
+          >
+            {t.fleet.book}
+          </button>
         </div>
       </motion.div>
 
