@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, MessageCircle, Maximize, Minimize } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, MessageCircle, Maximize } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 
 interface VehicleModalProps {
