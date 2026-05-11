@@ -110,12 +110,13 @@ const VehicleDetail = () => {
             <div>
               <div className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted/30">
                 <button
-                  onClick={() => setIsFullscreen(true)}
-                  className="absolute top-3 left-3 z-10 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setIsFullscreen(true); }}
+                  className="absolute top-3 left-3 z-20 w-10 h-10 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/80 transition-colors shadow-lg"
                   title="Tela cheia"
                   aria-label="Tela cheia"
                 >
-                  <Maximize2 size={16} />
+                  <Maximize2 size={18} />
                 </button>
 
                 <AnimatePresence mode="wait">
