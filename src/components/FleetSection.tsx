@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Users, Briefcase, SlidersHorizontal, UserRound, ChevronDown, Check } from "lucide-react";
+import { Users, Briefcase, SlidersHorizontal, UserRound, ChevronDown, Check, Diamond } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
 import VehicleModal from "./VehicleModal";
 import { useVehiclesDB, categoryToKey } from "@/hooks/useVehiclesDB";
@@ -408,10 +408,7 @@ const FleetSection = () => {
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-transparent to-primary/[0.06]" />
 
                   <div className="relative z-10 text-center px-6">
-                    <span className="text-4xl mb-4 block">🔒</span>
-                    <h3 className="text-lg font-black uppercase tracking-wider text-foreground/80 mb-2">
-                      Em breve
-                    </h3>
+                    <Diamond size={40} className="text-primary mx-auto mb-4" strokeWidth={1} />
                     <p className="text-sm text-muted-foreground italic font-light">
                       Novidade exclusiva chegando à frota Zeus
                     </p>
