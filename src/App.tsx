@@ -17,6 +17,7 @@ import BookingConfirmed from "./pages/BookingConfirmed.tsx";
 import CustomerRegistration from "./pages/CustomerRegistration.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Contato from "./pages/Contato.tsx";
+import VehicleDetail from "./pages/VehicleDetail.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
 import { RequireRole } from "./components/admin/RequireRole.tsx";
 import AdminLayout from "./components/admin/AdminLayout.tsx";
@@ -76,6 +77,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/sobre-nos" element={<AboutUs />} />
               <Route path="/buscar" element={<SearchResults />} />
+              <Route path="/veiculo/:vehicleName" element={<VehicleDetail />} />
               <Route path="/reserva/:vehicleName" element={<BookingDetails />} />
               <Route path="/reserva/confirmada" element={<BookingConfirmed />} />
               <Route path="/cadastro" element={<CustomerRegistration />} />
