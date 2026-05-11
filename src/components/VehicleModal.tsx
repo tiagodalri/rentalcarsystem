@@ -15,6 +15,7 @@ interface VehicleModalProps {
   categoryLabel: string;
   onClose: () => void;
   whatsappUrl: string;
+  onReserve?: () => void;
 }
 
 const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl }: VehicleModalProps) => {
