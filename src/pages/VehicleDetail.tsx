@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, Maximize, X, Share2, Check } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, Maximize2, X, Share2, Check, Calendar } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -115,7 +115,7 @@ const VehicleDetail = () => {
                   title="Tela cheia"
                   aria-label="Tela cheia"
                 >
-                  <Maximize size={16} />
+                  <Maximize2 size={16} />
                 </button>
 
                 <AnimatePresence mode="wait">
@@ -234,7 +234,7 @@ const VehicleDetail = () => {
                 onClick={handleReserve}
                 className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
-                {t.fleet.book}
+                <Calendar size={18} /> {t.fleet.book}
               </button>
             </div>
           </div>
