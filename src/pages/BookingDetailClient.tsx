@@ -119,7 +119,7 @@ const BookingDetailClient = () => {
 
   const pickupIsInFuture = new Date(booking.pickupDate) > new Date();
   const isFuture = (booking.status === "confirmed" || booking.status === "pending") && pickupIsInFuture;
-  const hasContractUrl = booking.contractUrl && booking.contractUrl !== "" && booking.contractUrl !== "#";
+  const hasContractUrl = booking.contractAvailable;
   const hasFuelData = booking.status === "completed" && booking.fuelDropoff;
   const hasExtraCharges = booking.extraCharges && booking.extraCharges.length > 0;
 
@@ -396,8 +396,15 @@ const BookingDetailClient = () => {
                 )}
               </div>
 
-              {/* Contract — only show if URL exists */}
-              {hasContractUrl && <ContractButton url={booking.contractUrl} />}
+              {/* Contract — only show when reserva confirmada */}
+              {hasContractUrl && (
+                <div className="space-y-1.5">
+                  <ContractButton bookingId={dbBooking.id} />
+                  <p className="text-[10px] text-muted-foreground/70 text-center uppercase tracking-wider">
+                    Disponível após confirmação da reserva
+                  </p>
+                </div>
+              )}
 
               {/* Actions for future */}
               {isFuture && (
