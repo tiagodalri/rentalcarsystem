@@ -97,11 +97,11 @@ const VehicleDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden w-full max-w-[100vw]">
       <Navbar />
 
-      <main className="flex-1 pt-24 sm:pt-28">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <main className="flex-1 pt-24 sm:pt-28 w-full">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full">
           <div className="flex items-center justify-between mb-5">
             <button
               onClick={() => navigate(-1)}
