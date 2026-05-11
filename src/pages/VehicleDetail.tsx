@@ -64,6 +64,18 @@ const VehicleDetail = () => {
   const nextImage = useCallback(() => setCurrentImage((p) => (p + 1) % images.length), [images.length]);
   const prevImage = useCallback(() => setCurrentImage((p) => (p - 1 + images.length) % images.length), [images.length]);
 
+  // Preload adjacent images so swipes/clicks feel instant
+  useEffect(() => {
+    if (images.length < 2) return;
+    const next = (currentImage + 1) % images.length;
+    const prev = (currentImage - 1 + images.length) % images.length;
+    [images[next], images[prev]].forEach((src) => {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = src;
+    });
+  }, [currentImage, images]);
+
   useEffect(() => {
     if (!isFullscreen) return;
     const handleKey = (e: KeyboardEvent) => {
