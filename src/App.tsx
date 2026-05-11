@@ -17,6 +17,7 @@ import BookingConfirmed from "./pages/BookingConfirmed.tsx";
 import CustomerRegistration from "./pages/CustomerRegistration.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import Contato from "./pages/Contato.tsx";
+import VehicleDetail from "./pages/VehicleDetail.tsx";
 import RequireAuth from "./components/RequireAuth.tsx";
 import { RequireRole } from "./components/admin/RequireRole.tsx";
 import AdminLayout from "./components/admin/AdminLayout.tsx";
