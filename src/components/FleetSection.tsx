@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, Briefcase, SlidersHorizontal, UserRound, ChevronDown, Check, Diamond } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
