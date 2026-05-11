@@ -141,7 +141,7 @@ const VehicleDetail = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.25 }}
-                    className="w-full h-full object-cover cursor-zoom-in"
+                    className="w-full h-full object-contain cursor-zoom-in"
                     loading="eager"
                     decoding="async"
                     onClick={() => setIsFullscreen(true)}
