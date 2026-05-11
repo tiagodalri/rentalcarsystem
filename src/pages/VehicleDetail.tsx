@@ -128,7 +128,7 @@ const VehicleDetail = () => {
             {/* Gallery */}
             <div>
               <div
-                className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted/30 max-w-full touch-pan-y"
+                className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-black max-w-full touch-pan-y"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
               >
