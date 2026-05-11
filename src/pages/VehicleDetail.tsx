@@ -234,7 +234,7 @@ const VehicleDetail = () => {
                 onClick={handleReserve}
                 className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
-                {t.fleet.book}
+                <Calendar size={18} /> {t.fleet.book}
               </button>
             </div>
           </div>
