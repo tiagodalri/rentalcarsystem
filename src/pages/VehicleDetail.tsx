@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, Maximize2, X, Share2, Check, Calendar } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, X, Share2, Check, Calendar } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -28,9 +28,6 @@ const VehicleDetail = () => {
 
   const nextImage = useCallback(() => setCurrentImage((p) => (p + 1) % images.length), [images.length]);
   const prevImage = useCallback(() => setCurrentImage((p) => (p - 1 + images.length) % images.length), [images.length]);
-  const handleReserve = useCallback(() => {
-    navigate(`/reserva/${encodeURIComponent(decodedName)}`);
-  }, [decodedName, navigate]);
 
   useEffect(() => {
     if (!isFullscreen) return;
@@ -222,10 +219,11 @@ const VehicleDetail = () => {
 
               <button
                 type="button"
-                onClick={handleReserve}
+                onClick={() => navigate(`/reserva/${encodeURIComponent(decodedName)}`)}
                 className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
-                <Calendar size={18} /> {t.fleet.book}
+                <Calendar className="w-5 h-5" />
+                Reservar
               </button>
             </div>
           </div>
