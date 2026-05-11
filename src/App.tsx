@@ -77,6 +77,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/sobre-nos" element={<AboutUs />} />
               <Route path="/buscar" element={<SearchResults />} />
+              <Route path="/veiculo/:vehicleName" element={<VehicleDetail />} />
               <Route path="/reserva/:vehicleName" element={<BookingDetails />} />
               <Route path="/reserva/confirmada" element={<BookingConfirmed />} />
               <Route path="/cadastro" element={<CustomerRegistration />} />
