@@ -199,7 +199,7 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl }: VehicleM
         </div>
       </motion.div>
 
-      {/* Fullscreen overlay */}
+      {/* Fullscreen lightbox */}
       <AnimatePresence>
         {isFullscreen && (
           <motion.div
@@ -207,14 +207,14 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, whatsappUrl }: VehicleM
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[200] bg-black flex items-center justify-center"
-            onClick={toggleFullscreen}
+            onClick={(e) => { e.stopPropagation(); setIsFullscreen(false); }}
           >
             <button
-              onClick={toggleFullscreen}
-              aria-label="Sair da tela cheia"
+              onClick={(e) => { e.stopPropagation(); setIsFullscreen(false); }}
+              aria-label="Fechar tela cheia"
               className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-colors"
             >
-              <Minimize size={20} />
+              <X size={20} />
             </button>
 
             <button
