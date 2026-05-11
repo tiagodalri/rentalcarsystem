@@ -115,7 +115,9 @@
     font-family: 'Montserrat', sans-serif;
     font-optical-sizing: auto;
     -webkit-tap-highlight-color: transparent;
-    overscroll-behavior-y: none;
+  }
+
+  button, a, [role="button"] {
     touch-action: manipulation;
   }
 
