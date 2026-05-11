@@ -128,7 +128,7 @@ const VehicleDetail = () => {
             {/* Gallery */}
             <div>
               <div
-                className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted/30 max-w-full touch-pan-y"
+                className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-black max-w-full touch-pan-y"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
               >
@@ -141,7 +141,7 @@ const VehicleDetail = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.25 }}
-                    className="w-full h-full object-cover cursor-zoom-in"
+                    className="w-full h-full object-contain cursor-zoom-in"
                     loading="eager"
                     decoding="async"
                     onClick={() => setIsFullscreen(true)}
