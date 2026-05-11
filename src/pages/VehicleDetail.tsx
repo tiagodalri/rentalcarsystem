@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, useCallback } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, X, Share2, Check, Calendar } from "lucide-react";
@@ -22,12 +22,25 @@ const VehicleDetail = () => {
   useLayoutEffect(() => {
     const root = document.documentElement;
     const previousScrollBehavior = root.style.scrollBehavior;
+    let frame = 0;
+    let timeout = 0;
 
-    root.style.scrollBehavior = "auto";
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    root.scrollTop = 0;
-    document.body.scrollTop = 0;
-    root.style.scrollBehavior = previousScrollBehavior;
+    const scrollTop = () => {
+      root.style.scrollBehavior = "auto";
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      root.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    scrollTop();
+    frame = window.requestAnimationFrame(scrollTop);
+    timeout = window.setTimeout(scrollTop, 80);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timeout);
+      root.style.scrollBehavior = previousScrollBehavior;
+    };
   }, [vehicleName, loading]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -42,10 +55,10 @@ const VehicleDetail = () => {
 
   const decodedName = vehicleName ? decodeURIComponent(vehicleName) : "";
   const dbv = dbVehicles.find((v) => v.name === decodedName);
-  const gallery = galleryMap[decodedName] || { images: [], thumbs: [] };
   const cover = coverImageMap[decodedName] || "/placeholder.svg";
-  const images = gallery.images.length > 0 ? gallery.images : [cover];
-  const thumbnails = gallery.thumbs.length > 0 ? gallery.thumbs : [cover];
+  const gallery = galleryMap[decodedName] || { images: [], thumbs: [] };
+  const images = useMemo(() => [cover, ...gallery.images.filter((img) => img !== cover)], [cover, gallery.images]);
+  const thumbnails = useMemo(() => [cover, ...gallery.thumbs], [cover, gallery.thumbs]);
   const vehicleT = t.vehicles[decodedName];
 
   const nextImage = useCallback(() => setCurrentImage((p) => (p + 1) % images.length), [images.length]);
@@ -104,12 +117,12 @@ const VehicleDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden w-full max-w-[100vw]">
+    <div className="min-h-screen bg-background flex flex-col overflow-x-hidden w-full max-w-[100vw] [overflow-anchor:none]">
       <Navbar />
 
-      <main className="flex-1 pt-24 sm:pt-28 w-full">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full">
-          <div className="flex items-center justify-between mb-5">
+      <main className="flex-1 pt-24 sm:pt-28 w-full max-w-full overflow-x-hidden">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full min-w-0">
+          <div className="flex items-center justify-between gap-3 mb-5 min-w-0">
             <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -124,11 +137,11 @@ const VehicleDetail = () => {
             </button>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-6 lg:gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 min-w-0">
             {/* Gallery */}
-            <div>
+            <div className="min-w-0 max-w-full">
               <div
-                className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-black max-w-full touch-pan-y"
+                className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted max-w-full touch-pan-y"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
               >
@@ -182,7 +195,7 @@ const VehicleDetail = () => {
               </div>
 
               {images.length > 1 && (
-                <div className="flex gap-2 mt-3 overflow-x-auto">
+                <div className="flex gap-2 mt-3 max-w-full overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {images.map((img, i) => (
                     <button
                       key={i}
@@ -205,27 +218,27 @@ const VehicleDetail = () => {
             </div>
 
             {/* Info */}
-            <div className="space-y-6">
-              <div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-wider leading-tight">{decodedName}</h1>
+              <div className="space-y-6 min-w-0 max-w-full overflow-hidden">
+              <div className="min-w-0 max-w-full">
+                <h1 className="max-w-full break-words text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-wide sm:tracking-wider leading-tight">{decodedName}</h1>
                 {vehicleT?.subtitle && (
                   <p className="text-muted-foreground italic font-light mt-2 text-lg">{vehicleT.subtitle}</p>
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-muted-foreground">
-                <span className="flex items-center gap-2">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-4 sm:gap-6 text-sm text-muted-foreground max-w-full">
+                <span className="flex min-w-0 items-center gap-2">
                   <Users size={16} className="text-primary" /> {dbv.passengers} {dbv.passengers === 1 ? "passageiro" : "passageiros"}
                 </span>
                 {dbv.bags > 0 && (
-                  <span className="flex items-center gap-2">
+                  <span className="flex min-w-0 items-center gap-2">
                     <Briefcase size={16} className="text-primary" /> {dbv.bags} {dbv.bags === 1 ? "mala" : "malas"}
                   </span>
                 )}
-                <span className="flex items-center gap-2">
+                <span className="flex min-w-0 items-center gap-2">
                   <Settings size={16} className="text-primary" /> Auto
                 </span>
-                <span className="flex items-center gap-2">
+                <span className="flex min-w-0 items-center gap-2">
                   <Smartphone size={16} className="text-primary" /> CarPlay
                 </span>
               </div>
