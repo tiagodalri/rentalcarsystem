@@ -120,7 +120,11 @@ const VehicleDetail = () => {
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-10">
             {/* Gallery */}
             <div>
-              <div className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted/30">
+              <div
+                className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted/30 max-w-full touch-pan-y"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
                 <AnimatePresence mode="wait">
                   <motion.img
                     key={currentImage}
