@@ -310,28 +310,6 @@ const FleetSection = () => {
         )}
       </div>
 
-      <AnimatePresence>
-        {selectedVehicle && (
-          <VehicleModal
-            vehicle={{
-              name: selectedVehicle.name,
-              categoryKey: selectedVehicle.categoryKey,
-              passengers: selectedVehicle.passengers,
-              luggage: selectedVehicle.luggage,
-              images: selectedVehicle.galleryImages,
-              thumbnails: selectedVehicle.galleryThumbs,
-            }}
-            categoryLabel={categoryLabels[selectedVehicle.categoryKey]}
-            onClose={() => setSelectedVehicle(null)}
-            
-            onReserve={() => {
-              const name = selectedVehicle.name;
-              setSelectedVehicle(null);
-              navigate(`/reserva/${encodeURIComponent(name)}`);
-            }}
-          />
-        )}
-      </AnimatePresence>
     </section>
   );
 };
