@@ -277,6 +277,7 @@ export default function AdminVehicleDetail() {
     else { toast({ title: "Capa atualizada" }); loadData(); }
   };
 
+  if (loading) return <VehicleDetailSkeleton />;
   if (!vehicle) return <p className="text-muted-foreground">Veículo não encontrado.</p>;
 
   // ─── Computed ────────────────
