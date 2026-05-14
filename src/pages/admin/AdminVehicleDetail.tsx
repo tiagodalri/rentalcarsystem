@@ -11,8 +11,9 @@ import {
   BarChart3, MapPin, FileText, Settings, Pencil, X,
   Hash, Palette, StickyNote, CalendarDays,
   Plus, Wrench, Shield, CircleAlert, TrendingDown, TrendingUp,
-  Trash2, Activity, Heart, AlertCircle, Ban
+  Trash2, Activity, Heart, AlertCircle, Ban, ImageIcon, Upload, Star
 } from "lucide-react";
+import { getCoverImage } from "@/data/vehicleImages";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { Receipt, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -34,6 +35,7 @@ type Vehicle = {
   last_service_date: string | null; next_service_km: number | null;
   tire_condition: string | null; brake_condition: string | null;
   battery_condition: string | null; body_condition: string | null;
+  photos: string[] | null;
 };
 
 type Expense = {
@@ -229,6 +231,52 @@ export default function AdminVehicleDetail() {
     toast({ title: "Ocorrência excluída" }); loadData();
   };
 
+  const uploadPhotos = async (files: FileList | null) => {
+    if (!files || !vehicle) return;
+    const urls: string[] = [];
+    for (const file of Array.from(files)) {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${vehicle.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("vehicle-photos").upload(path, file, {
+        cacheControl: "3600", upsert: false, contentType: file.type,
+      });
+      if (error) { toast({ title: "Erro no upload", description: error.message, variant: "destructive" }); continue; }
+      const { data } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
+      urls.push(data.publicUrl);
+    }
+    if (urls.length === 0) return;
+    const next = [...((vehicle.photos as string[]) || []), ...urls];
+    const updates: any = { photos: next };
+    if (!vehicle.image_url) updates.image_url = urls[0];
+    const { error } = await supabase.from("vehicles").update(updates).eq("id", vehicle.id);
+    if (error) toast({ title: "Erro ao salvar", variant: "destructive" });
+    else { toast({ title: `${urls.length} foto(s) adicionada(s)` }); loadData(); }
+  };
+
+  const removePhoto = async (url: string) => {
+    if (!vehicle || !confirm("Remover esta foto?")) return;
+    const next = ((vehicle.photos as string[]) || []).filter(p => p !== url);
+    const updates: any = { photos: next };
+    if (vehicle.image_url === url) updates.image_url = next[0] || null;
+    const { error } = await supabase.from("vehicles").update(updates).eq("id", vehicle.id);
+    // Try to delete from storage (best effort)
+    const marker = "/vehicle-photos/";
+    const idx = url.indexOf(marker);
+    if (idx >= 0) {
+      const path = url.substring(idx + marker.length);
+      await supabase.storage.from("vehicle-photos").remove([path]);
+    }
+    if (error) toast({ title: "Erro ao remover", variant: "destructive" });
+    else { toast({ title: "Foto removida" }); loadData(); }
+  };
+
+  const setAsCover = async (url: string) => {
+    if (!vehicle) return;
+    const { error } = await supabase.from("vehicles").update({ image_url: url }).eq("id", vehicle.id);
+    if (error) toast({ title: "Erro", variant: "destructive" });
+    else { toast({ title: "Capa atualizada" }); loadData(); }
+  };
+
   if (loading) return <VehicleDetailSkeleton />;
   if (!vehicle) return <p className="text-muted-foreground">Veículo não encontrado.</p>;
 
@@ -366,6 +414,7 @@ export default function AdminVehicleDetail() {
       <Tabs defaultValue="agenda" className="w-full">
         <TabsList className="bg-muted/50 flex-wrap h-auto gap-1 p-1">
           <TabsTrigger value="agenda">Agenda</TabsTrigger>
+          <TabsTrigger value="photos">Fotos</TabsTrigger>
           <TabsTrigger value="health">Saúde</TabsTrigger>
           <TabsTrigger value="expenses">Gastos</TabsTrigger>
           <TabsTrigger value="incidents">Ocorrências</TabsTrigger>
@@ -377,6 +426,86 @@ export default function AdminVehicleDetail() {
         {/* ── Agenda Tab ── */}
         <TabsContent value="agenda" className="mt-4">
           <VehicleAgenda bookings={bookings} />
+        </TabsContent>
+
+        {/* ── Photos Tab ── */}
+        <TabsContent value="photos" className="mt-4 space-y-4">
+          <Card className="border-border/40">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h3 className="font-bold text-foreground flex items-center gap-2">
+                  <ImageIcon size={16} className="text-primary" /> Galeria de Fotos
+                </h3>
+                <label className="gold-gradient text-primary-foreground px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity">
+                  <Upload size={14} /> Enviar fotos
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => uploadPhotos(e.target.files)}
+                  />
+                </label>
+              </div>
+
+              {/* Capa atual */}
+              <div className="mb-6">
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Capa atual (exibida no site e nos cards)</p>
+                <div className="relative w-full max-w-md aspect-video rounded-xl overflow-hidden border border-border/40 bg-muted/30">
+                  <img
+                    src={vehicle.image_url || getCoverImage(vehicle.name)}
+                    alt={vehicle.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* Galeria de fotos enviadas */}
+              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Fotos enviadas</p>
+              {(!vehicle.photos || vehicle.photos.length === 0) ? (
+                <EmptyState
+                  icon={ImageIcon}
+                  title="Nenhuma foto enviada"
+                  description="Envie fotos do veículo para alimentar a galeria interna do admin."
+                  compact
+                />
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {vehicle.photos.map((url) => {
+                    const isCover = vehicle.image_url === url;
+                    return (
+                      <div key={url} className="group relative aspect-square rounded-lg overflow-hidden border border-border/40 bg-muted/30">
+                        <img src={url} alt="Foto do veículo" className="w-full h-full object-cover" loading="lazy" />
+                        {isCover && (
+                          <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Star size={10} /> CAPA
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                          {!isCover && (
+                            <button
+                              onClick={() => setAsCover(url)}
+                              className="bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1"
+                              title="Definir como capa"
+                            >
+                              <Star size={11} /> Capa
+                            </button>
+                          )}
+                          <button
+                            onClick={() => removePhoto(url)}
+                            className="bg-destructive text-destructive-foreground text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1"
+                            title="Remover"
+                          >
+                            <Trash2 size={11} /> Remover
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ── Health Tab ── */}

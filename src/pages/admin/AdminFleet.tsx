@@ -6,6 +6,7 @@ import { Search, Plus, Pencil, Trash2, Car, Users as UsersIcon, Briefcase, X, Hi
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
+import { getCoverImage } from "@/data/vehicleImages";
 
 type Vehicle = {
   id: string;
@@ -288,11 +289,17 @@ export default function AdminFleet() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((v) => (
             <Card key={v.id} className="bg-card/50 border-border/40 hover:border-primary/20 transition-colors overflow-hidden cursor-pointer" onClick={() => navigate(`/admin/fleet/${v.id}`)}>
-              {v.image_url && (
-                <div className="h-40 bg-muted/30 overflow-hidden">
-                  <img src={v.image_url} alt={v.name} className="w-full h-full object-cover" loading="lazy" width={640} height={360} />
-                </div>
-              )}
+              <div className="h-40 bg-muted/30 overflow-hidden">
+                <img
+                  src={v.image_url || getCoverImage(v.name)}
+                  alt={v.name}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  width={640}
+                  height={360}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = getCoverImage(v.name); }}
+                />
+              </div>
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-start justify-between">
                   <div>
