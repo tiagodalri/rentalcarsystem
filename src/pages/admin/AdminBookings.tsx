@@ -747,6 +747,12 @@ export default function AdminBookings() {
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">{bookings.length} reservas • {filtered.length} exibidas</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setNewOpen(true)}
+            className="flex items-center gap-1.5 h-8 sm:h-9 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all"
+          >
+            <Plus size={14} /> <span>Nova reserva</span>
+          </button>
           {/* Export */}
           <Popover>
             <PopoverTrigger asChild>
