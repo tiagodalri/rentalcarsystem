@@ -28,6 +28,7 @@ type Vehicle = {
   initial_odometer: number | null;
   current_odometer: number | null;
   acquired_date: string | null;
+  photos: string[] | null;
 };
 
 const emptyVehicle = {
