@@ -50,7 +50,7 @@ export default function AdminFleet() {
   const load = async () => {
     setLoading(true);
     const { data } = await supabase.from("vehicles").select("*").order("name");
-    setVehicles(data || []);
+    setVehicles((data || []) as unknown as Vehicle[]);
     setLoading(false);
   };
 
