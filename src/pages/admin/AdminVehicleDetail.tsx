@@ -35,6 +35,7 @@ type Vehicle = {
   last_service_date: string | null; next_service_km: number | null;
   tire_condition: string | null; brake_condition: string | null;
   battery_condition: string | null; body_condition: string | null;
+  photos: string[] | null;
 };
 
 type Expense = {
