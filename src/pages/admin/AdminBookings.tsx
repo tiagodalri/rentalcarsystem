@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Trash2, LogIn, LogOut, GitCompare, CalendarDays, List, ChevronLeft, ChevronRight, Clock, SlidersHorizontal, ArrowUpDown, X, Check, Download, FileText, FileSpreadsheet, CalendarIcon } from "lucide-react";
+import { Search, Trash2, LogIn, LogOut, GitCompare, CalendarDays, List, ChevronLeft, ChevronRight, Clock, SlidersHorizontal, ArrowUpDown, X, Check, Download, FileText, FileSpreadsheet, CalendarIcon, Plus } from "lucide-react";
+import { NewBookingDialog } from "@/components/admin/NewBookingDialog";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "@/hooks/use-toast";
@@ -464,6 +465,7 @@ export default function AdminBookings() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [viewMode, setViewMode] = useState<"table" | "calendar" | "week">("table");
+  const [newOpen, setNewOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -745,6 +747,12 @@ export default function AdminBookings() {
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">{bookings.length} reservas • {filtered.length} exibidas</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setNewOpen(true)}
+            className="flex items-center gap-1.5 h-8 sm:h-9 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all"
+          >
+            <Plus size={14} /> <span>Nova reserva</span>
+          </button>
           {/* Export */}
           <Popover>
             <PopoverTrigger asChild>
@@ -1149,6 +1157,8 @@ export default function AdminBookings() {
           </CardContent>
         </Card>
       )}
+
+      <NewBookingDialog open={newOpen} onOpenChange={setNewOpen} onCreated={load} />
     </div>
   );
 }
