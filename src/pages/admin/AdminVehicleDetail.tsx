@@ -277,6 +277,28 @@ export default function AdminVehicleDetail() {
     else { toast({ title: "Capa atualizada" }); loadData(); }
   };
 
+  const movePhoto = async (url: string, dir: -1 | 1) => {
+    if (!vehicle) return;
+    const arr = [...((vehicle.photos as string[]) || [])];
+    const i = arr.indexOf(url);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    const { error } = await supabase.from("vehicles").update({ photos: arr }).eq("id", vehicle.id);
+    if (error) toast({ title: "Erro ao reordenar", variant: "destructive" });
+    else loadData();
+  };
+
+  const setAsFirst = async (url: string) => {
+    if (!vehicle) return;
+    const arr = ((vehicle.photos as string[]) || []).filter(p => p !== url);
+    arr.unshift(url);
+    const { error } = await supabase.from("vehicles").update({ photos: arr }).eq("id", vehicle.id);
+    if (error) toast({ title: "Erro", variant: "destructive" });
+    else { toast({ title: "Definida como primeira" }); loadData(); }
+  };
+
+
   if (loading) return <VehicleDetailSkeleton />;
   if (!vehicle) return <p className="text-muted-foreground">Veículo não encontrado.</p>;
 
