@@ -11,8 +11,9 @@ import {
   BarChart3, MapPin, FileText, Settings, Pencil, X,
   Hash, Palette, StickyNote, CalendarDays,
   Plus, Wrench, Shield, CircleAlert, TrendingDown, TrendingUp,
-  Trash2, Activity, Heart, AlertCircle, Ban
+  Trash2, Activity, Heart, AlertCircle, Ban, ImageIcon, Upload, Star
 } from "lucide-react";
+import { getCoverImage } from "@/data/vehicleImages";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { Receipt, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
