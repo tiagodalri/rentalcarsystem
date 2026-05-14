@@ -414,6 +414,7 @@ export default function AdminVehicleDetail() {
       <Tabs defaultValue="agenda" className="w-full">
         <TabsList className="bg-muted/50 flex-wrap h-auto gap-1 p-1">
           <TabsTrigger value="agenda">Agenda</TabsTrigger>
+          <TabsTrigger value="photos">Fotos</TabsTrigger>
           <TabsTrigger value="health">Saúde</TabsTrigger>
           <TabsTrigger value="expenses">Gastos</TabsTrigger>
           <TabsTrigger value="incidents">Ocorrências</TabsTrigger>
@@ -425,6 +426,86 @@ export default function AdminVehicleDetail() {
         {/* ── Agenda Tab ── */}
         <TabsContent value="agenda" className="mt-4">
           <VehicleAgenda bookings={bookings} />
+        </TabsContent>
+
+        {/* ── Photos Tab ── */}
+        <TabsContent value="photos" className="mt-4 space-y-4">
+          <Card className="border-border/40">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h3 className="font-bold text-foreground flex items-center gap-2">
+                  <ImageIcon size={16} className="text-primary" /> Galeria de Fotos
+                </h3>
+                <label className="gold-gradient text-primary-foreground px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity">
+                  <Upload size={14} /> Enviar fotos
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => uploadPhotos(e.target.files)}
+                  />
+                </label>
+              </div>
+
+              {/* Capa atual */}
+              <div className="mb-6">
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Capa atual (exibida no site e nos cards)</p>
+                <div className="relative w-full max-w-md aspect-video rounded-xl overflow-hidden border border-border/40 bg-muted/30">
+                  <img
+                    src={vehicle.image_url || getCoverImage(vehicle.name)}
+                    alt={vehicle.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+
+              {/* Galeria de fotos enviadas */}
+              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Fotos enviadas</p>
+              {(!vehicle.photos || vehicle.photos.length === 0) ? (
+                <EmptyState
+                  icon={ImageIcon}
+                  title="Nenhuma foto enviada"
+                  description="Envie fotos do veículo para alimentar a galeria interna do admin."
+                  compact
+                />
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {vehicle.photos.map((url) => {
+                    const isCover = vehicle.image_url === url;
+                    return (
+                      <div key={url} className="group relative aspect-square rounded-lg overflow-hidden border border-border/40 bg-muted/30">
+                        <img src={url} alt="Foto do veículo" className="w-full h-full object-cover" loading="lazy" />
+                        {isCover && (
+                          <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Star size={10} /> CAPA
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                          {!isCover && (
+                            <button
+                              onClick={() => setAsCover(url)}
+                              className="bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1"
+                              title="Definir como capa"
+                            >
+                              <Star size={11} /> Capa
+                            </button>
+                          )}
+                          <button
+                            onClick={() => removePhoto(url)}
+                            className="bg-destructive text-destructive-foreground text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1"
+                            title="Remover"
+                          >
+                            <Trash2 size={11} /> Remover
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ── Health Tab ── */}
