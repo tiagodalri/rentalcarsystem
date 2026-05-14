@@ -483,7 +483,11 @@ export default function AdminVehicleDetail() {
               </div>
 
               {/* Galeria de fotos enviadas */}
-              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Fotos enviadas</p>
+              <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                  Fotos enviadas — arraste a ordem com as setas. A primeira foto é usada como capa quando nenhuma estiver definida.
+                </p>
+              </div>
               {(!vehicle.photos || vehicle.photos.length === 0) ? (
                 <EmptyState
                   icon={ImageIcon}
@@ -493,21 +497,66 @@ export default function AdminVehicleDetail() {
                 />
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {vehicle.photos.map((url) => {
+                  {vehicle.photos.map((url, idx) => {
                     const isCover = vehicle.image_url === url;
+                    const isFirst = idx === 0;
+                    const total = vehicle.photos!.length;
                     return (
                       <div key={url} className="group relative aspect-square rounded-lg overflow-hidden border border-border/40 bg-muted/30">
                         <img src={url} alt="Foto do veículo" className="w-full h-full object-cover" loading="lazy" />
-                        {isCover && (
-                          <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <Star size={10} /> CAPA
+
+                        {/* Badges */}
+                        <div className="absolute top-2 left-2 flex flex-col gap-1">
+                          <div className="bg-background/90 text-foreground text-[9px] font-bold px-2 py-0.5 rounded-full">
+                            #{idx + 1}
                           </div>
-                        )}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                          {isCover && (
+                            <div className="bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <Star size={10} /> CAPA
+                            </div>
+                          )}
+                          {isFirst && !isCover && (
+                            <div className="bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
+                              PADRÃO
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Reorder arrows (always visible on top-right) */}
+                        <div className="absolute top-2 right-2 flex gap-1">
+                          <button
+                            onClick={() => movePhoto(url, -1)}
+                            disabled={idx === 0}
+                            className="w-7 h-7 rounded-md bg-background/80 hover:bg-background text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Mover para a esquerda"
+                          >
+                            <ArrowLeft size={13} />
+                          </button>
+                          <button
+                            onClick={() => movePhoto(url, 1)}
+                            disabled={idx === total - 1}
+                            className="w-7 h-7 rounded-md bg-background/80 hover:bg-background text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            title="Mover para a direita"
+                          >
+                            <ArrowRight size={13} />
+                          </button>
+                        </div>
+
+                        {/* Hover actions */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 p-2">
+                          {!isFirst && (
+                            <button
+                              onClick={() => setAsFirst(url)}
+                              className="bg-amber-500 text-white text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1 w-full justify-center"
+                              title="Tornar a primeira foto da galeria"
+                            >
+                              <ArrowUpToLine size={11} /> Primeira
+                            </button>
+                          )}
                           {!isCover && (
                             <button
                               onClick={() => setAsCover(url)}
-                              className="bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1"
+                              className="bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1 w-full justify-center"
                               title="Definir como capa"
                             >
                               <Star size={11} /> Capa
@@ -515,7 +564,7 @@ export default function AdminVehicleDetail() {
                           )}
                           <button
                             onClick={() => removePhoto(url)}
-                            className="bg-destructive text-destructive-foreground text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1"
+                            className="bg-destructive text-destructive-foreground text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1 w-full justify-center"
                             title="Remover"
                           >
                             <Trash2 size={11} /> Remover
