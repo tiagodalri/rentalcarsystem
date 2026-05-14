@@ -465,6 +465,7 @@ export default function AdminBookings() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [viewMode, setViewMode] = useState<"table" | "calendar" | "week">("table");
+  const [newOpen, setNewOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
