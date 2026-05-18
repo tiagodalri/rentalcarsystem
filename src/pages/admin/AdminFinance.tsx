@@ -1,11 +1,16 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, BarChart3 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, BarChart3, Pencil } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from "recharts";
 import { darkTooltipProps } from "@/components/admin/ChartTooltip";
 import { FinanceSkeleton } from "@/components/skeletons/FinanceSkeleton";
+import { TransactionsTab } from "@/components/admin/finance/TransactionsTab";
+import { CategoriesTab } from "@/components/admin/finance/CategoriesTab";
+import { AccountsTab } from "@/components/admin/finance/AccountsTab";
 
 type Booking = {
   id: string;
@@ -47,20 +52,30 @@ export default function AdminFinance() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [manualTxs, setManualTxs] = useState<{ type: string; amount: number; transaction_date: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<"3m" | "6m" | "12m" | "all">("6m");
+  const [params, setParams] = useSearchParams();
+  const activeTab = params.get("tab") || "overview";
+  const setActiveTab = (v: string) => {
+    const next = new URLSearchParams(params);
+    if (v === "overview") next.delete("tab"); else next.set("tab", v);
+    setParams(next, { replace: true });
+  };
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const [bRes, eRes, iRes] = await Promise.all([
+      const [bRes, eRes, iRes, mRes] = await Promise.all([
         supabase.from("bookings").select("id, total_price, status, pickup_date, return_date, created_at"),
         supabase.from("vehicle_expenses").select("id, amount, type, expense_date, description, vehicle_id"),
         supabase.from("vehicle_incidents").select("id, actual_cost, status, incident_date"),
+        supabase.from("financial_transactions").select("type, amount, transaction_date").eq("source", "manual").eq("is_cancelled", false),
       ]);
       setBookings((bRes.data as Booking[]) || []);
       setExpenses((eRes.data as Expense[]) || []);
       setIncidents((iRes.data as Incident[]) || []);
+      setManualTxs((mRes.data as any[]) || []);
       setLoading(false);
     };
     load();
@@ -149,11 +164,16 @@ export default function AdminFinance() {
     return <FinanceSkeleton />;
   }
 
+  const manualInPeriod = manualTxs
+    .filter((t) => new Date(t.transaction_date + "T12:00:00") >= periodStart)
+    .reduce((s, t) => s + (t.type === "income" ? Number(t.amount) : -Number(t.amount)), 0);
+
   const kpis = [
     { label: "Receita Total", value: totalRevenue, icon: TrendingUp, color: "text-emerald-500", bgColor: "bg-emerald-500/10", arrow: ArrowUpRight },
     { label: "Despesas Totais", value: totalCosts, icon: TrendingDown, color: "text-red-500", bgColor: "bg-red-500/10", arrow: ArrowDownRight },
     { label: "Lucro Líquido", value: netProfit, icon: Wallet, color: netProfit >= 0 ? "text-emerald-500" : "text-red-500", bgColor: netProfit >= 0 ? "bg-emerald-500/10" : "bg-red-500/10", arrow: netProfit >= 0 ? ArrowUpRight : ArrowDownRight },
     { label: "Margem de Lucro", value: profitMargin, icon: BarChart3, color: profitMargin >= 0 ? "text-primary" : "text-red-500", bgColor: "bg-primary/10", isPercent: true },
+    { label: "Lançamentos Manuais", value: manualInPeriod, icon: Pencil, color: manualInPeriod >= 0 ? "text-emerald-500" : "text-red-500", bgColor: "bg-muted/50" },
   ];
 
   return (
@@ -179,8 +199,18 @@ export default function AdminFinance() {
         </div>
       </div>
 
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="transactions">Lançamentos</TabsTrigger>
+          <TabsTrigger value="categories">Categorias</TabsTrigger>
+          <TabsTrigger value="accounts">Contas</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {kpis.map((kpi) => (
           <Card key={kpi.label} className="border-border/30">
             <CardContent className="p-4">
@@ -188,7 +218,7 @@ export default function AdminFinance() {
                 <div className={`w-9 h-9 rounded-lg ${kpi.bgColor} flex items-center justify-center`}>
                   <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
                 </div>
-                {kpi.arrow && <kpi.arrow className={`h-4 w-4 ${kpi.color}`} />}
+                {(kpi as any).arrow && <kpi.arrow className={`h-4 w-4 ${kpi.color}`} />}
               </div>
               <p className={`text-xl font-bold tabular-nums ${kpi.color}`}>
                 {(kpi as any).isPercent ? `${kpi.value.toFixed(1)}%` : `$${kpi.value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
@@ -328,6 +358,12 @@ export default function AdminFinance() {
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="transactions"><TransactionsTab /></TabsContent>
+        <TabsContent value="categories"><CategoriesTab /></TabsContent>
+        <TabsContent value="accounts"><AccountsTab /></TabsContent>
+      </Tabs>
     </div>
   );
 }
