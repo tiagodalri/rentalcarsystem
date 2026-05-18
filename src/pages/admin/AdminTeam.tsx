@@ -194,6 +194,7 @@ export default function AdminTeam() {
       phone: form.phone || null,
       role: form.role,
       position: form.position || null,
+      job_title_id: form.job_title_id,
       notes: form.notes || null,
       permissions: form.permissions as any,
     };
@@ -219,6 +220,7 @@ export default function AdminTeam() {
       phone: m.phone || "",
       role: m.role,
       position: m.position || "",
+      job_title_id: m.job_title_id || null,
       notes: m.notes || "",
       permissions: {
         menus: perms.menus || [],
