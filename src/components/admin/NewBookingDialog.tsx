@@ -42,6 +42,19 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [customer, setCustomer] = useState<CustomerLite | null>(null);
+
+  const handleSelectCustomer = (c: CustomerLite | null) => {
+    setCustomer(c);
+    if (c) {
+      setForm((p) => ({
+        ...p,
+        customer_name: c.full_name,
+        customer_email: c.email || "",
+        customer_phone: c.phone || "",
+      }));
+    }
+  };
 
   const [form, setForm] = useState({
     customer_name: "",
