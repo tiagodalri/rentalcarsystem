@@ -1036,7 +1036,7 @@ export default function AdminBookings() {
                       <Calendar
                         mode="single"
                         selected={filters.dateTo}
-                        onSelect={(d) => setFilters({ ...filters, dateTo: d })}
+                        onSelect={(d) => { setActivePreset("custom"); setFilters({ ...filters, dateTo: d }); }}
                         className={cn("p-3 pointer-events-auto")}
                         locale={ptBR}
                       />
