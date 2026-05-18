@@ -630,6 +630,7 @@ export default function AdminBookings() {
     filters.vehicle !== "all",
     !!filters.dateFrom,
     !!filters.dateTo,
+    !!activePreset,
   ].filter(Boolean).length;
 
   const updateStatus = async (id: string, status: string) => {
