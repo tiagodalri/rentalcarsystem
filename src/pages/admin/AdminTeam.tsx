@@ -282,12 +282,22 @@ export default function AdminTeam() {
           </h1>
           <p className="text-sm text-muted-foreground mt-1">{stats.total} membros • {stats.active} ativos</p>
         </div>
-        <button
-          onClick={() => { setForm({ ...emptyForm, permissions: { ...DEFAULT_PERMISSIONS } }); setEditingId(null); setShowForm(true); setPermTab("menus"); }}
-          className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
-        >
-          <Plus size={14} /> Adicionar
-        </button>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <button
+              onClick={() => setManageOpen(true)}
+              className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg border border-border/40 text-foreground hover:bg-muted transition-colors"
+            >
+              <Settings2 size={14} /> Gerenciar cargos
+            </button>
+          )}
+          <button
+            onClick={() => { setForm({ ...emptyForm, permissions: { ...DEFAULT_PERMISSIONS } }); setEditingId(null); setShowForm(true); setPermTab("menus"); }}
+            className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+          >
+            <Plus size={14} /> Adicionar
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
