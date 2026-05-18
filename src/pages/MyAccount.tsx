@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Car, CheckCircle, Clock, CalendarDays, CalendarX } from "lucide-react";
+import { Car, CheckCircle, Clock, CalendarDays, CalendarX, UserCog, CalendarRange } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProfileTab from "@/components/account/ProfileTab";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +24,8 @@ const MyAccount = () => {
   const { user, customer, loading: authLoading, signOut } = useAuth();
   const { bookings: dbBookings, loading: bookingsLoading } = useUserBookings();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const outerTab = searchParams.get("tab") === "perfil" ? "perfil" : "reservas";
   const [tab, setTab] = useState("all");
 
   const loading = authLoading || bookingsLoading;
