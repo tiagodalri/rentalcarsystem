@@ -166,7 +166,6 @@ const ProfileTab = () => {
     }
   };
 
-  const cpfLocked = !!customer?.document_number;
   const StatusIcon = cnhStatus.icon;
 
   return (
