@@ -187,14 +187,12 @@ const ProfileTab = () => {
             <Field label="Celular / WhatsApp" icon={Phone}>
               <PhoneInput value={form.phone} onChange={(v) => update("phone", v)} inputClassName="h-9 px-2.5 text-sm" />
             </Field>
-            <Field label="CPF" icon={FileText} locked={cpfLocked} tooltip={cpfLocked ? "Para alterar o CPF, contate o suporte." : undefined}>
+            <Field label="CPF" icon={FileText} locked tooltip="Para alterar o CPF, contate o suporte.">
               <input
                 type="text"
-                value={customer?.document_number || ""}
-                disabled={cpfLocked}
-                onChange={(e) => !cpfLocked && supabase.from("customers").update({ document_number: e.target.value }).eq("user_id", rawUser!.id)}
-                className={inputCls + (cpfLocked ? " opacity-60 cursor-not-allowed" : "")}
-                placeholder="000.000.000-00"
+                value={customer?.document_number || "Não informado"}
+                disabled
+                className={inputCls + " opacity-60 cursor-not-allowed"}
               />
             </Field>
             <Field label="Nacionalidade" icon={Globe}>

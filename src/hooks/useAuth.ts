@@ -225,6 +225,19 @@ export function useAuth() {
     await supabase.auth.signOut();
   }, []);
 
+  const refreshCustomer = useCallback(async () => {
+    if (!user) return;
+    cachedCustomer = null;
+    const { data } = await supabase
+      .from("customers")
+      .select("*")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const rec = (data as CustomerRecord) ?? null;
+    if (rec) cachedCustomer = { userId: user.id, customer: rec };
+    setCustomer(rec);
+  }, [user]);
+
   const resetPassword = useCallback(async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
       redirectTo: `${window.location.origin}/redefinir-senha`,
@@ -254,6 +267,7 @@ export function useAuth() {
     signUp,
     signOut,
     resetPassword,
+    refreshCustomer,
     // legacy alias
     logout: signOut,
   };
