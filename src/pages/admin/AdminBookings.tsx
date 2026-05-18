@@ -500,8 +500,57 @@ export default function AdminBookings() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const [activePreset, setActivePreset] = useState<PresetKey | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "calendar" | "week">("table");
   const [newOpen, setNewOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Load filters from URL on mount
+  useEffect(() => {
+    const status = searchParams.get("status");
+    const range = searchParams.get("range") as PresetKey | null;
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    if (status || range || from || to) {
+      let dateFrom: Date | undefined;
+      let dateTo: Date | undefined;
+      if (range && range !== "custom") {
+        const r = getPresetRange(range);
+        dateFrom = r.from; dateTo = r.to;
+      }
+      if (from) dateFrom = new Date(from);
+      if (to) dateTo = new Date(to);
+      setFilters((f) => ({ ...f, status: status || "all", dateFrom, dateTo }));
+      if (range) setActivePreset(range);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist filters to URL
+  useEffect(() => {
+    const params: Record<string, string> = {};
+    if (filters.status !== "all") params.status = filters.status;
+    if (activePreset) params.range = activePreset;
+    if (filters.dateFrom) params.from = filters.dateFrom.toISOString();
+    if (filters.dateTo) params.to = filters.dateTo.toISOString();
+    setSearchParams(params, { replace: true });
+  }, [filters.status, filters.dateFrom, filters.dateTo, activePreset, setSearchParams]);
+
+  const applyPreset = (key: PresetKey) => {
+    if (key === "custom") {
+      setActivePreset("custom");
+      return;
+    }
+    const { from, to } = getPresetRange(key);
+    setActivePreset(key);
+    setFilters((f) => ({ ...f, dateFrom: from, dateTo: to }));
+  };
+
+  const clearAllFilters = () => {
+    setFilters(defaultFilters);
+    setSearch("");
+    setActivePreset(null);
+  };
 
   const load = async () => {
     setLoading(true);
