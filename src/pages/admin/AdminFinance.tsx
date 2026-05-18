@@ -1,11 +1,16 @@
 import { useEffect, useState, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, BarChart3 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Wallet, BarChart3, Pencil } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend } from "recharts";
 import { darkTooltipProps } from "@/components/admin/ChartTooltip";
 import { FinanceSkeleton } from "@/components/skeletons/FinanceSkeleton";
+import { TransactionsTab } from "@/components/admin/finance/TransactionsTab";
+import { CategoriesTab } from "@/components/admin/finance/CategoriesTab";
+import { AccountsTab } from "@/components/admin/finance/AccountsTab";
 
 type Booking = {
   id: string;
