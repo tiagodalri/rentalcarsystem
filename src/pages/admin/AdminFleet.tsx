@@ -173,7 +173,6 @@ export default function AdminFleet() {
                 { label: "Placa", key: "license_plate", type: "text" },
                 { label: "Categoria", key: "category", type: "text" },
                 { label: "Diária (USD)", key: "daily_price_usd", type: "number" },
-                { label: "URL da Imagem", key: "image_url", type: "text" },
                 { label: "Passageiros", key: "passengers", type: "number" },
                 { label: "Malas", key: "bags", type: "number" },
                 { label: "Ano", key: "year", type: "number" },
