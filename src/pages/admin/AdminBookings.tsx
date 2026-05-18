@@ -1149,7 +1149,7 @@ export default function AdminBookings() {
                   title="Nenhuma reserva encontrada"
                   description="Nenhum resultado para os filtros aplicados. Tente ajustar os critérios de busca."
                   actionLabel="Limpar filtros"
-                  onAction={() => { setSearch(""); setFilters(defaultFilters); }}
+                  onAction={clearAllFilters}
                   compact
                 />
               ) : (
