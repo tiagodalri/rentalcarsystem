@@ -52,20 +52,30 @@ export default function AdminFinance() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [manualTxs, setManualTxs] = useState<{ type: string; amount: number; transaction_date: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<"3m" | "6m" | "12m" | "all">("6m");
+  const [params, setParams] = useSearchParams();
+  const activeTab = params.get("tab") || "overview";
+  const setActiveTab = (v: string) => {
+    const next = new URLSearchParams(params);
+    if (v === "overview") next.delete("tab"); else next.set("tab", v);
+    setParams(next, { replace: true });
+  };
 
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const [bRes, eRes, iRes] = await Promise.all([
+      const [bRes, eRes, iRes, mRes] = await Promise.all([
         supabase.from("bookings").select("id, total_price, status, pickup_date, return_date, created_at"),
         supabase.from("vehicle_expenses").select("id, amount, type, expense_date, description, vehicle_id"),
         supabase.from("vehicle_incidents").select("id, actual_cost, status, incident_date"),
+        supabase.from("financial_transactions").select("type, amount, transaction_date").eq("source", "manual").eq("is_cancelled", false),
       ]);
       setBookings((bRes.data as Booking[]) || []);
       setExpenses((eRes.data as Expense[]) || []);
       setIncidents((iRes.data as Incident[]) || []);
+      setManualTxs((mRes.data as any[]) || []);
       setLoading(false);
     };
     load();
