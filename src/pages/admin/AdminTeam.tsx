@@ -608,6 +608,8 @@ export default function AdminTeam() {
           })}
         </div>
       )}
+
+      <ManageJobTitlesDialog open={manageOpen} onOpenChange={setManageOpen} />
     </div>
   );
 }
