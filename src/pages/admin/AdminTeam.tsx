@@ -4,8 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
+import { JobTitleSelect } from "@/components/admin/JobTitleSelect";
+import { ManageJobTitlesDialog } from "@/components/admin/ManageJobTitlesDialog";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
-  UsersRound, Plus, X, Search, Pencil, Trash2, Phone, Mail, Shield,
+  UsersRound, Plus, X, Search, Pencil, Trash2, Phone, Mail, Shield, Briefcase, Settings2,
   CheckCircle2, XCircle, Eye, Edit3, Check,
   LayoutDashboard, Car, CalendarRange, Users, Radio, BarChart3, Settings, DollarSign, ClipboardCheck,
 } from "lucide-react";
