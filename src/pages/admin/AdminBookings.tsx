@@ -875,6 +875,36 @@ export default function AdminBookings() {
         </div>
       </div>
 
+      {/* Preset chips — only on table view */}
+      {viewMode === "table" && (
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {(Object.keys(PRESET_LABELS) as PresetKey[]).map((key) => {
+            const active = activePreset === key;
+            return (
+              <button
+                key={key}
+                onClick={() => applyPreset(key)}
+                className={`text-[11px] px-2.5 py-1 rounded-full border font-medium transition-all ${
+                  active
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card/50 border-border/40 text-muted-foreground hover:text-foreground hover:border-border/60"
+                }`}
+              >
+                {PRESET_LABELS[key]}
+              </button>
+            );
+          })}
+          {activeFilterCount > 0 && (
+            <button
+              onClick={clearAllFilters}
+              className="text-[11px] px-2.5 py-1 rounded-full border border-destructive/30 text-destructive hover:bg-destructive/10 font-medium transition-all flex items-center gap-1 ml-1"
+            >
+              <X size={11} /> Limpar todos os filtros
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Smart Filters Bar */}
       <div className="flex items-center gap-2 flex-wrap">
         {/* Search */}
