@@ -230,6 +230,36 @@ export type Database = {
         }
         Relationships: []
       }
+      job_titles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -271,6 +301,7 @@ export type Database = {
           full_name: string
           id: string
           is_active: boolean
+          job_title_id: string | null
           last_login_at: string | null
           notes: string | null
           permissions: Json | null
@@ -287,6 +318,7 @@ export type Database = {
           full_name: string
           id?: string
           is_active?: boolean
+          job_title_id?: string | null
           last_login_at?: string | null
           notes?: string | null
           permissions?: Json | null
@@ -303,6 +335,7 @@ export type Database = {
           full_name?: string
           id?: string
           is_active?: boolean
+          job_title_id?: string | null
           last_login_at?: string | null
           notes?: string | null
           permissions?: Json | null
@@ -312,7 +345,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "team_members_job_title_id_fkey"
+            columns: ["job_title_id"]
+            isOneToOne: false
+            referencedRelation: "job_titles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
