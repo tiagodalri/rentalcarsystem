@@ -127,6 +127,7 @@ const emptyForm: FormData = {
 
 // ─── Component ──────────────────────────────────────────────
 export default function AdminTeam() {
+  const { isAdmin } = useAdminAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -134,6 +135,7 @@ export default function AdminTeam() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [permTab, setPermTab] = useState<"menus" | "capabilities">("menus");
+  const [manageOpen, setManageOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
