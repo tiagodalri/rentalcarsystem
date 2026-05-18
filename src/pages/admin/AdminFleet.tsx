@@ -46,6 +46,7 @@ export default function AdminFleet() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Partial<Vehicle> | null>(null);
   const [isNew, setIsNew] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -86,15 +87,29 @@ export default function AdminFleet() {
       acquired_date: editing.acquired_date || null,
     };
 
-    if (isNew) {
-      await supabase.from("vehicles").insert(payload);
-      toast({ title: "Veículo adicionado" });
-    } else {
-      await supabase.from("vehicles").update(payload).eq("id", editing.id!);
+    setSaving(true);
+    try {
+      if (isNew) {
+        const { data, error } = await supabase.from("vehicles").insert(payload).select("id").single();
+        if (error || !data) {
+          toast({ title: "Erro ao criar veículo", description: error?.message, variant: "destructive" });
+          return;
+        }
+        toast({ title: "Carro criado! Agora adicione as fotos da galeria." });
+        navigate(`/admin/fleet/${data.id}?tab=photos`);
+        return;
+      }
+      const { error } = await supabase.from("vehicles").update(payload).eq("id", editing.id!);
+      if (error) {
+        toast({ title: "Erro ao atualizar veículo", description: error.message, variant: "destructive" });
+        return;
+      }
       toast({ title: "Veículo atualizado" });
+      setEditing(null);
+      load();
+    } finally {
+      setSaving(false);
     }
-    setEditing(null);
-    load();
   };
 
   const deleteVehicle = async (id: string) => {
@@ -270,9 +285,10 @@ export default function AdminFleet() {
 
               <button
                 onClick={save}
-                className="w-full h-10 gold-gradient text-primary-foreground rounded-lg text-sm font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity mt-2"
+                disabled={saving}
+                className="w-full h-10 gold-gradient text-primary-foreground rounded-lg text-sm font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isNew ? "Adicionar" : "Salvar"}
+                {saving ? "Salvando..." : isNew ? "Adicionar" : "Salvar"}
               </button>
             </div>
           </div>
