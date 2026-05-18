@@ -120,6 +120,7 @@ const conditionLabels: Record<string, { label: string; color: string }> = {
 export default function AdminVehicleDetail() {
   const { vehicleId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [bookings, setBookings] = useState<BookingWithInspections[]>([]);
@@ -433,7 +434,7 @@ export default function AdminVehicleDetail() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="agenda" className="w-full">
+      <Tabs defaultValue={searchParams.get("tab") ?? "agenda"} className="w-full">
         <TabsList className="bg-muted/50 flex-wrap h-auto gap-1 p-1">
           <TabsTrigger value="agenda">Agenda</TabsTrigger>
           <TabsTrigger value="photos">Fotos</TabsTrigger>
