@@ -1,32 +1,12 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, Loader2 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { Lock } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import ChangePasswordDialog from "@/components/admin/ChangePasswordDialog";
 
 export default function AdminSettings() {
   const { user } = useAdminAuth();
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [changing, setChanging] = useState(false);
-
-  const changePassword = async () => {
-    if (newPassword.length < 6) {
-      toast({ title: "Senha deve ter no mínimo 6 caracteres", variant: "destructive" });
-      return;
-    }
-    setChanging(true);
-    const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Senha alterada com sucesso" });
-      setCurrentPassword("");
-      setNewPassword("");
-    }
-    setChanging(false);
-  };
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     <div className="space-y-6 max-w-xl">
@@ -49,28 +29,23 @@ export default function AdminSettings() {
           </div>
 
           <div className="pt-4 border-t border-border/30 space-y-3">
-            <p className="text-sm font-medium text-foreground">Alterar senha</p>
             <div>
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Nova senha</label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-                className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
+              <p className="text-sm font-medium text-foreground">Senha</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Para alterar sua senha, confirme a senha atual e defina uma nova. Outras sessões ativas serão desconectadas automaticamente.
+              </p>
             </div>
             <button
-              onClick={changePassword}
-              disabled={changing}
-              className="gold-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+              onClick={() => setDialogOpen(true)}
+              className="gold-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
             >
-              {changing && <Loader2 size={14} className="animate-spin" />}
-              Alterar Senha
+              Alterar senha
             </button>
           </div>
         </CardContent>
       </Card>
+
+      <ChangePasswordDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 }

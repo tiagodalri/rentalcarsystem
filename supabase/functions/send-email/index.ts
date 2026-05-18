@@ -6,6 +6,7 @@ import { renderBookingConfirmation } from "./templates/booking-confirmation.ts";
 import { renderPickupReminder } from "./templates/pickup-reminder.ts";
 import { renderPaymentReceipt } from "./templates/payment-receipt.ts";
 import { renderBookingCancellation } from "./templates/booking-cancellation.ts";
+import { renderPasswordChanged } from "./templates/password-changed.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -288,6 +289,7 @@ function renderTemplate(
     "pickup-reminder": () => renderPickupReminder(_data, l),
     "payment-receipt": () => renderPaymentReceipt(_data, l),
     "booking-cancellation": () => renderBookingCancellation(_data, l),
+    "password-changed": () => renderPasswordChanged(_data, l),
   };
 
   const factory = templates[templateName];
