@@ -199,8 +199,18 @@ export default function AdminFinance() {
         </div>
       </div>
 
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+          <TabsTrigger value="transactions">Lançamentos</TabsTrigger>
+          <TabsTrigger value="categories">Categorias</TabsTrigger>
+          <TabsTrigger value="accounts">Contas</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         {kpis.map((kpi) => (
           <Card key={kpi.label} className="border-border/30">
             <CardContent className="p-4">
@@ -208,7 +218,7 @@ export default function AdminFinance() {
                 <div className={`w-9 h-9 rounded-lg ${kpi.bgColor} flex items-center justify-center`}>
                   <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
                 </div>
-                {kpi.arrow && <kpi.arrow className={`h-4 w-4 ${kpi.color}`} />}
+                {(kpi as any).arrow && <kpi.arrow className={`h-4 w-4 ${kpi.color}`} />}
               </div>
               <p className={`text-xl font-bold tabular-nums ${kpi.color}`}>
                 {(kpi as any).isPercent ? `${kpi.value.toFixed(1)}%` : `$${kpi.value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
