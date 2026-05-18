@@ -4,8 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
+import { JobTitleSelect } from "@/components/admin/JobTitleSelect";
+import { ManageJobTitlesDialog } from "@/components/admin/ManageJobTitlesDialog";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 import {
-  UsersRound, Plus, X, Search, Pencil, Trash2, Phone, Mail, Shield,
+  UsersRound, Plus, X, Search, Pencil, Trash2, Phone, Mail, Shield, Briefcase, Settings2,
   CheckCircle2, XCircle, Eye, Edit3, Check,
   LayoutDashboard, Car, CalendarRange, Users, Radio, BarChart3, Settings, DollarSign, ClipboardCheck,
 } from "lucide-react";
@@ -70,6 +73,7 @@ type TeamMember = {
   phone: string | null;
   role: string;
   position: string | null;
+  job_title_id: string | null;
   is_active: boolean;
   notes: string | null;
   permissions: Permissions | null;
@@ -111,17 +115,19 @@ type FormData = {
   phone: string;
   role: string;
   position: string;
+  job_title_id: string | null;
   notes: string;
   permissions: Permissions;
 };
 
 const emptyForm: FormData = {
-  full_name: "", email: "", phone: "", role: "support", position: "", notes: "",
+  full_name: "", email: "", phone: "", role: "support", position: "", job_title_id: null, notes: "",
   permissions: { ...DEFAULT_PERMISSIONS },
 };
 
 // ─── Component ──────────────────────────────────────────────
 export default function AdminTeam() {
+  const { isAdmin } = useAdminAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -129,6 +135,7 @@ export default function AdminTeam() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [permTab, setPermTab] = useState<"menus" | "capabilities">("menus");
+  const [manageOpen, setManageOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -189,6 +196,7 @@ export default function AdminTeam() {
       phone: form.phone || null,
       role: form.role,
       position: form.position || null,
+      job_title_id: form.job_title_id,
       notes: form.notes || null,
       permissions: form.permissions as any,
     };
@@ -214,6 +222,7 @@ export default function AdminTeam() {
       phone: m.phone || "",
       role: m.role,
       position: m.position || "",
+      job_title_id: m.job_title_id || null,
       notes: m.notes || "",
       permissions: {
         menus: perms.menus || [],
@@ -273,12 +282,22 @@ export default function AdminTeam() {
           </h1>
           <p className="text-sm text-muted-foreground mt-1">{stats.total} membros • {stats.active} ativos</p>
         </div>
-        <button
-          onClick={() => { setForm({ ...emptyForm, permissions: { ...DEFAULT_PERMISSIONS } }); setEditingId(null); setShowForm(true); setPermTab("menus"); }}
-          className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
-        >
-          <Plus size={14} /> Adicionar
-        </button>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <button
+              onClick={() => setManageOpen(true)}
+              className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg border border-border/40 text-foreground hover:bg-muted transition-colors"
+            >
+              <Settings2 size={14} /> Gerenciar cargos
+            </button>
+          )}
+          <button
+            onClick={() => { setForm({ ...emptyForm, permissions: { ...DEFAULT_PERMISSIONS } }); setEditingId(null); setShowForm(true); setPermTab("menus"); }}
+            className="flex items-center gap-2 text-xs px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+          >
+            <Plus size={14} /> Adicionar
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -335,8 +354,11 @@ export default function AdminTeam() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Cargo</label>
-                  <input value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} placeholder="Ex: Gerente de Operações" className={inputClass + " w-full"} />
+                  <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 block flex items-center gap-1.5"><Briefcase size={10} /> Cargo</label>
+                  <JobTitleSelect
+                    value={form.job_title_id}
+                    onChange={(id, name) => setForm({ ...form, job_title_id: id, position: name || "" })}
+                  />
                 </div>
                 <div>
                   <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Observações</label>
@@ -586,6 +608,8 @@ export default function AdminTeam() {
           })}
         </div>
       )}
+
+      <ManageJobTitlesDialog open={manageOpen} onOpenChange={setManageOpen} />
     </div>
   );
 }
