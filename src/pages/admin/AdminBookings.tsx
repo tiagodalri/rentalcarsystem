@@ -594,12 +594,13 @@ export default function AdminBookings() {
       const matchReturn = filters.returnLocation === "all" || b.return_location === filters.returnLocation;
       const matchVehicle = filters.vehicle === "all" || b.vehicle_name === filters.vehicle;
 
+      // Overlap: booking interval [pickup, return] intersects [dateFrom, dateTo]
       let matchDateFrom = true;
-      if (filters.dateFrom) {
-        const pickupDate = new Date(b.pickup_date);
-        matchDateFrom = pickupDate >= filters.dateFrom;
-      }
       let matchDateTo = true;
+      if (filters.dateFrom) {
+        const returnDate = new Date(b.return_date);
+        matchDateFrom = returnDate >= filters.dateFrom;
+      }
       if (filters.dateTo) {
         const pickupDate = new Date(b.pickup_date);
         matchDateTo = pickupDate <= filters.dateTo;
