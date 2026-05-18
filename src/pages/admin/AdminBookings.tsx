@@ -940,7 +940,7 @@ export default function AdminBookings() {
               <span className="text-xs font-bold text-foreground">Filtrar reservas</span>
               {activeFilterCount > 0 && (
                 <button
-                  onClick={() => setFilters(defaultFilters)}
+                  onClick={clearAllFilters}
                   className="text-[10px] text-primary hover:text-primary/80 font-medium flex items-center gap-1"
                 >
                   <X size={10} /> Limpar filtros
