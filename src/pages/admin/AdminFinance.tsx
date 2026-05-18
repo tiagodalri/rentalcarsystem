@@ -358,6 +358,12 @@ export default function AdminFinance() {
           </div>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="transactions"><TransactionsTab /></TabsContent>
+        <TabsContent value="categories"><CategoriesTab /></TabsContent>
+        <TabsContent value="accounts"><AccountsTab /></TabsContent>
+      </Tabs>
     </div>
   );
 }
