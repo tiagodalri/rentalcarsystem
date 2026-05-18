@@ -635,6 +635,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_vehicle_availability: {
+        Args: {
+          p_exclude_id?: string
+          p_pickup: string
+          p_return: string
+          p_vehicle_id: string
+        }
+        Returns: boolean
+      }
       get_occupancy_rate: { Args: never; Returns: number }
       has_any_role: {
         Args: {

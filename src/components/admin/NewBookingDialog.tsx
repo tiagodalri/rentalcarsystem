@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { PLANS, PLAN_ORDER } from "@/data/rentalPlans";
 import { Loader2, Upload } from "lucide-react";
+import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
 
 type Vehicle = { id: string; name: string; daily_price_usd: number };
 
@@ -41,6 +42,19 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [customer, setCustomer] = useState<CustomerLite | null>(null);
+
+  const handleSelectCustomer = (c: CustomerLite | null) => {
+    setCustomer(c);
+    if (c) {
+      setForm((p) => ({
+        ...p,
+        customer_name: c.full_name,
+        customer_email: c.email || "",
+        customer_phone: c.phone || "",
+      }));
+    }
+  };
 
   const [form, setForm] = useState({
     customer_name: "",
@@ -119,7 +133,30 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       return;
     }
     setSaving(true);
+
+    // Availability check
+    try {
+      const { data: available, error: availErr } = await supabase.rpc("check_vehicle_availability", {
+        p_vehicle_id: form.vehicle_id,
+        p_pickup: form.pickup_date,
+        p_return: form.return_date,
+        p_exclude_id: null,
+      });
+      if (!availErr && available === false) {
+        setSaving(false);
+        toast({
+          title: "Veículo indisponível",
+          description: "Veículo já reservado nesse período. Escolha outras datas ou outro veículo.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch (e) {
+      console.warn("availability check failed, prosseguindo:", e);
+    }
+
     const payload = {
+      customer_id: customer?.id || null,
       customer_name: form.customer_name,
       customer_email: form.customer_email || null,
       customer_phone: form.customer_phone || null,
@@ -143,12 +180,16 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     const { error } = await supabase.from("bookings").insert(payload);
     setSaving(false);
     if (error) {
-      toast({ title: "Erro ao criar reserva", description: error.message, variant: "destructive" });
+      const msg = error.message?.includes("bookings_no_overlap")
+        ? "Veículo já reservado nesse período. Escolha outras datas ou outro veículo."
+        : error.message;
+      toast({ title: "Erro ao criar reserva", description: msg, variant: "destructive" });
       return;
     }
     toast({ title: "Reserva criada com sucesso" });
     onCreated();
     onOpenChange(false);
+    setCustomer(null);
     setForm({
       customer_name: "", customer_email: "", customer_phone: "",
       vehicle_id: "", pickup_date: "", pickup_time: "10:00",
@@ -171,6 +212,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
           {/* Cliente */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Cliente</h3>
+            <div className="mb-3">
+              <CustomerCombobox selected={customer} onSelect={handleSelectCustomer} />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="md:col-span-1">
                 <Label>Nome completo *</Label>
