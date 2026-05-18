@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Car, CheckCircle, Clock, CalendarDays, CalendarX } from "lucide-react";
+import { Car, CheckCircle, Clock, CalendarDays, CalendarX, UserCog, CalendarRange } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ProfileTab from "@/components/account/ProfileTab";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,6 +24,8 @@ const MyAccount = () => {
   const { user, customer, loading: authLoading, signOut } = useAuth();
   const { bookings: dbBookings, loading: bookingsLoading } = useUserBookings();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const outerTab = searchParams.get("tab") === "perfil" ? "perfil" : "reservas";
   const [tab, setTab] = useState("all");
 
   const loading = authLoading || bookingsLoading;
@@ -90,13 +93,35 @@ const MyAccount = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate("/cadastro")}
+              onClick={() => setSearchParams({ tab: "perfil" })}
               className="text-xs font-bold uppercase tracking-wider gold-gradient text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
             >
               Completar agora
             </button>
           </div>
         )}
+
+        {/* OUTER TABS: Reservas | Perfil */}
+        <Tabs
+          value={outerTab}
+          onValueChange={(v) => setSearchParams(v === "perfil" ? { tab: "perfil" } : {})}
+          className="mt-6"
+        >
+          <TabsList className="bg-muted/50 w-full grid grid-cols-2 h-auto p-1">
+            <TabsTrigger value="reservas" className="text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <CalendarRange size={13} /> Reservas
+            </TabsTrigger>
+            <TabsTrigger value="perfil" className="text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <UserCog size={13} /> Perfil
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="perfil" className="mt-6">
+            <ProfileTab />
+          </TabsContent>
+
+          <TabsContent value="reservas" className="mt-6">
+        {/* RESERVAS CONTENT START */}
 
         {allBookings.length === 0 ? (
           <div className="mt-16">
@@ -171,6 +196,8 @@ const MyAccount = () => {
             </div>
           </>
         )}
+          </TabsContent>
+        </Tabs>
       </div>
       <Footer />
     </div>
