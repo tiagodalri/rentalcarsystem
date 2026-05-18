@@ -457,6 +457,42 @@ const sortLabels: Record<SortField, string> = {
   customer_name: "Nome do cliente",
 };
 
+// ─── Preset ranges ──────────────────────────────────────────
+type PresetKey = "today" | "week" | "month" | "30d" | "custom";
+
+const PRESET_LABELS: Record<PresetKey, string> = {
+  today: "Hoje",
+  week: "Esta semana",
+  month: "Este mês",
+  "30d": "Próximos 30 dias",
+  custom: "Personalizado",
+};
+
+function startOfDay(d: Date) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+function endOfDay(d: Date) { const x = new Date(d); x.setHours(23, 59, 59, 999); return x; }
+
+function getPresetRange(key: PresetKey): { from?: Date; to?: Date } {
+  const now = new Date();
+  if (key === "today") return { from: startOfDay(now), to: endOfDay(now) };
+  if (key === "week") {
+    const day = now.getDay(); // 0=Sun
+    const diffToMon = (day + 6) % 7;
+    const mon = new Date(now); mon.setDate(now.getDate() - diffToMon);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    return { from: startOfDay(mon), to: endOfDay(sun) };
+  }
+  if (key === "month") {
+    const first = new Date(now.getFullYear(), now.getMonth(), 1);
+    const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return { from: startOfDay(first), to: endOfDay(last) };
+  }
+  if (key === "30d") {
+    const to = new Date(now); to.setDate(now.getDate() + 30);
+    return { from: startOfDay(now), to: endOfDay(to) };
+  }
+  return {};
+}
+
 // ─── Main Component ─────────────────────────────────────────
 export default function AdminBookings() {
   const navigate = useNavigate();
