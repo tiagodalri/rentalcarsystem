@@ -6,7 +6,7 @@ import { NewBookingDialog } from "@/components/admin/NewBookingDialog";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -457,6 +457,42 @@ const sortLabels: Record<SortField, string> = {
   customer_name: "Nome do cliente",
 };
 
+// ─── Preset ranges ──────────────────────────────────────────
+type PresetKey = "today" | "week" | "month" | "30d" | "custom";
+
+const PRESET_LABELS: Record<PresetKey, string> = {
+  today: "Hoje",
+  week: "Esta semana",
+  month: "Este mês",
+  "30d": "Próximos 30 dias",
+  custom: "Personalizado",
+};
+
+function startOfDay(d: Date) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+function endOfDay(d: Date) { const x = new Date(d); x.setHours(23, 59, 59, 999); return x; }
+
+function getPresetRange(key: PresetKey): { from?: Date; to?: Date } {
+  const now = new Date();
+  if (key === "today") return { from: startOfDay(now), to: endOfDay(now) };
+  if (key === "week") {
+    const day = now.getDay(); // 0=Sun
+    const diffToMon = (day + 6) % 7;
+    const mon = new Date(now); mon.setDate(now.getDate() - diffToMon);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    return { from: startOfDay(mon), to: endOfDay(sun) };
+  }
+  if (key === "month") {
+    const first = new Date(now.getFullYear(), now.getMonth(), 1);
+    const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return { from: startOfDay(first), to: endOfDay(last) };
+  }
+  if (key === "30d") {
+    const to = new Date(now); to.setDate(now.getDate() + 30);
+    return { from: startOfDay(now), to: endOfDay(to) };
+  }
+  return {};
+}
+
 // ─── Main Component ─────────────────────────────────────────
 export default function AdminBookings() {
   const navigate = useNavigate();
@@ -464,8 +500,57 @@ export default function AdminBookings() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const [activePreset, setActivePreset] = useState<PresetKey | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "calendar" | "week">("table");
   const [newOpen, setNewOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Load filters from URL on mount
+  useEffect(() => {
+    const status = searchParams.get("status");
+    const range = searchParams.get("range") as PresetKey | null;
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    if (status || range || from || to) {
+      let dateFrom: Date | undefined;
+      let dateTo: Date | undefined;
+      if (range && range !== "custom") {
+        const r = getPresetRange(range);
+        dateFrom = r.from; dateTo = r.to;
+      }
+      if (from) dateFrom = new Date(from);
+      if (to) dateTo = new Date(to);
+      setFilters((f) => ({ ...f, status: status || "all", dateFrom, dateTo }));
+      if (range) setActivePreset(range);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist filters to URL
+  useEffect(() => {
+    const params: Record<string, string> = {};
+    if (filters.status !== "all") params.status = filters.status;
+    if (activePreset) params.range = activePreset;
+    if (filters.dateFrom) params.from = filters.dateFrom.toISOString();
+    if (filters.dateTo) params.to = filters.dateTo.toISOString();
+    setSearchParams(params, { replace: true });
+  }, [filters.status, filters.dateFrom, filters.dateTo, activePreset, setSearchParams]);
+
+  const applyPreset = (key: PresetKey) => {
+    if (key === "custom") {
+      setActivePreset("custom");
+      return;
+    }
+    const { from, to } = getPresetRange(key);
+    setActivePreset(key);
+    setFilters((f) => ({ ...f, dateFrom: from, dateTo: to }));
+  };
+
+  const clearAllFilters = () => {
+    setFilters(defaultFilters);
+    setSearch("");
+    setActivePreset(null);
+  };
 
   const load = async () => {
     setLoading(true);
@@ -509,12 +594,13 @@ export default function AdminBookings() {
       const matchReturn = filters.returnLocation === "all" || b.return_location === filters.returnLocation;
       const matchVehicle = filters.vehicle === "all" || b.vehicle_name === filters.vehicle;
 
+      // Overlap: booking interval [pickup, return] intersects [dateFrom, dateTo]
       let matchDateFrom = true;
-      if (filters.dateFrom) {
-        const pickupDate = new Date(b.pickup_date);
-        matchDateFrom = pickupDate >= filters.dateFrom;
-      }
       let matchDateTo = true;
+      if (filters.dateFrom) {
+        const returnDate = new Date(b.return_date);
+        matchDateFrom = returnDate >= filters.dateFrom;
+      }
       if (filters.dateTo) {
         const pickupDate = new Date(b.pickup_date);
         matchDateTo = pickupDate <= filters.dateTo;
@@ -544,6 +630,7 @@ export default function AdminBookings() {
     filters.vehicle !== "all",
     !!filters.dateFrom,
     !!filters.dateTo,
+    !!activePreset,
   ].filter(Boolean).length;
 
   const updateStatus = async (id: string, status: string) => {
@@ -788,6 +875,36 @@ export default function AdminBookings() {
         </div>
       </div>
 
+      {/* Preset chips — only on table view */}
+      {viewMode === "table" && (
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {(Object.keys(PRESET_LABELS) as PresetKey[]).map((key) => {
+            const active = activePreset === key;
+            return (
+              <button
+                key={key}
+                onClick={() => applyPreset(key)}
+                className={`text-[11px] px-2.5 py-1 rounded-full border font-medium transition-all ${
+                  active
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card/50 border-border/40 text-muted-foreground hover:text-foreground hover:border-border/60"
+                }`}
+              >
+                {PRESET_LABELS[key]}
+              </button>
+            );
+          })}
+          {activeFilterCount > 0 && (
+            <button
+              onClick={clearAllFilters}
+              className="text-[11px] px-2.5 py-1 rounded-full border border-destructive/30 text-destructive hover:bg-destructive/10 font-medium transition-all flex items-center gap-1 ml-1"
+            >
+              <X size={11} /> Limpar todos os filtros
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Smart Filters Bar */}
       <div className="flex items-center gap-2 flex-wrap">
         {/* Search */}
@@ -823,7 +940,7 @@ export default function AdminBookings() {
               <span className="text-xs font-bold text-foreground">Filtrar reservas</span>
               {activeFilterCount > 0 && (
                 <button
-                  onClick={() => setFilters(defaultFilters)}
+                  onClick={clearAllFilters}
                   className="text-[10px] text-primary hover:text-primary/80 font-medium flex items-center gap-1"
                 >
                   <X size={10} /> Limpar filtros
@@ -899,7 +1016,7 @@ export default function AdminBookings() {
                       <Calendar
                         mode="single"
                         selected={filters.dateFrom}
-                        onSelect={(d) => setFilters({ ...filters, dateFrom: d })}
+                        onSelect={(d) => { setActivePreset("custom"); setFilters({ ...filters, dateFrom: d }); }}
                         className={cn("p-3 pointer-events-auto")}
                         locale={ptBR}
                       />
@@ -919,7 +1036,7 @@ export default function AdminBookings() {
                       <Calendar
                         mode="single"
                         selected={filters.dateTo}
-                        onSelect={(d) => setFilters({ ...filters, dateTo: d })}
+                        onSelect={(d) => { setActivePreset("custom"); setFilters({ ...filters, dateTo: d }); }}
                         className={cn("p-3 pointer-events-auto")}
                         locale={ptBR}
                       />
@@ -1032,7 +1149,7 @@ export default function AdminBookings() {
                   title="Nenhuma reserva encontrada"
                   description="Nenhum resultado para os filtros aplicados. Tente ajustar os critérios de busca."
                   actionLabel="Limpar filtros"
-                  onAction={() => { setSearch(""); setFilters(defaultFilters); }}
+                  onAction={clearAllFilters}
                   compact
                 />
               ) : (
