@@ -333,6 +333,22 @@ const BookingDetails = () => {
         notes: `Plano: ${currentPlan.name}`,
       };
 
+      // Availability check
+      try {
+        const { data: available, error: availErr } = await supabase.rpc("check_vehicle_availability", {
+          p_vehicle_id: dbVehicle.id,
+          p_pickup: bookingPayload.pickup_date,
+          p_return: bookingPayload.return_date,
+          p_exclude_id: null,
+        });
+        if (!availErr && available === false) {
+          throw new Error("Veículo já reservado nesse período. Escolha outras datas ou outro veículo.");
+        }
+      } catch (e: any) {
+        if (e?.message?.includes("já reservado")) throw e;
+        console.warn("availability check failed, prosseguindo:", e);
+      }
+
       // Insert booking and get back id + booking_number
       const { data: insertedBooking, error: insertError } = await supabase
         .from("bookings")
@@ -342,7 +358,10 @@ const BookingDetails = () => {
 
       if (insertError) {
         console.error("Booking insert error:", insertError);
-        throw new Error("Não foi possível criar a reserva. Tente novamente.");
+        const msg = insertError.message?.includes("bookings_no_overlap")
+          ? "Veículo já reservado nesse período. Escolha outras datas ou outro veículo."
+          : "Não foi possível criar a reserva. Tente novamente.";
+        throw new Error(msg);
       }
 
       // Proceed to checkout

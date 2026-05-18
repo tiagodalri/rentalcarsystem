@@ -119,6 +119,28 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       return;
     }
     setSaving(true);
+
+    // Availability check
+    try {
+      const { data: available, error: availErr } = await supabase.rpc("check_vehicle_availability", {
+        p_vehicle_id: form.vehicle_id,
+        p_pickup: form.pickup_date,
+        p_return: form.return_date,
+        p_exclude_id: null,
+      });
+      if (!availErr && available === false) {
+        setSaving(false);
+        toast({
+          title: "Veículo indisponível",
+          description: "Veículo já reservado nesse período. Escolha outras datas ou outro veículo.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch (e) {
+      console.warn("availability check failed, prosseguindo:", e);
+    }
+
     const payload = {
       customer_name: form.customer_name,
       customer_email: form.customer_email || null,
