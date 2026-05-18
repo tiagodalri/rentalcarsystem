@@ -196,6 +196,8 @@ const MyAccount = () => {
             </div>
           </>
         )}
+          </TabsContent>
+        </Tabs>
       </div>
       <Footer />
     </div>
