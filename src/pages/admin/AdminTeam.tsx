@@ -354,8 +354,11 @@ export default function AdminTeam() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Cargo</label>
-                  <input value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} placeholder="Ex: Gerente de Operações" className={inputClass + " w-full"} />
+                  <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 block flex items-center gap-1.5"><Briefcase size={10} /> Cargo</label>
+                  <JobTitleSelect
+                    value={form.job_title_id}
+                    onChange={(id, name) => setForm({ ...form, job_title_id: id, position: name || "" })}
+                  />
                 </div>
                 <div>
                   <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 block">Observações</label>
