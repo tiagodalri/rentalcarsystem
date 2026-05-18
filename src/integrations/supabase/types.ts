@@ -126,6 +126,8 @@ export type Database = {
           driver_license: string | null
           driver_license_expiry: string | null
           driver_license_file_url: string | null
+          driver_license_verified_at: string | null
+          driver_license_verified_by: string | null
           email: string | null
           full_name: string
           house_number: string | null
@@ -148,6 +150,8 @@ export type Database = {
           driver_license?: string | null
           driver_license_expiry?: string | null
           driver_license_file_url?: string | null
+          driver_license_verified_at?: string | null
+          driver_license_verified_by?: string | null
           email?: string | null
           full_name: string
           house_number?: string | null
@@ -170,6 +174,8 @@ export type Database = {
           driver_license?: string | null
           driver_license_expiry?: string | null
           driver_license_file_url?: string | null
+          driver_license_verified_at?: string | null
+          driver_license_verified_by?: string | null
           email?: string | null
           full_name?: string
           house_number?: string | null
