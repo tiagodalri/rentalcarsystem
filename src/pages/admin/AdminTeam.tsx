@@ -73,6 +73,7 @@ type TeamMember = {
   phone: string | null;
   role: string;
   position: string | null;
+  job_title_id: string | null;
   is_active: boolean;
   notes: string | null;
   permissions: Permissions | null;
@@ -114,12 +115,13 @@ type FormData = {
   phone: string;
   role: string;
   position: string;
+  job_title_id: string | null;
   notes: string;
   permissions: Permissions;
 };
 
 const emptyForm: FormData = {
-  full_name: "", email: "", phone: "", role: "support", position: "", notes: "",
+  full_name: "", email: "", phone: "", role: "support", position: "", job_title_id: null, notes: "",
   permissions: { ...DEFAULT_PERMISSIONS },
 };
 
