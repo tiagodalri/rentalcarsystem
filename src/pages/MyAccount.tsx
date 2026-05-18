@@ -93,13 +93,35 @@ const MyAccount = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate("/cadastro")}
+              onClick={() => setSearchParams({ tab: "perfil" })}
               className="text-xs font-bold uppercase tracking-wider gold-gradient text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
             >
               Completar agora
             </button>
           </div>
         )}
+
+        {/* OUTER TABS: Reservas | Perfil */}
+        <Tabs
+          value={outerTab}
+          onValueChange={(v) => setSearchParams(v === "perfil" ? { tab: "perfil" } : {})}
+          className="mt-6"
+        >
+          <TabsList className="bg-muted/50 w-full grid grid-cols-2 h-auto p-1">
+            <TabsTrigger value="reservas" className="text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <CalendarRange size={13} /> Reservas
+            </TabsTrigger>
+            <TabsTrigger value="perfil" className="text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <UserCog size={13} /> Perfil
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="perfil" className="mt-6">
+            <ProfileTab />
+          </TabsContent>
+
+          <TabsContent value="reservas" className="mt-6">
+        {/* RESERVAS CONTENT START */}
 
         {allBookings.length === 0 ? (
           <div className="mt-16">
