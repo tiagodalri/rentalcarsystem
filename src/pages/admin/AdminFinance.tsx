@@ -164,11 +164,16 @@ export default function AdminFinance() {
     return <FinanceSkeleton />;
   }
 
+  const manualInPeriod = manualTxs
+    .filter((t) => new Date(t.transaction_date + "T12:00:00") >= periodStart)
+    .reduce((s, t) => s + (t.type === "income" ? Number(t.amount) : -Number(t.amount)), 0);
+
   const kpis = [
     { label: "Receita Total", value: totalRevenue, icon: TrendingUp, color: "text-emerald-500", bgColor: "bg-emerald-500/10", arrow: ArrowUpRight },
     { label: "Despesas Totais", value: totalCosts, icon: TrendingDown, color: "text-red-500", bgColor: "bg-red-500/10", arrow: ArrowDownRight },
     { label: "Lucro Líquido", value: netProfit, icon: Wallet, color: netProfit >= 0 ? "text-emerald-500" : "text-red-500", bgColor: netProfit >= 0 ? "bg-emerald-500/10" : "bg-red-500/10", arrow: netProfit >= 0 ? ArrowUpRight : ArrowDownRight },
     { label: "Margem de Lucro", value: profitMargin, icon: BarChart3, color: profitMargin >= 0 ? "text-primary" : "text-red-500", bgColor: "bg-primary/10", isPercent: true },
+    { label: "Lançamentos Manuais", value: manualInPeriod, icon: Pencil, color: manualInPeriod >= 0 ? "text-emerald-500" : "text-red-500", bgColor: "bg-muted/50" },
   ];
 
   return (
