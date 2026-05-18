@@ -156,6 +156,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     }
 
     const payload = {
+      customer_id: customer?.id || null,
       customer_name: form.customer_name,
       customer_email: form.customer_email || null,
       customer_phone: form.customer_phone || null,
@@ -179,12 +180,16 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     const { error } = await supabase.from("bookings").insert(payload);
     setSaving(false);
     if (error) {
-      toast({ title: "Erro ao criar reserva", description: error.message, variant: "destructive" });
+      const msg = error.message?.includes("bookings_no_overlap")
+        ? "Veículo já reservado nesse período. Escolha outras datas ou outro veículo."
+        : error.message;
+      toast({ title: "Erro ao criar reserva", description: msg, variant: "destructive" });
       return;
     }
     toast({ title: "Reserva criada com sucesso" });
     onCreated();
     onOpenChange(false);
+    setCustomer(null);
     setForm({
       customer_name: "", customer_email: "", customer_phone: "",
       vehicle_id: "", pickup_date: "", pickup_time: "10:00",
@@ -207,6 +212,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
           {/* Cliente */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Cliente</h3>
+            <div className="mb-3">
+              <CustomerCombobox selected={customer} onSelect={handleSelectCustomer} />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="md:col-span-1">
                 <Label>Nome completo *</Label>
