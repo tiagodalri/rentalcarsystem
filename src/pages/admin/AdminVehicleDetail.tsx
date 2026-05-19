@@ -197,7 +197,7 @@ export default function AdminVehicleDetail() {
     else {
       toast({ title: "Gasto registrado!" });
       setShowExpenseForm(false);
-      setExpenseForm({ type: "maintenance", amount: 0, expense_date: new Date().toISOString().split("T")[0], description: "", supplier: "", is_recurring: false });
+      setExpenseForm({ type: "maintenance", amount: 0, expense_date: new Date().toISOString().split("T")[0], description: "", supplier: "", is_recurring: false, receipt_url: "" });
       loadData();
     }
   };
