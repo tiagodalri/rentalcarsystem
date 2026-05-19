@@ -312,26 +312,15 @@ export default function AdminVehicleDetail() {
     toast({ title: "Capa atualizada" });
   };
 
-  const movePhoto = async (url: string, dir: -1 | 1) => {
+  const reorderPhotos = async (fromIdx: number, toIdx: number) => {
     if (!vehicle) return;
     const arr = [...((vehicle.photos as string[]) || [])];
-    const i = arr.indexOf(url);
-    const j = i + dir;
-    if (i < 0 || j < 0 || j >= arr.length) return;
-    [arr[i], arr[j]] = [arr[j], arr[i]];
+    if (fromIdx < 0 || toIdx < 0 || fromIdx >= arr.length || toIdx >= arr.length || fromIdx === toIdx) return;
+    const [moved] = arr.splice(fromIdx, 1);
+    arr.splice(toIdx, 0, moved);
     setVehicle({ ...vehicle, photos: arr });
     const { error } = await supabase.from("vehicles").update({ photos: arr }).eq("id", vehicle.id);
     if (error) toast({ title: "Erro ao reordenar", variant: "destructive" });
-  };
-
-  const setAsFirst = async (url: string) => {
-    if (!vehicle) return;
-    const arr = ((vehicle.photos as string[]) || []).filter(p => p !== url);
-    arr.unshift(url);
-    setVehicle({ ...vehicle, photos: arr });
-    const { error } = await supabase.from("vehicles").update({ photos: arr }).eq("id", vehicle.id);
-    if (error) toast({ title: "Erro", variant: "destructive" });
-    else toast({ title: "Definida como primeira" });
   };
 
 
