@@ -6,9 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import {
   User, FileText, LogIn, LogOut, GitCompare,
   Fuel, Gauge, CheckCircle2, AlertTriangle, ChevronRight,
-  Camera, PenTool, Image, Check, X as XIcon
+  Camera, PenTool, Image, Check, X as XIcon, Pencil
 } from "lucide-react";
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
+import { LocationDisplay } from "@/components/admin/LocationDisplay";
+import { EditBookingDialog } from "@/components/admin/EditBookingDialog";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 type Booking = {
   id: string;
