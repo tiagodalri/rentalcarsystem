@@ -7,6 +7,7 @@ import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
 import { getCoverImage } from "@/data/vehicleImages";
+import { storageThumb } from "@/lib/storageThumb";
 
 type Vehicle = {
   id: string;
