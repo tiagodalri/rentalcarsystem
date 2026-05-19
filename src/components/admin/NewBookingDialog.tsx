@@ -357,19 +357,44 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     setExtractedOnce(false);
   };
 
+  // --- UI helpers (mobile-first) ----------------------------------------------
+  const inputCls = "h-11 text-[15px]";
+  const labelCls = "text-xs font-medium text-muted-foreground mb-1.5 block";
+  const triggerCls = "h-11 text-[15px]";
+
+  type SectionProps = { step: number; title: string; children: React.ReactNode };
+  const Section = ({ step, title, children }: SectionProps) => (
+    <section className="rounded-2xl border border-border/50 bg-card/40 p-4 sm:p-5">
+      <header className="flex items-center gap-2.5 mb-4">
+        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/15 text-primary text-xs font-bold tabular-nums">
+          {step}
+        </span>
+        <h3 className="text-[13px] font-semibold uppercase tracking-wider text-foreground">
+          {title}
+        </h3>
+      </header>
+      {children}
+    </section>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Nova reserva manual</DialogTitle>
+      <DialogContent
+        className="w-[calc(100vw-1rem)] sm:w-full max-w-3xl p-0 gap-0 max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden rounded-2xl"
+      >
+        <DialogHeader className="px-4 sm:px-6 pt-5 pb-3 border-b border-border/50 shrink-0">
+          <DialogTitle className="text-base sm:text-lg">Nova reserva manual</DialogTitle>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Preencha em 7 etapas. Use a IA para extrair de prints e PDFs.
+          </p>
         </DialogHeader>
 
-        <div className="space-y-5 py-2">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 space-y-4">
           {/* IA - Extração inteligente */}
           <section
-            className={`rounded-lg border p-4 transition-colors ${
+            className={`rounded-2xl border-2 border-dashed p-4 sm:p-5 transition-colors ${
               dragOver
-                ? "border-primary bg-primary/10 ring-2 ring-primary/40"
+                ? "border-primary bg-primary/10"
                 : "border-primary/30 bg-primary/5"
             }`}
             onDragOver={(e) => {
@@ -390,19 +415,19 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             onDrop={handleDrop}
             onPaste={handlePaste}
           >
-            <div className="flex items-start gap-2 mb-3">
-              <Sparkles size={16} className="text-primary mt-0.5" />
-              <div className="flex-1">
+            <div className="flex items-start gap-2.5 mb-3">
+              <Sparkles size={18} className="text-primary mt-0.5 shrink-0" />
+              <div className="flex-1 min-w-0">
                 <h3 className="text-sm font-semibold">Extrair dados com IA</h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">
                   {dragOver
                     ? "Solte o arquivo aqui para extrair os dados..."
-                    : "Arraste e solte um print/PDF aqui, cole (Ctrl+V) ou use os botões abaixo. A IA preenche o formulário e destaca em amarelo o que ficou pendente."}
+                    : "Arraste um print/PDF, cole (Ctrl+V) ou use os botões. Campos pendentes ficam destacados em amarelo."}
                 </p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
-              <label className="flex items-center justify-center gap-2 cursor-pointer px-3 py-2 rounded-md border border-border bg-card hover:bg-muted text-sm font-medium">
+              <label className="flex items-center justify-center gap-2 cursor-pointer h-11 px-3 rounded-xl border border-border bg-card hover:bg-muted text-sm font-medium transition-colors">
                 {extracting ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
                 {extracting ? "Analisando..." : "Enviar print/PDF"}
                 <input
@@ -420,58 +445,80 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onClick={() => handleExtract()}
                 disabled={extracting || !extractText.trim()}
+                className="h-11 rounded-xl"
               >
-                {extracting ? <Loader2 size={14} className="animate-spin mr-1" /> : <Sparkles size={14} className="mr-1" />}
+                {extracting ? <Loader2 size={14} className="animate-spin mr-1.5" /> : <Sparkles size={14} className="mr-1.5" />}
                 Extrair do texto
               </Button>
             </div>
             <Textarea
               rows={2}
-              className="mt-2 text-sm"
-              placeholder="Ou cole aqui o texto da mensagem do WhatsApp... (também aceita imagem colada com Ctrl+V)"
+              className="mt-2.5 text-sm"
+              placeholder="Ou cole aqui o texto da mensagem do WhatsApp..."
               value={extractText}
               onChange={(e) => setExtractText(e.target.value)}
             />
             {extractedOnce && pendingFields.size > 0 && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 leading-relaxed">
                 {pendingFields.size} campo(s) pendente(s) destacado(s) em amarelo.
               </p>
             )}
           </section>
 
-          {/* Cliente */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Cliente</h3>
+          {/* 1. Cliente */}
+          <Section step={1} title="Cliente">
             <div className="mb-3">
+              <Label className={labelCls}>Buscar cliente existente</Label>
               <CustomerCombobox selected={customer} onSelect={handleSelectCustomer} />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="md:col-span-1">
-                <Label>Nome completo *</Label>
-                <Input className={pendingClass("customer_name")} value={form.customer_name} onChange={(e) => set("customer_name", e.target.value)} />
-              </div>
+            <div className="space-y-3">
               <div>
-                <Label>E-mail</Label>
-                <Input className={pendingClass("customer_email")} type="email" value={form.customer_email} onChange={(e) => set("customer_email", e.target.value)} />
+                <Label className={labelCls}>Nome completo *</Label>
+                <Input
+                  className={`${inputCls} ${pendingClass("customer_name")}`}
+                  value={form.customer_name}
+                  onChange={(e) => set("customer_name", e.target.value)}
+                  placeholder="João da Silva"
+                />
               </div>
-              <div>
-                <Label>Telefone</Label>
-                <Input className={pendingClass("customer_phone")} value={form.customer_phone} onChange={(e) => set("customer_phone", e.target.value)} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="min-w-0">
+                  <Label className={labelCls}>E-mail</Label>
+                  <Input
+                    className={`${inputCls} ${pendingClass("customer_email")}`}
+                    type="email"
+                    inputMode="email"
+                    value={form.customer_email}
+                    onChange={(e) => set("customer_email", e.target.value)}
+                    placeholder="email@exemplo.com"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <Label className={labelCls}>Telefone</Label>
+                  <Input
+                    className={`${inputCls} ${pendingClass("customer_phone")}`}
+                    type="tel"
+                    inputMode="tel"
+                    value={form.customer_phone}
+                    onChange={(e) => set("customer_phone", e.target.value)}
+                    placeholder="+55 (11) 99999-9999"
+                  />
+                </div>
               </div>
             </div>
-          </section>
+          </Section>
 
-          {/* Veículo & Plano */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Veículo e plano</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <Label>Veículo *</Label>
+          {/* 2. Veículo & Plano */}
+          <Section step={2} title="Veículo e plano">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="min-w-0">
+                <Label className={labelCls}>Veículo *</Label>
                 <Select value={form.vehicle_id} onValueChange={(v) => set("vehicle_id", v)}>
-                  <SelectTrigger className={pendingClass("vehicle_id")}><SelectValue placeholder="Selecione o veículo" /></SelectTrigger>
+                  <SelectTrigger className={`${triggerCls} ${pendingClass("vehicle_id")}`}>
+                    <SelectValue placeholder="Selecione o veículo" />
+                  </SelectTrigger>
                   <SelectContent>
                     {vehicles.map((v) => (
                       <SelectItem key={v.id} value={v.id}>
@@ -481,10 +528,10 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label>Plano</Label>
+              <div className="min-w-0">
+                <Label className={labelCls}>Plano</Label>
                 <Select value={form.plan_id} onValueChange={(v) => set("plan_id", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className={triggerCls}><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {PLAN_ORDER.map((id) => (
                       <SelectItem key={id} value={id}>
@@ -495,135 +542,172 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
                 </Select>
               </div>
             </div>
-          </section>
+          </Section>
 
-          {/* Datas */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Período</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div>
-                <Label>Retirada *</Label>
-                <Input className={pendingClass("pickup_date")} type="date" value={form.pickup_date} onChange={(e) => set("pickup_date", e.target.value)} />
-              </div>
-              <div>
-                <Label>Hora retirada</Label>
-                <Input type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} />
-              </div>
-              <div>
-                <Label>Devolução *</Label>
-                <Input className={pendingClass("return_date")} type="date" value={form.return_date} onChange={(e) => set("return_date", e.target.value)} />
-              </div>
-              <div>
-                <Label>Hora devolução</Label>
-                <Input type="time" value={form.return_time} onChange={(e) => set("return_time", e.target.value)} />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-              <div>
-                <Label>Local de retirada</Label>
-                <div className={pendingFields.has("pickup_location") ? "rounded-md " + PENDING_CLASS : ""}>
-                  <AddressAutocomplete
-                    value={form.pickup_location}
-                    onChange={(v) => set("pickup_location", v)}
-                    placeholder="Ex: MCO Aeroporto Orlando"
-                  />
+          {/* 3. Período */}
+          <Section step={3} title="Período">
+            <div className="space-y-3">
+              <div className="rounded-xl bg-muted/30 p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Retirada</p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="min-w-0">
+                    <Label className={labelCls}>Data *</Label>
+                    <Input className={`${inputCls} ${pendingClass("pickup_date")}`} type="date" value={form.pickup_date} onChange={(e) => set("pickup_date", e.target.value)} />
+                  </div>
+                  <div className="min-w-0">
+                    <Label className={labelCls}>Hora</Label>
+                    <Input className={inputCls} type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} />
+                  </div>
                 </div>
               </div>
-              <div>
-                <Label>Local de devolução</Label>
-                <div className={pendingFields.has("return_location") ? "rounded-md " + PENDING_CLASS : ""}>
-                  <AddressAutocomplete
-                    value={form.return_location}
-                    onChange={(v) => set("return_location", v)}
-                    placeholder="Ex: MCO Aeroporto Orlando"
-                  />
+              <div className="rounded-xl bg-muted/30 p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Devolução</p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="min-w-0">
+                    <Label className={labelCls}>Data *</Label>
+                    <Input className={`${inputCls} ${pendingClass("return_date")}`} type="date" value={form.return_date} onChange={(e) => set("return_date", e.target.value)} />
+                  </div>
+                  <div className="min-w-0">
+                    <Label className={labelCls}>Hora</Label>
+                    <Input className={inputCls} type="time" value={form.return_time} onChange={(e) => set("return_time", e.target.value)} />
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="min-w-0">
+                  <Label className={labelCls}>Local de retirada</Label>
+                  <div className={pendingFields.has("pickup_location") ? "rounded-md " + PENDING_CLASS : ""}>
+                    <AddressAutocomplete
+                      value={form.pickup_location}
+                      onChange={(v) => set("pickup_location", v)}
+                      placeholder="Ex: MCO Aeroporto Orlando"
+                    />
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <Label className={labelCls}>Local de devolução</Label>
+                  <div className={pendingFields.has("return_location") ? "rounded-md " + PENDING_CLASS : ""}>
+                    <AddressAutocomplete
+                      value={form.return_location}
+                      onChange={(v) => set("return_location", v)}
+                      placeholder="Ex: MCO Aeroporto Orlando"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </section>
+          </Section>
 
-          {/* Pagamento */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Pagamento</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div>
-                <Label>Moeda</Label>
+          {/* 4. Pagamento */}
+          <Section step={4} title="Pagamento">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="min-w-0">
+                <Label className={labelCls}>Moeda</Label>
                 <Select value={form.currency} onValueChange={(v) => set("currency", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className={triggerCls}><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {CURRENCIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label>Valor total ({form.currency})</Label>
-                <Input className={pendingClass("total_price")} type="number" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} />
+              <div className="min-w-0">
+                <Label className={labelCls}>Valor total</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground pointer-events-none">
+                    {form.currency === "BRL" ? "R$" : "$"}
+                  </span>
+                  <Input
+                    className={`${inputCls} ${pendingClass("total_price")} pl-9 tabular-nums`}
+                    type="number"
+                    step="0.01"
+                    inputMode="decimal"
+                    value={form.total_price}
+                    onChange={(e) => set("total_price", e.target.value)}
+                    placeholder="0,00"
+                  />
+                </div>
               </div>
-              <div>
-                <Label>Forma de pagamento</Label>
+              <div className="col-span-2 sm:col-span-1 min-w-0">
+                <Label className={labelCls}>Forma de pagamento</Label>
                 <Select value={form.payment_method} onValueChange={(v) => set("payment_method", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className={triggerCls}><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {PAYMENT_METHODS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label>Status</Label>
+              <div className="col-span-2 sm:col-span-1 min-w-0">
+                <Label className={labelCls}>Status</Label>
                 <Select value={form.status} onValueChange={(v) => set("status", v)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className={triggerCls}><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             </div>
-          </section>
+          </Section>
 
-          {/* Caução & Franquia */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Caução e franquia</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
-                <Label>Valor da caução ({form.currency})</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0,00"
-                  value={form.deposit_amount}
-                  onChange={(e) => set("deposit_amount", e.target.value)}
-                />
+          {/* 5. Caução & Franquia */}
+          <Section step={5} title="Caução e franquia">
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="min-w-0">
+                  <Label className={labelCls}>Caução</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground pointer-events-none">
+                      {form.currency === "BRL" ? "R$" : "$"}
+                    </span>
+                    <Input
+                      className={`${inputCls} pl-9 tabular-nums`}
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      inputMode="decimal"
+                      placeholder="0,00"
+                      value={form.deposit_amount}
+                      onChange={(e) => set("deposit_amount", e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <Label className={labelCls}>Franquia em acidente</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-medium text-muted-foreground pointer-events-none">
+                      {form.currency === "BRL" ? "R$" : "$"}
+                    </span>
+                    <Input
+                      className={`${inputCls} pl-9 tabular-nums`}
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      inputMode="decimal"
+                      placeholder="0,00"
+                      value={form.franchise_amount}
+                      onChange={(e) => set("franchise_amount", e.target.value)}
+                    />
+                  </div>
+                </div>
               </div>
               <div>
-                <Label>Prazo de devolução da caução (dias)</Label>
+                <Label className={labelCls}>Prazo de devolução da caução (dias)</Label>
                 <Input
+                  className={`${inputCls} tabular-nums`}
                   type="number"
                   min="0"
+                  inputMode="numeric"
                   placeholder="Ex: 7"
                   value={form.deposit_refund_days}
                   onChange={(e) => set("deposit_refund_days", e.target.value)}
                 />
               </div>
-              <div>
-                <Label>Franquia em caso de acidente ({form.currency})</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0,00"
-                  value={form.franchise_amount}
-                  onChange={(e) => set("franchise_amount", e.target.value)}
-                />
-              </div>
             </div>
-          </section>
+          </Section>
 
-          {/* Contrato */}
-          <section>
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Contrato</h3>
-            <div className="flex items-center gap-3">
-              <label className="flex items-center gap-2 cursor-pointer px-3 py-2 rounded-md border border-border bg-card hover:bg-muted text-sm">
+          {/* 6. Contrato */}
+          <Section step={6} title="Contrato">
+            <div className="flex flex-col gap-2.5">
+              <label className="flex items-center justify-center gap-2 cursor-pointer h-11 px-3 rounded-xl border border-dashed border-border bg-card hover:bg-muted text-sm font-medium transition-colors">
                 {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
                 {uploading ? "Enviando..." : "Anexar contrato (PDF/imagem)"}
                 <input
@@ -635,24 +719,49 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
                 />
               </label>
               {form.contract_url && (
-                <a href={form.contract_url} target="_blank" rel="noreferrer" className="text-xs text-primary underline truncate max-w-[300px]">
-                  Ver contrato anexado
+                <a
+                  href={form.contract_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 text-xs text-primary hover:underline bg-primary/5 px-3 py-2 rounded-lg min-w-0"
+                >
+                  <ImageIcon size={13} className="shrink-0" />
+                  <span className="truncate">Ver contrato anexado</span>
                 </a>
               )}
             </div>
-          </section>
+          </Section>
 
-          {/* Notas */}
-          <section>
-            <Label>Observações</Label>
-            <Textarea rows={3} value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Notas internas sobre essa reserva..." />
-          </section>
+          {/* 7. Observações */}
+          <Section step={7} title="Observações">
+            <Textarea
+              rows={3}
+              value={form.notes}
+              onChange={(e) => set("notes", e.target.value)}
+              placeholder="Notas internas sobre essa reserva..."
+              className="text-[15px]"
+            />
+          </Section>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>Cancelar</Button>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving && <Loader2 size={14} className="animate-spin mr-1" />}
+        <DialogFooter
+          className="px-4 sm:px-6 py-3 border-t border-border/50 shrink-0 bg-background/95 backdrop-blur-sm flex flex-col-reverse sm:flex-row sm:justify-end gap-2"
+          style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.75rem)" }}
+        >
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={saving}
+            className="h-11 rounded-xl w-full sm:w-auto"
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="h-11 rounded-xl w-full sm:w-auto font-semibold"
+          >
+            {saving && <Loader2 size={14} className="animate-spin mr-1.5" />}
             Criar reserva
           </Button>
         </DialogFooter>
@@ -660,3 +769,4 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     </Dialog>
   );
 }
+
