@@ -207,12 +207,110 @@ export default function AdminFleetPnL() {
     <TooltipProvider>
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Relatório de Frota — Lucro por Veículo</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Compra, gastos, receitas e lucro operacional de cada carro desde a aquisição
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Relatório de Frota — Lucro por Veículo</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Compra, gastos, receitas e lucro operacional de cada carro desde a aquisição
+          </p>
+        </div>
+        <button
+          onClick={() => { setCompareMode(!compareMode); if (compareMode) setCompareIds([]); }}
+          className={`inline-flex items-center gap-2 h-9 px-4 rounded-lg border text-xs font-bold uppercase tracking-wider transition-colors ${
+            compareMode
+              ? "bg-primary text-primary-foreground border-primary"
+              : "bg-card text-foreground border-border/40 hover:bg-muted"
+          }`}
+        >
+          <GitCompare size={13} />
+          {compareMode ? `Comparando (${compareIds.length})` : "Comparar veículos"}
+        </button>
       </div>
+
+      {/* Comparator panel */}
+      {compareMode && compareIds.length >= 2 && (() => {
+        const selected = rows.filter(r => compareIds.includes(r.id));
+        const metrics: { key: keyof Row | "margin"; label: string; format: (v: any) => string; better?: "high" | "low" }[] = [
+          { key: "purchase_price", label: "Valor pago", format: (v) => `$${fmt(v)}`, better: "low" },
+          { key: "bookings", label: "Locações", format: (v) => String(v), better: "high" },
+          { key: "totalRevenue", label: "Receita total", format: (v) => `$${fmt(v)}`, better: "high" },
+          { key: "expenses", label: "Gastos", format: (v) => `$${fmt(v)}`, better: "low" },
+          { key: "operatingProfit", label: "Lucro operacional", format: (v) => `${v >= 0 ? "" : "-"}$${fmt(Math.abs(v))}`, better: "high" },
+          { key: "roiPct", label: "ROI %", format: (v) => v === null ? "—" : `${v.toFixed(1)}%`, better: "high" },
+          { key: "daysOwned", label: "Dias na frota", format: (v) => String(v), better: "high" },
+        ];
+
+        const winners: Record<string, string | null> = {};
+        metrics.forEach(m => {
+          if (!m.better) return;
+          const vals = selected.map(s => ({ id: s.id, v: (s as any)[m.key] }));
+          const valid = vals.filter(x => x.v !== null && x.v !== undefined && !isNaN(Number(x.v)));
+          if (valid.length === 0) { winners[m.key as string] = null; return; }
+          const winner = m.better === "high"
+            ? valid.reduce((a, b) => Number(b.v) > Number(a.v) ? b : a)
+            : valid.reduce((a, b) => Number(b.v) < Number(a.v) ? b : a);
+          winners[m.key as string] = winner.id;
+        });
+
+        return (
+          <Card className="border-primary/30 bg-primary/[0.02]">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <GitCompare size={14} className="text-primary" />
+                  Comparação ({selected.length} veículos)
+                </CardTitle>
+                <button
+                  onClick={() => setCompareIds([])}
+                  className="text-[10px] text-muted-foreground hover:text-foreground uppercase tracking-wider font-semibold"
+                >
+                  Limpar
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/30 border-y border-border/40">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Métrica</th>
+                    {selected.map(v => (
+                      <th key={v.id} className="px-4 py-2 text-right text-[11px] font-semibold text-foreground">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span className="truncate max-w-[160px]">{v.name}</span>
+                          <button
+                            onClick={() => setCompareIds(compareIds.filter(id => id !== v.id))}
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <X size={11} />
+                          </button>
+                        </div>
+                        <div className="text-[9px] font-normal text-muted-foreground mt-0.5">{v.category}</div>
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {metrics.map(m => (
+                    <tr key={m.key as string} className="border-b border-border/20">
+                      <td className="px-4 py-2.5 text-xs text-muted-foreground font-medium">{m.label}</td>
+                      {selected.map(v => {
+                        const val = (v as any)[m.key];
+                        const isWinner = winners[m.key as string] === v.id && selected.length > 1;
+                        return (
+                          <td key={v.id} className={`px-4 py-2.5 text-right text-xs tabular-nums font-semibold ${isWinner ? "text-emerald-500" : "text-foreground"}`}>
+                            {m.format(val)}
+                            {isWinner && <span className="ml-1 text-[9px] uppercase">★</span>}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* KPI cards — 3 cols desktop, 2 cols tablet, 1 col mobile */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
