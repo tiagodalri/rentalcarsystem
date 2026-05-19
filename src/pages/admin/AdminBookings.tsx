@@ -556,11 +556,19 @@ export default function AdminBookings() {
     setLoading(true);
     const [bRes, vRes] = await Promise.all([
       supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, vehicle_id, plan_id, addons, notes, created_at, customer_id").order("created_at", { ascending: false }).limit(1000),
-      supabase.from("vehicles").select("id, name"),
+      supabase.from("vehicles").select("id, name, image_url, photos"),
     ]);
-    const vehicleMap: Record<string, string> = {};
-    (vRes.data || []).forEach((v: any) => { vehicleMap[v.id] = v.name; });
-    setBookings((bRes.data || []).map((b: any) => ({ ...b, vehicle_name: b.vehicle_id ? vehicleMap[b.vehicle_id] || "" : "" })));
+    const vehicleMap: Record<string, { name: string; image: string }> = {};
+    (vRes.data || []).forEach((v: any) => {
+      const photos = Array.isArray(v.photos) ? v.photos : [];
+      const firstPhoto = photos[0]?.url || photos[0] || v.image_url || "";
+      vehicleMap[v.id] = { name: v.name, image: firstPhoto };
+    });
+    setBookings((bRes.data || []).map((b: any) => ({
+      ...b,
+      vehicle_name: b.vehicle_id ? vehicleMap[b.vehicle_id]?.name || "" : "",
+      vehicle_image: b.vehicle_id ? vehicleMap[b.vehicle_id]?.image || "" : "",
+    })));
     setLoading(false);
   };
 
