@@ -8,6 +8,9 @@ import { EmptyState } from "@/components/admin/EmptyState";
 import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
 import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 import { storageThumb } from "@/lib/storageThumb";
+import { useFormDraft, clearFormDraft } from "@/hooks/useFormDraft";
+
+const FLEET_DRAFT_KEY = "new-vehicle";
 
 type Vehicle = {
   id: string;
