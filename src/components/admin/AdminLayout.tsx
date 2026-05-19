@@ -7,11 +7,15 @@ import { toast } from "sonner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import MinimalFooter from "@/components/MinimalFooter";
 import { AdminShellSkeleton } from "@/components/skeletons/AdminShellSkeleton";
+import { useThemeMode } from "@/i18n/ThemeContext";
+import { Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function AdminLayout() {
   const { user, roles, loading, signOut } = useAdminAuth();
   const navigate = useNavigate();
   const restrictedToastShown = useRef(false);
+  const { theme, toggleTheme } = useThemeMode();
 
   useEffect(() => {
     if (loading) return;
@@ -42,6 +46,15 @@ export default function AdminLayout() {
           <header className="h-14 flex items-center gap-2 sm:gap-4 border-b border-border/40 px-3 sm:px-4 bg-background/80 backdrop-blur-sm sticky top-0 z-30">
             <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
             <div className="flex-1" />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
             <LanguageSwitcher />
             <span className="hidden md:inline text-xs text-muted-foreground truncate max-w-[200px]">
               {user.email}
