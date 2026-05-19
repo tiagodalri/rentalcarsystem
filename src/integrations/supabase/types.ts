@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          diff: Json | null
+          id: string
+          record_id: string
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          diff?: Json | null
+          id?: string
+          record_id: string
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          diff?: Json | null
+          id?: string
+          record_id?: string
+          table_name?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           addons: Json | null
@@ -26,6 +59,8 @@ export type Database = {
           customer_id: string | null
           customer_name: string
           customer_phone: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           deposit_amount: number | null
           deposit_refund_days: number | null
           driver_age: number | null
@@ -57,6 +92,8 @@ export type Database = {
           customer_id?: string | null
           customer_name: string
           customer_phone?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           deposit_amount?: number | null
           deposit_refund_days?: number | null
           driver_age?: number | null
@@ -88,6 +125,8 @@ export type Database = {
           customer_id?: string | null
           customer_name?: string
           customer_phone?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           deposit_amount?: number | null
           deposit_refund_days?: number | null
           driver_age?: number | null
@@ -238,6 +277,8 @@ export type Database = {
           complement: string | null
           created_at: string
           date_of_birth: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           document_number: string | null
           driver_license: string | null
           driver_license_expiry: string | null
@@ -262,6 +303,8 @@ export type Database = {
           complement?: string | null
           created_at?: string
           date_of_birth?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           document_number?: string | null
           driver_license?: string | null
           driver_license_expiry?: string | null
@@ -286,6 +329,8 @@ export type Database = {
           complement?: string | null
           created_at?: string
           date_of_birth?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           document_number?: string | null
           driver_license?: string | null
           driver_license_expiry?: string | null
@@ -426,6 +471,8 @@ export type Database = {
           category_id: string | null
           created_at: string
           created_by: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           description: string
           id: string
           is_cancelled: boolean
@@ -442,6 +489,8 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           description: string
           id?: string
           is_cancelled?: boolean
@@ -458,6 +507,8 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           created_by?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           description?: string
           id?: string
           is_cancelled?: boolean
@@ -841,6 +892,8 @@ export type Database = {
           created_at: string
           current_odometer: number | null
           daily_price_usd: number
+          deleted_at: string | null
+          deleted_by: string | null
           doors: number | null
           engine_size: string | null
           engine_type: string | null
@@ -885,6 +938,8 @@ export type Database = {
           created_at?: string
           current_odometer?: number | null
           daily_price_usd?: number
+          deleted_at?: string | null
+          deleted_by?: string | null
           doors?: number | null
           engine_size?: string | null
           engine_type?: string | null
@@ -929,6 +984,8 @@ export type Database = {
           created_at?: string
           current_odometer?: number | null
           daily_price_usd?: number
+          deleted_at?: string | null
+          deleted_by?: string | null
           doors?: number | null
           engine_size?: string | null
           engine_type?: string | null
