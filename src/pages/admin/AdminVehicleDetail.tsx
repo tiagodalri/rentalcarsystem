@@ -188,6 +188,24 @@ export default function AdminVehicleDetail() {
     else { toast({ title: "Dados atualizados!" }); setEditingDetails(false); loadData(); }
   };
 
+  const uploadReceipt = async (file: File | null | undefined) => {
+    if (!file || !vehicleId) return;
+    setUploadingReceipt(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `expenses/${vehicleId}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("inspections").upload(path, file, { cacheControl: "3600", upsert: false });
+      if (error) throw error;
+      const { data } = supabase.storage.from("inspections").getPublicUrl(path);
+      setExpenseForm(prev => ({ ...prev, receipt_url: data.publicUrl }));
+      toast({ title: "Comprovante anexado" });
+    } catch (e: any) {
+      toast({ title: "Erro ao enviar comprovante", description: e.message, variant: "destructive" });
+    } finally {
+      setUploadingReceipt(false);
+    }
+  };
+
   const addExpense = async () => {
     if (!vehicleId) return;
     const { error } = await supabase.from("vehicle_expenses").insert({
