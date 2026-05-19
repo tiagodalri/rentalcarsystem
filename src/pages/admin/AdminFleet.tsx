@@ -6,7 +6,7 @@ import { Search, Plus, Pencil, Trash2, Car, Users as UsersIcon, Briefcase, X, Hi
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
-import { getCoverImage } from "@/data/vehicleImages";
+import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 import { storageThumb } from "@/lib/storageThumb";
 
 type Vehicle = {
@@ -306,17 +306,39 @@ export default function AdminFleet() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((v) => (
             <Card key={v.id} className="bg-card/50 border-border/40 hover:border-primary/20 transition-colors overflow-hidden cursor-pointer" onClick={() => navigate(`/admin/fleet/${v.id}`)}>
-              <div className="h-40 bg-muted/30 overflow-hidden">
-                <img
-                  src={storageThumb(v.image_url || (v.photos && v.photos[0]) || "", 640, 360) || getCoverImage(v.name)}
-                  alt={v.name}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                  width={640}
-                  height={360}
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = getCoverImage(v.name); }}
-                />
+              <div className="h-40 bg-muted/30 overflow-hidden flex items-center justify-center">
+                {(() => {
+                  const dbImg = v.image_url || (v.photos && v.photos[0]) || "";
+                  const thumb = storageThumb(dbImg, 640, 360);
+                  const src = thumb || (hasCoverImage(v.name) ? getCoverImage(v.name) : "");
+                  if (!src) {
+                    return (
+                      <div className="flex flex-col items-center justify-center text-muted-foreground/50 gap-1">
+                        <Car size={40} strokeWidth={1.2} />
+                        <span className="text-[10px] uppercase tracking-wider">Sem foto</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <img
+                      src={src}
+                      alt={v.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                      width={640}
+                      height={360}
+                      onError={(e) => {
+                        const img = e.currentTarget as HTMLImageElement;
+                        if (hasCoverImage(v.name)) {
+                          img.src = getCoverImage(v.name);
+                        } else {
+                          img.style.display = "none";
+                        }
+                      }}
+                    />
+                  );
+                })()}
               </div>
               <CardContent className="p-4 space-y-3">
                 <div className="flex items-start justify-between">

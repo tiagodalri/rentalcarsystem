@@ -44,3 +44,7 @@ export const vehicleCoverMap: Record<string, string> = {
 export function getCoverImage(vehicleName: string): string {
   return vehicleCoverMap[vehicleName] || "/placeholder.svg";
 }
+
+export function hasCoverImage(vehicleName: string): boolean {
+  return Boolean(vehicleCoverMap[vehicleName]);
+}
