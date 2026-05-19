@@ -835,6 +835,7 @@ export type Database = {
           battery_condition: string | null
           body_condition: string | null
           brake_condition: string | null
+          brand: string | null
           category: string
           color: string | null
           created_at: string
@@ -852,6 +853,9 @@ export type Database = {
           insurance_policy: string | null
           last_service_date: string | null
           license_plate: string | null
+          manufacture_year: number | null
+          model: string | null
+          model_year: number | null
           name: string
           next_service_km: number | null
           notes: string | null
@@ -860,10 +864,12 @@ export type Database = {
           published: boolean
           purchase_price: number | null
           registration_expiry: string | null
+          renavam: string | null
           status: string
           tire_condition: string | null
           transmission: string
           updated_at: string
+          version: string | null
           vin: string | null
           year: number | null
         }
@@ -873,6 +879,7 @@ export type Database = {
           battery_condition?: string | null
           body_condition?: string | null
           brake_condition?: string | null
+          brand?: string | null
           category?: string
           color?: string | null
           created_at?: string
@@ -890,6 +897,9 @@ export type Database = {
           insurance_policy?: string | null
           last_service_date?: string | null
           license_plate?: string | null
+          manufacture_year?: number | null
+          model?: string | null
+          model_year?: number | null
           name: string
           next_service_km?: number | null
           notes?: string | null
@@ -898,10 +908,12 @@ export type Database = {
           published?: boolean
           purchase_price?: number | null
           registration_expiry?: string | null
+          renavam?: string | null
           status?: string
           tire_condition?: string | null
           transmission?: string
           updated_at?: string
+          version?: string | null
           vin?: string | null
           year?: number | null
         }
@@ -911,6 +923,7 @@ export type Database = {
           battery_condition?: string | null
           body_condition?: string | null
           brake_condition?: string | null
+          brand?: string | null
           category?: string
           color?: string | null
           created_at?: string
@@ -928,6 +941,9 @@ export type Database = {
           insurance_policy?: string | null
           last_service_date?: string | null
           license_plate?: string | null
+          manufacture_year?: number | null
+          model?: string | null
+          model_year?: number | null
           name?: string
           next_service_km?: number | null
           notes?: string | null
@@ -936,10 +952,12 @@ export type Database = {
           published?: boolean
           purchase_price?: number | null
           registration_expiry?: string | null
+          renavam?: string | null
           status?: string
           tire_condition?: string | null
           transmission?: string
           updated_at?: string
+          version?: string | null
           vin?: string | null
           year?: number | null
         }
