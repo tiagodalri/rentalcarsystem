@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { PLANS, PLAN_ORDER } from "@/data/rentalPlans";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, Sparkles, ImageIcon } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
+
+const PENDING_CLASS = "ring-1 ring-amber-500/60 focus-visible:ring-amber-500";
 
 type Vehicle = { id: string; name: string; daily_price_usd: number };
 
