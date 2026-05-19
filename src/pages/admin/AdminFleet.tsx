@@ -199,18 +199,38 @@ export default function AdminFleet() {
         />
       </div>
 
-      {/* Edit Modal */}
+      {/* Edit Modal — bottom-sheet no mobile, modal centralizado no desktop */}
       {editing && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setEditing(null)}>
-          <div className="bg-card rounded-xl border border-border/50 shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-bold text-foreground">{isNew ? "Novo Veículo" : "Editar Veículo"}</h2>
-              <button onClick={() => setEditing(null)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
+        <div
+          className="fixed inset-0 z-50 bg-black/60 flex items-end sm:items-center justify-center sm:p-4"
+          onClick={() => setEditing(null)}
+        >
+          <div
+            className="bg-card border border-border/50 shadow-2xl w-full sm:max-w-lg sm:rounded-xl rounded-t-2xl flex flex-col max-h-[92dvh] sm:max-h-[90vh]"
+            style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* grab handle (mobile) */}
+            <div className="sm:hidden flex justify-center pt-2 pb-1">
+              <div className="h-1.5 w-12 rounded-full bg-border" />
             </div>
 
-            <div className="space-y-6">
+            {/* Sticky header */}
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border/40 sticky top-0 bg-card z-10">
+              <h2 className="text-base sm:text-lg font-bold text-foreground">{isNew ? "Novo Veículo" : "Editar Veículo"}</h2>
+              <button
+                onClick={() => setEditing(null)}
+                aria-label="Fechar"
+                className="h-11 w-11 -mr-2 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Scrollable body */}
+            <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6 overscroll-contain">
               {(() => {
-                const inputCls = "w-full h-11 px-3 rounded-lg border border-border/60 bg-background text-[15px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30";
+                const inputCls = "w-full h-11 px-3 rounded-lg border border-border/60 bg-background text-[16px] sm:text-[15px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30";
                 const labelCls = "text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block";
                 const sectionTitleCls = "text-xs font-semibold text-primary uppercase tracking-wider mb-3";
                 const setVal = (k: string, v: any) => setEditing({ ...editing, [k]: v });
@@ -345,18 +365,28 @@ export default function AdminFleet() {
                   </>
                 );
               })()}
+            </div>
 
+            {/* Sticky footer */}
+            <div className="px-5 py-3 border-t border-border/40 bg-card flex gap-3 sticky bottom-0">
+              <button
+                onClick={() => setEditing(null)}
+                className="hidden sm:inline-flex h-12 px-4 rounded-lg border border-border/60 text-sm font-semibold text-foreground hover:bg-accent transition-colors"
+              >
+                Cancelar
+              </button>
               <button
                 onClick={save}
                 disabled={saving}
-                className="w-full h-10 gold-gradient text-primary-foreground rounded-lg text-sm font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 h-12 gold-gradient text-primary-foreground rounded-lg text-sm font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saving ? "Salvando..." : isNew ? "Adicionar" : "Salvar"}
+                {saving ? "Salvando..." : isNew ? "Adicionar Veículo" : "Salvar Alterações"}
               </button>
             </div>
           </div>
         </div>
       )}
+
 
       {/* Grid */}
       {loading ? (
