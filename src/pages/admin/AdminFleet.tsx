@@ -330,7 +330,8 @@ export default function AdminFleet() {
             <Card key={v.id} className="bg-card/50 border-border/40 hover:border-primary/20 transition-colors overflow-hidden cursor-pointer" onClick={() => navigate(`/admin/fleet/${v.id}`)}>
               <div className="h-40 bg-muted/30 overflow-hidden flex items-center justify-center">
                 {(() => {
-                  const dbImg = v.image_url || (v.photos && v.photos[0]) || "";
+                  const raw = v.image_url || (v.photos && v.photos[0]) || "";
+                  const dbImg = raw && !raw.includes("placeholder") ? raw : "";
                   const thumb = storageThumb(dbImg, 640, 360);
                   const src = thumb || (hasCoverImage(v.name) ? getCoverImage(v.name) : "");
                   if (!src) {
@@ -352,10 +353,10 @@ export default function AdminFleet() {
                       height={360}
                       onError={(e) => {
                         const img = e.currentTarget as HTMLImageElement;
-                        if (hasCoverImage(v.name)) {
+                        if (hasCoverImage(v.name) && !img.src.endsWith(getCoverImage(v.name))) {
                           img.src = getCoverImage(v.name);
-                        } else {
-                          img.style.display = "none";
+                        } else if (!img.src.endsWith("/placeholder.svg")) {
+                          img.src = "/placeholder.svg";
                         }
                       }}
                     />

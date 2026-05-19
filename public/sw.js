@@ -5,7 +5,7 @@
 //  - Static assets (JS/CSS/fonts/images): StaleWhileRevalidate.
 //  - Everything else: pass-through.
 
-const VERSION = "v3";
+const VERSION = "v4";
 const HTML_CACHE = `zeus-html-${VERSION}`;
 const ASSET_CACHE = `zeus-assets-${VERSION}`;
 const OFFLINE_URL = "/";
@@ -98,4 +98,9 @@ self.addEventListener("fetch", (event) => {
     return;
   }
   // 3) Everything else: default network.
+});
+
+// Allow page to trigger immediate activation of a waiting SW.
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
 });
