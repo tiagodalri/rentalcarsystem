@@ -26,8 +26,11 @@ export type Database = {
           customer_id: string | null
           customer_name: string
           customer_phone: string | null
+          deposit_amount: number | null
+          deposit_refund_days: number | null
           driver_age: number | null
           extra_driver: boolean | null
+          franchise_amount: number | null
           id: string
           notes: string | null
           pickup_date: string
@@ -54,8 +57,11 @@ export type Database = {
           customer_id?: string | null
           customer_name: string
           customer_phone?: string | null
+          deposit_amount?: number | null
+          deposit_refund_days?: number | null
           driver_age?: number | null
           extra_driver?: boolean | null
+          franchise_amount?: number | null
           id?: string
           notes?: string | null
           pickup_date: string
@@ -82,8 +88,11 @@ export type Database = {
           customer_id?: string | null
           customer_name?: string
           customer_phone?: string | null
+          deposit_amount?: number | null
+          deposit_refund_days?: number | null
           driver_age?: number | null
           extra_driver?: boolean | null
+          franchise_amount?: number | null
           id?: string
           notes?: string | null
           pickup_date?: string

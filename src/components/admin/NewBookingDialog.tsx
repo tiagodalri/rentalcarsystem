@@ -82,6 +82,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     contract_url: "",
     status: "confirmed",
     notes: "",
+    deposit_amount: "",
+    deposit_refund_days: "",
+    franchise_amount: "",
   });
 
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
@@ -180,6 +183,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       total_price: form.total_price ? Number(form.total_price) : null,
       status: form.status,
       notes: form.notes || null,
+      deposit_amount: form.deposit_amount ? Number(form.deposit_amount) : 0,
+      deposit_refund_days: form.deposit_refund_days ? Number(form.deposit_refund_days) : null,
+      franchise_amount: form.franchise_amount ? Number(form.franchise_amount) : 0,
       addons: {
         payment_method: form.payment_method,
         currency: form.currency,
@@ -208,6 +214,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       plan_id: "conforto", total_price: "", currency: "USD",
       payment_method: "Cartão de Crédito", contract_url: "",
       status: "confirmed", notes: "",
+      deposit_amount: "", deposit_refund_days: "", franchise_amount: "",
     });
   };
 
@@ -349,6 +356,45 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
                     {STATUS_OPTIONS.map((s) => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+          </section>
+
+          {/* Caução & Franquia */}
+          <section>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Caução e franquia</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <Label>Valor da caução ({form.currency})</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0,00"
+                  value={form.deposit_amount}
+                  onChange={(e) => set("deposit_amount", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Prazo de devolução da caução (dias)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  placeholder="Ex: 7"
+                  value={form.deposit_refund_days}
+                  onChange={(e) => set("deposit_refund_days", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Franquia em caso de acidente ({form.currency})</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0,00"
+                  value={form.franchise_amount}
+                  onChange={(e) => set("franchise_amount", e.target.value)}
+                />
               </div>
             </div>
           </section>
