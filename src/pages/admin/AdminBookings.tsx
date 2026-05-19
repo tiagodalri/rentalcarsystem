@@ -567,8 +567,9 @@ export default function AdminBookings() {
     const vehicleMap: Record<string, { name: string; image: string }> = {};
     (vRes.data || []).forEach((v: any) => {
       const photos = Array.isArray(v.photos) ? v.photos : [];
-      const firstPhoto = photos[0]?.url || photos[0] || v.image_url || "";
-      vehicleMap[v.id] = { name: v.name, image: firstPhoto };
+      const firstPhoto = photos[0]?.url || photos[0] || "";
+      const fallback = coverImageMap[v.name] || v.image_url || "/placeholder.svg";
+      vehicleMap[v.id] = { name: v.name, image: firstPhoto || fallback };
     });
     setBookings((bRes.data || []).map((b: any) => ({
       ...b,
