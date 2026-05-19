@@ -492,9 +492,6 @@ export default function AdminVehicleDetail() {
           {(() => {
             const photos = (vehicle.photos as string[]) || [];
             const cover = vehicle.image_url || photos[0] || "";
-            const thumb = (url: string, w = 600, h = 600) =>
-              url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/") +
-              (url.includes("?") ? "&" : "?") + `width=${w}&height=${h}&resize=cover&quality=75`;
 
             const handleDrop = (e: React.DragEvent) => {
               e.preventDefault();
