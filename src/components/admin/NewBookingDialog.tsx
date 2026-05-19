@@ -400,15 +400,15 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="md:col-span-1">
                 <Label>Nome completo *</Label>
-                <Input value={form.customer_name} onChange={(e) => set("customer_name", e.target.value)} />
+                <Input className={pendingClass("customer_name")} value={form.customer_name} onChange={(e) => set("customer_name", e.target.value)} />
               </div>
               <div>
                 <Label>E-mail</Label>
-                <Input type="email" value={form.customer_email} onChange={(e) => set("customer_email", e.target.value)} />
+                <Input className={pendingClass("customer_email")} type="email" value={form.customer_email} onChange={(e) => set("customer_email", e.target.value)} />
               </div>
               <div>
                 <Label>Telefone</Label>
-                <Input value={form.customer_phone} onChange={(e) => set("customer_phone", e.target.value)} />
+                <Input className={pendingClass("customer_phone")} value={form.customer_phone} onChange={(e) => set("customer_phone", e.target.value)} />
               </div>
             </div>
           </section>
