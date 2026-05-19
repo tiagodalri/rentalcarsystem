@@ -118,7 +118,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     status: "confirmed",
     notes: "",
     deposit_amount: "",
-    deposit_refund_days: "",
+    deposit_refund_days: "30",
     franchise_amount: "",
   });
 
