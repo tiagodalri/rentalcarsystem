@@ -264,9 +264,10 @@ export default function AdminVehicleDetail() {
 
   const uploadPhotos = async (files: FileList | null) => {
     if (!files || !vehicle) return;
+    setUploadingPhotos(true);
     const urls: string[] = [];
     for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop() || "jpg";
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
       const path = `${vehicle.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const { error } = await supabase.storage.from("vehicle-photos").upload(path, file, {
         cacheControl: "3600", upsert: false, contentType: file.type,
@@ -275,37 +276,40 @@ export default function AdminVehicleDetail() {
       const { data } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
       urls.push(data.publicUrl);
     }
-    if (urls.length === 0) return;
+    if (urls.length === 0) { setUploadingPhotos(false); return; }
     const next = [...((vehicle.photos as string[]) || []), ...urls];
     const updates: any = { photos: next };
     if (!vehicle.image_url) updates.image_url = urls[0];
     const { error } = await supabase.from("vehicles").update(updates).eq("id", vehicle.id);
-    if (error) toast({ title: "Erro ao salvar", variant: "destructive" });
-    else { toast({ title: `${urls.length} foto(s) adicionada(s)` }); loadData(); }
+    setUploadingPhotos(false);
+    if (error) { toast({ title: "Erro ao salvar", variant: "destructive" }); return; }
+    setVehicle({ ...vehicle, photos: next, image_url: vehicle.image_url || urls[0] });
+    toast({ title: `${urls.length} foto(s) adicionada(s)` });
   };
 
   const removePhoto = async (url: string) => {
     if (!vehicle || !confirm("Remover esta foto?")) return;
     const next = ((vehicle.photos as string[]) || []).filter(p => p !== url);
-    const updates: any = { photos: next };
-    if (vehicle.image_url === url) updates.image_url = next[0] || null;
+    const newCover = vehicle.image_url === url ? (next[0] || null) : vehicle.image_url;
+    const updates: any = { photos: next, image_url: newCover };
     const { error } = await supabase.from("vehicles").update(updates).eq("id", vehicle.id);
-    // Try to delete from storage (best effort)
     const marker = "/vehicle-photos/";
     const idx = url.indexOf(marker);
     if (idx >= 0) {
       const path = url.substring(idx + marker.length);
-      await supabase.storage.from("vehicle-photos").remove([path]);
+      supabase.storage.from("vehicle-photos").remove([path]);
     }
-    if (error) toast({ title: "Erro ao remover", variant: "destructive" });
-    else { toast({ title: "Foto removida" }); loadData(); }
+    if (error) { toast({ title: "Erro ao remover", variant: "destructive" }); return; }
+    setVehicle({ ...vehicle, photos: next, image_url: newCover });
+    toast({ title: "Foto removida" });
   };
 
   const setAsCover = async (url: string) => {
     if (!vehicle) return;
     const { error } = await supabase.from("vehicles").update({ image_url: url }).eq("id", vehicle.id);
-    if (error) toast({ title: "Erro", variant: "destructive" });
-    else { toast({ title: "Capa atualizada" }); loadData(); }
+    if (error) { toast({ title: "Erro", variant: "destructive" }); return; }
+    setVehicle({ ...vehicle, image_url: url });
+    toast({ title: "Capa atualizada" });
   };
 
   const movePhoto = async (url: string, dir: -1 | 1) => {
@@ -315,19 +319,21 @@ export default function AdminVehicleDetail() {
     const j = i + dir;
     if (i < 0 || j < 0 || j >= arr.length) return;
     [arr[i], arr[j]] = [arr[j], arr[i]];
+    setVehicle({ ...vehicle, photos: arr });
     const { error } = await supabase.from("vehicles").update({ photos: arr }).eq("id", vehicle.id);
     if (error) toast({ title: "Erro ao reordenar", variant: "destructive" });
-    else loadData();
   };
 
   const setAsFirst = async (url: string) => {
     if (!vehicle) return;
     const arr = ((vehicle.photos as string[]) || []).filter(p => p !== url);
     arr.unshift(url);
+    setVehicle({ ...vehicle, photos: arr });
     const { error } = await supabase.from("vehicles").update({ photos: arr }).eq("id", vehicle.id);
     if (error) toast({ title: "Erro", variant: "destructive" });
-    else { toast({ title: "Definida como primeira" }); loadData(); }
+    else toast({ title: "Definida como primeira" });
   };
+
 
 
   if (loading) return <VehicleDetailSkeleton />;
