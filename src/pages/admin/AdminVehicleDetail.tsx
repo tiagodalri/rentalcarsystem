@@ -471,16 +471,18 @@ export default function AdminVehicleDetail() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="bg-muted/50 flex-wrap h-auto gap-1 p-1">
-          <TabsTrigger value="agenda">Agenda</TabsTrigger>
-          <TabsTrigger value="photos">Fotos</TabsTrigger>
-          <TabsTrigger value="health">Saúde</TabsTrigger>
-          <TabsTrigger value="expenses">Gastos</TabsTrigger>
-          <TabsTrigger value="incidents">Ocorrências</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="history">Locações</TabsTrigger>
-          <TabsTrigger value="details">Ficha Técnica</TabsTrigger>
-        </TabsList>
+        <div className="-mx-4 sm:mx-0 overflow-x-auto scrollbar-none">
+          <TabsList className="bg-muted/50 inline-flex sm:flex sm:flex-wrap h-auto gap-1 p-1 min-w-max sm:min-w-0 mx-4 sm:mx-0">
+            <TabsTrigger value="agenda" className="whitespace-nowrap">Agenda</TabsTrigger>
+            <TabsTrigger value="photos" className="whitespace-nowrap">Fotos</TabsTrigger>
+            <TabsTrigger value="health" className="whitespace-nowrap">Saúde</TabsTrigger>
+            <TabsTrigger value="expenses" className="whitespace-nowrap">Gastos</TabsTrigger>
+            <TabsTrigger value="incidents" className="whitespace-nowrap">Ocorrências</TabsTrigger>
+            <TabsTrigger value="timeline" className="whitespace-nowrap">Timeline</TabsTrigger>
+            <TabsTrigger value="history" className="whitespace-nowrap">Locações</TabsTrigger>
+            <TabsTrigger value="details" className="whitespace-nowrap">Ficha Técnica</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* ── Agenda Tab ── */}
         <TabsContent value="agenda" className="mt-4">
