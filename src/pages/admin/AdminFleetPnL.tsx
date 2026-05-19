@@ -469,9 +469,26 @@ export default function AdminFleetPnL() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((r) => (
-                  <tr key={r.id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
-                    <td className="px-3 py-3 whitespace-nowrap font-medium text-foreground">{r.name}</td>
+                {filtered.map((r) => {
+                  const isSelected = compareIds.includes(r.id);
+                  return (
+                  <tr
+                    key={r.id}
+                    onClick={() => {
+                      if (!compareMode) return;
+                      if (isSelected) setCompareIds(compareIds.filter(id => id !== r.id));
+                      else if (compareIds.length < 4) setCompareIds([...compareIds, r.id]);
+                    }}
+                    className={`border-b border-border/20 transition-colors ${
+                      compareMode ? "cursor-pointer" : ""
+                    } ${isSelected ? "bg-primary/10 hover:bg-primary/15" : "hover:bg-muted/20"}`}
+                  >
+                    <td className="px-3 py-3 whitespace-nowrap font-medium text-foreground">
+                      {compareMode && (
+                        <span className={`inline-block w-3 h-3 rounded-sm border-2 mr-2 align-middle ${isSelected ? "bg-primary border-primary" : "border-border"}`} />
+                      )}
+                      {r.name}
+                    </td>
                     <td className="px-3 py-3 whitespace-nowrap text-xs text-muted-foreground">{r.category}</td>
                     <td className="px-3 py-3 whitespace-nowrap text-xs text-muted-foreground">
                       {r.acquired_date
