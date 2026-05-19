@@ -208,130 +208,143 @@ export default function AdminFleet() {
               <button onClick={() => setEditing(null)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
             </div>
 
-            <div className="space-y-4">
-              {[
-                { label: "Nome", key: "name", type: "text" },
-                { label: "Placa", key: "license_plate", type: "text" },
-                { label: "Categoria", key: "category", type: "text" },
-                { label: "Diária (USD)", key: "daily_price_usd", type: "number" },
-                { label: "Passageiros", key: "passengers", type: "number" },
-                { label: "Malas", key: "bags", type: "number" },
-                { label: "Ano", key: "year", type: "number" },
-              ].map((field) => (
-                <div key={field.key}>
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">{field.label}</label>
-                  <input
-                    type={field.type}
-                    inputMode={field.type === "number" ? "decimal" : undefined}
-                    value={(editing as any)[field.key] ?? ""}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      setEditing({ ...editing, [field.key]: field.type === "number" ? (v === "" ? null : Number(v)) : v });
-                    }}
-                    className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-                  />
-                </div>
-              ))}
+            <div className="space-y-6">
+              {(() => {
+                const inputCls = "w-full h-11 px-3 rounded-lg border border-border/60 bg-background text-[15px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30";
+                const labelCls = "text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block";
+                const sectionTitleCls = "text-xs font-semibold text-primary uppercase tracking-wider mb-3";
+                const setVal = (k: string, v: any) => setEditing({ ...editing, [k]: v });
+                const numChange = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+                  const v = e.target.value;
+                  setVal(k, v === "" ? null : Number(v));
+                };
+                return (
+                  <>
+                    {/* Identificação */}
+                    <section>
+                      <h3 className={sectionTitleCls}>Identificação</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className={labelCls}>Marca *</label>
+                          <input className={inputCls} value={editing.brand ?? ""} onChange={(e) => setVal("brand", e.target.value)} placeholder="Ex: Toyota" />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Modelo *</label>
+                          <input className={inputCls} value={editing.model ?? ""} onChange={(e) => setVal("model", e.target.value)} placeholder="Ex: Corolla" />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className={labelCls}>Versão</label>
+                          <input className={inputCls} value={editing.version ?? ""} onChange={(e) => setVal("version", e.target.value)} placeholder="Ex: XEi 2.0 Flex" />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Ano Fabricação</label>
+                          <input type="number" inputMode="numeric" className={`${inputCls} tabular-nums`} value={editing.manufacture_year ?? ""} onChange={numChange("manufacture_year")} placeholder={String(currentYear)} />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Ano Modelo</label>
+                          <input type="number" inputMode="numeric" className={`${inputCls} tabular-nums`} value={editing.model_year ?? ""} onChange={numChange("model_year")} placeholder={String(currentYear)} />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Placa *</label>
+                          <input className={`${inputCls} uppercase`} value={editing.license_plate ?? ""} onChange={(e) => setVal("license_plate", e.target.value.toUpperCase())} placeholder="ABC-1D23" />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Cor</label>
+                          <input className={inputCls} value={editing.color ?? ""} onChange={(e) => setVal("color", e.target.value)} placeholder="Ex: Preto" />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Chassi (VIN)</label>
+                          <input className={`${inputCls} uppercase font-mono text-sm`} maxLength={17} value={editing.vin ?? ""} onChange={(e) => setVal("vin", e.target.value.toUpperCase())} placeholder="17 caracteres" />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Renavam</label>
+                          <input className={`${inputCls} tabular-nums`} inputMode="numeric" value={editing.renavam ?? ""} onChange={(e) => setVal("renavam", e.target.value.replace(/\D/g, ""))} placeholder="11 dígitos" />
+                        </div>
+                      </div>
+                    </section>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Transmissão</label>
-                  <select
-                    value={editing.transmission || "Automatic"}
-                    onChange={(e) => setEditing({ ...editing, transmission: e.target.value })}
-                    className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground"
-                  >
-                    <option value="Automatic">Automático</option>
-                    <option value="Manual">Manual</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Combustível</label>
-                  <select
-                    value={editing.fuel || "Gasoline"}
-                    onChange={(e) => setEditing({ ...editing, fuel: e.target.value })}
-                    className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground"
-                  >
-                    <option value="Gasoline">Gasolina</option>
-                    <option value="Diesel">Diesel</option>
-                    <option value="Electric">Elétrico</option>
-                    <option value="Hybrid">Híbrido</option>
-                  </select>
-                </div>
-              </div>
+                    {/* Especificações */}
+                    <section>
+                      <h3 className={sectionTitleCls}>Especificações</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="sm:col-span-2">
+                          <label className={labelCls}>Categoria</label>
+                          <select className={inputCls} value={editing.category || "Economy"} onChange={(e) => setVal("category", e.target.value)}>
+                            {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className={labelCls}>Passageiros</label>
+                          <input type="number" inputMode="numeric" className={`${inputCls} tabular-nums`} value={editing.passengers ?? ""} onChange={numChange("passengers")} placeholder="5" />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Malas</label>
+                          <input type="number" inputMode="numeric" className={`${inputCls} tabular-nums`} value={editing.bags ?? ""} onChange={numChange("bags")} placeholder="2" />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Transmissão</label>
+                          <select className={inputCls} value={editing.transmission || "Automatic"} onChange={(e) => setVal("transmission", e.target.value)}>
+                            <option value="Automatic">Automático</option>
+                            <option value="Manual">Manual</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className={labelCls}>Combustível</label>
+                          <select className={inputCls} value={editing.fuel || "Gasoline"} onChange={(e) => setVal("fuel", e.target.value)}>
+                            <option value="Gasoline">Gasolina</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="Electric">Elétrico</option>
+                            <option value="Hybrid">Híbrido</option>
+                          </select>
+                        </div>
+                      </div>
+                    </section>
 
-              {/* Financeiro & Aquisição */}
-              <div className="pt-2">
-                <h3 className="text-xs font-semibold text-primary uppercase tracking-wider mb-3">Financeiro & Aquisição</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Cor</label>
-                    <input
-                      type="text"
-                      value={editing.color ?? ""}
-                      onChange={(e) => setEditing({ ...editing, color: e.target.value })}
-                      placeholder="Ex: Preto"
-                      className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Valor de Compra (USD)</label>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="0,00"
-                      value={editing.purchase_price ?? ""}
-                      onChange={(e) => setEditing({ ...editing, purchase_price: e.target.value === "" ? null : Number(e.target.value) })}
-                      className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Data de Aquisição</label>
-                    <input
-                      type="date"
-                      value={editing.acquired_date ?? ""}
-                      onChange={(e) => setEditing({ ...editing, acquired_date: e.target.value || null })}
-                      className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Odômetro Inicial (mi)</label>
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      placeholder="0"
-                      value={editing.initial_odometer ?? ""}
-                      onChange={(e) => setEditing({ ...editing, initial_odometer: e.target.value === "" ? null : Number(e.target.value) })}
-                      className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Odômetro Atual (mi)</label>
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      placeholder="0"
-                      value={editing.current_odometer ?? ""}
-                      onChange={(e) => setEditing({ ...editing, current_odometer: e.target.value === "" ? null : Number(e.target.value) })}
-                      className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/30"
-                    />
-                  </div>
-                </div>
-              </div>
+                    {/* Comercial */}
+                    <section>
+                      <h3 className={sectionTitleCls}>Comercial</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className={labelCls}>Diária (USD)</label>
+                          <input type="number" inputMode="decimal" className={`${inputCls} tabular-nums`} value={editing.daily_price_usd ?? ""} onChange={numChange("daily_price_usd")} placeholder="0,00" />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Status</label>
+                          <select className={inputCls} value={editing.status || "available"} onChange={(e) => setVal("status", e.target.value)}>
+                            <option value="available">Disponível</option>
+                            <option value="rented">Alugado</option>
+                            <option value="maintenance">Manutenção</option>
+                            <option value="unavailable">Indisponível</option>
+                          </select>
+                        </div>
+                      </div>
+                    </section>
 
-              <div>
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Status</label>
-                <select
-                  value={editing.status || "available"}
-                  onChange={(e) => setEditing({ ...editing, status: e.target.value })}
-                  className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground"
-                >
-                  <option value="available">Disponível</option>
-                  <option value="rented">Alugado</option>
-                  <option value="maintenance">Manutenção</option>
-                  <option value="unavailable">Indisponível</option>
-                </select>
-              </div>
+                    {/* Financeiro & Aquisição */}
+                    <section>
+                      <h3 className={sectionTitleCls}>Financeiro & Aquisição</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className={labelCls}>Valor de Compra (USD)</label>
+                          <input type="number" inputMode="decimal" className={`${inputCls} tabular-nums`} value={editing.purchase_price ?? ""} onChange={numChange("purchase_price")} placeholder="0,00" />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Data de Aquisição</label>
+                          <input type="date" className={inputCls} value={editing.acquired_date ?? ""} onChange={(e) => setVal("acquired_date", e.target.value || null)} />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Odômetro Inicial (mi)</label>
+                          <input type="number" inputMode="numeric" className={`${inputCls} tabular-nums`} value={editing.initial_odometer ?? ""} onChange={numChange("initial_odometer")} placeholder="0" />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Odômetro Atual (mi)</label>
+                          <input type="number" inputMode="numeric" className={`${inputCls} tabular-nums`} value={editing.current_odometer ?? ""} onChange={numChange("current_odometer")} placeholder="0" />
+                        </div>
+                      </div>
+                    </section>
+                  </>
+                );
+              })()}
 
               <button
                 onClick={save}
