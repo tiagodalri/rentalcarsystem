@@ -93,7 +93,111 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     franchise_amount: "",
   });
 
-  const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: keyof typeof form, v: string) => {
+    setForm((p) => ({ ...p, [k]: v }));
+    if (pendingFields.has(k as string)) {
+      setPendingFields((prev) => {
+        const next = new Set(prev);
+        next.delete(k as string);
+        return next;
+      });
+    }
+  };
+
+  const pendingClass = (k: string) => (pendingFields.has(k) ? PENDING_CLASS : "");
+
+  const matchVehicleByName = (name?: string | null): string => {
+    if (!name) return "";
+    const n = name.toLowerCase().trim();
+    // exact then partial
+    const exact = vehicles.find((v) => v.name.toLowerCase() === n);
+    if (exact) return exact.id;
+    const partial = vehicles.find(
+      (v) => v.name.toLowerCase().includes(n) || n.includes(v.name.toLowerCase()),
+    );
+    return partial?.id || "";
+  };
+
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => {
+        const result = r.result as string;
+        resolve(result.split(",")[1] || "");
+      };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+
+  const handleExtract = async (file?: File) => {
+    if (!file && !extractText.trim()) {
+      toast({ title: "Envie uma imagem ou cole o texto", variant: "destructive" });
+      return;
+    }
+    setExtracting(true);
+    try {
+      const body: any = {};
+      if (file) {
+        body.imageBase64 = await fileToBase64(file);
+        body.mimeType = file.type || "image/png";
+      }
+      if (extractText.trim()) body.text = extractText.trim();
+
+      const { data, error } = await supabase.functions.invoke("extract-booking", { body });
+      if (error) throw error;
+      const d = data?.data || {};
+
+      const newForm = { ...form };
+      const pending = new Set<string>();
+      const apply = (k: keyof typeof form, v: any) => {
+        if (v !== null && v !== undefined && v !== "") {
+          newForm[k] = String(v);
+        } else {
+          pending.add(k as string);
+        }
+      };
+
+      apply("customer_name", d.customer_name);
+      apply("customer_email", d.customer_email);
+      apply("customer_phone", d.customer_phone);
+      apply("pickup_date", d.pickup_date);
+      apply("return_date", d.return_date);
+      if (d.pickup_time) newForm.pickup_time = d.pickup_time;
+      if (d.return_time) newForm.return_time = d.return_time;
+      apply("pickup_location", d.pickup_location);
+      apply("return_location", d.return_location);
+      if (d.total_price != null) newForm.total_price = String(d.total_price);
+      else pending.add("total_price");
+      if (d.currency === "BRL" || d.currency === "USD") newForm.currency = d.currency;
+      if (d.payment_method) newForm.payment_method = d.payment_method;
+      if (d.deposit_amount != null) newForm.deposit_amount = String(d.deposit_amount);
+      if (d.franchise_amount != null) newForm.franchise_amount = String(d.franchise_amount);
+      if (d.notes) newForm.notes = d.notes;
+
+      const vid = matchVehicleByName(d.vehicle_name);
+      if (vid) newForm.vehicle_id = vid;
+      else pending.add("vehicle_id");
+
+      setForm(newForm);
+      setPendingFields(pending);
+      setExtractedOnce(true);
+      const missing = Array.from(pending).length;
+      toast({
+        title: "Dados extraídos",
+        description: missing
+          ? `${missing} campo(s) ficaram pendentes — preencha em destaque amarelo.`
+          : "Todos os campos foram preenchidos. Revise antes de salvar.",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Erro ao extrair",
+        description: e.message || "Falha na IA",
+        variant: "destructive",
+      });
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   useEffect(() => {
     if (!open) return;
