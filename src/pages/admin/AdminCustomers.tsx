@@ -153,7 +153,7 @@ export default function AdminCustomers() {
     { label: "Data de Nascimento", key: "date_of_birth", type: "date" },
     { label: "Documento (CPF)", key: "document_number" },
     { label: "Nacionalidade", key: "nationality" },
-    { label: "CEP / Zip Code", key: "zip_code" },
+    { label: "CEP ou ZIPCode", key: "zip_code" },
     { label: "Rua / Logradouro", key: "address" },
     { label: "Número", key: "house_number" },
     { label: "Complemento", key: "complement" },
