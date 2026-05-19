@@ -238,8 +238,10 @@ export default function AdminFleet() {
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Valor de Compra (USD)</label>
                     <input
                       type="number"
-                      value={editing.purchase_price ?? 0}
-                      onChange={(e) => setEditing({ ...editing, purchase_price: Number(e.target.value) })}
+                      inputMode="decimal"
+                      placeholder="0,00"
+                      value={editing.purchase_price ?? ""}
+                      onChange={(e) => setEditing({ ...editing, purchase_price: e.target.value === "" ? null : Number(e.target.value) })}
                       className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
                   </div>
@@ -256,8 +258,10 @@ export default function AdminFleet() {
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Odômetro Inicial (mi)</label>
                     <input
                       type="number"
-                      value={editing.initial_odometer ?? 0}
-                      onChange={(e) => setEditing({ ...editing, initial_odometer: Number(e.target.value) })}
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={editing.initial_odometer ?? ""}
+                      onChange={(e) => setEditing({ ...editing, initial_odometer: e.target.value === "" ? null : Number(e.target.value) })}
                       className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
                   </div>
@@ -265,8 +269,10 @@ export default function AdminFleet() {
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Odômetro Atual (mi)</label>
                     <input
                       type="number"
-                      value={editing.current_odometer ?? 0}
-                      onChange={(e) => setEditing({ ...editing, current_odometer: Number(e.target.value) })}
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={editing.current_odometer ?? ""}
+                      onChange={(e) => setEditing({ ...editing, current_odometer: e.target.value === "" ? null : Number(e.target.value) })}
                       className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/30"
                     />
                   </div>
