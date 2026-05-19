@@ -326,6 +326,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       status: "confirmed", notes: "",
       deposit_amount: "", deposit_refund_days: "", franchise_amount: "",
     });
+    setPendingFields(new Set());
+    setExtractText("");
+    setExtractedOnce(false);
   };
 
   return (
