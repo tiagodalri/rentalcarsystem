@@ -415,7 +415,7 @@ export default function AdminVehicleDetail() {
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards — Primary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { icon: DollarSign, label: "Receita Total", value: `$${totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, sub: `${bookings.length} locações`, color: "text-emerald-500" },
@@ -426,42 +426,48 @@ export default function AdminVehicleDetail() {
           const Icon = s.icon;
           return (
             <Card key={i} className="border-border/40">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Icon size={14} className={s.color} />
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{s.label}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium truncate">{s.label}</span>
                 </div>
-                <p className="text-lg font-bold text-foreground leading-tight">{s.value}</p>
-                <p className="text-[11px] text-muted-foreground mt-1">{s.sub}</p>
+                <p className="text-base sm:text-lg font-bold text-foreground leading-tight tabular-nums">{s.value}</p>
+                <p className="text-[11px] text-muted-foreground mt-1 truncate">{s.sub}</p>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      {/* Secondary KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {[
-          { icon: Gauge, label: "Odômetro Entrada", value: vehicle.initial_odometer ? `${vehicle.initial_odometer.toLocaleString("pt-BR")} km` : "—" },
-          { icon: Gauge, label: "Odômetro Atual", value: lastOdometer ? `${lastOdometer.toLocaleString("pt-BR")} km` : "—" },
-          { icon: Car, label: "Km Rodados", value: kmTotal ? `${kmTotal.toLocaleString("pt-BR")} km` : "—" },
-          { icon: Calendar, label: "Na Frota", value: daysSinceAcquired ? `${daysSinceAcquired} dias` : "—" },
-          { icon: BarChart3, label: "Ocupação", value: utilizationRate ? `${utilizationRate}%` : "—" },
-        ].map((s, i) => {
-          const Icon = s.icon;
-          return (
-            <Card key={i} className="border-border/40">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Icon size={12} className="text-primary" />
-                  <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium">{s.label}</span>
-                </div>
-                <p className="text-sm font-bold text-foreground">{s.value}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+      {/* KPI Cards — Secondary (collapsible no mobile) */}
+      <details className="group sm:open:!block" open={typeof window !== "undefined" && window.innerWidth >= 640}>
+        <summary className="sm:hidden flex items-center justify-between gap-2 cursor-pointer list-none px-4 h-10 rounded-lg border border-border/40 bg-card/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:bg-muted/30 transition-colors">
+          <span className="flex items-center gap-2"><BarChart3 size={13} className="text-primary" /> Métricas operacionais</span>
+          <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3 sm:mt-0">
+          {[
+            { icon: Gauge, label: "Odômetro Entrada", value: vehicle.initial_odometer ? `${vehicle.initial_odometer.toLocaleString("pt-BR")} km` : "—" },
+            { icon: Gauge, label: "Odômetro Atual", value: lastOdometer ? `${lastOdometer.toLocaleString("pt-BR")} km` : "—" },
+            { icon: Car, label: "Km Rodados", value: kmTotal ? `${kmTotal.toLocaleString("pt-BR")} km` : "—" },
+            { icon: Calendar, label: "Na Frota", value: daysSinceAcquired ? `${daysSinceAcquired} dias` : "—" },
+            { icon: BarChart3, label: "Ocupação", value: utilizationRate ? `${utilizationRate}%` : "—" },
+          ].map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <Card key={i} className="border-border/40">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Icon size={12} className="text-primary" />
+                    <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium truncate">{s.label}</span>
+                  </div>
+                  <p className="text-sm font-bold text-foreground tabular-nums">{s.value}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </details>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
