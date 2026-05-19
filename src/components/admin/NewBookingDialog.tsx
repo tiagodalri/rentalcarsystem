@@ -82,6 +82,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     contract_url: "",
     status: "confirmed",
     notes: "",
+    deposit_amount: "",
+    deposit_refund_days: "",
+    franchise_amount: "",
   });
 
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
