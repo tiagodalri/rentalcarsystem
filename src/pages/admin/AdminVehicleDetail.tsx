@@ -17,7 +17,7 @@ import { getCoverImage } from "@/data/vehicleImages";
 import { coverImageMap } from "@/data/fleetAssets";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { EmptyState } from "@/components/admin/EmptyState";
-import { Receipt, ShieldCheck } from "lucide-react";
+import { Receipt, ShieldCheck, ChevronDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import VehicleAgenda from "@/components/admin/VehicleAgenda";
 import { VehicleDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
@@ -415,7 +415,7 @@ export default function AdminVehicleDetail() {
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards — Primary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { icon: DollarSign, label: "Receita Total", value: `$${totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, sub: `${bookings.length} locações`, color: "text-emerald-500" },
@@ -426,55 +426,63 @@ export default function AdminVehicleDetail() {
           const Icon = s.icon;
           return (
             <Card key={i} className="border-border/40">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Icon size={14} className={s.color} />
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{s.label}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium truncate">{s.label}</span>
                 </div>
-                <p className="text-lg font-bold text-foreground leading-tight">{s.value}</p>
-                <p className="text-[11px] text-muted-foreground mt-1">{s.sub}</p>
+                <p className="text-base sm:text-lg font-bold text-foreground leading-tight tabular-nums">{s.value}</p>
+                <p className="text-[11px] text-muted-foreground mt-1 truncate">{s.sub}</p>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      {/* Secondary KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {[
-          { icon: Gauge, label: "Odômetro Entrada", value: vehicle.initial_odometer ? `${vehicle.initial_odometer.toLocaleString("pt-BR")} km` : "—" },
-          { icon: Gauge, label: "Odômetro Atual", value: lastOdometer ? `${lastOdometer.toLocaleString("pt-BR")} km` : "—" },
-          { icon: Car, label: "Km Rodados", value: kmTotal ? `${kmTotal.toLocaleString("pt-BR")} km` : "—" },
-          { icon: Calendar, label: "Na Frota", value: daysSinceAcquired ? `${daysSinceAcquired} dias` : "—" },
-          { icon: BarChart3, label: "Ocupação", value: utilizationRate ? `${utilizationRate}%` : "—" },
-        ].map((s, i) => {
-          const Icon = s.icon;
-          return (
-            <Card key={i} className="border-border/40">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Icon size={12} className="text-primary" />
-                  <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium">{s.label}</span>
-                </div>
-                <p className="text-sm font-bold text-foreground">{s.value}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+      {/* KPI Cards — Secondary (collapsible no mobile) */}
+      <details className="group sm:open:!block" open={typeof window !== "undefined" && window.innerWidth >= 640}>
+        <summary className="sm:hidden flex items-center justify-between gap-2 cursor-pointer list-none px-4 h-10 rounded-lg border border-border/40 bg-card/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:bg-muted/30 transition-colors">
+          <span className="flex items-center gap-2"><BarChart3 size={13} className="text-primary" /> Métricas operacionais</span>
+          <ChevronDown size={14} className="transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3 sm:mt-0">
+          {[
+            { icon: Gauge, label: "Odômetro Entrada", value: vehicle.initial_odometer ? `${vehicle.initial_odometer.toLocaleString("pt-BR")} km` : "—" },
+            { icon: Gauge, label: "Odômetro Atual", value: lastOdometer ? `${lastOdometer.toLocaleString("pt-BR")} km` : "—" },
+            { icon: Car, label: "Km Rodados", value: kmTotal ? `${kmTotal.toLocaleString("pt-BR")} km` : "—" },
+            { icon: Calendar, label: "Na Frota", value: daysSinceAcquired ? `${daysSinceAcquired} dias` : "—" },
+            { icon: BarChart3, label: "Ocupação", value: utilizationRate ? `${utilizationRate}%` : "—" },
+          ].map((s, i) => {
+            const Icon = s.icon;
+            return (
+              <Card key={i} className="border-border/40">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Icon size={12} className="text-primary" />
+                    <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium truncate">{s.label}</span>
+                  </div>
+                  <p className="text-sm font-bold text-foreground tabular-nums">{s.value}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </details>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="bg-muted/50 flex-wrap h-auto gap-1 p-1">
-          <TabsTrigger value="agenda">Agenda</TabsTrigger>
-          <TabsTrigger value="photos">Fotos</TabsTrigger>
-          <TabsTrigger value="health">Saúde</TabsTrigger>
-          <TabsTrigger value="expenses">Gastos</TabsTrigger>
-          <TabsTrigger value="incidents">Ocorrências</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="history">Locações</TabsTrigger>
-          <TabsTrigger value="details">Ficha Técnica</TabsTrigger>
-        </TabsList>
+        <div className="-mx-4 sm:mx-0 overflow-x-auto scrollbar-none">
+          <TabsList className="bg-muted/50 inline-flex sm:flex sm:flex-wrap h-auto gap-1 p-1 min-w-max sm:min-w-0 mx-4 sm:mx-0">
+            <TabsTrigger value="agenda" className="whitespace-nowrap">Agenda</TabsTrigger>
+            <TabsTrigger value="photos" className="whitespace-nowrap">Fotos</TabsTrigger>
+            <TabsTrigger value="health" className="whitespace-nowrap">Saúde</TabsTrigger>
+            <TabsTrigger value="expenses" className="whitespace-nowrap">Gastos</TabsTrigger>
+            <TabsTrigger value="incidents" className="whitespace-nowrap">Ocorrências</TabsTrigger>
+            <TabsTrigger value="timeline" className="whitespace-nowrap">Timeline</TabsTrigger>
+            <TabsTrigger value="history" className="whitespace-nowrap">Locações</TabsTrigger>
+            <TabsTrigger value="details" className="whitespace-nowrap">Ficha Técnica</TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* ── Agenda Tab ── */}
         <TabsContent value="agenda" className="mt-4">
@@ -498,7 +506,7 @@ export default function AdminVehicleDetail() {
                 {/* HERO: Capa + Upload zone lado a lado */}
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
                   {/* Capa */}
-                  <Card className="border-border/40 lg:col-span-3 overflow-hidden">
+                  <Card className="hidden sm:block border-border/40 lg:col-span-3 overflow-hidden">
                     <CardContent className="p-0">
                       <div className="px-5 pt-4 pb-3 flex items-center justify-between gap-2 border-b border-border/40">
                         <div className="flex items-center gap-2">
@@ -578,7 +586,7 @@ export default function AdminVehicleDetail() {
                 </div>
 
                 {/* PREVIEW DO ANÚNCIO */}
-                <Card className="border-border/40">
+                <Card className="hidden sm:block border-border/40">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                       <div>
