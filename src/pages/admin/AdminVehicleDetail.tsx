@@ -41,7 +41,7 @@ type Vehicle = {
 type Expense = {
   id: string; vehicle_id: string; type: string; amount: number;
   expense_date: string; description: string | null; supplier: string | null;
-  is_recurring: boolean | null; created_at: string;
+  is_recurring: boolean | null; receipt_url: string | null; created_at: string;
 };
 
 type Incident = {
