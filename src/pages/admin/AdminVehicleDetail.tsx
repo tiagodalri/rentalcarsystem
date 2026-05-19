@@ -551,20 +551,32 @@ export default function AdminVehicleDetail() {
                         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                         onDragLeave={() => setDragOver(false)}
                         onDrop={handleDrop}
-                        className={`flex-1 min-h-[180px] flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed cursor-pointer transition-colors px-4 py-6 text-center ${
-                          dragOver ? "border-primary bg-primary/10" : "border-border/60 bg-muted/20 hover:bg-muted/30 hover:border-primary/60"
+                        className={`flex-1 min-h-[180px] flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-colors px-4 py-6 text-center ${
+                          uploadingPhotos ? "border-primary/60 bg-primary/5 cursor-wait" :
+                          dragOver ? "border-primary bg-primary/10 cursor-pointer" : "border-border/60 bg-muted/20 hover:bg-muted/30 hover:border-primary/60 cursor-pointer"
                         }`}
                       >
-                        <Upload size={28} className={dragOver ? "text-primary" : "text-muted-foreground"} />
-                        <p className="text-sm font-semibold text-foreground">Arraste fotos aqui</p>
-                        <p className="text-[11px] text-muted-foreground">ou clique para selecionar do dispositivo</p>
-                        <p className="text-[10px] text-muted-foreground mt-1">JPG, PNG ou WEBP — múltiplos arquivos</p>
+                        {uploadingPhotos ? (
+                          <>
+                            <Loader2 size={28} className="text-primary animate-spin" />
+                            <p className="text-sm font-semibold text-foreground">Enviando fotos…</p>
+                            <p className="text-[11px] text-muted-foreground">Aguarde, não feche a página</p>
+                          </>
+                        ) : (
+                          <>
+                            <Upload size={28} className={dragOver ? "text-primary" : "text-muted-foreground"} />
+                            <p className="text-sm font-semibold text-foreground">Arraste fotos aqui</p>
+                            <p className="text-[11px] text-muted-foreground">ou clique para selecionar do dispositivo</p>
+                            <p className="text-[10px] text-muted-foreground mt-1">JPG, PNG ou WEBP — múltiplos arquivos</p>
+                          </>
+                        )}
                         <input
                           type="file"
                           accept="image/*"
                           multiple
+                          disabled={uploadingPhotos}
                           className="hidden"
-                          onChange={(e) => uploadPhotos(e.target.files)}
+                          onChange={(e) => { uploadPhotos(e.target.files); e.target.value = ""; }}
                         />
                       </label>
                     </CardContent>
