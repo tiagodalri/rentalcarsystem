@@ -182,8 +182,12 @@ export default function AdminFleet() {
                   <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">{field.label}</label>
                   <input
                     type={field.type}
+                    inputMode={field.type === "number" ? "decimal" : undefined}
                     value={(editing as any)[field.key] ?? ""}
-                    onChange={(e) => setEditing({ ...editing, [field.key]: field.type === "number" ? Number(e.target.value) : e.target.value })}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setEditing({ ...editing, [field.key]: field.type === "number" ? (v === "" ? null : Number(v)) : v });
+                    }}
                     className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
                 </div>
