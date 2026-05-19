@@ -526,7 +526,7 @@ export default function AdminFleetPnL() {
                       )}
                     </td>
                   </tr>
-                ))}
+                  );})}
               </tbody>
               {filtered.length > 0 && (
                 <tfoot className="bg-muted/40 border-t-2 border-border/60 font-semibold">
