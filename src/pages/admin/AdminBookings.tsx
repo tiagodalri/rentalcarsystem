@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 import { storageThumb } from "@/lib/storageThumb";
+import { coverImageMap } from "@/data/fleetAssets";
 
 
 type Booking = {
@@ -567,8 +568,9 @@ export default function AdminBookings() {
     const vehicleMap: Record<string, { name: string; image: string }> = {};
     (vRes.data || []).forEach((v: any) => {
       const photos = Array.isArray(v.photos) ? v.photos : [];
-      const firstPhoto = photos[0]?.url || photos[0] || v.image_url || "";
-      vehicleMap[v.id] = { name: v.name, image: firstPhoto };
+      const firstPhoto = photos[0]?.url || photos[0] || "";
+      const fallback = coverImageMap[v.name] || v.image_url || "/placeholder.svg";
+      vehicleMap[v.id] = { name: v.name, image: firstPhoto || fallback };
     });
     setBookings((bRes.data || []).map((b: any) => ({
       ...b,
@@ -1209,7 +1211,7 @@ export default function AdminBookings() {
                             <div className="flex items-center gap-2.5 min-w-[160px]">
                               {b.vehicle_image ? (
                                 <img
-                                  src={storageThumb(b.vehicle_image, 96, 72, 70) || b.vehicle_image}
+                                  src={b.vehicle_image}
                                   alt={b.vehicle_name || ""}
                                   className="w-12 h-9 rounded-md object-cover bg-muted border border-border/30 flex-shrink-0"
                                   loading="lazy"
