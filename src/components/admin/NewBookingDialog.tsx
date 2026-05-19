@@ -298,11 +298,19 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
               <div>
                 <Label>Local de retirada</Label>
-                <Input value={form.pickup_location} onChange={(e) => set("pickup_location", e.target.value)} placeholder="Ex: MCO Aeroporto Orlando" />
+                <AddressAutocomplete
+                  value={form.pickup_location}
+                  onChange={(v) => set("pickup_location", v)}
+                  placeholder="Ex: MCO Aeroporto Orlando"
+                />
               </div>
               <div>
                 <Label>Local de devolução</Label>
-                <Input value={form.return_location} onChange={(e) => set("return_location", e.target.value)} placeholder="Ex: MCO Aeroporto Orlando" />
+                <AddressAutocomplete
+                  value={form.return_location}
+                  onChange={(v) => set("return_location", v)}
+                  placeholder="Ex: MCO Aeroporto Orlando"
+                />
               </div>
             </div>
           </section>
