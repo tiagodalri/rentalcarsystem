@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { PLANS, PLAN_ORDER } from "@/data/rentalPlans";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, Sparkles, ImageIcon } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
+
+const PENDING_CLASS = "ring-1 ring-amber-500/60 focus-visible:ring-amber-500";
 
 type Vehicle = { id: string; name: string; daily_price_usd: number };
 
@@ -51,6 +53,10 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [customer, setCustomer] = useState<CustomerLite | null>(null);
+  const [extracting, setExtracting] = useState(false);
+  const [extractText, setExtractText] = useState("");
+  const [pendingFields, setPendingFields] = useState<Set<string>>(new Set());
+  const [extractedOnce, setExtractedOnce] = useState(false);
 
   const handleSelectCustomer = (c: CustomerLite | null) => {
     setCustomer(c);
@@ -87,7 +93,111 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     franchise_amount: "",
   });
 
-  const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
+  const set = (k: keyof typeof form, v: string) => {
+    setForm((p) => ({ ...p, [k]: v }));
+    if (pendingFields.has(k as string)) {
+      setPendingFields((prev) => {
+        const next = new Set(prev);
+        next.delete(k as string);
+        return next;
+      });
+    }
+  };
+
+  const pendingClass = (k: string) => (pendingFields.has(k) ? PENDING_CLASS : "");
+
+  const matchVehicleByName = (name?: string | null): string => {
+    if (!name) return "";
+    const n = name.toLowerCase().trim();
+    // exact then partial
+    const exact = vehicles.find((v) => v.name.toLowerCase() === n);
+    if (exact) return exact.id;
+    const partial = vehicles.find(
+      (v) => v.name.toLowerCase().includes(n) || n.includes(v.name.toLowerCase()),
+    );
+    return partial?.id || "";
+  };
+
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => {
+        const result = r.result as string;
+        resolve(result.split(",")[1] || "");
+      };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+
+  const handleExtract = async (file?: File) => {
+    if (!file && !extractText.trim()) {
+      toast({ title: "Envie uma imagem ou cole o texto", variant: "destructive" });
+      return;
+    }
+    setExtracting(true);
+    try {
+      const body: any = {};
+      if (file) {
+        body.imageBase64 = await fileToBase64(file);
+        body.mimeType = file.type || "image/png";
+      }
+      if (extractText.trim()) body.text = extractText.trim();
+
+      const { data, error } = await supabase.functions.invoke("extract-booking", { body });
+      if (error) throw error;
+      const d = data?.data || {};
+
+      const newForm = { ...form };
+      const pending = new Set<string>();
+      const apply = (k: keyof typeof form, v: any) => {
+        if (v !== null && v !== undefined && v !== "") {
+          newForm[k] = String(v);
+        } else {
+          pending.add(k as string);
+        }
+      };
+
+      apply("customer_name", d.customer_name);
+      apply("customer_email", d.customer_email);
+      apply("customer_phone", d.customer_phone);
+      apply("pickup_date", d.pickup_date);
+      apply("return_date", d.return_date);
+      if (d.pickup_time) newForm.pickup_time = d.pickup_time;
+      if (d.return_time) newForm.return_time = d.return_time;
+      apply("pickup_location", d.pickup_location);
+      apply("return_location", d.return_location);
+      if (d.total_price != null) newForm.total_price = String(d.total_price);
+      else pending.add("total_price");
+      if (d.currency === "BRL" || d.currency === "USD") newForm.currency = d.currency;
+      if (d.payment_method) newForm.payment_method = d.payment_method;
+      if (d.deposit_amount != null) newForm.deposit_amount = String(d.deposit_amount);
+      if (d.franchise_amount != null) newForm.franchise_amount = String(d.franchise_amount);
+      if (d.notes) newForm.notes = d.notes;
+
+      const vid = matchVehicleByName(d.vehicle_name);
+      if (vid) newForm.vehicle_id = vid;
+      else pending.add("vehicle_id");
+
+      setForm(newForm);
+      setPendingFields(pending);
+      setExtractedOnce(true);
+      const missing = Array.from(pending).length;
+      toast({
+        title: "Dados extraídos",
+        description: missing
+          ? `${missing} campo(s) ficaram pendentes — preencha em destaque amarelo.`
+          : "Todos os campos foram preenchidos. Revise antes de salvar.",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Erro ao extrair",
+        description: e.message || "Falha na IA",
+        variant: "destructive",
+      });
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -216,6 +326,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       status: "confirmed", notes: "",
       deposit_amount: "", deposit_refund_days: "", franchise_amount: "",
     });
+    setPendingFields(new Set());
+    setExtractText("");
+    setExtractedOnce(false);
   };
 
   return (
@@ -226,6 +339,58 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
         </DialogHeader>
 
         <div className="space-y-5 py-2">
+          {/* IA - Extração inteligente */}
+          <section className="rounded-lg border border-primary/30 bg-primary/5 p-4">
+            <div className="flex items-start gap-2 mb-3">
+              <Sparkles size={16} className="text-primary mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold">Extrair dados com IA</h3>
+                <p className="text-xs text-muted-foreground">
+                  Envie um print do WhatsApp, foto, PDF ou cole o texto da conversa. A IA preenche o formulário e destaca em amarelo o que ficou pendente.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <label className="flex items-center justify-center gap-2 cursor-pointer px-3 py-2 rounded-md border border-border bg-card hover:bg-muted text-sm font-medium">
+                {extracting ? <Loader2 size={14} className="animate-spin" /> : <ImageIcon size={14} />}
+                {extracting ? "Analisando..." : "Enviar print/PDF"}
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  className="hidden"
+                  disabled={extracting}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleExtract(f);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleExtract()}
+                disabled={extracting || !extractText.trim()}
+              >
+                {extracting ? <Loader2 size={14} className="animate-spin mr-1" /> : <Sparkles size={14} className="mr-1" />}
+                Extrair do texto
+              </Button>
+            </div>
+            <Textarea
+              rows={2}
+              className="mt-2 text-sm"
+              placeholder="Ou cole aqui o texto da mensagem do WhatsApp..."
+              value={extractText}
+              onChange={(e) => setExtractText(e.target.value)}
+            />
+            {extractedOnce && pendingFields.size > 0 && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                {pendingFields.size} campo(s) pendente(s) destacado(s) em amarelo.
+              </p>
+            )}
+          </section>
+
           {/* Cliente */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Cliente</h3>
@@ -235,15 +400,15 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="md:col-span-1">
                 <Label>Nome completo *</Label>
-                <Input value={form.customer_name} onChange={(e) => set("customer_name", e.target.value)} />
+                <Input className={pendingClass("customer_name")} value={form.customer_name} onChange={(e) => set("customer_name", e.target.value)} />
               </div>
               <div>
                 <Label>E-mail</Label>
-                <Input type="email" value={form.customer_email} onChange={(e) => set("customer_email", e.target.value)} />
+                <Input className={pendingClass("customer_email")} type="email" value={form.customer_email} onChange={(e) => set("customer_email", e.target.value)} />
               </div>
               <div>
                 <Label>Telefone</Label>
-                <Input value={form.customer_phone} onChange={(e) => set("customer_phone", e.target.value)} />
+                <Input className={pendingClass("customer_phone")} value={form.customer_phone} onChange={(e) => set("customer_phone", e.target.value)} />
               </div>
             </div>
           </section>
@@ -255,7 +420,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
               <div>
                 <Label>Veículo *</Label>
                 <Select value={form.vehicle_id} onValueChange={(v) => set("vehicle_id", v)}>
-                  <SelectTrigger><SelectValue placeholder="Selecione o veículo" /></SelectTrigger>
+                  <SelectTrigger className={pendingClass("vehicle_id")}><SelectValue placeholder="Selecione o veículo" /></SelectTrigger>
                   <SelectContent>
                     {vehicles.map((v) => (
                       <SelectItem key={v.id} value={v.id}>
@@ -287,7 +452,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
                 <Label>Retirada *</Label>
-                <Input type="date" value={form.pickup_date} onChange={(e) => set("pickup_date", e.target.value)} />
+                <Input className={pendingClass("pickup_date")} type="date" value={form.pickup_date} onChange={(e) => set("pickup_date", e.target.value)} />
               </div>
               <div>
                 <Label>Hora retirada</Label>
@@ -295,7 +460,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
               </div>
               <div>
                 <Label>Devolução *</Label>
-                <Input type="date" value={form.return_date} onChange={(e) => set("return_date", e.target.value)} />
+                <Input className={pendingClass("return_date")} type="date" value={form.return_date} onChange={(e) => set("return_date", e.target.value)} />
               </div>
               <div>
                 <Label>Hora devolução</Label>
@@ -305,19 +470,23 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
               <div>
                 <Label>Local de retirada</Label>
-                <AddressAutocomplete
-                  value={form.pickup_location}
-                  onChange={(v) => set("pickup_location", v)}
-                  placeholder="Ex: MCO Aeroporto Orlando"
-                />
+                <div className={pendingFields.has("pickup_location") ? "rounded-md " + PENDING_CLASS : ""}>
+                  <AddressAutocomplete
+                    value={form.pickup_location}
+                    onChange={(v) => set("pickup_location", v)}
+                    placeholder="Ex: MCO Aeroporto Orlando"
+                  />
+                </div>
               </div>
               <div>
                 <Label>Local de devolução</Label>
-                <AddressAutocomplete
-                  value={form.return_location}
-                  onChange={(v) => set("return_location", v)}
-                  placeholder="Ex: MCO Aeroporto Orlando"
-                />
+                <div className={pendingFields.has("return_location") ? "rounded-md " + PENDING_CLASS : ""}>
+                  <AddressAutocomplete
+                    value={form.return_location}
+                    onChange={(v) => set("return_location", v)}
+                    placeholder="Ex: MCO Aeroporto Orlando"
+                  />
+                </div>
               </div>
             </div>
           </section>
@@ -337,7 +506,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
               </div>
               <div>
                 <Label>Valor total ({form.currency})</Label>
-                <Input type="number" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} />
+                <Input className={pendingClass("total_price")} type="number" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} />
               </div>
               <div>
                 <Label>Forma de pagamento</Label>
