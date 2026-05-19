@@ -913,7 +913,7 @@ export default function AdminVehicleDetail() {
                   </div>
                   <div>
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Valor (USD)</label>
-                    <input type="number" value={expenseForm.amount} onChange={e => setExpenseForm({ ...expenseForm, amount: Number(e.target.value) })} className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground" />
+                    <input type="number" inputMode="decimal" placeholder="0,00" value={expenseForm.amount || ""} onChange={e => setExpenseForm({ ...expenseForm, amount: e.target.value === "" ? 0 : Number(e.target.value) })} className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums" />
                   </div>
                   <div>
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Data</label>
