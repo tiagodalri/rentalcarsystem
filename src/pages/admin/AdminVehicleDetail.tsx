@@ -11,7 +11,7 @@ import {
   BarChart3, MapPin, FileText, Settings, Pencil, X,
   Hash, Palette, StickyNote, CalendarDays,
   Plus, Wrench, Shield, CircleAlert, TrendingDown, TrendingUp,
-  Trash2, Activity, Heart, AlertCircle, Ban, ImageIcon, Upload, Star, ArrowLeft, ArrowRight, ArrowUpToLine
+  Trash2, Activity, Heart, AlertCircle, Ban, ImageIcon, Upload, Star, ArrowLeft, ArrowRight, ArrowUpToLine, Maximize2, ChevronRight
 } from "lucide-react";
 import { getCoverImage } from "@/data/vehicleImages";
 import { EmptyState } from "@/components/admin/EmptyState";
@@ -130,6 +130,8 @@ export default function AdminVehicleDetail() {
   const [editForm, setEditForm] = useState<Partial<Vehicle>>({});
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [showIncidentForm, setShowIncidentForm] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [dragOver, setDragOver] = useState(false);
   const [expenseForm, setExpenseForm] = useState({ type: "maintenance", amount: 0, expense_date: new Date().toISOString().split("T")[0], description: "", supplier: "", is_recurring: false });
   const [incidentForm, setIncidentForm] = useState({ type: "breakdown", severity: "low", title: "", description: "", incident_date: new Date().toISOString().split("T")[0], estimated_cost: 0 });
 
@@ -453,145 +455,260 @@ export default function AdminVehicleDetail() {
 
         {/* ── Photos Tab ── */}
         <TabsContent value="photos" className="mt-4 space-y-4">
-          <Card className="border-border/40">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h3 className="font-bold text-foreground flex items-center gap-2">
-                  <ImageIcon size={16} className="text-primary" /> Galeria de Fotos
-                </h3>
-                <label className="gold-gradient text-primary-foreground px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity">
-                  <Upload size={14} /> Enviar fotos
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => uploadPhotos(e.target.files)}
-                  />
-                </label>
-              </div>
+          {(() => {
+            const photos = (vehicle.photos as string[]) || [];
+            const cover = vehicle.image_url || photos[0] || "";
+            const thumb = (url: string, w = 600, h = 600) =>
+              url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/") +
+              (url.includes("?") ? "&" : "?") + `width=${w}&height=${h}&resize=cover&quality=75`;
 
-              {/* Capa atual */}
-              <div className="mb-6">
-                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Capa atual (exibida no site e nos cards)</p>
-                {(() => {
-                  const cover = vehicle.image_url || vehicle.photos?.[0] || "";
-                  return cover ? (
-                    <div className="relative w-full max-w-md aspect-video rounded-xl overflow-hidden border border-border/40 bg-muted/30">
-                      <img src={cover} alt={vehicle.name} className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className="relative w-full max-w-md aspect-video rounded-xl border border-dashed border-border bg-muted/20 flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                      <ImageIcon size={28} className="opacity-50" />
-                      <p className="text-xs">Nenhuma capa definida</p>
-                      <p className="text-[10px] opacity-70">Envie fotos abaixo e marque uma como capa</p>
-                    </div>
-                  );
-                })()}
-              </div>
+            const handleDrop = (e: React.DragEvent) => {
+              e.preventDefault();
+              setDragOver(false);
+              if (e.dataTransfer.files?.length) uploadPhotos(e.dataTransfer.files);
+            };
 
-              {/* Galeria de fotos enviadas */}
-              <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
-                <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                  Fotos enviadas — arraste a ordem com as setas. A primeira foto é usada como capa quando nenhuma estiver definida.
-                </p>
-              </div>
-              {(!vehicle.photos || vehicle.photos.length === 0) ? (
-                <EmptyState
-                  icon={ImageIcon}
-                  title="Nenhuma foto enviada"
-                  description="Envie fotos do veículo para alimentar a galeria interna do admin."
-                  compact
-                />
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {vehicle.photos.map((url, idx) => {
-                    const isCover = vehicle.image_url === url;
-                    const isFirst = idx === 0;
-                    const total = vehicle.photos!.length;
-                    return (
-                      <div key={url} className="group relative aspect-square rounded-lg overflow-hidden border border-border/40 bg-muted/30">
-                        <img
-                          src={url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/") + (url.includes("?") ? "&" : "?") + "width=400&height=400&resize=cover&quality=70"}
-                          alt="Foto do veículo"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                          decoding="async"
-                        />
-
-                        {/* Badges */}
-                        <div className="absolute top-2 left-2 flex flex-col gap-1 pointer-events-none">
-                          <div className="bg-background/90 text-foreground text-[9px] font-bold px-2 py-0.5 rounded-full">
-                            #{idx + 1}
-                          </div>
-                          {isCover && (
-                            <div className="bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                              <Star size={10} /> CAPA
-                            </div>
-                          )}
-                          {isFirst && !isCover && (
-                            <div className="bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
-                              PADRÃO
-                            </div>
-                          )}
+            return (
+              <>
+                {/* HERO: Capa + Upload zone lado a lado */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+                  {/* Capa */}
+                  <Card className="border-border/40 lg:col-span-3 overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className="px-5 pt-4 pb-3 flex items-center justify-between gap-2 border-b border-border/40">
+                        <div className="flex items-center gap-2">
+                          <Star size={14} className="text-primary" />
+                          <h3 className="font-bold text-foreground text-sm">Capa atual</h3>
                         </div>
-
-                        {/* Reorder arrows (always visible on top-right) */}
-                        <div className="absolute top-2 right-2 flex gap-1">
-                          <button
-                            onClick={() => movePhoto(url, -1)}
-                            disabled={idx === 0}
-                            className="w-7 h-7 rounded-md bg-background/80 hover:bg-background text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
-                            title="Mover para a esquerda"
-                          >
-                            <ArrowLeft size={13} />
-                          </button>
-                          <button
-                            onClick={() => movePhoto(url, 1)}
-                            disabled={idx === total - 1}
-                            className="w-7 h-7 rounded-md bg-background/80 hover:bg-background text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
-                            title="Mover para a direita"
-                          >
-                            <ArrowRight size={13} />
-                          </button>
-                        </div>
-
-                        {/* Hover actions — opacity-only transition (GPU friendly) */}
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col items-center justify-center gap-2 p-2 pointer-events-none group-hover:pointer-events-auto">
-                          {!isFirst && (
-                            <button
-                              onClick={() => setAsFirst(url)}
-                              className="bg-amber-500 text-white text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1 w-full justify-center"
-                              title="Tornar a primeira foto da galeria"
-                            >
-                              <ArrowUpToLine size={11} /> Primeira
-                            </button>
-                          )}
-                          {!isCover && (
-                            <button
-                              onClick={() => setAsCover(url)}
-                              className="bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1 w-full justify-center"
-                              title="Definir como capa"
-                            >
-                              <Star size={11} /> Capa
-                            </button>
-                          )}
-                          <button
-                            onClick={() => removePhoto(url)}
-                            className="bg-destructive text-destructive-foreground text-[10px] font-semibold px-2 py-1 rounded-md flex items-center gap-1 w-full justify-center"
-                            title="Remover"
-                          >
-                            <Trash2 size={11} /> Remover
-                          </button>
-                        </div>
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Exibida no site e cards</span>
                       </div>
-                    );
-                  })}
+                      {cover ? (
+                        <button
+                          onClick={() => {
+                            const i = photos.findIndex(p => p === cover);
+                            setLightboxIdx(i >= 0 ? i : 0);
+                          }}
+                          className="relative w-full aspect-video bg-black group block"
+                        >
+                          <img src={cover} alt={vehicle.name} className="w-full h-full object-contain" />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <div className="bg-background/90 text-foreground px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5">
+                              <Maximize2 size={12} /> Ampliar
+                            </div>
+                          </div>
+                        </button>
+                      ) : (
+                        <div className="aspect-video flex flex-col items-center justify-center gap-2 text-muted-foreground bg-muted/20">
+                          <ImageIcon size={36} className="opacity-40" />
+                          <p className="text-sm font-medium">Nenhuma capa definida</p>
+                          <p className="text-xs opacity-70">Envie fotos e marque uma como capa</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Upload zone */}
+                  <Card className="border-border/40 lg:col-span-2">
+                    <CardContent className="p-5 h-full flex flex-col">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                          <Upload size={14} className="text-primary" /> Enviar fotos
+                        </h3>
+                        <span className="text-[10px] text-muted-foreground">{photos.length} {photos.length === 1 ? "foto" : "fotos"}</span>
+                      </div>
+                      <label
+                        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                        onDragLeave={() => setDragOver(false)}
+                        onDrop={handleDrop}
+                        className={`flex-1 min-h-[180px] flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed cursor-pointer transition-colors px-4 py-6 text-center ${
+                          dragOver ? "border-primary bg-primary/10" : "border-border/60 bg-muted/20 hover:bg-muted/30 hover:border-primary/60"
+                        }`}
+                      >
+                        <Upload size={28} className={dragOver ? "text-primary" : "text-muted-foreground"} />
+                        <p className="text-sm font-semibold text-foreground">Arraste fotos aqui</p>
+                        <p className="text-[11px] text-muted-foreground">ou clique para selecionar do dispositivo</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">JPG, PNG ou WEBP — múltiplos arquivos</p>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={(e) => uploadPhotos(e.target.files)}
+                        />
+                      </label>
+                    </CardContent>
+                  </Card>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+
+                {/* GALERIA */}
+                <Card className="border-border/40">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                      <div>
+                        <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                          <ImageIcon size={14} className="text-primary" /> Galeria completa
+                        </h3>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          Use as setas para reordenar. Clique numa foto para ampliar.
+                        </p>
+                      </div>
+                    </div>
+
+                    {photos.length === 0 ? (
+                      <EmptyState
+                        icon={ImageIcon}
+                        title="Nenhuma foto enviada"
+                        description="Use a área de upload acima para enviar fotos do veículo."
+                        compact
+                      />
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+                        {photos.map((url, idx) => {
+                          const isCover = vehicle.image_url === url;
+                          const isFirst = idx === 0;
+                          const total = photos.length;
+                          return (
+                            <div
+                              key={url}
+                              className="group relative rounded-xl overflow-hidden border border-border/40 bg-card shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
+                            >
+                              {/* Thumbnail (clica pra ampliar) */}
+                              <button
+                                onClick={() => setLightboxIdx(idx)}
+                                className="relative block w-full aspect-square bg-muted/30 overflow-hidden"
+                              >
+                                <img
+                                  src={thumb(url, 500, 500)}
+                                  alt={`Foto ${idx + 1}`}
+                                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                                {/* Numeração */}
+                                <div className="absolute top-2 left-2 flex flex-col gap-1">
+                                  <span className="bg-background/95 text-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
+                                    #{idx + 1}
+                                  </span>
+                                  {isCover && (
+                                    <span className="bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-sm">
+                                      <Star size={9} fill="currentColor" /> CAPA
+                                    </span>
+                                  )}
+                                  {isFirst && !isCover && (
+                                    <span className="bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
+                                      PADRÃO
+                                    </span>
+                                  )}
+                                </div>
+                                {/* Indicador de ampliar */}
+                                <div className="absolute bottom-2 right-2 w-7 h-7 rounded-md bg-background/90 text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                                  <Maximize2 size={12} />
+                                </div>
+                              </button>
+
+                              {/* Barra de ações sempre visível (compatível com mobile) */}
+                              <div className="flex items-center justify-between px-2 py-1.5 border-t border-border/40 bg-card">
+                                <div className="flex items-center gap-0.5">
+                                  <button
+                                    onClick={() => movePhoto(url, -1)}
+                                    disabled={idx === 0}
+                                    className="w-7 h-7 rounded-md hover:bg-muted text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                    title="Mover para trás"
+                                  >
+                                    <ArrowLeft size={13} />
+                                  </button>
+                                  <button
+                                    onClick={() => movePhoto(url, 1)}
+                                    disabled={idx === total - 1}
+                                    className="w-7 h-7 rounded-md hover:bg-muted text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                                    title="Mover para frente"
+                                  >
+                                    <ArrowRight size={13} />
+                                  </button>
+                                </div>
+                                <div className="flex items-center gap-0.5">
+                                  {!isCover && (
+                                    <button
+                                      onClick={() => setAsCover(url)}
+                                      className="w-7 h-7 rounded-md hover:bg-primary/10 text-primary flex items-center justify-center transition-colors"
+                                      title="Definir como capa"
+                                    >
+                                      <Star size={13} />
+                                    </button>
+                                  )}
+                                  {!isFirst && (
+                                    <button
+                                      onClick={() => setAsFirst(url)}
+                                      className="w-7 h-7 rounded-md hover:bg-amber-500/10 text-amber-600 dark:text-amber-500 flex items-center justify-center transition-colors"
+                                      title="Tornar a primeira"
+                                    >
+                                      <ArrowUpToLine size={13} />
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => removePhoto(url)}
+                                    className="w-7 h-7 rounded-md hover:bg-destructive/10 text-destructive flex items-center justify-center transition-colors"
+                                    title="Remover foto"
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* LIGHTBOX */}
+                {lightboxIdx !== null && photos[lightboxIdx] && (
+                  <div
+                    className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 sm:p-8"
+                    onClick={() => setLightboxIdx(null)}
+                  >
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setLightboxIdx(null); }}
+                      className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                      aria-label="Fechar"
+                    >
+                      <X size={20} />
+                    </button>
+                    {lightboxIdx > 0 && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setLightboxIdx(lightboxIdx - 1); }}
+                        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                        aria-label="Anterior"
+                      >
+                        <ChevronLeft size={22} />
+                      </button>
+                    )}
+                    {lightboxIdx < photos.length - 1 && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setLightboxIdx(lightboxIdx + 1); }}
+                        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                        aria-label="Próxima"
+                      >
+                        <ChevronRight size={22} />
+                      </button>
+                    )}
+                    <img
+                      src={photos[lightboxIdx]}
+                      alt={`Foto ${lightboxIdx + 1}`}
+                      className="max-w-full max-h-full object-contain select-none"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/10 text-white text-xs font-semibold px-3 py-1.5 rounded-full backdrop-blur">
+                      {lightboxIdx + 1} / {photos.length}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </TabsContent>
+
 
         {/* ── Health Tab ── */}
         <TabsContent value="health" className="mt-4 space-y-4">
