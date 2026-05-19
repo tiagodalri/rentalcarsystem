@@ -11,7 +11,7 @@ import {
   BarChart3, MapPin, FileText, Settings, Pencil, X,
   Hash, Palette, StickyNote, CalendarDays,
   Plus, Wrench, Shield, CircleAlert, TrendingDown, TrendingUp,
-  Trash2, Activity, Heart, AlertCircle, Ban, ImageIcon, Upload, Star, ArrowLeft, ArrowRight, ArrowUpToLine, Maximize2, ChevronRight
+  Trash2, Activity, Heart, AlertCircle, Ban, ImageIcon, Upload, Star, ArrowLeft, ArrowRight, ArrowUpToLine, Maximize2, ChevronRight, Camera, Paperclip, ExternalLink
 } from "lucide-react";
 import { getCoverImage } from "@/data/vehicleImages";
 import { EmptyState } from "@/components/admin/EmptyState";
@@ -41,7 +41,7 @@ type Vehicle = {
 type Expense = {
   id: string; vehicle_id: string; type: string; amount: number;
   expense_date: string; description: string | null; supplier: string | null;
-  is_recurring: boolean | null; created_at: string;
+  is_recurring: boolean | null; receipt_url: string | null; created_at: string;
 };
 
 type Incident = {
@@ -132,7 +132,8 @@ export default function AdminVehicleDetail() {
   const [showIncidentForm, setShowIncidentForm] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [expenseForm, setExpenseForm] = useState({ type: "maintenance", amount: 0, expense_date: new Date().toISOString().split("T")[0], description: "", supplier: "", is_recurring: false });
+  const [expenseForm, setExpenseForm] = useState<{ type: string; amount: number; expense_date: string; description: string; supplier: string; is_recurring: boolean; receipt_url: string }>({ type: "maintenance", amount: 0, expense_date: new Date().toISOString().split("T")[0], description: "", supplier: "", is_recurring: false, receipt_url: "" });
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [incidentForm, setIncidentForm] = useState({ type: "breakdown", severity: "low", title: "", description: "", incident_date: new Date().toISOString().split("T")[0], estimated_cost: 0 });
 
   useEffect(() => { loadData(); }, [vehicleId]);
@@ -187,6 +188,24 @@ export default function AdminVehicleDetail() {
     else { toast({ title: "Dados atualizados!" }); setEditingDetails(false); loadData(); }
   };
 
+  const uploadReceipt = async (file: File | null | undefined) => {
+    if (!file || !vehicleId) return;
+    setUploadingReceipt(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `expenses/${vehicleId}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("inspections").upload(path, file, { cacheControl: "3600", upsert: false });
+      if (error) throw error;
+      const { data } = supabase.storage.from("inspections").getPublicUrl(path);
+      setExpenseForm(prev => ({ ...prev, receipt_url: data.publicUrl }));
+      toast({ title: "Comprovante anexado" });
+    } catch (e: any) {
+      toast({ title: "Erro ao enviar comprovante", description: e.message, variant: "destructive" });
+    } finally {
+      setUploadingReceipt(false);
+    }
+  };
+
   const addExpense = async () => {
     if (!vehicleId) return;
     const { error } = await supabase.from("vehicle_expenses").insert({
@@ -196,7 +215,7 @@ export default function AdminVehicleDetail() {
     else {
       toast({ title: "Gasto registrado!" });
       setShowExpenseForm(false);
-      setExpenseForm({ type: "maintenance", amount: 0, expense_date: new Date().toISOString().split("T")[0], description: "", supplier: "", is_recurring: false });
+      setExpenseForm({ type: "maintenance", amount: 0, expense_date: new Date().toISOString().split("T")[0], description: "", supplier: "", is_recurring: false, receipt_url: "" });
       loadData();
     }
   };
@@ -836,6 +855,36 @@ export default function AdminVehicleDetail() {
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Fornecedor</label>
                     <input value={expenseForm.supplier} onChange={e => setExpenseForm({ ...expenseForm, supplier: e.target.value })} className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground" />
                   </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Comprovante / Nota</label>
+                    {expenseForm.receipt_url ? (
+                      <div className="relative rounded-lg border border-border/60 bg-muted/30 p-2 flex items-center gap-2">
+                        {/\.(jpg|jpeg|png|webp|gif)$/i.test(expenseForm.receipt_url) ? (
+                          <img src={expenseForm.receipt_url} alt="Comprovante" className="w-14 h-14 object-cover rounded-md border border-border/40" />
+                        ) : (
+                          <div className="w-14 h-14 rounded-md bg-primary/10 flex items-center justify-center text-primary"><Paperclip size={18} /></div>
+                        )}
+                        <a href={expenseForm.receipt_url} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 text-xs font-medium text-foreground truncate hover:text-primary flex items-center gap-1">
+                          Ver anexo <ExternalLink size={11} />
+                        </a>
+                        <button type="button" onClick={() => setExpenseForm({ ...expenseForm, receipt_url: "" })} className="w-7 h-7 rounded-md hover:bg-destructive/10 text-destructive flex items-center justify-center transition-colors" title="Remover">
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-2">
+                        <label className={`flex items-center justify-center gap-2 h-10 rounded-lg border border-border/60 bg-background text-sm text-foreground cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors ${uploadingReceipt ? "opacity-50 pointer-events-none" : ""}`}>
+                          <Paperclip size={14} /> Anexar
+                          <input type="file" accept="image/*,application/pdf" className="hidden" onChange={(e) => uploadReceipt(e.target.files?.[0])} />
+                        </label>
+                        <label className={`flex items-center justify-center gap-2 h-10 rounded-lg border border-border/60 bg-background text-sm text-foreground cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors ${uploadingReceipt ? "opacity-50 pointer-events-none" : ""}`}>
+                          <Camera size={14} /> Câmera
+                          <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => uploadReceipt(e.target.files?.[0])} />
+                        </label>
+                      </div>
+                    )}
+                    {uploadingReceipt && <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1"><Loader2 size={10} className="animate-spin" /> Enviando…</p>}
+                  </div>
                   <label className="flex items-center gap-2 text-sm text-foreground">
                     <input type="checkbox" checked={expenseForm.is_recurring} onChange={e => setExpenseForm({ ...expenseForm, is_recurring: e.target.checked })} className="rounded" />
                     Gasto recorrente
@@ -861,6 +910,11 @@ export default function AdminVehicleDetail() {
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-foreground text-sm">{et.label}</span>
                           {e.is_recurring && <Badge variant="outline" className="text-[9px]">Recorrente</Badge>}
+                          {e.receipt_url && (
+                            <a href={e.receipt_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline" title="Ver comprovante">
+                              <Paperclip size={10} /> Nota
+                            </a>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate">{e.description || e.supplier || "—"}</p>
                       </div>
