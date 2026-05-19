@@ -15,6 +15,13 @@ const FLEET_DRAFT_KEY = "new-vehicle";
 type Vehicle = {
   id: string;
   name: string;
+  brand: string | null;
+  model: string | null;
+  version: string | null;
+  manufacture_year: number | null;
+  model_year: number | null;
+  vin: string | null;
+  renavam: string | null;
   license_plate: string | null;
   category: string;
   daily_price_usd: number;
@@ -35,13 +42,22 @@ type Vehicle = {
   photos: string[] | null;
 };
 
+const currentYear = new Date().getFullYear();
+
 const emptyVehicle = {
-  name: "", license_plate: "", category: "Economy", daily_price_usd: 0, image_url: "",
+  name: "",
+  brand: "", model: "", version: "",
+  manufacture_year: null as number | null, model_year: null as number | null,
+  vin: "", renavam: "",
+  license_plate: "", category: "Economy", daily_price_usd: null as number | null, image_url: "",
   passengers: 5, bags: 2, transmission: "Automatic", fuel: "Gasoline",
-  year: new Date().getFullYear(), status: "available", features: [] as string[],
-  color: "", purchase_price: 0, initial_odometer: 0, current_odometer: 0,
+  year: null as number | null, status: "available", features: [] as string[],
+  color: "", purchase_price: null as number | null,
+  initial_odometer: null as number | null, current_odometer: null as number | null,
   acquired_date: null as string | null,
 };
+
+const CATEGORIES = ["Economy", "Compact", "Midsize", "Fullsize", "SUV", "Premium SUV", "Luxury", "Sports", "Minivan", "Pickup", "Convertible"];
 
 export default function AdminFleet() {
   const navigate = useNavigate();
