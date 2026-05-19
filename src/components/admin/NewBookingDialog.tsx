@@ -32,11 +32,18 @@ const STATUS_OPTIONS = [
 const PAYMENT_METHODS = [
   "Cartão de Crédito",
   "Cartão de Débito",
+  "Stripe",
+  "PayPal",
   "PIX",
   "Dinheiro",
   "Transferência Bancária",
   "Zelle",
   "Outro",
+];
+
+const CURRENCIES = [
+  { value: "USD", label: "USD ($)" },
+  { value: "BRL", label: "BRL (R$)" },
 ];
 
 export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
