@@ -345,6 +345,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       return;
     }
     toast({ title: "Reserva criada com sucesso" });
+    clearFormDraft(DRAFT_KEY);
     onCreated();
     onOpenChange(false);
     setCustomer(null);
