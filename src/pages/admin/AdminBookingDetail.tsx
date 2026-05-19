@@ -6,9 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import {
   User, FileText, LogIn, LogOut, GitCompare,
   Fuel, Gauge, CheckCircle2, AlertTriangle, ChevronRight,
-  Camera, PenTool, Image, Check, X as XIcon
+  Camera, PenTool, Image, Check, X as XIcon, Pencil
 } from "lucide-react";
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
+import { LocationDisplay } from "@/components/admin/LocationDisplay";
+import { EditBookingDialog } from "@/components/admin/EditBookingDialog";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
 
 type Booking = {
   id: string;
@@ -88,6 +91,14 @@ export default function AdminBookingDetail() {
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const { isAdmin } = useAdminAuth();
+
+  const reload = async () => {
+    if (!bookingId) return;
+    const { data: b } = await supabase.from("bookings").select("*").eq("id", bookingId).single();
+    if (b) setBooking(b);
+  };
 
   useEffect(() => {
     if (!bookingId) return;
@@ -380,8 +391,26 @@ export default function AdminBookingDetail() {
           >
             <GitCompare size={13} /> Comparar
           </button>
+          {isAdmin && (
+            <button
+              onClick={() => setEditOpen(true)}
+              className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors font-medium"
+              title="Editar reserva (apenas admin)"
+            >
+              <Pencil size={13} /> Editar
+            </button>
+          )}
         </div>
       </div>
+
+      {isAdmin && (
+        <EditBookingDialog
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          booking={booking}
+          onSaved={reload}
+        />
+      )}
 
       {/* Info cards row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -390,10 +419,20 @@ export default function AdminBookingDetail() {
           <Card className="bg-card/80 border-border/30">
             <CardContent className="p-5">
               <SectionTitle>Reserva</SectionTitle>
-              <DetailItem label="Retirada" value={pickup.toLocaleDateString("pt-BR")} />
-              <DetailItem label="Local de Retirada" value={booking.pickup_location} />
-              <DetailItem label="Devolução" value={returnD.toLocaleDateString("pt-BR")} />
-              <DetailItem label="Local de Devolução" value={booking.return_location} />
+
+              <div className="space-y-2.5 mb-3">
+                <LocationDisplay
+                  label="Retirada"
+                  date={pickup.toLocaleDateString("pt-BR")}
+                  address={booking.pickup_location}
+                />
+                <LocationDisplay
+                  label="Devolução"
+                  date={returnD.toLocaleDateString("pt-BR")}
+                  address={booking.return_location}
+                />
+              </div>
+
               <DetailItem label="Duração" value={`${days} dia${days > 1 ? "s" : ""}`} />
               <DetailItem label="Valor Total" value={booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"} highlight />
               <DetailItem label="Condutor Adicional" value={booking.extra_driver ? "Sim" : "Não"} />
