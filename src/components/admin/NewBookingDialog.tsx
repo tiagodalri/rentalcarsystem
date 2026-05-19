@@ -420,7 +420,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
               <div>
                 <Label>Veículo *</Label>
                 <Select value={form.vehicle_id} onValueChange={(v) => set("vehicle_id", v)}>
-                  <SelectTrigger><SelectValue placeholder="Selecione o veículo" /></SelectTrigger>
+                  <SelectTrigger className={pendingClass("vehicle_id")}><SelectValue placeholder="Selecione o veículo" /></SelectTrigger>
                   <SelectContent>
                     {vehicles.map((v) => (
                       <SelectItem key={v.id} value={v.id}>
