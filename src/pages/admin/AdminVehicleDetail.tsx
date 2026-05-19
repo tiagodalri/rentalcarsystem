@@ -120,8 +120,10 @@ const conditionLabels: Record<string, { label: string; color: string }> = {
 export default function AdminVehicleDetail() {
   const { vehicleId } = useParams();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>(searchParams.get("tab") ?? "agenda");
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [bookings, setBookings] = useState<BookingWithInspections[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -137,6 +139,13 @@ export default function AdminVehicleDetail() {
   const [incidentForm, setIncidentForm] = useState({ type: "breakdown", severity: "low", title: "", description: "", incident_date: new Date().toISOString().split("T")[0], estimated_cost: 0 });
 
   useEffect(() => { loadData(); }, [vehicleId]);
+
+  const handleTabChange = (v: string) => {
+    setActiveTab(v);
+    const next = new URLSearchParams(searchParams);
+    next.set("tab", v);
+    setSearchParams(next, { replace: true });
+  };
 
   const loadData = async () => {
     if (!vehicleId) return;
