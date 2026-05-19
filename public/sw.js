@@ -99,3 +99,8 @@ self.addEventListener("fetch", (event) => {
   }
   // 3) Everything else: default network.
 });
+
+// Allow page to trigger immediate activation of a waiting SW.
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
+});
