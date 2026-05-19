@@ -8,6 +8,9 @@ import { EmptyState } from "@/components/admin/EmptyState";
 import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
 import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 import { storageThumb } from "@/lib/storageThumb";
+import { useFormDraft, clearFormDraft } from "@/hooks/useFormDraft";
+
+const FLEET_DRAFT_KEY = "new-vehicle";
 
 type Vehicle = {
   id: string;
@@ -58,6 +61,14 @@ export default function AdminFleet() {
 
   useEffect(() => { load(); }, []);
 
+  // Auto-save de rascunho APENAS para novo veículo
+  useFormDraft(
+    FLEET_DRAFT_KEY,
+    (editing || {}) as Record<string, any>,
+    (v) => setEditing((prev) => ({ ...(prev || {}), ...v })),
+    !!editing && isNew
+  );
+
   const filtered = vehicles.filter((v) =>
     v.name.toLowerCase().includes(search.toLowerCase()) ||
     v.category.toLowerCase().includes(search.toLowerCase())
@@ -97,6 +108,7 @@ export default function AdminFleet() {
           return;
         }
         toast({ title: "Carro criado! Agora adicione as fotos da galeria." });
+        clearFormDraft(FLEET_DRAFT_KEY);
         navigate(`/admin/fleet/${data.id}?tab=photos`);
         return;
       }

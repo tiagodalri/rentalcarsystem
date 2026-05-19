@@ -11,6 +11,9 @@ import { PLANS, PLAN_ORDER } from "@/data/rentalPlans";
 import { Loader2, Upload, Sparkles, ImageIcon } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
+import { useFormDraft, clearFormDraft } from "@/hooks/useFormDraft";
+
+const DRAFT_KEY = "new-booking";
 
 const PENDING_CLASS = "ring-1 ring-amber-500/60 focus-visible:ring-amber-500";
 
@@ -131,6 +134,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
   };
 
   const pendingClass = (k: string) => (pendingFields.has(k) ? PENDING_CLASS : "");
+
+  // Auto-save de rascunho (restaura ao abrir, salva enquanto preenche)
+  useFormDraft(DRAFT_KEY, form, setForm, open);
 
   const matchVehicleByName = (name?: string | null): string => {
     if (!name) return "";
@@ -339,6 +345,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       return;
     }
     toast({ title: "Reserva criada com sucesso" });
+    clearFormDraft(DRAFT_KEY);
     onCreated();
     onOpenChange(false);
     setCustomer(null);
