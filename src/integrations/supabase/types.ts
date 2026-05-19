@@ -892,6 +892,8 @@ export type Database = {
           created_at: string
           current_odometer: number | null
           daily_price_usd: number
+          default_deposit_amount: number
+          default_franchise_amount: number
           deleted_at: string | null
           deleted_by: string | null
           doors: number | null
@@ -938,6 +940,8 @@ export type Database = {
           created_at?: string
           current_odometer?: number | null
           daily_price_usd?: number
+          default_deposit_amount?: number
+          default_franchise_amount?: number
           deleted_at?: string | null
           deleted_by?: string | null
           doors?: number | null
@@ -984,6 +988,8 @@ export type Database = {
           created_at?: string
           current_odometer?: number | null
           daily_price_usd?: number
+          default_deposit_amount?: number
+          default_franchise_amount?: number
           deleted_at?: string | null
           deleted_by?: string | null
           doors?: number | null
