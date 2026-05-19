@@ -318,9 +318,18 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
           {/* Pagamento */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Pagamento</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
-                <Label>Valor total (USD)</Label>
+                <Label>Moeda</Label>
+                <Select value={form.currency} onValueChange={(v) => set("currency", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Valor total ({form.currency})</Label>
                 <Input type="number" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} />
               </div>
               <div>
