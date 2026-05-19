@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { TrendingUp, TrendingDown, DollarSign, Car, Search, Percent, Clock } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Car, Search, Percent, Clock, GitCompare, X } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { format, parseISO, differenceInDays, differenceInMonths, subMonths, startOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -37,6 +37,8 @@ export default function AdminFleetPnL() {
   const [sortKey, setSortKey] = useState<keyof Row>("operatingProfit");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [avgMonthlyRevenue3m, setAvgMonthlyRevenue3m] = useState<number | null>(null);
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
 
   useEffect(() => {
     load();
