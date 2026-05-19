@@ -61,6 +61,14 @@ export default function AdminFleet() {
 
   useEffect(() => { load(); }, []);
 
+  // Auto-save de rascunho APENAS para novo veículo
+  useFormDraft(
+    FLEET_DRAFT_KEY,
+    (editing || {}) as Record<string, any>,
+    (v) => setEditing((prev) => ({ ...(prev || {}), ...v })),
+    !!editing && isNew
+  );
+
   const filtered = vehicles.filter((v) =>
     v.name.toLowerCase().includes(search.toLowerCase()) ||
     v.category.toLowerCase().includes(search.toLowerCase())
