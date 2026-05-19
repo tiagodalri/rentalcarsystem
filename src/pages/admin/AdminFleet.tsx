@@ -91,28 +91,40 @@ export default function AdminFleet() {
   );
 
   const save = async () => {
-    if (!editing?.name) return toast({ title: "Nome obrigatório", variant: "destructive" });
-    const plate = (editing.license_plate || "").trim();
+    const brand = (editing?.brand || "").trim();
+    const model = (editing?.model || "").trim();
+    const version = (editing?.version || "").trim();
+    const autoName = [brand, model, version].filter(Boolean).join(" ").trim();
+    const name = (editing?.name || "").trim() || autoName;
+
+    if (!brand || !model) return toast({ title: "Marca e Modelo obrigatórios", variant: "destructive" });
+    if (!name) return toast({ title: "Nome obrigatório", variant: "destructive" });
+    const plate = (editing?.license_plate || "").trim();
     if (plate.length < 3) return toast({ title: "Placa obrigatória", description: "Informe ao menos 3 caracteres.", variant: "destructive" });
 
     const payload = {
-      name: editing.name,
+      name,
+      brand, model, version: version || null,
+      manufacture_year: editing?.manufacture_year ?? null,
+      model_year: editing?.model_year ?? null,
+      vin: (editing?.vin || "").trim().toUpperCase() || null,
+      renavam: (editing?.renavam || "").trim() || null,
       license_plate: plate.toUpperCase(),
-      category: editing.category || "Economy",
-      daily_price_usd: editing.daily_price_usd || 0,
-      image_url: editing.image_url || null,
-      passengers: editing.passengers || 5,
-      bags: editing.bags || 2,
-      transmission: editing.transmission || "Automatic",
-      fuel: editing.fuel || "Gasoline",
-      year: editing.year || null,
-      status: editing.status || "available",
-      features: editing.features || [],
-      color: editing.color || null,
-      purchase_price: editing.purchase_price ?? 0,
-      initial_odometer: editing.initial_odometer ?? 0,
-      current_odometer: editing.current_odometer ?? 0,
-      acquired_date: editing.acquired_date || null,
+      category: editing?.category || "Economy",
+      daily_price_usd: editing?.daily_price_usd ?? 0,
+      image_url: editing?.image_url || null,
+      passengers: editing?.passengers || 5,
+      bags: editing?.bags || 2,
+      transmission: editing?.transmission || "Automatic",
+      fuel: editing?.fuel || "Gasoline",
+      year: editing?.model_year || editing?.year || null,
+      status: editing?.status || "available",
+      features: editing?.features || [],
+      color: editing?.color || null,
+      purchase_price: editing?.purchase_price ?? 0,
+      initial_odometer: editing?.initial_odometer ?? 0,
+      current_odometer: editing?.current_odometer ?? 0,
+      acquired_date: editing?.acquired_date || null,
     };
 
     setSaving(true);
