@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import MinimalFooter from "@/components/MinimalFooter";
 import { AdminShellSkeleton } from "@/components/skeletons/AdminShellSkeleton";
+import { useThemeMode } from "@/i18n/ThemeContext";
+import { Sun, Moon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function AdminLayout() {
   const { user, roles, loading, signOut } = useAdminAuth();
