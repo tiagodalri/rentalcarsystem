@@ -132,7 +132,8 @@ export default function AdminVehicleDetail() {
   const [showIncidentForm, setShowIncidentForm] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [expenseForm, setExpenseForm] = useState({ type: "maintenance", amount: 0, expense_date: new Date().toISOString().split("T")[0], description: "", supplier: "", is_recurring: false });
+  const [expenseForm, setExpenseForm] = useState<{ type: string; amount: number; expense_date: string; description: string; supplier: string; is_recurring: boolean; receipt_url: string }>({ type: "maintenance", amount: 0, expense_date: new Date().toISOString().split("T")[0], description: "", supplier: "", is_recurring: false, receipt_url: "" });
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [incidentForm, setIncidentForm] = useState({ type: "breakdown", severity: "low", title: "", description: "", incident_date: new Date().toISOString().split("T")[0], estimated_cost: 0 });
 
   useEffect(() => { loadData(); }, [vehicleId]);
