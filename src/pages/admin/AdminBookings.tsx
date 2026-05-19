@@ -1234,7 +1234,20 @@ export default function AdminBookings() {
                             </div>
                           </td>
                           <td className="px-5 py-3.5 text-muted-foreground text-xs max-w-[180px] truncate">{b.pickup_location || "—"}</td>
-                          <td className="px-5 py-3.5 text-foreground font-semibold text-right tabular-nums">${b.total_price?.toFixed(2) || "—"}</td>
+                          <td className="px-5 py-3.5 text-right tabular-nums">
+                            <div className="text-foreground font-semibold">${b.total_price?.toFixed(2) || "—"}</div>
+                            {(b.deposit_amount ?? 0) > 0 && (
+                              <div className="text-[10px] text-muted-foreground mt-0.5">
+                                Caução ${Number(b.deposit_amount).toFixed(0)}
+                                {b.deposit_refund_days ? ` • ${b.deposit_refund_days}d` : ""}
+                              </div>
+                            )}
+                            {(b.franchise_amount ?? 0) > 0 && (
+                              <div className="text-[10px] text-muted-foreground">
+                                Franquia ${Number(b.franchise_amount).toFixed(0)}
+                              </div>
+                            )}
+                          </td>
                           <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
                             <select
                               value={b.status}
