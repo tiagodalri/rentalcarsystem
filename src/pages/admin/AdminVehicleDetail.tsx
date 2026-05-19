@@ -470,7 +470,7 @@ export default function AdminVehicleDetail() {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue={searchParams.get("tab") ?? "agenda"} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="bg-muted/50 flex-wrap h-auto gap-1 p-1">
           <TabsTrigger value="agenda">Agenda</TabsTrigger>
           <TabsTrigger value="photos">Fotos</TabsTrigger>
