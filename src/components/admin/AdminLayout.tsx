@@ -15,6 +15,7 @@ export default function AdminLayout() {
   const { user, roles, loading, signOut } = useAdminAuth();
   const navigate = useNavigate();
   const restrictedToastShown = useRef(false);
+  const { theme, toggleTheme } = useThemeMode();
 
   useEffect(() => {
     if (loading) return;
