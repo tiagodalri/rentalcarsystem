@@ -17,7 +17,7 @@ const DRAFT_KEY = "new-booking";
 
 const PENDING_CLASS = "ring-1 ring-amber-500/60 focus-visible:ring-amber-500";
 
-type Vehicle = { id: string; name: string; daily_price_usd: number };
+type Vehicle = { id: string; name: string; daily_price_usd: number; default_deposit_amount?: number | null; default_franchise_amount?: number | null };
 
 interface Props {
   open: boolean;
@@ -235,17 +235,27 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     if (!open) return;
     supabase
       .from("vehicles")
-      .select("id, name, daily_price_usd")
+      .select("id, name, daily_price_usd, default_deposit_amount, default_franchise_amount")
       .eq("published", true)
       .order("name")
       .then(({ data }) => setVehicles((data as Vehicle[]) || []));
   }, [open]);
 
-  // Auto-suggest total price when vehicle/dates change
+  // Auto-suggest total price + deposit/franchise defaults when vehicle/dates change
   useEffect(() => {
-    if (!form.vehicle_id || !form.pickup_date || !form.return_date) return;
+    if (!form.vehicle_id) return;
     const veh = vehicles.find((v) => v.id === form.vehicle_id);
     if (!veh) return;
+
+    // Pré-preencher caução e franquia com os defaults do veículo
+    if (!form.deposit_amount && veh.default_deposit_amount != null) {
+      set("deposit_amount", String(veh.default_deposit_amount));
+    }
+    if (!form.franchise_amount && veh.default_franchise_amount != null) {
+      set("franchise_amount", String(veh.default_franchise_amount));
+    }
+
+    if (!form.pickup_date || !form.return_date) return;
     const days = Math.max(
       1,
       Math.round(
