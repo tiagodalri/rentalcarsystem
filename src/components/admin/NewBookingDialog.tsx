@@ -57,6 +57,32 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
   const [extractText, setExtractText] = useState("");
   const [pendingFields, setPendingFields] = useState<Set<string>>(new Set());
   const [extractedOnce, setExtractedOnce] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+
+  const isAcceptedFile = (f: File) =>
+    f.type.startsWith("image/") || f.type === "application/pdf";
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+    if (extracting) return;
+    const file = Array.from(e.dataTransfer.files || []).find(isAcceptedFile);
+    if (file) {
+      handleExtract(file);
+    } else if (e.dataTransfer.files?.length) {
+      toast({ title: "Formato não suportado", description: "Envie uma imagem ou PDF.", variant: "destructive" });
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (extracting) return;
+    const file = Array.from(e.clipboardData?.files || []).find(isAcceptedFile);
+    if (file) {
+      e.preventDefault();
+      handleExtract(file);
+    }
+  };
 
   const handleSelectCustomer = (c: CustomerLite | null) => {
     setCustomer(c);
@@ -340,19 +366,44 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
 
         <div className="space-y-5 py-2">
           {/* IA - Extração inteligente */}
-          <section className="rounded-lg border border-primary/30 bg-primary/5 p-4">
+          <section
+            className={`rounded-lg border p-4 transition-colors ${
+              dragOver
+                ? "border-primary bg-primary/10 ring-2 ring-primary/40"
+                : "border-primary/30 bg-primary/5"
+            }`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (!extracting) setDragOver(true);
+            }}
+            onDragEnter={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (!extracting) setDragOver(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setDragOver(false);
+            }}
+            onDrop={handleDrop}
+            onPaste={handlePaste}
+          >
             <div className="flex items-start gap-2 mb-3">
               <Sparkles size={16} className="text-primary mt-0.5" />
               <div className="flex-1">
                 <h3 className="text-sm font-semibold">Extrair dados com IA</h3>
                 <p className="text-xs text-muted-foreground">
-                  Envie um print do WhatsApp, foto, PDF ou cole o texto da conversa. A IA preenche o formulário e destaca em amarelo o que ficou pendente.
+                  {dragOver
+                    ? "Solte o arquivo aqui para extrair os dados..."
+                    : "Arraste e solte um print/PDF aqui, cole (Ctrl+V) ou use os botões abaixo. A IA preenche o formulário e destaca em amarelo o que ficou pendente."}
                 </p>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <label className="flex items-center justify-center gap-2 cursor-pointer px-3 py-2 rounded-md border border-border bg-card hover:bg-muted text-sm font-medium">
-                {extracting ? <Loader2 size={14} className="animate-spin" /> : <ImageIcon size={14} />}
+                {extracting ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
                 {extracting ? "Analisando..." : "Enviar print/PDF"}
                 <input
                   type="file"
@@ -380,7 +431,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             <Textarea
               rows={2}
               className="mt-2 text-sm"
-              placeholder="Ou cole aqui o texto da mensagem do WhatsApp..."
+              placeholder="Ou cole aqui o texto da mensagem do WhatsApp... (também aceita imagem colada com Ctrl+V)"
               value={extractText}
               onChange={(e) => setExtractText(e.target.value)}
             />
