@@ -367,7 +367,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       plan_id: "conforto", total_price: "", currency: "USD",
       payment_method: "Cartão de Crédito", contract_url: "",
       status: "confirmed", notes: "",
-      deposit_amount: "", deposit_refund_days: "", franchise_amount: "",
+      deposit_amount: "", deposit_refund_days: "30", franchise_amount: "",
     });
     setPendingFields(new Set());
     setExtractText("");
