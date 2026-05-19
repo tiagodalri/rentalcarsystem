@@ -182,6 +182,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       notes: form.notes || null,
       addons: {
         payment_method: form.payment_method,
+        currency: form.currency,
         contract_url: form.contract_url || null,
         manual_entry: true,
       },
