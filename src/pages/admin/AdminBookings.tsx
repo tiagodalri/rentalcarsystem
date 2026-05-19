@@ -555,7 +555,7 @@ export default function AdminBookings() {
   const load = async () => {
     setLoading(true);
     const [bRes, vRes] = await Promise.all([
-      supabase.from("bookings").select("*").order("created_at", { ascending: false }),
+      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, vehicle_id, plan_id, addons, notes, created_at, customer_id, deposit, franchise").order("created_at", { ascending: false }).limit(1000),
       supabase.from("vehicles").select("id, name"),
     ]);
     const vehicleMap: Record<string, string> = {};

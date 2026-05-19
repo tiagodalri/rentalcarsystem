@@ -55,7 +55,10 @@ export default function AdminCustomers() {
 
   const load = async () => {
     setLoading(true);
-    const { data: customersData } = await supabase.from("customers").select("*").order("full_name");
+    const { data: customersData } = await supabase
+      .from("customers")
+      .select("id, full_name, email, phone, document_number, nationality, date_of_birth, address, house_number, complement, zip_code, driver_license, driver_license_expiry, driver_license_file_url, driver_license_verified_at, created_at, user_id, notes")
+      .order("full_name");
     const { data: bookingsData } = await supabase.from("bookings").select("customer_id");
 
     const countMap: Record<string, number> = {};
