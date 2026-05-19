@@ -53,6 +53,10 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [customer, setCustomer] = useState<CustomerLite | null>(null);
+  const [extracting, setExtracting] = useState(false);
+  const [extractText, setExtractText] = useState("");
+  const [pendingFields, setPendingFields] = useState<Set<string>>(new Set());
+  const [extractedOnce, setExtractedOnce] = useState(false);
 
   const handleSelectCustomer = (c: CustomerLite | null) => {
     setCustomer(c);
