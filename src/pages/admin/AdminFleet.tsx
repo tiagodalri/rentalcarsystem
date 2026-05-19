@@ -108,6 +108,7 @@ export default function AdminFleet() {
           return;
         }
         toast({ title: "Carro criado! Agora adicione as fotos da galeria." });
+        clearFormDraft(FLEET_DRAFT_KEY);
         navigate(`/admin/fleet/${data.id}?tab=photos`);
         return;
       }
