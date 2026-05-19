@@ -11,7 +11,7 @@ import {
   BarChart3, MapPin, FileText, Settings, Pencil, X,
   Hash, Palette, StickyNote, CalendarDays,
   Plus, Wrench, Shield, CircleAlert, TrendingDown, TrendingUp,
-  Trash2, Activity, Heart, AlertCircle, Ban, ImageIcon, Upload, Star, ArrowLeft, ArrowRight, ArrowUpToLine, Maximize2, ChevronRight
+  Trash2, Activity, Heart, AlertCircle, Ban, ImageIcon, Upload, Star, ArrowLeft, ArrowRight, ArrowUpToLine, Maximize2, ChevronRight, Camera, Paperclip, ExternalLink
 } from "lucide-react";
 import { getCoverImage } from "@/data/vehicleImages";
 import { EmptyState } from "@/components/admin/EmptyState";
