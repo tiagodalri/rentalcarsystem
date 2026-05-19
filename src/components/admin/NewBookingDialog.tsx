@@ -205,7 +205,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       vehicle_id: "", pickup_date: "", pickup_time: "10:00",
       return_date: "", return_time: "10:00",
       pickup_location: "", return_location: "",
-      plan_id: "conforto", total_price: "",
+      plan_id: "conforto", total_price: "", currency: "USD",
       payment_method: "Cartão de Crédito", contract_url: "",
       status: "confirmed", notes: "",
     });
