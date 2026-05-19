@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Trash2, LogIn, LogOut, GitCompare, CalendarDays, List, ChevronLeft, ChevronRight, Clock, SlidersHorizontal, ArrowUpDown, X, Check, Download, FileText, FileSpreadsheet, CalendarIcon, Plus } from "lucide-react";
+import { Search, Trash2, LogIn, LogOut, GitCompare, CalendarDays, List, ChevronLeft, ChevronRight, Clock, SlidersHorizontal, ArrowUpDown, X, Check, Download, FileText, FileSpreadsheet, CalendarIcon, Plus, Car } from "lucide-react";
 import { NewBookingDialog } from "@/components/admin/NewBookingDialog";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -569,8 +569,9 @@ export default function AdminBookings() {
     (vRes.data || []).forEach((v: any) => {
       const photos = Array.isArray(v.photos) ? v.photos : [];
       const firstPhoto = photos[0]?.url || photos[0] || "";
-      const fallback = coverImageMap[v.name] || v.image_url || "/placeholder.svg";
-      vehicleMap[v.id] = { name: v.name, image: firstPhoto || fallback };
+      const externalImg = v.image_url && !v.image_url.startsWith("/") ? v.image_url : "";
+      const image = firstPhoto || coverImageMap[v.name] || externalImg || "";
+      vehicleMap[v.id] = { name: v.name, image };
     });
     setBookings((bRes.data || []).map((b: any) => ({
       ...b,
@@ -1215,9 +1216,12 @@ export default function AdminBookings() {
                                   alt={b.vehicle_name || ""}
                                   className="w-12 h-9 rounded-md object-cover bg-muted border border-border/30 flex-shrink-0"
                                   loading="lazy"
+                                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                                 />
                               ) : (
-                                <div className="w-12 h-9 rounded-md bg-muted border border-border/30 flex-shrink-0" />
+                                <div className="w-12 h-9 rounded-md bg-muted border border-border/30 flex-shrink-0 flex items-center justify-center">
+                                  <Car className="w-4 h-4 text-muted-foreground/50" />
+                                </div>
                               )}
                               <span className="text-foreground text-[13px] font-medium truncate">{b.vehicle_name || "—"}</span>
                             </div>
