@@ -135,6 +135,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
 
   const pendingClass = (k: string) => (pendingFields.has(k) ? PENDING_CLASS : "");
 
+  // Auto-save de rascunho (restaura ao abrir, salva enquanto preenche)
+  useFormDraft(DRAFT_KEY, form, setForm, open);
+
   const matchVehicleByName = (name?: string | null): string => {
     if (!name) return "";
     const n = name.toLowerCase().trim();
