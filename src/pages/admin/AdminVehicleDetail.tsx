@@ -17,7 +17,7 @@ import { getCoverImage } from "@/data/vehicleImages";
 import { coverImageMap } from "@/data/fleetAssets";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { EmptyState } from "@/components/admin/EmptyState";
-import { Receipt, ShieldCheck } from "lucide-react";
+import { Receipt, ShieldCheck, ChevronDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import VehicleAgenda from "@/components/admin/VehicleAgenda";
 import { VehicleDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
