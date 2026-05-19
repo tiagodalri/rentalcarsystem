@@ -391,7 +391,15 @@ export default function AdminVehicleDetail() {
       desc: `${incidentTypeLabels[i.type] || i.type} • ${severityLabels[i.severity]?.label || i.severity}`,
       color: i.severity === "critical" || i.severity === "high" ? "text-destructive" : "text-yellow-600" });
   });
+  // Ordena cronologicamente e descarta eventos anteriores à aquisição (incoerentes)
   timelineEvents.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  if (vehicle.acquired_date) {
+    const acqTs = new Date(vehicle.acquired_date).getTime();
+    const acqIdx = timelineEvents.findIndex((ev) => ev.title === "Veículo adquirido");
+    const filtered = timelineEvents.filter((ev, i) => i === acqIdx || new Date(ev.date).getTime() >= acqTs);
+    timelineEvents.length = 0;
+    timelineEvents.push(...filtered);
+  }
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
