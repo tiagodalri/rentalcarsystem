@@ -452,7 +452,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
                 <Label>Retirada *</Label>
-                <Input type="date" value={form.pickup_date} onChange={(e) => set("pickup_date", e.target.value)} />
+                <Input className={pendingClass("pickup_date")} type="date" value={form.pickup_date} onChange={(e) => set("pickup_date", e.target.value)} />
               </div>
               <div>
                 <Label>Hora retirada</Label>
@@ -460,7 +460,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
               </div>
               <div>
                 <Label>Devolução *</Label>
-                <Input type="date" value={form.return_date} onChange={(e) => set("return_date", e.target.value)} />
+                <Input className={pendingClass("return_date")} type="date" value={form.return_date} onChange={(e) => set("return_date", e.target.value)} />
               </div>
               <div>
                 <Label>Hora devolução</Label>
@@ -470,19 +470,23 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
               <div>
                 <Label>Local de retirada</Label>
-                <AddressAutocomplete
-                  value={form.pickup_location}
-                  onChange={(v) => set("pickup_location", v)}
-                  placeholder="Ex: MCO Aeroporto Orlando"
-                />
+                <div className={pendingFields.has("pickup_location") ? "rounded-md " + PENDING_CLASS : ""}>
+                  <AddressAutocomplete
+                    value={form.pickup_location}
+                    onChange={(v) => set("pickup_location", v)}
+                    placeholder="Ex: MCO Aeroporto Orlando"
+                  />
+                </div>
               </div>
               <div>
                 <Label>Local de devolução</Label>
-                <AddressAutocomplete
-                  value={form.return_location}
-                  onChange={(v) => set("return_location", v)}
-                  placeholder="Ex: MCO Aeroporto Orlando"
-                />
+                <div className={pendingFields.has("return_location") ? "rounded-md " + PENDING_CLASS : ""}>
+                  <AddressAutocomplete
+                    value={form.return_location}
+                    onChange={(v) => set("return_location", v)}
+                    placeholder="Ex: MCO Aeroporto Orlando"
+                  />
+                </div>
               </div>
             </div>
           </section>
