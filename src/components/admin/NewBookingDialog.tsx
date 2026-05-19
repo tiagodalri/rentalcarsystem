@@ -77,6 +77,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     return_location: "",
     plan_id: "conforto",
     total_price: "",
+    currency: "USD",
     payment_method: "Cartão de Crédito",
     contract_url: "",
     status: "confirmed",
