@@ -586,7 +586,7 @@ export default function AdminVehicleDetail() {
                 </div>
 
                 {/* PREVIEW DO ANÚNCIO */}
-                <Card className="border-border/40">
+                <Card className="hidden sm:block border-border/40">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                       <div>
