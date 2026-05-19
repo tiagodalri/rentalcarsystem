@@ -707,16 +707,17 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
                 </div>
               </div>
               <div>
-                <Label className={labelCls}>Prazo de devolução da caução (dias)</Label>
+                <Label className={labelCls}>Prazo de devolução da caução (dias corridos após devolução do veículo)</Label>
                 <Input
                   className={`${inputCls} tabular-nums`}
                   type="number"
                   min="0"
                   inputMode="numeric"
-                  placeholder="Ex: 7"
+                  placeholder="30"
                   value={form.deposit_refund_days}
                   onChange={(e) => set("deposit_refund_days", e.target.value)}
                 />
+                <p className="text-[11px] text-muted-foreground mt-1">Padrão: 30 dias corridos.</p>
               </div>
             </div>
           </Section>
