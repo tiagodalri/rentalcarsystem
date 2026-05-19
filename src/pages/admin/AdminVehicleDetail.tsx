@@ -506,7 +506,7 @@ export default function AdminVehicleDetail() {
                 {/* HERO: Capa + Upload zone lado a lado */}
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
                   {/* Capa */}
-                  <Card className="border-border/40 lg:col-span-3 overflow-hidden">
+                  <Card className="hidden sm:block border-border/40 lg:col-span-3 overflow-hidden">
                     <CardContent className="p-0">
                       <div className="px-5 pt-4 pb-3 flex items-center justify-between gap-2 border-b border-border/40">
                         <div className="flex items-center gap-2">
