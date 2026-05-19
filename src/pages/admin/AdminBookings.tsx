@@ -29,6 +29,9 @@ type Booking = {
   pickup_location: string | null;
   return_location: string | null;
   total_price: number | null;
+  deposit_amount: number | null;
+  deposit_refund_days: number | null;
+  franchise_amount: number | null;
   status: string;
   notes: string | null;
   driver_age: number | null;
@@ -558,7 +561,7 @@ export default function AdminBookings() {
   const load = async () => {
     setLoading(true);
     const [bRes, vRes] = await Promise.all([
-      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, vehicle_id, plan_id, addons, notes, created_at, customer_id").order("created_at", { ascending: false }).limit(1000),
+      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, deposit_amount, deposit_refund_days, franchise_amount, vehicle_id, plan_id, addons, notes, created_at, customer_id").order("created_at", { ascending: false }).limit(1000),
       supabase.from("vehicles").select("id, name, image_url, photos"),
     ]);
     const vehicleMap: Record<string, { name: string; image: string }> = {};
@@ -1231,7 +1234,20 @@ export default function AdminBookings() {
                             </div>
                           </td>
                           <td className="px-5 py-3.5 text-muted-foreground text-xs max-w-[180px] truncate">{b.pickup_location || "—"}</td>
-                          <td className="px-5 py-3.5 text-foreground font-semibold text-right tabular-nums">${b.total_price?.toFixed(2) || "—"}</td>
+                          <td className="px-5 py-3.5 text-right tabular-nums">
+                            <div className="text-foreground font-semibold">${b.total_price?.toFixed(2) || "—"}</div>
+                            {(b.deposit_amount ?? 0) > 0 && (
+                              <div className="text-[10px] text-muted-foreground mt-0.5">
+                                Caução ${Number(b.deposit_amount).toFixed(0)}
+                                {b.deposit_refund_days ? ` • ${b.deposit_refund_days}d` : ""}
+                              </div>
+                            )}
+                            {(b.franchise_amount ?? 0) > 0 && (
+                              <div className="text-[10px] text-muted-foreground">
+                                Franquia ${Number(b.franchise_amount).toFixed(0)}
+                              </div>
+                            )}
+                          </td>
                           <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
                             <select
                               value={b.status}
