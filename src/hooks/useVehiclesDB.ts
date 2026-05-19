@@ -37,6 +37,7 @@ export function useVehiclesDB() {
       .from("vehicles")
       .select("*")
       .eq("published", true)
+      .is("deleted_at", null)
       .order("daily_price_usd", { ascending: false })
       .then(({ data }) => {
         const list = (data || []) as DBVehicle[];
