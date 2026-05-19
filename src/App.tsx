@@ -25,6 +25,7 @@ import AdminLayout from "./components/admin/AdminLayout.tsx";
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import { AdminShellSkeleton } from "./components/skeletons/AdminShellSkeleton.tsx";
 import { AccountSkeleton } from "./components/skeletons/AccountSkeleton.tsx";
+import InstallPrompt from "./components/InstallPrompt.tsx";
 
 // Lazy-loaded: client authenticated pages
 const MyAccount = lazy(() => import("./pages/MyAccount.tsx"));
@@ -103,6 +104,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <InstallPrompt />
           <BrowserRouter>
             <ScrollToTop />
             <Routes>

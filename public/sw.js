@@ -1,43 +1,101 @@
-const CACHE_NAME = "zeus-rental-car-v1";
-const STATIC_ASSETS = [
+// Zeus Rental Car — Service Worker
+// Strategy:
+//  - HTML navigations: NetworkFirst (so new deploys are seen immediately;
+//    cached shell only serves as offline fallback).
+//  - Static assets (JS/CSS/fonts/images): StaleWhileRevalidate.
+//  - Everything else: pass-through.
+
+const VERSION = "v3";
+const HTML_CACHE = `zeus-html-${VERSION}`;
+const ASSET_CACHE = `zeus-assets-${VERSION}`;
+const OFFLINE_URL = "/";
+
+const PRECACHE_ASSETS = [
   "/",
+  "/manifest.json",
   "/icon-192x192.png",
   "/icon-512x512.png",
-  "/manifest.json",
+  "/icon-maskable-512.png",
+  "/apple-touch-icon.png",
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
+    caches.open(HTML_CACHE).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+    (async () => {
+      const names = await caches.keys();
+      await Promise.all(
+        names
+          .filter((n) => n !== HTML_CACHE && n !== ASSET_CACHE)
+          .map((n) => caches.delete(n))
       );
-    })
+      await self.clients.claim();
+    })()
   );
-  self.clients.claim();
 });
 
-self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).catch(() => {
-        if (event.request.mode === "navigate") {
-          return caches.match("/");
-        }
-      });
-    })
+const isAsset = (request) => {
+  const dest = request.destination;
+  return (
+    dest === "style" ||
+    dest === "script" ||
+    dest === "worker" ||
+    dest === "font" ||
+    dest === "image"
   );
+};
+
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+
+  // Skip cross-origin (Supabase, fonts.googleapis, etc.)
+  if (url.origin !== self.location.origin) return;
+
+  // 1) HTML navigations -> NetworkFirst (3s timeout) -> offline fallback.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      (async () => {
+        try {
+          const fresh = await fetch(request);
+          const cache = await caches.open(HTML_CACHE);
+          cache.put(OFFLINE_URL, fresh.clone());
+          return fresh;
+        } catch {
+          const cache = await caches.open(HTML_CACHE);
+          const cached = await cache.match(request);
+          return cached || (await cache.match(OFFLINE_URL));
+        }
+      })()
+    );
+    return;
+  }
+
+  // 2) Static assets -> StaleWhileRevalidate.
+  if (isAsset(request)) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(ASSET_CACHE);
+        const cached = await cache.match(request);
+        const network = fetch(request)
+          .then((res) => {
+            if (res && res.ok) cache.put(request, res.clone());
+            return res;
+          })
+          .catch(() => cached);
+        return cached || network;
+      })()
+    );
+    return;
+  }
+  // 3) Everything else: default network.
 });
