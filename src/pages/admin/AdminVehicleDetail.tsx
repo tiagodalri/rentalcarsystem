@@ -1053,7 +1053,7 @@ export default function AdminVehicleDetail() {
                   </div>
                   <div>
                     <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">Custo Estimado (USD)</label>
-                    <input type="number" value={incidentForm.estimated_cost} onChange={e => setIncidentForm({ ...incidentForm, estimated_cost: Number(e.target.value) })} className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground" />
+                    <input type="number" inputMode="decimal" placeholder="0,00" value={incidentForm.estimated_cost || ""} onChange={e => setIncidentForm({ ...incidentForm, estimated_cost: e.target.value === "" ? 0 : Number(e.target.value) })} className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground tabular-nums" />
                   </div>
                   <Button onClick={addIncident} className="w-full bg-destructive text-destructive-foreground hover:bg-destructive/90">Abrir Ocorrência</Button>
                 </div>
