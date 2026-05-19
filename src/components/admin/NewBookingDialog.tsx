@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { PLANS, PLAN_ORDER } from "@/data/rentalPlans";
 import { Loader2, Upload } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
+import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
 
 type Vehicle = { id: string; name: string; daily_price_usd: number };
 
@@ -31,11 +32,18 @@ const STATUS_OPTIONS = [
 const PAYMENT_METHODS = [
   "Cartão de Crédito",
   "Cartão de Débito",
+  "Stripe",
+  "PayPal",
   "PIX",
   "Dinheiro",
   "Transferência Bancária",
   "Zelle",
   "Outro",
+];
+
+const CURRENCIES = [
+  { value: "USD", label: "USD ($)" },
+  { value: "BRL", label: "BRL (R$)" },
 ];
 
 export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
@@ -69,6 +77,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     return_location: "",
     plan_id: "conforto",
     total_price: "",
+    currency: "USD",
     payment_method: "Cartão de Crédito",
     contract_url: "",
     status: "confirmed",
@@ -173,6 +182,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       notes: form.notes || null,
       addons: {
         payment_method: form.payment_method,
+        currency: form.currency,
         contract_url: form.contract_url || null,
         manual_entry: true,
       },
@@ -195,7 +205,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       vehicle_id: "", pickup_date: "", pickup_time: "10:00",
       return_date: "", return_time: "10:00",
       pickup_location: "", return_location: "",
-      plan_id: "conforto", total_price: "",
+      plan_id: "conforto", total_price: "", currency: "USD",
       payment_method: "Cartão de Crédito", contract_url: "",
       status: "confirmed", notes: "",
     });
@@ -288,11 +298,19 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
               <div>
                 <Label>Local de retirada</Label>
-                <Input value={form.pickup_location} onChange={(e) => set("pickup_location", e.target.value)} placeholder="Ex: MCO Aeroporto Orlando" />
+                <AddressAutocomplete
+                  value={form.pickup_location}
+                  onChange={(v) => set("pickup_location", v)}
+                  placeholder="Ex: MCO Aeroporto Orlando"
+                />
               </div>
               <div>
                 <Label>Local de devolução</Label>
-                <Input value={form.return_location} onChange={(e) => set("return_location", e.target.value)} placeholder="Ex: MCO Aeroporto Orlando" />
+                <AddressAutocomplete
+                  value={form.return_location}
+                  onChange={(v) => set("return_location", v)}
+                  placeholder="Ex: MCO Aeroporto Orlando"
+                />
               </div>
             </div>
           </section>
@@ -300,9 +318,18 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
           {/* Pagamento */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Pagamento</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
-                <Label>Valor total (USD)</Label>
+                <Label>Moeda</Label>
+                <Select value={form.currency} onValueChange={(v) => set("currency", v)}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Valor total ({form.currency})</Label>
                 <Input type="number" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} />
               </div>
               <div>
