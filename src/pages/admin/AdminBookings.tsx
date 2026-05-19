@@ -29,6 +29,9 @@ type Booking = {
   pickup_location: string | null;
   return_location: string | null;
   total_price: number | null;
+  deposit_amount: number | null;
+  deposit_refund_days: number | null;
+  franchise_amount: number | null;
   status: string;
   notes: string | null;
   driver_age: number | null;
