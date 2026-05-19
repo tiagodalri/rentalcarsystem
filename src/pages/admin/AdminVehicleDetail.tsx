@@ -511,10 +511,16 @@ export default function AdminVehicleDetail() {
                     const total = vehicle.photos!.length;
                     return (
                       <div key={url} className="group relative aspect-square rounded-lg overflow-hidden border border-border/40 bg-muted/30">
-                        <img src={url} alt="Foto do veículo" className="w-full h-full object-cover" loading="lazy" />
+                        <img
+                          src={url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/") + (url.includes("?") ? "&" : "?") + "width=400&height=400&resize=cover&quality=70"}
+                          alt="Foto do veículo"
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
 
                         {/* Badges */}
-                        <div className="absolute top-2 left-2 flex flex-col gap-1">
+                        <div className="absolute top-2 left-2 flex flex-col gap-1 pointer-events-none">
                           <div className="bg-background/90 text-foreground text-[9px] font-bold px-2 py-0.5 rounded-full">
                             #{idx + 1}
                           </div>
@@ -535,7 +541,7 @@ export default function AdminVehicleDetail() {
                           <button
                             onClick={() => movePhoto(url, -1)}
                             disabled={idx === 0}
-                            className="w-7 h-7 rounded-md bg-background/80 hover:bg-background text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="w-7 h-7 rounded-md bg-background/80 hover:bg-background text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
                             title="Mover para a esquerda"
                           >
                             <ArrowLeft size={13} />
@@ -543,15 +549,15 @@ export default function AdminVehicleDetail() {
                           <button
                             onClick={() => movePhoto(url, 1)}
                             disabled={idx === total - 1}
-                            className="w-7 h-7 rounded-md bg-background/80 hover:bg-background text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                            className="w-7 h-7 rounded-md bg-background/80 hover:bg-background text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed"
                             title="Mover para a direita"
                           >
                             <ArrowRight size={13} />
                           </button>
                         </div>
 
-                        {/* Hover actions */}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-colors flex flex-col items-center justify-center gap-2 opacity-0 group-hover:opacity-100 p-2">
+                        {/* Hover actions — opacity-only transition (GPU friendly) */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col items-center justify-center gap-2 p-2 pointer-events-none group-hover:pointer-events-auto">
                           {!isFirst && (
                             <button
                               onClick={() => setAsFirst(url)}
