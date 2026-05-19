@@ -474,13 +474,20 @@ export default function AdminVehicleDetail() {
               {/* Capa atual */}
               <div className="mb-6">
                 <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Capa atual (exibida no site e nos cards)</p>
-                <div className="relative w-full max-w-md aspect-video rounded-xl overflow-hidden border border-border/40 bg-muted/30">
-                  <img
-                    src={vehicle.image_url || getCoverImage(vehicle.name)}
-                    alt={vehicle.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                {(() => {
+                  const cover = vehicle.image_url || vehicle.photos?.[0] || "";
+                  return cover ? (
+                    <div className="relative w-full max-w-md aspect-video rounded-xl overflow-hidden border border-border/40 bg-muted/30">
+                      <img src={cover} alt={vehicle.name} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="relative w-full max-w-md aspect-video rounded-xl border border-dashed border-border bg-muted/20 flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                      <ImageIcon size={28} className="opacity-50" />
+                      <p className="text-xs">Nenhuma capa definida</p>
+                      <p className="text-[10px] opacity-70">Envie fotos abaixo e marque uma como capa</p>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Galeria de fotos enviadas */}
