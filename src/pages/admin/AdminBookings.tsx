@@ -1211,7 +1211,7 @@ export default function AdminBookings() {
                             <div className="flex items-center gap-2.5 min-w-[160px]">
                               {b.vehicle_image ? (
                                 <img
-                                  src={storageThumb(b.vehicle_image, 96, 72, 70) || b.vehicle_image}
+                                  src={b.vehicle_image}
                                   alt={b.vehicle_name || ""}
                                   className="w-12 h-9 rounded-md object-cover bg-muted border border-border/30 flex-shrink-0"
                                   loading="lazy"
