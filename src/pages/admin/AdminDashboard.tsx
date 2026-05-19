@@ -55,8 +55,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function load() {
       const [bookings, vehicles, customers] = await Promise.all([
-        supabase.from("bookings").select("*"),
-        supabase.from("vehicles").select("*"),
+        supabase.from("bookings").select("id, status, created_at, return_date, total_price, customer_name, customer_email, vehicle_id, pickup_date").order("created_at", { ascending: false }).limit(500),
+        supabase.from("vehicles").select("id, name, status, purchase_price, current_odometer, next_service_km"),
         supabase.from("customers").select("id, driver_license_expiry"),
       ]);
 
