@@ -201,11 +201,11 @@ export function EditBookingDialog({ open, onOpenChange, booking, onSaved }: Prop
               </div>
               <div>
                 <Label className="text-xs">Valor total (USD)</Label>
-                <Input type="number" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} />
+                <Input type="number" step="0.01" inputMode="decimal" placeholder="0,00" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} className="tabular-nums" />
               </div>
               <div>
                 <Label className="text-xs">Idade do condutor</Label>
-                <Input type="number" value={form.driver_age} onChange={(e) => set("driver_age", e.target.value)} />
+                <Input type="number" inputMode="numeric" placeholder="—" value={form.driver_age} onChange={(e) => set("driver_age", e.target.value)} className="tabular-nums" />
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <input

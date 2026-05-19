@@ -652,9 +652,11 @@ export default function AdminInspection() {
                 <label className="text-sm font-medium text-foreground">Leitura do Odômetro (km)</label>
                 <Input
                   type="number"
+                  inputMode="numeric"
                   value={odometer}
                   onChange={(e) => setOdometer(e.target.value)}
                   placeholder="Ex: 45230"
+                  className="tabular-nums"
                   disabled={isCompleted}
                 />
                 <div className="flex-1 flex flex-col">
