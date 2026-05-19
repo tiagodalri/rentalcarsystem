@@ -123,6 +123,7 @@ export default function AdminVehicleDetail() {
   const { vehicleId } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(searchParams.get("tab") ?? "agenda");
