@@ -609,7 +609,7 @@ export default function AdminVehicleDetail() {
                                 className="relative block w-full aspect-square bg-muted/30 overflow-hidden"
                               >
                                 <img
-                                  src={thumb(url, 500, 500)}
+                                  src={url}
                                   alt={`Foto ${idx + 1}`}
                                   className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                                   loading="lazy"
