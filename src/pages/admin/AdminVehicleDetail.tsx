@@ -11,9 +11,11 @@ import {
   BarChart3, MapPin, FileText, Settings, Pencil, X,
   Hash, Palette, StickyNote, CalendarDays,
   Plus, Wrench, Shield, CircleAlert, TrendingDown, TrendingUp,
-  Trash2, Activity, Heart, AlertCircle, Ban, ImageIcon, Upload, Star, ArrowLeft, ArrowRight, ArrowUpToLine, Maximize2, ChevronRight, Camera, Paperclip, ExternalLink
+  Trash2, Activity, Heart, AlertCircle, Ban, ImageIcon, Upload, Star, ArrowLeft, ArrowRight, ArrowUpToLine, Maximize2, ChevronRight, Camera, Paperclip, ExternalLink, Briefcase
 } from "lucide-react";
 import { getCoverImage } from "@/data/vehicleImages";
+import { coverImageMap } from "@/data/fleetAssets";
+import { useLanguage } from "@/i18n/LanguageContext";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { Receipt, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -121,6 +123,7 @@ export default function AdminVehicleDetail() {
   const { vehicleId } = useParams();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(searchParams.get("tab") ?? "agenda");
@@ -587,37 +590,57 @@ export default function AdminVehicleDetail() {
                         </p>
                       </div>
                     </div>
-                    <div className="max-w-sm">
-                      <div className="group relative overflow-hidden rounded-2xl border border-border/10 bg-card">
-                        <div className="relative h-64 overflow-hidden bg-muted/20">
-                          {cover ? (
-                            <img
-                              src={cover}
-                              alt={vehicle.name}
-                              className="w-full h-full object-cover object-[center_40%]"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                              <ImageIcon size={36} className="opacity-40" />
+                    {(() => {
+                      const publicCover = coverImageMap[vehicle.name] || vehicle.image_url || photos[0] || "";
+                      const vehicleT = (t.vehicles as any)?.[vehicle.name];
+                      const isPreparing = vehicle.status === "preparing";
+                      return (
+                        <div className="max-w-sm">
+                          <div className="relative overflow-hidden rounded-2xl cursor-pointer border border-border/10 bg-card">
+                            <div className="relative h-64 overflow-hidden bg-muted/20">
+                              {publicCover ? (
+                                <img
+                                  src={publicCover}
+                                  alt={vehicle.name}
+                                  className="w-full h-full object-cover object-[center_40%]"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                  <ImageIcon size={36} className="opacity-40" />
+                                </div>
+                              )}
+                              {isPreparing && (
+                                <div className="absolute top-4 right-4 z-10">
+                                  <span className="bg-primary/90 text-primary-foreground text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg backdrop-blur-sm shadow-lg">
+                                    Em preparação
+                                  </span>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        <div className="bg-card px-5 py-4 border-t border-border/40">
-                          <h3 className="text-lg font-black uppercase tracking-wider text-foreground">{vehicle.name}</h3>
-                          <div className="flex items-center gap-5 mt-3 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1.5">
-                              <Users size={14} className="text-primary" /> {vehicle.passengers} {vehicle.passengers === 1 ? "passageiro" : "passageiros"}
-                            </span>
-                            {vehicle.bags > 0 && (
-                              <span className="flex items-center gap-1.5">
-                                <Paperclip size={14} className="text-primary" /> {vehicle.bags} {vehicle.bags === 1 ? "mala" : "malas"}
-                              </span>
-                            )}
+                            <div className="bg-card px-5 py-4 border-t border-border/40">
+                              <h3 className="text-lg font-black uppercase tracking-wider text-foreground">{vehicle.name}</h3>
+                              {vehicleT?.subtitle && (
+                                <p className="text-xs text-primary font-medium italic mt-1">{vehicleT.subtitle}</p>
+                              )}
+                              <div className="flex items-center gap-5 mt-3 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1.5">
+                                  <Users size={14} className="text-primary" /> {vehicle.passengers} {vehicle.passengers === 1 ? "passageiro" : "passageiros"}
+                                </span>
+                                {vehicle.bags > 0 && (
+                                  <span className="flex items-center gap-1.5">
+                                    <Briefcase size={14} className="text-primary" /> {vehicle.bags} {vehicle.bags === 1 ? "mala" : "malas"}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
+                          <p className="text-[10px] text-muted-foreground mt-2 uppercase tracking-wider">
+                            Aparência real do card em /frota
+                          </p>
                         </div>
-                      </div>
-                    </div>
+                      );
+                    })()}
                   </CardContent>
                 </Card>
 
