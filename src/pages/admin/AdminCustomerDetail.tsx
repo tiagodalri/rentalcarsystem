@@ -466,6 +466,14 @@ export default function AdminCustomerDetail() {
           </Card>
         </div>
       </div>
+
+      {/* Notes timeline */}
+      <Card className="bg-card/80 border-border/30">
+        <CardContent className="p-5">
+          <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.1em] mb-4">Anotações Internas</h2>
+          <CustomerNotesTimeline customerId={customer.id} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
