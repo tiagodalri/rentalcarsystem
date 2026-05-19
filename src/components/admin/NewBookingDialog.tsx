@@ -57,6 +57,32 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
   const [extractText, setExtractText] = useState("");
   const [pendingFields, setPendingFields] = useState<Set<string>>(new Set());
   const [extractedOnce, setExtractedOnce] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+
+  const isAcceptedFile = (f: File) =>
+    f.type.startsWith("image/") || f.type === "application/pdf";
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+    if (extracting) return;
+    const file = Array.from(e.dataTransfer.files || []).find(isAcceptedFile);
+    if (file) {
+      handleExtract(file);
+    } else if (e.dataTransfer.files?.length) {
+      toast({ title: "Formato não suportado", description: "Envie uma imagem ou PDF.", variant: "destructive" });
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (extracting) return;
+    const file = Array.from(e.clipboardData?.files || []).find(isAcceptedFile);
+    if (file) {
+      e.preventDefault();
+      handleExtract(file);
+    }
+  };
 
   const handleSelectCustomer = (c: CustomerLite | null) => {
     setCustomer(c);
