@@ -574,6 +574,53 @@ export default function AdminVehicleDetail() {
                   </Card>
                 </div>
 
+                {/* PREVIEW DO ANÚNCIO */}
+                <Card className="border-border/40">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                      <div>
+                        <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                          <ExternalLink size={14} className="text-primary" /> Preview do anúncio
+                        </h3>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          Como o card deste veículo aparece na frota pública.
+                        </p>
+                      </div>
+                    </div>
+                    <div className="max-w-sm">
+                      <div className="group relative overflow-hidden rounded-2xl border border-border/10 bg-card">
+                        <div className="relative h-64 overflow-hidden bg-muted/20">
+                          {cover ? (
+                            <img
+                              src={cover}
+                              alt={vehicle.name}
+                              className="w-full h-full object-cover object-[center_40%]"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                              <ImageIcon size={36} className="opacity-40" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="bg-card px-5 py-4 border-t border-border/40">
+                          <h3 className="text-lg font-black uppercase tracking-wider text-foreground">{vehicle.name}</h3>
+                          <div className="flex items-center gap-5 mt-3 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1.5">
+                              <Users size={14} className="text-primary" /> {vehicle.passengers} {vehicle.passengers === 1 ? "passageiro" : "passageiros"}
+                            </span>
+                            {vehicle.bags > 0 && (
+                              <span className="flex items-center gap-1.5">
+                                <Paperclip size={14} className="text-primary" /> {vehicle.bags} {vehicle.bags === 1 ? "mala" : "malas"}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* GALERIA */}
                 <Card className="border-border/40">
                   <CardContent className="p-5">
@@ -583,7 +630,7 @@ export default function AdminVehicleDetail() {
                           <ImageIcon size={14} className="text-primary" /> Galeria completa
                         </h3>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
-                          Use as setas para reordenar. Clique numa foto para ampliar.
+                          Arraste as fotos para reordenar. Clique numa foto para ampliar.
                         </p>
                       </div>
                     </div>
@@ -599,14 +646,37 @@ export default function AdminVehicleDetail() {
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
                         {photos.map((url, idx) => {
                           const isCover = vehicle.image_url === url;
-                          const isFirst = idx === 0;
-                          const total = photos.length;
+                          const isDragging = draggedIdx === idx;
+                          const isDropTarget = dragOverIdx === idx && draggedIdx !== null && draggedIdx !== idx;
                           return (
                             <div
                               key={url}
-                              className="group relative rounded-xl overflow-hidden border border-border/40 bg-card shadow-sm hover:shadow-md hover:border-primary/40 transition-all"
+                              draggable
+                              onDragStart={(e) => {
+                                setDraggedIdx(idx);
+                                e.dataTransfer.effectAllowed = "move";
+                                try { e.dataTransfer.setData("text/plain", String(idx)); } catch {}
+                              }}
+                              onDragOver={(e) => {
+                                if (draggedIdx === null) return;
+                                e.preventDefault();
+                                e.dataTransfer.dropEffect = "move";
+                                if (dragOverIdx !== idx) setDragOverIdx(idx);
+                              }}
+                              onDragLeave={() => { if (dragOverIdx === idx) setDragOverIdx(null); }}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                if (draggedIdx !== null && draggedIdx !== idx) reorderPhotos(draggedIdx, idx);
+                                setDraggedIdx(null);
+                                setDragOverIdx(null);
+                              }}
+                              onDragEnd={() => { setDraggedIdx(null); setDragOverIdx(null); }}
+                              className={`group relative rounded-xl overflow-hidden border bg-card shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing ${
+                                isDragging ? "opacity-40 border-primary" :
+                                isDropTarget ? "border-primary ring-2 ring-primary/40 scale-[1.02]" :
+                                "border-border/40 hover:border-primary/40"
+                              }`}
                             >
-                              {/* Thumbnail (clica pra ampliar) */}
                               <button
                                 onClick={() => setLightboxIdx(idx)}
                                 className="relative block w-full aspect-square bg-muted/30 overflow-hidden"
@@ -614,11 +684,11 @@ export default function AdminVehicleDetail() {
                                 <img
                                   src={url}
                                   alt={`Foto ${idx + 1}`}
-                                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                                  draggable={false}
+                                  className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105 pointer-events-none"
                                   loading="lazy"
                                   decoding="async"
                                 />
-                                {/* Numeração */}
                                 <div className="absolute top-2 left-2 flex flex-col gap-1">
                                   <span className="bg-background/95 text-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
                                     #{idx + 1}
@@ -628,65 +698,29 @@ export default function AdminVehicleDetail() {
                                       <Star size={9} fill="currentColor" /> CAPA
                                     </span>
                                   )}
-                                  {isFirst && !isCover && (
-                                    <span className="bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
-                                      PADRÃO
-                                    </span>
-                                  )}
                                 </div>
-                                {/* Indicador de ampliar */}
                                 <div className="absolute bottom-2 right-2 w-7 h-7 rounded-md bg-background/90 text-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
                                   <Maximize2 size={12} />
                                 </div>
                               </button>
 
-                              {/* Barra de ações sempre visível (compatível com mobile) */}
-                              <div className="flex items-center justify-between px-2 py-1.5 border-t border-border/40 bg-card">
-                                <div className="flex items-center gap-0.5">
+                              <div className="flex items-center justify-end gap-0.5 px-2 py-1.5 border-t border-border/40 bg-card">
+                                {!isCover && (
                                   <button
-                                    onClick={() => movePhoto(url, -1)}
-                                    disabled={idx === 0}
-                                    className="w-7 h-7 rounded-md hover:bg-muted text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                                    title="Mover para trás"
+                                    onClick={() => setAsCover(url)}
+                                    className="w-7 h-7 rounded-md hover:bg-primary/10 text-primary flex items-center justify-center transition-colors"
+                                    title="Definir como capa"
                                   >
-                                    <ArrowLeft size={13} />
+                                    <Star size={13} />
                                   </button>
-                                  <button
-                                    onClick={() => movePhoto(url, 1)}
-                                    disabled={idx === total - 1}
-                                    className="w-7 h-7 rounded-md hover:bg-muted text-foreground flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                                    title="Mover para frente"
-                                  >
-                                    <ArrowRight size={13} />
-                                  </button>
-                                </div>
-                                <div className="flex items-center gap-0.5">
-                                  {!isCover && (
-                                    <button
-                                      onClick={() => setAsCover(url)}
-                                      className="w-7 h-7 rounded-md hover:bg-primary/10 text-primary flex items-center justify-center transition-colors"
-                                      title="Definir como capa"
-                                    >
-                                      <Star size={13} />
-                                    </button>
-                                  )}
-                                  {!isFirst && (
-                                    <button
-                                      onClick={() => setAsFirst(url)}
-                                      className="w-7 h-7 rounded-md hover:bg-amber-500/10 text-amber-600 dark:text-amber-500 flex items-center justify-center transition-colors"
-                                      title="Tornar a primeira"
-                                    >
-                                      <ArrowUpToLine size={13} />
-                                    </button>
-                                  )}
-                                  <button
-                                    onClick={() => removePhoto(url)}
-                                    className="w-7 h-7 rounded-md hover:bg-destructive/10 text-destructive flex items-center justify-center transition-colors"
-                                    title="Remover foto"
-                                  >
-                                    <Trash2 size={13} />
-                                  </button>
-                                </div>
+                                )}
+                                <button
+                                  onClick={() => removePhoto(url)}
+                                  className="w-7 h-7 rounded-md hover:bg-destructive/10 text-destructive flex items-center justify-center transition-colors"
+                                  title="Remover foto"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
                               </div>
                             </div>
                           );
