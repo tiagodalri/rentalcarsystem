@@ -562,8 +562,8 @@ export default function AdminBookings() {
   const load = async () => {
     setLoading(true);
     const [bRes, vRes] = await Promise.all([
-      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, deposit_amount, deposit_refund_days, franchise_amount, vehicle_id, plan_id, addons, notes, created_at, customer_id").order("created_at", { ascending: false }).limit(1000),
-      supabase.from("vehicles").select("id, name, image_url, photos"),
+      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, deposit_amount, deposit_refund_days, franchise_amount, vehicle_id, plan_id, addons, notes, created_at, customer_id").is("deleted_at", null).order("created_at", { ascending: false }).limit(1000),
+      supabase.from("vehicles").select("id, name, image_url, photos").is("deleted_at", null),
     ]);
     const vehicleMap: Record<string, { name: string; image: string }> = {};
     (vRes.data || []).forEach((v: any) => {
@@ -657,9 +657,10 @@ export default function AdminBookings() {
   };
 
   const deleteBooking = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta reserva?")) return;
-    await supabase.from("bookings").delete().eq("id", id);
-    toast({ title: "Reserva excluída" });
+    if (!confirm("Tem certeza que deseja excluir esta reserva? (Pode ser restaurada por um administrador)")) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from("bookings").update({ deleted_at: new Date().toISOString(), deleted_by: user?.id ?? null }).eq("id", id);
+    toast({ title: "Reserva excluída", description: "Movida para a lixeira. Pode ser restaurada nos logs de auditoria." });
     load();
   };
 
@@ -1178,7 +1179,70 @@ export default function AdminBookings() {
                 />
               )
             ) : (
-              <div className="overflow-x-auto">
+              <>
+                {/* Mobile: card list */}
+                <div className="md:hidden divide-y divide-border/15">
+                  {filtered.map((b) => {
+                    const sc = statusConfig[b.status] || statusConfig.pending;
+                    const progress = getBookingProgress(b.pickup_date, b.return_date, b.status);
+                    return (
+                      <div
+                        key={b.id}
+                        onClick={() => navigate(`/admin/bookings/${b.id}`)}
+                        className={`p-3.5 active:bg-muted/40 transition-colors cursor-pointer border-l-[3px] ${sc.accent}`}
+                      >
+                        <div className="flex items-start gap-3">
+                          {b.vehicle_image ? (
+                            <img
+                              src={b.vehicle_image}
+                              alt={b.vehicle_name || ""}
+                              className="w-14 h-10 rounded-md object-cover bg-muted border border-border/30 flex-shrink-0"
+                              loading="lazy"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                            />
+                          ) : (
+                            <div className="w-14 h-10 rounded-md bg-muted border border-border/30 flex-shrink-0 flex items-center justify-center">
+                              <Car className="w-4 h-4 text-muted-foreground/50" />
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="font-semibold text-[14px] text-foreground truncate">{b.customer_name}</p>
+                              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border whitespace-nowrap ${sc.color}`}>
+                                {sc.label}
+                              </span>
+                            </div>
+                            <p className="text-[12px] text-muted-foreground truncate">{b.vehicle_name || "—"}</p>
+                            <div className="flex items-center justify-between mt-1.5 text-[11px] tabular-nums text-muted-foreground">
+                              <span>
+                                {new Date(b.pickup_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                                {" → "}
+                                {new Date(b.return_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                              </span>
+                              <span className="text-foreground font-semibold">${b.total_price?.toFixed(0) || "—"}</span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-2">
+                              <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${
+                                    b.status === "completed" ? "bg-emerald-500"
+                                    : b.status === "active" || b.status === "in_progress" ? "bg-amber-500"
+                                    : "bg-muted-foreground/20"
+                                  }`}
+                                  style={{ width: `${progress}%` }}
+                                />
+                              </div>
+                              <span className="text-[10px] text-muted-foreground tabular-nums min-w-[28px] text-right">{progress}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Desktop: table */}
+                <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border/30 bg-muted/20">
@@ -1318,7 +1382,8 @@ export default function AdminBookings() {
                     })}
                   </tbody>
                 </table>
-              </div>
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
