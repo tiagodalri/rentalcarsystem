@@ -1,4 +1,4 @@
-import { LayoutDashboard, Car, CalendarRange, Users, LogOut, Settings, Radio, BarChart3, DollarSign, UsersRound, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Car, CalendarRange, Users, LogOut, Settings, Radio, BarChart3, DollarSign, UsersRound, TrendingUp, Sparkles, CalendarDays } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
@@ -19,8 +19,10 @@ type MenuItem = { title: string; url: string; icon: typeof LayoutDashboard; allo
 
 const menuItems: MenuItem[] = [
   { title: "Dashboard",     url: "/admin",                  icon: LayoutDashboard, allowedRoles: ["admin","finance","operations","support"] },
+  { title: "Operação Hoje", url: "/admin/ops-today",        icon: Sparkles,        allowedRoles: ["admin","operations","support"] },
   { title: "Live",          url: "/admin/live",             icon: Radio,           allowedRoles: ["admin","operations"] },
   { title: "Reservas",      url: "/admin/bookings",         icon: CalendarRange,   allowedRoles: ["admin","operations","support"] },
+  { title: "Calendário",    url: "/admin/calendar",         icon: CalendarDays,    allowedRoles: ["admin","operations","support"] },
   { title: "Frota",         url: "/admin/fleet",            icon: Car,             allowedRoles: ["admin","operations"] },
   { title: "Clientes",      url: "/admin/customers",        icon: Users,           allowedRoles: ["admin","operations","support"] },
   { title: "Financeiro",    url: "/admin/finance",          icon: DollarSign,      allowedRoles: ["admin","finance"] },

@@ -2,11 +2,13 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, Pencil, Trash2, X, FileText, Upload, Camera, Loader2, ExternalLink, Copy, Check, Users } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, X, FileText, Upload, Camera, Loader2, ExternalLink, Copy, Check, Users, MessageCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { CustomerTagsInline } from "@/components/admin/CustomerTagsManager";
+import { buildWhatsAppUrl, defaultClientMessage } from "@/lib/whatsapp";
 
 type Customer = {
   id: string;
@@ -317,24 +319,42 @@ export default function AdminCustomers() {
                   <tr className="border-b border-border/30 bg-muted/20">
                     <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Nome</th>
                     <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Contato</th>
+                    <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Tags</th>
                     <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">CPF</th>
                     <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">CNH</th>
-                    <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Nacionalidade</th>
                     <th className="px-5 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Reservas</th>
                     <th className="px-5 py-3 w-20"></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((c) => (
+                  {filtered.map((c) => {
+                    const wa = buildWhatsAppUrl(c.phone, defaultClientMessage(c.full_name));
+                    return (
                     <tr key={c.id} onClick={() => navigate(`/admin/customers/${c.id}`)} className="border-b border-border/10 hover:bg-muted/20 transition-colors group cursor-pointer">
                       <td className="px-5 py-3.5 text-foreground font-medium text-[13px]">{c.full_name}</td>
                       <td className="px-5 py-3.5">
                         <p className="text-muted-foreground text-xs">{c.email || "—"}</p>
-                        <p className="text-[11px] text-muted-foreground/50 mt-0.5">{c.phone || ""}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-[11px] text-muted-foreground/60">{c.phone || ""}</p>
+                          {wa && (
+                            <a
+                              href={wa}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[9px] font-semibold hover:bg-emerald-500/20 transition-colors"
+                              title="Enviar WhatsApp"
+                            >
+                              <MessageCircle size={9} /> WA
+                            </a>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <CustomerTagsInline customerId={c.id} />
                       </td>
                       <td className="px-5 py-3.5 text-muted-foreground text-xs font-mono tabular-nums">{c.document_number || "—"}</td>
                       <td className="px-5 py-3.5 text-muted-foreground text-xs">{c.driver_license || "—"}</td>
-                      <td className="px-5 py-3.5 text-muted-foreground text-xs">{c.nationality || "—"}</td>
                       <td className="px-5 py-3.5 text-center">
                         {c.booking_count ? (
                           <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/8 px-2 py-0.5 rounded-md border border-primary/15">
@@ -361,7 +381,7 @@ export default function AdminCustomers() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  );})}
                 </tbody>
               </table>
             </div>

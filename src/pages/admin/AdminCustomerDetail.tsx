@@ -6,10 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import {
   ChevronRight, User, Mail, Phone, FileText, MapPin,
   DollarSign, Calendar, AlertTriangle, Car, TrendingUp,
-  Globe, CreditCard, Pencil, Star, ShieldAlert, AlertCircle,
+  Globe, CreditCard, Pencil, Star, ShieldAlert, AlertCircle, MessageCircle,
 } from "lucide-react";
 import { CustomerDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { CustomerTagsManager } from "@/components/admin/CustomerTagsManager";
+import { CustomerNotesTimeline } from "@/components/admin/CustomerNotesTimeline";
+import { buildWhatsAppUrl, defaultClientMessage } from "@/lib/whatsapp";
 
 type Customer = {
   id: string;
@@ -207,15 +210,32 @@ export default function AdminCustomerDetail() {
 
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-        <div className="space-y-1.5">
+        <div className="space-y-2 min-w-0">
           <h1 className="text-2xl font-bold text-foreground tracking-tight">{customer.full_name}</h1>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
             {customer.email && <span className="flex items-center gap-1"><Mail size={11} /> {customer.email}</span>}
             {customer.phone && <span className="flex items-center gap-1"><Phone size={11} /> {customer.phone}</span>}
             <span className="text-border">|</span>
             <span>Cliente desde {new Date(customer.created_at).toLocaleDateString("pt-BR")}</span>
           </div>
+          <div className="pt-1">
+            <CustomerTagsManager customerId={customer.id} />
+          </div>
         </div>
+        {(() => {
+          const wa = buildWhatsAppUrl(customer.phone, defaultClientMessage(customer.full_name));
+          if (!wa) return null;
+          return (
+            <a
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider hover:bg-emerald-500/25 transition-colors shrink-0"
+            >
+              <MessageCircle size={14} /> Enviar WhatsApp
+            </a>
+          );
+        })()}
       </div>
 
       {/* Metric cards */}
@@ -446,6 +466,14 @@ export default function AdminCustomerDetail() {
           </Card>
         </div>
       </div>
+
+      {/* Notes timeline */}
+      <Card className="bg-card/80 border-border/30">
+        <CardContent className="p-5">
+          <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.1em] mb-4">Anotações Internas</h2>
+          <CustomerNotesTimeline customerId={customer.id} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
