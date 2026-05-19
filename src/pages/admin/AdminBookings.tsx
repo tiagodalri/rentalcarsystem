@@ -1216,9 +1216,12 @@ export default function AdminBookings() {
                                   alt={b.vehicle_name || ""}
                                   className="w-12 h-9 rounded-md object-cover bg-muted border border-border/30 flex-shrink-0"
                                   loading="lazy"
+                                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                                 />
                               ) : (
-                                <div className="w-12 h-9 rounded-md bg-muted border border-border/30 flex-shrink-0" />
+                                <div className="w-12 h-9 rounded-md bg-muted border border-border/30 flex-shrink-0 flex items-center justify-center">
+                                  <Car className="w-4 h-4 text-muted-foreground/50" />
+                                </div>
                               )}
                               <span className="text-foreground text-[13px] font-medium truncate">{b.vehicle_name || "—"}</span>
                             </div>
