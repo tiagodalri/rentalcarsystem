@@ -183,6 +183,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       total_price: form.total_price ? Number(form.total_price) : null,
       status: form.status,
       notes: form.notes || null,
+      deposit_amount: form.deposit_amount ? Number(form.deposit_amount) : 0,
+      deposit_refund_days: form.deposit_refund_days ? Number(form.deposit_refund_days) : null,
+      franchise_amount: form.franchise_amount ? Number(form.franchise_amount) : 0,
       addons: {
         payment_method: form.payment_method,
         currency: form.currency,
@@ -211,6 +214,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       plan_id: "conforto", total_price: "", currency: "USD",
       payment_method: "Cartão de Crédito", contract_url: "",
       status: "confirmed", notes: "",
+      deposit_amount: "", deposit_refund_days: "", franchise_amount: "",
     });
   };
 
