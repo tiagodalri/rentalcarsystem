@@ -91,6 +91,14 @@ export default function AdminBookingDetail() {
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const { isAdmin } = useAdminAuth();
+
+  const reload = async () => {
+    if (!bookingId) return;
+    const { data: b } = await supabase.from("bookings").select("*").eq("id", bookingId).single();
+    if (b) setBooking(b);
+  };
 
   useEffect(() => {
     if (!bookingId) return;
