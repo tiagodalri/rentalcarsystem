@@ -339,6 +339,58 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
         </DialogHeader>
 
         <div className="space-y-5 py-2">
+          {/* IA - Extração inteligente */}
+          <section className="rounded-lg border border-primary/30 bg-primary/5 p-4">
+            <div className="flex items-start gap-2 mb-3">
+              <Sparkles size={16} className="text-primary mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold">Extrair dados com IA</h3>
+                <p className="text-xs text-muted-foreground">
+                  Envie um print do WhatsApp, foto, PDF ou cole o texto da conversa. A IA preenche o formulário e destaca em amarelo o que ficou pendente.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <label className="flex items-center justify-center gap-2 cursor-pointer px-3 py-2 rounded-md border border-border bg-card hover:bg-muted text-sm font-medium">
+                {extracting ? <Loader2 size={14} className="animate-spin" /> : <ImageIcon size={14} />}
+                {extracting ? "Analisando..." : "Enviar print/PDF"}
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  className="hidden"
+                  disabled={extracting}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleExtract(f);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleExtract()}
+                disabled={extracting || !extractText.trim()}
+              >
+                {extracting ? <Loader2 size={14} className="animate-spin mr-1" /> : <Sparkles size={14} className="mr-1" />}
+                Extrair do texto
+              </Button>
+            </div>
+            <Textarea
+              rows={2}
+              className="mt-2 text-sm"
+              placeholder="Ou cole aqui o texto da mensagem do WhatsApp..."
+              value={extractText}
+              onChange={(e) => setExtractText(e.target.value)}
+            />
+            {extractedOnce && pendingFields.size > 0 && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                {pendingFields.size} campo(s) pendente(s) destacado(s) em amarelo.
+              </p>
+            )}
+          </section>
+
           {/* Cliente */}
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Cliente</h3>
