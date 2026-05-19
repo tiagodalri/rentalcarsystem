@@ -17,7 +17,7 @@ const DRAFT_KEY = "new-booking";
 
 const PENDING_CLASS = "ring-1 ring-amber-500/60 focus-visible:ring-amber-500";
 
-type Vehicle = { id: string; name: string; daily_price_usd: number };
+type Vehicle = { id: string; name: string; daily_price_usd: number; default_deposit_amount?: number | null; default_franchise_amount?: number | null };
 
 interface Props {
   open: boolean;
