@@ -506,7 +506,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
               </div>
               <div>
                 <Label>Valor total ({form.currency})</Label>
-                <Input type="number" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} />
+                <Input className={pendingClass("total_price")} type="number" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} />
               </div>
               <div>
                 <Label>Forma de pagamento</Label>
