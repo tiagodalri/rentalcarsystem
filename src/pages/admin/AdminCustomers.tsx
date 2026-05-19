@@ -75,8 +75,9 @@ export default function AdminCustomers() {
     const { data: customersData } = await supabase
       .from("customers")
       .select("id, full_name, email, phone, document_number, nationality, date_of_birth, address, house_number, complement, zip_code, driver_license, driver_license_expiry, driver_license_file_url, driver_license_verified_at, created_at, user_id, notes")
+      .is("deleted_at", null)
       .order("full_name");
-    const { data: bookingsData } = await supabase.from("bookings").select("customer_id");
+    const { data: bookingsData } = await supabase.from("bookings").select("customer_id").is("deleted_at", null);
 
     const countMap: Record<string, number> = {};
     (bookingsData || []).forEach((b: any) => {
@@ -140,9 +141,10 @@ export default function AdminCustomers() {
   };
 
   const deleteCustomer = async (id: string) => {
-    if (!confirm("Excluir este cliente?")) return;
-    await supabase.from("customers").delete().eq("id", id);
-    toast({ title: "Cliente excluído" });
+    if (!confirm("Excluir este cliente? (Pode ser restaurado por um administrador)")) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from("customers").update({ deleted_at: new Date().toISOString(), deleted_by: user?.id ?? null }).eq("id", id);
+    toast({ title: "Cliente excluído", description: "Movido para a lixeira." });
     load();
   };
 

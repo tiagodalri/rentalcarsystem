@@ -70,7 +70,7 @@ export default function AdminFleet() {
 
   const load = async () => {
     setLoading(true);
-    const { data } = await supabase.from("vehicles").select("*").order("name");
+    const { data } = await supabase.from("vehicles").select("*").is("deleted_at", null).order("name");
     setVehicles((data || []) as unknown as Vehicle[]);
     setLoading(false);
   };
@@ -154,9 +154,10 @@ export default function AdminFleet() {
   };
 
   const deleteVehicle = async (id: string) => {
-    if (!confirm("Excluir este veículo?")) return;
-    await supabase.from("vehicles").delete().eq("id", id);
-    toast({ title: "Veículo excluído" });
+    if (!confirm("Excluir este veículo? (Pode ser restaurado por um administrador)")) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from("vehicles").update({ deleted_at: new Date().toISOString(), deleted_by: user?.id ?? null }).eq("id", id);
+    toast({ title: "Veículo excluído", description: "Movido para a lixeira." });
     load();
   };
 
