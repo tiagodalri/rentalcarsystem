@@ -1202,6 +1202,21 @@ export default function AdminBookings() {
                             <p className="text-foreground font-medium text-[13px]">{b.customer_name}</p>
                             <p className="text-[11px] text-muted-foreground/60 mt-0.5">{b.customer_email}</p>
                           </td>
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-2.5 min-w-[160px]">
+                              {b.vehicle_image ? (
+                                <img
+                                  src={storageThumb(b.vehicle_image, 96, 72, 70) || b.vehicle_image}
+                                  alt={b.vehicle_name || ""}
+                                  className="w-12 h-9 rounded-md object-cover bg-muted border border-border/30 flex-shrink-0"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="w-12 h-9 rounded-md bg-muted border border-border/30 flex-shrink-0" />
+                              )}
+                              <span className="text-foreground text-[13px] font-medium truncate">{b.vehicle_name || "—"}</span>
+                            </div>
+                          </td>
                           <td className="px-5 py-3.5 text-muted-foreground tabular-nums text-xs">
                             {new Date(b.pickup_date).toLocaleDateString("pt-BR")} → {new Date(b.return_date).toLocaleDateString("pt-BR")}
                           </td>
