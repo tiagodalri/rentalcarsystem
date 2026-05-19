@@ -562,8 +562,8 @@ export default function AdminBookings() {
   const load = async () => {
     setLoading(true);
     const [bRes, vRes] = await Promise.all([
-      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, deposit_amount, deposit_refund_days, franchise_amount, vehicle_id, plan_id, addons, notes, created_at, customer_id").order("created_at", { ascending: false }).limit(1000),
-      supabase.from("vehicles").select("id, name, image_url, photos"),
+      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, deposit_amount, deposit_refund_days, franchise_amount, vehicle_id, plan_id, addons, notes, created_at, customer_id").is("deleted_at", null).order("created_at", { ascending: false }).limit(1000),
+      supabase.from("vehicles").select("id, name, image_url, photos").is("deleted_at", null),
     ]);
     const vehicleMap: Record<string, { name: string; image: string }> = {};
     (vRes.data || []).forEach((v: any) => {
@@ -657,9 +657,10 @@ export default function AdminBookings() {
   };
 
   const deleteBooking = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta reserva?")) return;
-    await supabase.from("bookings").delete().eq("id", id);
-    toast({ title: "Reserva excluída" });
+    if (!confirm("Tem certeza que deseja excluir esta reserva? (Pode ser restaurada por um administrador)")) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from("bookings").update({ deleted_at: new Date().toISOString(), deleted_by: user?.id ?? null }).eq("id", id);
+    toast({ title: "Reserva excluída", description: "Movida para a lixeira. Pode ser restaurada nos logs de auditoria." });
     load();
   };
 
