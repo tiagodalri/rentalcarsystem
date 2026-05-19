@@ -124,7 +124,10 @@ export function EditBookingDialog({ open, onOpenChange, booking, onSaved }: Prop
       .eq("id", booking.id);
     setSaving(false);
     if (error) {
-      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+      const msg = error.message?.includes("bookings_no_overlap") || error.message?.toLowerCase().includes("overlap")
+        ? "Veículo já reservado nesse período. Escolha outras datas ou outro veículo."
+        : error.message;
+      toast({ title: "Erro ao salvar", description: msg, variant: "destructive" });
       return;
     }
     toast({ title: "Reserva atualizada", description: "As alterações foram salvas." });
