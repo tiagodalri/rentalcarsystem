@@ -42,14 +42,29 @@ export default function AdminCustomers() {
 
   const lookupCep = async (cep: string) => {
     const clean = cep.replace(/\D/g, "");
-    if (clean.length !== 8) return;
     setCepLoading(true);
     try {
-      const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
-      const data = await res.json();
-      if (!data.erro && editing) {
-        const addr = [data.logradouro, data.bairro, data.localidade, data.uf].filter(Boolean).join(", ");
-        setEditing(prev => prev ? { ...prev, address: addr } : prev);
+      // Brasil — CEP 8 dígitos (ViaCEP)
+      if (clean.length === 8) {
+        const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
+        const data = await res.json();
+        if (!data.erro && editing) {
+          const addr = [data.logradouro, data.bairro, data.localidade, data.uf].filter(Boolean).join(", ");
+          setEditing(prev => prev ? { ...prev, address: addr } : prev);
+        }
+      }
+      // EUA — ZIP 5 dígitos (Zippopotam)
+      else if (clean.length === 5) {
+        const res = await fetch(`https://api.zippopotam.us/us/${clean}`);
+        if (res.ok) {
+          const data = await res.json();
+          const place = data.places?.[0];
+          if (place && editing) {
+            const addr = [place["place name"], place["state abbreviation"], data["country abbreviation"] || "US"]
+              .filter(Boolean).join(", ");
+            setEditing(prev => prev ? { ...prev, address: addr } : prev);
+          }
+        }
       }
     } catch {}
     setCepLoading(false);
