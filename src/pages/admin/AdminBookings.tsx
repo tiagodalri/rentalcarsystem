@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
+import { storageThumb } from "@/lib/storageThumb";
+
 
 type Booking = {
   id: string;
@@ -34,6 +36,7 @@ type Booking = {
   vehicle_id: string | null;
   created_at: string;
   vehicle_name?: string;
+  vehicle_image?: string;
 };
 
 const statusConfig: Record<string, { label: string; color: string; calBg: string; calText: string; accent: string }> = {
@@ -556,11 +559,19 @@ export default function AdminBookings() {
     setLoading(true);
     const [bRes, vRes] = await Promise.all([
       supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, vehicle_id, plan_id, addons, notes, created_at, customer_id").order("created_at", { ascending: false }).limit(1000),
-      supabase.from("vehicles").select("id, name"),
+      supabase.from("vehicles").select("id, name, image_url, photos"),
     ]);
-    const vehicleMap: Record<string, string> = {};
-    (vRes.data || []).forEach((v: any) => { vehicleMap[v.id] = v.name; });
-    setBookings((bRes.data || []).map((b: any) => ({ ...b, vehicle_name: b.vehicle_id ? vehicleMap[b.vehicle_id] || "" : "" })));
+    const vehicleMap: Record<string, { name: string; image: string }> = {};
+    (vRes.data || []).forEach((v: any) => {
+      const photos = Array.isArray(v.photos) ? v.photos : [];
+      const firstPhoto = photos[0]?.url || photos[0] || v.image_url || "";
+      vehicleMap[v.id] = { name: v.name, image: firstPhoto };
+    });
+    setBookings((bRes.data || []).map((b: any) => ({
+      ...b,
+      vehicle_name: b.vehicle_id ? vehicleMap[b.vehicle_id]?.name || "" : "",
+      vehicle_image: b.vehicle_id ? vehicleMap[b.vehicle_id]?.image || "" : "",
+    })));
     setLoading(false);
   };
 
@@ -1166,6 +1177,7 @@ export default function AdminBookings() {
                   <thead>
                     <tr className="border-b border-border/30 bg-muted/20">
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Cliente</th>
+                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Veículo</th>
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Período</th>
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Horários</th>
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Local</th>
@@ -1189,6 +1201,21 @@ export default function AdminBookings() {
                           <td className="px-5 py-3.5">
                             <p className="text-foreground font-medium text-[13px]">{b.customer_name}</p>
                             <p className="text-[11px] text-muted-foreground/60 mt-0.5">{b.customer_email}</p>
+                          </td>
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-2.5 min-w-[160px]">
+                              {b.vehicle_image ? (
+                                <img
+                                  src={storageThumb(b.vehicle_image, 96, 72, 70) || b.vehicle_image}
+                                  alt={b.vehicle_name || ""}
+                                  className="w-12 h-9 rounded-md object-cover bg-muted border border-border/30 flex-shrink-0"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <div className="w-12 h-9 rounded-md bg-muted border border-border/30 flex-shrink-0" />
+                              )}
+                              <span className="text-foreground text-[13px] font-medium truncate">{b.vehicle_name || "—"}</span>
+                            </div>
                           </td>
                           <td className="px-5 py-3.5 text-muted-foreground tabular-nums text-xs">
                             {new Date(b.pickup_date).toLocaleDateString("pt-BR")} → {new Date(b.return_date).toLocaleDateString("pt-BR")}
