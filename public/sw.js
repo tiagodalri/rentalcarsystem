@@ -5,7 +5,7 @@
 //  - Static assets (JS/CSS/fonts/images): StaleWhileRevalidate.
 //  - Everything else: pass-through.
 
-const VERSION = "v3";
+const VERSION = "v4";
 const HTML_CACHE = `zeus-html-${VERSION}`;
 const ASSET_CACHE = `zeus-assets-${VERSION}`;
 const OFFLINE_URL = "/";
