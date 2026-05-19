@@ -391,8 +391,26 @@ export default function AdminBookingDetail() {
           >
             <GitCompare size={13} /> Comparar
           </button>
+          {isAdmin && (
+            <button
+              onClick={() => setEditOpen(true)}
+              className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors font-medium"
+              title="Editar reserva (apenas admin)"
+            >
+              <Pencil size={13} /> Editar
+            </button>
+          )}
         </div>
       </div>
+
+      {isAdmin && (
+        <EditBookingDialog
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          booking={booking}
+          onSaved={reload}
+        />
+      )}
 
       {/* Info cards row */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
