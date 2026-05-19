@@ -40,11 +40,14 @@ export default function AdminLayout() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-[100dvh] flex w-full bg-background">
         <AdminSidebar onSignOut={signOut} />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 flex items-center gap-2 sm:gap-4 border-b border-border/40 px-3 sm:px-4 bg-background/80 backdrop-blur-sm sticky top-0 z-30">
-            <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+          <header
+            className="h-14 flex items-center gap-2 sm:gap-4 border-b border-border/40 px-3 sm:px-4 bg-background/90 backdrop-blur-md sticky top-0 z-30"
+            style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+          >
+            <SidebarTrigger className="h-11 w-11 -ml-2 flex items-center justify-center text-muted-foreground hover:text-foreground" />
             <div className="flex-1" />
             <Button
               variant="outline"
@@ -52,7 +55,7 @@ export default function AdminLayout() {
               onClick={toggleTheme}
               aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
               title={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-              className="min-h-11 border-border/70 bg-card/70 px-3 text-foreground shadow-sm hover:bg-accent"
+              className="min-h-11 min-w-11 border-border/70 bg-card/70 px-3 text-foreground shadow-sm hover:bg-accent"
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               <span className="hidden sm:inline">{theme === "dark" ? "Claro" : "Escuro"}</span>
@@ -62,12 +65,16 @@ export default function AdminLayout() {
               {user.email}
             </span>
           </header>
-          <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
+          <main
+            className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto"
+            style={{ paddingBottom: "max(env(safe-area-inset-bottom, 0px), 1rem)" }}
+          >
             <Outlet />
           </main>
           <MinimalFooter />
         </div>
       </div>
     </SidebarProvider>
+
   );
 }
