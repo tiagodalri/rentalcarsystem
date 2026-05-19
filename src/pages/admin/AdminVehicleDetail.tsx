@@ -910,6 +910,11 @@ export default function AdminVehicleDetail() {
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-foreground text-sm">{et.label}</span>
                           {e.is_recurring && <Badge variant="outline" className="text-[9px]">Recorrente</Badge>}
+                          {e.receipt_url && (
+                            <a href={e.receipt_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline" title="Ver comprovante">
+                              <Paperclip size={10} /> Nota
+                            </a>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate">{e.description || e.supplier || "—"}</p>
                       </div>
