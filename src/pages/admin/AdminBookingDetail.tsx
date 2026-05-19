@@ -419,10 +419,20 @@ export default function AdminBookingDetail() {
           <Card className="bg-card/80 border-border/30">
             <CardContent className="p-5">
               <SectionTitle>Reserva</SectionTitle>
-              <DetailItem label="Retirada" value={pickup.toLocaleDateString("pt-BR")} />
-              <DetailItem label="Local de Retirada" value={booking.pickup_location} />
-              <DetailItem label="Devolução" value={returnD.toLocaleDateString("pt-BR")} />
-              <DetailItem label="Local de Devolução" value={booking.return_location} />
+
+              <div className="space-y-2.5 mb-3">
+                <LocationDisplay
+                  label="Retirada"
+                  date={pickup.toLocaleDateString("pt-BR")}
+                  address={booking.pickup_location}
+                />
+                <LocationDisplay
+                  label="Devolução"
+                  date={returnD.toLocaleDateString("pt-BR")}
+                  address={booking.return_location}
+                />
+              </div>
+
               <DetailItem label="Duração" value={`${days} dia${days > 1 ? "s" : ""}`} />
               <DetailItem label="Valor Total" value={booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"} highlight />
               <DetailItem label="Condutor Adicional" value={booking.extra_driver ? "Sim" : "Não"} />
