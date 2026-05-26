@@ -108,7 +108,37 @@ export default function AdminBookingDetail() {
   const [loading, setLoading] = useState(true);
   const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
-  const { isAdmin } = useAdminAuth();
+  const { isAdmin, hasAny } = useAdminAuth();
+  const [sendingContract, setSendingContract] = useState(false);
+
+  const canSendContract = hasAny(["admin", "operations"]);
+
+  const handleSendContract = async () => {
+    if (!booking) return;
+    setSendingContract(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-contract", {
+        body: { booking_id: booking.id },
+      });
+      if (error) {
+        const ctx: any = (error as any).context;
+        let msg = error.message;
+        try {
+          const body = ctx && typeof ctx.json === "function" ? await ctx.json() : null;
+          if (body?.error) msg = body.error;
+          if (body?.missing_fields) msg += ` (faltando: ${body.missing_fields.join(", ")})`;
+        } catch { /* ignore */ }
+        throw new Error(msg);
+      }
+      toast.success("Contrato enviado para assinatura.");
+      await reload();
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao enviar contrato.");
+      await reload();
+    } finally {
+      setSendingContract(false);
+    }
+  };
 
   const reload = async () => {
     if (!bookingId) return;
