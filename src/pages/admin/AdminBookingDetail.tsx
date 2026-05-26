@@ -406,9 +406,26 @@ export default function AdminBookingDetail() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="space-y-1.5">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-foreground tracking-tight">{booking.customer_name}</h1>
             <Badge className={`${sc.color} border text-[10px] px-2.5 py-0.5 font-semibold`}>{sc.label}</Badge>
+            {(() => {
+              const cs = contractStatusConfig[booking.contract_status || "not_sent"] || contractStatusConfig.not_sent;
+              const badge = (
+                <Badge className={`${cs.cls} border text-[10px] px-2.5 py-0.5 font-semibold`}>{cs.label}</Badge>
+              );
+              if (booking.contract_status === "failed" && booking.contract_error) {
+                return (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild><span>{badge}</span></TooltipTrigger>
+                      <TooltipContent className="max-w-sm text-xs">{booking.contract_error}</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              }
+              return badge;
+            })()}
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>{pickup.toLocaleDateString("pt-BR")} → {returnD.toLocaleDateString("pt-BR")}</span>
