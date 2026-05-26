@@ -187,7 +187,7 @@ export function generateContractPdf(
 
   section("VALORES");
   twoCols("Diária", fmtMoney(dailyRate), "Total da locação", fmtMoney(booking.total_price));
-  twoCols("Caução", "—", "Franquia / Deductible", "—");
+  twoCols("Caução", fmtMoney(booking.deposit_amount), "Franquia / Deductible", fmtMoney(booking.franchise_amount));
   row("Extras contratados", addonsList.length ? addonsList.join(" • ") : "Nenhum");
   y += 10;
 
