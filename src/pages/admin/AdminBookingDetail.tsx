@@ -6,12 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import {
   User, FileText, LogIn, LogOut, GitCompare,
   Fuel, Gauge, CheckCircle2, AlertTriangle, ChevronRight,
-  Camera, PenTool, Image, Check, X as XIcon, Pencil
+  Camera, PenTool, Image, Check, X as XIcon, Pencil, Send, Loader2
 } from "lucide-react";
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { LocationDisplay } from "@/components/admin/LocationDisplay";
 import { EditBookingDialog } from "@/components/admin/EditBookingDialog";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Booking = {
   id: string;
@@ -31,6 +33,10 @@ type Booking = {
   vehicle_id: string | null;
   created_at: string;
   updated_at: string;
+  contract_status?: string | null;
+  contract_error?: string | null;
+  clicksign_envelope_id?: string | null;
+  booking_number?: string | null;
 };
 
 type Customer = {
@@ -82,6 +88,16 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   cancelled: { label: "Cancelada", color: "bg-red-500/10 text-red-500 border-red-500/30" },
 };
 
+const contractStatusConfig: Record<string, { label: string; cls: string }> = {
+  not_sent: { label: "Contrato: não enviado", cls: "bg-muted text-muted-foreground border-border" },
+  generating: { label: "Contrato: gerando", cls: "bg-yellow-500/10 text-yellow-600 border-yellow-500/30" },
+  sent: { label: "Contrato: enviado", cls: "bg-blue-500/10 text-blue-500 border-blue-500/30" },
+  partially_signed: { label: "Contrato: parcial", cls: "bg-orange-500/10 text-orange-600 border-orange-500/30" },
+  signed: { label: "Contrato: assinado", cls: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" },
+  cancelled: { label: "Contrato: cancelado", cls: "bg-red-500/10 text-red-500 border-red-500/30" },
+  failed: { label: "Contrato: falhou", cls: "bg-red-500/10 text-red-500 border-red-500/30" },
+};
+
 export default function AdminBookingDetail() {
   const { bookingId } = useParams();
   const navigate = useNavigate();
@@ -92,7 +108,37 @@ export default function AdminBookingDetail() {
   const [loading, setLoading] = useState(true);
   const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
-  const { isAdmin } = useAdminAuth();
+  const { isAdmin, hasAny } = useAdminAuth();
+  const [sendingContract, setSendingContract] = useState(false);
+
+  const canSendContract = hasAny(["admin", "operations"]);
+
+  const handleSendContract = async () => {
+    if (!booking) return;
+    setSendingContract(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-contract", {
+        body: { booking_id: booking.id },
+      });
+      if (error) {
+        const ctx: any = (error as any).context;
+        let msg = error.message;
+        try {
+          const body = ctx && typeof ctx.json === "function" ? await ctx.json() : null;
+          if (body?.error) msg = body.error;
+          if (body?.missing_fields) msg += ` (faltando: ${body.missing_fields.join(", ")})`;
+        } catch { /* ignore */ }
+        throw new Error(msg);
+      }
+      toast.success("Contrato enviado para assinatura.");
+      await reload();
+    } catch (e: any) {
+      toast.error(e?.message || "Falha ao enviar contrato.");
+      await reload();
+    } finally {
+      setSendingContract(false);
+    }
+  };
 
   const reload = async () => {
     if (!bookingId) return;
@@ -360,9 +406,26 @@ export default function AdminBookingDetail() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="space-y-1.5">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <h1 className="text-2xl font-bold text-foreground tracking-tight">{booking.customer_name}</h1>
             <Badge className={`${sc.color} border text-[10px] px-2.5 py-0.5 font-semibold`}>{sc.label}</Badge>
+            {(() => {
+              const cs = contractStatusConfig[booking.contract_status || "not_sent"] || contractStatusConfig.not_sent;
+              const badge = (
+                <Badge className={`${cs.cls} border text-[10px] px-2.5 py-0.5 font-semibold`}>{cs.label}</Badge>
+              );
+              if (booking.contract_status === "failed" && booking.contract_error) {
+                return (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild><span>{badge}</span></TooltipTrigger>
+                      <TooltipContent className="max-w-sm text-xs">{booking.contract_error}</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              }
+              return badge;
+            })()}
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
             <span>{pickup.toLocaleDateString("pt-BR")} → {returnD.toLocaleDateString("pt-BR")}</span>
@@ -391,6 +454,16 @@ export default function AdminBookingDetail() {
           >
             <GitCompare size={13} /> Comparar
           </button>
+          {canSendContract && ["not_sent", "failed"].includes(booking.contract_status || "not_sent") && (
+            <button
+              onClick={handleSendContract}
+              disabled={sendingContract}
+              className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-medium disabled:opacity-50"
+            >
+              {sendingContract ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+              {sendingContract ? "Enviando..." : "Enviar Contrato"}
+            </button>
+          )}
           {isAdmin && (
             <button
               onClick={() => setEditOpen(true)}

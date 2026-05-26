@@ -54,6 +54,13 @@ export type Database = {
           cancellation_reason: string | null
           cancelled_at: string | null
           cancelled_by: string | null
+          clicksign_document_key: string | null
+          clicksign_envelope_id: string | null
+          contract_error: string | null
+          contract_sent_at: string | null
+          contract_signed_at: string | null
+          contract_signed_pdf_url: string | null
+          contract_status: string
           created_at: string
           customer_email: string | null
           customer_id: string | null
@@ -87,6 +94,13 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
+          clicksign_document_key?: string | null
+          clicksign_envelope_id?: string | null
+          contract_error?: string | null
+          contract_sent_at?: string | null
+          contract_signed_at?: string | null
+          contract_signed_pdf_url?: string | null
+          contract_status?: string
           created_at?: string
           customer_email?: string | null
           customer_id?: string | null
@@ -120,6 +134,13 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           cancelled_by?: string | null
+          clicksign_document_key?: string | null
+          clicksign_envelope_id?: string | null
+          contract_error?: string | null
+          contract_sent_at?: string | null
+          contract_signed_at?: string | null
+          contract_signed_pdf_url?: string | null
+          contract_status?: string
           created_at?: string
           customer_email?: string | null
           customer_id?: string | null

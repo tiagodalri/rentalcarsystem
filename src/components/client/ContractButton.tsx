@@ -16,7 +16,7 @@ const ContractButton = ({ bookingId }: ContractButtonProps) => {
     try {
       const { data: booking, error: bErr } = await supabase
         .from("bookings")
-        .select("id, booking_number, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, addons, extra_driver, customer_id, vehicle_id")
+        .select("id, booking_number, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, addons, extra_driver, customer_id, vehicle_id, deposit_amount, franchise_amount")
         .eq("id", bookingId)
         .maybeSingle();
 
