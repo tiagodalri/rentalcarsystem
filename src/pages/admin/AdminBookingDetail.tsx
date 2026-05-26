@@ -6,12 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import {
   User, FileText, LogIn, LogOut, GitCompare,
   Fuel, Gauge, CheckCircle2, AlertTriangle, ChevronRight,
-  Camera, PenTool, Image, Check, X as XIcon, Pencil
+  Camera, PenTool, Image, Check, X as XIcon, Pencil, Send, Loader2
 } from "lucide-react";
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { LocationDisplay } from "@/components/admin/LocationDisplay";
 import { EditBookingDialog } from "@/components/admin/EditBookingDialog";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Booking = {
   id: string;
