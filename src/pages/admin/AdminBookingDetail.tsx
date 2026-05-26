@@ -86,6 +86,16 @@ const statusConfig: Record<string, { label: string; color: string }> = {
   cancelled: { label: "Cancelada", color: "bg-red-500/10 text-red-500 border-red-500/30" },
 };
 
+const contractStatusConfig: Record<string, { label: string; cls: string }> = {
+  not_sent: { label: "Contrato: não enviado", cls: "bg-muted text-muted-foreground border-border" },
+  generating: { label: "Contrato: gerando", cls: "bg-yellow-500/10 text-yellow-600 border-yellow-500/30" },
+  sent: { label: "Contrato: enviado", cls: "bg-blue-500/10 text-blue-500 border-blue-500/30" },
+  partially_signed: { label: "Contrato: parcial", cls: "bg-orange-500/10 text-orange-600 border-orange-500/30" },
+  signed: { label: "Contrato: assinado", cls: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" },
+  cancelled: { label: "Contrato: cancelado", cls: "bg-red-500/10 text-red-500 border-red-500/30" },
+  failed: { label: "Contrato: falhou", cls: "bg-red-500/10 text-red-500 border-red-500/30" },
+};
+
 export default function AdminBookingDetail() {
   const { bookingId } = useParams();
   const navigate = useNavigate();
