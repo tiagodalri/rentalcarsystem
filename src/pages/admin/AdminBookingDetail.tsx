@@ -31,6 +31,10 @@ type Booking = {
   vehicle_id: string | null;
   created_at: string;
   updated_at: string;
+  contract_status?: string | null;
+  contract_error?: string | null;
+  clicksign_envelope_id?: string | null;
+  booking_number?: string | null;
 };
 
 type Customer = {
