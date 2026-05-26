@@ -2,3 +2,6 @@ project_id = "synnmssbvwbmlcxfgbwu"
 
 [functions.extract-booking]
 verify_jwt = false
+
+[functions.clicksign-webhook]
+verify_jwt = false
