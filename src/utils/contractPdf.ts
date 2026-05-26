@@ -13,6 +13,8 @@ export type ContractBooking = {
   total_price: number | null;
   addons?: any;
   extra_driver?: boolean | null;
+  deposit_amount?: number | null;
+  franchise_amount?: number | null;
 };
 
 export type ContractCustomer = {
