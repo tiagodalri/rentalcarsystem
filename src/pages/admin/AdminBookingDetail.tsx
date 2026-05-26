@@ -454,6 +454,16 @@ export default function AdminBookingDetail() {
           >
             <GitCompare size={13} /> Comparar
           </button>
+          {canSendContract && ["not_sent", "failed"].includes(booking.contract_status || "not_sent") && (
+            <button
+              onClick={handleSendContract}
+              disabled={sendingContract}
+              className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-medium disabled:opacity-50"
+            >
+              {sendingContract ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+              {sendingContract ? "Enviando..." : "Enviar Contrato"}
+            </button>
+          )}
           {isAdmin && (
             <button
               onClick={() => setEditOpen(true)}
