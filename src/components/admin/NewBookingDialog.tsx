@@ -725,36 +725,8 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             </div>
           </Section>
 
-          {/* 6. Contrato */}
-          <Section step={6} title="Contrato">
-            <div className="flex flex-col gap-2.5">
-              <label className="flex items-center justify-center gap-2 cursor-pointer h-11 px-3 rounded-xl border border-dashed border-border bg-card hover:bg-muted text-sm font-medium transition-colors">
-                {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-                {uploading ? "Enviando..." : "Anexar contrato (PDF/imagem)"}
-                <input
-                  type="file"
-                  accept="application/pdf,image/*"
-                  className="hidden"
-                  disabled={uploading}
-                  onChange={(e) => e.target.files?.[0] && handleContractUpload(e.target.files[0])}
-                />
-              </label>
-              {form.contract_url && (
-                <a
-                  href={form.contract_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 text-xs text-primary hover:underline bg-primary/5 px-3 py-2 rounded-lg min-w-0"
-                >
-                  <ImageIcon size={13} className="shrink-0" />
-                  <span className="truncate">Ver contrato anexado</span>
-                </a>
-              )}
-            </div>
-          </Section>
-
-          {/* 7. Observações */}
-          <Section step={7} title="Observações">
+          {/* 6. Observações */}
+          <Section step={6} title="Observações">
             <Textarea
               rows={3}
               value={form.notes}
