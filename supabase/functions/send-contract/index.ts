@@ -1,5 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
+import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage } from "npm:pdf-lib@1.17.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -29,205 +29,622 @@ const fmtMoney = (v?: number | null) =>
     ? v.toLocaleString("en-US", { style: "currency", currency: "USD" })
     : "—";
 
+const MONTHS_PT = [
+  "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+];
+const dateLong = (d: Date) =>
+  `${d.getDate()} de ${MONTHS_PT[d.getMonth()]} de ${d.getFullYear()}`;
+
 async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const fontB = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const fontI = await pdf.embedFont(StandardFonts.HelveticaOblique);
+  const times = await pdf.embedFont(StandardFonts.TimesRoman);
+  const timesB = await pdf.embedFont(StandardFonts.TimesRomanBold);
+  const helv = await pdf.embedFont(StandardFonts.Helvetica);
+  const helvB = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const helvI = await pdf.embedFont(StandardFonts.HelveticaOblique);
 
-  const pageW = 595.28; // A4
-  const pageH = 841.89;
-  const margin = 42;
+  const pageW = 595;
+  const pageH = 842;
+  const margin = 64;
   const contentW = pageW - margin * 2;
-  let page = pdf.addPage([pageW, pageH]);
-  let y = pageH - margin;
 
-  const primary = rgb(30 / 255, 58 / 255, 95 / 255);
-  const gold = rgb(191 / 255, 155 / 255, 48 / 255);
-  const white = rgb(1, 1, 1);
-  const gray = rgb(120 / 255, 120 / 255, 120 / 255);
-  const dark = rgb(30 / 255, 30 / 255, 30 / 255);
+  const COLOR_TEXT = rgb(26 / 255, 26 / 255, 26 / 255);
+  const COLOR_BODY = rgb(44 / 255, 44 / 255, 44 / 255);
+  const COLOR_MUTED = rgb(102 / 255, 102 / 255, 102 / 255);
+  const COLOR_LINE = rgb(207 / 255, 207 / 255, 207 / 255);
+
+  const HEADER_H = 88; // reserved area at top of every page
+  const FOOTER_H = 34; // reserved area at bottom of every page
+  const TOP_Y = pageH - HEADER_H;
+  const BOTTOM_Y = FOOTER_H + 10;
+
+  type PageState = { page: PDFPage; y: number; isFirst: boolean };
+  const pages: PageState[] = [];
+  let cur: PageState;
+
+  const drawHeader = (page: PDFPage, isFirst: boolean) => {
+    // ZEUS RENTAL CAR — letterspaced via spacing
+    const titleStr = "Z E U S   R E N T A L   C A R";
+    const tSize = 22;
+    const tw = timesB.widthOfTextAtSize(titleStr, tSize);
+    page.drawText(titleStr, {
+      x: (pageW - tw) / 2,
+      y: pageH - 38,
+      size: tSize,
+      font: timesB,
+      color: COLOR_TEXT,
+    });
+    const sub1 = "ORLANDO  ·  FLORIDA  ·  UNITED STATES";
+    const s1w = helv.widthOfTextAtSize(sub1, 9);
+    page.drawText(sub1, {
+      x: (pageW - s1w) / 2,
+      y: pageH - 52,
+      size: 9,
+      font: helv,
+      color: COLOR_MUTED,
+    });
+    if (isFirst) {
+      const sub2 = "zeusrentalcar.com";
+      const s2w = helv.widthOfTextAtSize(sub2, 8);
+      page.drawText(sub2, {
+        x: (pageW - s2w) / 2,
+        y: pageH - 64,
+        size: 8,
+        font: helv,
+        color: COLOR_MUTED,
+      });
+    }
+    // two thin black lines
+    page.drawLine({
+      start: { x: margin, y: pageH - 74 },
+      end: { x: pageW - margin, y: pageH - 74 },
+      thickness: 0.6,
+      color: COLOR_TEXT,
+    });
+    page.drawLine({
+      start: { x: margin, y: pageH - 78 },
+      end: { x: pageW - margin, y: pageH - 78 },
+      thickness: 0.3,
+      color: COLOR_TEXT,
+    });
+  };
+
+  const newPage = () => {
+    const page = pdf.addPage([pageW, pageH]);
+    const isFirst = pages.length === 0;
+    drawHeader(page, isFirst);
+    cur = { page, y: TOP_Y, isFirst };
+    pages.push(cur);
+    return cur;
+  };
 
   const ensure = (h: number) => {
-    if (y - h < margin + 30) {
-      page = pdf.addPage([pageW, pageH]);
-      y = pageH - margin;
+    if (cur.y - h < BOTTOM_Y) {
+      newPage();
     }
   };
 
-  // Header band
-  page.drawRectangle({ x: 0, y: pageH - 70, width: pageW, height: 70, color: primary });
-  page.drawText("ZEUS RENTAL CAR", { x: margin, y: pageH - 30, size: 16, font: fontB, color: white });
-  page.drawText("CONTRATO DE LOCACAO DE VEICULO", { x: margin, y: pageH - 48, size: 10, font, color: white });
-  page.drawText(`Emissao: ${new Date().toLocaleDateString("pt-BR")}`, { x: margin, y: pageH - 62, size: 7, font, color: white });
-
-  page.drawRectangle({ x: pageW - margin - 130, y: pageH - 56, width: 130, height: 40, color: gold });
-  page.drawText("CONTRATO No", { x: pageW - margin - 124, y: pageH - 30, size: 7, font, color: white });
-  page.drawText(booking.booking_number || "-", { x: pageW - margin - 124, y: pageH - 46, size: 11, font: fontB, color: white });
-
-  y = pageH - 90;
-
-  const section = (title: string) => {
-    ensure(20);
-    page.drawRectangle({ x: margin, y: y - 14, width: contentW, height: 14, color: primary });
-    page.drawText(title, { x: margin + 6, y: y - 10, size: 9, font: fontB, color: white });
-    y -= 22;
-  };
-
-  const wrap = (text: string, maxW: number, size: number, f = font) => {
-    const words = (text || "-").split(/\s+/);
+  const wrap = (text: string, maxW: number, size: number, f: PDFFont) => {
     const lines: string[] = [];
-    let cur = "";
-    for (const w of words) {
-      const test = cur ? cur + " " + w : w;
-      if (f.widthOfTextAtSize(test, size) > maxW) {
-        if (cur) lines.push(cur);
-        cur = w;
-      } else cur = test;
+    const paragraphs = (text || "").split(/\n/);
+    for (const para of paragraphs) {
+      const words = para.split(/\s+/);
+      let cur2 = "";
+      for (const w of words) {
+        const test = cur2 ? cur2 + " " + w : w;
+        if (f.widthOfTextAtSize(test, size) > maxW) {
+          if (cur2) lines.push(cur2);
+          cur2 = w;
+        } else cur2 = test;
+      }
+      lines.push(cur2);
     }
-    if (cur) lines.push(cur);
     return lines;
   };
 
-  const labelVal = (label: string, value: string, x: number, colW: number) => {
-    page.drawText(label, { x, y, size: 7, font, color: gray });
-    const lines = wrap(value || "-", colW - 4, 8, fontB);
-    let yy = y - 9;
+  const drawText = (text: string, opts: { x: number; size: number; font: PDFFont; color?: any }) => {
+    cur.page.drawText(text, { x: opts.x, y: cur.y, size: opts.size, font: opts.font, color: opts.color ?? COLOR_BODY });
+  };
+
+  const para = (text: string, opts?: { size?: number; font?: PDFFont; color?: any; indent?: number; gap?: number }) => {
+    const size = opts?.size ?? 10.5;
+    const f = opts?.font ?? helv;
+    const color = opts?.color ?? COLOR_BODY;
+    const indent = opts?.indent ?? 0;
+    const lineH = size * 1.35;
+    const lines = wrap(text, contentW - indent, size, f);
+    for (const ln of lines) {
+      ensure(lineH);
+      cur.page.drawText(ln, { x: margin + indent, y: cur.y - size + 1, size, font: f, color });
+      cur.y -= lineH;
+    }
+    cur.y -= opts?.gap ?? 4;
+  };
+
+  const sectionTitle = (title: string) => {
+    ensure(30);
+    cur.y -= 6;
+    cur.page.drawText(title.toUpperCase(), {
+      x: margin, y: cur.y - 11, size: 11, font: helvB, color: COLOR_TEXT,
+    });
+    cur.y -= 15;
+    cur.page.drawLine({
+      start: { x: margin, y: cur.y },
+      end: { x: pageW - margin, y: cur.y },
+      thickness: 0.6,
+      color: COLOR_TEXT,
+    });
+    cur.y -= 10;
+  };
+
+  const subTitle = (title: string) => {
+    ensure(18);
+    cur.page.drawText(title, { x: margin, y: cur.y - 11, size: 11, font: helvB, color: COLOR_TEXT });
+    cur.y -= 16;
+  };
+
+  const fieldRow = (label: string, value: string) => {
+    const size = 10;
+    const lineH = 16;
+    ensure(lineH);
+    cur.page.drawText(label, { x: margin, y: cur.y - 10, size, font: helv, color: COLOR_MUTED });
+    const labelW = helv.widthOfTextAtSize(label, size);
+    const valX = margin + Math.max(labelW + 14, 170);
+    const dotsStart = margin + labelW + 6;
+    const dotsEnd = valX - 6;
+    if (dotsEnd > dotsStart) {
+      cur.page.drawLine({
+        start: { x: dotsStart, y: cur.y - 11 },
+        end: { x: dotsEnd, y: cur.y - 11 },
+        thickness: 0.4,
+        color: COLOR_LINE,
+      });
+    }
+    const val = value || " ";
+    const maxValW = pageW - margin - valX;
+    const lines = wrap(val, maxValW, size, helvB);
+    let yy = cur.y - 10;
     for (const ln of lines.slice(0, 2)) {
-      page.drawText(ln, { x, y: yy, size: 8, font: fontB, color: dark });
-      yy -= 9;
+      cur.page.drawText(ln, { x: valX, y: yy, size, font: helvB, color: COLOR_TEXT });
+      yy -= 12;
+    }
+    cur.y -= Math.max(lineH, lines.length * 12 + 4);
+    // bottom thin separator line
+    cur.page.drawLine({
+      start: { x: margin, y: cur.y + 2 },
+      end: { x: pageW - margin, y: cur.y + 2 },
+      thickness: 0.3,
+      color: COLOR_LINE,
+    });
+    cur.y -= 4;
+  };
+
+  const checkbox = (x: number, y: number, checked = false) => {
+    cur.page.drawRectangle({
+      x, y, width: 9, height: 9,
+      borderColor: COLOR_TEXT,
+      borderWidth: 0.6,
+    });
+    if (checked) {
+      cur.page.drawText("X", { x: x + 1.5, y: y + 1, size: 8, font: helvB, color: COLOR_TEXT });
     }
   };
 
-  const twoCols = (l1: string, v1: string, l2: string, v2: string) => {
-    ensure(22);
-    const half = contentW / 2;
-    labelVal(l1, v1, margin, half);
-    labelVal(l2, v2, margin + half, half);
-    y -= 22;
+  const checkboxLine = (items: { label: string; checked?: boolean }[], opts?: { indent?: number }) => {
+    const size = 10;
+    const lineH = 16;
+    const indent = opts?.indent ?? 0;
+    ensure(lineH);
+    let x = margin + indent;
+    for (const it of items) {
+      checkbox(x, cur.y - 10, it.checked);
+      cur.page.drawText(it.label, { x: x + 14, y: cur.y - 9, size, font: helv, color: COLOR_BODY });
+      x += 14 + helv.widthOfTextAtSize(it.label, size) + 22;
+    }
+    cur.y -= lineH;
   };
 
-  const oneCol = (l: string, v: string) => {
-    ensure(22);
-    labelVal(l, v, margin, contentW);
-    y -= 22;
+  const numberedList = (items: string[], opts?: { gap?: number }) => {
+    const size = 10.5;
+    const lineH = size * 1.35;
+    items.forEach((it, idx) => {
+      const prefix = `${idx + 1}. `;
+      const prefixW = helv.widthOfTextAtSize(prefix, size);
+      const lines = wrap(it, contentW - prefixW, size, helv);
+      ensure(lineH);
+      cur.page.drawText(prefix, { x: margin, y: cur.y - size + 1, size, font: helv, color: COLOR_BODY });
+      cur.page.drawText(lines[0] || "", { x: margin + prefixW, y: cur.y - size + 1, size, font: helv, color: COLOR_BODY });
+      cur.y -= lineH;
+      for (let i = 1; i < lines.length; i++) {
+        ensure(lineH);
+        cur.page.drawText(lines[i], { x: margin + prefixW, y: cur.y - size + 1, size, font: helv, color: COLOR_BODY });
+        cur.y -= lineH;
+      }
+      cur.y -= opts?.gap ?? 2;
+    });
   };
 
-  // Locadora
-  section("LOCADORA");
-  oneCol("Razao Social", "Zeus Rental Car LLC");
-  twoCols("Endereco", "Orlando, FL - EUA", "EIN", "Zeus Rental Car LLC");
+  const blankLine = () => {
+    ensure(18);
+    cur.page.drawLine({
+      start: { x: margin, y: cur.y - 12 },
+      end: { x: pageW - margin, y: cur.y - 12 },
+      thickness: 0.4,
+      color: COLOR_LINE,
+    });
+    cur.y -= 18;
+  };
 
-  // Locatario
+  // ====== Page 1 ======
+  newPage();
+
+  // META row
+  const today = new Date();
+  const longToday = dateLong(today);
+  cur.page.drawText(`Contrato Nº: ${booking.booking_number || "—"}`, {
+    x: margin, y: cur.y - 10, size: 10, font: helv, color: COLOR_TEXT,
+  });
+  const emit = `Data de emissão: ${longToday}`;
+  const ew = helv.widthOfTextAtSize(emit, 10);
+  cur.page.drawText(emit, {
+    x: pageW - margin - ew, y: cur.y - 10, size: 10, font: helv, color: COLOR_TEXT,
+  });
+  cur.y -= 28;
+
+  // TITLE
+  const title = "CONTRATO DE LOCAÇÃO DE VEÍCULO";
+  const titleW = timesB.widthOfTextAtSize(title, 18);
+  cur.page.drawText(title, {
+    x: (pageW - titleW) / 2, y: cur.y - 18, size: 18, font: timesB, color: COLOR_TEXT,
+  });
+  cur.y -= 24;
+  const en = "Vehicle Rental Agreement";
+  const enW = helv.widthOfTextAtSize(en, 9);
+  cur.page.drawText(en, {
+    x: (pageW - enW) / 2, y: cur.y - 10, size: 9, font: helv, color: COLOR_MUTED,
+  });
+  cur.y -= 22;
+
+  // PREÂMBULO
+  para(
+    "Pelo presente instrumento particular, as partes adiante qualificadas têm entre si justo e contratado o presente Contrato de Locação de Veículo, que se regerá pelas cláusulas e condições a seguir estabelecidas.",
+    { size: 10.5, gap: 10 }
+  );
+
+  // 1. IDENTIFICAÇÃO DAS PARTES
+  sectionTitle("1. Identificação das Partes");
+  subTitle("1.1 Locadora");
+  para("Zeus Rental Car · Orlando, Florida, United States", { gap: 8 });
+
+  subTitle("1.2 Locatário");
   const fullAddress = [customer.address, customer.house_number, customer.complement, customer.zip_code]
-    .filter(Boolean).join(", ") || "-";
-  section("LOCATARIO");
-  twoCols("Nome completo", customer.full_name || "-", "Nacionalidade", customer.nationality || "-");
-  twoCols("E-mail", customer.email || "-", "Telefone", customer.phone || "-");
-  twoCols("Documento (CPF/Passaporte)", customer.document_number || "-", "CNH (numero)", customer.driver_license || "-");
-  twoCols("Validade da CNH", fmtDate(customer.driver_license_expiry), "Endereco", fullAddress);
+    .filter(Boolean).join(", ");
+  fieldRow("Nome completo", customer.full_name || "");
+  fieldRow("Data de nascimento", customer.date_of_birth ? fmtDate(customer.date_of_birth) : "");
+  fieldRow("CPF / Passport", customer.document_number || "");
+  fieldRow(
+    "CNH / Driver License",
+    customer.driver_license
+      ? `${customer.driver_license}${customer.nationality ? " — " + customer.nationality : ""}`
+      : ""
+  );
+  fieldRow("Endereço", fullAddress);
+  fieldRow("Telefone", customer.phone || "");
+  fieldRow("E-mail", customer.email || "");
 
-  // Veiculo
-  section("VEICULO");
-  twoCols("Marca / Modelo", vehicle.name || "-", "Placa", vehicle.license_plate || "-");
-  twoCols("Ano", vehicle.year?.toString() || "-", "Cor", vehicle.color || "-");
-  twoCols("Categoria", vehicle.category || "-", "Odometro inicial (km)", vehicle.current_odometer?.toLocaleString("pt-BR") || "-");
+  subTitle("1.3 Motoristas Autorizados Adicionais");
+  para("(Preencher se aplicável)", { size: 9, font: helvI, color: COLOR_MUTED, gap: 4 });
+  fieldRow("Nome", "");
+  fieldRow("CNH / Driver License", "");
+  fieldRow("Nome", "");
+  fieldRow("CNH / Driver License", "");
 
-  // Locacao
+  // 2. VEÍCULO
+  sectionTitle("2. Identificação do Veículo");
+  fieldRow("Marca / Modelo", vehicle.name || `${vehicle.brand ?? ""} ${vehicle.model ?? ""}`.trim());
+  fieldRow("Ano", vehicle.year ? String(vehicle.year) : "");
+  fieldRow("Placa", vehicle.license_plate || "");
+  fieldRow("Cor", vehicle.color || "");
+  fieldRow("Quilometragem na retirada", vehicle.current_odometer ? `${vehicle.current_odometer.toLocaleString("pt-BR")} mi` : "");
+
+  // 3. PERÍODO
   const pickupMs = new Date(booking.pickup_date).getTime();
   const returnMs = new Date(booking.return_date).getTime();
   const days = Math.max(1, Math.round((returnMs - pickupMs) / 86400000));
+  sectionTitle("3. Período da Locação");
+  fieldRow("Data e hora da retirada", `${fmtDate(booking.pickup_date)} às ${booking.pickup_time || "—"}`);
+  fieldRow("Data e hora da devolução prevista", `${fmtDate(booking.return_date)} às ${booking.return_time || "—"}`);
+  fieldRow("Total de dias", `${days} dia(s)`);
+  fieldRow("Local de retirada", booking.pickup_location || "");
+  fieldRow("Local de devolução", booking.return_location || "");
 
-  section("LOCACAO");
-  twoCols(
-    "Retirada",
-    `${fmtDate(booking.pickup_date)} as ${booking.pickup_time || "-"}`,
-    "Devolucao",
-    `${fmtDate(booking.return_date)} as ${booking.return_time || "-"}`
+  // 4. VALORES
+  sectionTitle("4. Valores e Forma de Pagamento");
+  fieldRow("Total da locação (USD)", fmtMoney(booking.total_price));
+  fieldRow("Caução / Security Deposit", fmtMoney(booking.deposit_amount));
+  fieldRow("Franquia / Deductible", fmtMoney(booking.franchise_amount));
+  fieldRow("Forma de pagamento", "Cartão de crédito internacional");
+  fieldRow("Cartão (últimos 4 dígitos)", "");
+  fieldRow("Titular do cartão", "");
+
+  subTitle("4.1 Extras e Opcionais");
+  const addons = (booking.addons && typeof booking.addons === "object") ? booking.addons : {};
+  const has = (k: string) => !!(addons[k] || addons[k.toLowerCase()]);
+  checkboxLine([
+    { label: "Pedágios (por uso real + taxa adm)", checked: has("tolls_usage") },
+    { label: "Pacote diário de pedágios", checked: has("tolls_daily") },
+  ]);
+  checkboxLine([
+    { label: "Seguro CDW/LDW", checked: has("cdw") || has("insurance") },
+    { label: "Motorista adicional", checked: !!booking.extra_driver || has("additional_driver") },
+  ]);
+  checkboxLine([
+    { label: "Cadeirinha infantil", checked: has("child_seat") || has("car_seat") },
+    { label: "Carrinho de bebê", checked: has("stroller") },
+  ]);
+
+  // 5. CONDIÇÕES DE USO
+  sectionTitle("5. Condições de Uso do Veículo");
+  subTitle("5.1 Uso Permitido");
+  para(
+    "O veículo deve ser utilizado exclusivamente por motorista(s) autorizado(s) neste contrato, com CNH/Driver License válida e em conformidade com as leis de trânsito da Flórida e dos Estados Unidos.",
+    { gap: 8 }
   );
-  twoCols("Local de retirada", booking.pickup_location || "-", "Local de devolucao", booking.return_location || "-");
-  oneCol("Total de dias", `${days} dia(s)`);
 
-  // Valores
-  const dailyRate = vehicle.daily_price_usd ?? (booking.total_price ? booking.total_price / days : null);
-  const addonsList: string[] = [];
-  if (booking.addons && typeof booking.addons === "object") {
-    for (const [k, v] of Object.entries(booking.addons)) {
-      if (v && v !== false && v !== 0) {
-        addonsList.push(`${k}: ${typeof v === "boolean" ? "Sim" : String(v)}`);
-      }
-    }
-  }
-  if (booking.extra_driver) addonsList.push("Condutor adicional");
+  subTitle("5.2 Uso Proibido");
+  para("É expressamente proibido:", { gap: 4 });
+  numberedList([
+    "Dirigir sob influência de álcool, drogas ou medicamentos que comprometam a capacidade de condução.",
+    "Usar o veículo para transporte remunerado de passageiros (Uber, Lyft, táxi e similares).",
+    "Permitir que terceiros não autorizados neste contrato dirijam o veículo.",
+    "Usar o veículo em competições, testes de velocidade ou qualquer conduta perigosa.",
+    "Transportar mais passageiros ou carga além da capacidade homologada do veículo.",
+    "Usar o veículo fora dos Estados Unidos sem autorização prévia e por escrito da Locadora.",
+    "Fumar dentro do veículo.",
+  ]);
+  cur.y -= 4;
 
-  section("VALORES");
-  twoCols("Diaria", fmtMoney(dailyRate), "Total da locacao", fmtMoney(booking.total_price));
-  twoCols("Caucao", fmtMoney(booking.deposit_amount), "Franquia / Deductible", fmtMoney(booking.franchise_amount));
-  oneCol("Extras contratados", addonsList.length ? addonsList.join(" - ") : "Nenhum");
+  subTitle("5.3 Devolução");
+  para(
+    "O veículo deve ser devolvido com o mesmo nível de combustível registrado na retirada, sem danos além do desgaste natural de uso, no local, data e horário acordados. Em caso de atraso, será cobrada uma diária adicional completa a cada 24 (vinte e quatro) horas ou fração. Em caso de combustível faltante, o valor será cobrado por galão abastecido pela Locadora ou pelo preço de mercado vigente.",
+    { gap: 8 }
+  );
 
-  // Clausulas
-  section("CLAUSULAS GERAIS");
-  const clauses = [
-    "1. O LOCATARIO declara possuir CNH valida durante toda a vigencia da locacao.",
-    "2. O LOCATARIO e responsavel por danos materiais, multas de transito e infracoes cometidas durante o periodo de locacao.",
-    "3. A devolucao deve ser feita no local e horario acordados. Atrasos podem incorrer em diaria adicional.",
-    "4. O LOCATARIO se compromete a nao conduzir o veiculo sob efeito de alcool, drogas ou em condicoes que comprometam a seguranca.",
-    "5. Em caso de sinistro, comunicar a LOCADORA imediatamente pelo WhatsApp oficial e acionar autoridades locais.",
+  // 6. RESPONSABILIDADE
+  sectionTitle("6. Responsabilidade por Danos, Multas e Taxas");
+  subTitle("6.1 Danos");
+  para(
+    "O LOCATÁRIO é INTEGRALMENTE RESPONSÁVEL por qualquer dano, perda parcial ou total, roubo ou furto do veículo durante o período de locação, incluindo o valor de franquia do seguro, se contratado.",
+    { gap: 8 }
+  );
+  subTitle("6.2 Multas");
+  para(
+    "Todas as multas de trânsito, taxas de estacionamento, violações de pedágio e demais penalidades aplicadas durante o período de locação são de responsabilidade do LOCATÁRIO, mesmo que notificadas após a devolução do veículo. Será aplicada taxa administrativa de USD $25,00 a USD $50,00 por multa processada.",
+    { gap: 8 }
+  );
+  subTitle("6.3 Pedágios");
+  para(
+    "O veículo é equipado com SunPass/E-Pass. O LOCATÁRIO autoriza expressamente a cobrança dos pedágios efetivamente utilizados, ou do pacote diário, conforme cláusula 4.1. Os pedágios são processados pela placa do veículo e podem ser cobrados em até 60 (sessenta) dias após a devolução.",
+    { gap: 8 }
+  );
+
+  // 7. AUTORIZAÇÃO DE CARTÃO
+  sectionTitle("7. Autorização de Cartão e Cobranças Posteriores");
+  subTitle("7.1 Caução e Pré-Autorização");
+  para(
+    "O LOCATÁRIO autoriza o bloqueio do valor de caução no cartão de crédito informado, que será liberado após a vistoria final do veículo e a liquidação de eventuais débitos, em prazo de 7 (sete) a 14 (catorze) dias úteis, conforme política do banco emissor.",
+    { gap: 8 }
+  );
+  subTitle("7.2 Card on File");
+  para(
+    "O LOCATÁRIO AUTORIZA EXPRESSAMENTE a Zeus Rental Car a: (i) armazenar de forma segura os dados do cartão informado; (ii) cobrar no cartão ou descontar da caução todos os valores referentes à locação; (iii) processar cobranças mesmo após a devolução do veículo, incluindo pedágios, multas, danos, combustível, extensão de locação, estacionamento, taxas administrativas e demais despesas relacionadas.",
+    { gap: 8 }
+  );
+  para("O LOCATÁRIO declara que o cartão informado:", { gap: 4 });
+  numberedList([
+    "Está em seu próprio nome.",
+    "Possui limite suficiente para as cobranças previstas neste contrato.",
+    "É um cartão internacional válido (Visa, Mastercard, American Express ou similar).",
+    "Pode ser utilizado para pré-autorizações, caução e cobranças futuras.",
+  ]);
+  cur.y -= 4;
+  subTitle("7.3 Comprovação");
+  para(
+    "A Zeus Rental Car compromete-se a enviar comprovante detalhado de qualquer cobrança posterior em até 15 (quinze) dias.",
+    { gap: 8 }
+  );
+
+  // 8. SEGURO
+  sectionTitle("8. Seguro e Cobertura");
+  subTitle("8.1 Seguro Básico");
+  para(
+    "O veículo possui seguro comercial básico, conforme exigido pela legislação do Estado da Flórida.",
+    { gap: 8 }
+  );
+  subTitle("8.2 Cobertura Opcional (CDW/LDW)");
+  para(
+    "Caso contratada (cláusula 4.1), a franquia poderá ser reduzida ou eliminada, conforme termos da apólice. Caso não contratada, o LOCATÁRIO responde pelo valor integral dos danos causados ao veículo.",
+    { gap: 8 }
+  );
+
+  // 9. VISTORIA
+  sectionTitle("9. Vistoria do Veículo");
+  para(
+    "O LOCATÁRIO declara ter vistoriado o veículo no momento da retirada e que o mesmo se encontra em perfeitas condições de uso, limpeza e conservação, conforme checklist abaixo.",
+    { gap: 6 }
+  );
+  const checkItems = [
+    "Lataria e pintura sem avarias aparentes.",
+    "Vidros, faróis e espelhos intactos.",
+    "Pneus em bom estado de uso.",
+    "Interior limpo e sem danos.",
+    "Documentos do veículo presentes.",
   ];
-  for (const c of clauses) {
-    const lines = wrap(c, contentW, 8.5);
-    ensure(lines.length * 11 + 4);
-    for (const ln of lines) {
-      page.drawText(ln, { x: margin, y, size: 8.5, font, color: dark });
-      y -= 11;
-    }
-    y -= 3;
+  for (const ci of checkItems) {
+    ensure(16);
+    checkbox(margin, cur.y - 11, false);
+    cur.page.drawText(ci, { x: margin + 14, y: cur.y - 10, size: 10, font: helv, color: COLOR_BODY });
+    cur.y -= 16;
   }
-
-  const disclaimer = "* As clausulas acima sao versao inicial e estao sujeitas a revisao juridica final pela LOCADORA antes de serem consideradas vinculativas.";
-  const dLines = wrap(disclaimer, contentW, 7, fontI);
-  ensure(dLines.length * 9 + 10);
-  for (const ln of dLines) {
-    page.drawText(ln, { x: margin, y, size: 7, font: fontI, color: gray });
-    y -= 9;
-  }
-  y -= 10;
-
-  // Assinaturas
-  ensure(70);
-  section("ASSINATURAS");
-  y -= 20;
-  const sigW = (contentW - 20) / 2;
-  page.drawLine({
-    start: { x: margin, y },
-    end: { x: margin + sigW, y },
-    thickness: 0.5,
-    color: rgb(0.3, 0.3, 0.3),
+  // chave(s)
+  ensure(16);
+  checkbox(margin, cur.y - 11, false);
+  cur.page.drawText("Chave(s) e controle(s) recebidos:", {
+    x: margin + 14, y: cur.y - 10, size: 10, font: helv, color: COLOR_BODY,
   });
-  page.drawLine({
-    start: { x: margin + sigW + 20, y },
-    end: { x: margin + contentW, y },
-    thickness: 0.5,
-    color: rgb(0.3, 0.3, 0.3),
+  cur.page.drawText("_____ un.", {
+    x: margin + 14 + helv.widthOfTextAtSize("Chave(s) e controle(s) recebidos:", 10) + 8,
+    y: cur.y - 10, size: 10, font: helv, color: COLOR_BODY,
   });
-  page.drawText("LOCATARIO", { x: margin, y: y - 10, size: 8, font: fontB, color: dark });
-  page.drawText("LOCADORA", { x: margin + sigW + 20, y: y - 10, size: 8, font: fontB, color: dark });
-  page.drawText(customer.full_name || "-", { x: margin, y: y - 22, size: 8, font, color: dark });
-  page.drawText(`Doc.: ${customer.document_number || "-"}`, { x: margin, y: y - 32, size: 8, font, color: dark });
-  page.drawText("Zeus Rental Car LLC", { x: margin + sigW + 20, y: y - 22, size: 8, font, color: dark });
-  y -= 50;
-  page.drawText(`Orlando, FL - ${new Date().toLocaleDateString("pt-BR")}`, { x: margin, y, size: 8, font, color: gray });
+  cur.y -= 20;
 
-  // Footer todas paginas
+  // fuel level
+  ensure(18);
+  cur.page.drawText("Nível de combustível na retirada:", {
+    x: margin, y: cur.y - 10, size: 10, font: helv, color: COLOR_MUTED,
+  });
+  cur.y -= 16;
+  checkboxLine([
+    { label: "1/4" }, { label: "1/2" }, { label: "3/4" }, { label: "Full" },
+  ]);
+  fieldRow("Quilometragem registrada", "");
+  ensure(18);
+  cur.page.drawText("Fotos registradas na retirada:", {
+    x: margin, y: cur.y - 10, size: 10, font: helv, color: COLOR_MUTED,
+  });
+  cur.y -= 16;
+  checkboxLine([{ label: "Sim" }, { label: "Não" }]);
+
+  // 10. DISPOSIÇÕES GERAIS
+  sectionTitle("10. Disposições Gerais");
+  subTitle("10.1 Foro");
+  para("Fica eleito o foro da comarca de Orlando, Estado da Flórida, EUA, para dirimir quaisquer controvérsias decorrentes deste contrato.", { gap: 6 });
+  subTitle("10.2 Validade");
+  para("Este contrato é válido e vinculante a partir da assinatura por ambas as partes.", { gap: 6 });
+  subTitle("10.3 Alterações");
+  para("Quaisquer alterações ao presente contrato deverão ser feitas por escrito e assinadas por ambas as partes.", { gap: 6 });
+  subTitle("10.4 Aceitação");
+  para("Ao assinar este contrato, o LOCATÁRIO declara ter lido, compreendido e concordado integralmente com todas as suas cláusulas.", { gap: 10 });
+
+  // 11. ASSINATURAS
+  sectionTitle("11. Assinaturas");
+  para(`Orlando, Florida, ${longToday}.`, { gap: 30 });
+
+  ensure(80);
+  const sigW = (contentW - 30) / 2;
+  const sigY = cur.y;
+  cur.page.drawLine({
+    start: { x: margin, y: sigY },
+    end: { x: margin + sigW, y: sigY },
+    thickness: 0.6, color: COLOR_TEXT,
+  });
+  cur.page.drawLine({
+    start: { x: margin + sigW + 30, y: sigY },
+    end: { x: margin + contentW, y: sigY },
+    thickness: 0.6, color: COLOR_TEXT,
+  });
+  cur.page.drawText("Locatário", {
+    x: margin, y: sigY - 12, size: 10, font: helvB, color: COLOR_TEXT,
+  });
+  cur.page.drawText(customer.full_name || "—", {
+    x: margin, y: sigY - 25, size: 9.5, font: helv, color: COLOR_BODY,
+  });
+  cur.page.drawText("Locadora", {
+    x: margin + sigW + 30, y: sigY - 12, size: 10, font: helvB, color: COLOR_TEXT,
+  });
+  cur.page.drawText("Zeus Rental Car", {
+    x: margin + sigW + 30, y: sigY - 25, size: 9.5, font: helv, color: COLOR_BODY,
+  });
+  cur.y -= 50;
+
+  // ====== ANEXO I ======
+  newPage();
+  cur.y -= 6;
+  const annexTitle = "ANEXO I — TERMO DE AUTORIZAÇÃO DE CARTÃO DE CRÉDITO";
+  const atw = timesB.widthOfTextAtSize(annexTitle, 14);
+  cur.page.drawText(annexTitle, {
+    x: (pageW - atw) / 2, y: cur.y - 14, size: 14, font: timesB, color: COLOR_TEXT,
+  });
+  cur.y -= 30;
+
+  para(
+    `Eu, ${customer.full_name || "_______________________________"}, portador(a) do documento ${customer.document_number || "_______________"}, na qualidade de locatário(a) do veículo objeto do Contrato Nº ${booking.booking_number || "_______"}, autorizo a Zeus Rental Car a utilizar meu cartão de crédito abaixo identificado:`,
+    { gap: 10 }
+  );
+
+  subTitle("Identificação do Cartão");
+  ensure(18);
+  cur.page.drawText("Bandeira:", { x: margin, y: cur.y - 10, size: 10, font: helv, color: COLOR_MUTED });
+  cur.y -= 16;
+  checkboxLine([
+    { label: "Visa" }, { label: "Master" }, { label: "Amex" }, { label: "Outra" },
+  ]);
+  fieldRow("Últimos 4 dígitos", "");
+  fieldRow("Validade (MM/AA)", "");
+  cur.y -= 4;
+
+  para("Para as seguintes finalidades:", { gap: 4 });
+  numberedList([
+    "Cobrança do valor da locação (diária e opcionais contratados).",
+    "Bloqueio de caução (security deposit).",
+    "Cobranças posteriores à devolução do veículo, incluindo pedágios, multas, danos, limpeza, combustível, extensão da locação, estacionamento e taxas administrativas.",
+  ]);
+  cur.y -= 6;
+
+  para("Declaro estar ciente de que:", { gap: 4 });
+  numberedList([
+    "Os dados do cartão serão armazenados de forma segura.",
+    "Poderei ser cobrado(a) em até 60 (sessenta) dias após a devolução do veículo.",
+    "Serei notificado(a) por e-mail ou WhatsApp antes de qualquer cobrança adicional.",
+    "Receberei comprovante de todas as transações realizadas.",
+  ]);
+  cur.y -= 30;
+
+  ensure(80);
+  const sigY2 = cur.y;
+  cur.page.drawLine({
+    start: { x: margin, y: sigY2 },
+    end: { x: margin + sigW, y: sigY2 },
+    thickness: 0.6, color: COLOR_TEXT,
+  });
+  cur.page.drawLine({
+    start: { x: margin + sigW + 30, y: sigY2 },
+    end: { x: margin + contentW, y: sigY2 },
+    thickness: 0.6, color: COLOR_TEXT,
+  });
+  cur.page.drawText("Locatário", {
+    x: margin, y: sigY2 - 12, size: 10, font: helvB, color: COLOR_TEXT,
+  });
+  cur.page.drawText(customer.full_name || "—", {
+    x: margin, y: sigY2 - 25, size: 9.5, font: helv, color: COLOR_BODY,
+  });
+  cur.page.drawText("Locadora", {
+    x: margin + sigW + 30, y: sigY2 - 12, size: 10, font: helvB, color: COLOR_TEXT,
+  });
+  cur.page.drawText("Zeus Rental Car", {
+    x: margin + sigW + 30, y: sigY2 - 25, size: 9.5, font: helv, color: COLOR_BODY,
+  });
+
+  // ====== FOOTERS ======
   const total = pdf.getPageCount();
-  const ts = new Date().toLocaleString("pt-BR");
   for (let i = 0; i < total; i++) {
     const p = pdf.getPage(i);
-    p.drawRectangle({ x: 0, y: 0, width: pageW, height: 18, color: primary });
-    p.drawText(`Contrato gerado eletronicamente em ${ts} - Zeus Rental Car`, {
-      x: margin, y: 6, size: 7, font, color: white,
+    p.drawLine({
+      start: { x: margin, y: 30 },
+      end: { x: pageW - margin, y: 30 },
+      thickness: 0.4,
+      color: COLOR_TEXT,
     });
-    p.drawText(`Pagina ${i + 1} de ${total}`, { x: pageW - margin - 70, y: 6, size: 7, font, color: white });
+    p.drawText("Zeus Rental Car — Orlando, FL · USA", {
+      x: margin, y: 18, size: 8, font: helv, color: COLOR_MUTED,
+    });
+    const mid = `Contrato ${booking.booking_number || "—"}`;
+    const mw = helv.widthOfTextAtSize(mid, 8);
+    p.drawText(mid, { x: (pageW - mw) / 2, y: 18, size: 8, font: helv, color: COLOR_MUTED });
+    const pg = `Página ${i + 1} de ${total}`;
+    const pw = helv.widthOfTextAtSize(pg, 8);
+    p.drawText(pg, { x: pageW - margin - pw, y: 18, size: 8, font: helv, color: COLOR_MUTED });
   }
 
   return await pdf.save();
