@@ -39,12 +39,13 @@ function toIso(value: string) {
 
 export function BookingDateField({ value, onChange, className }: BookingDateFieldProps) {
   const [text, setText] = useState(() => toDisplay(value));
+  const [editing, setEditing] = useState(false);
   const selected = fromIso(value);
   const invalid = text.length === 10 && !toIso(text);
 
   useEffect(() => {
-    setText(toDisplay(value));
-  }, [value]);
+    if (!editing) setText(toDisplay(value));
+  }, [editing, value]);
 
   const handleTextChange = (nextValue: string) => {
     const next = maskDate(nextValue);
@@ -57,6 +58,7 @@ export function BookingDateField({ value, onChange, className }: BookingDateFiel
 
     const iso = toIso(next);
     if (iso) onChange(iso);
+    else if (value) onChange("");
   };
 
   return (
@@ -68,6 +70,12 @@ export function BookingDateField({ value, onChange, className }: BookingDateFiel
         placeholder="dd/mm/aaaa"
         value={text}
         onChange={(event) => handleTextChange(event.target.value)}
+        onFocus={() => setEditing(true)}
+        onBlur={() => {
+          setEditing(false);
+          const iso = toIso(text);
+          setText(iso ? toDisplay(iso) : "");
+        }}
         aria-invalid={invalid}
         className={cn(
           "h-11 pr-11 text-[15px] tabular-nums",
