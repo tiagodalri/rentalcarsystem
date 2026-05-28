@@ -18,6 +18,7 @@ interface ProfileForm {
   address: string;
   house_number: string;
   complement: string;
+  document_number: string;
   driver_license: string;
   driver_license_expiry: string;
 }
@@ -29,7 +30,7 @@ const ProfileTab = () => {
   const [form, setForm] = useState<ProfileForm>({
     full_name: "", phone: "", nationality: "", date_of_birth: "",
     zip_code: "", address: "", house_number: "", complement: "",
-    driver_license: "", driver_license_expiry: "",
+    document_number: "", driver_license: "", driver_license_expiry: "",
   });
   const [initial, setInitial] = useState<ProfileForm | null>(null);
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
@@ -51,6 +52,7 @@ const ProfileTab = () => {
       address: customer.address || "",
       house_number: customer.house_number || "",
       complement: customer.complement || "",
+      document_number: customer.document_number || "",
       driver_license: customer.driver_license || "",
       driver_license_expiry: customer.driver_license_expiry || "",
     };
@@ -140,6 +142,7 @@ const ProfileTab = () => {
         address: form.address.trim() || null,
         house_number: form.house_number.trim() || null,
         complement: form.complement.trim() || null,
+        document_number: form.document_number.trim() || null,
         driver_license: form.driver_license.trim() || null,
         driver_license_expiry: form.driver_license_expiry || null,
       };
@@ -186,12 +189,13 @@ const ProfileTab = () => {
             <Field label="Celular / WhatsApp" icon={Phone}>
               <PhoneInput value={form.phone} onChange={(v) => update("phone", v)} inputClassName="h-9 px-2.5 text-sm" />
             </Field>
-            <Field label="Documento (CPF / Passport / ID)" icon={FileText} locked tooltip="Para alterar o documento, contate o suporte.">
+            <Field label="Documento (CPF / Passport / ID)" icon={FileText}>
               <input
                 type="text"
-                value={customer?.document_number || "Não informado"}
-                disabled
-                className={inputCls + " opacity-60 cursor-not-allowed"}
+                value={form.document_number}
+                onChange={(e) => update("document_number", e.target.value)}
+                className={inputCls}
+                placeholder="CPF, Passport ou ID/SSN"
               />
             </Field>
             <Field label="Nacionalidade" icon={Globe}>

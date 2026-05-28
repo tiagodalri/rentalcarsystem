@@ -25,7 +25,7 @@ const CustomerRegistration = () => {
     full_name: "", email: "", password: "", confirmPassword: "",
     phone: "", document_number: "",
     nationality: "", date_of_birth: "", address: "", zip_code: "",
-    house_number: "", complement: "", driver_license_expiry: "",
+    house_number: "", complement: "", driver_license: "", driver_license_expiry: "",
   });
   const [showPwd, setShowPwd] = useState(false);
   const [showPwd2, setShowPwd2] = useState(false);
@@ -66,6 +66,7 @@ const CustomerRegistration = () => {
     if (!form.full_name.trim()) return false;
     if (!form.email.trim()) return false;
     if (!form.phone.trim()) return false;
+    if (!form.driver_license.trim()) return false;
     if (!form.driver_license_expiry || new Date(form.driver_license_expiry) <= new Date()) return false;
     if (!form.password || form.password.length < 8 || !/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/[0-9]/.test(form.password)) return false;
     if (form.password !== form.confirmPassword) return false;
@@ -79,6 +80,7 @@ const CustomerRegistration = () => {
     if (!form.full_name.trim()) return setError("Nome é obrigatório.");
     if (!form.email.trim()) return setError("E-mail é obrigatório.");
     if (!form.phone.trim()) return setError("Telefone é obrigatório.");
+    if (!form.driver_license.trim()) return setError("Número da CNH / Driver License é obrigatório.");
     if (!form.driver_license_expiry) return setError("Validade da CNH é obrigatória.");
     if (new Date(form.driver_license_expiry) <= new Date()) return setError("CNH vencida — informe uma data válida.");
 
@@ -99,6 +101,7 @@ const CustomerRegistration = () => {
         zip_code: form.zip_code.trim() || undefined,
         house_number: form.house_number.trim() || undefined,
         complement: form.complement.trim() || undefined,
+        driver_license: form.driver_license.trim() || undefined,
         driver_license_expiry: form.driver_license_expiry || undefined,
         language: language === "en" ? "en" : "pt",
       });
@@ -167,6 +170,7 @@ const CustomerRegistration = () => {
     { key: "date_of_birth", label: "Data de Nascimento", icon: Calendar, type: "date", placeholder: "" },
     { key: "nationality", label: "Nacionalidade", icon: Globe, type: "text", placeholder: "Brasileira" },
     { key: "document_number", label: "Documento (CPF / Passport / ID) *", icon: FileText, type: "text", placeholder: "CPF, Passport ou ID/SSN" },
+    { key: "driver_license", label: "Número da CNH / Driver License *", icon: FileText, type: "text", placeholder: "Número do documento" },
     { key: "driver_license_expiry", label: "Validade da CNH *", icon: Calendar, type: "date", placeholder: "" },
     { key: "zip_code", label: "CEP / Zip Code", icon: MapPin, type: "text", placeholder: "00000-000" },
     { key: "address", label: "Rua / Logradouro", icon: MapPin, type: "text", placeholder: "Rua, bairro, cidade, estado" },
