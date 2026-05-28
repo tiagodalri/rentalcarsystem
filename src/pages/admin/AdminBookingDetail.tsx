@@ -116,9 +116,10 @@ export default function AdminBookingDetail() {
   const missingContractFields = (() => {
     if (!customer) return [] as string[];
     const m: string[] = [];
-    if (!customer.full_name) m.push("Nome completo");
-    if (!customer.email) m.push("E-mail");
+    if (!customer.full_name || !String(customer.full_name).trim()) m.push("Nome completo");
+    if (!customer.email || !String(customer.email).trim()) m.push("E-mail");
     if (!customer.driver_license || !String(customer.driver_license).trim()) m.push("Número da CNH");
+    if (!customer.document_number || !String(customer.document_number).trim()) m.push("CPF/Passport");
     return m;
   })();
   const canActuallySendContract = missingContractFields.length === 0;
