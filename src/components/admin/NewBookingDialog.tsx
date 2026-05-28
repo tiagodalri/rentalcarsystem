@@ -322,7 +322,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       addons: {
         payment_method: form.payment_method,
         currency: form.currency,
-        contract_url: form.contract_url || null,
+        
         manual_entry: true,
       },
     };
