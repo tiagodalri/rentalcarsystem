@@ -113,8 +113,25 @@ export default function AdminBookingDetail() {
 
   const canSendContract = hasAny(["admin", "operations"]);
 
+  const missingContractFields = (() => {
+    if (!customer) return [] as string[];
+    const m: string[] = [];
+    if (!customer.full_name) m.push("Nome completo");
+    if (!customer.email) m.push("E-mail");
+    if (!customer.driver_license || !String(customer.driver_license).trim()) m.push("Número da CNH");
+    return m;
+  })();
+  const canActuallySendContract = missingContractFields.length === 0;
+
   const handleSendContract = async () => {
     if (!booking) return;
+    if (!canActuallySendContract) {
+      toast.error(
+        `Não é possível enviar: cliente sem ${missingContractFields.join(", ")}. Preencha no cadastro antes.`,
+        { duration: 6000 },
+      );
+      return;
+    }
     setSendingContract(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-contract", {
@@ -126,14 +143,13 @@ export default function AdminBookingDetail() {
         try {
           const body = ctx && typeof ctx.json === "function" ? await ctx.json() : null;
           if (body?.error) msg = body.error;
-          if (body?.missing_fields) msg += ` (faltando: ${body.missing_fields.join(", ")})`;
         } catch { /* ignore */ }
         throw new Error(msg);
       }
       toast.success("Contrato enviado para assinatura.");
       await reload();
     } catch (e: any) {
-      toast.error(e?.message || "Falha ao enviar contrato.");
+      toast.error(e?.message || "Falha ao enviar contrato.", { duration: 6000 });
       await reload();
     } finally {
       setSendingContract(false);
@@ -455,14 +471,23 @@ export default function AdminBookingDetail() {
             <GitCompare size={13} /> Comparar
           </button>
           {canSendContract && ["not_sent", "failed"].includes(booking.contract_status || "not_sent") && (
-            <button
-              onClick={handleSendContract}
-              disabled={sendingContract}
-              className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-medium disabled:opacity-50"
-            >
-              {sendingContract ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-              {sendingContract ? "Enviando..." : "Enviar Contrato"}
-            </button>
+            <div className="flex items-center gap-2">
+              {!canActuallySendContract && (
+                <div className="flex items-center gap-1.5 text-[11px] px-2.5 py-2 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-medium">
+                  <AlertTriangle size={12} />
+                  <span>Cliente sem {missingContractFields.join(", ")}</span>
+                </div>
+              )}
+              <button
+                onClick={handleSendContract}
+                disabled={sendingContract || !canActuallySendContract}
+                title={!canActuallySendContract ? `Preencha: ${missingContractFields.join(", ")}` : undefined}
+                className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {sendingContract ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                {sendingContract ? "Enviando..." : "Enviar Contrato"}
+              </button>
+            </div>
           )}
           {isAdmin && (
             <button
