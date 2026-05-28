@@ -724,13 +724,12 @@ Deno.serve(async (req) => {
     if (!vehicle) return json(400, { error: "Veiculo nao encontrado" });
 
     const missing: string[] = [];
-    if (!customer.document_number) missing.push("document_number");
-    if (!customer.driver_license) missing.push("driver_license");
-    if (!customer.email) missing.push("email");
     if (!customer.full_name) missing.push("full_name");
+    if (!customer.email) missing.push("email");
     if (missing.length) {
       return json(400, { error: "Dados do cliente incompletos", missing_fields: missing });
     }
+    // driver_license e document_number são opcionais: ausentes renderizam como linha em branco no PDF
 
     // mark generating
     await admin.from("bookings").update({
