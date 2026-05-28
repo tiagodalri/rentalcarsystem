@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { PLANS, PLAN_ORDER } from "@/data/rentalPlans";
-import { Loader2, Upload, Sparkles, ImageIcon } from "lucide-react";
+import { Loader2, Upload, Sparkles } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
 import { BookingDateField } from "@/components/admin/BookingDateField";
