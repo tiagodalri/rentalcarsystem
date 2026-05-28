@@ -113,8 +113,25 @@ export default function AdminBookingDetail() {
 
   const canSendContract = hasAny(["admin", "operations"]);
 
+  const missingContractFields = (() => {
+    if (!customer) return [] as string[];
+    const m: string[] = [];
+    if (!customer.full_name) m.push("Nome completo");
+    if (!customer.email) m.push("E-mail");
+    if (!customer.driver_license || !String(customer.driver_license).trim()) m.push("Número da CNH");
+    return m;
+  })();
+  const canActuallySendContract = missingContractFields.length === 0;
+
   const handleSendContract = async () => {
     if (!booking) return;
+    if (!canActuallySendContract) {
+      toast.error(
+        `Não é possível enviar: cliente sem ${missingContractFields.join(", ")}. Preencha no cadastro antes.`,
+        { duration: 6000 },
+      );
+      return;
+    }
     setSendingContract(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-contract", {
@@ -126,14 +143,13 @@ export default function AdminBookingDetail() {
         try {
           const body = ctx && typeof ctx.json === "function" ? await ctx.json() : null;
           if (body?.error) msg = body.error;
-          if (body?.missing_fields) msg += ` (faltando: ${body.missing_fields.join(", ")})`;
         } catch { /* ignore */ }
         throw new Error(msg);
       }
       toast.success("Contrato enviado para assinatura.");
       await reload();
     } catch (e: any) {
-      toast.error(e?.message || "Falha ao enviar contrato.");
+      toast.error(e?.message || "Falha ao enviar contrato.", { duration: 6000 });
       await reload();
     } finally {
       setSendingContract(false);
