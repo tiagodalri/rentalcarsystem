@@ -8,6 +8,8 @@ import { toast } from "@/hooks/use-toast";
 import { Check, Upload, Camera, Loader2, User, Mail, Phone, FileText, MapPin, Calendar, Globe, Lock, Eye, EyeOff } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
+import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 
 const passwordSchema = z
@@ -53,13 +55,24 @@ const CustomerRegistration = () => {
     setCepLoading(false);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { loading: ocrLoading, result: ocrResult, runOcr, reset: resetOcr } = useDocumentOcr();
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.size <= 10 * 1024 * 1024) {
-      setLicenseFile(file);
-    } else if (file) {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
       toast({ title: "Arquivo muito grande", description: "Máximo 10MB", variant: "destructive" });
+      return;
     }
+    setLicenseFile(file);
+    resetOcr();
+    if (file.type.startsWith("image/")) await runOcr(file);
+  };
+
+  const applyOcr = (values: Partial<Record<keyof OcrFields, string>>) => {
+    setForm((prev) => ({ ...prev, ...values } as any));
+    resetOcr();
+    toast({ title: "Dados aplicados", description: "Confira antes de enviar o cadastro." });
   };
 
   const isFormValid = useMemo(() => {
