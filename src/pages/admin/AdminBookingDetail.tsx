@@ -471,14 +471,23 @@ export default function AdminBookingDetail() {
             <GitCompare size={13} /> Comparar
           </button>
           {canSendContract && ["not_sent", "failed"].includes(booking.contract_status || "not_sent") && (
-            <button
-              onClick={handleSendContract}
-              disabled={sendingContract}
-              className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-medium disabled:opacity-50"
-            >
-              {sendingContract ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
-              {sendingContract ? "Enviando..." : "Enviar Contrato"}
-            </button>
+            <div className="flex items-center gap-2">
+              {!canActuallySendContract && (
+                <div className="flex items-center gap-1.5 text-[11px] px-2.5 py-2 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-medium">
+                  <AlertTriangle size={12} />
+                  <span>Cliente sem {missingContractFields.join(", ")}</span>
+                </div>
+              )}
+              <button
+                onClick={handleSendContract}
+                disabled={sendingContract || !canActuallySendContract}
+                title={!canActuallySendContract ? `Preencha: ${missingContractFields.join(", ")}` : undefined}
+                className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {sendingContract ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
+                {sendingContract ? "Enviando..." : "Enviar Contrato"}
+              </button>
+            </div>
           )}
           {isAdmin && (
             <button
