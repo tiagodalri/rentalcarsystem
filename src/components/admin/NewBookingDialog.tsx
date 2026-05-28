@@ -5,13 +5,55 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { PLANS, PLAN_ORDER } from "@/data/rentalPlans";
-import { Loader2, Upload, Sparkles, ImageIcon } from "lucide-react";
+import { Loader2, Upload, Sparkles, ImageIcon, CalendarIcon } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
 import { useFormDraft, clearFormDraft } from "@/hooks/useFormDraft";
+import { format, parse } from "date-fns";
+import { cn } from "@/lib/utils";
+
+function DateField({ value, onChange, className }: { value: string; onChange: (v: string) => void; className?: string }) {
+  const selected = value ? parse(value, "yyyy-MM-dd", new Date()) : undefined;
+  const [open, setOpen] = useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm text-left hover:border-primary/40 transition-colors",
+            !selected && "text-muted-foreground",
+            className
+          )}
+        >
+          <span>{selected ? format(selected, "dd/MM/yyyy") : "dd/mm/aaaa"}</span>
+          <CalendarIcon className="h-4 w-4 opacity-60" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0 bg-card border-border z-[60]" align="start">
+        <Calendar
+          mode="single"
+          selected={selected}
+          onSelect={(d) => {
+            if (d) onChange(format(d, "yyyy-MM-dd"));
+            setOpen(false);
+          }}
+          defaultMonth={selected ?? new Date()}
+          captionLayout="dropdown-buttons"
+          fromYear={2020}
+          toYear={2035}
+          initialFocus
+          className="p-3 pointer-events-auto"
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 const DRAFT_KEY = "new-booking";
 
@@ -569,7 +611,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
                 <div className="grid grid-cols-2 gap-2.5">
                   <div className="min-w-0">
                     <Label className={labelCls}>Data *</Label>
-                    <Input className={`${inputCls} ${pendingClass("pickup_date")}`} type="date" value={form.pickup_date} onChange={(e) => set("pickup_date", e.target.value)} />
+                    <DateField className={pendingClass("pickup_date")} value={form.pickup_date} onChange={(v) => set("pickup_date", v)} />
                   </div>
                   <div className="min-w-0">
                     <Label className={labelCls}>Hora</Label>
@@ -582,7 +624,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
                 <div className="grid grid-cols-2 gap-2.5">
                   <div className="min-w-0">
                     <Label className={labelCls}>Data *</Label>
-                    <Input className={`${inputCls} ${pendingClass("return_date")}`} type="date" value={form.return_date} onChange={(e) => set("return_date", e.target.value)} />
+                    <DateField className={pendingClass("return_date")} value={form.return_date} onChange={(v) => set("return_date", v)} />
                   </div>
                   <div className="min-w-0">
                     <Label className={labelCls}>Hora</Label>
