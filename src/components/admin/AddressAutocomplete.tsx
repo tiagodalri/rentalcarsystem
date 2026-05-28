@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Loader2, MapPin } from "lucide-react";
+import { Loader2, MapPin, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface NominatimResult {
   place_id: number;
@@ -13,6 +14,7 @@ interface Props {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  className?: string;
   /** Bias search around this region (default: Orlando/FL). Use "br" for Brazil-wide. */
   countryCodes?: string;
 }
@@ -25,6 +27,7 @@ export function AddressAutocomplete({
   value,
   onChange,
   placeholder,
+  className,
   countryCodes = "us,br",
 }: Props) {
   const [query, setQuery] = useState(value);
@@ -68,8 +71,17 @@ export function AddressAutocomplete({
   const handleInput = (v: string) => {
     setQuery(v);
     onChange(v);
+    setOpen(false);
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     debounceRef.current = window.setTimeout(() => search(v), 400);
+  };
+
+  const handleClear = () => {
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    setQuery("");
+    setResults([]);
+    setOpen(false);
+    onChange("");
   };
 
   const handleSelect = (r: NominatimResult) => {
@@ -85,9 +97,21 @@ export function AddressAutocomplete({
         onChange={(e) => handleInput(e.target.value)}
         onFocus={() => results.length > 0 && setOpen(true)}
         placeholder={placeholder}
+        autoComplete="off"
+        className={cn("h-11 pr-20 text-[15px]", className)}
       />
       {loading && (
-        <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground" />
+        <Loader2 size={14} className="absolute right-11 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground" />
+      )}
+      {query && !loading && (
+        <button
+          type="button"
+          aria-label="Limpar local"
+          onClick={handleClear}
+          className="absolute right-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <X size={14} />
+        </button>
       )}
       {open && results.length > 0 && (
         <div className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-lg max-h-64 overflow-y-auto">
