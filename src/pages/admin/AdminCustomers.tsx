@@ -279,7 +279,7 @@ export default function AdminCustomers() {
                   ref={fileRef}
                   type="file"
                   accept="image/*,.pdf"
-                  onChange={(e) => setLicenseFile(e.target.files?.[0] || null)}
+                  onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
                   className="hidden"
                 />
                 <input
@@ -287,7 +287,7 @@ export default function AdminCustomers() {
                   type="file"
                   accept="image/*"
                   capture="environment"
-                  onChange={(e) => setLicenseFile(e.target.files?.[0] || null)}
+                  onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
                   className="hidden"
                 />
                 <div className="flex gap-2">
@@ -300,21 +300,41 @@ export default function AdminCustomers() {
                   </label>
                   <label className="flex-1 h-9 px-3 rounded-lg border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer">
                     <Upload size={13} />
-                    {licenseFile ? licenseFile.name : (editing as any).driver_license_file_url ? "Arquivo já anexado ✓" : "Anexar arquivo"}
+                    {licenseFile ? licenseFile.name : (editing as any).driver_license_file_url ? "Arquivo já anexado" : "Anexar arquivo"}
                     <input
                       type="file"
                       accept="image/*,.pdf"
-                      onChange={(e) => setLicenseFile(e.target.files?.[0] || null)}
+                      onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
                       className="hidden"
                     />
                   </label>
                 </div>
+                {ocrLoading && (
+                  <p className="text-[11px] text-primary mt-2 flex items-center gap-1.5">
+                    <Loader2 size={11} className="animate-spin" /> Lendo documento com IA...
+                  </p>
+                )}
                 {(editing as any).driver_license_file_url && !licenseFile && (
                   <a href={(editing as any).driver_license_file_url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline mt-1 inline-block">
                     Ver documento atual →
                   </a>
                 )}
               </div>
+
+              {ocrResult && (
+                <OcrReviewPanel
+                  extracted={ocrResult}
+                  current={{
+                    full_name: (editing as any).full_name,
+                    document_number: (editing as any).document_number,
+                    driver_license: (editing as any).driver_license,
+                    driver_license_expiry: (editing as any).driver_license_expiry,
+                    date_of_birth: (editing as any).date_of_birth,
+                  }}
+                  onApply={applyOcr}
+                  onDismiss={resetOcr}
+                />
+              )}
 
               <div>
                 <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Observações</label>
