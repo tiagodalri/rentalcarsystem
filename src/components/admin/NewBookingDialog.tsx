@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { PLANS, PLAN_ORDER } from "@/data/rentalPlans";
-import { Loader2, Upload, Sparkles, ImageIcon } from "lucide-react";
+import { Loader2, Upload, Sparkles } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
 import { BookingDateField } from "@/components/admin/BookingDateField";
@@ -55,7 +55,7 @@ const CURRENCIES = [
 export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  
   const [customer, setCustomer] = useState<CustomerLite | null>(null);
   const [extracting, setExtracting] = useState(false);
   const [extractText, setExtractText] = useState("");
@@ -115,7 +115,6 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     total_price: "",
     currency: "USD",
     payment_method: "Cartão de Crédito",
-    contract_url: "",
     status: "confirmed",
     notes: "",
     deposit_amount: "",
@@ -272,25 +271,6 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.vehicle_id, form.pickup_date, form.return_date, form.plan_id]);
 
-  const handleContractUpload = async (file: File) => {
-    setUploading(true);
-    try {
-      const ext = file.name.split(".").pop();
-      const path = `contracts/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await supabase.storage.from("inspections").upload(path, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-      if (error) throw error;
-      const { data } = supabase.storage.from("inspections").getPublicUrl(path);
-      set("contract_url", data.publicUrl);
-      toast({ title: "Contrato enviado" });
-    } catch (e: any) {
-      toast({ title: "Erro no upload", description: e.message, variant: "destructive" });
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSave = async () => {
     if (!form.customer_name || !form.vehicle_id || !form.pickup_date || !form.return_date) {
@@ -342,7 +322,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       addons: {
         payment_method: form.payment_method,
         currency: form.currency,
-        contract_url: form.contract_url || null,
+        
         manual_entry: true,
       },
     };
@@ -366,7 +346,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       return_date: "", return_time: "10:00",
       pickup_location: "", return_location: "",
       plan_id: "conforto", total_price: "", currency: "USD",
-      payment_method: "Cartão de Crédito", contract_url: "",
+      payment_method: "Cartão de Crédito",
       status: "confirmed", notes: "",
       deposit_amount: "", deposit_refund_days: "30", franchise_amount: "",
     });
@@ -725,36 +705,8 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
             </div>
           </Section>
 
-          {/* 6. Contrato */}
-          <Section step={6} title="Contrato">
-            <div className="flex flex-col gap-2.5">
-              <label className="flex items-center justify-center gap-2 cursor-pointer h-11 px-3 rounded-xl border border-dashed border-border bg-card hover:bg-muted text-sm font-medium transition-colors">
-                {uploading ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-                {uploading ? "Enviando..." : "Anexar contrato (PDF/imagem)"}
-                <input
-                  type="file"
-                  accept="application/pdf,image/*"
-                  className="hidden"
-                  disabled={uploading}
-                  onChange={(e) => e.target.files?.[0] && handleContractUpload(e.target.files[0])}
-                />
-              </label>
-              {form.contract_url && (
-                <a
-                  href={form.contract_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-2 text-xs text-primary hover:underline bg-primary/5 px-3 py-2 rounded-lg min-w-0"
-                >
-                  <ImageIcon size={13} className="shrink-0" />
-                  <span className="truncate">Ver contrato anexado</span>
-                </a>
-              )}
-            </div>
-          </Section>
-
-          {/* 7. Observações */}
-          <Section step={7} title="Observações">
+          {/* 6. Observações */}
+          <Section step={6} title="Observações">
             <Textarea
               rows={3}
               value={form.notes}
