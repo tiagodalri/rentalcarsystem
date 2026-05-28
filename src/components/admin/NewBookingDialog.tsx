@@ -55,7 +55,7 @@ const CURRENCIES = [
 export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [saving, setSaving] = useState(false);
-  const [, ] = [null, null];
+  
   const [customer, setCustomer] = useState<CustomerLite | null>(null);
   const [extracting, setExtracting] = useState(false);
   const [extractText, setExtractText] = useState("");
