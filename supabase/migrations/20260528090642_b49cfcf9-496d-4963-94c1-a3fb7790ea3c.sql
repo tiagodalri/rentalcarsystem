@@ -1,0 +1,1 @@
+GRANT SELECT (deleted_at) ON public.vehicles TO anon;
