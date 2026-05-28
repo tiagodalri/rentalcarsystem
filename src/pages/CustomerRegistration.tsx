@@ -346,6 +346,27 @@ const CustomerRegistration = () => {
                 />
               </label>
             </div>
+            {ocrLoading && (
+              <p className="text-[11px] text-primary mt-2 flex items-center gap-1.5">
+                <Loader2 size={11} className="animate-spin" /> Lendo documento com IA...
+              </p>
+            )}
+            {ocrResult && (
+              <div className="mt-3">
+                <OcrReviewPanel
+                  extracted={ocrResult}
+                  current={{
+                    full_name: form.full_name,
+                    document_number: form.document_number,
+                    driver_license: form.driver_license,
+                    driver_license_expiry: form.driver_license_expiry,
+                    date_of_birth: form.date_of_birth,
+                  }}
+                  onApply={applyOcr}
+                  onDismiss={resetOcr}
+                />
+              </div>
+            )}
           </div>
 
           <button
