@@ -186,7 +186,7 @@ const ProfileTab = () => {
             <Field label="Celular / WhatsApp" icon={Phone}>
               <PhoneInput value={form.phone} onChange={(v) => update("phone", v)} inputClassName="h-9 px-2.5 text-sm" />
             </Field>
-            <Field label="CPF" icon={FileText} locked tooltip="Para alterar o CPF, contate o suporte.">
+            <Field label="Documento (CPF / Passport / ID)" icon={FileText} locked tooltip="Para alterar o documento, contate o suporte.">
               <input
                 type="text"
                 value={customer?.document_number || "Não informado"}
