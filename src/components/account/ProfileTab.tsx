@@ -8,6 +8,8 @@ import {
   Loader2, Lock, BadgeCheck, Clock, AlertCircle, Save,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
+import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 
 interface ProfileForm {
   full_name: string;
@@ -94,13 +96,23 @@ const ProfileTab = () => {
     setCepLoading(false);
   };
 
-  const handleFile = (file: File | null) => {
+  const { loading: ocrLoading, result: ocrResult, runOcr, reset: resetOcr } = useDocumentOcr();
+
+  const handleFile = async (file: File | null) => {
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
       toast({ title: "Arquivo muito grande", description: "Máximo 10MB", variant: "destructive" });
       return;
     }
     setLicenseFile(file);
+    resetOcr();
+    if (file.type.startsWith("image/")) await runOcr(file);
+  };
+
+  const applyOcr = (values: Partial<Record<keyof OcrFields, string>>) => {
+    setForm((prev) => ({ ...prev, ...values } as any));
+    resetOcr();
+    toast({ title: "Dados aplicados", description: "Confira e clique em salvar." });
   };
 
   const dirty = useMemo(() => {
