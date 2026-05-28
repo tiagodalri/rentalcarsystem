@@ -346,7 +346,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
       return_date: "", return_time: "10:00",
       pickup_location: "", return_location: "",
       plan_id: "conforto", total_price: "", currency: "USD",
-      payment_method: "Cartão de Crédito", contract_url: "",
+      payment_method: "Cartão de Crédito",
       status: "confirmed", notes: "",
       deposit_amount: "", deposit_refund_days: "30", franchise_amount: "",
     });
