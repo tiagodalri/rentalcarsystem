@@ -727,20 +727,21 @@ Deno.serve(async (req) => {
       full_name: "Nome completo",
       email: "E-mail",
       driver_license: "Número da CNH",
+      document_number: "CPF/Passport",
     };
     const missing: string[] = [];
-    if (!customer.full_name) missing.push("full_name");
-    if (!customer.email) missing.push("email");
+    if (!customer.full_name || !String(customer.full_name).trim()) missing.push("full_name");
+    if (!customer.email || !String(customer.email).trim()) missing.push("email");
     if (!customer.driver_license || !String(customer.driver_license).trim()) missing.push("driver_license");
+    if (!customer.document_number || !String(customer.document_number).trim()) missing.push("document_number");
     if (missing.length) {
       const labels = missing.map((f) => FIELD_LABELS[f] || f).join(", ");
       return json(400, {
-        error: `Não é possível enviar o contrato: o cliente está sem os seguintes dados obrigatórios: ${labels}.`,
+        error: `Não é possível enviar o contrato. Campos obrigatórios faltando no cadastro do cliente: ${labels}.`,
         missing_fields: missing,
         missing_labels: missing.map((f) => FIELD_LABELS[f] || f),
       });
     }
-    // document_number é opcional: ausente renderiza como linha em branco no PDF
 
     // mark generating
     await admin.from("bookings").update({
