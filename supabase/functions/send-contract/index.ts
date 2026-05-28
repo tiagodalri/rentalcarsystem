@@ -322,7 +322,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
     .filter(Boolean).join(", ");
   fieldRow("Nome completo", customer.full_name || "");
   fieldRow("Data de nascimento", customer.date_of_birth ? fmtDate(customer.date_of_birth) : "");
-  fieldRow("CPF / Passport", customer.document_number || "");
+  fieldRow("Documento (CPF / Passport / ID)", customer.document_number || "");
   fieldRow(
     "CNH / Driver License",
     customer.driver_license
@@ -727,7 +727,7 @@ Deno.serve(async (req) => {
       full_name: "Nome completo",
       email: "E-mail",
       driver_license: "Número da CNH",
-      document_number: "CPF/Passport",
+      document_number: "Documento (CPF/Passport/ID)",
     };
     const missing: string[] = [];
     if (!customer.full_name || !String(customer.full_name).trim()) missing.push("full_name");
