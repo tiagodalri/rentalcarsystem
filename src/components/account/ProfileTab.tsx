@@ -12,7 +12,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 interface ProfileForm {
   full_name: string;
   phone: string;
-  phone: string;
   nationality: string;
   date_of_birth: string;
   zip_code: string;
