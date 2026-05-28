@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
+import { BookingDateField } from "@/components/admin/BookingDateField";
 
 type Vehicle = { id: string; name: string };
 
@@ -188,11 +189,11 @@ export function EditBookingDialog({ open, onOpenChange, booking, onSaved }: Prop
               </div>
               <div>
                 <Label className="text-xs">Retirada</Label>
-                <Input type="date" value={form.pickup_date} onChange={(e) => set("pickup_date", e.target.value)} />
+                <BookingDateField value={form.pickup_date} onChange={(v) => set("pickup_date", v)} />
               </div>
               <div>
                 <Label className="text-xs">Devolução</Label>
-                <Input type="date" value={form.return_date} onChange={(e) => set("return_date", e.target.value)} />
+                <BookingDateField value={form.return_date} onChange={(v) => set("return_date", v)} />
               </div>
               <div>
                 <Label className="text-xs">Local de retirada</Label>
