@@ -115,7 +115,6 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     total_price: "",
     currency: "USD",
     payment_method: "Cartão de Crédito",
-    contract_url: "",
     status: "confirmed",
     notes: "",
     deposit_amount: "",
