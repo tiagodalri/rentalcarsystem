@@ -624,7 +624,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
                 <div className="grid grid-cols-2 gap-2.5">
                   <div className="min-w-0">
                     <Label className={labelCls}>Data *</Label>
-                    <Input className={`${inputCls} ${pendingClass("return_date")}`} type="date" value={form.return_date} onChange={(e) => set("return_date", e.target.value)} />
+                    <DateField className={pendingClass("return_date")} value={form.return_date} onChange={(v) => set("return_date", v)} />
                   </div>
                   <div className="min-w-0">
                     <Label className={labelCls}>Hora</Label>
