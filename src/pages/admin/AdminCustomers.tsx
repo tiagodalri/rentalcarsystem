@@ -9,6 +9,8 @@ import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { CustomerTagsInline } from "@/components/admin/CustomerTagsManager";
 import { buildWhatsAppUrl, defaultClientMessage } from "@/lib/whatsapp";
+import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
+import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 
 type Customer = {
   id: string;
@@ -25,7 +27,7 @@ type Customer = {
 
 const emptyCustomer = {
   full_name: "", email: "", phone: "", document_number: "",
-  nationality: "", driver_license: "", notes: "",
+  nationality: "", driver_license: "", driver_license_expiry: "", notes: "",
   date_of_birth: "", address: "", house_number: "", complement: "", zip_code: "",
 };
 
@@ -39,6 +41,22 @@ export default function AdminCustomers() {
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
   const [cepLoading, setCepLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const { loading: ocrLoading, result: ocrResult, runOcr, reset: resetOcr } = useDocumentOcr();
+
+  const onLicenseFile = async (file: File | null) => {
+    setLicenseFile(file);
+    resetOcr();
+    if (file && file.type.startsWith("image/")) {
+      await runOcr(file);
+    }
+  };
+
+  const applyOcr = (values: Partial<Record<keyof OcrFields, string>>) => {
+    if (!editing) return;
+    setEditing((prev) => prev ? { ...prev, ...values } as any : prev);
+    resetOcr();
+    toast({ title: "Dados aplicados", description: "Confira e clique em salvar." });
+  };
 
   const lookupCep = async (cep: string) => {
     const clean = cep.replace(/\D/g, "");
@@ -119,6 +137,7 @@ export default function AdminCustomers() {
       document_number: editing.document_number || null,
       nationality: editing.nationality || null,
       driver_license: editing.driver_license || null,
+      driver_license_expiry: (editing as any).driver_license_expiry || null,
       notes: editing.notes || null,
       date_of_birth: (editing as any).date_of_birth || null,
       address: (editing as any).address || null,
@@ -137,6 +156,7 @@ export default function AdminCustomers() {
     }
     setEditing(null);
     setLicenseFile(null);
+    resetOcr();
     load();
   };
 
@@ -151,6 +171,8 @@ export default function AdminCustomers() {
   const fields = [
     { label: "Nome completo", key: "full_name" },
     { label: "E-mail", key: "email" },
+    { label: "Número da CNH / Driver License", key: "driver_license" },
+    { label: "Validade da CNH", key: "driver_license_expiry", type: "date" },
     { label: "Telefone", key: "phone" },
     { label: "Data de Nascimento", key: "date_of_birth", type: "date" },
     { label: "Documento (CPF/Passport/ID)", key: "document_number" },
