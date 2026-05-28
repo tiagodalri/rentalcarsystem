@@ -272,25 +272,6 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.vehicle_id, form.pickup_date, form.return_date, form.plan_id]);
 
-  const handleContractUpload = async (file: File) => {
-    setUploading(true);
-    try {
-      const ext = file.name.split(".").pop();
-      const path = `contracts/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error } = await supabase.storage.from("inspections").upload(path, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-      if (error) throw error;
-      const { data } = supabase.storage.from("inspections").getPublicUrl(path);
-      set("contract_url", data.publicUrl);
-      toast({ title: "Contrato enviado" });
-    } catch (e: any) {
-      toast({ title: "Erro no upload", description: e.message, variant: "destructive" });
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const handleSave = async () => {
     if (!form.customer_name || !form.vehicle_id || !form.pickup_date || !form.return_date) {
