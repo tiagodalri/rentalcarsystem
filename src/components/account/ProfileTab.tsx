@@ -334,6 +334,25 @@ const ProfileTab = () => {
             <p className="text-[10px] text-muted-foreground">
               Imagem ou PDF, máximo 10MB. Reenviar a foto coloca a CNH em "Aguardando verificação".
             </p>
+            {ocrLoading && (
+              <p className="text-[11px] text-primary mt-1 flex items-center gap-1.5">
+                <Loader2 size={11} className="animate-spin" /> Lendo documento com IA...
+              </p>
+            )}
+            {ocrResult && (
+              <OcrReviewPanel
+                extracted={ocrResult}
+                current={{
+                  full_name: form.full_name,
+                  document_number: form.document_number,
+                  driver_license: form.driver_license,
+                  driver_license_expiry: form.driver_license_expiry,
+                  date_of_birth: form.date_of_birth,
+                }}
+                onApply={applyOcr}
+                onDismiss={resetOcr}
+              />
+            )}
           </div>
         </section>
 
