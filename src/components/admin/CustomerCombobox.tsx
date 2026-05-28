@@ -164,7 +164,7 @@ export function CustomerCombobox({ selected, onSelect }: Props) {
               <Input value={newC.phone} onChange={(e) => setNewC((p) => ({ ...p, phone: e.target.value }))} />
             </div>
             <div>
-              <Label className="text-xs">Documento (CPF/Passaporte)</Label>
+              <Label className="text-xs">Documento (CPF/Passport/ID)</Label>
               <Input value={newC.document_number} onChange={(e) => setNewC((p) => ({ ...p, document_number: e.target.value }))} />
             </div>
           </div>

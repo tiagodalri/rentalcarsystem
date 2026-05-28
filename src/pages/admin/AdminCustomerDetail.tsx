@@ -286,7 +286,7 @@ export default function AdminCustomerDetail() {
               <DetailItem label="E-mail" value={customer.email} />
               <DetailItem label="Telefone" value={customer.phone} />
               <DetailItem label="Data de Nascimento" value={(customer as any).date_of_birth ? new Date((customer as any).date_of_birth).toLocaleDateString("pt-BR") : null} />
-              <DetailItem label="CPF" value={customer.document_number} />
+              <DetailItem label="Documento (CPF/Passport/ID)" value={customer.document_number} />
               <DetailItem label="CNH" value={customer.driver_license} />
               {/* CNH Expiry Badge */}
               {(() => {

@@ -119,7 +119,7 @@ export default function AdminBookingDetail() {
     if (!customer.full_name || !String(customer.full_name).trim()) m.push("Nome completo");
     if (!customer.email || !String(customer.email).trim()) m.push("E-mail");
     if (!customer.driver_license || !String(customer.driver_license).trim()) m.push("Número da CNH");
-    if (!customer.document_number || !String(customer.document_number).trim()) m.push("CPF/Passport");
+    if (!customer.document_number || !String(customer.document_number).trim()) m.push("Documento (CPF/Passport/ID)");
     return m;
   })();
   const canActuallySendContract = missingContractFields.length === 0;
@@ -557,7 +557,7 @@ export default function AdminBookingDetail() {
                   <DetailItem label="Nome" value={customer.full_name} />
                   <DetailItem label="E-mail" value={customer.email} />
                   <DetailItem label="Telefone" value={customer.phone} />
-                  <DetailItem label="CPF" value={customer.document_number} />
+                  <DetailItem label="Documento (CPF/Passport/ID)" value={customer.document_number} />
                   <DetailItem label="CNH" value={customer.driver_license} />
                   <DetailItem label="Nacionalidade" value={customer.nationality} />
                   {customer.notes && (

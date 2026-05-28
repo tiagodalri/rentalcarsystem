@@ -153,7 +153,7 @@ export default function AdminCustomers() {
     { label: "E-mail", key: "email" },
     { label: "Telefone", key: "phone" },
     { label: "Data de Nascimento", key: "date_of_birth", type: "date" },
-    { label: "Documento (CPF)", key: "document_number" },
+    { label: "Documento (CPF/Passport/ID)", key: "document_number" },
     { label: "Nacionalidade", key: "nationality" },
     { label: "CEP ou ZIPCode", key: "zip_code" },
     { label: "Rua / Logradouro", key: "address" },
@@ -337,7 +337,7 @@ export default function AdminCustomers() {
                     <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Nome</th>
                     <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Contato</th>
                     <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Tags</th>
-                    <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">CPF</th>
+                    <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Documento</th>
                     <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">CNH</th>
                     <th className="px-5 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Reservas</th>
                     <th className="px-5 py-3 w-20"></th>

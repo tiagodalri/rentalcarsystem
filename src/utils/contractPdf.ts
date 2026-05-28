@@ -148,7 +148,7 @@ export function generateContractPdf(
   section("LOCATÁRIO");
   twoCols("Nome completo", customer.full_name, "Nacionalidade", customer.nationality || "—");
   twoCols("E-mail", customer.email || "—", "Telefone", customer.phone || "—");
-  twoCols("Documento (CPF/Passaporte)", customer.document_number || "—", "CNH (número)", customer.driver_license || "—");
+  twoCols("Documento (CPF / Passport / ID)", customer.document_number || "—", "CNH (número)", customer.driver_license || "—");
   twoCols("Validade da CNH", fmtDate(customer.driver_license_expiry), "Endereço", fullAddress);
 
   // BLOCO 3 — VEÍCULO
