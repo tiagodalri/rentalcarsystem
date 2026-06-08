@@ -266,11 +266,12 @@ export function useTripReplay(tripId: string | null) {
         const encoded: string | null =
           (typeof raw.gps === "string" ? raw.gps : null) ??
           (typeof trip.gps === "string" ? (trip.gps as any) : null);
-        if (!encoded) throw new Error("Esta viagem não tem rota gravada (polyline ausente).");
 
-        const decoded: any[] = google.maps.geometry.encoding.decodePath(encoded);
-        let raw_points = decoded.map((p) => ({ lat: p.lat(), lng: p.lng() }));
-        if (raw_points.length < 2) throw new Error("Rota muito curta para reproduzir.");
+        let raw_points: { lat: number; lng: number }[] = [];
+        if (encoded) {
+          const decoded: any[] = google.maps.geometry.encoding.decodePath(encoded);
+          raw_points = decoded.map((p) => ({ lat: p.lat(), lng: p.lng() }));
+        }
 
         const startedAt = trip.started_at ? new Date(trip.started_at) : new Date();
         const endedAt = trip.ended_at ? new Date(trip.ended_at) : new Date(startedAt.getTime() + 60000);
@@ -289,21 +290,25 @@ export function useTripReplay(tripId: string | null) {
             .lte("reported_at", endedAt.toISOString())
             .order("reported_at", { ascending: true })
             .limit(3000);
-          if (th && th.length >= 8) {
-            const withSpeed = th.filter((r: any) =>
-              r.lat != null && r.lng != null && r.speed != null
-            );
-            if (withSpeed.length >= 8) {
+          // If we have no polyline, accept even a small set of telemetry points
+          const minPts = raw_points.length >= 2 ? 8 : 2;
+          if (th && th.length >= minPts) {
+            const withCoords = th.filter((r: any) => r.lat != null && r.lng != null);
+            if (withCoords.length >= minPts) {
               level = 2;
-              realPts = withSpeed.map((r: any) => ({
+              realPts = withCoords.map((r: any) => ({
                 lat: Number(r.lat),
                 lng: Number(r.lng),
-                speed: Number(r.speed),
+                speed: r.speed != null ? Number(r.speed) : 0,
                 heading: r.heading != null ? Number(r.heading) : null,
                 t: new Date(r.reported_at).getTime() - startedAt.getTime(),
               }));
             }
           }
+        }
+
+        if (level !== 2 && raw_points.length < 2) {
+          throw new Error("Esta viagem não tem rota gravada nem telemetria suficiente para reproduzir.");
         }
 
         // ===== Downsample very long polylines (level 1) =====
