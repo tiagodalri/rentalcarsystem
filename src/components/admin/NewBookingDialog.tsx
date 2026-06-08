@@ -54,7 +54,11 @@ const CURRENCIES = [
   { value: "BRL", label: "BRL (R$)" },
 ];
 
-export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
+export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal", onCancel }: Props) {
+  const closeSelf = () => {
+    if (mode === "page") onCancel?.();
+    else onOpenChange?.(false);
+  };
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [saving, setSaving] = useState(false);
   
