@@ -19,6 +19,7 @@ const emptyVehicle = {
   color: "", purchase_price: null as number | null,
   initial_odometer: null as number | null, current_odometer: null as number | null,
   acquired_date: null as string | null,
+  bouncie_imei: "",
 };
 
 export default function AdminVehicleNew() {
@@ -70,6 +71,7 @@ export default function AdminVehicleNew() {
       initial_odometer: form.initial_odometer ?? 0,
       current_odometer: form.current_odometer ?? 0,
       acquired_date: form.acquired_date || null,
+      bouncie_imei: (form.bouncie_imei || "").trim() || null,
     };
 
     const { data, error } = await supabase.from("vehicles").insert(payload).select("id").single();
@@ -153,6 +155,11 @@ export default function AdminVehicleNew() {
             <div>
               <label className={labelCls}>Renavam</label>
               <input className={`${inputCls} tabular-nums`} inputMode="numeric" value={form.renavam ?? ""} onChange={(e) => set("renavam", e.target.value.replace(/\D/g, ""))} placeholder="11 dígitos" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className={labelCls}>IMEI Bouncie (rastreador)</label>
+              <input className={`${inputCls} tabular-nums font-mono text-sm`} inputMode="numeric" value={form.bouncie_imei ?? ""} onChange={(e) => set("bouncie_imei", e.target.value.replace(/\s/g, ""))} placeholder="Ex: 351234567890123" />
+              <p className="text-[11px] text-muted-foreground mt-1">Vincula o veículo ao rastreador OBD-II Bouncie para telemetria em tempo real.</p>
             </div>
           </div>
         </Section>
