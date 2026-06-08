@@ -1036,13 +1036,14 @@ function BigStat({ label, value, unit, highlight }: { label: string; value: stri
   );
 }
 
-function Speedometer({ mph, max }: { mph: number; max: number }) {
+function Speedometer({ mph, max, maxMarker, caption }: { mph: number; max: number; maxMarker?: number; caption?: string }) {
   const mphClamped = Math.max(0, Math.min(max, mph));
-  // Half-circle gauge: -90° to +90°
   const angle = -90 + (mphClamped / max) * 180;
   const r = 60;
   const cx = 75, cy = 80;
   const ticks = Array.from({ length: 9 }, (_, i) => -90 + i * 22.5);
+  // Tick angle for maxMarker
+  const markerAngle = maxMarker != null ? -90 + (Math.max(0, Math.min(max, maxMarker)) / max) * 180 : null;
   return (
     <div className="relative">
       <svg viewBox="0 0 150 95" className="w-full">
@@ -1054,9 +1055,7 @@ function Speedometer({ mph, max }: { mph: number; max: number }) {
             <stop offset="100%" stopColor="#ef4444" />
           </linearGradient>
         </defs>
-        {/* Background arc */}
         <path d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" strokeLinecap="round" />
-        {/* Filled arc up to mph */}
         <path
           d={`M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`}
           fill="none"
@@ -1065,7 +1064,6 @@ function Speedometer({ mph, max }: { mph: number; max: number }) {
           strokeLinecap="round"
           strokeDasharray={`${(mphClamped / max) * Math.PI * r} ${Math.PI * r}`}
         />
-        {/* Ticks */}
         {ticks.map((a, i) => {
           const rad = (a * Math.PI) / 180;
           const x1 = cx + Math.cos(rad) * (r - 2);
@@ -1074,7 +1072,20 @@ function Speedometer({ mph, max }: { mph: number; max: number }) {
           const y2 = cy + Math.sin(rad) * (r - 9);
           return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(255,255,255,0.3)" strokeWidth="1" />;
         })}
-        {/* Needle */}
+        {/* Max-speed marker for level 1 */}
+        {markerAngle != null && (() => {
+          const rad = (markerAngle * Math.PI) / 180;
+          const x1 = cx + Math.cos(rad) * (r + 2);
+          const y1 = cy + Math.sin(rad) * (r + 2);
+          const x2 = cx + Math.cos(rad) * (r - 12);
+          const y2 = cy + Math.sin(rad) * (r - 12);
+          return (
+            <g>
+              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
+              <circle cx={cx + Math.cos(rad) * (r + 5)} cy={cy + Math.sin(rad) * (r + 5)} r="2.5" fill="#ef4444" />
+            </g>
+          );
+        })()}
         <g transform={`rotate(${angle} ${cx} ${cy})`}>
           <line x1={cx} y1={cy} x2={cx} y2={cy - (r - 4)} stroke={GOLD} strokeWidth="2.5" strokeLinecap="round" />
           <circle cx={cx} cy={cy} r="4" fill={GOLD} />
@@ -1082,11 +1093,17 @@ function Speedometer({ mph, max }: { mph: number; max: number }) {
       </svg>
       <div className="absolute inset-x-0 bottom-0 text-center pb-1">
         <p className="text-2xl font-bold text-white tabular-nums leading-none">{Math.round(mph)}</p>
-        <p className="text-[9px] uppercase tracking-wider text-white/50 font-semibold">mph</p>
+        <p className="text-[9px] uppercase tracking-wider text-white/50 font-semibold">{caption ?? "mph"}</p>
       </div>
+      {maxMarker != null && (
+        <p className="text-center text-[8px] uppercase tracking-wider text-red-400/80 font-semibold mt-0.5">
+          pico atingido: <span className="tabular-nums">{Math.round(maxMarker)}</span> mph
+        </p>
+      )}
     </div>
   );
 }
+
 
 function Gmeter({ g }: { g: number }) {
   // g range ~ -0.6 .. +0.6
