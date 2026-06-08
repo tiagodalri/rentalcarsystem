@@ -238,14 +238,15 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
   };
 
   useEffect(() => {
-    if (!open) return;
+    if (mode === "modal" && !open) return;
     supabase
       .from("vehicles")
       .select("id, name, daily_price_usd, default_deposit_amount, default_franchise_amount")
       .eq("published", true)
       .order("name")
       .then(({ data }) => setVehicles((data as Vehicle[]) || []));
-  }, [open]);
+  }, [open, mode]);
+
 
   // Auto-suggest total price + deposit/franchise defaults when vehicle/dates change
   useEffect(() => {
