@@ -313,9 +313,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       seen.add(v.vehicle_id);
       const isSelected = v.vehicle_id === selectedId;
       const color = statusColor(v.status);
-      const icon = layers.carvatars
-        ? carvatarSvg(getCoverImage(v.name), color, isSelected)
-        : markerSvg(color, isSelected, v.heading ?? null);
+      const icon = markerSvg(color, isSelected, v.heading ?? null);
 
       const reportedAtMs = v.reported_at ? new Date(v.reported_at).getTime() : Date.now();
       const prev = anchors.get(v.vehicle_id);
