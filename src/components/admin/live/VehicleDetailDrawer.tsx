@@ -128,6 +128,14 @@ export function VehicleDetailDrawer({
       <div className="shrink-0">
         <VehicleHealthFooter vehicle={vehicle} />
       </div>
+
+      <ShareTrackingDialog
+        vehicleId={vehicle.vehicle_id}
+        vehicleName={vehicle.name}
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+      />
     </div>
   );
 }
+
