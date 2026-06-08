@@ -14,7 +14,7 @@ export type MapLayers = {
 export const DEFAULT_LAYERS: MapLayers = {
   mapType: "roadmap",
   traffic: false,
-  carvatars: true,
+  carvatars: false,
   nwsAlerts: false,
   speedLegend: true,
   geoZones: true,
