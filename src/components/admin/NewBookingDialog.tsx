@@ -544,16 +544,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
               </div>
               <div className="min-w-0">
                 <Label className={labelCls}>Plano</Label>
-                <Select value={form.plan_id} onValueChange={(v) => set("plan_id", v)}>
-                  <SelectTrigger className={triggerCls}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {PLAN_ORDER.map((id) => (
-                      <SelectItem key={id} value={id}>
-                        {PLANS[id].name} {PLANS[id].dailyExtra > 0 ? `(+$${PLANS[id].dailyExtra}/dia)` : "(grátis)"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="h-11 flex items-center px-3 rounded-xl border border-border/50 bg-muted/20 text-sm font-medium text-foreground">
+                  Zeus (Plano único)
+                </div>
               </div>
             </div>
           </Section>
