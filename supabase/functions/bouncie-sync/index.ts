@@ -119,6 +119,13 @@ Deno.serve(async (req) => {
       } else {
         updated += 1;
       }
+
+      // Geofence transition detection on the polled position too.
+      if (update.lat !== undefined && update.lng !== undefined) {
+        await evaluateGeofences(
+          admin, veh.id, update.lat, update.lng, update.reported_at,
+        );
+      }
     }
 
     return new Response(JSON.stringify({ ok: true, updated, total: list?.length ?? 0 }), {
