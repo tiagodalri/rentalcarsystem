@@ -31,6 +31,7 @@ type Vehicle = {
   initial_odometer: number | null; current_odometer: number | null;
   acquired_date: string | null; license_plate: string | null;
   vin: string | null; color: string | null; notes: string | null;
+  bouncie_imei: string | null;
   created_at: string; engine_type: string | null; engine_size: string | null;
   doors: number | null; insurance_policy: string | null;
   insurance_expiry: string | null; registration_expiry: string | null;
@@ -184,6 +185,7 @@ export default function AdminVehicleDetail() {
       license_plate: editForm.license_plate || null,
       vin: editForm.vin || null,
       color: editForm.color || null,
+      bouncie_imei: editForm.bouncie_imei ? String(editForm.bouncie_imei).trim() || null : null,
       notes: editForm.notes || null,
       engine_type: editForm.engine_type || null,
       engine_size: editForm.engine_size || null,
@@ -1141,6 +1143,7 @@ export default function AdminVehicleDetail() {
                 {renderField("Placa", "license_plate", "text")}
                 {renderField("Chassi (VIN)", "vin", "text")}
                 {renderField("Cor", "color", "text")}
+                {renderField("IMEI Bouncie", "bouncie_imei", "text")}
               </div>
 
               {/* Financial */}
