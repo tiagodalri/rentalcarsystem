@@ -28,7 +28,9 @@ export function VehicleDetailDrawer({
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<Tab>("trips");
+  const [shareOpen, setShareOpen] = useState(false);
   const navigate = useNavigate();
+
 
   const statusLabel =
     vehicle.status === "moving" ? "Em movimento" : vehicle.status === "idle" ? "Parado" : "Estacionado";
