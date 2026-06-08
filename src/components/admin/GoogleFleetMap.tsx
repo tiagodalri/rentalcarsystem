@@ -332,6 +332,92 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         });
         infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false, maxWidth: 320 });
 
+        // ===== Custom "minha localização" control (discrete, next to zoom) =====
+        const meBtn = document.createElement("button");
+        meBtn.type = "button";
+        meBtn.title = "Centralizar na minha localização";
+        meBtn.setAttribute("aria-label", "Centralizar na minha localização");
+        meBtn.style.cssText = [
+          "margin:0 10px 10px 0", "width:40px", "height:40px",
+          "border-radius:2px", "border:none", "cursor:pointer",
+          "background:#fff", "color:#666",
+          "box-shadow:0 1px 4px rgba(0,0,0,0.3)",
+          "display:flex", "align-items:center", "justify-content:center",
+          "transition:background-color .15s",
+        ].join(";");
+        meBtn.onmouseenter = () => { meBtn.style.background = "#f5f5f5"; };
+        meBtn.onmouseleave = () => { meBtn.style.background = "#fff"; };
+        meBtn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <line x1="12" y1="2" x2="12" y2="5"/>
+            <line x1="12" y1="19" x2="12" y2="22"/>
+            <line x1="2" y1="12" x2="5" y2="12"/>
+            <line x1="19" y1="12" x2="22" y2="12"/>
+          </svg>`;
+
+        let myLocMarker: any = null;
+        let myLocAccuracy: any = null;
+        let locating = false;
+        meBtn.onclick = () => {
+          if (locating) return;
+          if (!navigator.geolocation) {
+            meBtn.title = "Geolocalização não suportada";
+            return;
+          }
+          locating = true;
+          meBtn.style.color = "#D4AF37";
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              locating = false;
+              meBtn.style.color = "#1a73e8";
+              const { latitude, longitude, accuracy } = pos.coords;
+              const center = { lat: latitude, lng: longitude };
+              mapRef.current.panTo(center);
+              if ((mapRef.current.getZoom() ?? 9) < 13) mapRef.current.setZoom(14);
+              myLocMarker?.setMap(null);
+              myLocAccuracy?.setMap(null);
+              myLocMarker = new google.maps.Marker({
+                map: mapRef.current,
+                position: center,
+                zIndex: 9999,
+                icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  scale: 7,
+                  fillColor: "#1a73e8",
+                  fillOpacity: 1,
+                  strokeColor: "#fff",
+                  strokeWeight: 2.5,
+                },
+                title: "Você está aqui",
+              });
+              myLocAccuracy = new google.maps.Circle({
+                map: mapRef.current,
+                center,
+                radius: Math.max(20, accuracy || 50),
+                strokeColor: "#1a73e8",
+                strokeOpacity: 0.4,
+                strokeWeight: 1,
+                fillColor: "#1a73e8",
+                fillOpacity: 0.12,
+                clickable: false,
+              });
+            },
+            (err) => {
+              locating = false;
+              meBtn.style.color = "#ef4444";
+              meBtn.title =
+                err.code === err.PERMISSION_DENIED
+                  ? "Permissão de localização negada"
+                  : "Não foi possível obter sua localização";
+              setTimeout(() => { meBtn.style.color = "#666"; meBtn.title = "Centralizar na minha localização"; }, 2500);
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+          );
+        };
+        mapRef.current.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(meBtn);
+
+
         // Intercept POI clicks to render a rich Google Places card
         mapRef.current.addListener("click", async (e: any) => {
           if (!e?.placeId) return;
