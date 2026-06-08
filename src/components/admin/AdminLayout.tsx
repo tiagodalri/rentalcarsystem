@@ -66,11 +66,12 @@ export default function AdminLayout() {
             </span>
           </header>
           <main
-            className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto"
+            className="flex-1 p-3 sm:p-4 md:p-6"
             style={{ paddingBottom: "max(env(safe-area-inset-bottom, 0px), 1rem)" }}
           >
             <Outlet />
           </main>
+
           <MinimalFooter />
         </div>
       </div>
