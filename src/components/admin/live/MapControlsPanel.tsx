@@ -4,7 +4,7 @@ import { Settings2, X, Check } from "lucide-react";
 export type MapLayers = {
   mapType: "roadmap" | "satellite";
   traffic: boolean;
-  carvatars: boolean;
+  carvatars: boolean; // deprecated, kept for type compat — always false
   nwsAlerts: boolean;
   speedLegend: boolean;
   geoZones: boolean;
@@ -21,19 +21,19 @@ export const DEFAULT_LAYERS: MapLayers = {
   tripEvents: true,
 };
 
-const STORAGE_KEY = "zeus.liveMap.layers.v2";
+const STORAGE_KEY = "zeus.liveMap.layers.v3";
 
 export function useMapLayers() {
   const [layers, setLayers] = useState<MapLayers>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return { ...DEFAULT_LAYERS, ...JSON.parse(raw) };
+      if (raw) return { ...DEFAULT_LAYERS, ...JSON.parse(raw), carvatars: false };
     } catch {}
     return DEFAULT_LAYERS;
   });
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(layers));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...layers, carvatars: false }));
     } catch {}
   }, [layers]);
   return [layers, setLayers] as const;
@@ -238,13 +238,6 @@ export function MapControlsPanel({ layers, onChange }: Props) {
                 active={layers.traffic}
                 onClick={() => set("traffic", !layers.traffic)}
                 preview={previews.traffic}
-                liveBadge
-              />
-              <ToggleCard
-                label="Carvatars"
-                active={layers.carvatars}
-                onClick={() => set("carvatars", !layers.carvatars)}
-                preview={previews.carvatars}
                 liveBadge
               />
               <ToggleCard
