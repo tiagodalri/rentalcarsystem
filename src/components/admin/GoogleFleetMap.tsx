@@ -820,5 +820,19 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     );
   }
 
-  return <div ref={containerRef} className="w-full h-full" />;
+  return (
+    <div className="relative w-full h-full">
+      <div ref={containerRef} className="absolute inset-0" />
+      {ready && selectedId && !following && (
+        <button
+          onClick={recentralize}
+          className="absolute top-3 right-3 z-10 flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#0a0a0a]/90 hover:bg-[#0a0a0a] text-white text-[11px] font-semibold uppercase tracking-wider border border-[#D4AF37]/60 shadow-xl backdrop-blur-sm transition-all animate-in fade-in slide-in-from-top-2 duration-200"
+          title="Voltar a seguir o carro selecionado"
+        >
+          <Crosshair size={13} className="text-[#D4AF37]" />
+          Recentralizar
+        </button>
+      )}
+    </div>
+  );
 }
