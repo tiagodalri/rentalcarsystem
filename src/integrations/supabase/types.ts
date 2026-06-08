@@ -185,6 +185,59 @@ export type Database = {
           },
         ]
       }
+      bouncie_backfill_progress: {
+        Row: {
+          created_at: string
+          empty_streak: number
+          imei: string
+          last_error: string | null
+          last_run: string | null
+          newest_week_done: string | null
+          oldest_week_done: string | null
+          stage: string
+          status: string
+          trips_imported: number
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          empty_streak?: number
+          imei: string
+          last_error?: string | null
+          last_run?: string | null
+          newest_week_done?: string | null
+          oldest_week_done?: string | null
+          stage?: string
+          status?: string
+          trips_imported?: number
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          empty_streak?: number
+          imei?: string
+          last_error?: string | null
+          last_run?: string | null
+          newest_week_done?: string | null
+          oldest_week_done?: string | null
+          stage?: string
+          status?: string
+          trips_imported?: number
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bouncie_backfill_progress_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: true
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bouncie_integration: {
         Row: {
           access_token: string | null
@@ -721,6 +774,63 @@ export type Database = {
             columns: ["job_title_id"]
             isOneToOne: false
             referencedRelation: "job_titles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trip_events: {
+        Row: {
+          created_at: string
+          id: string
+          imei: string | null
+          lat: number | null
+          lng: number | null
+          occurred_at: string
+          raw: Json | null
+          speed_mph: number | null
+          trip_id: string | null
+          type: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          imei?: string | null
+          lat?: number | null
+          lng?: number | null
+          occurred_at: string
+          raw?: Json | null
+          speed_mph?: number | null
+          trip_id?: string | null
+          type: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          imei?: string | null
+          lat?: number | null
+          lng?: number | null
+          occurred_at?: string
+          raw?: Json | null
+          speed_mph?: number | null
+          trip_id?: string | null
+          type?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_events_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_events_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
         ]
@@ -1294,6 +1404,7 @@ export type Database = {
           battery_condition: string | null
           body_condition: string | null
           bouncie_imei: string | null
+          bouncie_raw: Json | null
           bouncie_vin: string | null
           brake_condition: string | null
           brand: string | null
@@ -1344,6 +1455,7 @@ export type Database = {
           battery_condition?: string | null
           body_condition?: string | null
           bouncie_imei?: string | null
+          bouncie_raw?: Json | null
           bouncie_vin?: string | null
           brake_condition?: string | null
           brand?: string | null
@@ -1394,6 +1506,7 @@ export type Database = {
           battery_condition?: string | null
           body_condition?: string | null
           bouncie_imei?: string | null
+          bouncie_raw?: Json | null
           bouncie_vin?: string | null
           brake_condition?: string | null
           brand?: string | null
