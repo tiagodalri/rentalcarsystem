@@ -1,6 +1,7 @@
-import { useMemo } from "react";
-import { X, Play, MapPin, Clock, Gauge, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { X, Play, MapPin, Clock, Gauge, Loader2, Radio } from "lucide-react";
 import { useVehicleTrips, type VehicleTrip } from "@/hooks/useVehicleTrips";
+import { supabase } from "@/integrations/supabase/client";
 
 const VEHICLE_TZ = "America/New_York";
 
@@ -52,11 +53,95 @@ type Props = {
   onPick: (tripId: string) => void;
 };
 
+type LiveTripInfo = {
+  startedAt: string;
+  lastPointAt: string;
+  points: number;
+  lastSpeed: number | null;
+};
+
+/** Detects a trip in progress for the vehicle, from telemetry events/points. */
+function useLiveTripDetect(vehicleId: string, enabled: boolean) {
+  const [info, setInfo] = useState<LiveTripInfo | null>(null);
+  useEffect(() => {
+    if (!enabled || !vehicleId) { setInfo(null); return; }
+    let cancelled = false;
+    const fetchIt = async () => {
+      try {
+        // 1) Last tripStart and last tripEnd
+        const [{ data: starts }, { data: ends }, { data: latestPt }] = await Promise.all([
+          supabase
+            .from("vehicle_telemetry_history")
+            .select("reported_at")
+            .eq("vehicle_id", vehicleId)
+            .eq("event_type", "tripStart")
+            .order("reported_at", { ascending: false })
+            .limit(1),
+          supabase
+            .from("vehicle_telemetry_history")
+            .select("reported_at")
+            .eq("vehicle_id", vehicleId)
+            .eq("event_type", "tripEnd")
+            .order("reported_at", { ascending: false })
+            .limit(1),
+          supabase
+            .from("vehicle_telemetry_history")
+            .select("reported_at,speed")
+            .eq("vehicle_id", vehicleId)
+            .not("lat", "is", null)
+            .order("reported_at", { ascending: false })
+            .limit(1),
+        ]);
+
+        const lastStart = starts?.[0]?.reported_at ? new Date(starts[0].reported_at) : null;
+        const lastEnd = ends?.[0]?.reported_at ? new Date(ends[0].reported_at) : null;
+        const lastPtAt = latestPt?.[0]?.reported_at ? new Date(latestPt[0].reported_at) : null;
+        const lastSpeed = latestPt?.[0]?.speed != null ? Number(latestPt[0].speed) : null;
+
+        // A trip is "in progress" if: there's a tripStart with no tripEnd after it,
+        // AND we've received at least one point in the last 15 min.
+        const startActive = lastStart && (!lastEnd || lastEnd < lastStart);
+        const recentPt = lastPtAt && Date.now() - lastPtAt.getTime() < 15 * 60 * 1000;
+        if (cancelled) return;
+        if (startActive && recentPt) {
+          // Count points since start
+          const { count } = await supabase
+            .from("vehicle_telemetry_history")
+            .select("id", { count: "exact", head: true })
+            .eq("vehicle_id", vehicleId)
+            .gte("reported_at", lastStart!.toISOString())
+            .not("lat", "is", null);
+          if (cancelled) return;
+          setInfo({
+            startedAt: lastStart!.toISOString(),
+            lastPointAt: lastPtAt!.toISOString(),
+            points: count ?? 0,
+            lastSpeed,
+          });
+        } else {
+          setInfo(null);
+        }
+      } catch {
+        if (!cancelled) setInfo(null);
+      }
+    };
+    fetchIt();
+    const id = setInterval(fetchIt, 20000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [vehicleId, enabled]);
+  return info;
+}
+
 export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick }: Props) {
   const { data: trips = [], isLoading } = useVehicleTrips(vehicleId, 30, open);
   const grouped = useMemo(() => groupByDay(trips), [trips]);
+  const live = useLiveTripDetect(vehicleId, open);
 
   if (!open) return null;
+
+  const liveElapsedMin = live
+    ? Math.max(0, Math.round((Date.now() - new Date(live.startedAt).getTime()) / 60000))
+    : 0;
 
   return (
     <div
@@ -86,12 +171,47 @@ export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-3 py-3">
+          {/* LIVE trip entry — always rendered on top when detected */}
+          {live && (
+            <button
+              onClick={() => onPick(`live:${vehicleId}`)}
+              className="w-full text-left rounded-xl border border-emerald-500/40 hover:border-emerald-400 bg-gradient-to-br from-emerald-500/10 via-emerald-500/[0.04] to-transparent transition-all px-3 py-3 mb-3 group relative overflow-hidden"
+            >
+              <div className="absolute top-2 right-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                </span>
+                Ao vivo
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 group-hover:bg-emerald-500/30 flex items-center justify-center transition-colors shrink-0">
+                  <Radio size={16} className="text-emerald-400" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-white">Em andamento</p>
+                  <p className="text-[11px] text-white/60 mt-0.5 flex items-center gap-3 flex-wrap">
+                    <span className="flex items-center gap-1 tabular-nums">
+                      <Clock size={10} />{fmtTime(live.startedAt)} • há {liveElapsedMin} min
+                    </span>
+                    {live.lastSpeed != null && (
+                      <span className="flex items-center gap-1 tabular-nums">
+                        <Gauge size={10} />{Math.round(live.lastSpeed)} mph agora
+                      </span>
+                    )}
+                    <span className="tabular-nums text-white/40">{live.points} pts</span>
+                  </p>
+                </div>
+              </div>
+            </button>
+          )}
+
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12 text-white/50 text-xs gap-2">
               <Loader2 size={18} className="animate-spin" />
               Carregando viagens…
             </div>
-          ) : grouped.length === 0 ? (
+          ) : grouped.length === 0 && !live ? (
             <div className="text-center py-12 px-4 text-white/60">
               <MapPin size={22} className="mx-auto mb-2 opacity-60" />
               <p className="text-sm font-medium">Sem viagens nos últimos 30 dias</p>
