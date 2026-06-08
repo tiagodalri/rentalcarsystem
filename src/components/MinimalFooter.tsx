@@ -8,7 +8,10 @@ const MinimalFooter = () => {
         <div className="h-1.5 w-1.5 rounded-full bg-foreground/40 ring-4 ring-background" />
       </div>
 
-      <div className="bg-muted/30 px-6 pt-6 pb-5">
+      <div
+        className="bg-muted/30 px-6 pt-6"
+        style={{ paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))" }}
+      >
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-2">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
             <span className="h-px w-6 bg-border" />
