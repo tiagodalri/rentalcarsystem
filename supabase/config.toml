@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.bouncie-webhook]
 verify_jwt = false
+
+[functions.bouncie-devices]
+verify_jwt = false
