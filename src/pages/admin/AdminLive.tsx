@@ -32,6 +32,7 @@ const SPEED_BANDS = [
 export default function AdminLive() {
   const { vehicles, loading } = useFleetLive();
   const [selected, setSelected] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "moving" | "idle" | "parked">("all");
   const navigate = useNavigate();
 
