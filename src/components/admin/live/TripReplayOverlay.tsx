@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   X, Play, Pause, Loader2, Maximize2, MapPin, Flag, AlertTriangle,
-  Zap, PauseCircle, Gauge, Clock, Route, TrendingUp,
+  Zap, PauseCircle, Gauge, Clock, Route, TrendingUp, SkipBack, SkipForward,
+  RotateCcw, Fuel, Activity, Trophy,
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from "recharts";
 import { loadGoogleMaps } from "@/lib/googleMapsLoader";
@@ -15,8 +16,14 @@ function fmtClock(ms: number) {
   const ss = s % 60;
   return `${m.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
 }
-function fmtTimeOfDay(d: Date) {
-  return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+function fmtTimeOfDay(d: Date, tz?: string) {
+  return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: tz });
+}
+function fmtMins(seconds: number): string {
+  const m = Math.round(seconds / 60);
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60);
+  return `${h}h ${m % 60}min`;
 }
 
 function lerp(a: number, b: number, f: number) { return a + (b - a) * f; }
