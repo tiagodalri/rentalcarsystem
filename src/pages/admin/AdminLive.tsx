@@ -229,32 +229,27 @@ export default function AdminLive() {
             onOpen={(id) => navigate(`/admin/fleet/${id}`)}
           />
 
-          {/* Selected vehicle detail overlay */}
-          {selectedVehicle && (
-            <div className="absolute bottom-3 right-3 z-[1000] bg-background/95 backdrop-blur-md rounded-xl border border-border/40 w-80 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
-              {/* Header with close */}
+          {/* Compact preview card (only when drawer is closed) */}
+          {selectedVehicle && !drawerOpen && (
+            <div className="absolute bottom-3 right-3 z-[1000] bg-background/95 backdrop-blur-md rounded-xl border border-border/40 w-72 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
               <div className="relative">
                 <img
                   src={getCoverImage(selectedVehicle.name)}
                   alt={selectedVehicle.name}
-                  className="w-full h-32 object-cover bg-muted"
+                  className="w-full h-24 object-cover bg-muted"
                   loading="lazy"
-                  width={320}
-                  height={128}
-                  onError={(e) => {
-                    (e.currentTarget as HTMLImageElement).style.display = "none";
-                  }}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                 />
                 <button
                   onClick={() => setSelected(null)}
                   aria-label="Fechar"
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 flex items-center justify-center text-foreground hover:bg-background transition-colors"
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
                 >
                   <X size={14} />
                 </button>
               </div>
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-2 mb-3">
+              <div className="p-3">
+                <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="min-w-0">
                     <p className="font-bold text-foreground text-sm leading-tight truncate">{selectedVehicle.name}</p>
                     <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{selectedVehicle.plate ?? "—"}</p>
@@ -268,69 +263,47 @@ export default function AdminLive() {
                         : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {selectedVehicle.status === "moving"
-                      ? "Em movimento"
-                      : selectedVehicle.status === "idle"
-                      ? "Parado"
-                      : "Estacionado"}
+                    {selectedVehicle.status === "moving" ? "Movendo" : selectedVehicle.status === "idle" ? "Parado" : "Estacionado"}
                   </span>
                 </div>
-
-                {selectedVehicle.mil_on && (
-                  <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-red-500/30 bg-red-500/10 mb-3">
-                    <AlertTriangle size={13} className="text-red-500 shrink-0" />
-                    <span className="text-[11px] font-medium text-red-500">Luz de injeção (MIL) acesa</span>
+                <div className="grid grid-cols-2 gap-1.5 text-[11px] mb-2.5">
+                  <div className="rounded-md bg-muted/30 px-2 py-1.5 border border-border/20">
+                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1"><Gauge size={10} />Velocidade</p>
+                    <p className="font-bold text-foreground tabular-nums">{Math.round(selectedVehicle.speed ?? 0)} mph</p>
                   </div>
-                )}
-
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-muted-foreground flex items-center gap-1.5"><Gauge size={12} />Velocidade</span>
-                    <span className="font-semibold text-foreground tabular-nums">{Math.round(selectedVehicle.speed ?? 0)} mph</span>
-                  </div>
-                  {selectedVehicle.fuel_level !== null && (
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground flex items-center gap-1.5"><Fuel size={12} />Combustível</span>
-                      <span className="font-semibold text-foreground tabular-nums">{Math.round(selectedVehicle.fuel_level)}%</span>
-                    </div>
-                  )}
-                  {selectedVehicle.odometer !== null && (
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground flex items-center gap-1.5"><Activity size={12} />Odômetro</span>
-                      <span className="font-semibold text-foreground tabular-nums">{Math.round(selectedVehicle.odometer).toLocaleString("pt-BR")} mi</span>
-                    </div>
-                  )}
-                  {selectedVehicle.battery_status && (
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-muted-foreground flex items-center gap-1.5"><Battery size={12} />Bateria</span>
-                      <span className="font-semibold text-foreground capitalize">{selectedVehicle.battery_status}</span>
-                    </div>
-                  )}
-                  {selectedVehicle.address && (
-                    <div className="flex items-start justify-between gap-3">
-                      <span className="text-muted-foreground flex items-center gap-1.5 shrink-0 pt-0.5"><MapPin size={12} />Local</span>
-                      <span className="font-medium text-foreground text-right text-[11px] leading-snug">{selectedVehicle.address}</span>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-muted-foreground flex items-center gap-1.5"><Clock size={12} />Atualizado</span>
-                    <span className="font-medium text-foreground">{formatRelative(selectedVehicle.reported_at)}</span>
+                  <div className="rounded-md bg-muted/30 px-2 py-1.5 border border-border/20">
+                    <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1"><Clock size={10} />Atualizado</p>
+                    <p className="font-bold text-foreground">{formatRelative(selectedVehicle.reported_at)}</p>
                   </div>
                 </div>
-                {selectedVehicle.lat !== null && selectedVehicle.lng !== null && (
-                  <div className="mt-3 pt-2 border-t border-border/30 text-[10px] text-muted-foreground/60 tabular-nums text-center">
-                    {selectedVehicle.lat.toFixed(5)}, {selectedVehicle.lng.toFixed(5)}
-                  </div>
+                {selectedVehicle.address && (
+                  <p className="text-[11px] text-muted-foreground flex items-start gap-1.5 leading-snug mb-2.5">
+                    <MapPin size={11} className="text-primary mt-0.5 shrink-0" />
+                    <span className="truncate">{selectedVehicle.address}</span>
+                  </p>
                 )}
                 <button
-                  onClick={() => navigate(`/admin/fleet/${selectedVehicle.vehicle_id}`)}
-                  className="w-full mt-3 flex items-center justify-center gap-2 rounded-lg gold-gradient text-primary-foreground hover:opacity-90 transition-opacity py-2 text-xs font-bold"
+                  onClick={() => setDrawerOpen(true)}
+                  className="w-full flex items-center justify-center gap-2 rounded-lg gold-gradient text-primary-foreground hover:opacity-90 transition-opacity py-2 text-xs font-bold"
                 >
-                  <ExternalLink size={13} /> Abrir Veículo
+                  Ver detalhes completos <ChevronRight size={13} />
                 </button>
               </div>
             </div>
           )}
+
+          {/* Full detail drawer */}
+          {selectedVehicle && drawerOpen && (
+            <VehicleDetailDrawer
+              vehicle={selectedVehicle}
+              onClose={() => setDrawerOpen(false)}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
         </div>
       </div>
     </div>
