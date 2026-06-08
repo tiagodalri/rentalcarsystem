@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   X, Play, Pause, Loader2, Maximize2, MapPin, Flag, AlertTriangle,
   Zap, PauseCircle, Gauge, Clock, Route, TrendingUp, SkipBack, SkipForward,
-  RotateCcw, Fuel, Activity, Trophy,
+  RotateCcw, Fuel, Activity, Trophy, Download,
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from "recharts";
 import { loadGoogleMaps } from "@/lib/googleMapsLoader";
