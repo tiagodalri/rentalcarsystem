@@ -19,6 +19,8 @@ import ResetPassword from "./pages/ResetPassword.tsx";
 import Contato from "./pages/Contato.tsx";
 import VehicleDetail from "./pages/VehicleDetail.tsx";
 import Frota from "./pages/Frota.tsx";
+import PublicTrack from "./pages/PublicTrack.tsx";
+
 import RequireAuth from "./components/RequireAuth.tsx";
 import { RequireRole } from "./components/admin/RequireRole.tsx";
 import AdminLayout from "./components/admin/AdminLayout.tsx";
@@ -111,6 +113,8 @@ const App = () => (
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/share/track/:token" element={<PublicTrack />} />
+
               <Route path="/sobre-nos" element={<AboutUs />} />
               <Route path="/frota" element={<Frota />} />
               <Route path="/buscar" element={<SearchResults />} />

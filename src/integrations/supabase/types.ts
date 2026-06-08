@@ -716,6 +716,50 @@ export type Database = {
         }
         Relationships: []
       }
+      public_track_links: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          label: string | null
+          last_viewed_at: string | null
+          revoked: boolean
+          token: string
+          vehicle_id: string
+          view_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          label?: string | null
+          last_viewed_at?: string | null
+          revoked?: boolean
+          token: string
+          vehicle_id: string
+          view_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          label?: string | null
+          last_viewed_at?: string | null
+          revoked?: boolean
+          token?: string
+          vehicle_id?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_track_links_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_members: {
         Row: {
           avatar_url: string | null

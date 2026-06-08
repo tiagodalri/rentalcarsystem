@@ -8,6 +8,8 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import MinimalFooter from "@/components/MinimalFooter";
+import FullscreenFab from "./FullscreenFab";
+
 import { AdminShellSkeleton } from "@/components/skeletons/AdminShellSkeleton";
 import { useThemeMode } from "@/i18n/ThemeContext";
 import { Sun, Moon } from "lucide-react";
@@ -78,8 +80,10 @@ export default function AdminLayout() {
 
             <MinimalFooter />
           </div>
+          <FullscreenFab />
         </div>
       </AdminTabsProvider>
+
     </SidebarProvider>
   );
 }

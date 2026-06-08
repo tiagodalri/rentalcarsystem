@@ -358,64 +358,110 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
         let myLocMarker: any = null;
         let myLocAccuracy: any = null;
-        let locating = false;
+        let watchId: number | null = null;
+        let firstFix = true;
+        let followMe = true;
+
+        const setBtnState = (state: "idle" | "locating" | "active" | "error", title?: string) => {
+          const colors: Record<string, string> = { idle: "#666", locating: "#D4AF37", active: "#1a73e8", error: "#ef4444" };
+          meBtn.style.color = colors[state];
+          if (title) meBtn.title = title;
+        };
+
+        const stopTracking = () => {
+          if (watchId != null) {
+            navigator.geolocation.clearWatch(watchId);
+            watchId = null;
+          }
+          myLocMarker?.setMap(null); myLocMarker = null;
+          myLocAccuracy?.setMap(null); myLocAccuracy = null;
+          setBtnState("idle", "Centralizar na minha localização");
+        };
+
+        // Stop following when user drags the map (Google Maps behavior)
+        mapRef.current.addListener("dragstart", () => {
+          if (watchId != null) {
+            followMe = false;
+            setBtnState("idle", "Voltar a seguir minha localização");
+          }
+        });
+
         meBtn.onclick = () => {
-          if (locating) return;
           if (!navigator.geolocation) {
-            meBtn.title = "Geolocalização não suportada";
+            setBtnState("error", "Geolocalização não suportada");
             return;
           }
-          locating = true;
-          meBtn.style.color = "#D4AF37";
-          navigator.geolocation.getCurrentPosition(
+          // 3rd click (active + not following) → re-engage follow
+          if (watchId != null && !followMe) {
+            followMe = true;
+            setBtnState("active", "Seguindo sua localização (toque pra parar)");
+            if (myLocMarker) mapRef.current.panTo(myLocMarker.getPosition());
+            return;
+          }
+          // 2nd click while tracking → stop
+          if (watchId != null) { stopTracking(); return; }
+
+          // First click → start tracking
+          setBtnState("locating", "Obtendo sua localização…");
+          firstFix = true;
+          followMe = true;
+          watchId = navigator.geolocation.watchPosition(
             (pos) => {
-              locating = false;
-              meBtn.style.color = "#1a73e8";
-              const { latitude, longitude, accuracy } = pos.coords;
+              const { latitude, longitude, accuracy, heading } = pos.coords;
               const center = { lat: latitude, lng: longitude };
-              mapRef.current.panTo(center);
-              if ((mapRef.current.getZoom() ?? 9) < 13) mapRef.current.setZoom(14);
-              myLocMarker?.setMap(null);
-              myLocAccuracy?.setMap(null);
-              myLocMarker = new google.maps.Marker({
-                map: mapRef.current,
-                position: center,
-                zIndex: 9999,
-                icon: {
-                  path: google.maps.SymbolPath.CIRCLE,
-                  scale: 7,
+              if (!myLocMarker) {
+                myLocMarker = new google.maps.Marker({
+                  map: mapRef.current,
+                  position: center,
+                  zIndex: 9999,
+                  icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 8,
+                    fillColor: "#1a73e8",
+                    fillOpacity: 1,
+                    strokeColor: "#fff",
+                    strokeWeight: 3,
+                  },
+                  title: "Você está aqui",
+                  optimized: false,
+                });
+                myLocAccuracy = new google.maps.Circle({
+                  map: mapRef.current,
+                  center,
+                  radius: Math.max(20, accuracy || 50),
+                  strokeColor: "#1a73e8",
+                  strokeOpacity: 0.4,
+                  strokeWeight: 1,
                   fillColor: "#1a73e8",
-                  fillOpacity: 1,
-                  strokeColor: "#fff",
-                  strokeWeight: 2.5,
-                },
-                title: "Você está aqui",
-              });
-              myLocAccuracy = new google.maps.Circle({
-                map: mapRef.current,
-                center,
-                radius: Math.max(20, accuracy || 50),
-                strokeColor: "#1a73e8",
-                strokeOpacity: 0.4,
-                strokeWeight: 1,
-                fillColor: "#1a73e8",
-                fillOpacity: 0.12,
-                clickable: false,
-              });
+                  fillOpacity: 0.12,
+                  clickable: false,
+                });
+              } else {
+                myLocMarker.setPosition(center);
+                myLocAccuracy.setCenter(center);
+                myLocAccuracy.setRadius(Math.max(20, accuracy || 50));
+              }
+              if (firstFix) {
+                firstFix = false;
+                mapRef.current.panTo(center);
+                if ((mapRef.current.getZoom() ?? 9) < 14) mapRef.current.setZoom(15);
+                setBtnState("active", "Seguindo sua localização (toque pra parar)");
+              } else if (followMe) {
+                mapRef.current.panTo(center);
+              }
+              void heading; // available for future arrow rotation
             },
             (err) => {
-              locating = false;
-              meBtn.style.color = "#ef4444";
-              meBtn.title =
-                err.code === err.PERMISSION_DENIED
-                  ? "Permissão de localização negada"
-                  : "Não foi possível obter sua localização";
-              setTimeout(() => { meBtn.style.color = "#666"; meBtn.title = "Centralizar na minha localização"; }, 2500);
+              const denied = err.code === err.PERMISSION_DENIED;
+              setBtnState("error", denied ? "Permissão de localização negada" : "Não foi possível obter sua localização");
+              if (denied) stopTracking();
+              else setTimeout(() => { if (watchId != null) setBtnState("locating", "Buscando sinal…"); }, 2500);
             },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 2000 }
           );
         };
         mapRef.current.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(meBtn);
+
 
 
         // Intercept POI clicks to render a rich Google Places card

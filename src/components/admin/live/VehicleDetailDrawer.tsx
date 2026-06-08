@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { LiveVehicle } from "@/hooks/useFleetLive";
 import { getCoverImage } from "@/data/vehicleImages";
-import { X, ExternalLink, MapPin } from "lucide-react";
+import { X, ExternalLink, MapPin, Share2 } from "lucide-react";
 import { TripsTab } from "./tabs/TripsTab";
 import { StatsTab } from "./tabs/StatsTab";
 import { NotificationsTab } from "./tabs/NotificationsTab";
 import { DetailsTab } from "./tabs/DetailsTab";
 import { VehicleHealthFooter } from "./VehicleHealthFooter";
+import { ShareTrackingDialog } from "./ShareTrackingDialog";
+
 
 type Tab = "trips" | "stats" | "notifications" | "details";
 
@@ -26,7 +28,9 @@ export function VehicleDetailDrawer({
   onClose: () => void;
 }) {
   const [tab, setTab] = useState<Tab>("trips");
+  const [shareOpen, setShareOpen] = useState(false);
   const navigate = useNavigate();
+
 
   const statusLabel =
     vehicle.status === "moving" ? "Em movimento" : vehicle.status === "idle" ? "Parado" : "Estacionado";
@@ -63,7 +67,16 @@ export function VehicleDetailDrawer({
           >
             <ExternalLink size={11} /> Ficha
           </button>
+          <button
+            onClick={() => setShareOpen(true)}
+            aria-label="Compartilhar rastreamento"
+            title="Compartilhar rastreamento (link público)"
+            className="absolute top-2 right-12 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 flex items-center justify-center hover:bg-background transition-colors text-primary"
+          >
+            <Share2 size={13} />
+          </button>
         </div>
+
 
         <div className="px-4 py-3">
           <div className="flex items-start justify-between gap-3 mb-1.5">
@@ -115,6 +128,14 @@ export function VehicleDetailDrawer({
       <div className="shrink-0">
         <VehicleHealthFooter vehicle={vehicle} />
       </div>
+
+      <ShareTrackingDialog
+        vehicleId={vehicle.vehicle_id}
+        vehicleName={vehicle.name}
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+      />
     </div>
   );
 }
+
