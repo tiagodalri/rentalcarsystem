@@ -33,14 +33,14 @@ async function refreshTokenIfNeeded(admin: any) {
 
   const tokenResp = await fetch("https://auth.bouncie.com/oauth/token", {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
       client_id: BOUNCIE_CLIENT_ID,
       client_secret: BOUNCIE_CLIENT_SECRET,
       grant_type: "authorization_code",
       code: integ.authorization_code,
       redirect_uri: BOUNCIE_REDIRECT_URI,
-    }).toString(),
+    }),
   });
   const body = await tokenResp.text();
   console.log("[bouncie-devices] token refresh response", tokenResp.status, body);
