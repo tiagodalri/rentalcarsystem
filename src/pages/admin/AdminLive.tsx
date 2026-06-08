@@ -7,6 +7,7 @@ import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
 import { UnlinkedBouncieDevices } from "@/components/admin/UnlinkedBouncieDevices";
 import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 import { VehicleDetailDrawer } from "@/components/admin/live/VehicleDetailDrawer";
+import { MapControlsPanel, useMapLayers } from "@/components/admin/live/MapControlsPanel";
 
 function formatRelative(iso: string | null): string {
   if (!iso) return "—";
@@ -34,6 +35,7 @@ export default function AdminLive() {
   const [selected, setSelected] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "moving" | "idle" | "parked">("all");
+  const [layers, setLayers] = useMapLayers();
   const navigate = useNavigate();
 
   const onMap = useMemo(
@@ -195,9 +197,14 @@ export default function AdminLive() {
             <span className="text-[10px] text-muted-foreground font-light uppercase tracking-widest">Fleet Tracker</span>
           </div>
 
-          {/* Speed bands legend (only when a vehicle is selected) */}
-          {selectedVehicle && (
-            <div className="absolute top-3 right-3 z-[1000] bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-border/30">
+          {/* Map controls (settings button + popup panel) */}
+          <div className="absolute top-3 right-3 z-[1000]">
+            <MapControlsPanel layers={layers} onChange={setLayers} />
+          </div>
+
+          {/* Speed bands legend */}
+          {layers.speedLegend && selectedVehicle && (
+            <div className="absolute top-16 right-3 z-[1000] bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-border/30">
               <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">Speed bands</p>
               <div className="space-y-1">
                 {SPEED_BANDS.map((b) => (
@@ -227,6 +234,7 @@ export default function AdminLive() {
             selectedId={selected}
             onSelect={setSelected}
             onOpen={(id) => navigate(`/admin/fleet/${id}`)}
+            layers={layers}
           />
 
           {/* Compact preview card (only when drawer is closed) */}
