@@ -969,7 +969,7 @@ const BookingDetails = () => {
                         <p className="text-amber-700 dark:text-amber-400/80">Caução: <strong>{formatPrice(BASIC_DEPOSIT)}</strong></p>
                         <p className="text-amber-700 dark:text-amber-400/80">Franquia: <strong>{formatPrice(basicDeductible)}</strong></p>
                         <p className="text-amber-600/70 dark:text-amber-400/50 text-[10px] mt-1">Depósito de segurança cobrado na retirada do veículo</p>
-                        <p className="text-amber-600/80 dark:text-amber-400/60 mt-0.5">Upgrade para Conforto e elimine esses custos</p>
+                        <p className="text-amber-600/80 dark:text-amber-400/60 mt-0.5">Adicione Seguro Premium para eliminar caução e franquia</p>
                       </div>
                     )}
                   </div>
