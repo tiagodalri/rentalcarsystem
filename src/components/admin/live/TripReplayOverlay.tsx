@@ -1253,15 +1253,15 @@ function Speedometer({ mph, max, maxMarker, caption }: { mph: number; max: numbe
           <circle cx={cx} cy={cy} r="4" fill={GOLD} />
         </g>
       </svg>
-      <div className="absolute inset-x-0 bottom-0 text-center pb-1">
+      <div className="absolute inset-x-0 bottom-1 text-center px-1">
         <p className="text-2xl font-bold text-white tabular-nums leading-none">{Math.round(mph)}</p>
-        <p className="text-[9px] uppercase tracking-wider text-white/50 font-semibold">{caption ?? "mph"}</p>
+        <p className="text-[9px] uppercase tracking-wider text-white/50 font-semibold mt-0.5 whitespace-nowrap truncate">{caption ?? "mph"}</p>
+        {maxMarker != null && (
+          <p className="text-[8px] uppercase tracking-wider text-red-400/80 font-semibold mt-0.5 whitespace-nowrap">
+            pico <span className="tabular-nums">{Math.round(maxMarker)}</span>
+          </p>
+        )}
       </div>
-      {maxMarker != null && (
-        <p className="text-center text-[8px] uppercase tracking-wider text-red-400/80 font-semibold mt-0.5">
-          pico atingido: <span className="tabular-nums">{Math.round(maxMarker)}</span> mph
-        </p>
-      )}
     </div>
   );
 }
