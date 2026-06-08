@@ -164,13 +164,28 @@ export function useTripReplay(tripId: string | null) {
 
         // Events
         const events: ReplayEvent[] = [];
+        // Short address token (first segment before comma) for human narration
+        const shortAddr = (s: string | null | undefined) =>
+          s ? s.split(",")[0].trim() : null;
+        const tz: string = (raw.timeZone as string) || "America/New_York";
+        const fmtHm = (d: Date) =>
+          d.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZone: tz,
+          });
+        const startShort = shortAddr(trip.start_address);
+        const endShort = shortAddr(trip.end_address);
+
         events.push({
           kind: "start",
           t: 0,
           lat: points[0].lat,
           lng: points[0].lng,
           speed: points[0].speed,
-          label: `Partida — ${startedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+          label: startShort
+            ? `Partiu de ${startShort} — ${fmtHm(startedAt)}`
+            : `Partida — ${fmtHm(startedAt)}`,
         });
         events.push({
           kind: "end",
@@ -178,7 +193,9 @@ export function useTripReplay(tripId: string | null) {
           lat: points[n - 1].lat,
           lng: points[n - 1].lng,
           speed: points[n - 1].speed,
-          label: `Chegada — ${endedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+          label: endShort
+            ? `Chegou em ${endShort} — ${fmtHm(endedAt)}`
+            : `Chegada — ${fmtHm(endedAt)}`,
         });
 
         // Peak speed
