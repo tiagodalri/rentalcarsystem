@@ -181,19 +181,27 @@ type Props = {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onOpen: (id: string) => void;
+  layers: MapLayers;
 };
 
-export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props) {
+export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<Map<string, any>>(new Map());
   const infoWindowRef = useRef<any>(null);
   const polylineRef = useRef<any[]>([]);
+  const trafficLayerRef = useRef<any>(null);
+  const geofenceShapesRef = useRef<any[]>([]);
+  const nwsShapesRef = useRef<any[]>([]);
+  const eventMarkersRef = useRef<any[]>([]);
   const fittedRef = useRef(false);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { points: trail } = useTripTrail(selectedId, 24);
+  const { data: geofences = [] } = useGeofences(layers.geoZones);
+  const { data: nwsAlerts = [] } = useNwsAlerts("FL", layers.nwsAlerts);
+  const { data: events = [] } = useVehicleEvents(selectedId, 7, layers.tripEvents && !!selectedId);
 
   // 1. Load Google Maps and create map instance
   useEffect(() => {
@@ -204,10 +212,11 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
         mapRef.current = new google.maps.Map(containerRef.current, {
           center: { lat: 28.5, lng: -81.4 },
           zoom: 9,
+          mapTypeId: layers.mapType === "satellite" ? "hybrid" : "roadmap",
           disableDefaultUI: true,
           zoomControl: true,
           streetViewControl: true,
-          fullscreenControl: false,
+          fullscreenControl: true,
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
         });
@@ -246,9 +255,28 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 2. Sync markers with vehicles
+  // Switch base map type
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    mapRef.current.setMapTypeId(layers.mapType === "satellite" ? "hybrid" : "roadmap");
+  }, [layers.mapType, ready]);
+
+  // Traffic layer toggle
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    const google = (window as any).google;
+    if (layers.traffic) {
+      if (!trafficLayerRef.current) trafficLayerRef.current = new google.maps.TrafficLayer();
+      trafficLayerRef.current.setMap(mapRef.current);
+    } else if (trafficLayerRef.current) {
+      trafficLayerRef.current.setMap(null);
+    }
+  }, [layers.traffic, ready]);
+
+  // 2. Sync markers with vehicles (carvatar vs dot)
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     const google = (window as any).google;
@@ -260,7 +288,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
       if (v.lat === null || v.lng === null) continue;
       seen.add(v.vehicle_id);
       const isSelected = v.vehicle_id === selectedId;
-      const icon = markerSvg(statusColor(v.status), isSelected);
+      const color = statusColor(v.status);
+      const icon = layers.carvatars
+        ? carvatarSvg(getCoverImage(v.name), color, isSelected)
+        : markerSvg(color, isSelected);
 
       let marker = existing.get(v.vehicle_id);
       if (!marker) {
@@ -282,7 +313,6 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
         marker.setZIndex(isSelected ? 999 : 1);
       }
     }
-    // remove stale markers
     for (const [id, m] of existing) {
       if (!seen.has(id)) {
         m.setMap(null);
@@ -290,7 +320,6 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
       }
     }
 
-    // Fit bounds once on first load
     if (!fittedRef.current && seen.size > 0) {
       const bounds = new google.maps.LatLngBounds();
       for (const v of vehicles) {
@@ -301,13 +330,11 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
       map.fitBounds(bounds, 80);
       fittedRef.current = true;
     }
-  }, [vehicles, selectedId, ready, onSelect]);
+  }, [vehicles, selectedId, ready, onSelect, layers.carvatars]);
 
-  // 3. Pan to selected vehicle ONCE per selection (not on every telemetry tick)
-  //    Vehicle details are shown on the side panel — no InfoWindow on the marker.
+  // 3. Pan to selected vehicle
   useEffect(() => {
     if (!ready || !mapRef.current) return;
-    // Close any open InfoWindow (POI popup) when selecting a vehicle
     infoWindowRef.current?.close();
     if (!selectedId) return;
     const v = vehicles.find((x) => x.vehicle_id === selectedId);
@@ -318,10 +345,9 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, ready]);
 
-  // 4. Draw trip trail (polyline segments colored by speed band)
+  // 4. Trip trail polyline
   useEffect(() => {
     if (!ready || !mapRef.current) return;
-    // clear previous
     for (const p of polylineRef.current) p.setMap(null);
     polylineRef.current = [];
     if (!selectedId || trail.length < 2) return;
@@ -346,6 +372,139 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
       polylineRef.current.push(poly);
     }
   }, [trail, selectedId, ready]);
+
+  // 5. Geofences (geo-zone areas)
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    for (const s of geofenceShapesRef.current) s.setMap(null);
+    geofenceShapesRef.current = [];
+    if (!layers.geoZones) return;
+
+    const google = (window as any).google;
+    const map = mapRef.current;
+    for (const g of geofences) {
+      const geom = g.geometry;
+      if (!geom) continue;
+      try {
+        if (geom.type === "circle" && geom.center) {
+          const c = new google.maps.Circle({
+            map,
+            center: { lat: Number(geom.center.lat), lng: Number(geom.center.lng) },
+            radius: Number(geom.radius ?? 200),
+            strokeColor: "#D4AF37",
+            strokeOpacity: 0.85,
+            strokeWeight: 2,
+            fillColor: "#D4AF37",
+            fillOpacity: 0.12,
+            clickable: false,
+          });
+          geofenceShapesRef.current.push(c);
+        } else if (geom.type === "polygon" && Array.isArray(geom.coordinates)) {
+          const path = geom.coordinates.map((p: any) => ({
+            lat: Number(Array.isArray(p) ? p[1] : p.lat),
+            lng: Number(Array.isArray(p) ? p[0] : p.lng),
+          }));
+          const poly = new google.maps.Polygon({
+            map,
+            paths: path,
+            strokeColor: "#D4AF37",
+            strokeOpacity: 0.85,
+            strokeWeight: 2,
+            fillColor: "#D4AF37",
+            fillOpacity: 0.12,
+            clickable: false,
+          });
+          geofenceShapesRef.current.push(poly);
+        }
+      } catch (e) {
+        console.warn("[geofence] invalid geometry", g.id, e);
+      }
+    }
+  }, [geofences, layers.geoZones, ready]);
+
+  // 6. NWS Alerts polygons
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    for (const s of nwsShapesRef.current) s.setMap(null);
+    nwsShapesRef.current = [];
+    if (!layers.nwsAlerts) return;
+
+    const google = (window as any).google;
+    const map = mapRef.current;
+    for (const a of nwsAlerts) {
+      const color = nwsSeverityColor(a.severity);
+      try {
+        const drawRing = (ring: any[]) => {
+          const path = ring.map((p) => ({ lat: p[1], lng: p[0] }));
+          const poly = new google.maps.Polygon({
+            map,
+            paths: path,
+            strokeColor: color,
+            strokeOpacity: 0.9,
+            strokeWeight: 2,
+            fillColor: color,
+            fillOpacity: 0.15,
+            clickable: true,
+          });
+          poly.addListener("click", (e: any) => {
+            infoWindowRef.current?.setContent(
+              `<div style="font-family:'Inter',sans-serif;width:260px;padding:10px 12px;color:#111">
+                <div style="font-weight:700;font-size:13px;color:${color}">${esc(a.event)}</div>
+                <div style="font-size:11px;color:#6b7280;margin-top:2px">Severidade: ${esc(a.severity)}</div>
+                <div style="font-size:12px;color:#374151;margin-top:6px;line-height:1.4">${esc(a.headline)}</div>
+                <div style="font-size:11px;color:#6b7280;margin-top:6px">${esc(a.area)}</div>
+              </div>`
+            );
+            infoWindowRef.current?.setPosition(e.latLng);
+            infoWindowRef.current?.open(map);
+          });
+          nwsShapesRef.current.push(poly);
+        };
+        if (a.geometry.type === "Polygon") {
+          drawRing(a.geometry.coordinates[0]);
+        } else if (a.geometry.type === "MultiPolygon") {
+          for (const poly of a.geometry.coordinates) drawRing(poly[0]);
+        }
+      } catch (e) {
+        console.warn("[nws] invalid geometry", a.id, e);
+      }
+    }
+  }, [nwsAlerts, layers.nwsAlerts, ready]);
+
+  // 7. Trip events markers
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    for (const m of eventMarkersRef.current) m.setMap(null);
+    eventMarkersRef.current = [];
+    if (!layers.tripEvents || !selectedId) return;
+
+    const google = (window as any).google;
+    const map = mapRef.current;
+    for (const ev of events) {
+      if (ev.lat == null || ev.lng == null) continue;
+      const { color, label } = eventEmoji(ev.event_type);
+      const m = new google.maps.Marker({
+        map,
+        position: { lat: ev.lat, lng: ev.lng },
+        icon: eventMarkerSvg(color, label),
+        zIndex: 500,
+        optimized: false,
+      });
+      m.addListener("click", () => {
+        infoWindowRef.current?.setContent(
+          `<div style="font-family:'Inter',sans-serif;width:220px;padding:10px 12px;color:#111">
+            <div style="font-weight:700;font-size:13px;color:${color};text-transform:capitalize">${esc(ev.event_type.replace(/_/g, " "))}</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:2px">${new Date(ev.occurred_at).toLocaleString("pt-BR")}</div>
+            ${ev.speed_mph != null ? `<div style="font-size:12px;color:#374151;margin-top:4px">Velocidade: <b>${Math.round(Number(ev.speed_mph))} mph</b></div>` : ""}
+            ${ev.severity ? `<div style="font-size:11px;color:#6b7280;margin-top:2px">Severidade: ${esc(ev.severity)}</div>` : ""}
+          </div>`
+        );
+        infoWindowRef.current?.setPosition({ lat: ev.lat!, lng: ev.lng! });
+        infoWindowRef.current?.open(map);
+      });
+      eventMarkersRef.current.push(m);
+    }
+  }, [events, layers.tripEvents, selectedId, ready]);
 
   if (error) {
     return (
