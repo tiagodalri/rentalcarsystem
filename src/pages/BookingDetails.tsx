@@ -20,7 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PlanSelector from "@/components/booking/PlanSelector";
 import CustomerDataStep, { type CustomerData } from "@/components/booking/CustomerDataStep";
-import { PLANS, type PlanId } from "@/data/rentalPlans";
+import { PLANS } from "@/data/rentalPlans";
 import { useAuth } from "@/hooks/useAuth";
 import { calculateAge, isBlockedAge, isYoungDriver, YOUNG_DRIVER_SURCHARGE } from "@/lib/age";
 
