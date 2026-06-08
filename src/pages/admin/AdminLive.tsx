@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Signal, Battery, Gauge, Clock, MapPin, ExternalLink, Fuel, AlertTriangle, Activity } from "lucide-react";
+import { Signal, Battery, Gauge, Clock, MapPin, ExternalLink, Fuel, AlertTriangle, Activity, X, Car } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
