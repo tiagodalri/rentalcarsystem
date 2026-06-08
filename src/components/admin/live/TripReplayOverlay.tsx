@@ -646,12 +646,27 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
           {data && hud && (
             <div className="absolute top-3 left-3 z-10 w-[230px] rounded-2xl bg-black/80 backdrop-blur-md border border-white/10 p-3 shadow-2xl"
                  style={{ borderColor: "rgba(212,175,55,0.25)" }}>
-              <Speedometer mph={hud.speed} max={Math.max(80, data.maxSpeedMph)} />
-              <Gmeter g={hud.g} />
+              <Speedometer
+                mph={data.level === 2 ? hud.speed : data.avgSpeedMph}
+                max={Math.max(80, data.maxSpeedMph)}
+                maxMarker={data.level === 1 ? data.maxSpeedMph : undefined}
+                caption={data.level === 1 ? "vel. média da viagem" : "mph"}
+              />
+              {data.level === 2 && <Gmeter g={hud.g} />}
               <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]">
                 <MiniStat label="Percorrido" value={`${hud.distMi.toFixed(1).replace(".", ",")} mi`} />
                 <MiniStat label="Decorrido" value={fmtClock(playbackMs)} />
               </div>
+              {data.startOdometerMi != null && data.endOdometerMi != null && (
+                <div className="mt-2 rounded-md bg-white/[0.04] border border-white/5 px-2 py-1.5">
+                  <p className="text-[8px] uppercase tracking-wider text-white/40 font-semibold">Odômetro</p>
+                  <p className="text-xs font-bold text-white tabular-nums">
+                    {Math.round(
+                      data.startOdometerMi + (data.endOdometerMi - data.startOdometerMi) * (playbackMs / data.durationMs)
+                    ).toLocaleString("pt-BR")} mi
+                  </p>
+                </div>
+              )}
               <div className="mt-2 text-[10px] text-white/60 flex items-center gap-1.5">
                 <Clock size={10} style={{ color: GOLD }} />
                 <span className="tabular-nums">{fmtTimeOfDay(hud.realTime, data.timeZone)}</span>
@@ -670,6 +685,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
               )}
             </div>
           )}
+
 
           {/* Speed bands legend — bottom-left */}
           <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-black/75 backdrop-blur-sm border border-white/10 px-3 py-2">
