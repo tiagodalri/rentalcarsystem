@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { LiveVehicle } from "@/hooks/useFleetLive";
 import { getCoverImage } from "@/data/vehicleImages";
-import { X, ExternalLink, MapPin } from "lucide-react";
+import { X, ExternalLink, MapPin, Share2 } from "lucide-react";
 import { TripsTab } from "./tabs/TripsTab";
 import { StatsTab } from "./tabs/StatsTab";
 import { NotificationsTab } from "./tabs/NotificationsTab";
 import { DetailsTab } from "./tabs/DetailsTab";
 import { VehicleHealthFooter } from "./VehicleHealthFooter";
+import { ShareTrackingDialog } from "./ShareTrackingDialog";
+
 
 type Tab = "trips" | "stats" | "notifications" | "details";
 
