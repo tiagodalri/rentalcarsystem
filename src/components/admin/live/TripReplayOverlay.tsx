@@ -867,6 +867,18 @@ function MiniStat({ label, value }: { label: string; value: string }) {
   );
 }
 
+function BigStat({ label, value, unit, highlight }: { label: string; value: string; unit: string; highlight?: boolean }) {
+  return (
+    <div className={`rounded-xl border px-3 py-3 text-center ${highlight ? "border-[#D4AF37]/40 bg-[#D4AF37]/[0.06]" : "border-white/10 bg-white/[0.03]"}`}>
+      <p className="text-[8px] uppercase tracking-wider text-white/50 font-semibold">{label}</p>
+      <p className={`text-lg font-bold tabular-nums leading-tight mt-1 ${highlight ? "text-[#D4AF37]" : "text-white"}`}>
+        {value}
+        {unit && <span className="text-[9px] font-normal text-white/50 ml-1 uppercase">{unit}</span>}
+      </p>
+    </div>
+  );
+}
+
 function Speedometer({ mph, max }: { mph: number; max: number }) {
   const mphClamped = Math.max(0, Math.min(max, mph));
   // Half-circle gauge: -90° to +90°
