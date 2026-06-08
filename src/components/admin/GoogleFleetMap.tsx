@@ -472,6 +472,34 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
         // Intercept POI clicks to render a rich Google Places card
         mapRef.current.addListener("click", async (e: any) => {
+          // Geofence placement mode short-circuits POI clicks.
+          if (fenceModeRef.current && e?.latLng) {
+            e.stop?.();
+            const lat = Number(e.latLng.lat());
+            const lng = Number(e.latLng.lng());
+            const radiusStr = window.prompt("Raio da cerca em metros:", "200");
+            if (radiusStr == null) { setFenceMode(false); return; }
+            const radius = Math.max(20, Math.min(50000, Number(radiusStr) || 200));
+            const name = window.prompt("Nome da cerca:", "Nova cerca") ?? "Nova cerca";
+            try {
+              const { error } = await supabase.from("vehicle_geofences").insert({
+                vehicle_id: null,
+                name,
+                geometry: { type: "circle", center: { lat, lng }, radius },
+                active: true,
+                notify_on_exit: true,
+                notify_on_enter: false,
+              });
+              if (error) throw error;
+              toast.success(`Cerca "${name}" criada (${radius} m)`);
+              queryClient.invalidateQueries({ queryKey: ["geofences-active"] });
+            } catch (err: any) {
+              toast.error("Falha ao salvar cerca: " + (err.message ?? "erro desconhecido"));
+            } finally {
+              setFenceMode(false);
+            }
+            return;
+          }
           if (!e?.placeId) return;
           e.stop?.();
           const placeId = e.placeId as string;
