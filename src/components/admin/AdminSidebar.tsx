@@ -39,8 +39,13 @@ interface AdminSidebarProps {
 export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
+
+  const handleNavigate = (url: string) => {
+    navigate(url);
+    if (isMobile) setOpenMobile(false);
+  };
   const { hasAny } = useAdminAuth();
 
   const visibleItems = menuItems.filter((item) => hasAny(item.allowedRoles));
@@ -63,7 +68,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
               {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton
-                    onClick={() => navigate(item.url)}
+                    onClick={() => handleNavigate(item.url)}
                     isActive={isActive(item.url)}
                     tooltip={item.title}
                     className={`transition-colors ${
