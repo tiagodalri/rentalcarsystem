@@ -1,11 +1,12 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Signal, Battery, Gauge, Clock, MapPin, ExternalLink, Fuel, AlertTriangle, Activity, X, Car } from "lucide-react";
+import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
 import { UnlinkedBouncieDevices } from "@/components/admin/UnlinkedBouncieDevices";
 import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
+import { VehicleDetailDrawer } from "@/components/admin/live/VehicleDetailDrawer";
 
 function formatRelative(iso: string | null): string {
   if (!iso) return "—";
