@@ -3,6 +3,7 @@ import { loadGoogleMaps } from "@/lib/googleMapsLoader";
 import { useTripTrail, speedBandColor, type TrailPoint } from "@/hooks/useTripTrail";
 import type { LiveVehicle } from "@/hooks/useFleetLive";
 import { getCoverImage } from "@/data/vehicleImages";
+import { supabase } from "@/integrations/supabase/client";
 
 // --- Dark theme for Google Maps that matches Zeus admin (off-black) ---
 const DARK_STYLE: any[] = [
@@ -48,6 +49,78 @@ function statusColor(status: LiveVehicle["status"]) {
   return status === "moving" ? "#22c55e" : status === "idle" ? "#f59e0b" : "#6b7280";
 }
 
+function esc(s: any): string {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+}
+
+function renderPlaceCard(place: any, photoUrl: string | null): string {
+  const name = esc(place?.displayName?.text ?? "Local");
+  const address = esc(place?.formattedAddress ?? "");
+  const phone = esc(place?.internationalPhoneNumber ?? place?.nationalPhoneNumber ?? "");
+  const rating = place?.rating ? Number(place.rating).toFixed(1) : null;
+  const count = place?.userRatingCount ? `(${place.userRatingCount.toLocaleString("pt-BR")})` : "";
+  const website = place?.websiteUri as string | undefined;
+  const gmaps = place?.googleMapsUri as string | undefined;
+  const summary = esc(place?.editorialSummary?.text ?? "");
+  const openNow = place?.currentOpeningHours?.openNow;
+  const hours: string[] = place?.regularOpeningHours?.weekdayDescriptions ?? [];
+  const types: string[] = place?.types ?? [];
+  const typeLabel = esc((types[0] ?? "").replace(/_/g, " "));
+
+  const photo = photoUrl
+    ? `<img src="${esc(photoUrl)}" alt="${name}" style="width:100%;height:140px;object-fit:cover;border-radius:8px 8px 0 0;display:block" />`
+    : "";
+
+  const ratingHtml = rating
+    ? `<div style="display:flex;align-items:center;gap:4px;font-size:12px;color:#111">
+         <b>${rating}</b>
+         <span style="color:#f59e0b">★</span>
+         <span style="color:#6b7280">${count}</span>
+       </div>`
+    : "";
+
+  const openHtml = openNow !== undefined
+    ? `<span style="font-size:11px;font-weight:600;color:${openNow ? "#16a34a" : "#dc2626"}">${openNow ? "Aberto agora" : "Fechado"}</span>`
+    : "";
+
+  const hoursHtml = hours.length
+    ? `<details style="margin-top:6px"><summary style="cursor:pointer;font-size:11px;color:#374151;font-weight:600">Horário de funcionamento</summary>
+        <div style="margin-top:4px;font-size:11px;color:#4b5563;line-height:1.5">${hours.map(esc).join("<br/>")}</div>
+       </details>`
+    : "";
+
+  const phoneHtml = phone
+    ? `<a href="tel:${phone}" style="display:flex;align-items:center;gap:6px;font-size:12px;color:#1d4ed8;text-decoration:none;margin-top:4px">📞 ${phone}</a>`
+    : "";
+
+  const websiteHtml = website
+    ? `<a href="${esc(website)}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:6px;font-size:12px;color:#1d4ed8;text-decoration:none;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">🌐 ${esc(website.replace(/^https?:\/\//, "").replace(/\/$/, ""))}</a>`
+    : "";
+
+  const gmapsHtml = gmaps
+    ? `<a href="${esc(gmaps)}" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;font-size:11px;font-weight:700;color:#fff;background:#1a73e8;padding:6px 10px;border-radius:6px;text-decoration:none">Ver no Google Maps</a>`
+    : "";
+
+  return `
+    <div style="font-family:'Inter',sans-serif;width:280px;color:#111;overflow:hidden">
+      ${photo}
+      <div style="padding:10px 12px 12px">
+        <div style="font-weight:700;font-size:14px;line-height:1.3">${name}</div>
+        ${typeLabel ? `<div style="font-size:11px;color:#6b7280;text-transform:capitalize;margin-top:2px">${typeLabel}</div>` : ""}
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          ${ratingHtml}
+          ${openHtml}
+        </div>
+        ${summary ? `<div style="font-size:12px;color:#374151;margin-top:6px;line-height:1.4">${summary}</div>` : ""}
+        ${address ? `<div style="font-size:12px;color:#4b5563;margin-top:8px;line-height:1.4">${address}</div>` : ""}
+        ${phoneHtml}
+        ${websiteHtml}
+        ${hoursHtml}
+        ${gmapsHtml}
+      </div>
+    </div>`;
+}
+
 type Props = {
   vehicles: LiveVehicle[];
   selectedId: string | null;
@@ -83,7 +156,32 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
         });
-        infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false });
+        infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false, maxWidth: 320 });
+
+        // Intercept POI clicks to render a rich Google Places card
+        mapRef.current.addListener("click", async (e: any) => {
+          if (!e?.placeId) return;
+          e.stop?.();
+          const placeId = e.placeId as string;
+          const latLng = e.latLng;
+          infoWindowRef.current.setContent(
+            `<div style="font-family:'Inter',sans-serif;padding:8px 12px;font-size:12px;color:#6b7280">Carregando informações…</div>`
+          );
+          infoWindowRef.current.setPosition(latLng);
+          infoWindowRef.current.open(mapRef.current);
+          try {
+            const { data, error: fnErr } = await supabase.functions.invoke("place-details", {
+              body: { placeId },
+            });
+            if (fnErr || !data?.place) throw fnErr || new Error("no data");
+            infoWindowRef.current.setContent(renderPlaceCard(data.place, data.photoUrl));
+          } catch (err) {
+            console.error("[place-details]", err);
+            infoWindowRef.current.setContent(
+              `<div style="font-family:'Inter',sans-serif;padding:8px 12px;font-size:12px;color:#ef4444">Não foi possível carregar detalhes do local.</div>`
+            );
+          }
+        });
         setReady(true);
       })
       .catch((e) => {

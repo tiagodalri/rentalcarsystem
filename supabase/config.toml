@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.bouncie-devices]
 verify_jwt = false
+
+[functions.place-details]
+verify_jwt = false
