@@ -368,10 +368,20 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Switch base map type
+  // Switch base map type + 3D tilt
   useEffect(() => {
     if (!ready || !mapRef.current) return;
-    mapRef.current.setMapTypeId(layers.mapType === "satellite" ? "hybrid" : "roadmap");
+    const m = mapRef.current;
+    m.setMapTypeId(layers.mapType === "roadmap" ? "roadmap" : "hybrid");
+    if (layers.mapType === "satellite3d") {
+      // 45° aerial imagery (only renders where Google has it — most US/FL cities do).
+      // Auto-zoom to a level where 45° tiles exist if user is too far out.
+      if ((m.getZoom() ?? 0) < 17) m.setZoom(18);
+      m.setTilt(45);
+    } else {
+      m.setTilt(0);
+      m.setHeading(0);
+    }
   }, [layers.mapType, ready]);
 
   // Traffic layer toggle
