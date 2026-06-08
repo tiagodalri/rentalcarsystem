@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useGeofences } from "@/hooks/useGeofences";
 import { useNwsAlerts, nwsSeverityColor } from "@/hooks/useNwsAlerts";
 import { useVehicleEvents } from "@/hooks/useVehicleEvents";
-import type { MapLayers } from "@/components/admin/live/MapControlsPanel";
+import { type MapLayers, DEFAULT_LAYERS } from "@/components/admin/live/MapControlsPanel";
 
 // --- Dark theme for Google Maps that matches Zeus admin (off-black) ---
 const DARK_STYLE: any[] = [
@@ -181,10 +181,10 @@ type Props = {
   selectedId: string | null;
   onSelect: (id: string) => void;
   onOpen: (id: string) => void;
-  layers: MapLayers;
+  layers?: MapLayers;
 };
 
-export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers }: Props) {
+export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers = DEFAULT_LAYERS }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<Map<string, any>>(new Map());
