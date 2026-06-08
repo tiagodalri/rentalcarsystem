@@ -168,18 +168,8 @@ export default function AdminFleetReport() {
 
   const totalAddonRevenue = addonChartData.reduce((s, d) => s + d.value, 0);
 
-  // Plan distribution
-  const planCounts = bookings.reduce((acc, b: any) => {
-    const plan = b.plan_id || "essencial";
-    acc[plan] = (acc[plan] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const planDistributionData = [
-    { name: "Zeus Essencial", value: planCounts["essencial"] || 0 },
-    { name: "Zeus Conforto", value: planCounts["conforto"] || 0 },
-    { name: "Zeus Premium", value: planCounts["premium"] || 0 },
-  ].filter((d) => d.value > 0);
+  // Plan distribution (single plan)
+  const totalBookingsWithPlan = bookings.length;
 
   if (loading) {
     return <FleetReportSkeleton />;
