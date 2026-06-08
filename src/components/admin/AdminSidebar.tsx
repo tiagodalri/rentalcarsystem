@@ -1,6 +1,7 @@
 import { LayoutDashboard, Car, CalendarRange, Users, LogOut, Settings, Radio, BarChart3, DollarSign, UsersRound, TrendingUp, Sparkles, CalendarDays } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAdminTabs } from "@/hooks/useAdminTabs";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
 import {
   Sidebar,
@@ -41,10 +42,25 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
   const navigate = useNavigate();
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
+  const { openTab } = useAdminTabs();
 
-  const handleNavigate = (url: string) => {
+  const handleNavigate = (url: string, e?: React.MouseEvent) => {
+    // Cmd/Ctrl/Shift + clique -> abre em nova aba (desktop)
+    if (e && (e.metaKey || e.ctrlKey || e.shiftKey)) {
+      e.preventDefault();
+      openTab(url);
+      return;
+    }
     navigate(url);
     if (isMobile) setOpenMobile(false);
+  };
+
+  const handleAuxClick = (url: string, e: React.MouseEvent) => {
+    // Botão do meio -> nova aba
+    if (e.button === 1) {
+      e.preventDefault();
+      openTab(url);
+    }
   };
   const { hasAny } = useAdminAuth();
 
@@ -68,7 +84,8 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
               {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton
-                    onClick={() => handleNavigate(item.url)}
+                    onClick={(e) => handleNavigate(item.url, e)}
+                    onAuxClick={(e) => handleAuxClick(item.url, e)}
                     isActive={isActive(item.url)}
                     tooltip={item.title}
                     className={`transition-colors ${
