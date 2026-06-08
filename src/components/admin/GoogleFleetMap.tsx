@@ -80,8 +80,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
           zoomControl: true,
           streetViewControl: true,
           fullscreenControl: false,
-          styles: DARK_STYLE,
-          backgroundColor: "#0f0f10",
+          backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
         });
         infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false });
