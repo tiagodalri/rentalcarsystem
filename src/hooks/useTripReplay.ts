@@ -38,9 +38,17 @@ export type ReplayData = {
   totalIdleSeconds: number;
   startAddress: string | null;
   endAddress: string | null;
+  /** IANA TZ from Bouncie (e.g. America/New_York). */
+  timeZone: string;
+  /** Odometer in miles, from Bouncie */
+  startOdometerMi: number | null;
+  endOdometerMi: number | null;
+  /** Fuel consumed (gallons) */
+  fuelConsumedGal: number | null;
+  /** Average MPG for this trip */
+  avgMpg: number | null;
   points: ReplayPoint[];
   events: ReplayEvent[];
-  /** bounds for fit: {sw, ne} */
   bounds: { south: number; west: number; north: number; east: number };
 };
 
