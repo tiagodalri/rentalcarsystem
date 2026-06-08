@@ -241,13 +241,6 @@ export function MapControlsPanel({ layers, onChange }: Props) {
                 liveBadge
               />
               <ToggleCard
-                label="Carvatars"
-                active={layers.carvatars}
-                onClick={() => set("carvatars", !layers.carvatars)}
-                preview={previews.carvatars}
-                liveBadge
-              />
-              <ToggleCard
                 label="Legenda de velocidade"
                 active={layers.speedLegend}
                 onClick={() => set("speedLegend", !layers.speedLegend)}
