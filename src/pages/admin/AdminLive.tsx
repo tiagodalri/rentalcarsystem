@@ -304,8 +304,3 @@ export default function AdminLive() {
     </div>
   );
 }
-        </div>
-      </div>
-    </div>
-  );
-}
