@@ -76,7 +76,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
 
   const [mapReady, setMapReady] = useState(false);
   const [playing, setPlaying] = useState(false); // start paused, intro plays first
-  const SPEED_OPTIONS = [10, 14, 18, 20, 24, 30] as const;
+  const SPEED_OPTIONS = [10, 14, 18, 20, 24, 30, 60] as const;
   type SpeedOpt = typeof SPEED_OPTIONS[number];
   const [speed, setSpeed] = useState<SpeedOpt>(18);
   const [playbackMs, setPlaybackMs] = useState(0);
