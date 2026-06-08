@@ -98,7 +98,6 @@ export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick
                       </span>
                     </div>
                     {dayTrips.map((t) => {
-                      const hasRoute = !!(t as any).gps || true; // we'll let replay error if no polyline
                       return (
                         <button
                           key={t.id}
