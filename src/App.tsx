@@ -19,6 +19,8 @@ import ResetPassword from "./pages/ResetPassword.tsx";
 import Contato from "./pages/Contato.tsx";
 import VehicleDetail from "./pages/VehicleDetail.tsx";
 import Frota from "./pages/Frota.tsx";
+import PublicTrack from "./pages/PublicTrack.tsx";
+
 import RequireAuth from "./components/RequireAuth.tsx";
 import { RequireRole } from "./components/admin/RequireRole.tsx";
 import AdminLayout from "./components/admin/AdminLayout.tsx";
