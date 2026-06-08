@@ -16,6 +16,17 @@ function fmtWhen(iso: string): string {
   return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 
+// Telemetry/heartbeat events from the tracker that are pure noise for a human.
+// (Bouncie streams "tripData"/"tripMetrics" continuously while the car is moving —
+// they aren't alerts and shouldn't fill the notifications list.)
+const TELEMETRY_TYPES = new Set([
+  "tripdata", "tripmetrics", "location", "heartbeat", "gps", "ping", "keepalive",
+]);
+
+function isTelemetry(eventType: string): boolean {
+  return TELEMETRY_TYPES.has(eventType.toLowerCase());
+}
+
 function describeEvent(e: VehicleEvent): { title: string; desc: string; icon: React.ReactNode; color: string } {
   const t = e.event_type.toLowerCase();
   const p = e.payload || {};
@@ -28,31 +39,44 @@ function describeEvent(e: VehicleEvent): { title: string; desc: string; icon: Re
   if (t.includes("speed")) {
     return { title: "Excesso de velocidade", desc: e.speed_mph ? `Atingiu ${Math.round(e.speed_mph)} mph` : "Acima do limite", icon: <Gauge size={14} />, color: "text-red-500 bg-red-500/10" };
   }
+  if (t.includes("idle")) {
+    return { title: "Veículo ocioso", desc: "Ligado e parado por tempo prolongado", icon: <Activity size={14} />, color: "text-muted-foreground bg-muted/30" };
+  }
   if (t.includes("mil")) {
     const codes = (p.mil?.qualifiedEvents ?? p.dtcs ?? []).slice(0, 2).join(", ");
-    return { title: "Luz de injeção (Check Engine)", desc: codes ? `Códigos: ${codes}` : "Acionada pelo sistema OBD", icon: <Wrench size={14} />, color: "text-red-500 bg-red-500/10" };
+    return { title: "Luz de injeção acesa", desc: codes ? `Códigos: ${codes}` : "Acionada pelo sistema de bordo", icon: <Wrench size={14} />, color: "text-red-500 bg-red-500/10" };
+  }
+  if (t.includes("battery")) {
+    return { title: "Alerta de bateria", desc: "Tensão da bateria fora do padrão", icon: <Plug size={14} />, color: "text-yellow-500 bg-yellow-500/10" };
   }
   if (t.includes("disconnect")) {
-    return { title: "Bouncie desconectado", desc: "O rastreador parou de transmitir", icon: <Plug size={14} />, color: "text-muted-foreground bg-muted/30" };
+    return { title: "Rastreador desconectado", desc: "O dispositivo parou de transmitir", icon: <Plug size={14} />, color: "text-muted-foreground bg-muted/30" };
   }
   if (t.includes("connect")) {
-    return { title: "Bouncie conectado", desc: "Rastreador voltou a transmitir", icon: <Plug size={14} />, color: "text-green-500 bg-green-500/10" };
+    return { title: "Rastreador conectado", desc: "Dispositivo voltou a transmitir", icon: <Plug size={14} />, color: "text-green-500 bg-green-500/10" };
   }
   if (t.includes("tripstart")) {
-    return { title: "Viagem iniciada", desc: e.payload?.startAddress ?? "Início registrado", icon: <MapPin size={14} />, color: "text-green-500 bg-green-500/10" };
+    return { title: "Viagem iniciada", desc: p.startAddress ?? "Início registrado", icon: <MapPin size={14} />, color: "text-green-500 bg-green-500/10" };
   }
   if (t.includes("tripend")) {
-    return { title: "Viagem encerrada", desc: e.payload?.endAddress ?? "Fim registrado", icon: <MapPin size={14} />, color: "text-blue-500 bg-blue-500/10" };
+    return { title: "Viagem encerrada", desc: p.endAddress ?? "Fim registrado", icon: <MapPin size={14} />, color: "text-blue-500 bg-blue-500/10" };
   }
   if (t.includes("fuel")) {
-    return { title: "Aviso de combustível", desc: "Tanque abaixo do limite", icon: <Fuel size={14} />, color: "text-yellow-500 bg-yellow-500/10" };
+    return { title: "Aviso de combustível", desc: "Tanque abaixo do limite recomendado", icon: <Fuel size={14} />, color: "text-yellow-500 bg-yellow-500/10" };
   }
-  return { title: e.event_type, desc: "Evento registrado", icon: <Activity size={14} />, color: "text-muted-foreground bg-muted/30" };
+  if (t.includes("geofence")) {
+    return { title: "Cerca virtual", desc: "Veículo entrou ou saiu de uma área monitorada", icon: <MapPin size={14} />, color: "text-blue-500 bg-blue-500/10" };
+  }
+  // Fallback: never show raw API names. Humanize gracefully.
+  return { title: "Atualização do veículo", desc: "Novo dado recebido do rastreador", icon: <Activity size={14} />, color: "text-muted-foreground bg-muted/30" };
 }
 
 export function NotificationsTab({ vehicleId }: { vehicleId: string }) {
   const [tab, setTab] = useState<EventCategory>("drive");
-  const { data: events = [], isLoading } = useVehicleEvents(vehicleId, 60);
+  const { data: rawEvents = [], isLoading } = useVehicleEvents(vehicleId, 60);
+
+  // Strip pure telemetry/heartbeat events — they aren't alerts.
+  const events = useMemo(() => rawEvents.filter((e) => !isTelemetry(e.event_type)), [rawEvents]);
 
   const byCategory = useMemo(() => {
     const map: Record<EventCategory, VehicleEvent[]> = { drive: [], vehicle: [], care: [] };
