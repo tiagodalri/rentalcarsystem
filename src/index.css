@@ -115,7 +115,12 @@
     font-family: 'Montserrat', sans-serif;
     font-optical-sizing: auto;
     -webkit-tap-highlight-color: transparent;
+    min-height: 100dvh;
+    /* Respect device safe areas (notch, status bar, home indicator) on PWAs */
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
   }
+
 
   button, a, [role="button"] {
     touch-action: manipulation;
