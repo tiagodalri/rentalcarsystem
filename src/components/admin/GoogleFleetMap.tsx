@@ -213,33 +213,67 @@ type Props = {
   layers?: MapLayers;
 };
 
-// Anchor state per vehicle used for smooth animation + dead reckoning
-type Anchor = {
-  // Last known REAL position from Bouncie (server truth)
-  lat: number;
-  lng: number;
-  heading: number; // degrees, 0=N, clockwise
-  speed: number; // mph
-  reportedAt: number; // ms epoch — when Bouncie recorded the sample
-  receivedAt: number; // ms epoch — when we received it (used for tween start)
-  moving: boolean;
-  // Position currently DRAWN on the map (used as tween source on next update)
+// --- Smooth-motion buffer ---------------------------------------------------
+// Each vehicle keeps a buffer of timestamped real positions. We render the car
+// always RENDER_DELAY_MS in the past so there's always a "future" point to
+// interpolate towards — eliminates jumps, reverses and trembling.
+type BufferPoint = { lat: number; lng: number; t: number };
+type VehicleState = {
+  buffer: BufferPoint[];
+  lastReportedMs: number;
+  status: LiveVehicle["status"];
+  speed: number;            // mph (latest)
+  /** Last drawn heading in degrees, smoothly lerped */
+  drawnHeading: number;
+  /** Target heading from real movement A->B */
+  targetHeading: number;
+  /** Last displayed lat/lng (used to hold position when no fresh data) */
   displayLat: number;
   displayLng: number;
-  // Tween from old display -> new anchor on update
-  tweenFromLat: number;
-  tweenFromLng: number;
-  tweenStart: number;
+  /** Icon cache key — avoid setIcon every frame */
+  iconKey: string;
+  /** Marker is selected (mirrors selectedId for fast access in loop) */
+  selected: boolean;
 };
 
-const TWEEN_MS = 700; // smooth slide when a new real fix arrives
-const MAX_EXTRAPOLATE_MS = 30_000; // stop dead-reckoning if data is stale
+const RENDER_DELAY_MS = 4000;          // ~4s "in the past" — sweet spot for fluid playback
+const BUFFER_TTL_MS = 10_000;          // drop points older than this past renderTime
+const MIN_MOVE_METERS = 5;             // ignore micro-jitter while parked
+const MAX_JUMP_METERS = 2_000;         // discard absurd GPS jumps
+const HEADING_LERP_PER_FRAME = 0.16;   // smoothness of rotation animation
+const FOLLOW_PAN_INTERVAL_MS = 1000;   // recentre at most once per second
+const FOLLOW_EDGE_PX = 110;            // recentre early if car nears viewport edge
+const PROGRAMMATIC_PAN_GUARD_MS = 350; // ignore our own panTo on dragstart
+
+function haversineM(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const la1 = toRad(a.lat), la2 = toRad(b.lat);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function bearingDeg(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const toDeg = (r: number) => (r * 180) / Math.PI;
+  const la1 = toRad(a.lat), la2 = toRad(b.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const y = Math.sin(dLng) * Math.cos(la2);
+  const x = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLng);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+/** Shortest-path angular interpolation (handles 359→1 wrap) */
+function lerpAngle(a: number, b: number, f: number): number {
+  const diff = ((b - a + 540) % 360) - 180;
+  return (a + diff * f + 360) % 360;
+}
 
 export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers = DEFAULT_LAYERS }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<Map<string, any>>(new Map());
-  const anchorsRef = useRef<Map<string, Anchor>>(new Map());
+  const statesRef = useRef<Map<string, VehicleState>>(new Map());
   const rafRef = useRef<number | null>(null);
   const infoWindowRef = useRef<any>(null);
   const polylineRef = useRef<any[]>([]);
@@ -248,8 +282,16 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const nwsShapesRef = useRef<any[]>([]);
   const eventMarkersRef = useRef<any[]>([]);
   const fittedRef = useRef(false);
+  const selectedIdRef = useRef<string | null>(null);
+  const followRef = useRef<boolean>(false);
+  const lastFollowPanRef = useRef<number>(0);
+  const programmaticPanAtRef = useRef<number>(0);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [following, setFollowing] = useState<boolean>(false);
+
+  useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
+  useEffect(() => { followRef.current = following; }, [following]);
 
   const { points: trail } = useTripTrail(selectedId, 24);
   const { data: geofences = [] } = useGeofences(layers.geoZones);
