@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight } from "lucide-react";
+import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
@@ -8,6 +8,8 @@ import { UnlinkedBouncieDevices } from "@/components/admin/UnlinkedBouncieDevice
 import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 import { VehicleDetailDrawer } from "@/components/admin/live/VehicleDetailDrawer";
 import { MapControlsPanel, useMapLayers } from "@/components/admin/live/MapControlsPanel";
+import { TripPickerDialog } from "@/components/admin/live/TripPickerDialog";
+import { TripReplayOverlay } from "@/components/admin/live/TripReplayOverlay";
 import zeusZMark from "@/assets/zeus-z-mark.png";
 
 function formatRelative(iso: string | null): string {
@@ -37,6 +39,8 @@ export default function AdminLive() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "moving" | "idle" | "parked">("all");
   const [layers, setLayers] = useMapLayers();
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [replayTripId, setReplayTripId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const onMap = useMemo(
@@ -296,6 +300,12 @@ export default function AdminLive() {
                 >
                   Ver detalhes completos <ChevronRight size={13} />
                 </button>
+                <button
+                  onClick={() => setPickerOpen(true)}
+                  className="mt-1.5 w-full flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 text-primary hover:bg-primary/10 transition-colors py-1.5 text-[11px] font-bold uppercase tracking-wider"
+                >
+                  <Play size={11} fill="currentColor" /> Reproduzir viagem
+                </button>
               </div>
             </div>
           )}
@@ -309,6 +319,28 @@ export default function AdminLive() {
           )}
         </div>
       </div>
+
+      {/* Trip picker + replay overlay */}
+      {selectedVehicle && (
+        <TripPickerDialog
+          vehicleId={selectedVehicle.vehicle_id}
+          vehicleName={selectedVehicle.name}
+          open={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          onPick={(tripId) => {
+            setPickerOpen(false);
+            setReplayTripId(tripId);
+          }}
+        />
+      )}
+      {selectedVehicle && replayTripId && (
+        <TripReplayOverlay
+          vehicleId={selectedVehicle.vehicle_id}
+          vehicleName={selectedVehicle.name}
+          tripId={replayTripId}
+          onClose={() => setReplayTripId(null)}
+        />
+      )}
     </div>
   );
 }
