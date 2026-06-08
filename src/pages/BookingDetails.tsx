@@ -170,7 +170,7 @@ const BookingDetails = () => {
   // Pricing calculations
   const basePrice = vehiclePrices[decodedName] || 99;
   const dailyPrice = youngDriver ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
-  const basicDeductible = dailyPrice * DEDUCTIBLE_MULTIPLIER;
+  const basicDeductible = BASIC_FRANCHISE;
 
   const pricing = useMemo(() => {
     const subtotalRental = dailyPrice * days;
