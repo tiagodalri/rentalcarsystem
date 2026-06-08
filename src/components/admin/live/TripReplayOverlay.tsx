@@ -557,6 +557,30 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
 
         <div className="flex items-center gap-2">
           <button
+            onClick={downloadMp4}
+            disabled={recording || !data}
+            className="text-[10px] uppercase tracking-wider font-semibold px-3 py-1.5 rounded-full border transition-colors flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{
+              borderColor: recording ? GOLD : "rgba(212,175,55,0.5)",
+              color: recording ? "#0a0a0a" : GOLD,
+              background: recording
+                ? `linear-gradient(90deg, ${GOLD} ${Math.round(recProgress * 100)}%, rgba(212,175,55,0.15) ${Math.round(recProgress * 100)}%)`
+                : "rgba(212,175,55,0.08)",
+            }}
+            title={recording ? "Gravando… não troque de aba" : "Baixar vídeo MP4 da animação (HD)"}
+          >
+            {recording ? (
+              <>
+                <Loader2 size={11} className="animate-spin" />
+                Gravando {Math.round(recProgress * 100)}%
+              </>
+            ) : (
+              <>
+                <Download size={11} /> Baixar MP4
+              </>
+            )}
+          </button>
+          <button
             onClick={fitWhole}
             className="text-[10px] uppercase tracking-wider font-semibold px-3 py-1.5 rounded-full border border-white/15 text-white/80 hover:bg-white/5 transition-colors flex items-center gap-1.5"
             title="Ver rota inteira"
