@@ -269,8 +269,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
           (1000 * 60 * 60 * 24)
       )
     );
-    const plan = PLANS[form.plan_id as keyof typeof PLANS];
-    const suggested = (Number(veh.daily_price_usd) + (plan?.dailyExtra ?? 0)) * days;
+    const suggested = Number(veh.daily_price_usd) * days;
     if (!form.total_price || Number(form.total_price) === 0) {
       set("total_price", suggested.toFixed(2));
     }
