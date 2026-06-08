@@ -49,6 +49,57 @@ function markerSvg(color: string, selected: boolean): any {
   };
 }
 
+function carvatarSvg(imageUrl: string, color: string, selected: boolean): any {
+  const size = selected ? 56 : 44;
+  // Use a foreignObject-free pure SVG ring + image via xlink:href
+  return {
+    url:
+      "data:image/svg+xml;charset=UTF-8," +
+      encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${size}" height="${size}" viewBox="0 0 56 56">
+          <defs>
+            <clipPath id="c"><circle cx="28" cy="28" r="20"/></clipPath>
+            <filter id="s" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-opacity="0.4"/>
+            </filter>
+          </defs>
+          <circle cx="28" cy="28" r="23" fill="#ffffff" stroke="${selected ? "#D4AF37" : color}" stroke-width="${selected ? 3.5 : 2.5}" filter="url(#s)"/>
+          <image href="${imageUrl}" xlink:href="${imageUrl}" x="8" y="8" width="40" height="40" clip-path="url(#c)" preserveAspectRatio="xMidYMid slice"/>
+          <circle cx="44" cy="44" r="5" fill="${color}" stroke="#fff" stroke-width="1.5"/>
+        </svg>`
+      ),
+    scaledSize: { width: size, height: size } as any,
+    anchor: { x: size / 2, y: size / 2 } as any,
+  };
+}
+
+function eventEmoji(type: string): { color: string; label: string } {
+  const t = type.toLowerCase();
+  if (t.includes("hardbrak") || t.includes("hard_brak") || t.includes("brak"))
+    return { color: "#ef4444", label: "B" };
+  if (t.includes("accel")) return { color: "#22c55e", label: "A" };
+  if (t.includes("speed")) return { color: "#dc2626", label: "S" };
+  if (t.includes("idle")) return { color: "#f59e0b", label: "I" };
+  if (t.includes("trip_start") || t.includes("start")) return { color: "#22c55e", label: "▶" };
+  if (t.includes("trip_end") || t.includes("stop") || t.includes("end")) return { color: "#6b7280", label: "■" };
+  return { color: "#3b82f6", label: "•" };
+}
+
+function eventMarkerSvg(color: string, label: string): any {
+  return {
+    url:
+      "data:image/svg+xml;charset=UTF-8," +
+      encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">
+          <circle cx="11" cy="11" r="9" fill="${color}" stroke="#fff" stroke-width="2"/>
+          <text x="11" y="14.5" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" font-weight="700" fill="#fff">${label}</text>
+        </svg>`
+      ),
+    scaledSize: { width: 22, height: 22 } as any,
+    anchor: { x: 11, y: 11 } as any,
+  };
+}
+
 function statusColor(status: LiveVehicle["status"]) {
   return status === "moving" ? "#22c55e" : status === "idle" ? "#f59e0b" : "#6b7280";
 }
