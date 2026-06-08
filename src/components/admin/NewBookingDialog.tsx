@@ -381,17 +381,28 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
     </section>
   );
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="w-[calc(100vw-1rem)] sm:w-full max-w-3xl p-0 gap-0 max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden rounded-2xl"
-      >
-        <DialogHeader className="px-4 sm:px-6 pt-5 pb-3 border-b border-border/50 shrink-0">
-          <DialogTitle className="text-base sm:text-lg">Nova reserva manual</DialogTitle>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Preencha em 7 etapas. Use a IA para extrair de prints e PDFs.
-          </p>
-        </DialogHeader>
+  const body = (
+    <>
+      <div className={mode === "page"
+        ? "px-4 sm:px-6 pt-5 pb-3 border-b border-border/50 shrink-0"
+        : "px-4 sm:px-6 pt-5 pb-3 border-b border-border/50 shrink-0"}>
+        {mode === "page" ? (
+          <>
+            <h1 className="text-lg sm:text-xl font-semibold tracking-tight">Nova reserva manual</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Preencha em 7 etapas. Use a IA para extrair de prints e PDFs.
+            </p>
+          </>
+        ) : (
+          <DialogHeader className="p-0">
+            <DialogTitle className="text-base sm:text-lg">Nova reserva manual</DialogTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Preencha em 7 etapas. Use a IA para extrair de prints e PDFs.
+            </p>
+          </DialogHeader>
+        )}
+      </div>
+
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 space-y-4">
           {/* IA - Extração inteligente */}
