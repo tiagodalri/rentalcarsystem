@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   X, Play, Pause, Loader2, Maximize2, MapPin, Flag, AlertTriangle,
   Zap, PauseCircle, Gauge, Clock, Route, TrendingUp, SkipBack, SkipForward,
-  RotateCcw, Fuel, Activity, Trophy,
+  RotateCcw, Fuel, Activity, Trophy, Download,
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from "recharts";
 import { loadGoogleMaps } from "@/lib/googleMapsLoader";
@@ -379,6 +379,104 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
     mapRef.current.fitBounds(b, 80);
   }, [data]);
 
+  // ===== Record & download MP4 of the replay (uses tab capture) =====
+  const [recording, setRecording] = useState(false);
+  const [recProgress, setRecProgress] = useState(0);
+  const recCancelRef = useRef<() => void>(() => {});
+
+  const downloadMp4 = useCallback(async () => {
+    if (!data || recording) return;
+    const md: any = navigator.mediaDevices as any;
+    if (!md?.getDisplayMedia || typeof (window as any).MediaRecorder === "undefined") {
+      alert("Seu navegador não suporta gravação de vídeo. Use Chrome ou Edge no desktop.");
+      return;
+    }
+    let stream: MediaStream;
+    try {
+      stream = await md.getDisplayMedia({
+        video: { frameRate: 60, displaySurface: "browser" },
+        audio: false,
+        preferCurrentTab: true,
+        selfBrowserSurface: "include",
+      });
+    } catch {
+      return; // user cancelled
+    }
+
+    const candidates = [
+      "video/mp4;codecs=avc1.42E01F",
+      "video/mp4",
+      "video/webm;codecs=vp9",
+      "video/webm;codecs=vp8",
+      "video/webm",
+    ];
+    const MR: any = (window as any).MediaRecorder;
+    const mime = candidates.find((m) => MR.isTypeSupported?.(m)) || "video/webm";
+    const ext = mime.startsWith("video/mp4") ? "mp4" : "webm";
+    const rec: MediaRecorder = new MR(stream, { mimeType: mime, videoBitsPerSecond: 10_000_000 });
+    const chunks: Blob[] = [];
+    rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+
+    const cleanup = () => stream.getTracks().forEach((t) => t.stop());
+    const stopRec = () =>
+      new Promise<void>((res) => {
+        if (rec.state === "inactive") { cleanup(); return res(); }
+        rec.onstop = () => { cleanup(); res(); };
+        try { rec.stop(); } catch { cleanup(); res(); }
+      });
+
+    setRecording(true);
+    setRecProgress(0);
+    setShowSummary(false);
+    setIntro(false);
+    setFollowCam(true);
+    playbackRef.current = 0;
+    setPlaybackMs(0);
+    renderFrame();
+    await new Promise((r) => setTimeout(r, 500));
+
+    rec.start(250);
+    playingRef.current = true;
+    setPlaying(true);
+
+    const recordSpeed = speedRef.current;
+    const totalMs = data.durationMs / recordSpeed + 4500; // includes summary tail
+    const t0 = performance.now();
+    let cancelled = false;
+
+    stream.getVideoTracks()[0].addEventListener("ended", () => { cancelled = true; });
+    recCancelRef.current = () => { cancelled = true; };
+
+    await new Promise<void>((resolve) => {
+      const tick = () => {
+        const elapsed = performance.now() - t0;
+        setRecProgress(Math.min(1, elapsed / totalMs));
+        if (cancelled || elapsed >= totalMs) return resolve();
+        requestAnimationFrame(tick);
+      };
+      tick();
+    });
+
+    await stopRec();
+
+    if (chunks.length) {
+      const blob = new Blob(chunks, { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const safe = vehicleName.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+      const stamp = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `replay-${safe}-${stamp}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+    setRecording(false);
+    setRecProgress(0);
+  }, [data, recording, vehicleName, renderFrame]);
+
+
   // Derived current values for HUD
   const hud = useMemo(() => {
     if (!data) return null;
@@ -458,6 +556,30 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
         )}
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={downloadMp4}
+            disabled={recording || !data}
+            className="text-[10px] uppercase tracking-wider font-semibold px-3 py-1.5 rounded-full border transition-colors flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{
+              borderColor: recording ? GOLD : "rgba(212,175,55,0.5)",
+              color: recording ? "#0a0a0a" : GOLD,
+              background: recording
+                ? `linear-gradient(90deg, ${GOLD} ${Math.round(recProgress * 100)}%, rgba(212,175,55,0.15) ${Math.round(recProgress * 100)}%)`
+                : "rgba(212,175,55,0.08)",
+            }}
+            title={recording ? "Gravando… não troque de aba" : "Baixar vídeo MP4 da animação (HD)"}
+          >
+            {recording ? (
+              <>
+                <Loader2 size={11} className="animate-spin" />
+                Gravando {Math.round(recProgress * 100)}%
+              </>
+            ) : (
+              <>
+                <Download size={11} /> Baixar MP4
+              </>
+            )}
+          </button>
           <button
             onClick={fitWhole}
             className="text-[10px] uppercase tracking-wider font-semibold px-3 py-1.5 rounded-full border border-white/15 text-white/80 hover:bg-white/5 transition-colors flex items-center gap-1.5"
