@@ -117,7 +117,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
     return_time: "10:00",
     pickup_location: "",
     return_location: "",
-    plan_id: "conforto",
+    plan_id: "unico",
     total_price: "",
     currency: "USD",
     payment_method: "Cartão de Crédito",
