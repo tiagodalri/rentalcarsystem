@@ -291,8 +291,11 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [following, setFollowing] = useState<boolean>(false);
+  const [fenceMode, setFenceMode] = useState<boolean>(false);
+  const fenceModeRef = useRef(false);
+  const queryClient = useQueryClient();
 
-  useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
+  useEffect(() => { fenceModeRef.current = fenceMode; }, [fenceMode]);
   useEffect(() => { followRef.current = following; }, [following]);
 
   const { points: trail } = useTripTrail(selectedId, 24);
