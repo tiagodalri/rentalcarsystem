@@ -5,7 +5,7 @@
 //  - Static assets (JS/CSS/fonts/images): StaleWhileRevalidate.
 //  - Everything else: pass-through.
 
-const VERSION = "v4";
+const VERSION = "v5";
 const HTML_CACHE = `zeus-html-${VERSION}`;
 const ASSET_CACHE = `zeus-assets-${VERSION}`;
 const OFFLINE_URL = "/";
@@ -23,7 +23,8 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(HTML_CACHE).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
-  self.skipWaiting();
+  // Do NOT skipWaiting automatically — wait until all tabs are closed so
+  // we never interrupt an in-progress form with a forced reload.
 });
 
 self.addEventListener("activate", (event) => {
@@ -35,7 +36,8 @@ self.addEventListener("activate", (event) => {
           .filter((n) => n !== HTML_CACHE && n !== ASSET_CACHE)
           .map((n) => caches.delete(n))
       );
-      await self.clients.claim();
+      // No clients.claim() — existing tabs keep their current SW until
+      // the user fully navigates/closes the tab.
     })()
   );
 });
