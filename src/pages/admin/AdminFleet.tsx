@@ -183,7 +183,7 @@ export default function AdminFleet() {
           <p className="text-sm text-muted-foreground mt-1">{vehicles.length} veículos cadastrados</p>
         </div>
         <button
-          onClick={() => { setEditing({ ...emptyVehicle }); setIsNew(true); }}
+          onClick={() => navigate("/admin/fleet/new")}
           className="gold-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
           <Plus size={16} /> Adicionar
