@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.polish-transcript]
 verify_jwt = false
+
+[functions.bouncie-oauth]
+verify_jwt = false
+
+[functions.bouncie-webhook]
+verify_jwt = false
