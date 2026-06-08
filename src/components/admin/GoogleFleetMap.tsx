@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Crosshair } from "lucide-react";
+import { Crosshair, ShieldPlus, X as XIcon } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { loadGoogleMaps } from "@/lib/googleMapsLoader";
 import { useTripTrail, speedBandColor, type TrailPoint } from "@/hooks/useTripTrail";
 import type { LiveVehicle } from "@/hooks/useFleetLive";
