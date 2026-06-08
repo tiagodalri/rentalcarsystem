@@ -90,13 +90,23 @@ Deno.serve(async (req) => {
       .from("vehicles").select("id").eq("bouncie_imei", imei).maybeSingle();
     const vehicleId: string | null = veh?.id ?? null;
 
+    // Bouncie sends a `data[]` array of GPS samples on `tripData` events.
+    // Top-level payload has NO lat/lng for those events — read from the latest sample.
+    const dataArr: any[] = Array.isArray(payload?.data) ? payload.data
+      : Array.isArray(payload?.gps) ? payload.gps
+      : Array.isArray(payload?.gpsData) ? payload.gpsData
+      : [];
+    const lastSample: any = dataArr.length ? dataArr[dataArr.length - 1] : null;
+
     const loc = payload?.location ?? payload?.gps ?? payload?.stats?.location ?? null;
-    const lat = pickNumber(payload?.lat, payload?.latitude, loc?.lat, loc?.latitude);
-    const lng = pickNumber(payload?.lon, payload?.lng, payload?.longitude, loc?.lon, loc?.lng, loc?.longitude);
-    const heading = pickNumber(payload?.heading, loc?.heading, payload?.bearing);
-    const speed = pickNumber(payload?.speed, loc?.speed, payload?.stats?.speed);
-    const isRunning = pickBool(payload?.isRunning, payload?.stats?.isRunning, payload?.running);
-    const address = pickString(payload?.address, loc?.address, payload?.stats?.location?.address);
+    const lat = pickNumber(payload?.lat, payload?.latitude, loc?.lat, loc?.latitude, lastSample?.lat, lastSample?.latitude);
+    const lng = pickNumber(payload?.lon, payload?.lng, payload?.longitude, loc?.lon, loc?.lng, loc?.longitude, lastSample?.lon, lastSample?.lng, lastSample?.longitude);
+    const heading = pickNumber(payload?.heading, loc?.heading, payload?.bearing, lastSample?.heading, lastSample?.bearing);
+    const speed = pickNumber(payload?.speed, loc?.speed, payload?.stats?.speed, lastSample?.speed);
+    const isRunningRaw = pickBool(payload?.isRunning, payload?.stats?.isRunning, payload?.running);
+    // tripData implies the vehicle is moving / engine on
+    const isRunning = isRunningRaw ?? (eventType === "tripData" ? true : null);
+    const address = pickString(payload?.address, loc?.address, payload?.stats?.location?.address, lastSample?.address);
     const milOn = pickBool(payload?.mil?.on, payload?.stats?.mil?.milOn, payload?.milOn);
     const battery = pickString(payload?.battery?.status, payload?.stats?.battery?.status);
     const batteryV = pickNumber(payload?.battery?.voltage, payload?.stats?.battery?.voltage);
@@ -104,7 +114,7 @@ Deno.serve(async (req) => {
     const fuelLevel = pickNumber(payload?.fuelLevel, payload?.stats?.fuelLevel);
     const dtcs: string[] | null = Array.isArray(payload?.mil?.qualifiedEvents) ? payload.mil.qualifiedEvents
       : Array.isArray(payload?.dtcs) ? payload.dtcs : null;
-    const reportedAtRaw = pickString(payload?.timestamp, payload?.time, payload?.reportedAt, payload?.eventTime);
+    const reportedAtRaw = pickString(payload?.timestamp, payload?.time, payload?.reportedAt, payload?.eventTime, lastSample?.timestamp);
     const reportedAt = reportedAtRaw ? new Date(reportedAtRaw).toISOString() : new Date().toISOString();
 
     if (vehicleId) {
