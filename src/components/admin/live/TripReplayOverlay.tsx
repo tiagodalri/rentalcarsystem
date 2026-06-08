@@ -623,12 +623,34 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-3 px-4 pb-3 pt-1">
+          <div className="flex items-center gap-2 sm:gap-3 px-4 pb-3 pt-1">
+            <button
+              onClick={() => seekTo(playbackRef.current - 10_000)}
+              className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center text-white/80"
+              aria-label="Voltar 10s"
+              title="Voltar 10s"
+            >
+              <SkipBack size={14} />
+            </button>
+            <button
+              onClick={() => {
+                playbackRef.current = 0;
+                setPlaybackMs(0);
+                setShowSummary(false);
+                setPlaying(true);
+              }}
+              className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center text-white/80"
+              aria-label="Recomeçar"
+              title="Recomeçar"
+            >
+              <RotateCcw size={14} />
+            </button>
             <button
               onClick={() => {
                 if (playbackRef.current >= data.durationMs - 50) {
                   playbackRef.current = 0;
                   setPlaybackMs(0);
+                  setShowSummary(false);
                 }
                 setPlaying((p) => !p);
               }}
@@ -637,6 +659,14 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
               aria-label={playing ? "Pausar" : "Reproduzir"}
             >
               {playing ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" className="ml-0.5" />}
+            </button>
+            <button
+              onClick={() => seekTo(playbackRef.current + 10_000)}
+              className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center text-white/80"
+              aria-label="Avançar 10s"
+              title="Avançar 10s"
+            >
+              <SkipForward size={14} />
             </button>
 
             <div className="flex items-center gap-1 bg-white/5 rounded-full p-0.5">
