@@ -681,12 +681,7 @@ const BookingDetails = () => {
                   Escolha seu <span className="gold-text">Plano</span>
                 </h2>
 
-                <PlanSelector
-                  selectedPlan={selectedPlanId}
-                  onSelectPlan={setSelectedPlanId}
-                  dailyPrice={dailyPrice}
-                  basicDeductible={basicDeductible}
-                />
+                <PlanSelector dailyPrice={dailyPrice} />
               </motion.div>
 
               {/* ADD-ONS (only items not in plan) */}
