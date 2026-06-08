@@ -99,6 +99,27 @@ const previews = {
       <div className="absolute inset-x-0 top-1/2 h-0.5 bg-[#a89968]" />
     </div>
   ),
+  satellite3d: (
+    <div className="w-full h-full relative overflow-hidden bg-gradient-to-b from-[#3d5a8a] via-[#5a7a3e] to-[#2d3a1f]">
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(135,170,210,0.55) 0%, rgba(135,170,210,0) 38%), repeating-linear-gradient(72deg, rgba(255,255,255,0.10) 0 2px, transparent 2px 9px)",
+          transform: "perspective(80px) rotateX(38deg) scale(1.25) translateY(6px)",
+          transformOrigin: "center bottom",
+        }}
+      />
+      <div
+        className="absolute left-2 bottom-3 w-3 h-5 bg-[#1f2a3a]"
+        style={{ transform: "perspective(60px) rotateX(35deg)" }}
+      />
+      <div
+        className="absolute right-3 bottom-2 w-2.5 h-7 bg-[#0f1622]"
+        style={{ transform: "perspective(60px) rotateX(35deg)" }}
+      />
+    </div>
+  ),
   nws: (
     <div className="w-full h-full bg-[#e8e4d8] relative">
       <svg viewBox="0 0 72 72" className="absolute inset-0">
