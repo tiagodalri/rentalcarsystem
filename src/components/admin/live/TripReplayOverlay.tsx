@@ -305,8 +305,8 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
         if (playbackRef.current >= data.durationMs) {
           playingRef.current = false;
           setPlaying(false);
+          setShowSummary(true);
         }
-        // throttle React updates: ~30fps for UI
         setPlaybackMs(playbackRef.current);
       }
       renderFrame();
