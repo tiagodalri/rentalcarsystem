@@ -532,10 +532,10 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
 
           {/* Speed bands legend — bottom-left */}
           <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-black/75 backdrop-blur-sm border border-white/10 px-3 py-2">
-            <p className="text-[9px] uppercase tracking-wider text-white/60 font-semibold mb-1.5">Velocidade</p>
+            <p className="text-[9px] uppercase tracking-wider text-white/60 font-semibold mb-1.5">Velocidade no trajeto</p>
             {[
-              { l: "0–35", c: "#f59e0b" },{ l: "35–45", c: "#22c55e" },
-              { l: "45–50", c: "#3b82f6" },{ l: "50–65", c: "#ec4899" },{ l: "65+", c: "#ef4444" },
+              { l: "até 35", c: "#f59e0b" },{ l: "35–45", c: "#22c55e" },
+              { l: "45–50", c: "#3b82f6" },{ l: "50–65", c: "#ec4899" },{ l: "acima de 65", c: "#ef4444" },
             ].map((b) => (
               <div key={b.l} className="flex items-center gap-2 text-[10px] text-white/80">
                 <span className="w-4 h-1 rounded-full" style={{ backgroundColor: b.c }} />
@@ -543,6 +543,130 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
               </div>
             ))}
           </div>
+
+          {/* Cinematic intro overlay */}
+          {data && intro && !loading && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/55 backdrop-blur-[2px] animate-in fade-in duration-300 pointer-events-none">
+              <div className="text-center px-8 animate-in fade-in zoom-in-95 duration-500">
+                <p className="text-[10px] uppercase tracking-[0.4em] font-bold mb-3" style={{ color: GOLD }}>
+                  Preparando replay
+                </p>
+                <h3 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
+                  {vehicleName}
+                </h3>
+                {data.startAddress && (
+                  <p className="mt-3 text-xs text-white/70 max-w-md mx-auto">
+                    Saindo de <span className="text-white font-semibold">{data.startAddress.split(",")[0]}</span>
+                    {data.endAddress && (
+                      <>
+                        <span className="mx-2 text-white/30">→</span>
+                        <span className="text-white font-semibold">{data.endAddress.split(",")[0]}</span>
+                      </>
+                    )}
+                  </p>
+                )}
+                <div className="mt-4 flex items-center justify-center gap-5 text-[10px] uppercase tracking-wider text-white/50">
+                  <span><span className="tabular-nums text-white font-bold">{data.totalDistanceMi.toFixed(1).replace(".", ",")}</span> mi</span>
+                  <span className="w-1 h-1 rounded-full bg-white/30" />
+                  <span><span className="tabular-nums text-white font-bold">{fmtClock(data.durationMs)}</span></span>
+                  <span className="w-1 h-1 rounded-full bg-white/30" />
+                  <span>pico <span className="tabular-nums text-white font-bold">{Math.round(data.maxSpeedMph)}</span> mph</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Closing summary card */}
+          {data && showSummary && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
+              <div className="relative w-[min(92vw,440px)] rounded-2xl border p-6 animate-in fade-in zoom-in-95 duration-400 shadow-2xl"
+                   style={{ borderColor: `${GOLD}55`, background: "linear-gradient(180deg, #0a0a0a 0%, #050505 100%)" }}>
+                <button
+                  onClick={() => setShowSummary(false)}
+                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70"
+                  aria-label="Fechar resumo"
+                >
+                  <X size={14} />
+                </button>
+
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center"
+                       style={{ background: `linear-gradient(135deg, ${GOLD}, #b8941f)` }}>
+                    <Trophy size={16} className="text-black" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] uppercase tracking-[0.3em] font-bold" style={{ color: GOLD }}>Viagem concluída</p>
+                    <h4 className="text-base font-bold text-white leading-tight">{vehicleName}</h4>
+                  </div>
+                </div>
+
+                {(data.startAddress || data.endAddress) && (
+                  <div className="rounded-xl border border-white/10 p-3 mb-4 text-[11px] space-y-1.5">
+                    {data.startAddress && (
+                      <div className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 shrink-0" />
+                        <span className="text-white/80 leading-snug">{data.startAddress}</span>
+                      </div>
+                    )}
+                    {data.endAddress && (
+                      <div className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                        <span className="text-white/80 leading-snug">{data.endAddress}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <BigStat label="Distância" value={data.totalDistanceMi.toFixed(1).replace(".", ",")} unit="mi" highlight />
+                  <BigStat label="Tempo" value={fmtClock(data.durationMs)} unit="" />
+                  <BigStat label="Pico" value={`${Math.round(data.maxSpeedMph)}`} unit="mph" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[10px]">
+                  <MiniStat label="Vel. média" value={`${Math.round(data.avgSpeedMph)} mph`} />
+                  <MiniStat label="Tempo parado" value={fmtMins(data.totalIdleSeconds)} />
+                  <MiniStat label="Freadas bruscas" value={`${data.hardBrakes}`} />
+                  <MiniStat label="Acelerações bruscas" value={`${data.hardAccels}`} />
+                  {data.fuelConsumedGal != null && data.fuelConsumedGal > 0 && (
+                    <MiniStat label="Combustível" value={`${data.fuelConsumedGal.toFixed(2).replace(".", ",")} gal`} />
+                  )}
+                  {data.avgMpg != null && data.avgMpg > 0 && (
+                    <MiniStat label="Consumo médio" value={`${data.avgMpg.toFixed(1).replace(".", ",")} mpg`} />
+                  )}
+                  {data.startOdometerMi != null && data.endOdometerMi != null && (
+                    <div className="col-span-2 rounded-md bg-white/[0.04] border border-white/5 px-2 py-1.5">
+                      <p className="text-[8px] uppercase tracking-wider text-white/40 font-semibold">Odômetro</p>
+                      <p className="text-xs font-bold text-white tabular-nums">
+                        {Math.round(data.startOdometerMi).toLocaleString("pt-BR")} → {Math.round(data.endOdometerMi).toLocaleString("pt-BR")} mi
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-5 flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      playbackRef.current = 0;
+                      setPlaybackMs(0);
+                      setShowSummary(false);
+                      setPlaying(true);
+                    }}
+                    className="flex-1 text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-full text-black hover:scale-[1.02] transition-transform flex items-center justify-center gap-1.5"
+                    style={{ background: GOLD }}
+                  >
+                    <RotateCcw size={12} /> Assistir de novo
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-full border border-white/15 text-white/80 hover:bg-white/5"
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right panel — narration timeline */}
