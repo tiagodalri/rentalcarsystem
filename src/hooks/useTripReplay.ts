@@ -266,11 +266,12 @@ export function useTripReplay(tripId: string | null) {
         const encoded: string | null =
           (typeof raw.gps === "string" ? raw.gps : null) ??
           (typeof trip.gps === "string" ? (trip.gps as any) : null);
-        if (!encoded) throw new Error("Esta viagem não tem rota gravada (polyline ausente).");
 
-        const decoded: any[] = google.maps.geometry.encoding.decodePath(encoded);
-        let raw_points = decoded.map((p) => ({ lat: p.lat(), lng: p.lng() }));
-        if (raw_points.length < 2) throw new Error("Rota muito curta para reproduzir.");
+        let raw_points: { lat: number; lng: number }[] = [];
+        if (encoded) {
+          const decoded: any[] = google.maps.geometry.encoding.decodePath(encoded);
+          raw_points = decoded.map((p) => ({ lat: p.lat(), lng: p.lng() }));
+        }
 
         const startedAt = trip.started_at ? new Date(trip.started_at) : new Date();
         const endedAt = trip.ended_at ? new Date(trip.ended_at) : new Date(startedAt.getTime() + 60000);
