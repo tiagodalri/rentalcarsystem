@@ -10,6 +10,8 @@ import { toast } from "@/hooks/use-toast";
 
 import { Loader2, Upload, Sparkles } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
+import { VoiceRecorder } from "@/components/admin/VoiceRecorder";
+
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
 import { BookingDateField } from "@/components/admin/BookingDateField";
 import { useFormDraft, clearFormDraft } from "@/hooks/useFormDraft";
@@ -467,11 +469,21 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
                 {extracting ? <Loader2 size={14} className="animate-spin mr-1.5" /> : <Sparkles size={14} className="mr-1.5" />}
                 Extrair do texto
               </Button>
+              <VoiceRecorder
+                disabled={extracting}
+                onTranscript={(t) => setExtractText(t)}
+                onFinal={(t) => {
+                  setExtractText(t);
+                  // Pequeno delay para garantir que o state atualizou antes de extrair
+                  setTimeout(() => handleExtract(), 50);
+                }}
+                className="h-11 rounded-xl"
+              />
             </div>
             <Textarea
               rows={2}
               className="mt-2.5 text-sm"
-              placeholder="Ou cole aqui o texto da mensagem do WhatsApp..."
+              placeholder="Ou cole aqui o texto da mensagem do WhatsApp — ou clique em Gravar áudio e fale a reserva..."
               value={extractText}
               onChange={(e) => setExtractText(e.target.value)}
             />
@@ -481,6 +493,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
               </p>
             )}
           </section>
+
 
           {/* 1. Cliente */}
           <Section step={1} title="Cliente">
