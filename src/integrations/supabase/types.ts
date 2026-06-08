@@ -746,6 +746,106 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_diagnostics: {
+        Row: {
+          battery_voltage: number | null
+          created_at: string
+          dtc_codes: string[] | null
+          fuel_level_pct: number | null
+          id: string
+          imei: string | null
+          mil_on: boolean | null
+          odometer_mi: number | null
+          raw: Json | null
+          recorded_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          battery_voltage?: number | null
+          created_at?: string
+          dtc_codes?: string[] | null
+          fuel_level_pct?: number | null
+          id?: string
+          imei?: string | null
+          mil_on?: boolean | null
+          odometer_mi?: number | null
+          raw?: Json | null
+          recorded_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          battery_voltage?: number | null
+          created_at?: string
+          dtc_codes?: string[] | null
+          fuel_level_pct?: number | null
+          id?: string
+          imei?: string | null
+          mil_on?: boolean | null
+          odometer_mi?: number | null
+          raw?: Json | null
+          recorded_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_diagnostics_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          imei: string | null
+          lat: number | null
+          lng: number | null
+          occurred_at: string
+          payload: Json | null
+          severity: string | null
+          speed_mph: number | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          imei?: string | null
+          lat?: number | null
+          lng?: number | null
+          occurred_at: string
+          payload?: Json | null
+          severity?: string | null
+          speed_mph?: number | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          imei?: string | null
+          lat?: number | null
+          lng?: number | null
+          occurred_at?: string
+          payload?: Json | null
+          severity?: string | null
+          speed_mph?: number | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_events_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_expenses: {
         Row: {
           amount: number
@@ -789,6 +889,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "vehicle_expenses_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_geofences: {
+        Row: {
+          active: boolean
+          bouncie_id: string | null
+          created_at: string
+          geometry: Json
+          id: string
+          name: string
+          notify_on_enter: boolean
+          notify_on_exit: boolean
+          updated_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          bouncie_id?: string | null
+          created_at?: string
+          geometry: Json
+          id?: string
+          name: string
+          notify_on_enter?: boolean
+          notify_on_exit?: boolean
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          bouncie_id?: string | null
+          created_at?: string
+          geometry?: Json
+          id?: string
+          name?: string
+          notify_on_enter?: boolean
+          notify_on_exit?: boolean
+          updated_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_geofences_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
@@ -1044,42 +1191,87 @@ export type Database = {
       }
       vehicle_trips: {
         Row: {
+          average_mpg: number | null
+          avg_speed_mph: number | null
           created_at: string | null
           distance_mi: number | null
+          duration_seconds: number | null
+          end_address: string | null
+          end_lat: number | null
+          end_lng: number | null
+          end_odometer: number | null
           ended_at: string | null
+          fuel_consumed_gal: number | null
           gps: Json | null
           hard_accel: number | null
           hard_braking: number | null
           id: string
+          idle_seconds: number | null
           imei: string | null
+          max_speed_mph: number | null
           raw: Json | null
+          start_address: string | null
+          start_lat: number | null
+          start_lng: number | null
+          start_odometer: number | null
           started_at: string | null
+          transaction_id: string | null
           vehicle_id: string | null
         }
         Insert: {
+          average_mpg?: number | null
+          avg_speed_mph?: number | null
           created_at?: string | null
           distance_mi?: number | null
+          duration_seconds?: number | null
+          end_address?: string | null
+          end_lat?: number | null
+          end_lng?: number | null
+          end_odometer?: number | null
           ended_at?: string | null
+          fuel_consumed_gal?: number | null
           gps?: Json | null
           hard_accel?: number | null
           hard_braking?: number | null
           id: string
+          idle_seconds?: number | null
           imei?: string | null
+          max_speed_mph?: number | null
           raw?: Json | null
+          start_address?: string | null
+          start_lat?: number | null
+          start_lng?: number | null
+          start_odometer?: number | null
           started_at?: string | null
+          transaction_id?: string | null
           vehicle_id?: string | null
         }
         Update: {
+          average_mpg?: number | null
+          avg_speed_mph?: number | null
           created_at?: string | null
           distance_mi?: number | null
+          duration_seconds?: number | null
+          end_address?: string | null
+          end_lat?: number | null
+          end_lng?: number | null
+          end_odometer?: number | null
           ended_at?: string | null
+          fuel_consumed_gal?: number | null
           gps?: Json | null
           hard_accel?: number | null
           hard_braking?: number | null
           id?: string
+          idle_seconds?: number | null
           imei?: string | null
+          max_speed_mph?: number | null
           raw?: Json | null
+          start_address?: string | null
+          start_lat?: number | null
+          start_lng?: number | null
+          start_odometer?: number | null
           started_at?: string | null
+          transaction_id?: string | null
           vehicle_id?: string | null
         }
         Relationships: [
