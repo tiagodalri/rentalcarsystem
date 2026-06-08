@@ -184,10 +184,34 @@ type Props = {
   layers?: MapLayers;
 };
 
+// Anchor state per vehicle used for smooth animation + dead reckoning
+type Anchor = {
+  // Last known REAL position from Bouncie (server truth)
+  lat: number;
+  lng: number;
+  heading: number; // degrees, 0=N, clockwise
+  speed: number; // mph
+  reportedAt: number; // ms epoch — when Bouncie recorded the sample
+  receivedAt: number; // ms epoch — when we received it (used for tween start)
+  moving: boolean;
+  // Position currently DRAWN on the map (used as tween source on next update)
+  displayLat: number;
+  displayLng: number;
+  // Tween from old display -> new anchor on update
+  tweenFromLat: number;
+  tweenFromLng: number;
+  tweenStart: number;
+};
+
+const TWEEN_MS = 700; // smooth slide when a new real fix arrives
+const MAX_EXTRAPOLATE_MS = 30_000; // stop dead-reckoning if data is stale
+
 export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers = DEFAULT_LAYERS }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<Map<string, any>>(new Map());
+  const anchorsRef = useRef<Map<string, Anchor>>(new Map());
+  const rafRef = useRef<number | null>(null);
   const infoWindowRef = useRef<any>(null);
   const polylineRef = useRef<any[]>([]);
   const trafficLayerRef = useRef<any>(null);
