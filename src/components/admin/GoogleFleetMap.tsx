@@ -300,13 +300,15 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     }
   }, [layers.traffic, ready]);
 
-  // 2. Sync markers with vehicles (carvatar vs dot)
+  // 2. Sync markers with vehicles + update anchors for smooth animation
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     const google = (window as any).google;
     const map = mapRef.current;
     const existing = markersRef.current;
+    const anchors = anchorsRef.current;
     const seen = new Set<string>();
+    const now = performance.now();
 
     for (const v of vehicles) {
       if (v.lat === null || v.lng === null) continue;
@@ -316,6 +318,37 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       const icon = layers.carvatars
         ? carvatarSvg(getCoverImage(v.name), color, isSelected)
         : markerSvg(color, isSelected);
+
+      const reportedAtMs = v.reported_at ? new Date(v.reported_at).getTime() : Date.now();
+      const prev = anchors.get(v.vehicle_id);
+
+      // Detect a "new fix" (server-side data actually changed)
+      const isNewFix =
+        !prev ||
+        prev.lat !== v.lat ||
+        prev.lng !== v.lng ||
+        prev.reportedAt !== reportedAtMs;
+
+      if (isNewFix) {
+        anchors.set(v.vehicle_id, {
+          lat: v.lat,
+          lng: v.lng,
+          heading: v.heading ?? prev?.heading ?? 0,
+          speed: v.speed ?? 0,
+          reportedAt: reportedAtMs,
+          receivedAt: Date.now(),
+          moving: v.status === "moving",
+          // Tween from the currently-drawn position (or the new anchor if first time)
+          displayLat: prev?.displayLat ?? v.lat,
+          displayLng: prev?.displayLng ?? v.lng,
+          tweenFromLat: prev?.displayLat ?? v.lat,
+          tweenFromLng: prev?.displayLng ?? v.lng,
+          tweenStart: now,
+        });
+      } else if (prev) {
+        // Same fix — just refresh moving flag & heading in case status changed
+        prev.moving = v.status === "moving";
+      }
 
       let marker = existing.get(v.vehicle_id);
       if (!marker) {
@@ -332,7 +365,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         });
         existing.set(v.vehicle_id, marker);
       } else {
-        marker.setPosition({ lat: v.lat, lng: v.lng });
+        // Position is now driven by the rAF loop; only refresh icon/z-index here
         marker.setIcon(icon);
         marker.setZIndex(isSelected ? 999 : 1);
       }
@@ -341,6 +374,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       if (!seen.has(id)) {
         m.setMap(null);
         existing.delete(id);
+        anchors.delete(id);
       }
     }
 
@@ -355,6 +389,66 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       fittedRef.current = true;
     }
   }, [vehicles, selectedId, ready, onSelect, layers.carvatars]);
+
+  // 2b. Smooth animation loop: tween on new fixes + dead reckoning between fixes
+  useEffect(() => {
+    if (!ready) return;
+    const anchors = anchorsRef.current;
+    const markers = markersRef.current;
+
+    const tick = () => {
+      const now = performance.now();
+      const wallNow = Date.now();
+
+      for (const [id, a] of anchors) {
+        const marker = markers.get(id);
+        if (!marker) continue;
+
+        // 1) Compute the "true" target = anchor + dead-reckoned offset
+        const ageMs = wallNow - a.reportedAt;
+        let targetLat = a.lat;
+        let targetLng = a.lng;
+        if (a.moving && a.speed > 1 && ageMs > 0 && ageMs < MAX_EXTRAPOLATE_MS) {
+          const elapsedS = ageMs / 1000;
+          const metersPerSec = a.speed * 0.44704; // mph -> m/s
+          const dist = metersPerSec * elapsedS;
+          const brg = (a.heading * Math.PI) / 180;
+          const dLat = (dist * Math.cos(brg)) / 111320;
+          const dLng =
+            (dist * Math.sin(brg)) /
+            (111320 * Math.cos((a.lat * Math.PI) / 180) || 1);
+          targetLat = a.lat + dLat;
+          targetLng = a.lng + dLng;
+        }
+
+        // 2) Tween from previous display position to target over TWEEN_MS
+        const tElapsed = now - a.tweenStart;
+        let display: { lat: number; lng: number };
+        if (tElapsed >= TWEEN_MS) {
+          display = { lat: targetLat, lng: targetLng };
+        } else {
+          // ease-out cubic
+          const k = 1 - Math.pow(1 - tElapsed / TWEEN_MS, 3);
+          display = {
+            lat: a.tweenFromLat + (targetLat - a.tweenFromLat) * k,
+            lng: a.tweenFromLng + (targetLng - a.tweenFromLng) * k,
+          };
+        }
+
+        a.displayLat = display.lat;
+        a.displayLng = display.lng;
+        marker.setPosition(display);
+      }
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    };
+  }, [ready]);
+
 
   // 3. Pan to selected vehicle
   useEffect(() => {
