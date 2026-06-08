@@ -290,21 +290,25 @@ export function useTripReplay(tripId: string | null) {
             .lte("reported_at", endedAt.toISOString())
             .order("reported_at", { ascending: true })
             .limit(3000);
-          if (th && th.length >= 8) {
-            const withSpeed = th.filter((r: any) =>
-              r.lat != null && r.lng != null && r.speed != null
-            );
-            if (withSpeed.length >= 8) {
+          // If we have no polyline, accept even a small set of telemetry points
+          const minPts = raw_points.length >= 2 ? 8 : 2;
+          if (th && th.length >= minPts) {
+            const withCoords = th.filter((r: any) => r.lat != null && r.lng != null);
+            if (withCoords.length >= minPts) {
               level = 2;
-              realPts = withSpeed.map((r: any) => ({
+              realPts = withCoords.map((r: any) => ({
                 lat: Number(r.lat),
                 lng: Number(r.lng),
-                speed: Number(r.speed),
+                speed: r.speed != null ? Number(r.speed) : 0,
                 heading: r.heading != null ? Number(r.heading) : null,
                 t: new Date(r.reported_at).getTime() - startedAt.getTime(),
               }));
             }
           }
+        }
+
+        if (level !== 2 && raw_points.length < 2) {
+          throw new Error("Esta viagem não tem rota gravada nem telemetria suficiente para reproduzir.");
         }
 
         // ===== Downsample very long polylines (level 1) =====
