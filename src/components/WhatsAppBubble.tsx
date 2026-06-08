@@ -11,7 +11,12 @@ const WhatsAppBubble = () => (
     initial={{ scale: 0, opacity: 0 }}
     animate={{ scale: 1, opacity: 1 }}
     transition={{ delay: 2, type: "spring", stiffness: 260, damping: 20 }}
-    className="fixed bottom-4 right-4 z-50 flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#25D366] shadow-lg shadow-[#25D366]/30 hover:scale-110 transition-transform duration-200"
+    className="fixed z-50 flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#25D366] shadow-lg shadow-[#25D366]/30 hover:scale-110 transition-transform duration-200"
+    style={{
+      right: "calc(env(safe-area-inset-right, 0px) + 1rem)",
+      bottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)",
+    }}
+
     aria-label="WhatsApp"
   >
     <svg viewBox="0 0 32 32" className="w-6 h-6 sm:w-7 sm:h-7" fill="white">
