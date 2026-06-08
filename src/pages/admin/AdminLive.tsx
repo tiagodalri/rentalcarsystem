@@ -193,9 +193,8 @@ export default function AdminLive() {
 
         {/* Map */}
         <div className="flex-1 rounded-xl overflow-hidden border border-border/40 relative h-[60vh] lg:h-auto min-h-[400px]">
-          <div className="absolute top-3 left-3 z-[1000] flex items-center gap-2 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-border/30 pointer-events-none">
-            <span className="text-sm font-bold text-primary">ZEUS</span>
-            <span className="text-[10px] text-muted-foreground font-light uppercase tracking-widest">Fleet Tracker</span>
+          <div className="absolute top-3 left-3 z-[1000] w-10 h-10 rounded-lg bg-background/95 backdrop-blur-sm border border-border/40 shadow-md flex items-center justify-center pointer-events-none">
+            <img src={zeusZMark} alt="Zeus" width={24} height={24} className="w-6 h-6 object-contain" />
           </div>
 
           {/* Map controls (settings button + popup panel) */}
