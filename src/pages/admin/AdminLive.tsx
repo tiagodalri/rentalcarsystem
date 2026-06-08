@@ -307,7 +307,9 @@ export default function AdminLive() {
             zoom={7}
             style={{ width: "100%", height: "100%" }}
             zoomControl={false}
-            ref={mapRef}
+            ref={(instance) => {
+              mapRef.current = instance;
+            }}
             attributionControl={false}
           >
             <TileLayer
