@@ -734,27 +734,44 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
           </Section>
         </div>
 
-        <DialogFooter
-          className="px-4 sm:px-6 py-3 border-t border-border/50 shrink-0 bg-background/95 backdrop-blur-sm flex flex-col-reverse sm:flex-row sm:justify-end gap-2"
-          style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.75rem)" }}
+      <div
+        className="px-4 sm:px-6 py-3 border-t border-border/50 shrink-0 bg-background/95 backdrop-blur-sm flex flex-col-reverse sm:flex-row sm:justify-end gap-2"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.75rem)" }}
+      >
+        <Button
+          variant="outline"
+          onClick={closeSelf}
+          disabled={saving}
+          className="h-11 rounded-xl w-full sm:w-auto"
         >
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={saving}
-            className="h-11 rounded-xl w-full sm:w-auto"
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={saving}
-            className="h-11 rounded-xl w-full sm:w-auto font-semibold"
-          >
-            {saving && <Loader2 size={14} className="animate-spin mr-1.5" />}
-            Criar reserva
-          </Button>
-        </DialogFooter>
+          Cancelar
+        </Button>
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="h-11 rounded-xl w-full sm:w-auto font-semibold"
+        >
+          {saving && <Loader2 size={14} className="animate-spin mr-1.5" />}
+          Criar reserva
+        </Button>
+      </div>
+    </>
+  );
+
+  if (mode === "page") {
+    return (
+      <div className="mx-auto max-w-3xl w-full bg-card border border-border/40 rounded-2xl overflow-hidden flex flex-col min-h-[80vh]">
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className="w-[calc(100vw-1rem)] sm:w-full max-w-3xl p-0 gap-0 max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden rounded-2xl"
+      >
+        {body}
       </DialogContent>
     </Dialog>
   );
