@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { PLANS, PLAN_ORDER } from "@/data/rentalPlans";
+
 import { Loader2, Upload, Sparkles } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
@@ -117,7 +117,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
     return_time: "10:00",
     pickup_location: "",
     return_location: "",
-    plan_id: "conforto",
+    plan_id: "unico",
     total_price: "",
     currency: "USD",
     payment_method: "Cartão de Crédito",
@@ -269,8 +269,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
           (1000 * 60 * 60 * 24)
       )
     );
-    const plan = PLANS[form.plan_id as keyof typeof PLANS];
-    const suggested = (Number(veh.daily_price_usd) + (plan?.dailyExtra ?? 0)) * days;
+    const suggested = Number(veh.daily_price_usd) * days;
     if (!form.total_price || Number(form.total_price) === 0) {
       set("total_price", suggested.toFixed(2));
     }
@@ -351,7 +350,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
       vehicle_id: "", pickup_date: "", pickup_time: "10:00",
       return_date: "", return_time: "10:00",
       pickup_location: "", return_location: "",
-      plan_id: "conforto", total_price: "", currency: "USD",
+      plan_id: "unico", total_price: "", currency: "USD",
       payment_method: "Cartão de Crédito",
       status: "confirmed", notes: "",
       deposit_amount: "", deposit_refund_days: "30", franchise_amount: "",
@@ -545,16 +544,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
               </div>
               <div className="min-w-0">
                 <Label className={labelCls}>Plano</Label>
-                <Select value={form.plan_id} onValueChange={(v) => set("plan_id", v)}>
-                  <SelectTrigger className={triggerCls}><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {PLAN_ORDER.map((id) => (
-                      <SelectItem key={id} value={id}>
-                        {PLANS[id].name} {PLANS[id].dailyExtra > 0 ? `(+$${PLANS[id].dailyExtra}/dia)` : "(grátis)"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="h-11 flex items-center px-3 rounded-xl border border-border/50 bg-muted/20 text-sm font-medium text-foreground">
+                  Zeus (Plano único)
+                </div>
               </div>
             </div>
           </Section>

@@ -20,7 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PlanSelector from "@/components/booking/PlanSelector";
 import CustomerDataStep, { type CustomerData } from "@/components/booking/CustomerDataStep";
-import { PLANS, type PlanId } from "@/data/rentalPlans";
+import { PLANS } from "@/data/rentalPlans";
 import { useAuth } from "@/hooks/useAuth";
 import { calculateAge, isBlockedAge, isYoungDriver, YOUNG_DRIVER_SURCHARGE } from "@/lib/age";
 
@@ -49,8 +49,8 @@ const TOLL_TAG_DAILY = 4;
 const PREMIUM_INSURANCE_DAILY = 22;
 const LONG_RENTAL_DISCOUNT_RATE = 0.05;
 const LONG_RENTAL_MIN_DAYS = 10;
-const BASIC_DEPOSIT = 550;
-const DEDUCTIBLE_MULTIPLIER = 11;
+const BASIC_DEPOSIT = 300;
+const BASIC_FRANCHISE = 1200;
 
 
 const vehicleFeaturesMap: Record<string, string[]> = {
@@ -128,11 +128,9 @@ const BookingDetails = () => {
 
   const { toast } = useToast();
 
-  // Plan state (default = conforto for higher ticket)
-  const [selectedPlanId, setSelectedPlanId] = useState<PlanId>("conforto");
-  const currentPlan = PLANS[selectedPlanId];
+  const currentPlan = PLANS.unico;
 
-  // Extra add-ons (only for items NOT included in plan)
+  // Extra add-ons (separately selectable)
   const [addonInsurance, setAddonInsurance] = useState(false);
   const [addonChildSeat, setAddonChildSeat] = useState(false);
   const [addonChildSeatQty, setAddonChildSeatQty] = useState(1);
@@ -140,29 +138,11 @@ const BookingDetails = () => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
-  const [showUpgradeSuggestion, setShowUpgradeSuggestion] = useState(false);
   const [customerData, setCustomerData] = useState<CustomerData>({
     full_name: "", email: "", phone: "", date_of_birth: "",
     nationality: "", document_number: "", address: "", house_number: "", complement: "", zip_code: "",
     licenseFile: null,
   });
-
-  // Reset add-ons when plan changes (they might now be included)
-  useEffect(() => {
-    if (currentPlan.insurance === "premium") setAddonInsurance(false);
-    if (currentPlan.childSeat) setAddonChildSeat(false);
-    if (currentPlan.tollTag) setAddonTollTag(false);
-    setShowUpgradeSuggestion(false);
-  }, [selectedPlanId]);
-
-  // Show upgrade suggestion when essencial + addon insurance
-  useEffect(() => {
-    if (selectedPlanId === "essencial" && addonInsurance) {
-      setShowUpgradeSuggestion(true);
-    } else {
-      setShowUpgradeSuggestion(false);
-    }
-  }, [selectedPlanId, addonInsurance]);
 
   // Handle cancelled checkout
   useEffect(() => {
@@ -190,7 +170,7 @@ const BookingDetails = () => {
   // Pricing calculations
   const basePrice = vehiclePrices[decodedName] || 99;
   const dailyPrice = youngDriver ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
-  const basicDeductible = dailyPrice * DEDUCTIBLE_MULTIPLIER;
+  const basicDeductible = BASIC_FRANCHISE;
 
   const pricing = useMemo(() => {
     const subtotalRental = dailyPrice * days;
@@ -327,7 +307,7 @@ const BookingDetails = () => {
         return_location: returnLocation,
         total_price: pricing.total,
         status: "pending",
-        plan_id: selectedPlanId,
+        plan_id: "unico",
         addons: addonsData,
         extra_driver: hasExtraDriver,
         notes: `Plano: ${currentPlan.name}`,
@@ -384,7 +364,7 @@ const BookingDetails = () => {
           tollTag: hasTollTag,
           extraDriver: hasExtraDriver,
           isDifferentCity,
-          selectedPlan: selectedPlanId,
+          selectedPlan: "unico",
           customerEmail: email,
           customerId,
           pricing: {
@@ -701,12 +681,7 @@ const BookingDetails = () => {
                   Escolha seu <span className="gold-text">Plano</span>
                 </h2>
 
-                <PlanSelector
-                  selectedPlan={selectedPlanId}
-                  onSelectPlan={setSelectedPlanId}
-                  dailyPrice={dailyPrice}
-                  basicDeductible={basicDeductible}
-                />
+                <PlanSelector dailyPrice={dailyPrice} />
               </motion.div>
 
               {/* ADD-ONS (only items not in plan) */}
@@ -751,32 +726,6 @@ const BookingDetails = () => {
                             </div>
                           </div>
 
-                          {/* Upgrade suggestion */}
-                          <AnimatePresence>
-                            {showUpgradeSuggestion && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="overflow-hidden"
-                              >
-                                <div className="p-3 rounded-lg bg-[#378ADD]/10 border border-[#378ADD]/20 flex items-start gap-2.5">
-                                  <Zap size={14} className="text-[#378ADD] shrink-0 mt-0.5" />
-                                  <div className="flex-1">
-                                    <p className="text-[11px] text-foreground font-semibold mb-1">
-                                      O plano Zeus Conforto já inclui Seguro Premium + TAG por apenas {formatPrice(29)}/dia
-                                    </p>
-                                    <button
-                                      onClick={() => setSelectedPlanId("conforto")}
-                                      className="text-[10px] font-bold text-[#378ADD] hover:underline"
-                                    >
-                                      Trocar para Zeus Conforto →
-                                    </button>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
                         </>
                       )}
 
@@ -1020,7 +969,7 @@ const BookingDetails = () => {
                         <p className="text-amber-700 dark:text-amber-400/80">Caução: <strong>{formatPrice(BASIC_DEPOSIT)}</strong></p>
                         <p className="text-amber-700 dark:text-amber-400/80">Franquia: <strong>{formatPrice(basicDeductible)}</strong></p>
                         <p className="text-amber-600/70 dark:text-amber-400/50 text-[10px] mt-1">Depósito de segurança cobrado na retirada do veículo</p>
-                        <p className="text-amber-600/80 dark:text-amber-400/60 mt-0.5">Upgrade para Conforto e elimine esses custos</p>
+                        <p className="text-amber-600/80 dark:text-amber-400/60 mt-0.5">Adicione Seguro Premium para eliminar caução e franquia</p>
                       </div>
                     )}
                   </div>
