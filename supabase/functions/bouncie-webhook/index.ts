@@ -90,13 +90,23 @@ Deno.serve(async (req) => {
       .from("vehicles").select("id").eq("bouncie_imei", imei).maybeSingle();
     const vehicleId: string | null = veh?.id ?? null;
 
+    // Bouncie sends a `data[]` array of GPS samples on `tripData` events.
+    // Top-level payload has NO lat/lng for those events — read from the latest sample.
+    const dataArr: any[] = Array.isArray(payload?.data) ? payload.data
+      : Array.isArray(payload?.gps) ? payload.gps
+      : Array.isArray(payload?.gpsData) ? payload.gpsData
+      : [];
+    const lastSample: any = dataArr.length ? dataArr[dataArr.length - 1] : null;
+
     const loc = payload?.location ?? payload?.gps ?? payload?.stats?.location ?? null;
-    const lat = pickNumber(payload?.lat, payload?.latitude, loc?.lat, loc?.latitude);
-    const lng = pickNumber(payload?.lon, payload?.lng, payload?.longitude, loc?.lon, loc?.lng, loc?.longitude);
-    const heading = pickNumber(payload?.heading, loc?.heading, payload?.bearing);
-    const speed = pickNumber(payload?.speed, loc?.speed, payload?.stats?.speed);
-    const isRunning = pickBool(payload?.isRunning, payload?.stats?.isRunning, payload?.running);
-    const address = pickString(payload?.address, loc?.address, payload?.stats?.location?.address);
+    const lat = pickNumber(payload?.lat, payload?.latitude, loc?.lat, loc?.latitude, lastSample?.lat, lastSample?.latitude);
+    const lng = pickNumber(payload?.lon, payload?.lng, payload?.longitude, loc?.lon, loc?.lng, loc?.longitude, lastSample?.lon, lastSample?.lng, lastSample?.longitude);
+    const heading = pickNumber(payload?.heading, loc?.heading, payload?.bearing, lastSample?.heading, lastSample?.bearing);
+    const speed = pickNumber(payload?.speed, loc?.speed, payload?.stats?.speed, lastSample?.speed);
+    const isRunningRaw = pickBool(payload?.isRunning, payload?.stats?.isRunning, payload?.running);
+    // tripData implies the vehicle is moving / engine on
+    const isRunning = isRunningRaw ?? (eventType === "tripData" ? true : null);
+    const address = pickString(payload?.address, loc?.address, payload?.stats?.location?.address, lastSample?.address);
     const milOn = pickBool(payload?.mil?.on, payload?.stats?.mil?.milOn, payload?.milOn);
     const battery = pickString(payload?.battery?.status, payload?.stats?.battery?.status);
     const batteryV = pickNumber(payload?.battery?.voltage, payload?.stats?.battery?.voltage);
@@ -104,7 +114,7 @@ Deno.serve(async (req) => {
     const fuelLevel = pickNumber(payload?.fuelLevel, payload?.stats?.fuelLevel);
     const dtcs: string[] | null = Array.isArray(payload?.mil?.qualifiedEvents) ? payload.mil.qualifiedEvents
       : Array.isArray(payload?.dtcs) ? payload.dtcs : null;
-    const reportedAtRaw = pickString(payload?.timestamp, payload?.time, payload?.reportedAt, payload?.eventTime);
+    const reportedAtRaw = pickString(payload?.timestamp, payload?.time, payload?.reportedAt, payload?.eventTime, lastSample?.timestamp);
     const reportedAt = reportedAtRaw ? new Date(reportedAtRaw).toISOString() : new Date().toISOString();
 
     if (vehicleId) {
@@ -129,11 +139,35 @@ Deno.serve(async (req) => {
         .upsert(update, { onConflict: "vehicle_id" });
       if (upErr) console.error("[bouncie-webhook] telemetry upsert error:", upErr.message);
 
-      // 2) Raw history
-      await admin.from("vehicle_telemetry_history").insert({
-        vehicle_id: vehicleId, lat, lng, speed, heading,
-        event_type: eventType, reported_at: reportedAt, raw: payload,
-      });
+      // 2) Raw history — expand tripData `data[]` into one row per GPS sample
+      if (dataArr.length > 0) {
+        const rows = dataArr
+          .map((s: any) => {
+            const sLat = pickNumber(s?.lat, s?.latitude);
+            const sLng = pickNumber(s?.lon, s?.lng, s?.longitude);
+            if (sLat === null || sLng === null) return null;
+            const sTs = pickString(s?.timestamp, s?.time);
+            return {
+              vehicle_id: vehicleId,
+              lat: sLat,
+              lng: sLng,
+              speed: pickNumber(s?.speed),
+              heading: pickNumber(s?.heading, s?.bearing),
+              event_type: eventType,
+              reported_at: sTs ? new Date(sTs).toISOString() : reportedAt,
+              raw: s,
+            };
+          })
+          .filter((r) => r !== null);
+        if (rows.length > 0) {
+          await admin.from("vehicle_telemetry_history").insert(rows as any[]);
+        }
+      } else if (lat !== null && lng !== null) {
+        await admin.from("vehicle_telemetry_history").insert({
+          vehicle_id: vehicleId, lat, lng, speed, heading,
+          event_type: eventType, reported_at: reportedAt, raw: payload,
+        });
+      }
 
       // 3) Structured event log (new)
       if (eventType) {
