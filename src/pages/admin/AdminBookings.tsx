@@ -1389,7 +1389,7 @@ export default function AdminBookings() {
         </Card>
       )}
 
-      <NewBookingDialog open={newOpen} onOpenChange={setNewOpen} onCreated={load} />
+      
     </div>
   );
 }
