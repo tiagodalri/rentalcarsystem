@@ -96,12 +96,12 @@ export function CustomerCombobox({ selected, onSelect }: Props) {
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-col sm:flex-row gap-2">
+      <div className="flex flex-col md:flex-row gap-2 w-full min-w-0">
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" role="combobox" aria-expanded={open} className="flex-1 justify-between font-normal">
-              Buscar cliente por nome, email ou telefone...
-              <ChevronsUpDown size={14} className="opacity-50" />
+            <Button variant="outline" role="combobox" aria-expanded={open} className="flex-1 min-w-0 justify-between font-normal">
+              <span className="truncate">Buscar cliente por nome, email ou telefone...</span>
+              <ChevronsUpDown size={14} className="opacity-50 shrink-0 ml-2" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="p-0 w-[--radix-popover-trigger-width]" align="start">
@@ -142,9 +142,9 @@ export function CustomerCombobox({ selected, onSelect }: Props) {
             </Command>
           </PopoverContent>
         </Popover>
-        <Button type="button" variant="secondary" onClick={() => setShowNewForm((v) => !v)}>
+        <Button type="button" variant="secondary" onClick={() => setShowNewForm((v) => !v)} className="shrink-0 w-full md:w-auto whitespace-nowrap">
           <UserPlus size={14} className="mr-1" />
-          {showNewForm ? "Cancelar" : "Criar novo cliente"}
+          {showNewForm ? "Cancelar" : "Criar novo"}
         </Button>
       </div>
 
