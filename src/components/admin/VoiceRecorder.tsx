@@ -47,6 +47,7 @@ export function VoiceRecorder({
   disabled,
   language = "pt-BR",
   className,
+  fullWidth = false,
 }: Props) {
   const [recording, setRecording] = useState(false);
   const [locked, setLocked] = useState(false);
