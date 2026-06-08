@@ -381,33 +381,54 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
     mapRef.current.fitBounds(b, 80);
   }, [data]);
 
-  // ===== Record & download MP4 of the replay (uses tab capture) =====
+  // ===== Render & download a real video file of the replay =====
+  // Offscreen canvas + MediaRecorder. Uses MP4 when the browser supports it,
+  // otherwise WebM. No screen-share prompt, no tab capture — works everywhere.
   const [recording, setRecording] = useState(false);
   const [recProgress, setRecProgress] = useState(0);
   const recCancelRef = useRef<() => void>(() => {});
 
   const downloadMp4 = useCallback(async () => {
     if (!data || recording) return;
-    const md: any = navigator.mediaDevices as any;
-    if (!md?.getDisplayMedia || typeof (window as any).MediaRecorder === "undefined") {
-      alert("Seu navegador não suporta gravação de vídeo. Use Chrome ou Edge no desktop.");
+    if (typeof (window as any).MediaRecorder === "undefined") {
+      alert("Seu navegador não suporta gravação de vídeo. Use Chrome, Edge ou Safari atualizado.");
       return;
     }
-    let stream: MediaStream;
-    try {
-      stream = await md.getDisplayMedia({
-        video: { frameRate: 60, displaySurface: "browser" },
-        audio: false,
-        preferCurrentTab: true,
-        selfBrowserSurface: "include",
-      });
-    } catch {
-      return; // user cancelled
-    }
 
+    // ---- Setup offscreen canvas (1920x1080, ~4K-clean line work) ----
+    const W = 1920, H = 1080;
+    const canvas = document.createElement("canvas");
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext("2d", { alpha: false })!;
+    ctx.imageSmoothingEnabled = true;
+    (ctx as any).imageSmoothingQuality = "high";
+
+    // Project lat/lng → pixel using bounds, with padding
+    const PAD = 120;
+    const { south, west, north, east } = data.bounds;
+    const latSpan = Math.max(1e-6, north - south);
+    const lngSpan = Math.max(1e-6, east - west);
+    const innerW = W - PAD * 2;
+    const innerH = H - PAD * 2 - 220; // reserve bottom 220px for HUD
+    const sx = innerW / lngSpan;
+    const sy = innerH / latSpan;
+    const scale = Math.min(sx, sy);
+    const offX = (W - lngSpan * scale) / 2;
+    const offY = (H - 220 - latSpan * scale) / 2;
+    const proj = (lat: number, lng: number) => ({
+      x: offX + (lng - west) * scale,
+      y: offY + (north - lat) * scale,
+    });
+
+    const pts = data.points;
+    const screenPts = pts.map((p) => proj(p.lat, p.lng));
+
+    // ---- MIME selection: prefer MP4, fall back to WebM ----
     const candidates = [
+      "video/mp4;codecs=avc1.640028",
       "video/mp4;codecs=avc1.42E01F",
       "video/mp4",
+      "video/webm;codecs=h264",
       "video/webm;codecs=vp9",
       "video/webm;codecs=vp8",
       "video/webm",
@@ -415,51 +436,189 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
     const MR: any = (window as any).MediaRecorder;
     const mime = candidates.find((m) => MR.isTypeSupported?.(m)) || "video/webm";
     const ext = mime.startsWith("video/mp4") ? "mp4" : "webm";
-    const rec: MediaRecorder = new MR(stream, { mimeType: mime, videoBitsPerSecond: 10_000_000 });
+
+    const stream = (canvas as any).captureStream(60) as MediaStream;
+    const rec: MediaRecorder = new MR(stream, {
+      mimeType: mime,
+      videoBitsPerSecond: 12_000_000, // high quality
+    });
     const chunks: Blob[] = [];
     rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
 
-    const cleanup = () => stream.getTracks().forEach((t) => t.stop());
-    const stopRec = () =>
-      new Promise<void>((res) => {
-        if (rec.state === "inactive") { cleanup(); return res(); }
-        rec.onstop = () => { cleanup(); res(); };
-        try { rec.stop(); } catch { cleanup(); res(); }
-      });
-
     setRecording(true);
     setRecProgress(0);
-    setShowSummary(false);
-    setIntro(false);
-    setFollowCam(true);
-    playbackRef.current = 0;
-    setPlaybackMs(0);
-    renderFrame();
-    await new Promise((r) => setTimeout(r, 500));
-
-    rec.start(250);
-    playingRef.current = true;
-    setPlaying(true);
 
     const recordSpeed = speedRef.current;
-    const totalMs = data.durationMs / recordSpeed + 4500; // includes summary tail
-    const t0 = performance.now();
-    let cancelled = false;
+    const playbackDurMs = data.durationMs / recordSpeed;
+    const tailMs = 1500;
+    const totalMs = playbackDurMs + tailMs;
 
-    stream.getVideoTracks()[0].addEventListener("ended", () => { cancelled = true; });
+    // Pre-compute interpolation
+    const findIdx = (tMs: number) => {
+      let lo = 0, hi = pts.length - 1;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (pts[mid].t <= tMs) lo = mid + 1; else hi = mid;
+      }
+      return Math.max(0, lo - 1);
+    };
+
+    const drawFrame = (tripMs: number, tailFade: number) => {
+      // Background — deep slate gradient
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, "#0a0a0a");
+      bg.addColorStop(1, "#141414");
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+      // Subtle grid
+      ctx.strokeStyle = "rgba(255,255,255,0.04)";
+      ctx.lineWidth = 1;
+      for (let x = 0; x < W; x += 80) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+      for (let y = 0; y < H; y += 80) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+
+      // Full route — soft outline
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(255,255,255,0.18)";
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(screenPts[0].x, screenPts[0].y);
+      for (let i = 1; i < screenPts.length; i++) ctx.lineTo(screenPts[i].x, screenPts[i].y);
+      ctx.stroke();
+
+      // Traveled portion — gold
+      const i = findIdx(tripMs);
+      const next = Math.min(pts.length - 1, i + 1);
+      const span = Math.max(1, pts[next].t - pts[i].t);
+      const f = Math.max(0, Math.min(1, (tripMs - pts[i].t) / span));
+      const curX = screenPts[i].x + (screenPts[next].x - screenPts[i].x) * f;
+      const curY = screenPts[i].y + (screenPts[next].y - screenPts[i].y) * f;
+
+      ctx.strokeStyle = "#D4AF37";
+      ctx.lineWidth = 8;
+      ctx.shadowColor = "rgba(212,175,55,0.55)";
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.moveTo(screenPts[0].x, screenPts[0].y);
+      for (let k = 1; k <= i; k++) ctx.lineTo(screenPts[k].x, screenPts[k].y);
+      ctx.lineTo(curX, curY);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Start marker
+      ctx.fillStyle = "#22c55e";
+      ctx.beginPath(); ctx.arc(screenPts[0].x, screenPts[0].y, 10, 0, Math.PI * 2); ctx.fill();
+      // End marker
+      const last = screenPts[screenPts.length - 1];
+      ctx.fillStyle = "#ef4444";
+      ctx.beginPath(); ctx.arc(last.x, last.y, 10, 0, Math.PI * 2); ctx.fill();
+
+      // Vehicle dot — pulsing
+      const pulse = 1 + Math.sin(tripMs / 120) * 0.12;
+      ctx.fillStyle = "rgba(212,175,55,0.25)";
+      ctx.beginPath(); ctx.arc(curX, curY, 28 * pulse, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath(); ctx.arc(curX, curY, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#D4AF37";
+      ctx.beginPath(); ctx.arc(curX, curY, 7, 0, Math.PI * 2); ctx.fill();
+
+      // ---- HUD bar (bottom 220px) ----
+      const hudY = H - 220;
+      const hudGrad = ctx.createLinearGradient(0, hudY, 0, H);
+      hudGrad.addColorStop(0, "rgba(10,10,10,0)");
+      hudGrad.addColorStop(0.35, "rgba(10,10,10,0.92)");
+      hudGrad.addColorStop(1, "rgba(10,10,10,0.98)");
+      ctx.fillStyle = hudGrad; ctx.fillRect(0, hudY, W, 220);
+
+      // Title
+      ctx.fillStyle = "#D4AF37";
+      ctx.font = "600 22px Inter, system-ui, sans-serif";
+      ctx.textBaseline = "top";
+      ctx.fillText("ZEUS RENTAL CAR · TRIP REPLAY", 60, hudY + 28);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "700 34px Inter, system-ui, sans-serif";
+      ctx.fillText(vehicleName, 60, hudY + 60);
+
+      // Stats row
+      const speedNow = pts[i].speed + (pts[next].speed - pts[i].speed) * f;
+      const distNow = (pts[i].dist + (pts[next].dist - pts[i].dist) * f) / 1609.34;
+      const clock = (() => {
+        const s = Math.floor(tripMs / 1000);
+        const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
+        return `${h}:${m.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
+      })();
+
+      const stats: Array<[string, string]> = [
+        ["TEMPO", clock],
+        ["VELOCIDADE", `${Math.round(speedNow)} mph`],
+        ["DISTÂNCIA", `${distNow.toFixed(1)} mi`],
+        ["MÉDIA", `${Math.round(data.avgSpeedMph)} mph`],
+        ["PICO", `${Math.round(data.maxSpeedMph)} mph`],
+        ["FREADAS", `${data.hardBrakes}`],
+      ];
+      const colW = (W - 120) / stats.length;
+      stats.forEach(([label, value], idx) => {
+        const x = 60 + colW * idx;
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.font = "600 13px Inter, system-ui, sans-serif";
+        ctx.fillText(label, x, hudY + 120);
+        ctx.fillStyle = "#fff";
+        ctx.font = "700 30px Inter, system-ui, sans-serif";
+        ctx.fillText(value, x, hudY + 142);
+      });
+
+      // Progress bar
+      const pbY = hudY + 200;
+      ctx.fillStyle = "rgba(255,255,255,0.1)";
+      ctx.fillRect(60, pbY, W - 120, 6);
+      ctx.fillStyle = "#D4AF37";
+      ctx.fillRect(60, pbY, (W - 120) * (tripMs / data.durationMs), 6);
+
+      // Speed badge top-right
+      ctx.fillStyle = "rgba(212,175,55,0.15)";
+      ctx.fillRect(W - 200, 40, 140, 50);
+      ctx.fillStyle = "#D4AF37";
+      ctx.font = "700 24px Inter, system-ui, sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`${recordSpeed}× SPEED`, W - 130, 54);
+      ctx.textAlign = "start";
+
+      // Tail fade-out
+      if (tailFade > 0) {
+        ctx.fillStyle = `rgba(0,0,0,${tailFade})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+    };
+
+    // Draw initial frame so the recorder has data immediately
+    drawFrame(0, 0);
+    rec.start(250);
+
+    let cancelled = false;
     recCancelRef.current = () => { cancelled = true; };
 
+    const t0 = performance.now();
     await new Promise<void>((resolve) => {
       const tick = () => {
         const elapsed = performance.now() - t0;
-        setRecProgress(Math.min(1, elapsed / totalMs));
+        const ratio = Math.min(1, elapsed / totalMs);
+        setRecProgress(ratio);
+        const tripMs = Math.min(data.durationMs, (elapsed / playbackDurMs) * data.durationMs);
+        const tailFade = elapsed > playbackDurMs
+          ? Math.min(1, (elapsed - playbackDurMs) / tailMs) * 0.55
+          : 0;
+        drawFrame(tripMs, tailFade);
         if (cancelled || elapsed >= totalMs) return resolve();
         requestAnimationFrame(tick);
       };
       tick();
     });
 
-    await stopRec();
+    await new Promise<void>((res) => {
+      if (rec.state === "inactive") return res();
+      rec.onstop = () => res();
+      try { rec.stop(); } catch { res(); }
+    });
+    stream.getTracks().forEach((t) => t.stop());
 
     if (chunks.length) {
       const blob = new Blob(chunks, { type: mime });
@@ -468,15 +627,15 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
       const safe = vehicleName.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
       const stamp = new Date().toISOString().slice(0, 10);
       a.href = url;
-      a.download = `replay-${safe}-${stamp}.${ext}`;
+      a.download = `replay-${safe}-${stamp}-${recordSpeed}x.${ext}`;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
     }
     setRecording(false);
     setRecProgress(0);
-  }, [data, recording, vehicleName, renderFrame]);
+  }, [data, recording, vehicleName]);
 
 
   // Derived current values for HUD
