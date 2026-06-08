@@ -1012,7 +1012,21 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
   return (
     <div className="relative w-full h-full">
-      <div ref={containerRef} className="absolute inset-0" />
+      <div ref={containerRef} className={`absolute inset-0 ${fenceMode ? "cursor-crosshair" : ""}`} />
+      {ready && (
+        <button
+          onClick={() => setFenceMode((v) => !v)}
+          className={`absolute top-3 left-3 z-10 flex items-center gap-2 px-3 py-2 rounded-full text-[11px] font-semibold uppercase tracking-wider border shadow-xl backdrop-blur-sm transition-all ${
+            fenceMode
+              ? "bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]"
+              : "bg-[#0a0a0a]/90 hover:bg-[#0a0a0a] text-white border-[#D4AF37]/60"
+          }`}
+          title={fenceMode ? "Cancelar criação de cerca" : "Clique no mapa para criar uma cerca virtual"}
+        >
+          {fenceMode ? <XIcon size={13} /> : <ShieldPlus size={13} className="text-[#D4AF37]" />}
+          {fenceMode ? "Cancelar cerca" : "Nova cerca"}
+        </button>
+      )}
       {ready && selectedId && !following && (
         <button
           onClick={recentralize}
