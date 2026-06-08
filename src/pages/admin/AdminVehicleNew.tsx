@@ -20,6 +20,7 @@ const emptyVehicle = {
   initial_odometer: null as number | null, current_odometer: null as number | null,
   acquired_date: null as string | null,
   bouncie_imei: "",
+  bouncie_vin: "",
 };
 
 export default function AdminVehicleNew() {
@@ -72,6 +73,7 @@ export default function AdminVehicleNew() {
       current_odometer: form.current_odometer ?? 0,
       acquired_date: form.acquired_date || null,
       bouncie_imei: (form.bouncie_imei || "").trim() || null,
+      bouncie_vin: (form.bouncie_vin || "").trim().toUpperCase() || null,
     };
 
     const { data, error } = await supabase.from("vehicles").insert(payload).select("id").single();
@@ -159,7 +161,11 @@ export default function AdminVehicleNew() {
             <div className="sm:col-span-2">
               <label className={labelCls}>IMEI Bouncie (rastreador)</label>
               <input className={`${inputCls} tabular-nums font-mono text-sm`} inputMode="numeric" value={form.bouncie_imei ?? ""} onChange={(e) => set("bouncie_imei", e.target.value.replace(/\s/g, ""))} placeholder="Ex: 351234567890123" />
-              <p className="text-[11px] text-muted-foreground mt-1">Vincula o veículo ao rastreador OBD-II Bouncie para telemetria em tempo real.</p>
+              <p className="text-[11px] text-muted-foreground mt-1">Número do rastreador Bouncie — encontrado em Users & Devices no portal.</p>
+            </div>
+            <div className="sm:col-span-2">
+              <label className={labelCls}>VIN Bouncie</label>
+              <input className={`${inputCls} uppercase font-mono text-sm`} maxLength={17} value={form.bouncie_vin ?? ""} onChange={(e) => set("bouncie_vin", e.target.value.toUpperCase())} placeholder="Opcional — VIN do dispositivo Bouncie" />
             </div>
           </div>
         </Section>
