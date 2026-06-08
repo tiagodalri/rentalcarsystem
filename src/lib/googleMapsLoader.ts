@@ -1,7 +1,7 @@
 // Singleton loader for Google Maps JavaScript API.
 // Loads once, returns the same promise on subsequent calls.
 
-let loaderPromise: Promise<typeof google> | null = null;
+let loaderPromise: Promise<any> | null = null;
 
 export function loadGoogleMaps(): Promise<typeof google> {
   if (typeof window === "undefined") {
