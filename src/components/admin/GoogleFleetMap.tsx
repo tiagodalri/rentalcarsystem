@@ -307,14 +307,28 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         mapRef.current = new google.maps.Map(containerRef.current, {
           center: { lat: 28.5, lng: -81.4 },
           zoom: 9,
-          mapTypeId: layers.mapType === "satellite" ? "hybrid" : "roadmap",
+          mapTypeId:
+            layers.mapType === "roadmap" ? "roadmap" : "hybrid",
+          tilt: layers.mapType === "satellite3d" ? 45 : 0,
+          // Lock viewport to North/Central America + Caribbean (Florida-centric).
+          // Vehicles live in Florida, so we don't waste tile bandwidth elsewhere.
+          restriction: {
+            latLngBounds: { north: 50, south: 7, east: -60, west: -125 },
+            strictBounds: false,
+          },
+          minZoom: 5,
+          maxZoom: 21,
           disableDefaultUI: true,
           zoomControl: true,
           zoomControlOptions: { position: (window as any).google?.maps?.ControlPosition?.RIGHT_BOTTOM },
           streetViewControl: false,
           fullscreenControl: false,
+          rotateControl: true,
+          rotateControlOptions: { position: (window as any).google?.maps?.ControlPosition?.RIGHT_BOTTOM },
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
+          clickableIcons: true,
+          keyboardShortcuts: true,
         });
         infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false, maxWidth: 320 });
 
@@ -354,10 +368,20 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Switch base map type
+  // Switch base map type + 3D tilt
   useEffect(() => {
     if (!ready || !mapRef.current) return;
-    mapRef.current.setMapTypeId(layers.mapType === "satellite" ? "hybrid" : "roadmap");
+    const m = mapRef.current;
+    m.setMapTypeId(layers.mapType === "roadmap" ? "roadmap" : "hybrid");
+    if (layers.mapType === "satellite3d") {
+      // 45° aerial imagery (only renders where Google has it — most US/FL cities do).
+      // Auto-zoom to a level where 45° tiles exist if user is too far out.
+      if ((m.getZoom() ?? 0) < 17) m.setZoom(18);
+      m.setTilt(45);
+    } else {
+      m.setTilt(0);
+      m.setHeading(0);
+    }
   }, [layers.mapType, ready]);
 
   // Traffic layer toggle

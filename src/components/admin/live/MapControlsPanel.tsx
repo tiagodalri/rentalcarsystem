@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Settings2, X, Check } from "lucide-react";
 
 export type MapLayers = {
-  mapType: "roadmap" | "satellite";
+  mapType: "roadmap" | "satellite" | "satellite3d";
   traffic: boolean;
   carvatars: boolean; // deprecated, kept for type compat — always false
   nwsAlerts: boolean;
@@ -97,6 +97,27 @@ const previews = {
       <div className="absolute top-2 left-2 w-3 h-3 bg-[#6b5b3f] rounded-sm" />
       <div className="absolute bottom-2 right-2 w-4 h-4 bg-[#4a6b3a] rounded-sm" />
       <div className="absolute inset-x-0 top-1/2 h-0.5 bg-[#a89968]" />
+    </div>
+  ),
+  satellite3d: (
+    <div className="w-full h-full relative overflow-hidden bg-gradient-to-b from-[#3d5a8a] via-[#5a7a3e] to-[#2d3a1f]">
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(135,170,210,0.55) 0%, rgba(135,170,210,0) 38%), repeating-linear-gradient(72deg, rgba(255,255,255,0.10) 0 2px, transparent 2px 9px)",
+          transform: "perspective(80px) rotateX(38deg) scale(1.25) translateY(6px)",
+          transformOrigin: "center bottom",
+        }}
+      />
+      <div
+        className="absolute left-2 bottom-3 w-3 h-5 bg-[#1f2a3a]"
+        style={{ transform: "perspective(60px) rotateX(35deg)" }}
+      />
+      <div
+        className="absolute right-3 bottom-2 w-2.5 h-7 bg-[#0f1622]"
+        style={{ transform: "perspective(60px) rotateX(35deg)" }}
+      />
     </div>
   ),
   nws: (
@@ -217,6 +238,12 @@ export function MapControlsPanel({ layers, onChange }: Props) {
                 active={layers.mapType === "satellite"}
                 onClick={() => set("mapType", "satellite")}
                 preview={previews.satellite}
+              />
+              <ToggleCard
+                label="Satélite 3D"
+                active={layers.mapType === "satellite3d"}
+                onClick={() => set("mapType", "satellite3d")}
+                preview={previews.satellite3d}
               />
             </div>
           </div>
