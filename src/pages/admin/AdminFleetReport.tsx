@@ -424,46 +424,32 @@ export default function AdminFleetReport() {
         <Card className="border-border/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Shield size={16} className="text-primary" /> Distribuição de Planos
+              <Shield size={16} className="text-primary" /> Plano
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {planDistributionData.length > 0 ? (
-              <>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={planDistributionData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={95}
-                      paddingAngle={3}
-                      dataKey="value"
-                      label={({ name, percent }) => `${name.replace("Zeus ", "")} ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {planDistributionData.map((_, i) => (
-                        <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      {...darkTooltipProps}
-                      formatter={(v: number) => [`${v} reserva${v > 1 ? "s" : ""}`, "Qtd."]}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="grid grid-cols-3 gap-2 mt-3">
-                  {planDistributionData.map((p, i) => (
-                    <div key={p.name} className="text-center p-2 rounded-lg bg-muted/30 border border-border/20">
-                      <div className="w-3 h-3 rounded-full mx-auto mb-1" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                      <p className="text-[10px] text-muted-foreground">{p.name.replace("Zeus ", "")}</p>
-                      <p className="text-sm font-bold text-foreground">{p.value}</p>
-                    </div>
-                  ))}
+            {totalBookingsWithPlan > 0 ? (
+              <div className="flex flex-col items-center justify-center py-6 gap-3">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Shield size={28} className="text-primary" />
                 </div>
-              </>
+                <div className="text-center">
+                  <p className="text-sm font-bold text-foreground">Zeus</p>
+                  <p className="text-[11px] text-muted-foreground">Plano único</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 w-full mt-1">
+                  <div className="text-center p-2 rounded-lg bg-muted/30 border border-border/20">
+                    <p className="text-[10px] text-muted-foreground">Reservas</p>
+                    <p className="text-sm font-bold text-foreground">{totalBookingsWithPlan}</p>
+                  </div>
+                  <div className="text-center p-2 rounded-lg bg-muted/30 border border-border/20">
+                    <p className="text-[10px] text-muted-foreground">% do total</p>
+                    <p className="text-sm font-bold text-foreground">100%</p>
+                  </div>
+                </div>
+              </div>
             ) : (
-              <EmptyState icon={Shield} title="Sem dados de planos" description="A distribuição de planos aparecerá quando houver reservas neste mês." compact />
+              <EmptyState icon={Shield} title="Sem dados" description="Os dados do plano aparecerão quando houver reservas neste mês." compact />
             )}
           </CardContent>
         </Card>
