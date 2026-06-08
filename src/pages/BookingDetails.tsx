@@ -364,7 +364,7 @@ const BookingDetails = () => {
           tollTag: hasTollTag,
           extraDriver: hasExtraDriver,
           isDifferentCity,
-          selectedPlan: selectedPlanId,
+          selectedPlan: "unico",
           customerEmail: email,
           customerId,
           pricing: {
