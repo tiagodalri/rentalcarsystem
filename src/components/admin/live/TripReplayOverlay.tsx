@@ -578,7 +578,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                     <div className="min-w-0 flex-1">
                       <p className="text-[11px] font-semibold text-white leading-tight">{ev.label}</p>
                       <p className="text-[10px] text-white/50 tabular-nums mt-0.5">
-                        {evTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                        {evTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: data.timeZone })}
                         <span className="mx-1.5 text-white/30">•</span>
                         {fmtClock(ev.t)}
                       </p>
