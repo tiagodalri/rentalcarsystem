@@ -76,7 +76,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
 
   const [mapReady, setMapReady] = useState(false);
   const [playing, setPlaying] = useState(false); // start paused, intro plays first
-  const SPEED_OPTIONS = [10, 14, 18, 20, 24, 30] as const;
+  const SPEED_OPTIONS = [10, 14, 18, 20, 24, 30, 60] as const;
   type SpeedOpt = typeof SPEED_OPTIONS[number];
   const [speed, setSpeed] = useState<SpeedOpt>(18);
   const [playbackMs, setPlaybackMs] = useState(0);
@@ -811,7 +811,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                 mph={data.level === 2 ? hud.speed : data.avgSpeedMph}
                 max={Math.max(80, data.maxSpeedMph)}
                 maxMarker={data.level === 1 ? data.maxSpeedMph : undefined}
-                caption={data.level === 1 ? "vel. média da viagem" : "mph"}
+                caption={data.level === 1 ? "média" : "mph"}
               />
               {data.level === 2 && <Gmeter g={hud.g} />}
               <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]">
@@ -1253,15 +1253,15 @@ function Speedometer({ mph, max, maxMarker, caption }: { mph: number; max: numbe
           <circle cx={cx} cy={cy} r="4" fill={GOLD} />
         </g>
       </svg>
-      <div className="absolute inset-x-0 bottom-0 text-center pb-1">
+      <div className="absolute inset-x-0 bottom-1 text-center px-1">
         <p className="text-2xl font-bold text-white tabular-nums leading-none">{Math.round(mph)}</p>
-        <p className="text-[9px] uppercase tracking-wider text-white/50 font-semibold">{caption ?? "mph"}</p>
+        <p className="text-[9px] uppercase tracking-wider text-white/50 font-semibold mt-0.5 whitespace-nowrap truncate">{caption ?? "mph"}</p>
+        {maxMarker != null && (
+          <p className="text-[8px] uppercase tracking-wider text-red-400/80 font-semibold mt-0.5 whitespace-nowrap">
+            pico <span className="tabular-nums">{Math.round(maxMarker)}</span>
+          </p>
+        )}
       </div>
-      {maxMarker != null && (
-        <p className="text-center text-[8px] uppercase tracking-wider text-red-400/80 font-semibold mt-0.5">
-          pico atingido: <span className="tabular-nums">{Math.round(maxMarker)}</span> mph
-        </p>
-      )}
     </div>
   );
 }
