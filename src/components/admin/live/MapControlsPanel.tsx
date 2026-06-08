@@ -27,13 +27,13 @@ export function useMapLayers() {
   const [layers, setLayers] = useState<MapLayers>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return { ...DEFAULT_LAYERS, ...JSON.parse(raw) };
+      if (raw) return { ...DEFAULT_LAYERS, ...JSON.parse(raw), carvatars: false };
     } catch {}
     return DEFAULT_LAYERS;
   });
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(layers));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...layers, carvatars: false }));
     } catch {}
   }, [layers]);
   return [layers, setLayers] as const;
