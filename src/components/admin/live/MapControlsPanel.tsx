@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Settings2, X, Check } from "lucide-react";
 
 export type MapLayers = {
-  mapType: "roadmap" | "satellite";
+  mapType: "roadmap" | "satellite" | "satellite3d";
   traffic: boolean;
   carvatars: boolean; // deprecated, kept for type compat — always false
   nwsAlerts: boolean;
