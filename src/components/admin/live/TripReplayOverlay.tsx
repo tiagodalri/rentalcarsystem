@@ -76,7 +76,9 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
 
   const [mapReady, setMapReady] = useState(false);
   const [playing, setPlaying] = useState(false); // start paused, intro plays first
-  const [speed, setSpeed] = useState<1 | 4 | 16>(4);
+  const SPEED_OPTIONS = [10, 14, 18, 20, 24, 30] as const;
+  type SpeedOpt = typeof SPEED_OPTIONS[number];
+  const [speed, setSpeed] = useState<SpeedOpt>(18);
   const [playbackMs, setPlaybackMs] = useState(0);
   const [followCam, setFollowCam] = useState(true);
   const [intro, setIntro] = useState(true); // cinematic opening
@@ -85,7 +87,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
   // Mutable refs for rAF
   const playbackRef = useRef(0);
   const playingRef = useRef(false);
-  const speedRef = useRef<1 | 4 | 16>(4);
+  const speedRef = useRef<SpeedOpt>(18);
   const lastTickRef = useRef(0);
   const rafRef = useRef<number | null>(null);
   const followRef = useRef(true);
