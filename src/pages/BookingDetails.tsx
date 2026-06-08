@@ -128,11 +128,9 @@ const BookingDetails = () => {
 
   const { toast } = useToast();
 
-  // Plan state (default = conforto for higher ticket)
-  const [selectedPlanId, setSelectedPlanId] = useState<PlanId>("conforto");
-  const currentPlan = PLANS[selectedPlanId];
+  const currentPlan = PLANS.unico;
 
-  // Extra add-ons (only for items NOT included in plan)
+  // Extra add-ons (separately selectable)
   const [addonInsurance, setAddonInsurance] = useState(false);
   const [addonChildSeat, setAddonChildSeat] = useState(false);
   const [addonChildSeatQty, setAddonChildSeatQty] = useState(1);
@@ -140,29 +138,11 @@ const BookingDetails = () => {
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
-  const [showUpgradeSuggestion, setShowUpgradeSuggestion] = useState(false);
   const [customerData, setCustomerData] = useState<CustomerData>({
     full_name: "", email: "", phone: "", date_of_birth: "",
     nationality: "", document_number: "", address: "", house_number: "", complement: "", zip_code: "",
     licenseFile: null,
   });
-
-  // Reset add-ons when plan changes (they might now be included)
-  useEffect(() => {
-    if (currentPlan.insurance === "premium") setAddonInsurance(false);
-    if (currentPlan.childSeat) setAddonChildSeat(false);
-    if (currentPlan.tollTag) setAddonTollTag(false);
-    setShowUpgradeSuggestion(false);
-  }, [selectedPlanId]);
-
-  // Show upgrade suggestion when essencial + addon insurance
-  useEffect(() => {
-    if (selectedPlanId === "essencial" && addonInsurance) {
-      setShowUpgradeSuggestion(true);
-    } else {
-      setShowUpgradeSuggestion(false);
-    }
-  }, [selectedPlanId, addonInsurance]);
 
   // Handle cancelled checkout
   useEffect(() => {
