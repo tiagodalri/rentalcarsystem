@@ -296,6 +296,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const queryClient = useQueryClient();
 
   useEffect(() => { fenceModeRef.current = fenceMode; }, [fenceMode]);
+  useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
   useEffect(() => { followRef.current = following; }, [following]);
 
   const { points: trail } = useTripTrail(selectedId, 24);
