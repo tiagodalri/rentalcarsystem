@@ -103,6 +103,155 @@ export function useTripReplay(tripId: string | null) {
     setLoading(true);
     setError(null);
 
+    // =========================================================================
+    // LIVE MODE — tripId formatted as "live:<vehicleId>". Builds a level-2
+    // replay directly from vehicle_telemetry_history (no vehicle_trips row
+    // exists yet because the trip is still in progress). Re-polls every 15s
+    // to pick up new points as they arrive.
+    // =========================================================================
+    if (tripId.startsWith("live:")) {
+      const vehicleId = tripId.slice(5);
+      let intervalId: number | null = null;
+
+      const buildLive = async () => {
+        try {
+          await loadGoogleMaps(); // ensure maps + geometry available downstream
+          // 1) Find latest tripStart
+          const { data: starts } = await supabase
+            .from("vehicle_telemetry_history")
+            .select("reported_at")
+            .eq("vehicle_id", vehicleId)
+            .eq("event_type", "tripStart")
+            .order("reported_at", { ascending: false })
+            .limit(1);
+          const startedAt = starts?.[0]?.reported_at
+            ? new Date(starts[0].reported_at)
+            : new Date(Date.now() - 4 * 3600_000); // fallback: 4h window
+
+          // 2) Telemetry since tripStart
+          const { data: rows } = await supabase
+            .from("vehicle_telemetry_history")
+            .select("lat,lng,speed,heading,reported_at")
+            .eq("vehicle_id", vehicleId)
+            .gte("reported_at", startedAt.toISOString())
+            .not("lat", "is", null)
+            .order("reported_at", { ascending: true })
+            .limit(5000);
+          if (cancelled) return;
+
+          const pts = (rows ?? [])
+            .filter((r: any) => r.lat != null && r.lng != null)
+            .map((r: any) => ({
+              lat: Number(r.lat),
+              lng: Number(r.lng),
+              speed: Number(r.speed ?? 0),
+              heading: r.heading != null ? Number(r.heading) : null,
+              t: new Date(r.reported_at).getTime() - startedAt.getTime(),
+            }))
+            .sort((a, b) => a.t - b.t);
+
+          if (pts.length < 2) {
+            if (cancelled) return;
+            setError("A viagem ao vivo ainda não recebeu pontos suficientes.");
+            setLoading(false);
+            return;
+          }
+
+          const endedAt = new Date(startedAt.getTime() + pts[pts.length - 1].t);
+          const durationMs = Math.max(60_000, endedAt.getTime() - startedAt.getTime());
+
+          const cum: number[] = new Array(pts.length);
+          cum[0] = 0;
+          for (let i = 1; i < pts.length; i++) cum[i] = cum[i - 1] + haversine(pts[i - 1], pts[i]);
+
+          const points: ReplayPoint[] = pts.map((p, i) => {
+            let hdg = p.heading ?? 0;
+            if (p.heading == null) {
+              const a = pts[Math.max(0, i - 1)];
+              const b = pts[Math.min(pts.length - 1, i + 1)];
+              hdg = bearing(a, b);
+            }
+            return {
+              lat: p.lat, lng: p.lng,
+              t: Math.max(0, Math.min(durationMs, p.t)),
+              speed: Math.max(0, p.speed), heading: hdg, dist: cum[i],
+            };
+          });
+          const n = points.length;
+
+          // Geocode start/last on demand (cached)
+          const startAddress = await reverseGeocodeCached(points[0].lat, points[0].lng);
+          const endAddress = await reverseGeocodeCached(points[n - 1].lat, points[n - 1].lng);
+          if (cancelled) return;
+
+          let peakIdx = 0;
+          for (let i = 1; i < n; i++) if (points[i].speed > points[peakIdx].speed) peakIdx = i;
+
+          const events: ReplayEvent[] = [
+            {
+              kind: "start", t: 0, lat: points[0].lat, lng: points[0].lng, speed: points[0].speed,
+              label: `Partida — ${startedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/New_York" })}`,
+            },
+          ];
+          if (points[peakIdx].speed > 10) {
+            events.push({
+              kind: "peak_speed", t: points[peakIdx].t,
+              lat: points[peakIdx].lat, lng: points[peakIdx].lng, speed: points[peakIdx].speed,
+              label: `Pico — ${Math.round(points[peakIdx].speed)} mph`,
+            });
+          }
+          events.sort((a, b) => a.t - b.t);
+
+          let south = points[0].lat, north = points[0].lat, west = points[0].lng, east = points[0].lng;
+          for (const p of points) {
+            if (p.lat < south) south = p.lat;
+            if (p.lat > north) north = p.lat;
+            if (p.lng < west) west = p.lng;
+            if (p.lng > east) east = p.lng;
+          }
+
+          const totalDistanceMi = (cum[cum.length - 1] / 1609.34);
+          const avgSpeedMph = points.reduce((s, p) => s + p.speed, 0) / n;
+
+          const out: ReplayData = {
+            tripId,
+            level: 2,
+            startedAt,
+            endedAt,
+            durationMs,
+            totalDistanceMi,
+            avgSpeedMph,
+            maxSpeedMph: points[peakIdx].speed,
+            hardBrakes: 0,
+            hardAccels: 0,
+            totalIdleSeconds: 0,
+            startAddress,
+            endAddress,
+            timeZone: "America/New_York",
+            startOdometerMi: null,
+            endOdometerMi: null,
+            fuelConsumedGal: null,
+            avgMpg: null,
+            points,
+            events,
+            bounds: { south, west, north, east },
+          };
+          if (cancelled) return;
+          setData(out);
+          setLoading(false);
+        } catch (e: any) {
+          if (cancelled) return;
+          console.error("[useTripReplay live]", e);
+          setError(e?.message ?? "Erro ao carregar viagem ao vivo");
+          setLoading(false);
+        }
+      };
+
+      buildLive();
+      intervalId = window.setInterval(buildLive, 15_000);
+      return () => { cancelled = true; if (intervalId) clearInterval(intervalId); };
+    }
+
     (async () => {
       try {
         const [{ data: trip, error: dbErr }, google] = await Promise.all([
