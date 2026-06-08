@@ -185,6 +185,36 @@ export type Database = {
           },
         ]
       }
+      bouncie_integration: {
+        Row: {
+          access_token: string | null
+          authorization_code: string | null
+          client_id: string | null
+          connected_at: string | null
+          id: number
+          token_expires_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          authorization_code?: string | null
+          client_id?: string | null
+          connected_at?: string | null
+          id?: number
+          token_expires_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          authorization_code?: string | null
+          client_id?: string | null
+          connected_at?: string | null
+          id?: number
+          token_expires_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       customer_notes: {
         Row: {
           author_id: string | null
@@ -900,12 +930,176 @@ export type Database = {
           },
         ]
       }
+      vehicle_telemetry: {
+        Row: {
+          address: string | null
+          battery_status: string | null
+          dtc_codes: Json | null
+          fuel_level: number | null
+          heading: number | null
+          imei: string | null
+          is_running: boolean | null
+          last_event: string | null
+          lat: number | null
+          lng: number | null
+          mil_on: boolean | null
+          odometer: number | null
+          reported_at: string | null
+          speed: number | null
+          updated_at: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          address?: string | null
+          battery_status?: string | null
+          dtc_codes?: Json | null
+          fuel_level?: number | null
+          heading?: number | null
+          imei?: string | null
+          is_running?: boolean | null
+          last_event?: string | null
+          lat?: number | null
+          lng?: number | null
+          mil_on?: boolean | null
+          odometer?: number | null
+          reported_at?: string | null
+          speed?: number | null
+          updated_at?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          address?: string | null
+          battery_status?: string | null
+          dtc_codes?: Json | null
+          fuel_level?: number | null
+          heading?: number | null
+          imei?: string | null
+          is_running?: boolean | null
+          last_event?: string | null
+          lat?: number | null
+          lng?: number | null
+          mil_on?: boolean | null
+          odometer?: number | null
+          reported_at?: string | null
+          speed?: number | null
+          updated_at?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_telemetry_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: true
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_telemetry_history: {
+        Row: {
+          created_at: string | null
+          event_type: string | null
+          heading: number | null
+          id: number
+          lat: number | null
+          lng: number | null
+          raw: Json | null
+          reported_at: string | null
+          speed: number | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type?: string | null
+          heading?: number | null
+          id?: never
+          lat?: number | null
+          lng?: number | null
+          raw?: Json | null
+          reported_at?: string | null
+          speed?: number | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string | null
+          heading?: number | null
+          id?: never
+          lat?: number | null
+          lng?: number | null
+          raw?: Json | null
+          reported_at?: string | null
+          speed?: number | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_telemetry_history_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_trips: {
+        Row: {
+          created_at: string | null
+          distance_mi: number | null
+          ended_at: string | null
+          gps: Json | null
+          hard_accel: number | null
+          hard_braking: number | null
+          id: string
+          imei: string | null
+          raw: Json | null
+          started_at: string | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          distance_mi?: number | null
+          ended_at?: string | null
+          gps?: Json | null
+          hard_accel?: number | null
+          hard_braking?: number | null
+          id: string
+          imei?: string | null
+          raw?: Json | null
+          started_at?: string | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          distance_mi?: number | null
+          ended_at?: string | null
+          gps?: Json | null
+          hard_accel?: number | null
+          hard_braking?: number | null
+          id?: string
+          imei?: string | null
+          raw?: Json | null
+          started_at?: string | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_trips_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicles: {
         Row: {
           acquired_date: string | null
           bags: number
           battery_condition: string | null
           body_condition: string | null
+          bouncie_imei: string | null
+          bouncie_vin: string | null
           brake_condition: string | null
           brand: string | null
           category: string
@@ -954,6 +1148,8 @@ export type Database = {
           bags?: number
           battery_condition?: string | null
           body_condition?: string | null
+          bouncie_imei?: string | null
+          bouncie_vin?: string | null
           brake_condition?: string | null
           brand?: string | null
           category?: string
@@ -1002,6 +1198,8 @@ export type Database = {
           bags?: number
           battery_condition?: string | null
           body_condition?: string | null
+          bouncie_imei?: string | null
+          bouncie_vin?: string | null
           brake_condition?: string | null
           brand?: string | null
           category?: string
