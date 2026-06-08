@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useVehicleEvents, categorizeEvent, type EventCategory, type VehicleEvent } from "@/hooks/useVehicleEvents";
-import { AlertTriangle, Gauge, Activity, Plug, Wrench, Fuel, MapPin } from "lucide-react";
+import { AlertTriangle, Gauge, Activity, Plug, Wrench, Fuel, MapPin, ShieldAlert } from "lucide-react";
 
 const TABS: { id: EventCategory; label: string }[] = [
   { id: "drive", label: "Direção" },
