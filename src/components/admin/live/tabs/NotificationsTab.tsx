@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useVehicleEvents, categorizeEvent, type EventCategory, type VehicleEvent } from "@/hooks/useVehicleEvents";
-import { AlertTriangle, Gauge, Activity, Plug, Wrench, Fuel, MapPin } from "lucide-react";
+import { AlertTriangle, Gauge, Activity, Plug, Wrench, Fuel, MapPin, ShieldAlert } from "lucide-react";
 
 const TABS: { id: EventCategory; label: string }[] = [
   { id: "drive", label: "Direção" },
@@ -63,6 +63,14 @@ function describeEvent(e: VehicleEvent): { title: string; desc: string; icon: Re
   }
   if (t.includes("fuel")) {
     return { title: "Aviso de combustível", desc: "Tanque abaixo do limite recomendado", icon: <Fuel size={14} />, color: "text-yellow-500 bg-yellow-500/10" };
+  }
+  if (t === "geofence_exit" || (t.includes("geofence") && t.includes("exit"))) {
+    const name = p.geofence_name ?? p.name ?? "área monitorada";
+    return { title: "Saiu da cerca virtual", desc: `Veículo deixou ${name}`, icon: <ShieldAlert size={14} />, color: "text-red-500 bg-red-500/10" };
+  }
+  if (t === "geofence_enter" || (t.includes("geofence") && t.includes("enter"))) {
+    const name = p.geofence_name ?? p.name ?? "área monitorada";
+    return { title: "Entrou na cerca virtual", desc: `Veículo chegou em ${name}`, icon: <MapPin size={14} />, color: "text-blue-500 bg-blue-500/10" };
   }
   if (t.includes("geofence")) {
     return { title: "Cerca virtual", desc: "Veículo entrou ou saiu de uma área monitorada", icon: <MapPin size={14} />, color: "text-blue-500 bg-blue-500/10" };

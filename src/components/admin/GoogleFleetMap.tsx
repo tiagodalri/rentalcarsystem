@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Crosshair } from "lucide-react";
+import { Crosshair, ShieldPlus, X as XIcon } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { loadGoogleMaps } from "@/lib/googleMapsLoader";
 import { useTripTrail, speedBandColor, type TrailPoint } from "@/hooks/useTripTrail";
 import type { LiveVehicle } from "@/hooks/useFleetLive";
@@ -289,7 +291,11 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [following, setFollowing] = useState<boolean>(false);
+  const [fenceMode, setFenceMode] = useState<boolean>(false);
+  const fenceModeRef = useRef(false);
+  const queryClient = useQueryClient();
 
+  useEffect(() => { fenceModeRef.current = fenceMode; }, [fenceMode]);
   useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
   useEffect(() => { followRef.current = following; }, [following]);
 
@@ -466,6 +472,34 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
         // Intercept POI clicks to render a rich Google Places card
         mapRef.current.addListener("click", async (e: any) => {
+          // Geofence placement mode short-circuits POI clicks.
+          if (fenceModeRef.current && e?.latLng) {
+            e.stop?.();
+            const lat = Number(e.latLng.lat());
+            const lng = Number(e.latLng.lng());
+            const radiusStr = window.prompt("Raio da cerca em metros:", "200");
+            if (radiusStr == null) { setFenceMode(false); return; }
+            const radius = Math.max(20, Math.min(50000, Number(radiusStr) || 200));
+            const name = window.prompt("Nome da cerca:", "Nova cerca") ?? "Nova cerca";
+            try {
+              const { error } = await supabase.from("vehicle_geofences").insert({
+                vehicle_id: null,
+                name,
+                geometry: { type: "circle", center: { lat, lng }, radius },
+                active: true,
+                notify_on_exit: true,
+                notify_on_enter: false,
+              });
+              if (error) throw error;
+              toast.success(`Cerca "${name}" criada (${radius} m)`);
+              queryClient.invalidateQueries({ queryKey: ["geofences-active"] });
+            } catch (err: any) {
+              toast.error("Falha ao salvar cerca: " + (err.message ?? "erro desconhecido"));
+            } finally {
+              setFenceMode(false);
+            }
+            return;
+          }
           if (!e?.placeId) return;
           e.stop?.();
           const placeId = e.placeId as string;
@@ -978,7 +1012,21 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
   return (
     <div className="relative w-full h-full">
-      <div ref={containerRef} className="absolute inset-0" />
+      <div ref={containerRef} className={`absolute inset-0 ${fenceMode ? "cursor-crosshair" : ""}`} />
+      {ready && (
+        <button
+          onClick={() => setFenceMode((v) => !v)}
+          className={`absolute top-3 left-3 z-10 flex items-center gap-2 px-3 py-2 rounded-full text-[11px] font-semibold uppercase tracking-wider border shadow-xl backdrop-blur-sm transition-all ${
+            fenceMode
+              ? "bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]"
+              : "bg-[#0a0a0a]/90 hover:bg-[#0a0a0a] text-white border-[#D4AF37]/60"
+          }`}
+          title={fenceMode ? "Cancelar criação de cerca" : "Clique no mapa para criar uma cerca virtual"}
+        >
+          {fenceMode ? <XIcon size={13} /> : <ShieldPlus size={13} className="text-[#D4AF37]" />}
+          {fenceMode ? "Cancelar cerca" : "Nova cerca"}
+        </button>
+      )}
       {ready && selectedId && !following && (
         <button
           onClick={recentralize}

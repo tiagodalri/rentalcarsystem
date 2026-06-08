@@ -1050,6 +1050,27 @@ export type Database = {
           },
         ]
       }
+      vehicle_geofence_state: {
+        Row: {
+          geofence_id: string
+          inside: boolean
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          geofence_id: string
+          inside: boolean
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          geofence_id?: string
+          inside?: boolean
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: []
+      }
       vehicle_geofences: {
         Row: {
           active: boolean

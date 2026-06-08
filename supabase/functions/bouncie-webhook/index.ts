@@ -1,5 +1,6 @@
 // Bouncie webhook receiver — updates telemetry, history, trips, events, diagnostics.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { evaluateGeofences } from "../_shared/geofence.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -167,6 +168,24 @@ Deno.serve(async (req) => {
           vehicle_id: vehicleId, lat, lng, speed, heading,
           event_type: eventType, reported_at: reportedAt, raw: payload,
         });
+      }
+
+      // 2b) Geofence transition detection (anti-theft alerts).
+      // Run for every sample we received, not just the last position — a car
+      // can cross the fence between two webhook deliveries.
+      if (dataArr.length > 0) {
+        for (const s of dataArr) {
+          const sLat = pickNumber(s?.lat, s?.latitude);
+          const sLng = pickNumber(s?.lon, s?.lng, s?.longitude);
+          if (sLat === null || sLng === null) continue;
+          const sTs = pickString(s?.timestamp, s?.time);
+          await evaluateGeofences(
+            admin, vehicleId, sLat, sLng,
+            sTs ? new Date(sTs).toISOString() : reportedAt,
+          );
+        }
+      } else if (lat !== null && lng !== null) {
+        await evaluateGeofences(admin, vehicleId, lat, lng, reportedAt);
       }
 
       // 3) Structured event log (new)
