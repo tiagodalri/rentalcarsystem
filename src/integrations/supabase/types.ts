@@ -1215,6 +1215,7 @@ export type Database = {
           start_lng: number | null
           start_odometer: number | null
           started_at: string | null
+          time_zone_offset: string | null
           transaction_id: string | null
           vehicle_id: string | null
         }
@@ -1243,6 +1244,7 @@ export type Database = {
           start_lng?: number | null
           start_odometer?: number | null
           started_at?: string | null
+          time_zone_offset?: string | null
           transaction_id?: string | null
           vehicle_id?: string | null
         }
@@ -1271,6 +1273,7 @@ export type Database = {
           start_lng?: number | null
           start_odometer?: number | null
           started_at?: string | null
+          time_zone_offset?: string | null
           transaction_id?: string | null
           vehicle_id?: string | null
         }
