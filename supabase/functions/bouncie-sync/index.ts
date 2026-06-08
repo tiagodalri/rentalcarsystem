@@ -34,14 +34,14 @@ async function refreshTokenIfNeeded(admin: any) {
   // Re-exchange the stored authorization_code (Bouncie permits this per their docs).
   const tokenResp = await fetch("https://auth.bouncie.com/oauth/token", {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
       client_id: BOUNCIE_CLIENT_ID,
       client_secret: BOUNCIE_CLIENT_SECRET,
       grant_type: "authorization_code",
       code: integ.authorization_code,
       redirect_uri: BOUNCIE_REDIRECT_URI,
-    }).toString(),
+    }),
   });
   const body = await tokenResp.text();
   console.log("[bouncie-sync] token refresh response", tokenResp.status, body);
