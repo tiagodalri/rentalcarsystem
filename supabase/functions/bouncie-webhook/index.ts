@@ -50,6 +50,24 @@ Deno.serve(async (req) => {
     let payload: any = {};
     try { payload = JSON.parse(raw); } catch { /* ignore */ }
 
+    // Validate webhook secret — Bouncie sends it in the body or header
+    if (BOUNCIE_WEBHOOK_SECRET) {
+      const provided = pickString(
+        payload?.webhookKey,
+        payload?.webhook_key,
+        payload?.secret,
+        req.headers.get("x-webhook-key"),
+        req.headers.get("x-webhook-secret"),
+        req.headers.get("authorization")?.replace(/^Bearer\s+/i, ""),
+      );
+      if (provided !== BOUNCIE_WEBHOOK_SECRET) {
+        console.warn("[bouncie-webhook] forbidden: invalid webhook secret");
+        return new Response(JSON.stringify({ error: "forbidden" }), {
+          status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     const eventType: string | null = pickString(
       payload?.eventType, payload?.event, payload?.type,
     );
