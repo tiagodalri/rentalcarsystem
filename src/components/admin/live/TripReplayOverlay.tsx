@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import {
   X, Play, Pause, Loader2, Maximize2, MapPin, Flag, AlertTriangle,
-  Zap, PauseCircle, Gauge, Clock, Route, TrendingUp,
+  Zap, PauseCircle, Gauge, Clock, Route, TrendingUp, SkipBack, SkipForward,
+  RotateCcw, Fuel, Activity, Trophy,
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from "recharts";
 import { loadGoogleMaps } from "@/lib/googleMapsLoader";
@@ -15,8 +16,14 @@ function fmtClock(ms: number) {
   const ss = s % 60;
   return `${m.toString().padStart(2, "0")}:${ss.toString().padStart(2, "0")}`;
 }
-function fmtTimeOfDay(d: Date) {
-  return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+function fmtTimeOfDay(d: Date, tz?: string) {
+  return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: tz });
+}
+function fmtMins(seconds: number): string {
+  const m = Math.round(seconds / 60);
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60);
+  return `${h}h ${m % 60}min`;
 }
 
 function lerp(a: number, b: number, f: number) { return a + (b - a) * f; }
@@ -68,14 +75,16 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
   const endPinRef = useRef<any>(null);
 
   const [mapReady, setMapReady] = useState(false);
-  const [playing, setPlaying] = useState(true);
+  const [playing, setPlaying] = useState(false); // start paused, intro plays first
   const [speed, setSpeed] = useState<1 | 4 | 16>(4);
   const [playbackMs, setPlaybackMs] = useState(0);
   const [followCam, setFollowCam] = useState(true);
+  const [intro, setIntro] = useState(true); // cinematic opening
+  const [showSummary, setShowSummary] = useState(false);
 
   // Mutable refs for rAF
   const playbackRef = useRef(0);
-  const playingRef = useRef(true);
+  const playingRef = useRef(false);
   const speedRef = useRef<1 | 4 | 16>(4);
   const lastTickRef = useRef(0);
   const rafRef = useRef<number | null>(null);
@@ -236,17 +245,33 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
       optimized: false,
     });
 
-    // Fit bounds
+    // Cinematic intro: fit bounds, wait, then zoom in on start point and start playing
     const b = new google.maps.LatLngBounds(
       { lat: data.bounds.south, lng: data.bounds.west },
       { lat: data.bounds.north, lng: data.bounds.east },
     );
-    map.fitBounds(b, 80);
+    map.fitBounds(b, 120);
 
     // Reset state
     playbackRef.current = 0;
     setPlaybackMs(0);
-    setPlaying(true);
+    setShowSummary(false);
+    setIntro(true);
+    setPlaying(false);
+
+    // After a short beat, zoom into the start and begin replay
+    const t1 = window.setTimeout(() => {
+      try {
+        map.panTo({ lat: data.points[0].lat, lng: data.points[0].lng });
+        const targetZoom = Math.min(17, Math.max(14, (map.getZoom() ?? 13) + 2));
+        map.setZoom(targetZoom);
+      } catch {}
+    }, 600);
+    const t2 = window.setTimeout(() => {
+      setIntro(false);
+      setPlaying(true);
+    }, 1700);
+    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapReady, data]);
 
@@ -280,8 +305,8 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
         if (playbackRef.current >= data.durationMs) {
           playingRef.current = false;
           setPlaying(false);
+          setShowSummary(true);
         }
-        // throttle React updates: ~30fps for UI
         setPlaybackMs(playbackRef.current);
       }
       renderFrame();
@@ -410,13 +435,25 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
         </div>
 
         {data && (
-          <div className="hidden md:flex items-center gap-5 text-xs text-white/70">
+          <div className="hidden md:flex items-center gap-4 lg:gap-5 text-xs text-white/70 flex-wrap justify-center">
             <Stat icon={<Route size={11} />} label="Distância" value={`${data.totalDistanceMi.toFixed(1).replace(".", ",")} mi`} />
             <Stat icon={<Clock size={11} />} label="Duração" value={fmtClock(data.durationMs)} />
             <Stat icon={<Gauge size={11} />} label="Vel. média" value={`${Math.round(data.avgSpeedMph)} mph`} />
             <Stat icon={<TrendingUp size={11} />} label="Vel. máx" value={`${Math.round(data.maxSpeedMph)} mph`} />
             <Stat icon={<AlertTriangle size={11} />} label="Freadas" value={`${data.hardBrakes}`} />
             <Stat icon={<Zap size={11} />} label="Acel." value={`${data.hardAccels}`} />
+            {data.totalIdleSeconds > 60 && (
+              <Stat icon={<PauseCircle size={11} />} label="Parado" value={fmtMins(data.totalIdleSeconds)} />
+            )}
+            {data.fuelConsumedGal != null && data.fuelConsumedGal > 0 && (
+              <Stat icon={<Fuel size={11} />} label="Combust." value={`${data.fuelConsumedGal.toFixed(2).replace(".", ",")} gal`} />
+            )}
+            {data.avgMpg != null && data.avgMpg > 0 && (
+              <Stat icon={<Activity size={11} />} label="Consumo" value={`${data.avgMpg.toFixed(1).replace(".", ",")} mpg`} />
+            )}
+            {data.startOdometerMi != null && data.endOdometerMi != null && (
+              <Stat icon={<Gauge size={11} />} label="Odômetro" value={`${Math.round(data.startOdometerMi)} → ${Math.round(data.endOdometerMi)} mi`} />
+            )}
           </div>
         )}
 
@@ -476,7 +513,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
               </div>
               <div className="mt-2 text-[10px] text-white/60 flex items-center gap-1.5">
                 <Clock size={10} style={{ color: GOLD }} />
-                <span className="tabular-nums">{fmtTimeOfDay(hud.realTime)}</span>
+                <span className="tabular-nums">{fmtTimeOfDay(hud.realTime, data.timeZone)}</span>
               </div>
               {data.startAddress && playbackMs < 5000 && (
                 <p className="mt-2 text-[10px] text-white/50 leading-snug flex items-start gap-1">
@@ -495,10 +532,10 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
 
           {/* Speed bands legend — bottom-left */}
           <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-black/75 backdrop-blur-sm border border-white/10 px-3 py-2">
-            <p className="text-[9px] uppercase tracking-wider text-white/60 font-semibold mb-1.5">Velocidade</p>
+            <p className="text-[9px] uppercase tracking-wider text-white/60 font-semibold mb-1.5">Velocidade no trajeto</p>
             {[
-              { l: "0–35", c: "#f59e0b" },{ l: "35–45", c: "#22c55e" },
-              { l: "45–50", c: "#3b82f6" },{ l: "50–65", c: "#ec4899" },{ l: "65+", c: "#ef4444" },
+              { l: "até 35", c: "#f59e0b" },{ l: "35–45", c: "#22c55e" },
+              { l: "45–50", c: "#3b82f6" },{ l: "50–65", c: "#ec4899" },{ l: "acima de 65", c: "#ef4444" },
             ].map((b) => (
               <div key={b.l} className="flex items-center gap-2 text-[10px] text-white/80">
                 <span className="w-4 h-1 rounded-full" style={{ backgroundColor: b.c }} />
@@ -506,6 +543,130 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
               </div>
             ))}
           </div>
+
+          {/* Cinematic intro overlay */}
+          {data && intro && !loading && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/55 backdrop-blur-[2px] animate-in fade-in duration-300 pointer-events-none">
+              <div className="text-center px-8 animate-in fade-in zoom-in-95 duration-500">
+                <p className="text-[10px] uppercase tracking-[0.4em] font-bold mb-3" style={{ color: GOLD }}>
+                  Preparando replay
+                </p>
+                <h3 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
+                  {vehicleName}
+                </h3>
+                {data.startAddress && (
+                  <p className="mt-3 text-xs text-white/70 max-w-md mx-auto">
+                    Saindo de <span className="text-white font-semibold">{data.startAddress.split(",")[0]}</span>
+                    {data.endAddress && (
+                      <>
+                        <span className="mx-2 text-white/30">→</span>
+                        <span className="text-white font-semibold">{data.endAddress.split(",")[0]}</span>
+                      </>
+                    )}
+                  </p>
+                )}
+                <div className="mt-4 flex items-center justify-center gap-5 text-[10px] uppercase tracking-wider text-white/50">
+                  <span><span className="tabular-nums text-white font-bold">{data.totalDistanceMi.toFixed(1).replace(".", ",")}</span> mi</span>
+                  <span className="w-1 h-1 rounded-full bg-white/30" />
+                  <span><span className="tabular-nums text-white font-bold">{fmtClock(data.durationMs)}</span></span>
+                  <span className="w-1 h-1 rounded-full bg-white/30" />
+                  <span>pico <span className="tabular-nums text-white font-bold">{Math.round(data.maxSpeedMph)}</span> mph</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Closing summary card */}
+          {data && showSummary && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/70 backdrop-blur-md animate-in fade-in duration-300">
+              <div className="relative w-[min(92vw,440px)] rounded-2xl border p-6 animate-in fade-in zoom-in-95 duration-400 shadow-2xl"
+                   style={{ borderColor: `${GOLD}55`, background: "linear-gradient(180deg, #0a0a0a 0%, #050505 100%)" }}>
+                <button
+                  onClick={() => setShowSummary(false)}
+                  className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white/70"
+                  aria-label="Fechar resumo"
+                >
+                  <X size={14} />
+                </button>
+
+                <div className="flex items-center gap-2.5 mb-4">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center"
+                       style={{ background: `linear-gradient(135deg, ${GOLD}, #b8941f)` }}>
+                    <Trophy size={16} className="text-black" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] uppercase tracking-[0.3em] font-bold" style={{ color: GOLD }}>Viagem concluída</p>
+                    <h4 className="text-base font-bold text-white leading-tight">{vehicleName}</h4>
+                  </div>
+                </div>
+
+                {(data.startAddress || data.endAddress) && (
+                  <div className="rounded-xl border border-white/10 p-3 mb-4 text-[11px] space-y-1.5">
+                    {data.startAddress && (
+                      <div className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 shrink-0" />
+                        <span className="text-white/80 leading-snug">{data.startAddress}</span>
+                      </div>
+                    )}
+                    {data.endAddress && (
+                      <div className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                        <span className="text-white/80 leading-snug">{data.endAddress}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <BigStat label="Distância" value={data.totalDistanceMi.toFixed(1).replace(".", ",")} unit="mi" highlight />
+                  <BigStat label="Tempo" value={fmtClock(data.durationMs)} unit="" />
+                  <BigStat label="Pico" value={`${Math.round(data.maxSpeedMph)}`} unit="mph" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[10px]">
+                  <MiniStat label="Vel. média" value={`${Math.round(data.avgSpeedMph)} mph`} />
+                  <MiniStat label="Tempo parado" value={fmtMins(data.totalIdleSeconds)} />
+                  <MiniStat label="Freadas bruscas" value={`${data.hardBrakes}`} />
+                  <MiniStat label="Acelerações bruscas" value={`${data.hardAccels}`} />
+                  {data.fuelConsumedGal != null && data.fuelConsumedGal > 0 && (
+                    <MiniStat label="Combustível" value={`${data.fuelConsumedGal.toFixed(2).replace(".", ",")} gal`} />
+                  )}
+                  {data.avgMpg != null && data.avgMpg > 0 && (
+                    <MiniStat label="Consumo médio" value={`${data.avgMpg.toFixed(1).replace(".", ",")} mpg`} />
+                  )}
+                  {data.startOdometerMi != null && data.endOdometerMi != null && (
+                    <div className="col-span-2 rounded-md bg-white/[0.04] border border-white/5 px-2 py-1.5">
+                      <p className="text-[8px] uppercase tracking-wider text-white/40 font-semibold">Odômetro</p>
+                      <p className="text-xs font-bold text-white tabular-nums">
+                        {Math.round(data.startOdometerMi).toLocaleString("pt-BR")} → {Math.round(data.endOdometerMi).toLocaleString("pt-BR")} mi
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-5 flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      playbackRef.current = 0;
+                      setPlaybackMs(0);
+                      setShowSummary(false);
+                      setPlaying(true);
+                    }}
+                    className="flex-1 text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-full text-black hover:scale-[1.02] transition-transform flex items-center justify-center gap-1.5"
+                    style={{ background: GOLD }}
+                  >
+                    <RotateCcw size={12} /> Assistir de novo
+                  </button>
+                  <button
+                    onClick={onClose}
+                    className="text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-full border border-white/15 text-white/80 hover:bg-white/5"
+                  >
+                    Fechar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Right panel — narration timeline */}
@@ -541,7 +702,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                     <div className="min-w-0 flex-1">
                       <p className="text-[11px] font-semibold text-white leading-tight">{ev.label}</p>
                       <p className="text-[10px] text-white/50 tabular-nums mt-0.5">
-                        {evTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                        {evTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: data.timeZone })}
                         <span className="mx-1.5 text-white/30">•</span>
                         {fmtClock(ev.t)}
                       </p>
@@ -586,12 +747,34 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-3 px-4 pb-3 pt-1">
+          <div className="flex items-center gap-2 sm:gap-3 px-4 pb-3 pt-1">
+            <button
+              onClick={() => seekTo(playbackRef.current - 10_000)}
+              className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center text-white/80"
+              aria-label="Voltar 10s"
+              title="Voltar 10s"
+            >
+              <SkipBack size={14} />
+            </button>
+            <button
+              onClick={() => {
+                playbackRef.current = 0;
+                setPlaybackMs(0);
+                setShowSummary(false);
+                setPlaying(true);
+              }}
+              className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center text-white/80"
+              aria-label="Recomeçar"
+              title="Recomeçar"
+            >
+              <RotateCcw size={14} />
+            </button>
             <button
               onClick={() => {
                 if (playbackRef.current >= data.durationMs - 50) {
                   playbackRef.current = 0;
                   setPlaybackMs(0);
+                  setShowSummary(false);
                 }
                 setPlaying((p) => !p);
               }}
@@ -600,6 +783,14 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
               aria-label={playing ? "Pausar" : "Reproduzir"}
             >
               {playing ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" className="ml-0.5" />}
+            </button>
+            <button
+              onClick={() => seekTo(playbackRef.current + 10_000)}
+              className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 transition-colors flex items-center justify-center text-white/80"
+              aria-label="Avançar 10s"
+              title="Avançar 10s"
+            >
+              <SkipForward size={14} />
             </button>
 
             <div className="flex items-center gap-1 bg-white/5 rounded-full p-0.5">
@@ -672,6 +863,18 @@ function MiniStat({ label, value }: { label: string; value: string }) {
     <div className="rounded-md bg-white/[0.04] border border-white/5 px-2 py-1.5">
       <p className="text-[8px] uppercase tracking-wider text-white/40 font-semibold">{label}</p>
       <p className="text-xs font-bold text-white tabular-nums">{value}</p>
+    </div>
+  );
+}
+
+function BigStat({ label, value, unit, highlight }: { label: string; value: string; unit: string; highlight?: boolean }) {
+  return (
+    <div className={`rounded-xl border px-3 py-3 text-center ${highlight ? "border-[#D4AF37]/40 bg-[#D4AF37]/[0.06]" : "border-white/10 bg-white/[0.03]"}`}>
+      <p className="text-[8px] uppercase tracking-wider text-white/50 font-semibold">{label}</p>
+      <p className={`text-lg font-bold tabular-nums leading-tight mt-1 ${highlight ? "text-[#D4AF37]" : "text-white"}`}>
+        {value}
+        {unit && <span className="text-[9px] font-normal text-white/50 ml-1 uppercase">{unit}</span>}
+      </p>
     </div>
   );
 }

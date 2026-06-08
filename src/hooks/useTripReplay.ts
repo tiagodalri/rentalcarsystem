@@ -38,9 +38,17 @@ export type ReplayData = {
   totalIdleSeconds: number;
   startAddress: string | null;
   endAddress: string | null;
+  /** IANA TZ from Bouncie (e.g. America/New_York). */
+  timeZone: string;
+  /** Odometer in miles, from Bouncie */
+  startOdometerMi: number | null;
+  endOdometerMi: number | null;
+  /** Fuel consumed (gallons) */
+  fuelConsumedGal: number | null;
+  /** Average MPG for this trip */
+  avgMpg: number | null;
   points: ReplayPoint[];
   events: ReplayEvent[];
-  /** bounds for fit: {sw, ne} */
   bounds: { south: number; west: number; north: number; east: number };
 };
 
@@ -156,13 +164,28 @@ export function useTripReplay(tripId: string | null) {
 
         // Events
         const events: ReplayEvent[] = [];
+        // Short address token (first segment before comma) for human narration
+        const shortAddr = (s: string | null | undefined) =>
+          s ? s.split(",")[0].trim() : null;
+        const tz: string = (raw.timeZone as string) || "America/New_York";
+        const fmtHm = (d: Date) =>
+          d.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZone: tz,
+          });
+        const startShort = shortAddr(trip.start_address);
+        const endShort = shortAddr(trip.end_address);
+
         events.push({
           kind: "start",
           t: 0,
           lat: points[0].lat,
           lng: points[0].lng,
           speed: points[0].speed,
-          label: `Partida — ${startedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+          label: startShort
+            ? `Partiu de ${startShort} — ${fmtHm(startedAt)}`
+            : `Partida — ${fmtHm(startedAt)}`,
         });
         events.push({
           kind: "end",
@@ -170,7 +193,9 @@ export function useTripReplay(tripId: string | null) {
           lat: points[n - 1].lat,
           lng: points[n - 1].lng,
           speed: points[n - 1].speed,
-          label: `Chegada — ${endedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`,
+          label: endShort
+            ? `Chegou em ${endShort} — ${fmtHm(endedAt)}`
+            : `Chegada — ${fmtHm(endedAt)}`,
         });
 
         // Peak speed
@@ -267,6 +292,11 @@ export function useTripReplay(tripId: string | null) {
           totalIdleSeconds: Number(raw.totalIdleDuration ?? trip.idle_seconds ?? 0),
           startAddress: trip.start_address ?? null,
           endAddress: trip.end_address ?? null,
+          timeZone: tz,
+          startOdometerMi: trip.start_odometer != null ? Number(trip.start_odometer) : null,
+          endOdometerMi: trip.end_odometer != null ? Number(trip.end_odometer) : null,
+          fuelConsumedGal: trip.fuel_consumed_gal != null ? Number(trip.fuel_consumed_gal) : null,
+          avgMpg: trip.average_mpg != null ? Number(trip.average_mpg) : null,
           points,
           events,
           bounds: { south, west, north, east },
