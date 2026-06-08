@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Crosshair } from "lucide-react";
 import { loadGoogleMaps } from "@/lib/googleMapsLoader";
 import { useTripTrail, speedBandColor, type TrailPoint } from "@/hooks/useTripTrail";
 import type { LiveVehicle } from "@/hooks/useFleetLive";
@@ -27,20 +28,51 @@ const DARK_STYLE: any[] = [
   { featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#101317" }] },
 ];
 
-function markerSvg(color: string, selected: boolean, heading: number | null): any {
-  const size = selected ? 30 : 24;
-  const rot = heading ?? 0;
+/**
+ * Modern "puck"-style fleet marker. Vector SVG, retina-crisp at any zoom.
+ * - Drop shadow for subtle 3D elevation
+ * - White border (gold if selected)
+ * - Status color (moving=green, idle=amber, parked=gray)
+ * - Directional cone pointing to heading (only when moving)
+ * - Translucent outer halo (only when moving) for the "alive" feel
+ * - Tiny top-down car silhouette inside the puck
+ */
+function puckSvg(color: string, selected: boolean, headingDeg: number, moving: boolean): any {
+  // Slightly larger when selected so it pops.
+  const size = selected ? 52 : 44;
+  const h = ((headingDeg % 360) + 360) % 360;
+  const ringStroke = selected ? "#D4AF37" : "#ffffff";
+  const ringWidth = selected ? 3 : 2.2;
+  const haloOpacity = moving ? 0.22 : 0;
+  // Cone shown only when actually moving; rotates with heading.
+  const cone = moving
+    ? `<g transform="rotate(${h} 22 22)">
+         <path d="M22 1 L30 12 L22 9 L14 12 Z" fill="${color}" opacity="0.95" />
+       </g>`
+    : "";
+  // Tiny top-down car silhouette (white), also rotates with heading so it "looks where it goes"
+  const carBody = `
+    <g transform="rotate(${h} 22 22)" opacity="0.95">
+      <rect x="18.5" y="16" width="7" height="12" rx="2" fill="#ffffff" />
+      <rect x="19.5" y="17.5" width="5" height="3.2" rx="0.6" fill="${color}" />
+      <rect x="19.5" y="22" width="5" height="4" rx="0.6" fill="${color}" opacity="0.6" />
+    </g>`;
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 44 44">
+      <defs>
+        <filter id="puckShadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#000" flood-opacity="0.42"/>
+        </filter>
+      </defs>
+      <circle cx="22" cy="22" r="19" fill="${color}" opacity="${haloOpacity}" />
+      <g filter="url(#puckShadow)">
+        <circle cx="22" cy="22" r="12.5" fill="${color}" stroke="${ringStroke}" stroke-width="${ringWidth}" />
+      </g>
+      ${cone}
+      ${carBody}
+    </svg>`;
   return {
-    url:
-      "data:image/svg+xml;charset=UTF-8," +
-      encodeURIComponent(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
-          <g transform="rotate(${rot} 12 12)">
-            <circle cx="12" cy="12" r="7" fill="${color}" stroke="${selected ? "#D4AF37" : "#ffffff"}" stroke-width="${selected ? 2.5 : 2}"/>
-            <path d="M12 4 L14.2 8 L9.8 8 Z" fill="${selected ? "#D4AF37" : "#ffffff"}"/>
-          </g>
-        </svg>`
-      ),
+    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
     scaledSize: { width: size, height: size } as any,
     anchor: { x: size / 2, y: size / 2 } as any,
   };
@@ -181,33 +213,67 @@ type Props = {
   layers?: MapLayers;
 };
 
-// Anchor state per vehicle used for smooth animation + dead reckoning
-type Anchor = {
-  // Last known REAL position from Bouncie (server truth)
-  lat: number;
-  lng: number;
-  heading: number; // degrees, 0=N, clockwise
-  speed: number; // mph
-  reportedAt: number; // ms epoch — when Bouncie recorded the sample
-  receivedAt: number; // ms epoch — when we received it (used for tween start)
-  moving: boolean;
-  // Position currently DRAWN on the map (used as tween source on next update)
+// --- Smooth-motion buffer ---------------------------------------------------
+// Each vehicle keeps a buffer of timestamped real positions. We render the car
+// always RENDER_DELAY_MS in the past so there's always a "future" point to
+// interpolate towards — eliminates jumps, reverses and trembling.
+type BufferPoint = { lat: number; lng: number; t: number };
+type VehicleState = {
+  buffer: BufferPoint[];
+  lastReportedMs: number;
+  status: LiveVehicle["status"];
+  speed: number;            // mph (latest)
+  /** Last drawn heading in degrees, smoothly lerped */
+  drawnHeading: number;
+  /** Target heading from real movement A->B */
+  targetHeading: number;
+  /** Last displayed lat/lng (used to hold position when no fresh data) */
   displayLat: number;
   displayLng: number;
-  // Tween from old display -> new anchor on update
-  tweenFromLat: number;
-  tweenFromLng: number;
-  tweenStart: number;
+  /** Icon cache key — avoid setIcon every frame */
+  iconKey: string;
+  /** Marker is selected (mirrors selectedId for fast access in loop) */
+  selected: boolean;
 };
 
-const TWEEN_MS = 700; // smooth slide when a new real fix arrives
-const MAX_EXTRAPOLATE_MS = 30_000; // stop dead-reckoning if data is stale
+const RENDER_DELAY_MS = 4000;          // ~4s "in the past" — sweet spot for fluid playback
+const BUFFER_TTL_MS = 10_000;          // drop points older than this past renderTime
+const MIN_MOVE_METERS = 5;             // ignore micro-jitter while parked
+const MAX_JUMP_METERS = 2_000;         // discard absurd GPS jumps
+const HEADING_LERP_PER_FRAME = 0.16;   // smoothness of rotation animation
+const FOLLOW_PAN_INTERVAL_MS = 1000;   // recentre at most once per second
+const FOLLOW_EDGE_PX = 110;            // recentre early if car nears viewport edge
+const PROGRAMMATIC_PAN_GUARD_MS = 350; // ignore our own panTo on dragstart
+
+function haversineM(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const la1 = toRad(a.lat), la2 = toRad(b.lat);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function bearingDeg(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const toDeg = (r: number) => (r * 180) / Math.PI;
+  const la1 = toRad(a.lat), la2 = toRad(b.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const y = Math.sin(dLng) * Math.cos(la2);
+  const x = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLng);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+/** Shortest-path angular interpolation (handles 359→1 wrap) */
+function lerpAngle(a: number, b: number, f: number): number {
+  const diff = ((b - a + 540) % 360) - 180;
+  return (a + diff * f + 360) % 360;
+}
 
 export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers = DEFAULT_LAYERS }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
   const markersRef = useRef<Map<string, any>>(new Map());
-  const anchorsRef = useRef<Map<string, Anchor>>(new Map());
+  const statesRef = useRef<Map<string, VehicleState>>(new Map());
   const rafRef = useRef<number | null>(null);
   const infoWindowRef = useRef<any>(null);
   const polylineRef = useRef<any[]>([]);
@@ -216,8 +282,16 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const nwsShapesRef = useRef<any[]>([]);
   const eventMarkersRef = useRef<any[]>([]);
   const fittedRef = useRef(false);
+  const selectedIdRef = useRef<string | null>(null);
+  const followRef = useRef<boolean>(false);
+  const lastFollowPanRef = useRef<number>(0);
+  const programmaticPanAtRef = useRef<number>(0);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [following, setFollowing] = useState<boolean>(false);
+
+  useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
+  useEffect(() => { followRef.current = following; }, [following]);
 
   const { points: trail } = useTripTrail(selectedId, 24);
   const { data: geofences = [] } = useGeofences(layers.geoZones);
@@ -298,60 +372,67 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     }
   }, [layers.traffic, ready]);
 
-  // 2. Sync markers with vehicles + update anchors for smooth animation
+  // 2. Sync vehicle updates → push into per-vehicle buffer; create/remove markers
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     const google = (window as any).google;
     const map = mapRef.current;
     const existing = markersRef.current;
-    const anchors = anchorsRef.current;
+    const states = statesRef.current;
     const seen = new Set<string>();
-    const now = performance.now();
 
     for (const v of vehicles) {
       if (v.lat === null || v.lng === null) continue;
       seen.add(v.vehicle_id);
       const isSelected = v.vehicle_id === selectedId;
-      const color = statusColor(v.status);
-      const icon = markerSvg(color, isSelected, v.heading ?? null);
-
       const reportedAtMs = v.reported_at ? new Date(v.reported_at).getTime() : Date.now();
-      const prev = anchors.get(v.vehicle_id);
 
-      // Detect a "new fix" (server-side data actually changed)
-      const isNewFix =
-        !prev ||
-        prev.lat !== v.lat ||
-        prev.lng !== v.lng ||
-        prev.reportedAt !== reportedAtMs;
-
-      if (isNewFix) {
-        anchors.set(v.vehicle_id, {
-          lat: v.lat,
-          lng: v.lng,
-          heading: v.heading ?? prev?.heading ?? 0,
+      let st = states.get(v.vehicle_id);
+      if (!st) {
+        st = {
+          buffer: [{ lat: v.lat, lng: v.lng, t: reportedAtMs }],
+          lastReportedMs: reportedAtMs,
+          status: v.status,
           speed: v.speed ?? 0,
-          reportedAt: reportedAtMs,
-          receivedAt: Date.now(),
-          moving: v.status === "moving",
-          // Tween from the currently-drawn position (or the new anchor if first time)
-          displayLat: prev?.displayLat ?? v.lat,
-          displayLng: prev?.displayLng ?? v.lng,
-          tweenFromLat: prev?.displayLat ?? v.lat,
-          tweenFromLng: prev?.displayLng ?? v.lng,
-          tweenStart: now,
-        });
-      } else if (prev) {
-        // Same fix — just refresh moving flag & heading in case status changed
-        prev.moving = v.status === "moving";
+          drawnHeading: v.heading ?? 0,
+          targetHeading: v.heading ?? 0,
+          displayLat: v.lat,
+          displayLng: v.lng,
+          iconKey: "",
+          selected: isSelected,
+        };
+        states.set(v.vehicle_id, st);
+      } else {
+        // Same fix? skip buffer push. Different reportedAt → consider as new fix.
+        const isNewFix = reportedAtMs !== st.lastReportedMs;
+        if (isNewFix) {
+          const last = st.buffer[st.buffer.length - 1];
+          const d = last ? haversineM(last, { lat: v.lat, lng: v.lng }) : Infinity;
+          const speedMph = v.speed ?? 0;
+          const stationary = speedMph < 1 && d < MIN_MOVE_METERS;
+          const absurdJump = last && d > MAX_JUMP_METERS && (reportedAtMs - last.t) < 10_000;
+          if (!stationary && !absurdJump) {
+            st.buffer.push({ lat: v.lat, lng: v.lng, t: reportedAtMs });
+          }
+          st.lastReportedMs = reportedAtMs;
+        }
+        st.status = v.status;
+        st.speed = v.speed ?? 0;
+        st.selected = isSelected;
       }
 
       let marker = existing.get(v.vehicle_id);
       if (!marker) {
+        const initialIcon = puckSvg(
+          statusColor(v.status),
+          isSelected,
+          st.drawnHeading,
+          v.status === "moving",
+        );
         marker = new google.maps.Marker({
           map,
-          position: { lat: v.lat, lng: v.lng },
-          icon,
+          position: { lat: st.displayLat, lng: st.displayLng },
+          icon: initialIcon,
           title: v.name,
           zIndex: isSelected ? 999 : 1,
           optimized: false,
@@ -361,16 +442,15 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         });
         existing.set(v.vehicle_id, marker);
       } else {
-        // Position is now driven by the rAF loop; only refresh icon/z-index here
-        marker.setIcon(icon);
         marker.setZIndex(isSelected ? 999 : 1);
+        // icon is refreshed inside the rAF loop when heading/status/selection change
       }
     }
     for (const [id, m] of existing) {
       if (!seen.has(id)) {
         m.setMap(null);
         existing.delete(id);
-        anchors.delete(id);
+        states.delete(id);
       }
     }
 
@@ -384,56 +464,130 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       map.fitBounds(bounds, 80);
       fittedRef.current = true;
     }
-  }, [vehicles, selectedId, ready, onSelect, layers.carvatars]);
+  }, [vehicles, selectedId, ready, onSelect]);
 
-  // 2b. Smooth animation loop: tween on new fixes + dead reckoning between fixes
+  // 2b. Single rAF loop — buffer-replay interpolation + smooth rotation + follow cam
   useEffect(() => {
     if (!ready) return;
-    const anchors = anchorsRef.current;
+    const states = statesRef.current;
     const markers = markersRef.current;
 
     const tick = () => {
-      const now = performance.now();
       const wallNow = Date.now();
+      const renderTime = wallNow - RENDER_DELAY_MS;
 
-      for (const [id, a] of anchors) {
+      for (const [id, st] of states) {
         const marker = markers.get(id);
         if (!marker) continue;
 
-        // 1) Compute the "true" target = anchor + dead-reckoned offset
-        const ageMs = wallNow - a.reportedAt;
-        let targetLat = a.lat;
-        let targetLng = a.lng;
-        if (a.moving && a.speed > 1 && ageMs > 0 && ageMs < MAX_EXTRAPOLATE_MS) {
-          const elapsedS = ageMs / 1000;
-          const metersPerSec = a.speed * 0.44704; // mph -> m/s
-          const dist = metersPerSec * elapsedS;
-          const brg = (a.heading * Math.PI) / 180;
-          const dLat = (dist * Math.cos(brg)) / 111320;
-          const dLng =
-            (dist * Math.sin(brg)) /
-            (111320 * Math.cos((a.lat * Math.PI) / 180) || 1);
-          targetLat = a.lat + dLat;
-          targetLng = a.lng + dLng;
-        }
+        const buf = st.buffer;
+        // Trim very old points (keep at least one)
+        const cutoff = renderTime - BUFFER_TTL_MS;
+        while (buf.length > 1 && buf[1].t < cutoff) buf.shift();
 
-        // 2) Tween from previous display position to target over TWEEN_MS
-        const tElapsed = now - a.tweenStart;
         let display: { lat: number; lng: number };
-        if (tElapsed >= TWEEN_MS) {
-          display = { lat: targetLat, lng: targetLng };
+        let segA: BufferPoint | null = null;
+        let segB: BufferPoint | null = null;
+
+        if (buf.length === 0) {
+          display = { lat: st.displayLat, lng: st.displayLng };
+        } else if (buf.length === 1 || renderTime <= buf[0].t) {
+          display = { lat: buf[0].lat, lng: buf[0].lng };
+        } else if (renderTime >= buf[buf.length - 1].t) {
+          // No future point yet — hold the latest known so we don't extrapolate.
+          const last = buf[buf.length - 1];
+          display = { lat: last.lat, lng: last.lng };
         } else {
-          // ease-out cubic
-          const k = 1 - Math.pow(1 - tElapsed / TWEEN_MS, 3);
+          // Find A,B bracketing renderTime
+          let lo = 0, hi = buf.length - 1;
+          while (lo < hi - 1) {
+            const mid = (lo + hi) >> 1;
+            if (buf[mid].t <= renderTime) lo = mid; else hi = mid;
+          }
+          segA = buf[lo];
+          segB = buf[hi];
+          const span = Math.max(1, segB.t - segA.t);
+          const f = Math.min(1, Math.max(0, (renderTime - segA.t) / span));
           display = {
-            lat: a.tweenFromLat + (targetLat - a.tweenFromLat) * k,
-            lng: a.tweenFromLng + (targetLng - a.tweenFromLng) * k,
+            lat: segA.lat + (segB.lat - segA.lat) * f,
+            lng: segA.lng + (segB.lng - segA.lng) * f,
           };
         }
 
-        a.displayLat = display.lat;
-        a.displayLng = display.lng;
+        // Update target heading only when we have real motion segment (>= MIN_MOVE)
+        // AND vehicle is actually moving. Otherwise keep last drawn heading.
+        if (segA && segB && st.status === "moving" && st.speed > 1) {
+          const dSeg = haversineM(segA, segB);
+          if (dSeg >= MIN_MOVE_METERS) {
+            st.targetHeading = bearingDeg(segA, segB);
+          }
+        }
+        // Smooth rotation
+        st.drawnHeading = lerpAngle(st.drawnHeading, st.targetHeading, HEADING_LERP_PER_FRAME);
+
+        st.displayLat = display.lat;
+        st.displayLng = display.lng;
         marker.setPosition(display);
+
+        // Refresh icon only when something visual changed (cheap key compare)
+        const headingBucket = Math.round(st.drawnHeading / 3) * 3;
+        const movingFlag = st.status === "moving" ? "M" : st.status === "idle" ? "I" : "P";
+        const selFlag = st.selected ? "S" : "_";
+        const key = `${movingFlag}${selFlag}${headingBucket}`;
+        if (key !== st.iconKey) {
+          st.iconKey = key;
+          marker.setIcon(
+            puckSvg(
+              statusColor(st.status),
+              st.selected,
+              st.drawnHeading,
+              st.status === "moving",
+            ),
+          );
+        }
+      }
+
+      // --- Follow camera (selected vehicle only) ---
+      const selId = selectedIdRef.current;
+      const map = mapRef.current;
+      if (followRef.current && selId && map) {
+        const sel = states.get(selId);
+        if (sel) {
+          const now = performance.now();
+          const dueByTime = now - lastFollowPanRef.current >= FOLLOW_PAN_INTERVAL_MS;
+          let nearEdge = false;
+          try {
+            const proj = map.getProjection?.();
+            const bounds = map.getBounds?.();
+            if (proj && bounds) {
+              const div = map.getDiv?.() as HTMLElement | undefined;
+              if (div) {
+                const w = div.clientWidth, h = div.clientHeight;
+                const ne = bounds.getNorthEast(), sw = bounds.getSouthWest();
+                const scale = Math.pow(2, map.getZoom?.() ?? 12);
+                const worldOrigin = proj.fromLatLngToPoint(ne);
+                const worldSw = proj.fromLatLngToPoint(sw);
+                const worldCar = proj.fromLatLngToPoint(
+                  new (window as any).google.maps.LatLng(sel.displayLat, sel.displayLng),
+                );
+                if (worldOrigin && worldSw && worldCar) {
+                  const px = (worldCar.x - worldSw.x) * scale;
+                  const py = (worldOrigin.y - worldCar.y) * scale;
+                  // px/py in pixels from bottom-left & top-right respectively — approx edge check:
+                  if (px < FOLLOW_EDGE_PX || py < FOLLOW_EDGE_PX ||
+                      px > (w - FOLLOW_EDGE_PX) || py > (h - FOLLOW_EDGE_PX)) {
+                    nearEdge = true;
+                  }
+                }
+              }
+            }
+          } catch { /* projection not ready yet */ }
+          if (dueByTime || nearEdge) {
+            lastFollowPanRef.current = now;
+            programmaticPanAtRef.current = now;
+            map.panTo({ lat: sel.displayLat, lng: sel.displayLng });
+          }
+        }
       }
 
       rafRef.current = requestAnimationFrame(tick);
@@ -445,19 +599,57 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     };
   }, [ready]);
 
-
-  // 3. Pan to selected vehicle
+  // 3. On selection change: enable follow + immediate centre. User-drag turns it off.
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     infoWindowRef.current?.close();
-    if (!selectedId) return;
-    const v = vehicles.find((x) => x.vehicle_id === selectedId);
-    if (!v || v.lat === null || v.lng === null) return;
+    if (!selectedId) {
+      setFollowing(false);
+      return;
+    }
     const map = mapRef.current;
-    map.panTo({ lat: v.lat, lng: v.lng });
-    if (map.getZoom() < 13) map.setZoom(14);
+    const st = statesRef.current.get(selectedId);
+    const fallback = vehicles.find((x) => x.vehicle_id === selectedId);
+    const target =
+      st ? { lat: st.displayLat, lng: st.displayLng } :
+      (fallback && fallback.lat != null && fallback.lng != null)
+        ? { lat: fallback.lat, lng: fallback.lng }
+        : null;
+    if (target) {
+      programmaticPanAtRef.current = performance.now();
+      map.panTo(target);
+      if (map.getZoom() < 14) map.setZoom(15);
+    }
+    setFollowing(true);
+    lastFollowPanRef.current = performance.now();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, ready]);
+
+  // 3b. Detect user dragging the map → turn off follow (unless it's our own panTo)
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    const google = (window as any).google;
+    const map = mapRef.current;
+    const handler = map.addListener("dragstart", () => {
+      const sincePan = performance.now() - programmaticPanAtRef.current;
+      if (sincePan > PROGRAMMATIC_PAN_GUARD_MS && followRef.current) {
+        setFollowing(false);
+      }
+    });
+    return () => google?.maps?.event?.removeListener(handler);
+  }, [ready]);
+
+  const recentralize = useCallback(() => {
+    const map = mapRef.current;
+    const selId = selectedIdRef.current;
+    if (!map || !selId) return;
+    const st = statesRef.current.get(selId);
+    if (!st) return;
+    programmaticPanAtRef.current = performance.now();
+    lastFollowPanRef.current = performance.now();
+    map.panTo({ lat: st.displayLat, lng: st.displayLng });
+    setFollowing(true);
+  }, []);
 
   // 4. Trip trail polyline
   useEffect(() => {
@@ -628,5 +820,19 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     );
   }
 
-  return <div ref={containerRef} className="w-full h-full" />;
+  return (
+    <div className="relative w-full h-full">
+      <div ref={containerRef} className="absolute inset-0" />
+      {ready && selectedId && !following && (
+        <button
+          onClick={recentralize}
+          className="absolute top-3 right-3 z-10 flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#0a0a0a]/90 hover:bg-[#0a0a0a] text-white text-[11px] font-semibold uppercase tracking-wider border border-[#D4AF37]/60 shadow-xl backdrop-blur-sm transition-all animate-in fade-in slide-in-from-top-2 duration-200"
+          title="Voltar a seguir o carro selecionado"
+        >
+          <Crosshair size={13} className="text-[#D4AF37]" />
+          Recentralizar
+        </button>
+      )}
+    </div>
+  );
 }
