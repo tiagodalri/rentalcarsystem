@@ -1,6 +1,7 @@
 import { LayoutDashboard, Car, CalendarRange, Users, LogOut, Settings, Radio, BarChart3, DollarSign, UsersRound, TrendingUp, Sparkles, CalendarDays } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAdminTabs } from "@/hooks/useAdminTabs";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
 import {
   Sidebar,
