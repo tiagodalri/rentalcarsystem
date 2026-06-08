@@ -726,32 +726,6 @@ const BookingDetails = () => {
                             </div>
                           </div>
 
-                          {/* Upgrade suggestion */}
-                          <AnimatePresence>
-                            {showUpgradeSuggestion && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="overflow-hidden"
-                              >
-                                <div className="p-3 rounded-lg bg-[#378ADD]/10 border border-[#378ADD]/20 flex items-start gap-2.5">
-                                  <Zap size={14} className="text-[#378ADD] shrink-0 mt-0.5" />
-                                  <div className="flex-1">
-                                    <p className="text-[11px] text-foreground font-semibold mb-1">
-                                      O plano Zeus Conforto já inclui Seguro Premium + TAG por apenas {formatPrice(29)}/dia
-                                    </p>
-                                    <button
-                                      onClick={() => setSelectedPlanId("conforto")}
-                                      className="text-[10px] font-bold text-[#378ADD] hover:underline"
-                                    >
-                                      Trocar para Zeus Conforto →
-                                    </button>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
                         </>
                       )}
 
