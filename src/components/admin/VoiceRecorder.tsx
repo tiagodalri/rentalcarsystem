@@ -1,11 +1,11 @@
 // Gravador de áudio estilo WhatsApp:
-// - Toque curto (< 350ms) no microfone: ATIVA modo "mãos livres" (continua gravando até tocar novamente)
+// - Toque curto (< 350ms): modo "mãos livres" (continua gravando, toque de novo p/ parar)
 // - Pressionar e segurar: grava enquanto segurar; solta para parar
-// - Live transcript via Web Speech API (pt-BR)
-// - Ao parar, envia para edge function 'polish-transcript' que corrige gramática/pontuação
-//   sem alterar o conteúdo (datas, nomes, valores preservados).
+// - Visualização de waveform em tempo real (Web Audio API + AnalyserNode)
+// - Transcrição ao vivo via Web Speech API (pt-BR)
+// - Ao parar, edge 'polish-transcript' corrige gramática/pontuação sem alterar conteúdo
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Mic, Loader2, X } from "lucide-react";
+import { Mic, Loader2, Trash2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -38,6 +38,7 @@ function getRecognitionCtor(): SpeechRecognitionCtor | null {
 }
 
 const HOLD_THRESHOLD_MS = 350;
+const NUM_BARS = 28;
 
 export function VoiceRecorder({
   onTranscript,
@@ -47,24 +48,34 @@ export function VoiceRecorder({
   className,
 }: Props) {
   const [recording, setRecording] = useState(false);
-  const [locked, setLocked] = useState(false); // modo mãos-livres (tap curto)
+  const [locked, setLocked] = useState(false);
   const [polishing, setPolishing] = useState(false);
   const [supported, setSupported] = useState(true);
   const [elapsed, setElapsed] = useState(0);
+  const [bars, setBars] = useState<number[]>(() => Array(NUM_BARS).fill(0.08));
 
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const finalTextRef = useRef("");
-  const pressStartRef = useRef<number>(0);
+  const pressStartRef = useRef(0);
   const lockedRef = useRef(false);
   const cancelledRef = useRef(false);
   const timerRef = useRef<number | null>(null);
 
+  // Audio visualization
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const historyRef = useRef<number[]>(Array(NUM_BARS).fill(0.08));
+
   useEffect(() => {
     setSupported(!!getRecognitionCtor());
     return () => {
+      cleanupAudio();
       try { recognitionRef.current?.abort(); } catch { /* noop */ }
       if (timerRef.current) window.clearInterval(timerRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const startTimer = () => {
@@ -78,6 +89,62 @@ export function VoiceRecorder({
     if (timerRef.current) {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
+    }
+  };
+
+  const cleanupAudio = () => {
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      try { audioCtxRef.current.close(); } catch { /* noop */ }
+      audioCtxRef.current = null;
+    }
+    analyserRef.current = null;
+    historyRef.current = Array(NUM_BARS).fill(0.08);
+    setBars(Array(NUM_BARS).fill(0.08));
+  };
+
+  const startVisualization = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const Ctx = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
+      const ctx = new Ctx();
+      audioCtxRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.6;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      const tick = () => {
+        if (!analyserRef.current) return;
+        analyserRef.current.getByteTimeDomainData(data);
+        // RMS para amplitude geral
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) {
+          const v = (data[i] - 128) / 128;
+          sum += v * v;
+        }
+        const rms = Math.sqrt(sum / data.length);
+        // Amplifica e clamp
+        const level = Math.min(1, Math.max(0.08, rms * 3.2));
+        // Push novo nível, mantém histórico tipo waveform que rola
+        historyRef.current = [...historyRef.current.slice(1), level];
+        setBars(historyRef.current);
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      tick();
+    } catch (e) {
+      console.warn("Falha ao iniciar visualização de áudio", e);
     }
   };
 
@@ -128,12 +195,14 @@ export function VoiceRecorder({
       setLocked(false);
       lockedRef.current = false;
       stopTimer();
+      cleanupAudio();
     };
     rec.onend = async () => {
       setRecording(false);
       setLocked(false);
       lockedRef.current = false;
       stopTimer();
+      cleanupAudio();
       const raw = finalTextRef.current.trim();
       if (cancelledRef.current || !raw) return;
       const polished = await polish(raw);
@@ -145,6 +214,7 @@ export function VoiceRecorder({
       rec.start();
       setRecording(true);
       startTimer();
+      startVisualization();
     } catch {
       setRecording(false);
     }
@@ -162,12 +232,12 @@ export function VoiceRecorder({
     setLocked(false);
     lockedRef.current = false;
     stopTimer();
+    cleanupAudio();
   };
 
-  // Hold-to-talk handlers
   const onPointerDown = (e: React.PointerEvent) => {
     if (disabled || polishing) return;
-    if (recording) return; // se já gravando (locked), tap trata no click
+    if (recording) return;
     e.preventDefault();
     pressStartRef.current = Date.now();
     beginRecording();
@@ -177,25 +247,16 @@ export function VoiceRecorder({
     if (!recording) return;
     const held = Date.now() - pressStartRef.current;
     if (held < HOLD_THRESHOLD_MS) {
-      // tap curto: trava em modo mãos-livres
       lockedRef.current = true;
       setLocked(true);
       e.preventDefault();
       return;
     }
-    // segurou: solta = para
     stopRecording();
   };
 
-  const onPointerLeave = () => {
-    // se segurando e arrastar para fora, mantém gravando (deixa o user usar stop button)
-  };
-
   const onClick = () => {
-    // Quando travado, clique para parar
-    if (recording && lockedRef.current) {
-      stopRecording();
-    }
+    if (recording && lockedRef.current) stopRecording();
   };
 
   if (!supported) {
@@ -217,52 +278,74 @@ export function VoiceRecorder({
   const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
   const ss = String(elapsed % 60).padStart(2, "0");
 
-  return (
-    <div className={cn("flex items-center gap-1.5", className)}>
-      {recording && (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground select-none">
-          <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-          <span className="tabular-nums">{mm}:{ss}</span>
-          <button
-            type="button"
-            onClick={cancelRecording}
-            className="ml-1 h-6 w-6 rounded-full flex items-center justify-center hover:bg-muted text-muted-foreground"
-            title="Cancelar"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      )}
-      <button
-        type="button"
-        disabled={disabled || polishing}
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerLeave={onPointerLeave}
-        onPointerCancel={onPointerUp}
-        onClick={onClick}
+  // Overlay de gravação estilo WhatsApp
+  if (recording) {
+    return (
+      <div
         className={cn(
-          "h-9 w-9 rounded-full flex items-center justify-center transition-all touch-none select-none",
-          recording
-            ? "bg-red-500 text-white scale-110 shadow-lg shadow-red-500/30"
-            : "bg-muted hover:bg-muted/80 text-foreground",
-          polishing && "opacity-60 cursor-wait",
+          "flex items-center gap-2 rounded-full bg-background border border-border shadow-lg pl-2 pr-1 py-1 animate-fade-in",
+          className,
         )}
-        title={
-          polishing
-            ? "Corrigindo transcrição..."
-            : recording
-              ? (locked ? "Toque para parar" : "Solte para parar")
-              : "Toque (mãos livres) ou segure para gravar"
-        }
-        aria-label="Gravar áudio"
       >
-        {polishing ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Mic className={cn("h-4 w-4", recording && "animate-pulse")} />
-        )}
-      </button>
-    </div>
+        <button
+          type="button"
+          onClick={cancelRecording}
+          className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
+          title="Cancelar gravação"
+          aria-label="Cancelar gravação"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+
+        <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+        <span className="text-xs tabular-nums text-foreground/80 min-w-[36px]">
+          {mm}:{ss}
+        </span>
+
+        {/* Waveform */}
+        <div className="flex items-center gap-[2px] h-8 w-44 sm:w-56">
+          {bars.map((b, i) => (
+            <span
+              key={i}
+              className="flex-1 rounded-full bg-red-500/70"
+              style={{
+                height: `${Math.max(10, b * 100)}%`,
+                transition: "height 60ms linear",
+              }}
+            />
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          onClick={onClick}
+          className="h-9 w-9 rounded-full flex items-center justify-center bg-red-500 text-white shadow-md shadow-red-500/30 hover:bg-red-600 transition-colors touch-none"
+          title={locked ? "Toque para parar e transcrever" : "Solte para parar"}
+          aria-label="Parar gravação"
+        >
+          <Check className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      disabled={disabled || polishing}
+      onPointerDown={onPointerDown}
+      className={cn(
+        "h-9 w-9 rounded-full flex items-center justify-center transition-all touch-none select-none",
+        "bg-muted hover:bg-muted/80 text-foreground",
+        polishing && "opacity-60 cursor-wait",
+        className,
+      )}
+      title={polishing ? "Corrigindo transcrição..." : "Toque (mãos livres) ou segure para gravar"}
+      aria-label="Gravar áudio"
+    >
+      {polishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
+    </button>
   );
 }
