@@ -2,9 +2,15 @@ import { useMemo } from "react";
 import { X, Play, MapPin, Clock, Gauge, Loader2 } from "lucide-react";
 import { useVehicleTrips, type VehicleTrip } from "@/hooks/useVehicleTrips";
 
+const VEHICLE_TZ = "America/New_York";
+
 function fmtTime(iso: string | null) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: VEHICLE_TZ,
+  });
 }
 function fmtDur(s: number | null | undefined) {
   if (!s) return "—";
@@ -12,16 +18,26 @@ function fmtDur(s: number | null | undefined) {
   const m = Math.floor((s % 3600) / 60);
   return h ? `${h}h ${m}min` : `${m} min`;
 }
-function dayHeader(iso: string) {
-  return new Date(iso)
-    .toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })
+function dayKey(iso: string) {
+  return new Date(iso).toLocaleDateString("sv-SE", { timeZone: VEHICLE_TZ });
+}
+function dayHeader(key: string) {
+  const [y, m, d] = key.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d, 12));
+  return dt
+    .toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      timeZone: "UTC",
+    })
     .toUpperCase();
 }
 function groupByDay(trips: VehicleTrip[]) {
   const map = new Map<string, VehicleTrip[]>();
   for (const t of trips) {
     if (!t.started_at) continue;
-    const k = new Date(t.started_at).toISOString().slice(0, 10);
+    const k = dayKey(t.started_at);
     if (!map.has(k)) map.set(k, []);
     map.get(k)!.push(t);
   }
