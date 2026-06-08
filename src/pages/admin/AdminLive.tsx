@@ -153,6 +153,19 @@ export default function AdminLive() {
   const [filter, setFilter] = useState<"all" | "moving" | "idle" | "parked">("all");
   const navigate = useNavigate();
   const mapRef = useRef<L.Map | null>(null);
+  const [mapKey, setMapKey] = useState(() => Date.now());
+
+  // Force a fresh map instance whenever the component (re)mounts to avoid
+  // "Map container is already initialized" after Suspense reappear / HMR.
+  useEffect(() => {
+    setMapKey(Date.now());
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
 
   // Simulate real-time movement
   useEffect(() => {
@@ -161,6 +174,7 @@ export default function AdminLive() {
     }, 2000);
     return () => clearInterval(interval);
   }, []);
+
 
   const filtered = vehicles.filter((v) => filter === "all" || v.status === filter);
   const selectedVehicle = vehicles.find((v) => v.id === selected);
