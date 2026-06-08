@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
               .map((t: any) => mapTrip(v.id, imei, t));
             if (rows.length > 0) {
               const { error: upErr } = await admin.from("vehicle_trips")
-                .upsert(rows, { onConflict: "transaction_id" });
+                .upsert(rows, { onConflict: "id" });
               if (upErr) {
                 errors.push({ imei, window: { startsAfter, endsBefore }, error: upErr.message });
               } else {
