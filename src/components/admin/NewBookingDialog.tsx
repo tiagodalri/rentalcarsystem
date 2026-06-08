@@ -469,24 +469,26 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
                 {extracting ? <Loader2 size={14} className="animate-spin mr-1.5" /> : <Sparkles size={14} className="mr-1.5" />}
                 Extrair do texto
               </Button>
-              <VoiceRecorder
-                disabled={extracting}
-                onTranscript={(t) => setExtractText(t)}
-                onFinal={(t) => {
-                  setExtractText(t);
-                  // Pequeno delay para garantir que o state atualizou antes de extrair
-                  setTimeout(() => handleExtract(), 50);
-                }}
-                className="h-11 rounded-xl"
-              />
             </div>
-            <Textarea
-              rows={2}
-              className="mt-2.5 text-sm"
-              placeholder="Ou cole aqui o texto da mensagem do WhatsApp — ou clique em Gravar áudio e fale a reserva..."
-              value={extractText}
-              onChange={(e) => setExtractText(e.target.value)}
-            />
+            <div className="relative mt-2.5">
+              <Textarea
+                rows={2}
+                className="text-sm pr-14"
+                placeholder="Cole aqui o texto do WhatsApp — ou toque no microfone para ditar (estilo WhatsApp: toque rápido = mãos livres, segure para gravar)..."
+                value={extractText}
+                onChange={(e) => setExtractText(e.target.value)}
+              />
+              <div className="absolute right-2 bottom-2">
+                <VoiceRecorder
+                  disabled={extracting}
+                  onTranscript={(t) => setExtractText(t)}
+                  onFinal={(t) => {
+                    setExtractText(t);
+                    setTimeout(() => handleExtract(), 50);
+                  }}
+                />
+              </div>
+            </div>
             {extractedOnce && pendingFields.size > 0 && (
               <p className="text-xs text-amber-600 dark:text-amber-400 mt-2 leading-relaxed">
                 {pendingFields.size} campo(s) pendente(s) destacado(s) em amarelo.
