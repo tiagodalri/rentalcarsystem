@@ -27,21 +27,18 @@ const DARK_STYLE: any[] = [
   { featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#101317" }] },
 ];
 
-function markerSvg(color: string, selected: boolean): any {
-  const size = selected ? 44 : 32;
+function markerSvg(color: string, selected: boolean, heading: number | null): any {
+  const size = selected ? 30 : 24;
+  const rot = heading ?? 0;
   return {
     url:
       "data:image/svg+xml;charset=UTF-8," +
       encodeURIComponent(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 44 44">
-          <defs>
-            <filter id="g" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="2" />
-            </filter>
-          </defs>
-          <circle cx="22" cy="22" r="14" fill="${color}" opacity="0.25" filter="url(#g)"/>
-          <circle cx="22" cy="22" r="9" fill="${color}" stroke="${selected ? "#D4AF37" : "rgba(0,0,0,0.5)"}" stroke-width="${selected ? 3 : 2}"/>
-          <circle cx="22" cy="22" r="3.2" fill="#ffffff" opacity="0.95"/>
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+          <g transform="rotate(${rot} 12 12)">
+            <circle cx="12" cy="12" r="7" fill="${color}" stroke="${selected ? "#D4AF37" : "#ffffff"}" stroke-width="${selected ? 2.5 : 2}"/>
+            <path d="M12 4 L14.2 8 L9.8 8 Z" fill="${selected ? "#D4AF37" : "#ffffff"}"/>
+          </g>
         </svg>`
       ),
     scaledSize: { width: size, height: size } as any,
@@ -239,8 +236,9 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           mapTypeId: layers.mapType === "satellite" ? "hybrid" : "roadmap",
           disableDefaultUI: true,
           zoomControl: true,
-          streetViewControl: true,
-          fullscreenControl: true,
+          zoomControlOptions: { position: (window as any).google?.maps?.ControlPosition?.RIGHT_BOTTOM },
+          streetViewControl: false,
+          fullscreenControl: false,
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
         });
@@ -317,7 +315,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       const color = statusColor(v.status);
       const icon = layers.carvatars
         ? carvatarSvg(getCoverImage(v.name), color, isSelected)
-        : markerSvg(color, isSelected);
+        : markerSvg(color, isSelected, v.heading ?? null);
 
       const reportedAtMs = v.reported_at ? new Date(v.reported_at).getTime() : Date.now();
       const prev = anchors.get(v.vehicle_id);

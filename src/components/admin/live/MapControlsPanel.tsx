@@ -14,14 +14,14 @@ export type MapLayers = {
 export const DEFAULT_LAYERS: MapLayers = {
   mapType: "roadmap",
   traffic: false,
-  carvatars: true,
+  carvatars: false,
   nwsAlerts: false,
   speedLegend: true,
   geoZones: true,
   tripEvents: true,
 };
 
-const STORAGE_KEY = "zeus.liveMap.layers.v1";
+const STORAGE_KEY = "zeus.liveMap.layers.v2";
 
 export function useMapLayers() {
   const [layers, setLayers] = useState<MapLayers>(() => {
