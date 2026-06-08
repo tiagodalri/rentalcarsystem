@@ -60,14 +60,30 @@ function sampleGps(points: any[] | null | undefined, maxPoints = 500): any[] | n
 }
 
 async function fetchTripsForImei(token: string, imei: string, days: number) {
-  const since = new Date(Date.now() - days * 86400_000).toISOString();
-  const url = `https://api.bouncie.dev/v1/trips?imei=${encodeURIComponent(imei)}&starts-after=${encodeURIComponent(since)}&gps-format=polyline`;
-  const resp = await fetch(url, { headers: { Authorization: token } });
-  if (!resp.ok) {
-    const txt = await resp.text();
-    throw new Error(`GET /trips ${resp.status}: ${txt}`);
+  // Bouncie /trips requires start/end within 7 days — chunk into weekly windows.
+  const WINDOW_DAYS = 7;
+  const now = Date.now();
+  const startMs = now - days * 86400_000;
+  const all: any[] = [];
+  const errors: string[] = [];
+
+  for (let cursor = startMs; cursor < now; cursor += WINDOW_DAYS * 86400_000) {
+    const winStart = new Date(cursor).toISOString();
+    const winEnd = new Date(Math.min(cursor + WINDOW_DAYS * 86400_000, now)).toISOString();
+    const url = `https://api.bouncie.dev/v1/trips?imei=${encodeURIComponent(imei)}&starts-after=${encodeURIComponent(winStart)}&ends-before=${encodeURIComponent(winEnd)}&gps-format=polyline`;
+    const resp = await fetch(url, { headers: { Authorization: token } });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      errors.push(`${winStart.slice(0,10)}..${winEnd.slice(0,10)}: ${resp.status} ${txt.slice(0,120)}`);
+      continue;
+    }
+    const arr = await resp.json() as any[];
+    if (Array.isArray(arr)) all.push(...arr);
   }
-  return await resp.json() as any[];
+  if (errors.length && all.length === 0) {
+    throw new Error(`all windows failed: ${errors.join(" | ")}`);
+  }
+  return all;
 }
 
 Deno.serve(async (req) => {
@@ -91,25 +107,22 @@ Deno.serve(async (req) => {
     let inserted = 0, totalFetched = 0, vehiclesProcessed = 0;
     const errors: any[] = [];
 
-    for (const v of vehicles ?? []) {
-      if (!v.bouncie_imei) continue;
+    async function processVehicle(v: { id: string; bouncie_imei: string | null }) {
+      if (!v.bouncie_imei) return;
       vehiclesProcessed++;
       try {
         const trips = await fetchTripsForImei(token, v.bouncie_imei, days);
         totalFetched += trips.length;
-        for (const t of trips) {
+        const rows = trips.map((t) => {
           const tripId: string = t.transactionId ?? t.tripId ?? t.id;
-          if (!tripId) continue;
-
+          if (!tripId) return null;
           const startTime = t.startTime ?? t.start?.time ?? null;
           const endTime = t.endTime ?? t.end?.time ?? null;
           const duration = startTime && endTime
             ? Math.max(0, Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / 1000))
             : null;
-
           const gps = sampleGps(t.gpsData ?? t.gps ?? t.path ?? null);
-
-          const row = {
+          return {
             id: tripId,
             transaction_id: tripId,
             vehicle_id: v.id,
@@ -136,15 +149,29 @@ Deno.serve(async (req) => {
             gps,
             raw: t,
           };
+        }).filter(Boolean) as any[];
 
-          const { error: upErr } = await admin
-            .from("vehicle_trips").upsert(row, { onConflict: "id" });
-          if (upErr) errors.push({ tripId, err: upErr.message });
-          else inserted++;
+        if (rows.length) {
+          // Bulk upsert in chunks to avoid huge payloads
+          const CHUNK = 100;
+          for (let i = 0; i < rows.length; i += CHUNK) {
+            const slice = rows.slice(i, i + CHUNK);
+            const { error: upErr } = await admin
+              .from("vehicle_trips").upsert(slice, { onConflict: "id" });
+            if (upErr) errors.push({ vehicleId: v.id, err: upErr.message });
+            else inserted += slice.length;
+          }
         }
       } catch (e) {
         errors.push({ vehicleId: v.id, err: (e as Error).message });
       }
+    }
+
+    // Process vehicles in parallel batches of 5 to stay under edge function timeouts
+    const list = (vehicles ?? []).filter((v: any) => v.bouncie_imei);
+    const CONCURRENCY = 5;
+    for (let i = 0; i < list.length; i += CONCURRENCY) {
+      await Promise.all(list.slice(i, i + CONCURRENCY).map(processVehicle));
     }
 
     return new Response(JSON.stringify({
