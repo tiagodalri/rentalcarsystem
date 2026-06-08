@@ -71,7 +71,7 @@ export default function AdminLive() {
   const noTelemetry = !loading && onMap.length === 0;
 
   return (
-    <div className="space-y-4 lg:h-[calc(100vh-10rem)] flex flex-col">
+    <div className="space-y-4 lg:h-[calc(100dvh-10rem)] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
