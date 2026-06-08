@@ -952,14 +952,15 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
               <SkipForward size={14} />
             </button>
 
-            <div className="flex items-center gap-1 bg-white/5 rounded-full p-0.5">
-              {[1, 4, 16].map((s) => (
+            <div className="flex items-center gap-0.5 bg-white/5 rounded-full p-0.5">
+              {SPEED_OPTIONS.map((s) => (
                 <button
                   key={s}
-                  onClick={() => setSpeed(s as 1 | 4 | 16)}
-                  className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full transition-colors ${
+                  onClick={() => setSpeed(s)}
+                  className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full transition-colors ${
                     speed === s ? "bg-[#D4AF37] text-black" : "text-white/70 hover:text-white"
                   }`}
+                  title={s === 18 ? "Velocidade padrão" : s < 18 ? "Mais lento" : "Mais rápido"}
                 >
                   {s}×
                 </button>
