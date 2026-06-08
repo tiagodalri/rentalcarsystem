@@ -50,6 +50,8 @@ const AdminFinance = lazy(() => import("./pages/admin/AdminFinance.tsx"));
 const AdminTeam = lazy(() => import("./pages/admin/AdminTeam.tsx"));
 const AdminOpsToday = lazy(() => import("./pages/admin/AdminOpsToday.tsx"));
 const AdminFleetGantt = lazy(() => import("./pages/admin/AdminFleetGantt.tsx"));
+const AdminVehicleNew = lazy(() => import("./pages/admin/AdminVehicleNew.tsx"));
+const AdminBookingNew = lazy(() => import("./pages/admin/AdminBookingNew.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
