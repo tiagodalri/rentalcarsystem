@@ -752,7 +752,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
             {recording ? (
               <>
                 <Loader2 size={11} className="animate-spin" />
-                Gravando {Math.round(recProgress * 100)}%
+                Renderizando {Math.round(recProgress * 100)}%
               </>
             ) : (
               <>
