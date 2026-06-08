@@ -317,6 +317,7 @@ export default function AdminLive() {
           </div>
 
           <MapContainer
+            key={mapKey}
             center={[27.5, -81.0]}
             zoom={7}
             style={{ width: "100%", height: "100%" }}
