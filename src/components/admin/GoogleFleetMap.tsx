@@ -3,6 +3,7 @@ import { loadGoogleMaps } from "@/lib/googleMapsLoader";
 import { useTripTrail, speedBandColor, type TrailPoint } from "@/hooks/useTripTrail";
 import type { LiveVehicle } from "@/hooks/useFleetLive";
 import { getCoverImage } from "@/data/vehicleImages";
+import { supabase } from "@/integrations/supabase/client";
 
 // --- Dark theme for Google Maps that matches Zeus admin (off-black) ---
 const DARK_STYLE: any[] = [
