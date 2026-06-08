@@ -10,6 +10,8 @@ import { toast } from "@/hooks/use-toast";
 
 import { Loader2, Upload, Sparkles } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
+import { VoiceRecorder } from "@/components/admin/VoiceRecorder";
+
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
 import { BookingDateField } from "@/components/admin/BookingDateField";
 import { useFormDraft, clearFormDraft } from "@/hooks/useFormDraft";
