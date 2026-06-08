@@ -513,7 +513,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
               </div>
               <div className="mt-2 text-[10px] text-white/60 flex items-center gap-1.5">
                 <Clock size={10} style={{ color: GOLD }} />
-                <span className="tabular-nums">{fmtTimeOfDay(hud.realTime)}</span>
+                <span className="tabular-nums">{fmtTimeOfDay(hud.realTime, data.timeZone)}</span>
               </div>
               {data.startAddress && playbackMs < 5000 && (
                 <p className="mt-2 text-[10px] text-white/50 leading-snug flex items-start gap-1">
