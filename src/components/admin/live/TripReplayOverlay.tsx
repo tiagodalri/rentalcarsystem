@@ -530,7 +530,26 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
             <p className="text-[10px] uppercase tracking-[0.25em] font-bold" style={{ color: GOLD }}>Replay de viagem</p>
             <h2 className="text-sm font-bold text-white truncate">{vehicleName}</h2>
           </div>
+          {data && (
+            <span
+              className="hidden sm:inline-flex items-center gap-1.5 ml-2 px-2.5 py-1 rounded-full text-[9px] uppercase tracking-[0.2em] font-bold border"
+              style={
+                data.level === 2
+                  ? { color: GOLD, borderColor: `${GOLD}66`, background: `${GOLD}10` }
+                  : { color: "rgba(255,255,255,0.7)", borderColor: "rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.04)" }
+              }
+              title={
+                data.level === 2
+                  ? "Telemetria ponto-a-ponto (velocidade, tempo e eventos reais)"
+                  : "Apenas agregados da viagem — sem velocidade ponto-a-ponto"
+              }
+            >
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: data.level === 2 ? GOLD : "rgba(255,255,255,0.5)" }} />
+              {data.level === 2 ? "Replay detalhado" : "Replay resumido"}
+            </span>
+          )}
         </div>
+
 
         {data && (
           <div className="hidden md:flex items-center gap-4 lg:gap-5 text-xs text-white/70 flex-wrap justify-center">
