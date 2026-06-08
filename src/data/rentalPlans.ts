@@ -1,4 +1,4 @@
-export type PlanId = "essencial" | "conforto" | "premium";
+export type PlanId = "unico";
 
 export interface RentalPlan {
   id: PlanId;
@@ -6,7 +6,7 @@ export interface RentalPlan {
   dailyExtra: number;
   insurance: "basic" | "premium";
   deposit: number;
-  deductibleMultiplier: number;
+  franchise: number;
   tollTag: boolean;
   childSeat: boolean;
   extraDriver: boolean;
@@ -21,13 +21,13 @@ export interface RentalPlan {
 }
 
 export const PLANS: Record<PlanId, RentalPlan> = {
-  essencial: {
-    id: "essencial",
-    name: "Zeus Essencial",
+  unico: {
+    id: "unico",
+    name: "Zeus",
     dailyExtra: 0,
     insurance: "basic",
-    deposit: 550,
-    deductibleMultiplier: 11,
+    deposit: 300,
+    franchise: 1200,
     tollTag: false,
     childSeat: false,
     extraDriver: false,
@@ -35,52 +35,14 @@ export const PLANS: Record<PlanId, RentalPlan> = {
     cancellationLabel: "Sem reembolso",
     reschedule: "none",
     rescheduleLabel: "Não permitida",
-    delivery: true,
+    delivery: false,
     priority: false,
     upgrade: false,
     returnFee: 150,
   },
-  conforto: {
-    id: "conforto",
-    name: "Zeus Conforto",
-    dailyExtra: 29,
-    insurance: "premium",
-    deposit: 0,
-    deductibleMultiplier: 0,
-    tollTag: true,
-    childSeat: false,
-    extraDriver: true,
-    cancellation: "50%",
-    cancellationLabel: "50% reembolso até 48h",
-    reschedule: "once_75",
-    rescheduleLabel: "1x com taxa de US$ 75",
-    delivery: true,
-    priority: false,
-    upgrade: false,
-    returnFee: 90,
-  },
-  premium: {
-    id: "premium",
-    name: "Zeus Premium",
-    dailyExtra: 49,
-    insurance: "premium",
-    deposit: 0,
-    deductibleMultiplier: 0,
-    tollTag: true,
-    childSeat: true,
-    extraDriver: true,
-    cancellation: "100%",
-    cancellationLabel: "100% reembolso até 24h",
-    reschedule: "unlimited_free",
-    rescheduleLabel: "Ilimitada sem taxa",
-    delivery: true,
-    priority: true,
-    upgrade: true,
-    returnFee: 0,
-  },
 };
 
-export const PLAN_ORDER: PlanId[] = ["essencial", "conforto", "premium"];
+export const PLAN_ORDER: PlanId[] = ["unico"];
 
 // Items included in ALL plans
 export const BASE_INCLUDES = [
