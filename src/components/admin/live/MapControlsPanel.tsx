@@ -21,7 +21,7 @@ export const DEFAULT_LAYERS: MapLayers = {
   tripEvents: true,
 };
 
-const STORAGE_KEY = "zeus.liveMap.layers.v1";
+const STORAGE_KEY = "zeus.liveMap.layers.v2";
 
 export function useMapLayers() {
   const [layers, setLayers] = useState<MapLayers>(() => {
