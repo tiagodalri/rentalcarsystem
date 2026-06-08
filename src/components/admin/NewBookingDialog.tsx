@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { PLANS, PLAN_ORDER } from "@/data/rentalPlans";
+
 import { Loader2, Upload, Sparkles } from "lucide-react";
 import { CustomerCombobox, type CustomerLite } from "@/components/admin/CustomerCombobox";
 import { AddressAutocomplete } from "@/components/admin/AddressAutocomplete";
