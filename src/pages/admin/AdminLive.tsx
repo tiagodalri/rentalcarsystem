@@ -7,6 +7,7 @@ import { Signal, Battery, Gauge, Clock, MapPin, ExternalLink, Fuel, AlertTriangl
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
+import { UnlinkedBouncieDevices } from "@/components/admin/UnlinkedBouncieDevices";
 
 // --- Custom marker icon ---
 function createVehicleIcon(status: LiveVehicle["status"], isSelected: boolean) {
@@ -156,6 +157,8 @@ export default function AdminLive() {
       <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0 lg:h-[calc(100%-8rem)]">
         {/* Vehicle list sidebar */}
         <div className="w-full lg:w-72 lg:shrink-0 flex flex-col gap-2 lg:overflow-hidden">
+          <UnlinkedBouncieDevices />
+
           <div className="flex flex-wrap gap-1.5">
             {(["all", "moving", "idle", "parked"] as const).map((f) => (
               <button
