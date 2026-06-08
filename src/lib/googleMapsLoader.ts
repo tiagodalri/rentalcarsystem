@@ -3,7 +3,7 @@
 
 let loaderPromise: Promise<any> | null = null;
 
-export function loadGoogleMaps(): Promise<typeof google> {
+export function loadGoogleMaps(): Promise<any> {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("Google Maps requires a browser environment"));
   }
