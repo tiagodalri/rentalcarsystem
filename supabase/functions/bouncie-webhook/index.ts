@@ -139,11 +139,35 @@ Deno.serve(async (req) => {
         .upsert(update, { onConflict: "vehicle_id" });
       if (upErr) console.error("[bouncie-webhook] telemetry upsert error:", upErr.message);
 
-      // 2) Raw history
-      await admin.from("vehicle_telemetry_history").insert({
-        vehicle_id: vehicleId, lat, lng, speed, heading,
-        event_type: eventType, reported_at: reportedAt, raw: payload,
-      });
+      // 2) Raw history — expand tripData `data[]` into one row per GPS sample
+      if (dataArr.length > 0) {
+        const rows = dataArr
+          .map((s: any) => {
+            const sLat = pickNumber(s?.lat, s?.latitude);
+            const sLng = pickNumber(s?.lon, s?.lng, s?.longitude);
+            if (sLat === null || sLng === null) return null;
+            const sTs = pickString(s?.timestamp, s?.time);
+            return {
+              vehicle_id: vehicleId,
+              lat: sLat,
+              lng: sLng,
+              speed: pickNumber(s?.speed),
+              heading: pickNumber(s?.heading, s?.bearing),
+              event_type: eventType,
+              reported_at: sTs ? new Date(sTs).toISOString() : reportedAt,
+              raw: s,
+            };
+          })
+          .filter((r) => r !== null);
+        if (rows.length > 0) {
+          await admin.from("vehicle_telemetry_history").insert(rows as any[]);
+        }
+      } else if (lat !== null && lng !== null) {
+        await admin.from("vehicle_telemetry_history").insert({
+          vehicle_id: vehicleId, lat, lng, speed, heading,
+          event_type: eventType, reported_at: reportedAt, raw: payload,
+        });
+      }
 
       // 3) Structured event log (new)
       if (eventType) {
