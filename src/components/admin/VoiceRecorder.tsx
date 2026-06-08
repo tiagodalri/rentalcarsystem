@@ -16,6 +16,7 @@ type Props = {
   disabled?: boolean;
   language?: string;
   className?: string;
+  fullWidth?: boolean;
 };
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
