@@ -49,8 +49,8 @@ const TOLL_TAG_DAILY = 4;
 const PREMIUM_INSURANCE_DAILY = 22;
 const LONG_RENTAL_DISCOUNT_RATE = 0.05;
 const LONG_RENTAL_MIN_DAYS = 10;
-const BASIC_DEPOSIT = 550;
-const DEDUCTIBLE_MULTIPLIER = 11;
+const BASIC_DEPOSIT = 300;
+const BASIC_FRANCHISE = 1200;
 
 
 const vehicleFeaturesMap: Record<string, string[]> = {
