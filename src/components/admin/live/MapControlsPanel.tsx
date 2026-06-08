@@ -239,6 +239,12 @@ export function MapControlsPanel({ layers, onChange }: Props) {
                 onClick={() => set("mapType", "satellite")}
                 preview={previews.satellite}
               />
+              <ToggleCard
+                label="Satélite 3D"
+                active={layers.mapType === "satellite3d"}
+                onClick={() => set("mapType", "satellite3d")}
+                preview={previews.satellite3d}
+              />
             </div>
           </div>
 
