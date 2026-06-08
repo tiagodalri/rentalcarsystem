@@ -113,6 +113,8 @@ const App = () => (
             <ScrollToTop />
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/share/track/:token" element={<PublicTrack />} />
+
               <Route path="/sobre-nos" element={<AboutUs />} />
               <Route path="/frota" element={<Frota />} />
               <Route path="/buscar" element={<SearchResults />} />
