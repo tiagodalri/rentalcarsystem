@@ -84,7 +84,32 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
         });
-        infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false });
+        infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false, maxWidth: 320 });
+
+        // Intercept POI clicks to render a rich Google Places card
+        mapRef.current.addListener("click", async (e: any) => {
+          if (!e?.placeId) return;
+          e.stop?.();
+          const placeId = e.placeId as string;
+          const latLng = e.latLng;
+          infoWindowRef.current.setContent(
+            `<div style="font-family:'Inter',sans-serif;padding:8px 12px;font-size:12px;color:#6b7280">Carregando informações…</div>`
+          );
+          infoWindowRef.current.setPosition(latLng);
+          infoWindowRef.current.open(mapRef.current);
+          try {
+            const { data, error: fnErr } = await supabase.functions.invoke("place-details", {
+              body: { placeId },
+            });
+            if (fnErr || !data?.place) throw fnErr || new Error("no data");
+            infoWindowRef.current.setContent(renderPlaceCard(data.place, data.photoUrl));
+          } catch (err) {
+            console.error("[place-details]", err);
+            infoWindowRef.current.setContent(
+              `<div style="font-family:'Inter',sans-serif;padding:8px 12px;font-size:12px;color:#ef4444">Não foi possível carregar detalhes do local.</div>`
+            );
+          }
+        });
         setReady(true);
       })
       .catch((e) => {
