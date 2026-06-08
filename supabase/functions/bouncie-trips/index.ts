@@ -107,25 +107,22 @@ Deno.serve(async (req) => {
     let inserted = 0, totalFetched = 0, vehiclesProcessed = 0;
     const errors: any[] = [];
 
-    for (const v of vehicles ?? []) {
-      if (!v.bouncie_imei) continue;
+    async function processVehicle(v: { id: string; bouncie_imei: string | null }) {
+      if (!v.bouncie_imei) return;
       vehiclesProcessed++;
       try {
         const trips = await fetchTripsForImei(token, v.bouncie_imei, days);
         totalFetched += trips.length;
-        for (const t of trips) {
+        const rows = trips.map((t) => {
           const tripId: string = t.transactionId ?? t.tripId ?? t.id;
-          if (!tripId) continue;
-
+          if (!tripId) return null;
           const startTime = t.startTime ?? t.start?.time ?? null;
           const endTime = t.endTime ?? t.end?.time ?? null;
           const duration = startTime && endTime
             ? Math.max(0, Math.round((new Date(endTime).getTime() - new Date(startTime).getTime()) / 1000))
             : null;
-
           const gps = sampleGps(t.gpsData ?? t.gps ?? t.path ?? null);
-
-          const row = {
+          return {
             id: tripId,
             transaction_id: tripId,
             vehicle_id: v.id,
@@ -152,15 +149,29 @@ Deno.serve(async (req) => {
             gps,
             raw: t,
           };
+        }).filter(Boolean) as any[];
 
-          const { error: upErr } = await admin
-            .from("vehicle_trips").upsert(row, { onConflict: "id" });
-          if (upErr) errors.push({ tripId, err: upErr.message });
-          else inserted++;
+        if (rows.length) {
+          // Bulk upsert in chunks to avoid huge payloads
+          const CHUNK = 100;
+          for (let i = 0; i < rows.length; i += CHUNK) {
+            const slice = rows.slice(i, i + CHUNK);
+            const { error: upErr } = await admin
+              .from("vehicle_trips").upsert(slice, { onConflict: "id" });
+            if (upErr) errors.push({ vehicleId: v.id, err: upErr.message });
+            else inserted += slice.length;
+          }
         }
       } catch (e) {
         errors.push({ vehicleId: v.id, err: (e as Error).message });
       }
+    }
+
+    // Process vehicles in parallel batches of 5 to stay under edge function timeouts
+    const list = (vehicles ?? []).filter((v: any) => v.bouncie_imei);
+    const CONCURRENCY = 5;
+    for (let i = 0; i < list.length; i += CONCURRENCY) {
+      await Promise.all(list.slice(i, i + CONCURRENCY).map(processVehicle));
     }
 
     return new Response(JSON.stringify({
