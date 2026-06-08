@@ -28,20 +28,51 @@ const DARK_STYLE: any[] = [
   { featureType: "landscape.natural", elementType: "geometry", stylers: [{ color: "#101317" }] },
 ];
 
-function markerSvg(color: string, selected: boolean, heading: number | null): any {
-  const size = selected ? 30 : 24;
-  const rot = heading ?? 0;
+/**
+ * Modern "puck"-style fleet marker. Vector SVG, retina-crisp at any zoom.
+ * - Drop shadow for subtle 3D elevation
+ * - White border (gold if selected)
+ * - Status color (moving=green, idle=amber, parked=gray)
+ * - Directional cone pointing to heading (only when moving)
+ * - Translucent outer halo (only when moving) for the "alive" feel
+ * - Tiny top-down car silhouette inside the puck
+ */
+function puckSvg(color: string, selected: boolean, headingDeg: number, moving: boolean): any {
+  // Slightly larger when selected so it pops.
+  const size = selected ? 52 : 44;
+  const h = ((headingDeg % 360) + 360) % 360;
+  const ringStroke = selected ? "#D4AF37" : "#ffffff";
+  const ringWidth = selected ? 3 : 2.2;
+  const haloOpacity = moving ? 0.22 : 0;
+  // Cone shown only when actually moving; rotates with heading.
+  const cone = moving
+    ? `<g transform="rotate(${h} 22 22)">
+         <path d="M22 1 L30 12 L22 9 L14 12 Z" fill="${color}" opacity="0.95" />
+       </g>`
+    : "";
+  // Tiny top-down car silhouette (white), also rotates with heading so it "looks where it goes"
+  const carBody = `
+    <g transform="rotate(${h} 22 22)" opacity="0.95">
+      <rect x="18.5" y="16" width="7" height="12" rx="2" fill="#ffffff" />
+      <rect x="19.5" y="17.5" width="5" height="3.2" rx="0.6" fill="${color}" />
+      <rect x="19.5" y="22" width="5" height="4" rx="0.6" fill="${color}" opacity="0.6" />
+    </g>`;
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 44 44">
+      <defs>
+        <filter id="puckShadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#000" flood-opacity="0.42"/>
+        </filter>
+      </defs>
+      <circle cx="22" cy="22" r="19" fill="${color}" opacity="${haloOpacity}" />
+      <g filter="url(#puckShadow)">
+        <circle cx="22" cy="22" r="12.5" fill="${color}" stroke="${ringStroke}" stroke-width="${ringWidth}" />
+      </g>
+      ${cone}
+      ${carBody}
+    </svg>`;
   return {
-    url:
-      "data:image/svg+xml;charset=UTF-8," +
-      encodeURIComponent(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
-          <g transform="rotate(${rot} 12 12)">
-            <circle cx="12" cy="12" r="7" fill="${color}" stroke="${selected ? "#D4AF37" : "#ffffff"}" stroke-width="${selected ? 2.5 : 2}"/>
-            <path d="M12 4 L14.2 8 L9.8 8 Z" fill="${selected ? "#D4AF37" : "#ffffff"}"/>
-          </g>
-        </svg>`
-      ),
+    url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
     scaledSize: { width: size, height: size } as any,
     anchor: { x: size / 2, y: size / 2 } as any,
   };
