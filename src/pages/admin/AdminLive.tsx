@@ -1,50 +1,11 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import { Signal, Battery, Gauge, Clock, MapPin, ExternalLink, Fuel, AlertTriangle, Activity } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
 import { UnlinkedBouncieDevices } from "@/components/admin/UnlinkedBouncieDevices";
-
-// --- Custom marker icon ---
-function createVehicleIcon(status: LiveVehicle["status"], isSelected: boolean) {
-  const color = status === "moving" ? "#22c55e" : status === "idle" ? "#f59e0b" : "#6b7280";
-  const size = isSelected ? 18 : 12;
-  const pulse = status === "moving"
-    ? `<circle cx="12" cy="12" r="10" fill="${color}" opacity="0.25"><animate attributeName="r" from="10" to="20" dur="1.5s" repeatCount="indefinite"/><animate attributeName="opacity" from="0.25" to="0" dur="1.5s" repeatCount="indefinite"/></circle>`
-    : "";
-
-  return L.divIcon({
-    className: "",
-    iconSize: [size * 2.5, size * 2.5],
-    iconAnchor: [size * 1.25, size * 1.25],
-    html: `<svg width="${size * 2.5}" height="${size * 2.5}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      ${pulse}
-      <circle cx="12" cy="12" r="${isSelected ? 8 : 6}" fill="${color}" stroke="${isSelected ? "#F5A800" : "rgba(0,0,0,0.3)"}" stroke-width="${isSelected ? 2.5 : 1.5}"/>
-      <circle cx="12" cy="12" r="2.5" fill="white" opacity="0.9"/>
-    </svg>`,
-  });
-}
-
-function MapBounds({ vehicles }: { vehicles: LiveVehicle[] }) {
-  const map = useMap();
-  const fitted = useRef(false);
-  useEffect(() => {
-    if (!fitted.current && vehicles.length > 0) {
-      const pts = vehicles
-        .filter((v) => v.lat !== null && v.lng !== null)
-        .map((v) => [v.lat as number, v.lng as number] as [number, number]);
-      if (pts.length === 0) return;
-      const bounds = L.latLngBounds(pts);
-      map.fitBounds(bounds, { padding: [60, 60], maxZoom: 11 });
-      fitted.current = true;
-    }
-  }, [vehicles, map]);
-  return null;
-}
+import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 
 function formatRelative(iso: string | null): string {
   if (!iso) return "—";
@@ -59,17 +20,19 @@ function formatRelative(iso: string | null): string {
   return `há ${Math.floor(h / 24)}d`;
 }
 
+const SPEED_BANDS = [
+  { label: "0-35 mph", color: "#f59e0b" },
+  { label: "35-45 mph", color: "#22c55e" },
+  { label: "45-50 mph", color: "#3b82f6" },
+  { label: "50-65 mph", color: "#ec4899" },
+  { label: "65+ mph", color: "#ef4444" },
+];
+
 export default function AdminLive() {
   const { vehicles, loading } = useFleetLive();
   const [selected, setSelected] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "moving" | "idle" | "parked">("all");
   const navigate = useNavigate();
-  const mapRef = useRef<L.Map | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const onMap = useMemo(
     () => vehicles.filter((v) => v.lat !== null && v.lng !== null),
@@ -96,14 +59,6 @@ export default function AdminLive() {
     };
   }, [onMap]);
 
-  const focusVehicle = (id: string) => {
-    setSelected(id);
-    const v = vehicles.find((veh) => veh.vehicle_id === id);
-    if (v && v.lat !== null && v.lng !== null && mapRef.current) {
-      mapRef.current.flyTo([v.lat, v.lng], 14, { duration: 0.8 });
-    }
-  };
-
   const noTelemetry = !loading && onMap.length === 0;
 
   return (
@@ -122,7 +77,7 @@ export default function AdminLive() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
               </span>
             </h1>
-            <p className="text-xs text-muted-foreground">Telemetria Bouncie em tempo real</p>
+            <p className="text-xs text-muted-foreground">Telemetria Bouncie em tempo real • Google Maps</p>
           </div>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -187,7 +142,7 @@ export default function AdminLive() {
               filtered.map((v) => (
                 <button
                   key={v.vehicle_id}
-                  onClick={() => focusVehicle(v.vehicle_id)}
+                  onClick={() => setSelected(v.vehicle_id)}
                   className={`w-full text-left rounded-lg border p-2.5 transition-all ${
                     selected === v.vehicle_id
                       ? "bg-primary/5 border-primary/40 shadow-sm shadow-primary/10"
@@ -233,10 +188,25 @@ export default function AdminLive() {
 
         {/* Map */}
         <div className="flex-1 rounded-xl overflow-hidden border border-border/40 relative h-[60vh] lg:h-auto min-h-[400px]">
-          <div className="absolute top-3 left-3 z-[1000] flex items-center gap-2 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-border/30">
+          <div className="absolute top-3 left-3 z-[1000] flex items-center gap-2 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-border/30 pointer-events-none">
             <span className="text-sm font-bold text-primary">ZEUS</span>
             <span className="text-[10px] text-muted-foreground font-light uppercase tracking-widest">Fleet Tracker</span>
           </div>
+
+          {/* Speed bands legend (only when a vehicle is selected) */}
+          {selectedVehicle && (
+            <div className="absolute top-3 right-3 z-[1000] bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 border border-border/30">
+              <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">Speed bands</p>
+              <div className="space-y-1">
+                {SPEED_BANDS.map((b) => (
+                  <div key={b.label} className="flex items-center gap-2 text-[10px] text-foreground/80">
+                    <span className="w-3 h-1 rounded-full" style={{ backgroundColor: b.color }} />
+                    <span className="tabular-nums">{b.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {noTelemetry && (
             <div className="absolute inset-0 z-[900] flex items-center justify-center bg-background/70 backdrop-blur-sm">
@@ -250,70 +220,12 @@ export default function AdminLive() {
             </div>
           )}
 
-          {!mounted && (
-            <div style={{ width: "100%", height: "100%" }} className="bg-card/30" />
-          )}
-
-          {mounted && (
-          <MapContainer
-            key="zeus-fleet-map"
-            center={[27.5, -81.0]}
-            zoom={7}
-            style={{ width: "100%", height: "100%" }}
-            zoomControl={false}
-            ref={(instance) => { mapRef.current = instance; }}
-            attributionControl={false}
-          >
-            <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
-            />
-            <MapBounds vehicles={onMap} />
-
-            {filtered.map((v) => (
-              <Marker
-                key={v.vehicle_id}
-                position={[v.lat as number, v.lng as number]}
-                icon={createVehicleIcon(v.status, selected === v.vehicle_id)}
-                eventHandlers={{ click: () => focusVehicle(v.vehicle_id) }}
-              >
-                <Popup className="zeus-popup">
-                  <div className="text-xs space-y-2 min-w-[180px]">
-                    <img
-                      src={getCoverImage(v.name)}
-                      alt={v.name}
-                      className="w-full h-24 object-cover rounded-md -mt-1"
-                      loading="lazy"
-                      width={180}
-                      height={96}
-                    />
-                    <p className="font-bold text-sm">{v.name}</p>
-                    <p className="font-mono text-muted-foreground">{v.plate ?? "—"}</p>
-                    <div className="flex justify-between pt-1 border-t border-border/30">
-                      <span>Velocidade</span>
-                      <span className="font-semibold tabular-nums">{Math.round(v.speed ?? 0)} mph</span>
-                    </div>
-                    {v.fuel_level !== null && (
-                      <div className="flex justify-between">
-                        <span>Combustível</span>
-                        <span className="font-semibold tabular-nums">{Math.round(v.fuel_level)}%</span>
-                      </div>
-                    )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/admin/fleet/${v.vehicle_id}`);
-                      }}
-                      className="w-full mt-2 flex items-center justify-center gap-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors py-1.5 text-[11px] font-semibold"
-                    >
-                      <ExternalLink size={11} /> Abrir Veículo
-                    </button>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
-          )}
+          <GoogleFleetMap
+            vehicles={filtered}
+            selectedId={selected}
+            onSelect={setSelected}
+            onOpen={(id) => navigate(`/admin/fleet/${id}`)}
+          />
 
           {/* Selected vehicle detail overlay */}
           {selectedVehicle && (
