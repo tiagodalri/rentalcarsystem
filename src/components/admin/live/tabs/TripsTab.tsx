@@ -4,9 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, RefreshCw, ChevronRight, MapPin, Gauge, Clock, Fuel, AlertTriangle, Activity } from "lucide-react";
 
+// Fuso do veículo (frota em Orlando/FL). Garante que o horário exibido
+// bata com o portal Bouncie e com o relógio do motorista — independente
+// do fuso do navegador de quem está olhando.
+const VEHICLE_TZ = "America/New_York";
+
 function fmtTime(iso: string | null): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: VEHICLE_TZ,
+  });
 }
 function fmtMi(v: number | null | undefined, d = 1): string {
   if (v == null) return "—";
@@ -18,15 +27,29 @@ function fmtDuration(s: number | null | undefined): string {
   const m = Math.floor((s % 3600) / 60);
   return h ? `${h}h ${m}min` : `${m} min`;
 }
-function dayHeader(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" }).toUpperCase();
+// YYYY-MM-DD no fuso do veículo (sv-SE produz exatamente esse formato)
+function dayKey(iso: string): string {
+  return new Date(iso).toLocaleDateString("sv-SE", { timeZone: VEHICLE_TZ });
+}
+function dayHeader(key: string): string {
+  // key = "YYYY-MM-DD" no fuso do veículo. Reconstruímos como meio-dia UTC
+  // pra evitar qualquer drift de fuso no formatador.
+  const [y, m, d] = key.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d, 12));
+  return dt
+    .toLocaleDateString("pt-BR", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      timeZone: "UTC",
+    })
+    .toUpperCase();
 }
 function groupByDay(trips: VehicleTrip[]) {
   const map = new Map<string, VehicleTrip[]>();
   for (const t of trips) {
     if (!t.started_at) continue;
-    const k = new Date(t.started_at).toISOString().slice(0, 10);
+    const k = dayKey(t.started_at);
     if (!map.has(k)) map.set(k, []);
     map.get(k)!.push(t);
   }
