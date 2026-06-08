@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: imageBase64 ? "google/gemini-2.5-pro" : "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: SYSTEM },
           { role: "user", content: userContent },
