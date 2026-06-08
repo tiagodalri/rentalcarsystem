@@ -65,16 +65,10 @@ export default function AdminLive() {
   const [filter, setFilter] = useState<"all" | "moving" | "idle" | "parked">("all");
   const navigate = useNavigate();
   const mapRef = useRef<L.Map | null>(null);
-  const [mapKey, setMapKey] = useState(() => Date.now());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMapKey(Date.now());
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
+    setMounted(true);
   }, []);
 
   const onMap = useMemo(
@@ -256,8 +250,13 @@ export default function AdminLive() {
             </div>
           )}
 
+          {!mounted && (
+            <div style={{ width: "100%", height: "100%" }} className="bg-card/30" />
+          )}
+
+          {mounted && (
           <MapContainer
-            key={mapKey}
+            key="zeus-fleet-map"
             center={[27.5, -81.0]}
             zoom={7}
             style={{ width: "100%", height: "100%" }}
@@ -314,6 +313,7 @@ export default function AdminLive() {
               </Marker>
             ))}
           </MapContainer>
+          )}
 
           {/* Selected vehicle detail overlay */}
           {selectedVehicle && (
