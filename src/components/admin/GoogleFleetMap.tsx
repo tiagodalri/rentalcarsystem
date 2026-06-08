@@ -372,60 +372,67 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     }
   }, [layers.traffic, ready]);
 
-  // 2. Sync markers with vehicles + update anchors for smooth animation
+  // 2. Sync vehicle updates → push into per-vehicle buffer; create/remove markers
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     const google = (window as any).google;
     const map = mapRef.current;
     const existing = markersRef.current;
-    const anchors = anchorsRef.current;
+    const states = statesRef.current;
     const seen = new Set<string>();
-    const now = performance.now();
 
     for (const v of vehicles) {
       if (v.lat === null || v.lng === null) continue;
       seen.add(v.vehicle_id);
       const isSelected = v.vehicle_id === selectedId;
-      const color = statusColor(v.status);
-      const icon = markerSvg(color, isSelected, v.heading ?? null);
-
       const reportedAtMs = v.reported_at ? new Date(v.reported_at).getTime() : Date.now();
-      const prev = anchors.get(v.vehicle_id);
 
-      // Detect a "new fix" (server-side data actually changed)
-      const isNewFix =
-        !prev ||
-        prev.lat !== v.lat ||
-        prev.lng !== v.lng ||
-        prev.reportedAt !== reportedAtMs;
-
-      if (isNewFix) {
-        anchors.set(v.vehicle_id, {
-          lat: v.lat,
-          lng: v.lng,
-          heading: v.heading ?? prev?.heading ?? 0,
+      let st = states.get(v.vehicle_id);
+      if (!st) {
+        st = {
+          buffer: [{ lat: v.lat, lng: v.lng, t: reportedAtMs }],
+          lastReportedMs: reportedAtMs,
+          status: v.status,
           speed: v.speed ?? 0,
-          reportedAt: reportedAtMs,
-          receivedAt: Date.now(),
-          moving: v.status === "moving",
-          // Tween from the currently-drawn position (or the new anchor if first time)
-          displayLat: prev?.displayLat ?? v.lat,
-          displayLng: prev?.displayLng ?? v.lng,
-          tweenFromLat: prev?.displayLat ?? v.lat,
-          tweenFromLng: prev?.displayLng ?? v.lng,
-          tweenStart: now,
-        });
-      } else if (prev) {
-        // Same fix — just refresh moving flag & heading in case status changed
-        prev.moving = v.status === "moving";
+          drawnHeading: v.heading ?? 0,
+          targetHeading: v.heading ?? 0,
+          displayLat: v.lat,
+          displayLng: v.lng,
+          iconKey: "",
+          selected: isSelected,
+        };
+        states.set(v.vehicle_id, st);
+      } else {
+        // Same fix? skip buffer push. Different reportedAt → consider as new fix.
+        const isNewFix = reportedAtMs !== st.lastReportedMs;
+        if (isNewFix) {
+          const last = st.buffer[st.buffer.length - 1];
+          const d = last ? haversineM(last, { lat: v.lat, lng: v.lng }) : Infinity;
+          const speedMph = v.speed ?? 0;
+          const stationary = speedMph < 1 && d < MIN_MOVE_METERS;
+          const absurdJump = last && d > MAX_JUMP_METERS && (reportedAtMs - last.t) < 10_000;
+          if (!stationary && !absurdJump) {
+            st.buffer.push({ lat: v.lat, lng: v.lng, t: reportedAtMs });
+          }
+          st.lastReportedMs = reportedAtMs;
+        }
+        st.status = v.status;
+        st.speed = v.speed ?? 0;
+        st.selected = isSelected;
       }
 
       let marker = existing.get(v.vehicle_id);
       if (!marker) {
+        const initialIcon = puckSvg(
+          statusColor(v.status),
+          isSelected,
+          st.drawnHeading,
+          v.status === "moving",
+        );
         marker = new google.maps.Marker({
           map,
-          position: { lat: v.lat, lng: v.lng },
-          icon,
+          position: { lat: st.displayLat, lng: st.displayLng },
+          icon: initialIcon,
           title: v.name,
           zIndex: isSelected ? 999 : 1,
           optimized: false,
@@ -435,16 +442,15 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         });
         existing.set(v.vehicle_id, marker);
       } else {
-        // Position is now driven by the rAF loop; only refresh icon/z-index here
-        marker.setIcon(icon);
         marker.setZIndex(isSelected ? 999 : 1);
+        // icon is refreshed inside the rAF loop when heading/status/selection change
       }
     }
     for (const [id, m] of existing) {
       if (!seen.has(id)) {
         m.setMap(null);
         existing.delete(id);
-        anchors.delete(id);
+        states.delete(id);
       }
     }
 
@@ -458,56 +464,130 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       map.fitBounds(bounds, 80);
       fittedRef.current = true;
     }
-  }, [vehicles, selectedId, ready, onSelect, layers.carvatars]);
+  }, [vehicles, selectedId, ready, onSelect]);
 
-  // 2b. Smooth animation loop: tween on new fixes + dead reckoning between fixes
+  // 2b. Single rAF loop — buffer-replay interpolation + smooth rotation + follow cam
   useEffect(() => {
     if (!ready) return;
-    const anchors = anchorsRef.current;
+    const states = statesRef.current;
     const markers = markersRef.current;
 
     const tick = () => {
-      const now = performance.now();
       const wallNow = Date.now();
+      const renderTime = wallNow - RENDER_DELAY_MS;
 
-      for (const [id, a] of anchors) {
+      for (const [id, st] of states) {
         const marker = markers.get(id);
         if (!marker) continue;
 
-        // 1) Compute the "true" target = anchor + dead-reckoned offset
-        const ageMs = wallNow - a.reportedAt;
-        let targetLat = a.lat;
-        let targetLng = a.lng;
-        if (a.moving && a.speed > 1 && ageMs > 0 && ageMs < MAX_EXTRAPOLATE_MS) {
-          const elapsedS = ageMs / 1000;
-          const metersPerSec = a.speed * 0.44704; // mph -> m/s
-          const dist = metersPerSec * elapsedS;
-          const brg = (a.heading * Math.PI) / 180;
-          const dLat = (dist * Math.cos(brg)) / 111320;
-          const dLng =
-            (dist * Math.sin(brg)) /
-            (111320 * Math.cos((a.lat * Math.PI) / 180) || 1);
-          targetLat = a.lat + dLat;
-          targetLng = a.lng + dLng;
-        }
+        const buf = st.buffer;
+        // Trim very old points (keep at least one)
+        const cutoff = renderTime - BUFFER_TTL_MS;
+        while (buf.length > 1 && buf[1].t < cutoff) buf.shift();
 
-        // 2) Tween from previous display position to target over TWEEN_MS
-        const tElapsed = now - a.tweenStart;
         let display: { lat: number; lng: number };
-        if (tElapsed >= TWEEN_MS) {
-          display = { lat: targetLat, lng: targetLng };
+        let segA: BufferPoint | null = null;
+        let segB: BufferPoint | null = null;
+
+        if (buf.length === 0) {
+          display = { lat: st.displayLat, lng: st.displayLng };
+        } else if (buf.length === 1 || renderTime <= buf[0].t) {
+          display = { lat: buf[0].lat, lng: buf[0].lng };
+        } else if (renderTime >= buf[buf.length - 1].t) {
+          // No future point yet — hold the latest known so we don't extrapolate.
+          const last = buf[buf.length - 1];
+          display = { lat: last.lat, lng: last.lng };
         } else {
-          // ease-out cubic
-          const k = 1 - Math.pow(1 - tElapsed / TWEEN_MS, 3);
+          // Find A,B bracketing renderTime
+          let lo = 0, hi = buf.length - 1;
+          while (lo < hi - 1) {
+            const mid = (lo + hi) >> 1;
+            if (buf[mid].t <= renderTime) lo = mid; else hi = mid;
+          }
+          segA = buf[lo];
+          segB = buf[hi];
+          const span = Math.max(1, segB.t - segA.t);
+          const f = Math.min(1, Math.max(0, (renderTime - segA.t) / span));
           display = {
-            lat: a.tweenFromLat + (targetLat - a.tweenFromLat) * k,
-            lng: a.tweenFromLng + (targetLng - a.tweenFromLng) * k,
+            lat: segA.lat + (segB.lat - segA.lat) * f,
+            lng: segA.lng + (segB.lng - segA.lng) * f,
           };
         }
 
-        a.displayLat = display.lat;
-        a.displayLng = display.lng;
+        // Update target heading only when we have real motion segment (>= MIN_MOVE)
+        // AND vehicle is actually moving. Otherwise keep last drawn heading.
+        if (segA && segB && st.status === "moving" && st.speed > 1) {
+          const dSeg = haversineM(segA, segB);
+          if (dSeg >= MIN_MOVE_METERS) {
+            st.targetHeading = bearingDeg(segA, segB);
+          }
+        }
+        // Smooth rotation
+        st.drawnHeading = lerpAngle(st.drawnHeading, st.targetHeading, HEADING_LERP_PER_FRAME);
+
+        st.displayLat = display.lat;
+        st.displayLng = display.lng;
         marker.setPosition(display);
+
+        // Refresh icon only when something visual changed (cheap key compare)
+        const headingBucket = Math.round(st.drawnHeading / 3) * 3;
+        const movingFlag = st.status === "moving" ? "M" : st.status === "idle" ? "I" : "P";
+        const selFlag = st.selected ? "S" : "_";
+        const key = `${movingFlag}${selFlag}${headingBucket}`;
+        if (key !== st.iconKey) {
+          st.iconKey = key;
+          marker.setIcon(
+            puckSvg(
+              statusColor(st.status),
+              st.selected,
+              st.drawnHeading,
+              st.status === "moving",
+            ),
+          );
+        }
+      }
+
+      // --- Follow camera (selected vehicle only) ---
+      const selId = selectedIdRef.current;
+      const map = mapRef.current;
+      if (followRef.current && selId && map) {
+        const sel = states.get(selId);
+        if (sel) {
+          const now = performance.now();
+          const dueByTime = now - lastFollowPanRef.current >= FOLLOW_PAN_INTERVAL_MS;
+          let nearEdge = false;
+          try {
+            const proj = map.getProjection?.();
+            const bounds = map.getBounds?.();
+            if (proj && bounds) {
+              const div = map.getDiv?.() as HTMLElement | undefined;
+              if (div) {
+                const w = div.clientWidth, h = div.clientHeight;
+                const ne = bounds.getNorthEast(), sw = bounds.getSouthWest();
+                const scale = Math.pow(2, map.getZoom?.() ?? 12);
+                const worldOrigin = proj.fromLatLngToPoint(ne);
+                const worldSw = proj.fromLatLngToPoint(sw);
+                const worldCar = proj.fromLatLngToPoint(
+                  new (window as any).google.maps.LatLng(sel.displayLat, sel.displayLng),
+                );
+                if (worldOrigin && worldSw && worldCar) {
+                  const px = (worldCar.x - worldSw.x) * scale;
+                  const py = (worldOrigin.y - worldCar.y) * scale;
+                  // px/py in pixels from bottom-left & top-right respectively — approx edge check:
+                  if (px < FOLLOW_EDGE_PX || py < FOLLOW_EDGE_PX ||
+                      px > (w - FOLLOW_EDGE_PX) || py > (h - FOLLOW_EDGE_PX)) {
+                    nearEdge = true;
+                  }
+                }
+              }
+            }
+          } catch { /* projection not ready yet */ }
+          if (dueByTime || nearEdge) {
+            lastFollowPanRef.current = now;
+            programmaticPanAtRef.current = now;
+            map.panTo({ lat: sel.displayLat, lng: sel.displayLng });
+          }
+        }
       }
 
       rafRef.current = requestAnimationFrame(tick);
@@ -519,19 +599,57 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     };
   }, [ready]);
 
-
-  // 3. Pan to selected vehicle
+  // 3. On selection change: enable follow + immediate centre. User-drag turns it off.
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     infoWindowRef.current?.close();
-    if (!selectedId) return;
-    const v = vehicles.find((x) => x.vehicle_id === selectedId);
-    if (!v || v.lat === null || v.lng === null) return;
+    if (!selectedId) {
+      setFollowing(false);
+      return;
+    }
     const map = mapRef.current;
-    map.panTo({ lat: v.lat, lng: v.lng });
-    if (map.getZoom() < 13) map.setZoom(14);
+    const st = statesRef.current.get(selectedId);
+    const fallback = vehicles.find((x) => x.vehicle_id === selectedId);
+    const target =
+      st ? { lat: st.displayLat, lng: st.displayLng } :
+      (fallback && fallback.lat != null && fallback.lng != null)
+        ? { lat: fallback.lat, lng: fallback.lng }
+        : null;
+    if (target) {
+      programmaticPanAtRef.current = performance.now();
+      map.panTo(target);
+      if (map.getZoom() < 14) map.setZoom(15);
+    }
+    setFollowing(true);
+    lastFollowPanRef.current = performance.now();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, ready]);
+
+  // 3b. Detect user dragging the map → turn off follow (unless it's our own panTo)
+  useEffect(() => {
+    if (!ready || !mapRef.current) return;
+    const google = (window as any).google;
+    const map = mapRef.current;
+    const handler = map.addListener("dragstart", () => {
+      const sincePan = performance.now() - programmaticPanAtRef.current;
+      if (sincePan > PROGRAMMATIC_PAN_GUARD_MS && followRef.current) {
+        setFollowing(false);
+      }
+    });
+    return () => google?.maps?.event?.removeListener(handler);
+  }, [ready]);
+
+  const recentralize = useCallback(() => {
+    const map = mapRef.current;
+    const selId = selectedIdRef.current;
+    if (!map || !selId) return;
+    const st = statesRef.current.get(selId);
+    if (!st) return;
+    programmaticPanAtRef.current = performance.now();
+    lastFollowPanRef.current = performance.now();
+    map.panTo({ lat: st.displayLat, lng: st.displayLng });
+    setFollowing(true);
+  }, []);
 
   // 4. Trip trail polyline
   useEffect(() => {
