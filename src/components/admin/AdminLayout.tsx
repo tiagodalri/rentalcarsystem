@@ -80,8 +80,10 @@ export default function AdminLayout() {
 
             <MinimalFooter />
           </div>
+          <FullscreenFab />
         </div>
       </AdminTabsProvider>
+
     </SidebarProvider>
   );
 }
