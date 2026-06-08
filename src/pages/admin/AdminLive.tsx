@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Signal, Battery, Gauge, Clock, MapPin, ExternalLink, Fuel, AlertTriangle, Activity } from "lucide-react";
+import { Signal, Battery, Gauge, Clock, MapPin, ExternalLink, Fuel, AlertTriangle, Activity, X, Car } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
@@ -229,23 +229,36 @@ export default function AdminLive() {
 
           {/* Selected vehicle detail overlay */}
           {selectedVehicle && (
-            <div className="absolute bottom-3 right-3 z-[1000] bg-background/90 backdrop-blur-md rounded-xl border border-border/40 w-72 shadow-xl overflow-hidden">
-              <img
-                src={getCoverImage(selectedVehicle.name)}
-                alt={selectedVehicle.name}
-                className="w-full h-32 object-cover"
-                loading="lazy"
-                width={288}
-                height={128}
-              />
+            <div className="absolute bottom-3 right-3 z-[1000] bg-background/95 backdrop-blur-md rounded-xl border border-border/40 w-80 shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
+              {/* Header with close */}
+              <div className="relative">
+                <img
+                  src={getCoverImage(selectedVehicle.name)}
+                  alt={selectedVehicle.name}
+                  className="w-full h-32 object-cover bg-muted"
+                  loading="lazy"
+                  width={320}
+                  height={128}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
+                />
+                <button
+                  onClick={() => setSelected(null)}
+                  aria-label="Fechar"
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 flex items-center justify-center text-foreground hover:bg-background transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
               <div className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <p className="font-bold text-foreground">{selectedVehicle.name}</p>
-                    <p className="text-[10px] font-mono text-muted-foreground">{selectedVehicle.plate ?? "—"}</p>
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div className="min-w-0">
+                    <p className="font-bold text-foreground text-sm leading-tight truncate">{selectedVehicle.name}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{selectedVehicle.plate ?? "—"}</p>
                   </div>
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                    className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ${
                       selectedVehicle.status === "moving"
                         ? "bg-green-500/10 text-green-500"
                         : selectedVehicle.status === "idle"
@@ -269,42 +282,42 @@ export default function AdminLive() {
                 )}
 
                 <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="text-muted-foreground flex items-center gap-1.5"><Gauge size={12} />Velocidade</span>
                     <span className="font-semibold text-foreground tabular-nums">{Math.round(selectedVehicle.speed ?? 0)} mph</span>
                   </div>
                   {selectedVehicle.fuel_level !== null && (
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-muted-foreground flex items-center gap-1.5"><Fuel size={12} />Combustível</span>
                       <span className="font-semibold text-foreground tabular-nums">{Math.round(selectedVehicle.fuel_level)}%</span>
                     </div>
                   )}
                   {selectedVehicle.odometer !== null && (
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-muted-foreground flex items-center gap-1.5"><Activity size={12} />Odômetro</span>
                       <span className="font-semibold text-foreground tabular-nums">{Math.round(selectedVehicle.odometer).toLocaleString("pt-BR")} mi</span>
                     </div>
                   )}
                   {selectedVehicle.battery_status && (
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-muted-foreground flex items-center gap-1.5"><Battery size={12} />Bateria</span>
                       <span className="font-semibold text-foreground capitalize">{selectedVehicle.battery_status}</span>
                     </div>
                   )}
                   {selectedVehicle.address && (
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-muted-foreground flex items-center gap-1.5 shrink-0"><MapPin size={12} />Local</span>
+                    <div className="flex items-start justify-between gap-3">
+                      <span className="text-muted-foreground flex items-center gap-1.5 shrink-0 pt-0.5"><MapPin size={12} />Local</span>
                       <span className="font-medium text-foreground text-right text-[11px] leading-snug">{selectedVehicle.address}</span>
                     </div>
                   )}
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <span className="text-muted-foreground flex items-center gap-1.5"><Clock size={12} />Atualizado</span>
                     <span className="font-medium text-foreground">{formatRelative(selectedVehicle.reported_at)}</span>
                   </div>
                 </div>
                 {selectedVehicle.lat !== null && selectedVehicle.lng !== null && (
-                  <div className="mt-3 pt-2 border-t border-border/30 text-[10px] text-muted-foreground/60 tabular-nums">
-                    Lat: {selectedVehicle.lat.toFixed(5)} / Lng: {selectedVehicle.lng.toFixed(5)}
+                  <div className="mt-3 pt-2 border-t border-border/30 text-[10px] text-muted-foreground/60 tabular-nums text-center">
+                    {selectedVehicle.lat.toFixed(5)}, {selectedVehicle.lng.toFixed(5)}
                   </div>
                 )}
                 <button

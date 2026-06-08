@@ -248,40 +248,20 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen }: Props
     }
   }, [vehicles, selectedId, ready, onSelect]);
 
-  // 3. Pan to selected vehicle and open info window
+  // 3. Pan to selected vehicle ONCE per selection (not on every telemetry tick)
+  //    Vehicle details are shown on the side panel — no InfoWindow on the marker.
   useEffect(() => {
-    if (!ready || !mapRef.current || !selectedId) {
-      infoWindowRef.current?.close();
-      return;
-    }
+    if (!ready || !mapRef.current) return;
+    // Close any open InfoWindow (POI popup) when selecting a vehicle
+    infoWindowRef.current?.close();
+    if (!selectedId) return;
     const v = vehicles.find((x) => x.vehicle_id === selectedId);
     if (!v || v.lat === null || v.lng === null) return;
     const map = mapRef.current;
     map.panTo({ lat: v.lat, lng: v.lng });
-    if (map.getZoom() < 12) map.setZoom(13);
-
-    const marker = markersRef.current.get(v.vehicle_id);
-    if (marker && infoWindowRef.current) {
-      const html = `
-        <div style="font-family:'Inter',sans-serif;min-width:200px;color:#111">
-          <img src="${getCoverImage(v.name)}" alt="${v.name}" style="width:100%;height:90px;object-fit:cover;border-radius:6px;margin-bottom:6px" />
-          <div style="font-weight:700;font-size:13px">${v.name}</div>
-          <div style="font-family:monospace;font-size:11px;color:#6b7280">${v.plate ?? "—"}</div>
-          <div style="display:flex;justify-content:space-between;font-size:11px;margin-top:6px;padding-top:6px;border-top:1px solid #e5e7eb">
-            <span>Velocidade</span><b>${Math.round(v.speed ?? 0)} mph</b>
-          </div>
-          ${v.fuel_level !== null ? `<div style="display:flex;justify-content:space-between;font-size:11px"><span>Combustível</span><b>${Math.round(v.fuel_level)}%</b></div>` : ""}
-          <button id="zeus-open-${v.vehicle_id}" style="margin-top:8px;width:100%;background:#D4AF37;color:#0a0a0a;font-weight:700;font-size:11px;border:0;border-radius:6px;padding:6px;cursor:pointer">Abrir Veículo</button>
-        </div>`;
-      infoWindowRef.current.setContent(html);
-      infoWindowRef.current.open({ map, anchor: marker });
-      // Wire the button after DOM render
-      setTimeout(() => {
-        const btn = document.getElementById(`zeus-open-${v.vehicle_id}`);
-        btn?.addEventListener("click", () => onOpen(v.vehicle_id));
-      }, 50);
-    }
-  }, [selectedId, vehicles, ready, onOpen]);
+    if (map.getZoom() < 13) map.setZoom(14);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, ready]);
 
   // 4. Draw trip trail (polyline segments colored by speed band)
   useEffect(() => {
