@@ -16,6 +16,7 @@ type Props = {
   disabled?: boolean;
   language?: string;
   className?: string;
+  fullWidth?: boolean;
 };
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
@@ -46,6 +47,7 @@ export function VoiceRecorder({
   disabled,
   language = "pt-BR",
   className,
+  fullWidth = false,
 }: Props) {
   const [recording, setRecording] = useState(false);
   const [locked, setLocked] = useState(false);
@@ -278,32 +280,33 @@ export function VoiceRecorder({
   const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
   const ss = String(elapsed % 60).padStart(2, "0");
 
-  // Overlay de gravação estilo WhatsApp
+  // Barra de gravação estilo WhatsApp (não sobrepõe — ocupa sua própria linha)
   if (recording) {
     return (
       <div
         className={cn(
-          "flex items-center gap-2 rounded-full bg-background border border-border shadow-lg pl-2 pr-1 py-1 animate-fade-in",
+          "flex items-center gap-2 rounded-xl bg-card border border-border shadow-sm pl-2 pr-1.5 py-1.5 animate-fade-in",
+          fullWidth ? "w-full" : "",
           className,
         )}
       >
         <button
           type="button"
           onClick={cancelRecording}
-          className="h-8 w-8 rounded-full flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
+          className="h-8 w-8 shrink-0 rounded-full flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-colors"
           title="Cancelar gravação"
           aria-label="Cancelar gravação"
         >
           <Trash2 className="h-4 w-4" />
         </button>
 
-        <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-        <span className="text-xs tabular-nums text-foreground/80 min-w-[36px]">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-red-500 animate-pulse" />
+        <span className="text-xs tabular-nums text-foreground/80 shrink-0 min-w-[36px]">
           {mm}:{ss}
         </span>
 
-        {/* Waveform */}
-        <div className="flex items-center gap-[2px] h-8 w-44 sm:w-56">
+        {/* Waveform — flex-1 para preencher espaço */}
+        <div className="flex items-center gap-[2px] h-8 flex-1 min-w-0">
           {bars.map((b, i) => (
             <span
               key={i}
@@ -321,13 +324,43 @@ export function VoiceRecorder({
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
           onClick={onClick}
-          className="h-9 w-9 rounded-full flex items-center justify-center bg-red-500 text-white shadow-md shadow-red-500/30 hover:bg-red-600 transition-colors touch-none"
+          className="h-9 w-9 shrink-0 rounded-full flex items-center justify-center bg-red-500 text-white shadow-md shadow-red-500/30 hover:bg-red-600 transition-colors touch-none"
           title={locked ? "Toque para parar e transcrever" : "Solte para parar"}
           aria-label="Parar gravação"
         >
           <Check className="h-4 w-4" />
         </button>
       </div>
+    );
+  }
+
+  if (fullWidth) {
+    return (
+      <button
+        type="button"
+        disabled={disabled || polishing}
+        onPointerDown={onPointerDown}
+        className={cn(
+          "w-full h-11 rounded-xl flex items-center justify-center gap-2 transition-all touch-none select-none",
+          "bg-card border border-border hover:bg-muted text-foreground text-sm font-medium",
+          polishing && "opacity-60 cursor-wait",
+          className,
+        )}
+        title={polishing ? "Corrigindo transcrição..." : "Toque (mãos livres) ou segure para gravar"}
+        aria-label="Gravar áudio"
+      >
+        {polishing ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Corrigindo transcrição...
+          </>
+        ) : (
+          <>
+            <Mic className="h-4 w-4" />
+            Ditar por voz
+          </>
+        )}
+      </button>
     );
   }
 
@@ -349,3 +382,4 @@ export function VoiceRecorder({
     </button>
   );
 }
+
