@@ -21,9 +21,11 @@ const PENDING_CLASS = "ring-1 ring-amber-500/60 focus-visible:ring-amber-500";
 type Vehicle = { id: string; name: string; daily_price_usd: number; default_deposit_amount?: number | null; default_franchise_amount?: number | null };
 
 interface Props {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
   onCreated: () => void;
+  mode?: "modal" | "page";
+  onCancel?: () => void;
 }
 
 const STATUS_OPTIONS = [
