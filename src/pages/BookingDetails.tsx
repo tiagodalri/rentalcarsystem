@@ -307,7 +307,7 @@ const BookingDetails = () => {
         return_location: returnLocation,
         total_price: pricing.total,
         status: "pending",
-        plan_id: selectedPlanId,
+        plan_id: "unico",
         addons: addonsData,
         extra_driver: hasExtraDriver,
         notes: `Plano: ${currentPlan.name}`,
