@@ -68,7 +68,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
               {visibleItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton
-                    onClick={() => navigate(item.url)}
+                    onClick={() => handleNavigate(item.url)}
                     isActive={isActive(item.url)}
                     tooltip={item.title}
                     className={`transition-colors ${
