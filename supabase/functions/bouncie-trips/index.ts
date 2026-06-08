@@ -60,14 +60,30 @@ function sampleGps(points: any[] | null | undefined, maxPoints = 500): any[] | n
 }
 
 async function fetchTripsForImei(token: string, imei: string, days: number) {
-  const since = new Date(Date.now() - days * 86400_000).toISOString();
-  const url = `https://api.bouncie.dev/v1/trips?imei=${encodeURIComponent(imei)}&starts-after=${encodeURIComponent(since)}&gps-format=polyline`;
-  const resp = await fetch(url, { headers: { Authorization: token } });
-  if (!resp.ok) {
-    const txt = await resp.text();
-    throw new Error(`GET /trips ${resp.status}: ${txt}`);
+  // Bouncie /trips requires start/end within 7 days — chunk into weekly windows.
+  const WINDOW_DAYS = 7;
+  const now = Date.now();
+  const startMs = now - days * 86400_000;
+  const all: any[] = [];
+  const errors: string[] = [];
+
+  for (let cursor = startMs; cursor < now; cursor += WINDOW_DAYS * 86400_000) {
+    const winStart = new Date(cursor).toISOString();
+    const winEnd = new Date(Math.min(cursor + WINDOW_DAYS * 86400_000, now)).toISOString();
+    const url = `https://api.bouncie.dev/v1/trips?imei=${encodeURIComponent(imei)}&starts-after=${encodeURIComponent(winStart)}&ends-before=${encodeURIComponent(winEnd)}&gps-format=polyline`;
+    const resp = await fetch(url, { headers: { Authorization: token } });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      errors.push(`${winStart.slice(0,10)}..${winEnd.slice(0,10)}: ${resp.status} ${txt.slice(0,120)}`);
+      continue;
+    }
+    const arr = await resp.json() as any[];
+    if (Array.isArray(arr)) all.push(...arr);
   }
-  return await resp.json() as any[];
+  if (errors.length && all.length === 0) {
+    throw new Error(`all windows failed: ${errors.join(" | ")}`);
+  }
+  return all;
 }
 
 Deno.serve(async (req) => {
