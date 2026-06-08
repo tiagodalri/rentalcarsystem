@@ -65,16 +65,10 @@ export default function AdminLive() {
   const [filter, setFilter] = useState<"all" | "moving" | "idle" | "parked">("all");
   const navigate = useNavigate();
   const mapRef = useRef<L.Map | null>(null);
-  const [mapKey, setMapKey] = useState(() => Date.now());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMapKey(Date.now());
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
+    setMounted(true);
   }, []);
 
   const onMap = useMemo(
