@@ -236,8 +236,9 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           mapTypeId: layers.mapType === "satellite" ? "hybrid" : "roadmap",
           disableDefaultUI: true,
           zoomControl: true,
-          streetViewControl: true,
-          fullscreenControl: true,
+          zoomControlOptions: { position: (window as any).google?.maps?.ControlPosition?.RIGHT_BOTTOM },
+          streetViewControl: false,
+          fullscreenControl: false,
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
         });
