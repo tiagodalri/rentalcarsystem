@@ -42,10 +42,25 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
   const navigate = useNavigate();
   const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
+  const { openTab } = useAdminTabs();
 
-  const handleNavigate = (url: string) => {
+  const handleNavigate = (url: string, e?: React.MouseEvent) => {
+    // Cmd/Ctrl/Shift + clique -> abre em nova aba (desktop)
+    if (e && (e.metaKey || e.ctrlKey || e.shiftKey)) {
+      e.preventDefault();
+      openTab(url);
+      return;
+    }
     navigate(url);
     if (isMobile) setOpenMobile(false);
+  };
+
+  const handleAuxClick = (url: string, e: React.MouseEvent) => {
+    // Botão do meio -> nova aba
+    if (e.button === 1) {
+      e.preventDefault();
+      openTab(url);
+    }
   };
   const { hasAny } = useAdminAuth();
 
