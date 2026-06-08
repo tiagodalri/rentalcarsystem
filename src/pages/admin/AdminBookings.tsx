@@ -509,7 +509,7 @@ export default function AdminBookings() {
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [activePreset, setActivePreset] = useState<PresetKey | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "calendar" | "week">("table");
-  const [newOpen, setNewOpen] = useState(false);
+  
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Load filters from URL on mount
