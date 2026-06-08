@@ -32,6 +32,7 @@ type Vehicle = {
   acquired_date: string | null; license_plate: string | null;
   vin: string | null; color: string | null; notes: string | null;
   bouncie_imei: string | null;
+  bouncie_vin: string | null;
   created_at: string; engine_type: string | null; engine_size: string | null;
   doors: number | null; insurance_policy: string | null;
   insurance_expiry: string | null; registration_expiry: string | null;
@@ -186,6 +187,7 @@ export default function AdminVehicleDetail() {
       vin: editForm.vin || null,
       color: editForm.color || null,
       bouncie_imei: editForm.bouncie_imei ? String(editForm.bouncie_imei).trim() || null : null,
+      bouncie_vin: editForm.bouncie_vin ? String(editForm.bouncie_vin).trim().toUpperCase() || null : null,
       notes: editForm.notes || null,
       engine_type: editForm.engine_type || null,
       engine_size: editForm.engine_size || null,
@@ -1144,7 +1146,9 @@ export default function AdminVehicleDetail() {
                 {renderField("Chassi (VIN)", "vin", "text")}
                 {renderField("Cor", "color", "text")}
                 {renderField("IMEI Bouncie", "bouncie_imei", "text")}
+                {renderField("VIN Bouncie", "bouncie_vin", "text")}
               </div>
+              <p className="text-[11px] text-muted-foreground -mt-4 mb-6">Número do rastreador Bouncie — encontrado em Users & Devices no portal.</p>
 
               {/* Financial */}
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Financeiro</h4>
