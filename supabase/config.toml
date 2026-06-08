@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.clicksign-webhook]
 verify_jwt = false
+
+[functions.polish-transcript]
+verify_jwt = false
