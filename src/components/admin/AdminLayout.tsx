@@ -46,12 +46,12 @@ export default function AdminLayout() {
         <div className="min-h-[100dvh] flex w-full bg-background">
           <AdminSidebar onSignOut={signOut} />
           <div className="flex-1 flex flex-col min-w-0">
+            {/* Barra de abas no topo absoluto (estilo navegador) */}
+            <AdminTabsBar />
             <header
               className="h-14 flex items-center gap-2 sm:gap-4 border-b border-border/40 px-3 sm:px-4 bg-background/90 backdrop-blur-md sticky top-0 z-30"
-              style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
             >
               <SidebarTrigger className="h-11 w-11 -ml-2 flex items-center justify-center text-muted-foreground hover:text-foreground" />
-              <NewTabHeaderButton />
               <div className="flex-1" />
               <Button
                 variant="outline"
@@ -69,7 +69,6 @@ export default function AdminLayout() {
                 {user.email}
               </span>
             </header>
-            <AdminTabsBar />
             <main
               className="flex-1 p-3 sm:p-4 md:p-6"
               style={{ paddingBottom: "max(env(safe-area-inset-bottom, 0px), 1rem)" }}
@@ -85,19 +84,3 @@ export default function AdminLayout() {
   );
 }
 
-// Botão "+" discreto no header para abrir nova aba (Dashboard por padrão)
-function NewTabHeaderButton() {
-  const { openTab, canAddMore } = useAdminTabs();
-  return (
-    <button
-      type="button"
-      onClick={() => openTab("/admin")}
-      disabled={!canAddMore}
-      title={canAddMore ? "Abrir nova aba" : "Limite de abas atingido"}
-      aria-label="Abrir nova aba"
-      className="h-9 w-9 hidden sm:flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-    >
-      <Plus className="h-4 w-4" />
-    </button>
-  );
-}
