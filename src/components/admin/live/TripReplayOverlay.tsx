@@ -245,17 +245,33 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
       optimized: false,
     });
 
-    // Fit bounds
+    // Cinematic intro: fit bounds, wait, then zoom in on start point and start playing
     const b = new google.maps.LatLngBounds(
       { lat: data.bounds.south, lng: data.bounds.west },
       { lat: data.bounds.north, lng: data.bounds.east },
     );
-    map.fitBounds(b, 80);
+    map.fitBounds(b, 120);
 
     // Reset state
     playbackRef.current = 0;
     setPlaybackMs(0);
-    setPlaying(true);
+    setShowSummary(false);
+    setIntro(true);
+    setPlaying(false);
+
+    // After a short beat, zoom into the start and begin replay
+    const t1 = window.setTimeout(() => {
+      try {
+        map.panTo({ lat: data.points[0].lat, lng: data.points[0].lng });
+        const targetZoom = Math.min(17, Math.max(14, (map.getZoom() ?? 13) + 2));
+        map.setZoom(targetZoom);
+      } catch {}
+    }, 600);
+    const t2 = window.setTimeout(() => {
+      setIntro(false);
+      setPlaying(true);
+    }, 1700);
+    return () => { window.clearTimeout(t1); window.clearTimeout(t2); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapReady, data]);
 
