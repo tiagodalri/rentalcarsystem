@@ -8,6 +8,7 @@ import { UnlinkedBouncieDevices } from "@/components/admin/UnlinkedBouncieDevice
 import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 import { VehicleDetailDrawer } from "@/components/admin/live/VehicleDetailDrawer";
 import { MapControlsPanel, useMapLayers } from "@/components/admin/live/MapControlsPanel";
+import zeusZMark from "@/assets/zeus-z-mark.png";
 
 function formatRelative(iso: string | null): string {
   if (!iso) return "—";
