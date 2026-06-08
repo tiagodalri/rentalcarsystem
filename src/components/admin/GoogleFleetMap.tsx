@@ -4,6 +4,10 @@ import { useTripTrail, speedBandColor, type TrailPoint } from "@/hooks/useTripTr
 import type { LiveVehicle } from "@/hooks/useFleetLive";
 import { getCoverImage } from "@/data/vehicleImages";
 import { supabase } from "@/integrations/supabase/client";
+import { useGeofences } from "@/hooks/useGeofences";
+import { useNwsAlerts, nwsSeverityColor } from "@/hooks/useNwsAlerts";
+import { useVehicleEvents } from "@/hooks/useVehicleEvents";
+import type { MapLayers } from "@/components/admin/live/MapControlsPanel";
 
 // --- Dark theme for Google Maps that matches Zeus admin (off-black) ---
 const DARK_STYLE: any[] = [
