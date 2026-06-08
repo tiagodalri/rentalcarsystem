@@ -853,7 +853,7 @@ export default function AdminBookings() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={() => setNewOpen(true)}
+            onClick={() => navigate("/admin/bookings/new")}
             className="flex items-center gap-1.5 h-8 sm:h-9 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all"
           >
             <Plus size={14} /> <span>Nova reserva</span>
