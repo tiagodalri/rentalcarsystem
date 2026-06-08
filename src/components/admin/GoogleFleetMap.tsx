@@ -307,14 +307,28 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         mapRef.current = new google.maps.Map(containerRef.current, {
           center: { lat: 28.5, lng: -81.4 },
           zoom: 9,
-          mapTypeId: layers.mapType === "satellite" ? "hybrid" : "roadmap",
+          mapTypeId:
+            layers.mapType === "roadmap" ? "roadmap" : "hybrid",
+          tilt: layers.mapType === "satellite3d" ? 45 : 0,
+          // Lock viewport to North/Central America + Caribbean (Florida-centric).
+          // Vehicles live in Florida, so we don't waste tile bandwidth elsewhere.
+          restriction: {
+            latLngBounds: { north: 50, south: 7, east: -60, west: -125 },
+            strictBounds: false,
+          },
+          minZoom: 5,
+          maxZoom: 21,
           disableDefaultUI: true,
           zoomControl: true,
           zoomControlOptions: { position: (window as any).google?.maps?.ControlPosition?.RIGHT_BOTTOM },
           streetViewControl: false,
           fullscreenControl: false,
+          rotateControl: true,
+          rotateControlOptions: { position: (window as any).google?.maps?.ControlPosition?.RIGHT_BOTTOM },
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
+          clickableIcons: true,
+          keyboardShortcuts: true,
         });
         infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false, maxWidth: 320 });
 
