@@ -199,6 +199,14 @@
   .mt-safe { margin-top: env(safe-area-inset-top, 0px); }
   .mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
 
+  /* In installed PWA (standalone), add extra breathing room below the
+     status bar / notch so navbar icons don't collide with system UI. */
+  @media (display-mode: standalone) {
+    .safe-top { padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem); }
+    .safe-x   { padding-left: calc(env(safe-area-inset-left, 0px) + 0.5rem);
+                padding-right: calc(env(safe-area-inset-right, 0px) + 0.5rem); }
+  }
+
   /* Smooth hover lift for interactive cards */
   .hover-lift {
     @apply transition-all duration-300 ease-out;
