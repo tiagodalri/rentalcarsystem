@@ -4,7 +4,7 @@ import { Settings2, X, Check } from "lucide-react";
 export type MapLayers = {
   mapType: "roadmap" | "satellite";
   traffic: boolean;
-  carvatars: boolean;
+  carvatars: boolean; // deprecated, kept for type compat — always false
   nwsAlerts: boolean;
   speedLegend: boolean;
   geoZones: boolean;
@@ -21,7 +21,7 @@ export const DEFAULT_LAYERS: MapLayers = {
   tripEvents: true,
 };
 
-const STORAGE_KEY = "zeus.liveMap.layers.v2";
+const STORAGE_KEY = "zeus.liveMap.layers.v3";
 
 export function useMapLayers() {
   const [layers, setLayers] = useState<MapLayers>(() => {
