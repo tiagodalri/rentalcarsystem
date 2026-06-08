@@ -811,7 +811,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                 mph={data.level === 2 ? hud.speed : data.avgSpeedMph}
                 max={Math.max(80, data.maxSpeedMph)}
                 maxMarker={data.level === 1 ? data.maxSpeedMph : undefined}
-                caption={data.level === 1 ? "vel. média da viagem" : "mph"}
+                caption={data.level === 1 ? "média" : "mph"}
               />
               {data.level === 2 && <Gmeter g={hud.g} />}
               <div className="mt-3 grid grid-cols-2 gap-2 text-[10px]">
