@@ -67,7 +67,16 @@ export function VehicleDetailDrawer({
           >
             <ExternalLink size={11} /> Ficha
           </button>
+          <button
+            onClick={() => setShareOpen(true)}
+            aria-label="Compartilhar rastreamento"
+            title="Compartilhar rastreamento (link público)"
+            className="absolute top-2 right-12 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 flex items-center justify-center hover:bg-background transition-colors text-primary"
+          >
+            <Share2 size={13} />
+          </button>
         </div>
+
 
         <div className="px-4 py-3">
           <div className="flex items-start justify-between gap-3 mb-1.5">
