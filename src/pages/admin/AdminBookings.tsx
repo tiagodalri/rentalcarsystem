@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Trash2, LogIn, LogOut, GitCompare, CalendarDays, List, ChevronLeft, ChevronRight, Clock, SlidersHorizontal, ArrowUpDown, X, Check, Download, FileText, FileSpreadsheet, CalendarIcon, Plus, Car } from "lucide-react";
-import { NewBookingDialog } from "@/components/admin/NewBookingDialog";
+
 import { EmptyState } from "@/components/admin/EmptyState";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "@/hooks/use-toast";
@@ -509,7 +509,7 @@ export default function AdminBookings() {
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [activePreset, setActivePreset] = useState<PresetKey | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "calendar" | "week">("table");
-  const [newOpen, setNewOpen] = useState(false);
+  
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Load filters from URL on mount
@@ -853,7 +853,7 @@ export default function AdminBookings() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={() => setNewOpen(true)}
+            onClick={() => navigate("/admin/bookings/new")}
             className="flex items-center gap-1.5 h-8 sm:h-9 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all"
           >
             <Plus size={14} /> <span>Nova reserva</span>
@@ -1389,7 +1389,7 @@ export default function AdminBookings() {
         </Card>
       )}
 
-      <NewBookingDialog open={newOpen} onOpenChange={setNewOpen} onCreated={load} />
+      
     </div>
   );
 }

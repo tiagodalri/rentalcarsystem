@@ -21,9 +21,11 @@ const PENDING_CLASS = "ring-1 ring-amber-500/60 focus-visible:ring-amber-500";
 type Vehicle = { id: string; name: string; daily_price_usd: number; default_deposit_amount?: number | null; default_franchise_amount?: number | null };
 
 interface Props {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
   onCreated: () => void;
+  mode?: "modal" | "page";
+  onCancel?: () => void;
 }
 
 const STATUS_OPTIONS = [
@@ -52,7 +54,11 @@ const CURRENCIES = [
   { value: "BRL", label: "BRL (R$)" },
 ];
 
-export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
+export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal", onCancel }: Props) {
+  const closeSelf = () => {
+    if (mode === "page") onCancel?.();
+    else onOpenChange?.(false);
+  };
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [saving, setSaving] = useState(false);
   
@@ -338,7 +344,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     toast({ title: "Reserva criada com sucesso" });
     clearFormDraft(DRAFT_KEY);
     onCreated();
-    onOpenChange(false);
+    closeSelf();
     setCustomer(null);
     setForm({
       customer_name: "", customer_email: "", customer_phone: "",
@@ -375,17 +381,28 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
     </section>
   );
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="w-[calc(100vw-1rem)] sm:w-full max-w-3xl p-0 gap-0 max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden rounded-2xl"
-      >
-        <DialogHeader className="px-4 sm:px-6 pt-5 pb-3 border-b border-border/50 shrink-0">
-          <DialogTitle className="text-base sm:text-lg">Nova reserva manual</DialogTitle>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Preencha em 7 etapas. Use a IA para extrair de prints e PDFs.
-          </p>
-        </DialogHeader>
+  const body = (
+    <>
+      <div className={mode === "page"
+        ? "px-4 sm:px-6 pt-5 pb-3 border-b border-border/50 shrink-0"
+        : "px-4 sm:px-6 pt-5 pb-3 border-b border-border/50 shrink-0"}>
+        {mode === "page" ? (
+          <>
+            <h1 className="text-lg sm:text-xl font-semibold tracking-tight">Nova reserva manual</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Preencha em 7 etapas. Use a IA para extrair de prints e PDFs.
+            </p>
+          </>
+        ) : (
+          <DialogHeader className="p-0">
+            <DialogTitle className="text-base sm:text-lg">Nova reserva manual</DialogTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Preencha em 7 etapas. Use a IA para extrair de prints e PDFs.
+            </p>
+          </DialogHeader>
+        )}
+      </div>
+
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 space-y-4">
           {/* IA - Extração inteligente */}
@@ -717,27 +734,44 @@ export function NewBookingDialog({ open, onOpenChange, onCreated }: Props) {
           </Section>
         </div>
 
-        <DialogFooter
-          className="px-4 sm:px-6 py-3 border-t border-border/50 shrink-0 bg-background/95 backdrop-blur-sm flex flex-col-reverse sm:flex-row sm:justify-end gap-2"
-          style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.75rem)" }}
+      <div
+        className="px-4 sm:px-6 py-3 border-t border-border/50 shrink-0 bg-background/95 backdrop-blur-sm flex flex-col-reverse sm:flex-row sm:justify-end gap-2"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.75rem)" }}
+      >
+        <Button
+          variant="outline"
+          onClick={closeSelf}
+          disabled={saving}
+          className="h-11 rounded-xl w-full sm:w-auto"
         >
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={saving}
-            className="h-11 rounded-xl w-full sm:w-auto"
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={saving}
-            className="h-11 rounded-xl w-full sm:w-auto font-semibold"
-          >
-            {saving && <Loader2 size={14} className="animate-spin mr-1.5" />}
-            Criar reserva
-          </Button>
-        </DialogFooter>
+          Cancelar
+        </Button>
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          className="h-11 rounded-xl w-full sm:w-auto font-semibold"
+        >
+          {saving && <Loader2 size={14} className="animate-spin mr-1.5" />}
+          Criar reserva
+        </Button>
+      </div>
+    </>
+  );
+
+  if (mode === "page") {
+    return (
+      <div className="mx-auto max-w-3xl w-full bg-card border border-border/40 rounded-2xl overflow-hidden flex flex-col min-h-[80vh]">
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        className="w-[calc(100vw-1rem)] sm:w-full max-w-3xl p-0 gap-0 max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden rounded-2xl"
+      >
+        {body}
       </DialogContent>
     </Dialog>
   );

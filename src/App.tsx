@@ -50,6 +50,8 @@ const AdminFinance = lazy(() => import("./pages/admin/AdminFinance.tsx"));
 const AdminTeam = lazy(() => import("./pages/admin/AdminTeam.tsx"));
 const AdminOpsToday = lazy(() => import("./pages/admin/AdminOpsToday.tsx"));
 const AdminFleetGantt = lazy(() => import("./pages/admin/AdminFleetGantt.tsx"));
+const AdminVehicleNew = lazy(() => import("./pages/admin/AdminVehicleNew.tsx"));
+const AdminBookingNew = lazy(() => import("./pages/admin/AdminBookingNew.tsx"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -129,7 +131,9 @@ const App = () => (
                 <Route path="bookings" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookings /></AdminSuspense></RequireRole>} />
                 <Route path="bookings/:bookingId" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookingDetail /></AdminSuspense></RequireRole>} />
                 <Route path="live" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminLive /></AdminSuspense></RequireRole>} />
+                <Route path="bookings/new" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookingNew /></AdminSuspense></RequireRole>} />
                 <Route path="fleet" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminFleet /></AdminSuspense></RequireRole>} />
+                <Route path="fleet/new" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminVehicleNew /></AdminSuspense></RequireRole>} />
                 <Route path="customers" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminCustomers /></AdminSuspense></RequireRole>} />
                 <Route path="customers/:customerId" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminCustomerDetail /></AdminSuspense></RequireRole>} />
                 <Route path="settings" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminSettings /></AdminSuspense></RequireRole>} />

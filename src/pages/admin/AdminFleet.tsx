@@ -183,7 +183,7 @@ export default function AdminFleet() {
           <p className="text-sm text-muted-foreground mt-1">{vehicles.length} veículos cadastrados</p>
         </div>
         <button
-          onClick={() => { setEditing({ ...emptyVehicle }); setIsNew(true); }}
+          onClick={() => navigate("/admin/fleet/new")}
           className="gold-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
           <Plus size={16} /> Adicionar
@@ -395,7 +395,7 @@ export default function AdminFleet() {
       ) : filtered.length === 0 && vehicles.length > 0 ? (
         <EmptyState icon={Search} title="Nenhum veículo encontrado" description="Nenhum veículo corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} />
       ) : filtered.length === 0 ? (
-        <EmptyState icon={Car} title="Nenhum veículo cadastrado" description="Adicione veículos à frota para começar a gerenciar disponibilidade e locações." actionLabel="Adicionar Veículo" onAction={() => { setEditing({ ...emptyVehicle }); setIsNew(true); }} />
+        <EmptyState icon={Car} title="Nenhum veículo cadastrado" description="Adicione veículos à frota para começar a gerenciar disponibilidade e locações." actionLabel="Adicionar Veículo" onAction={() => navigate("/admin/fleet/new")} />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((v) => (
