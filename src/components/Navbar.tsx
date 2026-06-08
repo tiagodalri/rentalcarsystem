@@ -74,7 +74,7 @@ const Navbar = () => {
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto flex items-center justify-between py-4 px-4 sm:px-6 lg:px-8 safe-x">
+      <div className="container mx-auto flex items-center justify-between py-3 sm:py-4 px-5 sm:px-6 lg:px-8 safe-x">
 
         <a href="/#" className="text-muted-foreground hover:text-primary transition-colors duration-300">
           <Home size={20} />
