@@ -49,11 +49,16 @@ export type WizardFormState = {
   total_price: string;
   currency: "USD" | "BRL";
   payment_method: string;
-  payment_status: "pending" | "paid";
+  payment_status: "pending" | "paid" | "partial";
+  paid_date: string; // when status = paid
+  payment_due_date: string; // when status = pending OR remaining due date when partial
+  deposit_paid_amount: string; // when status = partial
+  deposit_paid_date: string; // when status = partial
 
   // Notes
   notes: string;
 };
+
 
 
 export const initialWizardForm: WizardFormState = {
