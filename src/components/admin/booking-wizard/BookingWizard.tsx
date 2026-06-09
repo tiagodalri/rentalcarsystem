@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Sparkles, Loader2, Car, Users, MapPin, Shield, Wrench, CreditCard, FileCheck2, Pencil } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Sparkles, Loader2, Car, Users, MapPin, Shield, Wrench, CreditCard, FileCheck2, Pencil, Search, Fuel, Cog, Palette, Calendar, Hash } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -264,7 +265,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
             <CustomerStep form={form} set={set} aiKeys={aiKeys} />
           )}
           {currentStep.id === "vehicle" && (
-            <VehicleStep form={form} set={set} aiKeys={aiKeys} />
+            <VehicleStep form={form} set={set} aiKeys={aiKeys} onAdvance={goNext} />
           )}
           {currentStep.id === "pickup" && (
             <PickupStep form={form} set={set} aiKeys={aiKeys} />
@@ -422,15 +423,84 @@ function CustomerStep({ form, set, aiKeys }: StepProps) {
   );
 }
 
-function VehicleStep({ form, set, aiKeys }: StepProps) {
+function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?: () => void }) {
   const { vehicles } = useVehiclesDB();
   const [filter, setFilter] = useState<string>("all");
+  const [query, setQuery] = useState("");
+  const [preview, setPreview] = useState<string | null>(null);
   const categories = useMemo(() => Array.from(new Set(vehicles.map((v) => v.category))).filter(Boolean), [vehicles]);
-  const filtered = filter === "all" ? vehicles : vehicles.filter((v) => v.category === filter);
   const aiSuggested = aiKeys.has("vehicle_id") ? form.vehicle_id : null;
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return vehicles.filter((v) => {
+      if (filter !== "all" && v.category !== filter) return false;
+      if (!q) return true;
+      return (
+        v.name.toLowerCase().includes(q) ||
+        (v.brand || "").toLowerCase().includes(q) ||
+        (v.model || "").toLowerCase().includes(q) ||
+        (v.color || "").toLowerCase().includes(q) ||
+        (v.license_plate || "").toLowerCase().includes(q) ||
+        String(v.year || v.model_year || "").includes(q)
+      );
+    });
+  }, [vehicles, filter, query]);
+
+  const previewVeh = useMemo(() => vehicles.find((v) => v.id === preview) || null, [preview, vehicles]);
+  const selectedVeh = useMemo(() => vehicles.find((v) => v.id === form.vehicle_id) || null, [form.vehicle_id, vehicles]);
+
+  const coverOf = (v: any): string | null => {
+    if (v?.image_url) return v.image_url;
+    const ph = v?.photos;
+    if (Array.isArray(ph) && ph.length > 0) return typeof ph[0] === "string" ? ph[0] : ph[0]?.url || null;
+    return null;
+  };
+
+  const confirmSelection = () => {
+    if (!previewVeh) return;
+    set("vehicle_id", previewVeh.id);
+    setPreview(null);
+    setTimeout(() => onAdvance?.(), 80);
+  };
 
   return (
     <div className="space-y-4">
+      {selectedVeh && (
+        <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-3">
+          <div className="h-12 w-16 rounded-md overflow-hidden bg-muted shrink-0">
+            {coverOf(selectedVeh) ? (
+              <img src={coverOf(selectedVeh)!} alt={selectedVeh.name} className="h-full w-full object-cover" />
+            ) : null}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs uppercase tracking-wider text-primary font-semibold">Selecionado</p>
+            <p className="text-sm font-semibold truncate">
+              {selectedVeh.name}
+              {selectedVeh.year || selectedVeh.model_year ? ` • ${selectedVeh.year || selectedVeh.model_year}` : ""}
+              {selectedVeh.color ? ` • ${selectedVeh.color}` : ""}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setPreview(selectedVeh.id)}
+            className="text-[11px] font-medium text-primary hover:underline"
+          >
+            Trocar / revisar
+          </button>
+        </div>
+      )}
+
+      <div className="relative">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Pesquisar por nome, modelo, ano, cor ou placa..."
+          className="pl-9 h-10 rounded-xl"
+        />
+      </div>
+
       <div className="flex flex-wrap gap-1.5">
         <button
           type="button"
@@ -451,35 +521,120 @@ function VehicleStep({ form, set, aiKeys }: StepProps) {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[420px] overflow-y-auto pr-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[480px] overflow-y-auto pr-1">
+        {filtered.length === 0 && (
+          <div className="col-span-full text-center text-xs text-muted-foreground py-8">
+            Nenhum veículo encontrado.
+          </div>
+        )}
         {filtered.map((v) => {
           const selected = form.vehicle_id === v.id;
           const isAi = aiSuggested === v.id;
+          const cover = coverOf(v);
+          const yr = v.year || v.model_year;
           return (
             <button
               key={v.id}
               type="button"
-              onClick={() => set("vehicle_id", v.id)}
-              className={`text-left rounded-xl border p-3 flex gap-3 transition-all ${
-                selected ? "border-primary bg-primary/5 ring-1 ring-primary/40" : "border-border/50 bg-card hover:border-primary/40"
+              onClick={() => setPreview(v.id)}
+              className={`group text-left rounded-xl border overflow-hidden flex flex-col transition-all ${
+                selected ? "border-primary ring-1 ring-primary/40 bg-primary/5" : "border-border/50 bg-card hover:border-primary/40 hover:shadow-sm"
               }`}
             >
-              <div className="h-16 w-24 rounded-lg overflow-hidden bg-muted shrink-0">
-                {v.image_url ? (
-                  <img src={v.image_url} alt={v.name} className="h-full w-full object-cover" loading="lazy" />
-                ) : null}
+              <div className="relative aspect-[16/10] bg-muted overflow-hidden">
+                {cover ? (
+                  <img src={cover} alt={v.name} className="h-full w-full object-cover group-hover:scale-[1.03] transition-transform duration-300" loading="lazy" />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-muted-foreground">
+                    <Car size={28} />
+                  </div>
+                )}
+                {selected && (
+                  <span className="absolute top-2 left-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary text-primary-foreground">
+                    <Check size={10} /> Selecionado
+                  </span>
+                )}
+                {isAi && !selected && (
+                  <span className="absolute top-2 left-2">{AI_BADGE}</span>
+                )}
+                {v.license_plate && (
+                  <span className="absolute top-2 right-2 text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-background/90 text-foreground border border-border/50">
+                    {v.license_plate}
+                  </span>
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-semibold truncate">{v.name}</p>
-                  {isAi && AI_BADGE}
+              <div className="p-3 space-y-1">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-semibold leading-tight truncate">{v.name}</p>
                 </div>
                 <p className="text-[11px] text-muted-foreground truncate">{v.category}</p>
-                <p className="text-sm font-semibold tabular-nums mt-1">${Number(v.daily_price_usd).toFixed(0)}<span className="text-[10px] text-muted-foreground font-normal">/dia</span></p>
+                <div className="flex items-center gap-2 text-[10px] text-muted-foreground flex-wrap">
+                  {yr && <span className="inline-flex items-center gap-1"><Calendar size={10} />{yr}</span>}
+                  {v.color && <span className="inline-flex items-center gap-1"><Palette size={10} />{v.color}</span>}
+                </div>
+                <p className="text-sm font-semibold tabular-nums pt-1">
+                  ${Number(v.daily_price_usd).toFixed(0)}
+                  <span className="text-[10px] text-muted-foreground font-normal">/dia</span>
+                </p>
               </div>
             </button>
           );
         })}
+      </div>
+
+      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Confirmar veículo</DialogTitle>
+          </DialogHeader>
+          {previewVeh && (
+            <div className="space-y-4">
+              <div className="aspect-[16/9] rounded-lg overflow-hidden bg-muted">
+                {coverOf(previewVeh) ? (
+                  <img src={coverOf(previewVeh)!} alt={previewVeh.name} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-muted-foreground">
+                    <Car size={40} />
+                  </div>
+                )}
+              </div>
+              <div>
+                <h3 className="text-lg font-bold leading-tight">{previewVeh.name}</h3>
+                <p className="text-xs text-muted-foreground">{previewVeh.category}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <InfoRow icon={Calendar} label="Ano" value={String(previewVeh.year || previewVeh.model_year || "—")} />
+                <InfoRow icon={Palette} label="Cor" value={previewVeh.color || "—"} />
+                <InfoRow icon={Hash} label="Placa" value={previewVeh.license_plate || "—"} mono />
+                <InfoRow icon={Users} label="Passageiros" value={String(previewVeh.passengers)} />
+                <InfoRow icon={Cog} label="Câmbio" value={previewVeh.transmission} />
+                <InfoRow icon={Fuel} label="Combustível" value={previewVeh.fuel} />
+              </div>
+              <div className="rounded-lg bg-muted/50 px-3 py-2 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Diária</span>
+                <span className="text-base font-bold tabular-nums">${Number(previewVeh.daily_price_usd).toFixed(2)}</span>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button variant="outline" onClick={() => setPreview(null)}>Cancelar</Button>
+            <Button onClick={confirmSelection}>
+              <Check size={14} className="mr-1.5" /> Confirmar e avançar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function InfoRow({ icon: Icon, label, value, mono }: { icon: any; label: string; value: string; mono?: boolean }) {
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-border/40 bg-background/40 px-2.5 py-2">
+      <Icon size={12} className="text-muted-foreground shrink-0" />
+      <div className="min-w-0">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className={`text-xs font-semibold truncate ${mono ? "font-mono" : ""}`}>{value}</p>
       </div>
     </div>
   );

@@ -15,6 +15,15 @@ export interface DBVehicle {
   features: string[] | null;
   image_url: string | null;
   published?: boolean;
+  brand?: string | null;
+  model?: string | null;
+  model_year?: number | null;
+  color?: string | null;
+  license_plate?: string | null;
+  photos?: any;
+  doors?: number | null;
+  default_deposit_amount?: number;
+  default_franchise_amount?: number;
 }
 
 let cachedVehicles: DBVehicle[] | null = null;
@@ -35,7 +44,7 @@ export function useVehiclesDB() {
 
     supabase
       .from("vehicles")
-      .select("id, name, category, daily_price_usd, passengers, bags, transmission, fuel, year, status, features, image_url, published, photos")
+      .select("id, name, category, daily_price_usd, passengers, bags, transmission, fuel, year, status, features, image_url, published, photos, brand, model, model_year, color, license_plate, doors, default_deposit_amount, default_franchise_amount")
       .eq("published", true)
       .is("deleted_at", null)
       .order("daily_price_usd", { ascending: false })
