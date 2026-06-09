@@ -8,7 +8,7 @@ import zeusLogo from "@/assets/zeus-logo-hd.png";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const { user, roles, loading, signIn } = useAdminAuth();
+  const { user, roles, loading, authError, signIn } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -16,7 +16,7 @@ export default function AdminLogin() {
   const restrictedToastShown = useRef(false);
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || !user || authError) return;
     if (roles.length > 0) {
       navigate("/admin", { replace: true });
     } else {
@@ -26,7 +26,13 @@ export default function AdminLogin() {
       }
       navigate("/", { replace: true });
     }
-  }, [loading, user, roles, navigate]);
+  }, [loading, user, roles, authError, navigate]);
+
+  useEffect(() => {
+    if (!authError || !user || restrictedToastShown.current) return;
+    restrictedToastShown.current = true;
+    sonnerToast.error("Login feito, mas não foi possível carregar suas permissões. Tente atualizar a página.");
+  }, [authError, user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

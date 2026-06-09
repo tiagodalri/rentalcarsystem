@@ -11,6 +11,7 @@ let cachedRoles: { userId: string; roles: AppRole[] } | null = null;
 export function useAdminAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const initialCheckDone = useRef(false);
@@ -20,7 +21,7 @@ export function useAdminAuth() {
 
     const loadRoles = async (currentUser: User | null) => {
       if (!currentUser) {
-        if (mounted) { setUser(null); setRoles([]); setLoading(false); }
+        if (mounted) { setUser(null); setRoles([]); setAuthError(null); setLoading(false); }
         return;
       }
 
@@ -35,20 +36,33 @@ export function useAdminAuth() {
       // momentarily see "user logged in but with 0 roles" and redirect away.
       if (mounted) { setRoles([]); setLoading(true); }
 
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", currentUser.id);
+      try {
+        const rolesQuery = supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", currentUser.id);
 
-      const rs = ((data || []) as { role: AppRole }[])
-        .map((r) => r.role)
-        .filter((r): r is AppRole =>
-          r === "admin" || r === "finance" || r === "operations" || r === "support"
-        );
+        const timeout = new Promise<never>((_, reject) => {
+          window.setTimeout(() => reject(new Error("Tempo esgotado ao carregar permissões.")), 12000);
+        });
 
-      cachedRoles = { userId: currentUser.id, roles: rs };
-      console.log("[useAdminAuth] roles loaded:", { email: currentUser.email, userId: currentUser.id, roles: rs });
-      if (mounted) { setRoles(rs); setLoading(false); }
+        const { data, error } = await Promise.race([rolesQuery, timeout]);
+        if (error) throw error;
+
+        const rs = ((data || []) as { role: AppRole }[])
+          .map((r) => r.role)
+          .filter((r): r is AppRole =>
+            r === "admin" || r === "finance" || r === "operations" || r === "support"
+          );
+
+        cachedRoles = { userId: currentUser.id, roles: rs };
+        console.log("[useAdminAuth] roles loaded:", { email: currentUser.email, userId: currentUser.id, roles: rs });
+        if (mounted) { setRoles(rs); setAuthError(null); setLoading(false); }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Falha ao carregar permissões.";
+        console.warn("[useAdminAuth] roles load failed:", message);
+        if (mounted) { setRoles([]); setAuthError(message); setLoading(false); }
+      }
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -79,6 +93,7 @@ export function useAdminAuth() {
 
   const signIn = async (email: string, password: string) => {
     cachedRoles = null;
+    setAuthError(null);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
   };
@@ -93,5 +108,5 @@ export function useAdminAuth() {
   const hasAny = (rs: AppRole[]) => rs.some((r) => roles.includes(r));
   const isAdmin = roles.includes("admin");
 
-  return { user, roles, isAdmin, hasRole, hasAny, loading, signIn, signOut };
+  return { user, roles, isAdmin, hasRole, hasAny, loading, authError, signIn, signOut };
 }
