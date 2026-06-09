@@ -162,7 +162,7 @@ export default function AdminVehicleDetail() {
       supabase.from("bookings").select("*").eq("vehicle_id", vehicleId).order("pickup_date", { ascending: false }),
       supabase.from("vehicle_inspections").select("*").order("created_at", { ascending: false }),
       supabase.from("vehicle_expenses").select("*").eq("vehicle_id", vehicleId).order("expense_date", { ascending: false }),
-      supabase.from("vehicle_incidents").select("*").eq("vehicle_id", vehicleId).order("incident_date", { ascending: false }),
+      supabase.from("vehicle_incidents").select("*").eq("vehicle_id", vehicleId).neq("linked_to_vehicle", false).order("incident_date", { ascending: false }),
     ]);
     if (vRes.data) { setVehicle(vRes.data as Vehicle); setEditForm(vRes.data as Vehicle); }
     const allInspections = iRes.data || [];
