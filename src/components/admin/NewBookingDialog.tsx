@@ -504,6 +504,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
               </p>
             )}
           </section>
+          )}
+
+
 
 
           {/* 1. Cliente */}
