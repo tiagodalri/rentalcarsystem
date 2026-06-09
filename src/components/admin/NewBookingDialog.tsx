@@ -394,10 +394,10 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
             <h1 className="text-lg sm:text-xl font-semibold tracking-tight">
               {aiMode ? "Nova reserva com IA" : "Nova reserva manual"}
             </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5 whitespace-pre-line">
               {aiMode
-                ? "Anexe prints, PDFs, texto ou áudio. A IA extrai e você revisa o que faltar."
-                : "Preencha as 7 etapas manualmente."}
+                ? "A IA interpreta seus prints, fotos, PDF's, áudio, etc. Você preenche apenas confirma os dados e preenche/altera o que faltou."
+                : "Você preenche os dados seguindo as etapas guiadas.\n\n"}
             </p>
           </>
         ) : (
@@ -405,10 +405,10 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
             <DialogTitle className="text-base sm:text-lg">
               {aiMode ? "Nova reserva com IA" : "Nova reserva manual"}
             </DialogTitle>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5 whitespace-pre-line">
               {aiMode
-                ? "Anexe prints, PDFs, texto ou áudio. A IA extrai e você revisa o que faltar."
-                : "Preencha as 7 etapas manualmente."}
+                ? "A IA interpreta seus prints, fotos, PDF's, áudio, etc. Você preenche apenas confirma os dados e preenche/altera o que faltou."
+                : "Você preenche os dados seguindo as etapas guiadas.\n\n"}
             </p>
           </DialogHeader>
         )}

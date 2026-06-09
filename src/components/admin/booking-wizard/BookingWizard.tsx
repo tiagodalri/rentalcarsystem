@@ -1146,7 +1146,7 @@ function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; day
   return (
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">
-        Confira os dados abaixo. Clique em <span className="font-medium text-foreground">Editar</span> para corrigir qualquer bloco antes de finalizar.
+        Você preenche os dados seguindo as etapas guiadas.
       </p>
 
       <Block title="Cliente" target="customer">

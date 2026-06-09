@@ -89,7 +89,7 @@ export function AiCapturePanel({ onExtracted, onSkip }: Props) {
         </p>
         <h2 className="text-2xl font-semibold tracking-tight">Vamos começar</h2>
         <p className="text-sm text-muted-foreground">
-          Anexe prints/PDFs, cole o texto da conversa ou descreva por voz. A IA vai pré-preencher as próximas etapas.
+          A IA interpreta seus prints, fotos, PDF's, áudio, etc. Você preenche apenas confirma os dados e preenche/altera o que faltou.
         </p>
       </div>
 
