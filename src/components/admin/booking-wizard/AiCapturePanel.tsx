@@ -174,6 +174,7 @@ export function AiCapturePanel({ onExtracted, onSkip }: Props) {
             language="pt-BR"
             fullWidth
             disabled={extracting}
+            onTranscript={() => {}}
             onFinal={(t) => setText((prev) => (prev ? prev + "\n" + t : t))}
           />
         </div>
