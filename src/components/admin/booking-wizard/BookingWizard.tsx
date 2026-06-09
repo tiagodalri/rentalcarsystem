@@ -270,6 +270,8 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       return;
     }
     clearFormDraft(DRAFT_KEY);
+    try { localStorage.removeItem(STEP_KEY); } catch { /* ignore */ }
+
     toast({ title: "Reserva criada com sucesso" });
     onDone();
   };
