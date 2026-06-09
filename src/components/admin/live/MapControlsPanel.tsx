@@ -7,7 +7,6 @@ export type MapLayers = {
   carvatars: boolean; // deprecated, kept for type compat — always false
   nwsAlerts: boolean;
   speedLegend: boolean;
-  geoZones: boolean;
   tripEvents: boolean;
 };
 
@@ -17,7 +16,6 @@ export const DEFAULT_LAYERS: MapLayers = {
   carvatars: false,
   nwsAlerts: false,
   speedLegend: true,
-  geoZones: true,
   tripEvents: true,
 };
 
@@ -160,11 +158,6 @@ const previews = {
       <div className="w-3 h-12 rounded-full bg-gradient-to-b from-[#ef4444] via-[#22c55e] to-[#f59e0b]" />
     </div>
   ),
-  geoZones: (
-    <div className="w-full h-full bg-[#e8e4d8] relative flex items-center justify-center">
-      <div className="w-12 h-12 rounded-full bg-primary/30 border-2 border-primary" />
-    </div>
-  ),
   tripEvents: (
     <div className="w-full h-full bg-[#dde8f2] relative flex items-center justify-center">
       <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
@@ -272,12 +265,6 @@ export function MapControlsPanel({ layers, onChange }: Props) {
                 active={layers.speedLegend}
                 onClick={() => set("speedLegend", !layers.speedLegend)}
                 preview={previews.speedLegend}
-              />
-              <ToggleCard
-                label="Geo-zonas"
-                active={layers.geoZones}
-                onClick={() => set("geoZones", !layers.geoZones)}
-                preview={previews.geoZones}
               />
               <ToggleCard
                 label="Eventos de viagem"
