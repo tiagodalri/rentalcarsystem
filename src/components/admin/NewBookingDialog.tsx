@@ -28,6 +28,7 @@ interface Props {
   onCreated: () => void;
   mode?: "modal" | "page";
   onCancel?: () => void;
+  aiMode?: boolean;
 }
 
 const STATUS_OPTIONS = [
