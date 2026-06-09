@@ -12,7 +12,7 @@ const CATEGORIES = ["Economy", "Compact", "Midsize", "Fullsize", "SUV", "Premium
 const emptyVehicle = {
   name: "", brand: "", model: "", version: "",
   manufacture_year: null as number | null, model_year: null as number | null,
-  vin: "", renavam: "",
+  vin: "",
   license_plate: "", category: "Economy", daily_price_usd: null as number | null,
   passengers: 5, bags: 2, transmission: "Automatic", fuel: "Gasoline",
   status: "available",
@@ -20,7 +20,7 @@ const emptyVehicle = {
   initial_odometer: null as number | null, current_odometer: null as number | null,
   acquired_date: null as string | null,
   bouncie_imei: "",
-  bouncie_vin: "",
+
 };
 
 export default function AdminVehicleNew() {
@@ -56,7 +56,6 @@ export default function AdminVehicleNew() {
       manufacture_year: form.manufacture_year ?? null,
       model_year: form.model_year ?? null,
       vin: (form.vin || "").trim().toUpperCase() || null,
-      renavam: (form.renavam || "").trim() || null,
       license_plate: plate.toUpperCase(),
       category: form.category || "Economy",
       daily_price_usd: form.daily_price_usd ?? 0,
@@ -73,7 +72,7 @@ export default function AdminVehicleNew() {
       current_odometer: form.current_odometer ?? 0,
       acquired_date: form.acquired_date || null,
       bouncie_imei: (form.bouncie_imei || "").trim() || null,
-      bouncie_vin: (form.bouncie_vin || "").trim().toUpperCase() || null,
+
     };
 
     const { data, error } = await supabase.from("vehicles").insert(payload).select("id").single();
@@ -154,18 +153,10 @@ export default function AdminVehicleNew() {
               <label className={labelCls}>Chassi (VIN)</label>
               <input className={`${inputCls} uppercase font-mono text-sm`} maxLength={17} value={form.vin ?? ""} onChange={(e) => set("vin", e.target.value.toUpperCase())} placeholder="17 caracteres" />
             </div>
-            <div>
-              <label className={labelCls}>Renavam</label>
-              <input className={`${inputCls} tabular-nums`} inputMode="numeric" value={form.renavam ?? ""} onChange={(e) => set("renavam", e.target.value.replace(/\D/g, ""))} placeholder="11 dígitos" />
-            </div>
             <div className="sm:col-span-2">
               <label className={labelCls}>IMEI Bouncie (rastreador)</label>
               <input className={`${inputCls} tabular-nums font-mono text-sm`} inputMode="numeric" value={form.bouncie_imei ?? ""} onChange={(e) => set("bouncie_imei", e.target.value.replace(/\s/g, ""))} placeholder="Ex: 351234567890123" />
               <p className="text-[11px] text-muted-foreground mt-1">Número do rastreador Bouncie — encontrado em Users & Devices no portal.</p>
-            </div>
-            <div className="sm:col-span-2">
-              <label className={labelCls}>VIN Bouncie</label>
-              <input className={`${inputCls} uppercase font-mono text-sm`} maxLength={17} value={form.bouncie_vin ?? ""} onChange={(e) => set("bouncie_vin", e.target.value.toUpperCase())} placeholder="Opcional — VIN do dispositivo Bouncie" />
             </div>
           </div>
         </Section>
