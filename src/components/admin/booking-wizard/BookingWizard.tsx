@@ -478,12 +478,21 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
     return null;
   };
 
+  const openPreview = (id: string) => {
+    const v = vehicles.find((x) => x.id === id);
+    setEditPrice(v ? Number(v.daily_price_usd).toFixed(2) : "");
+    setPreview(id);
+  };
+
   const confirmSelection = () => {
     if (!previewVeh) return;
+    const price = Number(editPrice);
     set("vehicle_id", previewVeh.id);
+    set("daily_price_override", editPrice);
     setPreview(null);
     setTimeout(() => onAdvance?.(), 80);
   };
+
 
   return (
     <div className="space-y-4">
