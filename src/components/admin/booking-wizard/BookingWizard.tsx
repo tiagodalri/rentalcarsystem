@@ -288,12 +288,10 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
           {currentStep.id === "vehicle" && (
             <VehicleStep form={form} set={set} aiKeys={aiKeys} onAdvance={goNext} />
           )}
-          {currentStep.id === "pickup" && (
-            <PickupStep form={form} set={set} aiKeys={aiKeys} />
+          {currentStep.id === "schedule" && (
+            <ScheduleStep form={form} set={set} aiKeys={aiKeys} days={days} />
           )}
-          {currentStep.id === "return" && (
-            <ReturnStep form={form} set={set} aiKeys={aiKeys} days={days} />
-          )}
+
           {currentStep.id === "deposit" && (
             <DepositStep form={form} set={set} aiKeys={aiKeys} />
           )}
