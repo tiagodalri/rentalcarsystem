@@ -1250,11 +1250,13 @@ export default function AdminBookings() {
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Veículo</th>
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Período</th>
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Horários</th>
-                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Local</th>
-                      <th className="px-5 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Valor</th>
-                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Status</th>
-                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold min-w-[120px]">Progresso</th>
-                      <th className="px-5 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Inspeção</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Local</th>
+                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Total</th>
+                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Caução</th>
+                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Franquia</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Status</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold min-w-[120px]">Progresso</th>
+                      <th className="px-3 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Inspeção</th>
                       <th className="px-5 py-3 w-10"></th>
                     </tr>
                   </thead>
