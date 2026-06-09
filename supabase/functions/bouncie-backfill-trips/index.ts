@@ -112,6 +112,14 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   const startedAtRun = Date.now();
   try {
+    return new Response(JSON.stringify({
+      ok: true,
+      paused: true,
+      reason: "Backfill histórico pausado temporariamente para liberar o login/admin. Webhook, mapa ao vivo e sync de telemetria continuam ativos.",
+    }, null, 2), {
+      status: 200, headers: { ...cors, "Content-Type": "application/json" },
+    });
+
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
     const totalDays = Math.max(1, Math.min(370, Number(body?.days ?? 180)));
     const chunkDays = Math.max(1, Math.min(30, Number(body?.chunkDays ?? 7)));
