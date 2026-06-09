@@ -18,14 +18,13 @@ interface Props {
   onSaved?: () => void;
 }
 
-const TYPES = [
+const TYPES: { value: string; label: string }[] = [
   { value: "accident", label: "Acidente" },
   { value: "theft", label: "Roubo" },
   { value: "vandalism", label: "Furto / Vandalismo" },
   { value: "breakdown", label: "Avaria mecânica" },
-  { value: "fine", label: "Multa de trânsito" },
-  { value: "damage", label: "Dano no veículo" },
-  { value: "other", label: "Outro" },
+  { value: "recall", label: "Recall" },
+  { value: "other", label: "Outro (multa, dano, etc.)" },
 ];
 
 const SEVERITIES = [
@@ -34,16 +33,6 @@ const SEVERITIES = [
   { value: "high", label: "Alta" },
   { value: "critical", label: "Crítica" },
 ];
-
-const INCIDENT_TYPE_ENUM: Record<string, string> = {
-  accident: "accident",
-  theft: "theft",
-  vandalism: "vandalism",
-  breakdown: "breakdown",
-  fine: "fine",
-  damage: "damage",
-  other: "other",
-};
 
 export function BookingIncidentDialog({ open, onOpenChange, bookingId, vehicleId, onSaved }: Props) {
   const [saving, setSaving] = useState(false);
