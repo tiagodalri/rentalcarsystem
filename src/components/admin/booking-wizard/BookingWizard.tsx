@@ -218,7 +218,19 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
           price: Number(a.price) || 0,
           mode: a.mode,
         })),
+        payment_schedule: {
+          status: form.payment_status,
+          paid_date: form.paid_date || null,
+          due_date: form.payment_due_date || null,
+          deposit_paid_amount: form.deposit_paid_amount ? Number(form.deposit_paid_amount) : null,
+          deposit_paid_date: form.deposit_paid_date || null,
+          remaining_amount:
+            form.payment_status === "partial" && form.total_price
+              ? Math.max(Number(form.total_price) - (Number(form.deposit_paid_amount) || 0), 0)
+              : null,
+        },
       },
+
     });
 
     setSaving(false);
