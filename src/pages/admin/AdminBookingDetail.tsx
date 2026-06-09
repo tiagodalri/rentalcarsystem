@@ -511,89 +511,165 @@ export default function AdminBookingDetail() {
         />
       )}
 
-      {/* Info cards row */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Booking info */}
-        <div className="lg:col-span-4">
-          <Card className="bg-card/80 border-border/30">
-            <CardContent className="p-5">
-              <SectionTitle>Reserva</SectionTitle>
+      {/* Executive dossier: single-column vertical flow */}
+      <div className="max-w-3xl mx-auto w-full space-y-14 pt-4">
 
-              <div className="space-y-2.5 mb-3">
-                <LocationDisplay
-                  label="Retirada"
-                  date={pickup.toLocaleDateString("pt-BR")}
-                  address={booking.pickup_location}
-                />
-                <LocationDisplay
-                  label="Devolução"
-                  date={returnD.toLocaleDateString("pt-BR")}
-                  address={booking.return_location}
-                />
+        {/* Itinerário */}
+        <section className="relative pl-8">
+          <div className="absolute left-[3px] top-2 bottom-2 w-px bg-gradient-to-b from-primary via-primary/20 to-transparent" />
+          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-8">Itinerário</h2>
+
+          <div className="space-y-10">
+            <div className="relative">
+              <div className="absolute -left-[33px] top-1.5 w-2 h-2 rounded-full border-2 border-primary bg-background" />
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Retirada</p>
+                <h3 className="text-xl font-medium text-foreground">{booking.pickup_location || "—"}</h3>
+                <p className="text-sm text-muted-foreground tabular-nums">{pickup.toLocaleDateString("pt-BR")}</p>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute -left-[33px] top-1.5 w-2 h-2 rounded-full border-2 border-border bg-background" />
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Devolução</p>
+                <h3 className="text-xl font-medium text-foreground">{booking.return_location || "—"}</h3>
+                <p className="text-sm text-muted-foreground tabular-nums">{returnD.toLocaleDateString("pt-BR")}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Cliente */}
+        <section>
+          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-6">Cliente</h2>
+          {customer ? (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-12">
+                <div>
+                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Nome</label>
+                  <p className="text-sm font-medium text-foreground break-words">{customer.full_name || "—"}</p>
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">E-mail</label>
+                  <p className="text-sm font-medium text-foreground break-all">{customer.email || "—"}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Telefone</label>
+                  <p className="text-sm font-medium text-foreground tabular-nums">{customer.phone || "—"}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Nacionalidade</label>
+                  <p className="text-sm font-medium text-foreground">{customer.nationality || "—"}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Documento</label>
+                  <p className="text-sm font-medium text-foreground tabular-nums">{customer.document_number || "—"}</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">CNH</label>
+                  <p className="text-sm font-medium text-foreground tabular-nums">{customer.driver_license || "—"}</p>
+                </div>
+              </div>
+              {customer.notes && (
+                <p className="mt-6 text-xs text-muted-foreground italic leading-relaxed">{customer.notes}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-xs text-muted-foreground py-4">Cliente não vinculado</p>
+          )}
+        </section>
+
+        {/* Veículo */}
+        <section className="bg-card border border-border/40 rounded-2xl p-8 shadow-sm">
+          {vehicle ? (
+            <div className="flex flex-col md:flex-row gap-8 items-stretch">
+              <div className="w-full md:w-1/2 space-y-6">
+                <div>
+                  <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-4">Veículo</h2>
+                  <h3 className="text-2xl font-bold text-foreground">{vehicle.name}</h3>
+                  <p className="text-primary font-medium mt-1 uppercase tracking-widest text-[11px]">
+                    {vehicle.year ? `${vehicle.year} • ` : ""}{vehicle.category}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
+                    <p className="text-[9px] text-muted-foreground/70 font-bold uppercase tracking-wider">Transmissão</p>
+                    <p className="text-xs font-semibold text-foreground mt-0.5">{vehicle.transmission}</p>
+                  </div>
+                  <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
+                    <p className="text-[9px] text-muted-foreground/70 font-bold uppercase tracking-wider">Combustível</p>
+                    <p className="text-xs font-semibold text-foreground mt-0.5">{vehicle.fuel}</p>
+                  </div>
+                  <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
+                    <p className="text-[9px] text-muted-foreground/70 font-bold uppercase tracking-wider">Passageiros</p>
+                    <p className="text-xs font-semibold text-foreground tabular-nums mt-0.5">{vehicle.passengers}</p>
+                  </div>
+                  <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
+                    <p className="text-[9px] text-muted-foreground/70 font-bold uppercase tracking-wider">Malas</p>
+                    <p className="text-xs font-semibold text-foreground tabular-nums mt-0.5">{vehicle.bags}</p>
+                  </div>
+                </div>
               </div>
 
-              <DetailItem label="Duração" value={`${days} dia${days > 1 ? "s" : ""}`} />
-              <DetailItem label="Valor Total" value={booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"} highlight />
-              <DetailItem label="Condutor Adicional" value={booking.extra_driver ? "Sim" : "Não"} />
-              <DetailItem label="Idade do Condutor" value={booking.driver_age ? `${booking.driver_age} anos` : "—"} />
-              <DetailItem label="Criada em" value={new Date(booking.created_at).toLocaleDateString("pt-BR")} />
-              {booking.notes && (
-                <div className="mt-3 pt-3 border-t border-border/20">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1">Observações</p>
-                  <p className="text-xs text-muted-foreground italic leading-relaxed">{booking.notes}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+              <div className="w-full md:w-1/2 flex flex-col items-center justify-center md:border-l border-border/40 md:pl-8 py-4">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-2">Valor da Diária</p>
+                <p className="text-5xl font-bold tabular-nums text-foreground">
+                  <span className="text-xl font-medium text-muted-foreground mr-1">$</span>
+                  {vehicle.daily_price_usd.toFixed(2)}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground py-4 text-center">Veículo não vinculado</p>
+          )}
+        </section>
 
-        {/* Customer */}
-        <div className="lg:col-span-4">
-          <Card className="bg-card/80 border-border/30">
-            <CardContent className="p-5">
-              <SectionTitle>Cliente</SectionTitle>
-              {customer ? (
-                <>
-                  <DetailItem label="Nome" value={customer.full_name} />
-                  <DetailItem label="E-mail" value={customer.email} />
-                  <DetailItem label="Telefone" value={customer.phone} />
-                  <DetailItem label="Documento (CPF/Passport/ID)" value={customer.document_number} />
-                  <DetailItem label="CNH" value={customer.driver_license} />
-                  <DetailItem label="Nacionalidade" value={customer.nationality} />
-                  {customer.notes && (
-                    <div className="mt-3 pt-3 border-t border-border/20">
-                      <p className="text-xs text-muted-foreground italic leading-relaxed">{customer.notes}</p>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p className="text-xs text-muted-foreground py-4 text-center">Cliente não vinculado</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+        {/* Resumo Financeiro & Observações */}
+        <section className="space-y-6 pt-2">
+          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-2">
+            Resumo Financeiro & Observações
+          </h2>
 
-        {/* Vehicle */}
-        <div className="lg:col-span-4">
-          <Card className="bg-card/80 border-border/30">
-            <CardContent className="p-5">
-              <SectionTitle>Veículo</SectionTitle>
-              {vehicle ? (
-                <>
-                  <DetailItem label="Modelo" value={`${vehicle.name}${vehicle.year ? ` (${vehicle.year})` : ""}`} />
-                  <DetailItem label="Categoria" value={vehicle.category} />
-                  <DetailItem label="Diária" value={`$${vehicle.daily_price_usd.toFixed(2)}`} highlight />
-                  <DetailItem label="Passageiros" value={vehicle.passengers} />
-                  <DetailItem label="Malas" value={vehicle.bags} />
-                  <DetailItem label="Transmissão" value={vehicle.transmission} />
-                  <DetailItem label="Combustível" value={vehicle.fuel} />
-                </>
-              ) : (
-                <p className="text-xs text-muted-foreground py-4 text-center">Veículo não vinculado</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+          <div className="space-y-1">
+            <div className="flex justify-between py-2.5 border-b border-border/30">
+              <span className="text-sm text-muted-foreground">Duração da reserva</span>
+              <span className="text-sm font-semibold text-foreground tabular-nums">{days} dia{days > 1 ? "s" : ""}</span>
+            </div>
+            <div className="flex justify-between py-2.5 border-b border-border/30">
+              <span className="text-sm text-muted-foreground">Condutor adicional</span>
+              <span className="text-sm font-semibold text-foreground">{booking.extra_driver ? "Sim" : "Não"}</span>
+            </div>
+            <div className="flex justify-between py-2.5 border-b border-border/30">
+              <span className="text-sm text-muted-foreground">Idade do condutor</span>
+              <span className="text-sm font-semibold text-foreground tabular-nums">
+                {booking.driver_age ? `${booking.driver_age} anos` : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between py-2.5 border-b border-border/30">
+              <span className="text-sm text-muted-foreground">Reserva criada em</span>
+              <span className="text-sm font-semibold text-foreground tabular-nums">
+                {new Date(booking.created_at).toLocaleDateString("pt-BR")}
+              </span>
+            </div>
+            <div className="flex justify-between items-baseline py-5">
+              <span className="text-base font-bold text-foreground">Total da Reserva</span>
+              <span className="text-2xl font-bold tabular-nums text-primary">
+                {booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}
+              </span>
+            </div>
+          </div>
+
+          {booking.notes && (
+            <div className="bg-muted/30 p-6 rounded-xl border border-border/30">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+                Observações
+              </label>
+              <p className="text-sm italic text-muted-foreground leading-relaxed">{booking.notes}</p>
+            </div>
+          )}
+        </section>
       </div>
 
       {/* Full Inspection sections */}
