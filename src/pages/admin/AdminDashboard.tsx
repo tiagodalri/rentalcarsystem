@@ -179,7 +179,7 @@ export default function AdminDashboard() {
     { label: "Total de Veiculos", value: stats.totalVehicles, icon: Car, color: "text-blue-400", onClick: goFleet },
     { label: "Disponiveis", value: stats.availableVehicles, icon: CheckCircle2, color: "text-emerald-500", onClick: goFleet },
     { label: "Em Manutencao", value: stats.maintenanceVehicles, icon: Wrench, color: "text-yellow-500", onClick: goFleet },
-    { label: "Km Media", value: `${fmtNum(stats.avgOdometer)} mi`, icon: Gauge, color: "text-foreground", onClick: goFleet },
+    { label: "Milhas Média", value: `${fmtNum(stats.avgOdometer)} mi`, icon: Gauge, color: "text-foreground", onClick: goFleet },
   ];
 
   const financeCards: StatCard[] = [

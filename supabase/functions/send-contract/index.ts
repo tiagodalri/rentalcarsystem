@@ -346,7 +346,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
   fieldRow("Ano", vehicle.year ? String(vehicle.year) : "");
   fieldRow("Placa", vehicle.license_plate || "");
   fieldRow("Cor", vehicle.color || "");
-  fieldRow("Quilometragem na retirada", vehicle.current_odometer ? `${vehicle.current_odometer.toLocaleString("pt-BR")} mi` : "");
+  fieldRow("Milhagem na retirada", vehicle.current_odometer ? `${vehicle.current_odometer.toLocaleString("pt-BR")} mi` : "");
 
   // 3. PERÍODO
   const pickupMs = new Date(booking.pickup_date).getTime();
@@ -508,7 +508,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
   checkboxLine([
     { label: "1/4" }, { label: "1/2" }, { label: "3/4" }, { label: "Full" },
   ]);
-  fieldRow("Quilometragem registrada", "");
+  fieldRow("Milhagem registrada", "");
   ensure(18);
   cur.page.drawText("Fotos registradas na retirada:", {
     x: margin, y: cur.y - 10, size: 10, font: helv, color: COLOR_MUTED,

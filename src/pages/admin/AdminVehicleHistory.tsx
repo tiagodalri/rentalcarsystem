@@ -92,7 +92,7 @@ export default function AdminVehicleHistory() {
     return sum + Math.max(days, 1);
   }, 0);
 
-  // KM tracking from inspections
+  // Mileage tracking from inspections
   const inspectionsWithOdometer = bookings
     .filter((b) => b.checkin?.odometer_reading || b.checkout?.odometer_reading)
     .sort((a, b) => new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime());
@@ -112,7 +112,7 @@ export default function AdminVehicleHistory() {
     { icon: Calendar, label: "Total Locações", value: bookings.length.toString(), sub: `${completedBookings.length} concluídas` },
     { icon: DollarSign, label: "Receita Total", value: `$${totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, sub: `Média $${avgRevenue.toFixed(0)}/locação` },
     { icon: Clock, label: "Dias Alugado", value: totalDays.toString(), sub: `${(totalDays / Math.max(bookings.length, 1)).toFixed(1)} dias/locação` },
-    { icon: Gauge, label: "Km Percorridos", value: totalKm ? `${totalKm.toLocaleString("pt-BR")} km` : "—", sub: totalKm ? `${(totalKm / Math.max(bookings.length, 1)).toFixed(0)} km/locação` : "Sem dados" },
+    { icon: Gauge, label: "Milhas Percorridas", value: totalKm ? `${totalKm.toLocaleString("pt-BR")} mi` : "—", sub: totalKm ? `${(totalKm / Math.max(bookings.length, 1)).toFixed(0)} mi/locação` : "Sem dados" },
     { icon: Users, label: "Clientes Únicos", value: uniqueClients.toString(), sub: `${((bookings.length - uniqueClients) / Math.max(bookings.length, 1) * 100).toFixed(0)}% retorno` },
     { icon: AlertTriangle, label: "Avarias Registradas", value: totalDamages.toString(), sub: totalDamages === 0 ? "Sem avarias" : `${(totalDamages / Math.max(bookings.length, 1)).toFixed(1)}/locação` },
   ];
@@ -224,7 +224,7 @@ export default function AdminVehicleHistory() {
                         </div>
                         {kmDriven !== null && (
                           <div className="text-center">
-                            <p className="text-[10px] text-muted-foreground">Km</p>
+                            <p className="text-[10px] text-muted-foreground">Milhas</p>
                             <p className="font-bold text-foreground">{kmDriven.toLocaleString("pt-BR")}</p>
                           </div>
                         )}
@@ -279,10 +279,10 @@ export default function AdminVehicleHistory() {
                           Devolução: {b.checkout?.completed_at ? "Finalizada" : b.checkout ? "Rascunho" : "Pendente"}
                         </span>
                         {b.checkin?.odometer_reading && (
-                          <span>Odômetro entrada: {b.checkin.odometer_reading.toLocaleString("pt-BR")} km</span>
+                          <span>Odômetro entrada: {b.checkin.odometer_reading.toLocaleString("pt-BR")} mi</span>
                         )}
                         {b.checkout?.odometer_reading && (
-                          <span>Odômetro saída: {b.checkout.odometer_reading.toLocaleString("pt-BR")} km</span>
+                          <span>Odômetro saída: {b.checkout.odometer_reading.toLocaleString("pt-BR")} mi</span>
                         )}
                       </div>
                     )}

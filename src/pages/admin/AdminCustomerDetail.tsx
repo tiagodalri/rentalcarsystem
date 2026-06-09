@@ -440,14 +440,14 @@ export default function AdminCustomerDetail() {
                         {(checkin || checkout || bkNewDamages.length > 0) && (
                           <div className="flex items-center gap-4 text-[10px] text-muted-foreground ml-11 mt-2">
                             {checkin && (
-                              <span>Entrega: {checkin.odometer_reading?.toLocaleString() || "—"} km · {checkin.fuel_level || "—"}</span>
+                              <span>Entrega: {checkin.odometer_reading?.toLocaleString() || "—"} mi · {checkin.fuel_level || "—"}</span>
                             )}
                             {checkout && (
-                              <span>Devolução: {checkout.odometer_reading?.toLocaleString() || "—"} km · {checkout.fuel_level || "—"}</span>
+                              <span>Devolução: {checkout.odometer_reading?.toLocaleString() || "—"} mi · {checkout.fuel_level || "—"}</span>
                             )}
                             {checkin && checkout && checkin.odometer_reading && checkout.odometer_reading && (
                               <span className="font-medium text-foreground">
-                                {(checkout.odometer_reading - checkin.odometer_reading).toLocaleString()} km rodados
+                                {(checkout.odometer_reading - checkin.odometer_reading).toLocaleString()} mi rodadas
                               </span>
                             )}
                             {bkNewDamages.length > 0 && (

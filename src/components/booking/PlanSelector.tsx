@@ -16,7 +16,7 @@ const PlanSelector = ({ dailyPrice }: PlanSelectorProps) => {
   const plan = PLANS.unico;
 
   const features = [
-    { label: "Quilometragem ilimitada", included: true },
+    { label: "Milhagem ilimitada", included: true },
     { label: "Seguro básico + Assistência 24h", included: true },
     { label: "Seguro Premium (Franquia ZERO)", included: false },
     { label: "TAG Pedágio ilimitada (SunPass)", included: false },

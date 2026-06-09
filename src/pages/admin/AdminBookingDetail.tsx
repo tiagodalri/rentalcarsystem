@@ -277,7 +277,7 @@ export default function AdminBookingDetail() {
         <CardContent className="p-5 space-y-5">
           {/* Metrics row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <MetricCard icon={Gauge} label="Odômetro" value={insp.odometer_reading ? `${insp.odometer_reading.toLocaleString()} km` : "—"} />
+            <MetricCard icon={Gauge} label="Odômetro" value={insp.odometer_reading ? `${insp.odometer_reading.toLocaleString()} mi` : "—"} />
             <MetricCard icon={Fuel} label="Combustível" value={insp.fuel_level || "—"} />
             <MetricCard icon={AlertTriangle} label="Avarias" value={damages.length} color={damages.length > 0 ? "text-red-500" : "text-emerald-500"} />
             <MetricCard icon={CheckCircle2} label="Acessórios" value={`${accessoryOk}/${accessoryEntries.length}`} />
@@ -608,9 +608,9 @@ export default function AdminBookingDetail() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <MetricCard
                 icon={Gauge}
-                label="KM Rodados"
+                label="Milhas Rodadas"
                 value={checkin.odometer_reading && checkout.odometer_reading
-                  ? `${(checkout.odometer_reading - checkin.odometer_reading).toLocaleString()} km`
+                  ? `${(checkout.odometer_reading - checkin.odometer_reading).toLocaleString()} mi`
                   : "—"}
               />
               <MetricCard icon={Fuel} label="Combustível Entrega" value={checkin.fuel_level || "—"} />

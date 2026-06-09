@@ -649,7 +649,7 @@ export default function AdminInspection() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Odometer column */}
               <div className="flex flex-col gap-4">
-                <label className="text-sm font-medium text-foreground">Leitura do Odômetro (km)</label>
+                <label className="text-sm font-medium text-foreground">Leitura do Odômetro (mi)</label>
                 <Input
                   type="number"
                   inputMode="numeric"
@@ -685,7 +685,7 @@ export default function AdminInspection() {
                     >
                       <Camera size={24} />
                       <span className="text-xs font-medium">Tirar foto do odômetro</span>
-                      <span className="text-[10px] text-muted-foreground/70">Focalize o painel mostrando a km claramente</span>
+                      <span className="text-[10px] text-muted-foreground/70">Focalize o painel mostrando a milhagem claramente</span>
                     </button>
                   )}
                 </div>
