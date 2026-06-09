@@ -372,8 +372,8 @@ function StepHeader({ id }: { id: StepId }) {
   const titles: Record<StepId, { t: string; s: string }> = {
     customer: { t: "Cliente", s: "Busque um cliente existente ou cadastre um novo." },
     vehicle: { t: "Veículo", s: "Selecione o carro alugado." },
-    pickup: { t: "Retirada", s: "Quando e onde o cliente retira o veículo." },
-    return: { t: "Devolução", s: "Quando e onde o veículo será devolvido." },
+    schedule: { t: "Retirada e devolução", s: "Quando e onde o cliente retira e devolve o veículo." },
+
     deposit: { t: "Caução & Franquia", s: "Confirme os valores e o prazo de devolução do caução." },
     extras: { t: "Opcionais", s: "Plano, motorista adicional e itens extras." },
     payment: { t: "Pagamento", s: "Valor total, forma e status do pagamento." },
