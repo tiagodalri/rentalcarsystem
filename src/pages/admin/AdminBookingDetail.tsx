@@ -11,6 +11,7 @@ import {
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { LocationDisplay } from "@/components/admin/LocationDisplay";
 import { EditBookingDialog } from "@/components/admin/EditBookingDialog";
+import { BookingIncidentDialog } from "@/components/admin/BookingIncidentDialog";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -109,6 +110,7 @@ export default function AdminBookingDetail() {
   const [loading, setLoading] = useState(true);
   const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [incidentOpen, setIncidentOpen] = useState(false);
   const { isAdmin, hasAny } = useAdminAuth();
   const [sendingContract, setSendingContract] = useState(false);
 
@@ -499,6 +501,13 @@ export default function AdminBookingDetail() {
               </button>
             </div>
           )}
+          <button
+            onClick={() => setIncidentOpen(true)}
+            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors font-medium border border-destructive/30"
+            title="Registrar acidente, sinistro, multa ou outra ocorrência"
+          >
+            <AlertTriangle size={13} /> Registrar ocorrência
+          </button>
           {isAdmin && (
             <button
               onClick={() => setEditOpen(true)}
@@ -519,6 +528,14 @@ export default function AdminBookingDetail() {
           onSaved={reload}
         />
       )}
+
+      <BookingIncidentDialog
+        open={incidentOpen}
+        onOpenChange={setIncidentOpen}
+        bookingId={booking.id}
+        vehicleId={booking.vehicle_id}
+        onSaved={reload}
+      />
 
       {/* Executive dossier: single-column vertical flow */}
       <div className="max-w-3xl mx-auto w-full space-y-14 pt-4">

@@ -1071,6 +1071,7 @@ export type Database = {
           estimated_cost: number | null
           id: string
           incident_date: string
+          linked_to_vehicle: boolean
           photos: Json | null
           resolution_notes: string | null
           resolved_at: string | null
@@ -1089,6 +1090,7 @@ export type Database = {
           estimated_cost?: number | null
           id?: string
           incident_date?: string
+          linked_to_vehicle?: boolean
           photos?: Json | null
           resolution_notes?: string | null
           resolved_at?: string | null
@@ -1107,6 +1109,7 @@ export type Database = {
           estimated_cost?: number | null
           id?: string
           incident_date?: string
+          linked_to_vehicle?: boolean
           photos?: Json | null
           resolution_notes?: string | null
           resolved_at?: string | null

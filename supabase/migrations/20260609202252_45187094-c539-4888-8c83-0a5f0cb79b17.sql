@@ -1,0 +1,1 @@
+ALTER TABLE public.vehicle_incidents ADD COLUMN IF NOT EXISTS linked_to_vehicle boolean NOT NULL DEFAULT true;
