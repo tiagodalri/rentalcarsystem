@@ -119,12 +119,12 @@ export type AiExtractResult = {
 export const WIZARD_STEPS = [
   { id: "customer", title: "Cliente" },
   { id: "vehicle", title: "Veículo" },
-  { id: "pickup", title: "Retirada" },
-  { id: "return", title: "Devolução" },
+  { id: "schedule", title: "Retirada e devolução" },
   { id: "deposit", title: "Caução & Franquia" },
   { id: "extras", title: "Opcionais" },
   { id: "payment", title: "Pagamento" },
   { id: "review", title: "Revisão" },
+
 ] as const;
 
 export type StepId = (typeof WIZARD_STEPS)[number]["id"];
