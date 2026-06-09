@@ -85,12 +85,17 @@ export const initialWizardForm: WizardFormState = {
 
   pickup_date: "",
   pickup_time: "10:00",
+  pickup_location_type: "airport",
   pickup_location: "",
+  pickup_terminal: "",
   pickup_notes: "",
   return_date: "",
   return_time: "10:00",
+  return_location_type: "airport",
   return_location: "",
+  return_terminal: "",
   return_notes: "",
+
   deposit_amount: "",
   franchise_amount: "",
   deposit_refund_days: "30",
