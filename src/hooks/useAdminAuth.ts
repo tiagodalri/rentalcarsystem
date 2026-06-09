@@ -8,6 +8,15 @@ export type AppRole = "admin" | "finance" | "operations" | "support";
 // Module-level cache of roles per user
 let cachedRoles: { userId: string; roles: AppRole[] } | null = null;
 
+const clearLocalAuthSession = async () => {
+  cachedRoles = null;
+  try {
+    await supabase.auth.signOut({ scope: "local" });
+  } catch (error) {
+    console.warn("[useAdminAuth] local session clear failed:", error);
+  }
+};
+
 export function useAdminAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
@@ -65,12 +74,19 @@ export function useAdminAuth() {
       }
     };
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!initialCheckDone.current) {
-        initialCheckDone.current = true;
-        loadRoles(session?.user ?? null);
-      }
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session }, error }) => {
+        if (!initialCheckDone.current) {
+          initialCheckDone.current = true;
+          if (error) throw error;
+          loadRoles(session?.user ?? null);
+        }
+      })
+      .catch(async (error) => {
+        console.warn("[useAdminAuth] session recovery failed:", error?.message || error);
+        await clearLocalAuthSession();
+        if (mounted) { setUser(null); setRoles([]); setAuthError(null); setLoading(false); }
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "INITIAL_SESSION") return;
@@ -94,6 +110,7 @@ export function useAdminAuth() {
   const signIn = async (email: string, password: string) => {
     cachedRoles = null;
     setAuthError(null);
+    await clearLocalAuthSession();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
   };
