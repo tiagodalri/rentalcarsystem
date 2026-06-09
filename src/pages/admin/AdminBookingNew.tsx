@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, PencilLine, Sparkles, ArrowRight } from "lucide-react";
-import { NewBookingDialog } from "@/components/admin/NewBookingDialog";
+import { BookingWizard } from "@/components/admin/booking-wizard/BookingWizard";
 
 type Mode = "manual" | "ai";
 
@@ -9,25 +9,14 @@ export default function AdminBookingNew() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<Mode | null>(null);
   const back = () => navigate("/admin/bookings");
-  const backToChooser = () => setMode(null);
 
   if (mode) {
     return (
-      <div className="space-y-4">
-        <button
-          onClick={backToChooser}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ArrowLeft size={14} /> Escolher outro método
-        </button>
-
-        <NewBookingDialog
-          mode="page"
-          aiMode={mode === "ai"}
-          onCreated={back}
-          onCancel={back}
-        />
-      </div>
+      <BookingWizard
+        aiMode={mode === "ai"}
+        onDone={back}
+        onCancel={() => setMode(null)}
+      />
     );
   }
 
@@ -66,7 +55,7 @@ export default function AdminBookingNew() {
           <div className="space-y-1">
             <h2 className="text-base font-semibold">Manualmente</h2>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Você preenche todos os dados manualmente, etapa por etapa.
+              Você preenche todos os dados em 7 etapas guiadas.
             </p>
           </div>
         </button>
@@ -89,7 +78,7 @@ export default function AdminBookingNew() {
               </span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              A IA extrai as informações automaticamente de prints, PDFs, planilhas, texto ou áudio — e você completa o que faltou.
+              Primeiro a IA lê seus prints/PDFs/áudio/texto e pré-preenche tudo. Depois você confirma campo a campo nas etapas.
             </p>
           </div>
         </button>

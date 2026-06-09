@@ -37,6 +37,7 @@ type Booking = {
   contract_error?: string | null;
   clicksign_envelope_id?: string | null;
   booking_number?: string | null;
+  payment_status?: string | null;
 };
 
 type Customer = {
@@ -442,6 +443,14 @@ export default function AdminBookingDetail() {
                 );
               }
               return badge;
+            })()}
+            {(() => {
+              const ps = booking.payment_status || "pending";
+              const cls = ps === "paid"
+                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                : "bg-amber-500/10 text-amber-600 border-amber-500/30";
+              const label = ps === "paid" ? "Pagamento OK" : "Pagamento pendente";
+              return <Badge className={`${cls} border text-[10px] px-2.5 py-0.5 font-semibold`}>{label}</Badge>;
             })()}
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">

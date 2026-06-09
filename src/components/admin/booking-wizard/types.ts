@@ -1,0 +1,104 @@
+import type { CustomerLite } from "@/components/admin/CustomerCombobox";
+
+export type WizardFormState = {
+  // Customer
+  customer: CustomerLite | null;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+
+  // Vehicle
+  vehicle_id: string;
+
+  // Pickup
+  pickup_date: string;
+  pickup_time: string;
+  pickup_location: string;
+
+  // Return
+  return_date: string;
+  return_time: string;
+  return_location: string;
+
+  // Deposit & franchise
+  deposit_amount: string;
+  franchise_amount: string;
+  deposit_refund_days: string;
+
+  // Extras
+  plan_id: string;
+  extra_driver: boolean;
+  driver_age: string;
+  child_seat: boolean;
+  toll_tag: boolean;
+  premium_insurance: boolean;
+
+  // Payment
+  total_price: string;
+  currency: "USD" | "BRL";
+  payment_method: string;
+  payment_status: "pending" | "paid";
+
+  // Notes
+  notes: string;
+};
+
+export const initialWizardForm: WizardFormState = {
+  customer: null,
+  customer_name: "",
+  customer_email: "",
+  customer_phone: "",
+  vehicle_id: "",
+  pickup_date: "",
+  pickup_time: "10:00",
+  pickup_location: "",
+  return_date: "",
+  return_time: "10:00",
+  return_location: "",
+  deposit_amount: "",
+  franchise_amount: "",
+  deposit_refund_days: "30",
+  plan_id: "conforto",
+  extra_driver: false,
+  driver_age: "",
+  child_seat: false,
+  toll_tag: false,
+  premium_insurance: false,
+  total_price: "",
+  currency: "USD",
+  payment_method: "Cartão de Crédito",
+  payment_status: "pending",
+  notes: "",
+};
+
+export type AiExtractResult = {
+  customer_name?: string | null;
+  customer_email?: string | null;
+  customer_phone?: string | null;
+  vehicle_name?: string | null;
+  pickup_date?: string | null;
+  pickup_time?: string | null;
+  return_date?: string | null;
+  return_time?: string | null;
+  pickup_location?: string | null;
+  return_location?: string | null;
+  total_price?: number | null;
+  currency?: "USD" | "BRL" | null;
+  payment_method?: string | null;
+  deposit_amount?: number | null;
+  franchise_amount?: number | null;
+  notes?: string | null;
+};
+
+export const WIZARD_STEPS = [
+  { id: "customer", title: "Cliente" },
+  { id: "vehicle", title: "Veículo" },
+  { id: "pickup", title: "Retirada" },
+  { id: "return", title: "Devolução" },
+  { id: "deposit", title: "Caução & Franquia" },
+  { id: "extras", title: "Opcionais" },
+  { id: "payment", title: "Pagamento" },
+  { id: "review", title: "Revisão" },
+] as const;
+
+export type StepId = (typeof WIZARD_STEPS)[number]["id"];

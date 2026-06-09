@@ -70,11 +70,15 @@ export type Database = {
           deleted_by: string | null
           deposit_amount: number | null
           deposit_refund_days: number | null
+          deposit_refund_deadline_days: number | null
           driver_age: number | null
           extra_driver: boolean | null
           franchise_amount: number | null
           id: string
           notes: string | null
+          paid_at: string | null
+          payment_method: string | null
+          payment_status: string
           pickup_date: string
           pickup_location: string | null
           pickup_time: string | null
@@ -110,11 +114,15 @@ export type Database = {
           deleted_by?: string | null
           deposit_amount?: number | null
           deposit_refund_days?: number | null
+          deposit_refund_deadline_days?: number | null
           driver_age?: number | null
           extra_driver?: boolean | null
           franchise_amount?: number | null
           id?: string
           notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_status?: string
           pickup_date: string
           pickup_location?: string | null
           pickup_time?: string | null
@@ -150,11 +158,15 @@ export type Database = {
           deleted_by?: string | null
           deposit_amount?: number | null
           deposit_refund_days?: number | null
+          deposit_refund_deadline_days?: number | null
           driver_age?: number | null
           extra_driver?: boolean | null
           franchise_amount?: number | null
           id?: string
           notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_status?: string
           pickup_date?: string
           pickup_location?: string | null
           pickup_time?: string | null
