@@ -1033,7 +1033,7 @@ const BookingDetails = () => {
                   <div className="grid grid-cols-2 gap-2.5 text-center text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
                     {[
                       { icon: ShieldCheck, label: "Seguro incluso" },
-                      { icon: Car, label: "Km ilimitado" },
+                      { icon: Car, label: "Milhas ilimitadas" },
                       { icon: Zap, label: "Retirada rápida" },
                       { icon: Users, label: "2º motorista grátis" },
                     ].map(({ icon: Icon, label }) => (

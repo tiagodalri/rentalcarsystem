@@ -100,7 +100,7 @@ export default function AdminInspectionCompare() {
           <div>
             <span className="text-xs text-muted-foreground">Odômetro</span>
             <p className="text-sm font-medium text-foreground">
-              {data.odometer_reading?.toLocaleString("pt-BR") || "—"} km
+              {data.odometer_reading?.toLocaleString("pt-BR") || "—"} mi
             </p>
           </div>
           <div>

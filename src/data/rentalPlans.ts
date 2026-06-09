@@ -46,7 +46,7 @@ export const PLAN_ORDER: PlanId[] = ["unico"];
 
 // Items included in ALL plans
 export const BASE_INCLUDES = [
-  "Quilometragem ilimitada",
+  "Milhagem ilimitada",
   "Seguro básico",
   "Assistência 24h",
   "Limpeza completa",

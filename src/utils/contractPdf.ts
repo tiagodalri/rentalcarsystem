@@ -155,7 +155,7 @@ export function generateContractPdf(
   section("VEÍCULO");
   twoCols("Marca / Modelo", vehicle.name, "Placa", vehicle.license_plate || "—");
   twoCols("Ano", vehicle.year?.toString() || "—", "Cor", vehicle.color || "—");
-  twoCols("Categoria", vehicle.category || "—", "Odômetro inicial (km)", vehicle.current_odometer?.toLocaleString("pt-BR") || "—");
+  twoCols("Categoria", vehicle.category || "—", "Odômetro inicial (mi)", vehicle.current_odometer?.toLocaleString("pt-BR") || "—");
 
   // BLOCO 4 — LOCAÇÃO
   const pickupMs = new Date(booking.pickup_date).getTime();

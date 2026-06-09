@@ -83,7 +83,7 @@ export function DetailsTab({ vehicle, vehicleId }: { vehicle: LiveVehicle; vehic
       <Section title="Manutenção" icon={<Wrench size={13} />}>
         <div className="grid grid-cols-2">
           <Cell label="Última revisão" value={fmtDate(detail?.last_service_date)} />
-          <Cell label="Próxima (km)" value={detail?.next_service_km ? `${fmtNum(detail.next_service_km)} mi` : "—"} />
+          <Cell label="Próxima (mi)" value={detail?.next_service_km ? `${fmtNum(detail.next_service_km)} mi` : "—"} />
           <Cell label="Licenciamento" value={fmtDate(detail?.registration_expiry)} />
         </div>
       </Section>

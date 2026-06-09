@@ -129,7 +129,7 @@ export async function generateInspectionPDF(data: InspectionData): Promise<void>
 
   // Odometer & Fuel
   section("ODÔMETRO & COMBUSTÍVEL");
-  labelValue("Odômetro (km)", inspection.odometer_reading?.toLocaleString("pt-BR") || "—");
+  labelValue("Odômetro (mi)", inspection.odometer_reading?.toLocaleString("pt-BR") || "—");
   labelValue("Nível de Combustível", FUEL_LABELS[inspection.fuel_level] || inspection.fuel_level || "—", contentW / 2);
   y += 14;
 

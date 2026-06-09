@@ -376,7 +376,7 @@ export default function AdminVehicleDetail() {
   const timelineEvents: { date: string; icon: any; title: string; desc: string; color: string }[] = [];
   if (vehicle.acquired_date) {
     timelineEvents.push({ date: vehicle.acquired_date, icon: Car, title: "Veículo adquirido",
-      desc: `Entrou na frota com ${vehicle.initial_odometer?.toLocaleString("pt-BR") || 0} km${vehicle.purchase_price ? ` • $${vehicle.purchase_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : ""}`,
+      desc: `Entrou na frota com ${vehicle.initial_odometer?.toLocaleString("pt-BR") || 0} mi${vehicle.purchase_price ? ` • $${vehicle.purchase_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : ""}`,
       color: "text-primary" });
   }
   bookings.sort((a, b) => new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime()).forEach(b => {
@@ -459,9 +459,9 @@ export default function AdminVehicleDetail() {
         </summary>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3 sm:mt-0">
           {[
-            { icon: Gauge, label: "Odômetro Entrada", value: vehicle.initial_odometer ? `${vehicle.initial_odometer.toLocaleString("pt-BR")} km` : "—" },
-            { icon: Gauge, label: "Odômetro Atual", value: lastOdometer ? `${lastOdometer.toLocaleString("pt-BR")} km` : "—" },
-            { icon: Car, label: "Km Rodados", value: kmTotal ? `${kmTotal.toLocaleString("pt-BR")} km` : "—" },
+            { icon: Gauge, label: "Odômetro Entrada", value: vehicle.initial_odometer ? `${vehicle.initial_odometer.toLocaleString("pt-BR")} mi` : "—" },
+            { icon: Gauge, label: "Odômetro Atual", value: lastOdometer ? `${lastOdometer.toLocaleString("pt-BR")} mi` : "—" },
+            { icon: Car, label: "Milhas Rodadas", value: kmTotal ? `${kmTotal.toLocaleString("pt-BR")} mi` : "—" },
             { icon: Calendar, label: "Na Frota", value: daysSinceAcquired ? `${daysSinceAcquired} dias` : "—" },
             { icon: BarChart3, label: "Ocupação", value: utilizationRate ? `${utilizationRate}%` : "—" },
           ].map((s, i) => {
@@ -800,8 +800,8 @@ export default function AdminVehicleDetail() {
             </Card>
             <Card className="border-border/40">
               <CardContent className="p-4">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Próxima Revisão (km)</p>
-                <p className="font-bold text-foreground">{vehicle.next_service_km ? `${vehicle.next_service_km.toLocaleString("pt-BR")} km` : "—"}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Próxima Revisão (mi)</p>
+                <p className="font-bold text-foreground">{vehicle.next_service_km ? `${vehicle.next_service_km.toLocaleString("pt-BR")} mi` : "—"}</p>
               </CardContent>
             </Card>
             <Card className="border-border/40">
@@ -1112,7 +1112,7 @@ export default function AdminVehicleDetail() {
                             <p className="text-[10px] text-muted-foreground">Valor</p>
                             <p className="font-bold text-foreground">${b.total_price?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}</p>
                           </div>
-                          {kmDriven !== null && <div className="text-center"><p className="text-[10px] text-muted-foreground">Km</p><p className="font-bold text-foreground">{kmDriven.toLocaleString("pt-BR")}</p></div>}
+                          {kmDriven !== null && <div className="text-center"><p className="text-[10px] text-muted-foreground">Milhas</p><p className="font-bold text-foreground">{kmDriven.toLocaleString("pt-BR")}</p></div>}
                         </div>
                       </div>
                     </CardContent>
@@ -1161,9 +1161,9 @@ export default function AdminVehicleDetail() {
               {/* Odometer */}
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Odômetro</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {renderField("Odômetro Aquisição (km)", "initial_odometer", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} km` : "—")}
-                {renderField("Odômetro Atual (km)", "current_odometer", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} km` : "—")}
-                {renderField("Próxima Revisão (km)", "next_service_km", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} km` : "—")}
+                {renderField("Odômetro Aquisição (mi)", "initial_odometer", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} mi` : "—")}
+                {renderField("Odômetro Atual (mi)", "current_odometer", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} mi` : "—")}
+                {renderField("Próxima Revisão (mi)", "next_service_km", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} mi` : "—")}
               </div>
 
               {/* Technical */}
