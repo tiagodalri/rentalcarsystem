@@ -265,7 +265,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
             <CustomerStep form={form} set={set} aiKeys={aiKeys} />
           )}
           {currentStep.id === "vehicle" && (
-            <VehicleStep form={form} set={set} aiKeys={aiKeys} />
+            <VehicleStep form={form} set={set} aiKeys={aiKeys} onAdvance={goNext} />
           )}
           {currentStep.id === "pickup" && (
             <PickupStep form={form} set={set} aiKeys={aiKeys} />
