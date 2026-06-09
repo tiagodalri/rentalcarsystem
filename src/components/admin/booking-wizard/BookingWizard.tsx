@@ -841,7 +841,8 @@ function ExtrasStep({ form, set, days }: StepProps & { days: number }) {
 
   const subtotal = addons.reduce((sum, a) => {
     const price = Number(a.price) || 0;
-    return sum + (a.mode === "per_day" ? price * Math.max(days, 1) : price);
+    const qty = isCountableAddon(a.name) ? Math.max(Number(a.quantity) || 1, 1) : 1;
+    return sum + (a.mode === "per_day" ? price * Math.max(days, 1) * qty : price * qty);
   }, 0);
 
   return (
@@ -855,11 +856,13 @@ function ExtrasStep({ form, set, days }: StepProps & { days: number }) {
       <div className="space-y-2">
         {addons.map((a) => {
           const price = Number(a.price) || 0;
-          const lineTotal = a.mode === "per_day" ? price * Math.max(days, 1) : price;
+          const countable = isCountableAddon(a.name);
+          const qty = countable ? Math.max(Number(a.quantity) || 1, 1) : 1;
+          const lineTotal = a.mode === "per_day" ? price * Math.max(days, 1) * qty : price * qty;
           return (
             <div key={a.id} className="rounded-xl border border-border/50 bg-card p-3 space-y-2">
               <div className="grid grid-cols-12 gap-2 items-end">
-                <div className="col-span-12 sm:col-span-5">
+                <div className={countable ? "col-span-12 sm:col-span-4" : "col-span-12 sm:col-span-5"}>
                   <FieldLabel>Nome</FieldLabel>
                   <Input
                     value={a.name}
@@ -868,7 +871,22 @@ function ExtrasStep({ form, set, days }: StepProps & { days: number }) {
                     className="h-10"
                   />
                 </div>
-                <div className="col-span-5 sm:col-span-3">
+                {countable && (
+                  <div className="col-span-4 sm:col-span-2">
+                    <FieldLabel>Qtd</FieldLabel>
+                    <Input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={qty}
+                      onChange={(e) =>
+                        update(a.id, { quantity: Math.max(parseInt(e.target.value) || 1, 1) })
+                      }
+                      className="h-10 tabular-nums"
+                    />
+                  </div>
+                )}
+                <div className={countable ? "col-span-4 sm:col-span-2" : "col-span-5 sm:col-span-3"}>
                   <FieldLabel>Preço (USD)</FieldLabel>
                   <Input
                     type="number"
@@ -879,7 +897,7 @@ function ExtrasStep({ form, set, days }: StepProps & { days: number }) {
                     className="h-10 tabular-nums"
                   />
                 </div>
-                <div className="col-span-5 sm:col-span-3">
+                <div className={countable ? "col-span-4 sm:col-span-3" : "col-span-5 sm:col-span-3"}>
                   <FieldLabel>Cobrança</FieldLabel>
                   <Select
                     value={a.mode}
@@ -907,8 +925,10 @@ function ExtrasStep({ form, set, days }: StepProps & { days: number }) {
               </div>
               <div className="flex justify-end text-[11px] text-muted-foreground tabular-nums">
                 {a.mode === "per_day"
-                  ? `$${price.toFixed(2)} × ${Math.max(days, 1)} ${Math.max(days, 1) === 1 ? "dia" : "dias"} = `
-                  : "Total: "}
+                  ? `$${price.toFixed(2)} × ${Math.max(days, 1)} ${Math.max(days, 1) === 1 ? "dia" : "dias"}${countable && qty > 1 ? ` × ${qty}` : ""} = `
+                  : countable && qty > 1
+                    ? `$${price.toFixed(2)} × ${qty} = `
+                    : "Total: "}
                 <span className="ml-1 font-semibold text-foreground">${lineTotal.toFixed(2)}</span>
               </div>
             </div>
