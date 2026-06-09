@@ -417,6 +417,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 space-y-4">
           {/* IA - Extração inteligente */}
+          {aiMode && (
           <section
             className={`rounded-2xl border-2 border-dashed p-4 sm:p-5 transition-colors ${
               dragOver
