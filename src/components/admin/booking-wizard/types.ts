@@ -7,11 +7,15 @@ export type AddonItem = {
   name: string;
   price: string; // stored as string for input control
   mode: AddonPricingMode;
+  quantity?: number; // only meaningful for countable addons (extra driver / child seat)
 };
 
+export const COUNTABLE_ADDON_REGEX = /motorista adicional|cadeirinha/i;
+export const isCountableAddon = (name: string) => COUNTABLE_ADDON_REGEX.test(name);
+
 export const DEFAULT_ADDON_PRESETS: Omit<AddonItem, "id">[] = [
-  { name: "Motorista adicional", price: "10", mode: "per_day" },
-  { name: "Cadeirinha infantil", price: "8", mode: "per_day" },
+  { name: "Motorista adicional", price: "10", mode: "per_day", quantity: 1 },
+  { name: "Cadeirinha infantil", price: "8", mode: "per_day", quantity: 1 },
   { name: "Toll Tag (pedágio)", price: "12", mode: "per_day" },
   { name: "Seguro Premium", price: "25", mode: "per_day" },
 ];
