@@ -1184,11 +1184,13 @@ function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; day
         ) : (
           form.addons_list.map((a) => {
             const price = Number(a.price) || 0;
-            const total = a.mode === "per_day" ? price * Math.max(days, 1) : price;
+            const countable = isCountableAddon(a.name);
+            const qty = countable ? Math.max(Number(a.quantity) || 1, 1) : 1;
+            const total = a.mode === "per_day" ? price * Math.max(days, 1) * qty : price * qty;
             return (
               <Row
                 key={a.id}
-                label={a.name || "Opcional"}
+                label={`${a.name || "Opcional"}${countable && qty > 1 ? ` ×${qty}` : ""}`}
                 value={`$${total.toFixed(2)} (${a.mode === "per_day" ? `$${price.toFixed(2)}/dia` : "valor total"})`}
               />
             );
