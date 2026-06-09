@@ -453,7 +453,11 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
   const coverOf = (v: any): string | null => {
     if (v?.image_url) return v.image_url;
     const ph = v?.photos;
-    if (Array.isArray(ph) && ph.length > 0) return typeof ph[0] === "string" ? ph[0] : ph[0]?.url || null;
+    if (Array.isArray(ph) && ph.length > 0) {
+      const first = typeof ph[0] === "string" ? ph[0] : ph[0]?.url;
+      if (first) return first;
+    }
+    if (v?.name && hasCoverImage(v.name)) return getCoverImage(v.name);
     return null;
   };
 
