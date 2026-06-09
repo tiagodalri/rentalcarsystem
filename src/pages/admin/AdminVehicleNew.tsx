@@ -153,18 +153,10 @@ export default function AdminVehicleNew() {
               <label className={labelCls}>Chassi (VIN)</label>
               <input className={`${inputCls} uppercase font-mono text-sm`} maxLength={17} value={form.vin ?? ""} onChange={(e) => set("vin", e.target.value.toUpperCase())} placeholder="17 caracteres" />
             </div>
-            <div>
-              <label className={labelCls}>Renavam</label>
-              <input className={`${inputCls} tabular-nums`} inputMode="numeric" value={form.renavam ?? ""} onChange={(e) => set("renavam", e.target.value.replace(/\D/g, ""))} placeholder="11 dígitos" />
-            </div>
             <div className="sm:col-span-2">
               <label className={labelCls}>IMEI Bouncie (rastreador)</label>
               <input className={`${inputCls} tabular-nums font-mono text-sm`} inputMode="numeric" value={form.bouncie_imei ?? ""} onChange={(e) => set("bouncie_imei", e.target.value.replace(/\s/g, ""))} placeholder="Ex: 351234567890123" />
               <p className="text-[11px] text-muted-foreground mt-1">Número do rastreador Bouncie — encontrado em Users & Devices no portal.</p>
-            </div>
-            <div className="sm:col-span-2">
-              <label className={labelCls}>VIN Bouncie</label>
-              <input className={`${inputCls} uppercase font-mono text-sm`} maxLength={17} value={form.bouncie_vin ?? ""} onChange={(e) => set("bouncie_vin", e.target.value.toUpperCase())} placeholder="Opcional — VIN do dispositivo Bouncie" />
             </div>
           </div>
         </Section>
