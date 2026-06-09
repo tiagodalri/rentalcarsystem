@@ -1067,12 +1067,15 @@ function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; day
         <Row label="Diária" value={vehicle ? `$${(Number(form.daily_price_override) || Number(vehicle.daily_price_usd)).toFixed(2)}` : ""} />
       </Block>
 
-      <Block title="Retirada e devolução" target="pickup">
+      <Block title="Retirada e devolução" target="schedule">
         <Row label="Retirada" value={`${form.pickup_date || "—"} ${form.pickup_time}`} aiKey="pickup_date" />
         <Row label="Local retirada" value={form.pickup_location} aiKey="pickup_location" />
+        {form.pickup_notes && <Row label="Obs. retirada" value={form.pickup_notes} />}
         <Row label="Devolução" value={`${form.return_date || "—"} ${form.return_time}`} aiKey="return_date" />
         <Row label="Local devolução" value={form.return_location} aiKey="return_location" />
+        {form.return_notes && <Row label="Obs. devolução" value={form.return_notes} />}
         <Row label="Duração" value={`${days} ${days === 1 ? "dia" : "dias"}`} />
+
       </Block>
 
       <Block title="Caução & Franquia" target="deposit">
