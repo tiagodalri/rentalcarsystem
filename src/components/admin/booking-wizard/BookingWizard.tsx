@@ -426,16 +426,13 @@ function CustomerStep({ form, set, aiKeys }: StepProps) {
 
 function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?: () => void }) {
   const { vehicles } = useVehiclesDB();
-  const [filter, setFilter] = useState<string>("all");
   const [query, setQuery] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
-  const categories = useMemo(() => Array.from(new Set(vehicles.map((v) => v.category))).filter(Boolean), [vehicles]);
   const aiSuggested = aiKeys.has("vehicle_id") ? form.vehicle_id : null;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return vehicles.filter((v) => {
-      if (filter !== "all" && v.category !== filter) return false;
       if (!q) return true;
       return (
         v.name.toLowerCase().includes(q) ||
@@ -446,7 +443,7 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
         String(v.year || v.model_year || "").includes(q)
       );
     });
-  }, [vehicles, filter, query]);
+  }, [vehicles, query]);
 
   const previewVeh = useMemo(() => vehicles.find((v) => v.id === preview) || null, [preview, vehicles]);
   const selectedVeh = useMemo(() => vehicles.find((v) => v.id === form.vehicle_id) || null, [form.vehicle_id, vehicles]);
@@ -506,25 +503,6 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
         />
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
-        <button
-          type="button"
-          onClick={() => setFilter("all")}
-          className={`text-[11px] px-2.5 py-1 rounded-full font-medium ${filter === "all" ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
-        >
-          Todos
-        </button>
-        {categories.map((c) => (
-          <button
-            key={c}
-            type="button"
-            onClick={() => setFilter(c)}
-            className={`text-[11px] px-2.5 py-1 rounded-full font-medium ${filter === c ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[480px] overflow-y-auto pr-1">
         {filtered.length === 0 && (

@@ -104,9 +104,6 @@ export function BookingDateField({ value, onChange, className }: BookingDateFiel
               onChange(iso);
             }}
             defaultMonth={selected ?? new Date(2026, 0, 1)}
-            captionLayout="dropdown-buttons"
-            fromYear={2020}
-            toYear={2045}
             initialFocus
             className="p-3 pointer-events-auto"
           />
