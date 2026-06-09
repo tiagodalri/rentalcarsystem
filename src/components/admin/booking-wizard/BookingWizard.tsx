@@ -445,6 +445,8 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
   const { vehicles } = useVehiclesDB();
   const [query, setQuery] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
+  const [editPrice, setEditPrice] = useState<string>("");
+
   const aiSuggested = aiKeys.has("vehicle_id") ? form.vehicle_id : null;
 
   const filtered = useMemo(() => {
