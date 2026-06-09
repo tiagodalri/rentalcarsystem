@@ -1073,16 +1073,30 @@ function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; day
       <Block title="Pagamento" target="payment">
         <Row label="Total" value={form.total_price ? `${form.currency === "USD" ? "$" : "R$"} ${Number(form.total_price).toFixed(2)}` : ""} aiKey="total_price" />
         <Row label="Forma" value={form.payment_method} aiKey="payment_method" />
-        <Row label="Status" value={form.payment_status === "paid" ? "Pago" : "Pendente"} />
+        <Row
+          label="Situação"
+          value={
+            form.payment_status === "paid"
+              ? `Pago${form.paid_date ? ` em ${form.paid_date}` : ""}`
+              : form.payment_status === "partial"
+                ? `Sinal ${form.currency === "USD" ? "$" : "R$"} ${(Number(form.deposit_paid_amount) || 0).toFixed(2)}${form.deposit_paid_date ? ` (${form.deposit_paid_date})` : ""} • restante ${form.currency === "USD" ? "$" : "R$"} ${Math.max((Number(form.total_price) || 0) - (Number(form.deposit_paid_amount) || 0), 0).toFixed(2)}${form.payment_due_date ? ` até ${form.payment_due_date}` : ""}`
+                : `Pendente${form.payment_due_date ? ` — previsto ${form.payment_due_date}` : ""}`
+          }
+        />
         <Row label="Observações" value={form.notes} aiKey="notes" />
       </Block>
 
       <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-xs text-muted-foreground">
         Ao confirmar, a reserva será criada como <span className="font-semibold text-foreground">Confirmada</span>, com os selos
         <span className="font-semibold text-foreground"> Contrato pendente</span> e
-        {form.payment_status === "pending" ? <span className="font-semibold text-foreground"> Pagamento pendente</span> : <span className="font-semibold text-foreground"> Pagamento concluído</span>}.
+        {form.payment_status === "paid"
+          ? <span className="font-semibold text-foreground"> Pagamento concluído</span>
+          : form.payment_status === "partial"
+            ? <span className="font-semibold text-foreground"> Sinal recebido — restante pendente</span>
+            : <span className="font-semibold text-foreground"> Pagamento pendente</span>}.
         Esses selos dão baixa automaticamente quando o contrato é assinado no Clicksign e o pagamento é confirmado.
       </div>
+
     </div>
   );
 }
