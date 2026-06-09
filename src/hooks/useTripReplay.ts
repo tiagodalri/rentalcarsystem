@@ -263,14 +263,27 @@ export function useTripReplay(tripId: string | null) {
         if (!trip) throw new Error("Viagem não encontrada");
 
         const raw = (trip.raw ?? {}) as any;
-        const encoded: string | null =
-          (typeof raw.gps === "string" ? raw.gps : null) ??
-          (typeof trip.gps === "string" ? (trip.gps as any) : null);
 
+        // Bouncie pode devolver `gps` em 3 formatos:
+        //  - string (polyline codificada)
+        //  - GeoJSON LineString { type:"LineString", coordinates:[[lng,lat], ...] }
+        //  - array cru de [lng,lat]
+        const gpsAny: any = raw.gps ?? trip.gps ?? null;
         let raw_points: { lat: number; lng: number }[] = [];
-        if (encoded) {
-          const decoded: any[] = google.maps.geometry.encoding.decodePath(encoded);
+
+        if (typeof gpsAny === "string" && gpsAny.length > 0) {
+          const decoded: any[] = google.maps.geometry.encoding.decodePath(gpsAny);
           raw_points = decoded.map((p) => ({ lat: p.lat(), lng: p.lng() }));
+        } else if (gpsAny && Array.isArray(gpsAny.coordinates)) {
+          raw_points = gpsAny.coordinates
+            .filter((c: any) => Array.isArray(c) && c.length >= 2)
+            .map((c: any) => ({ lat: Number(c[1]), lng: Number(c[0]) }))
+            .filter((p: any) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+        } else if (Array.isArray(gpsAny)) {
+          raw_points = gpsAny
+            .filter((c: any) => Array.isArray(c) && c.length >= 2)
+            .map((c: any) => ({ lat: Number(c[1]), lng: Number(c[0]) }))
+            .filter((p: any) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
         }
 
         const startedAt = trip.started_at ? new Date(trip.started_at) : new Date();

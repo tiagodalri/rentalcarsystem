@@ -113,8 +113,8 @@ Deno.serve(async (req) => {
   const startedAtRun = Date.now();
   try {
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
-    const totalDays = Math.max(1, Math.min(1, Number(body?.days ?? 1)));
-    const chunkDays = Math.max(1, Math.min(1, Number(body?.chunkDays ?? 1)));
+    const totalDays = Math.max(1, Math.min(180, Number(body?.days ?? 9)));
+    const chunkDays = Math.max(1, Math.min(7, Number(body?.chunkDays ?? 3)));
     const onlyImei: string | undefined = body?.imei;
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
