@@ -36,14 +36,19 @@ export type WizardFormState = {
   // Pickup
   pickup_date: string;
   pickup_time: string;
+  pickup_location_type: "airport" | "custom";
   pickup_location: string;
+  pickup_terminal: string;
   pickup_notes: string;
 
   // Return
   return_date: string;
   return_time: string;
+  return_location_type: "airport" | "custom";
   return_location: string;
+  return_terminal: string;
   return_notes: string;
+
 
 
   // Deposit & franchise
