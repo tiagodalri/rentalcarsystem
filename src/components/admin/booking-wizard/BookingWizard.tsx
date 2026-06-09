@@ -218,7 +218,19 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
           price: Number(a.price) || 0,
           mode: a.mode,
         })),
+        payment_schedule: {
+          status: form.payment_status,
+          paid_date: form.paid_date || null,
+          due_date: form.payment_due_date || null,
+          deposit_paid_amount: form.deposit_paid_amount ? Number(form.deposit_paid_amount) : null,
+          deposit_paid_date: form.deposit_paid_date || null,
+          remaining_amount:
+            form.payment_status === "partial" && form.total_price
+              ? Math.max(Number(form.total_price) - (Number(form.deposit_paid_amount) || 0), 0)
+              : null,
+        },
       },
+
     });
 
     setSaving(false);
@@ -837,8 +849,39 @@ function ExtrasStep({ form, set, days }: StepProps & { days: number }) {
 
 
 function PaymentStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
+  const total = Number(form.total_price) || 0;
+  const deposit = Number(form.deposit_paid_amount) || 0;
+  const remaining = Math.max(total - deposit, 0);
+  const currencySymbol = form.currency === "USD" ? "$" : "R$";
+
+  const StatusPill = ({
+    value,
+    label,
+    hint,
+  }: {
+    value: "paid" | "pending" | "partial";
+    label: string;
+    hint: string;
+  }) => {
+    const active = form.payment_status === value;
+    return (
+      <button
+        type="button"
+        onClick={() => set("payment_status", value)}
+        className={`text-left rounded-xl border p-3 transition-all ${
+          active
+            ? "border-primary bg-primary/10 ring-2 ring-primary/30"
+            : "border-border/50 bg-card hover:border-primary/50"
+        }`}
+      >
+        <p className={`text-sm font-semibold ${active ? "text-foreground" : "text-foreground"}`}>{label}</p>
+        <p className="text-[11px] text-muted-foreground mt-0.5">{hint}</p>
+      </button>
+    );
+  };
+
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="sm:col-span-1">
           <FieldLabel>Moeda</FieldLabel>
@@ -855,32 +898,92 @@ function PaymentStep({ form, set, aiKeys, days }: StepProps & { days: number }) 
           <Input type="number" min="0" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} placeholder="0.00" className="h-11 tabular-nums text-lg" />
           {days > 0 && form.total_price && (
             <p className="text-[11px] text-muted-foreground mt-1">
-              Equivale a <span className="tabular-nums">${(Number(form.total_price) / days).toFixed(2)}</span>/dia × {days} dia{days > 1 ? "s" : ""}
+              Equivale a <span className="tabular-nums">{currencySymbol}{(total / days).toFixed(2)}</span>/dia × {days} dia{days > 1 ? "s" : ""}
             </p>
           )}
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <FieldLabel ai={aiKeys.has("payment_method")}>Forma de pagamento</FieldLabel>
-          <Select value={form.payment_method} onValueChange={(v) => set("payment_method", v)}>
-            <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {PAYMENT_METHODS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <FieldLabel>Status do pagamento</FieldLabel>
-          <Select value={form.payment_status} onValueChange={(v) => set("payment_status", v as "pending" | "paid")}>
-            <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pending">Pendente</SelectItem>
-              <SelectItem value="paid">Pago</SelectItem>
-            </SelectContent>
-          </Select>
+
+      <div>
+        <FieldLabel ai={aiKeys.has("payment_method")}>Forma de pagamento</FieldLabel>
+        <Select value={form.payment_method} onValueChange={(v) => set("payment_method", v)}>
+          <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {PAYMENT_METHODS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <FieldLabel>Situação do pagamento</FieldLabel>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <StatusPill value="paid" label="Pago integralmente" hint="Cliente já pagou tudo" />
+          <StatusPill value="partial" label="Sinal + restante" hint="Pagou parte agora, resto depois" />
+          <StatusPill value="pending" label="A pagar" hint="Pagamento ainda pendente" />
         </div>
       </div>
+
+      {form.payment_status === "paid" && (
+        <div className="rounded-xl border border-border/50 bg-card p-3">
+          <FieldLabel>Data do pagamento</FieldLabel>
+          <Input type="date" value={form.paid_date} onChange={(e) => set("paid_date", e.target.value)} className="h-11 tabular-nums" />
+        </div>
+      )}
+
+      {form.payment_status === "pending" && (
+        <div className="rounded-xl border border-border/50 bg-card p-3">
+          <FieldLabel>Data prevista para pagamento</FieldLabel>
+          <Input type="date" value={form.payment_due_date} onChange={(e) => set("payment_due_date", e.target.value)} className="h-11 tabular-nums" />
+        </div>
+      )}
+
+      {form.payment_status === "partial" && (
+        <div className="rounded-xl border border-border/50 bg-card p-3 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <FieldLabel>Sinal pago ({currencySymbol})</FieldLabel>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.deposit_paid_amount}
+                onChange={(e) => set("deposit_paid_amount", e.target.value)}
+                placeholder="0.00"
+                className="h-11 tabular-nums"
+              />
+            </div>
+            <div>
+              <FieldLabel>Data do sinal</FieldLabel>
+              <Input
+                type="date"
+                value={form.deposit_paid_date}
+                onChange={(e) => set("deposit_paid_date", e.target.value)}
+                className="h-11 tabular-nums"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <FieldLabel>Restante a pagar</FieldLabel>
+              <Input
+                value={`${currencySymbol} ${remaining.toFixed(2)}`}
+                readOnly
+                className="h-11 tabular-nums bg-muted/50 font-semibold"
+              />
+            </div>
+            <div>
+              <FieldLabel>Data prevista do restante</FieldLabel>
+              <Input
+                type="date"
+                value={form.payment_due_date}
+                onChange={(e) => set("payment_due_date", e.target.value)}
+                className="h-11 tabular-nums"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div>
         <FieldLabel ai={aiKeys.has("notes")}>Observações</FieldLabel>
         <Textarea value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Voo, observações especiais, etc." rows={3} className="resize-none" />
@@ -888,6 +991,7 @@ function PaymentStep({ form, set, aiKeys, days }: StepProps & { days: number }) 
     </div>
   );
 }
+
 
 function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; days: number; jumpTo: (id: StepId) => void; aiKeys: Set<string> }) {
   const { vehicles } = useVehiclesDB();
@@ -969,16 +1073,30 @@ function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; day
       <Block title="Pagamento" target="payment">
         <Row label="Total" value={form.total_price ? `${form.currency === "USD" ? "$" : "R$"} ${Number(form.total_price).toFixed(2)}` : ""} aiKey="total_price" />
         <Row label="Forma" value={form.payment_method} aiKey="payment_method" />
-        <Row label="Status" value={form.payment_status === "paid" ? "Pago" : "Pendente"} />
+        <Row
+          label="Situação"
+          value={
+            form.payment_status === "paid"
+              ? `Pago${form.paid_date ? ` em ${form.paid_date}` : ""}`
+              : form.payment_status === "partial"
+                ? `Sinal ${form.currency === "USD" ? "$" : "R$"} ${(Number(form.deposit_paid_amount) || 0).toFixed(2)}${form.deposit_paid_date ? ` (${form.deposit_paid_date})` : ""} • restante ${form.currency === "USD" ? "$" : "R$"} ${Math.max((Number(form.total_price) || 0) - (Number(form.deposit_paid_amount) || 0), 0).toFixed(2)}${form.payment_due_date ? ` até ${form.payment_due_date}` : ""}`
+                : `Pendente${form.payment_due_date ? ` — previsto ${form.payment_due_date}` : ""}`
+          }
+        />
         <Row label="Observações" value={form.notes} aiKey="notes" />
       </Block>
 
       <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-xs text-muted-foreground">
         Ao confirmar, a reserva será criada como <span className="font-semibold text-foreground">Confirmada</span>, com os selos
         <span className="font-semibold text-foreground"> Contrato pendente</span> e
-        {form.payment_status === "pending" ? <span className="font-semibold text-foreground"> Pagamento pendente</span> : <span className="font-semibold text-foreground"> Pagamento concluído</span>}.
+        {form.payment_status === "paid"
+          ? <span className="font-semibold text-foreground"> Pagamento concluído</span>
+          : form.payment_status === "partial"
+            ? <span className="font-semibold text-foreground"> Sinal recebido — restante pendente</span>
+            : <span className="font-semibold text-foreground"> Pagamento pendente</span>}.
         Esses selos dão baixa automaticamente quando o contrato é assinado no Clicksign e o pagamento é confirmado.
       </div>
+
     </div>
   );
 }
