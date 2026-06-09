@@ -196,7 +196,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       return_time: form.return_time,
       pickup_location: form.pickup_location || null,
       return_location: form.return_location || null,
-      plan_id: form.plan_id,
+      plan_id: "unico",
       total_price: form.total_price ? Number(form.total_price) : null,
       status: "confirmed",
       notes: form.notes || null,
@@ -206,16 +206,17 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       payment_method: form.payment_method,
       payment_status: form.payment_status,
       currency: form.currency,
-      driver_age: form.driver_age ? Number(form.driver_age) : null,
-      extra_driver: form.extra_driver,
+      driver_age: null,
+      extra_driver: form.addons_list.some((a) => /motorista adicional/i.test(a.name)),
       addons: {
-        extras: {
-          child_seat: form.child_seat,
-          toll_tag: form.toll_tag,
-          premium_insurance: form.premium_insurance,
-        },
+        items: form.addons_list.map((a) => ({
+          name: a.name,
+          price: Number(a.price) || 0,
+          mode: a.mode,
+        })),
       },
     });
+
     setSaving(false);
     if (error) {
       toast({ title: "Erro ao criar reserva", description: error.message, variant: "destructive" });
