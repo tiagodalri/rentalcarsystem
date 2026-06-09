@@ -20,7 +20,7 @@ const emptyVehicle = {
   initial_odometer: null as number | null, current_odometer: null as number | null,
   acquired_date: null as string | null,
   bouncie_imei: "",
-  bouncie_vin: "",
+
 };
 
 export default function AdminVehicleNew() {
