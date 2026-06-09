@@ -1,9 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play } from "lucide-react";
+import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play, Database, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
+import { supabase } from "@/integrations/supabase/client";
 import { UnlinkedBouncieDevices } from "@/components/admin/UnlinkedBouncieDevices";
 import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 import { VehicleDetailDrawer } from "@/components/admin/live/VehicleDetailDrawer";
@@ -41,6 +43,7 @@ export default function AdminLive() {
   const [layers, setLayers] = useMapLayers();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [replayTripId, setReplayTripId] = useState<string | null>(null);
+  const [runningBackfill, setRunningBackfill] = useState(false);
   const navigate = useNavigate();
 
   const onMap = useMemo(
@@ -70,6 +73,23 @@ export default function AdminLive() {
 
   const noTelemetry = !loading && onMap.length === 0;
 
+  async function handleRunHistoricalBackfill() {
+    setRunningBackfill(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("bouncie-backfill", {
+        body: { manual: true, weeksPerVehicle: 2, vehiclesPerRun: 2, maxRunSeconds: 45 },
+      });
+      if (error) throw error;
+      toast.success("Backfill histórico iniciado", {
+        description: data?.all_done ? "Todos os veículos já estão concluídos." : `${data?.processed ?? 0} veículos processados nesta rodada.`,
+      });
+    } catch (e: any) {
+      toast.error("Falha ao rodar backfill histórico", { description: e?.message });
+    } finally {
+      setRunningBackfill(false);
+    }
+  }
+
   return (
     <div className="space-y-4 lg:h-[calc(100dvh-10rem)] flex flex-col">
       {/* Header */}
@@ -90,6 +110,14 @@ export default function AdminLive() {
           </div>
         </div>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <button
+            onClick={handleRunHistoricalBackfill}
+            disabled={runningBackfill}
+            className="flex items-center gap-1.5 rounded-lg border border-border/40 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-foreground hover:bg-muted/30 disabled:opacity-50"
+          >
+            {runningBackfill ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />}
+            Backfill histórico
+          </button>
           <Clock size={12} />
           {new Date().toLocaleTimeString("pt-BR")}
         </div>
