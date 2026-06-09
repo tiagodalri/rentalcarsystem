@@ -621,10 +621,28 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
                 <InfoRow icon={Cog} label="Câmbio" value={previewVeh.transmission} />
                 <InfoRow icon={Fuel} label="Combustível" value={previewVeh.fuel} />
               </div>
-              <div className="rounded-lg bg-muted/50 px-3 py-2 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Diária</span>
-                <span className="text-base font-bold tabular-nums">${Number(previewVeh.daily_price_usd).toFixed(2)}</span>
+              <div className="rounded-lg border border-border/50 bg-muted/40 px-3 py-2.5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-foreground">Diária (USD)</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Padrão: ${Number(previewVeh.daily_price_usd).toFixed(2)} — ajuste se necessário
+                    </p>
+                  </div>
+                  <div className="relative w-32 shrink-0">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={editPrice}
+                      onChange={(e) => setEditPrice(e.target.value)}
+                      className="h-10 pl-6 text-right tabular-nums font-bold"
+                    />
+                  </div>
+                </div>
               </div>
+
             </div>
           )}
           <DialogFooter className="gap-2 sm:gap-2">
