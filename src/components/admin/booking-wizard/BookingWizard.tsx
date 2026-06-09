@@ -43,7 +43,7 @@ const PAYMENT_METHODS = [
   "Outro",
 ];
 
-const STEP_ICONS: Record<StepId, React.ComponentType<{ size?: number; className?: string }>> = {
+const STEP_ICONS: Record<StepId, any> = {
   customer: Users,
   vehicle: Car,
   pickup: MapPin,
