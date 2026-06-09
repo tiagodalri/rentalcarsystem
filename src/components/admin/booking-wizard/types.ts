@@ -1,5 +1,22 @@
 import type { CustomerLite } from "@/components/admin/CustomerCombobox";
 
+export type AddonPricingMode = "per_day" | "total";
+
+export type AddonItem = {
+  id: string;
+  name: string;
+  price: string; // stored as string for input control
+  mode: AddonPricingMode;
+};
+
+export const DEFAULT_ADDON_PRESETS: Omit<AddonItem, "id">[] = [
+  { name: "Motorista adicional", price: "10", mode: "per_day" },
+  { name: "Cadeirinha infantil", price: "8", mode: "per_day" },
+  { name: "Toll Tag (pedágio)", price: "12", mode: "per_day" },
+  { name: "Seguro Premium", price: "25", mode: "per_day" },
+];
+
+
 export type WizardFormState = {
   // Customer
   customer: CustomerLite | null;
