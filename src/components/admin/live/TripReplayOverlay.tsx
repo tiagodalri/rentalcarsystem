@@ -381,138 +381,310 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
     mapRef.current.fitBounds(b, 80);
   }, [data]);
 
-  // ===== Record the REAL on-screen animation to MP4 =====
-  // Uses getDisplayMedia (screen/tab capture) so the recording contains the
-  // actual Google Maps tiles, colors, and movement — identical to what the
-  // user sees. The browser shows a picker; the user must pick THIS tab.
+  // ===== Render the animation OFFSCREEN to MP4 =====
+  // No screen capture, no permission dialogs. Builds a 1280x720 canvas with
+  // a Google Static Maps background + animated route/car/HUD drawn frame-by-
+  // frame, recorded via canvas.captureStream() + MediaRecorder.
   const [recording, setRecording] = useState(false);
   const [recProgress, setRecProgress] = useState(0);
-  const recCancelRef = useRef<() => void>(() => {});
+  const recCancelRef = useRef<() => void>(() => { });
 
   const downloadMp4 = useCallback(async () => {
     if (!data || recording) return;
 
-    const md: any = (navigator as any).mediaDevices;
-    if (!md || typeof md.getDisplayMedia !== "function") {
-      alert(
-        "Seu navegador não suporta captura de tela.\n\n" +
-        "Use o Chrome, Edge ou Safari mais recente no computador para baixar o vídeo."
-      );
-      return;
-    }
-    if (typeof (window as any).MediaRecorder === "undefined") {
+    const MR: any = (window as any).MediaRecorder;
+    if (typeof MR === "undefined") {
       alert("Seu navegador não suporta gravação de vídeo. Use Chrome, Edge ou Safari atualizado.");
       return;
     }
 
-    // 1) Ask the user to share THIS tab. preferCurrentTab is a Chrome hint
-    //    that pre-selects the current tab in the picker.
-    let stream: MediaStream;
-    try {
-      stream = await md.getDisplayMedia({
-        video: { frameRate: 60, displaySurface: "browser" },
-        audio: false,
-        preferCurrentTab: true,
-        selfBrowserSurface: "include",
-        surfaceSwitching: "exclude",
-        systemAudio: "exclude",
-      } as any);
-    } catch (e: any) {
-      // User cancelled the picker — silent abort.
-      if (e?.name === "NotAllowedError" || e?.name === "AbortError") return;
-      alert("Não foi possível iniciar a gravação: " + (e?.message ?? "erro desconhecido"));
-      return;
-    }
-
-    // 2) Pick the best supported container. Prefer MP4 (Safari/newer Chrome),
-    //    fall back to WebM (Chrome/Edge/Firefox). Final extension matches.
-    const MR: any = (window as any).MediaRecorder;
-    const candidates = [
-      "video/mp4;codecs=avc1.640028",
-      "video/mp4;codecs=avc1.42E01F",
-      "video/mp4",
-      "video/webm;codecs=h264",
-      "video/webm;codecs=vp9",
-      "video/webm;codecs=vp8",
-      "video/webm",
-    ];
-    const mime = candidates.find((m) => MR.isTypeSupported?.(m)) || "video/webm";
-    const ext = mime.startsWith("video/mp4") ? "mp4" : "webm";
-
-    const rec: MediaRecorder = new MR(stream, {
-      mimeType: mime,
-      videoBitsPerSecond: 12_000_000, // 12 Mbps — visually lossless for this content
-    });
-    const chunks: Blob[] = [];
-    rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
-
-    // If the user stops the share from the browser bar, finish gracefully.
-    stream.getVideoTracks()[0]?.addEventListener("ended", () => {
-      try { if (rec.state !== "inactive") rec.stop(); } catch {}
-    });
-
     setRecording(true);
     setRecProgress(0);
-
-    // 3) Rewind playback and start from the beginning at the chosen speed.
-    playbackRef.current = 0;
-    setPlaybackMs(0);
-    setShowSummary(false);
-    setIntro(false);
-    setPlaying(true);
-    playingRef.current = true;
-
-    const recordSpeed = speedRef.current;
-    const playbackDurMs = data.durationMs / recordSpeed;
-    const tailMs = 1200; // small breathing room so the final frame is captured
-    const totalMs = playbackDurMs + tailMs;
-
-    rec.start(250);
-
-    // 4) Wait for the replay to finish (or the user to cancel / stop sharing).
     let cancelled = false;
     recCancelRef.current = () => { cancelled = true; };
 
-    const t0 = performance.now();
-    await new Promise<void>((resolve) => {
-      const tick = () => {
-        const elapsed = performance.now() - t0;
-        setRecProgress(Math.min(1, elapsed / totalMs));
-        const finished = playbackRef.current >= data.durationMs - 1;
-        const expired = elapsed >= totalMs;
-        const trackEnded = stream.getVideoTracks()[0]?.readyState !== "live";
-        if (cancelled || trackEnded || (finished && elapsed >= playbackDurMs + tailMs / 2) || expired) {
-          return resolve();
-        }
-        requestAnimationFrame(tick);
+    try {
+      // ===== Canvas + projection setup =====
+      const W = 1280, H = 720;
+      const canvas = document.createElement("canvas");
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext("2d")!;
+
+      // Mercator helpers
+      const lngToMx = (lng: number) => (lng + 180) / 360 * 256;
+      const latToMy = (lat: number) => {
+        const s = Math.sin(Math.max(-89.9, Math.min(89.9, lat)) * Math.PI / 180);
+        return (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * 256;
       };
-      requestAnimationFrame(tick);
-    });
 
-    // 5) Stop recorder + screen share.
-    await new Promise<void>((res) => {
-      if (rec.state === "inactive") return res();
-      rec.onstop = () => res();
-      try { rec.stop(); } catch { res(); }
-    });
-    stream.getTracks().forEach((t) => t.stop());
+      // Fit zoom for static map (CSS size 640x360, scale=2 -> 1280x720 image)
+      const cssW = 640, cssH = 360, pad = 50;
+      const b = data.bounds;
+      const dx = lngToMx(b.east) - lngToMx(b.west);
+      const dy = latToMy(b.south) - latToMy(b.north);
+      const zX = Math.log2((cssW - 2 * pad) / Math.max(0.0001, dx));
+      const zY = Math.log2((cssH - 2 * pad) / Math.max(0.0001, dy));
+      const zoom = Math.max(2, Math.min(19, Math.floor(Math.min(zX, zY))));
+      const centerLat = (b.north + b.south) / 2;
+      const centerLng = (b.east + b.west) / 2;
+      const cMx = lngToMx(centerLng), cMy = latToMy(centerLat);
+      const scaleFactor = Math.pow(2, zoom) * 2; // 2 because image scale=2
 
-    // 6) Save the file.
-    if (chunks.length) {
-      const blob = new Blob(chunks, { type: mime });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      const safe = vehicleName.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-      const stamp = new Date().toISOString().slice(0, 10);
-      a.href = url;
-      a.download = `replay-${safe}-${stamp}-${recordSpeed}x.${ext}`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
+      const project = (lat: number, lng: number) => ({
+        x: (lngToMx(lng) - cMx) * scaleFactor + W / 2,
+        y: (latToMy(lat) - cMy) * scaleFactor + H / 2,
+      });
+
+      // ===== Build static map URL (background tiles, no route — we draw it ourselves) =====
+      const apiKey = (import.meta as any).env?.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+      if (!apiKey) throw new Error("Google Maps key não configurada");
+      const mapUrl =
+        `https://maps.googleapis.com/maps/api/staticmap` +
+        `?center=${centerLat},${centerLng}` +
+        `&zoom=${zoom}` +
+        `&size=${cssW}x${cssH}` +
+        `&scale=2` +
+        `&maptype=roadmap` +
+        `&style=feature:poi|visibility:off` +
+        `&style=feature:transit|visibility:off` +
+        `&key=${apiKey}`;
+
+      const bg = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("Falha ao carregar mapa estático"));
+        img.src = mapUrl;
+      });
+
+      // Pre-project all points
+      const proj = data.points.map((p) => project(p.lat, p.lng));
+
+      // ===== Capture stream + recorder =====
+      const stream = (canvas as any).captureStream(30) as MediaStream;
+      const candidates = [
+        "video/mp4;codecs=avc1.640028",
+        "video/mp4;codecs=avc1.42E01F",
+        "video/mp4",
+        "video/webm;codecs=h264",
+        "video/webm;codecs=vp9",
+        "video/webm;codecs=vp8",
+        "video/webm",
+      ];
+      const mime = candidates.find((m) => MR.isTypeSupported?.(m)) || "video/webm";
+      const ext = mime.startsWith("video/mp4") ? "mp4" : "webm";
+      const rec: MediaRecorder = new MR(stream, { mimeType: mime, videoBitsPerSecond: 8_000_000 });
+      const chunks: Blob[] = [];
+      rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+      rec.start(250);
+
+      // ===== Drawing helpers =====
+      const drawFrameAt = (playMs: number) => {
+        // Background map
+        ctx.drawImage(bg, 0, 0, W, H);
+
+        // Ghost route (subtle outline of full path)
+        ctx.lineCap = "round"; ctx.lineJoin = "round";
+        ctx.strokeStyle = "rgba(15,23,42,0.35)";
+        ctx.lineWidth = 7;
+        ctx.beginPath();
+        for (let i = 0; i < proj.length; i++) {
+          const p = proj[i];
+          if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+
+        // Find current index/fraction
+        const pts = data.points;
+        const idx = findIndex(pts, playMs);
+        const a = pts[idx], nb = pts[idx + 1] ?? a;
+        const span = Math.max(1, nb.t - a.t);
+        const f = Math.min(1, Math.max(0, (playMs - a.t) / span));
+        const carX = lerp(proj[idx].x, proj[Math.min(proj.length - 1, idx + 1)].x, f);
+        const carY = lerp(proj[idx].y, proj[Math.min(proj.length - 1, idx + 1)].y, f);
+        const heading = lerpAngle(a.heading, nb.heading, f);
+        const curSpeed = lerp(a.speed, nb.speed, f);
+
+        // Traveled colored polyline up to idx
+        ctx.lineWidth = 6;
+        for (let i = 0; i < idx; i++) {
+          const p1 = proj[i], p2 = proj[i + 1];
+          ctx.strokeStyle = speedBand((pts[i].speed + pts[i + 1].speed) / 2);
+          ctx.beginPath();
+          ctx.moveTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+        // Partial last segment
+        if (idx < proj.length - 1) {
+          ctx.strokeStyle = speedBand((a.speed + nb.speed) / 2);
+          ctx.beginPath();
+          ctx.moveTo(proj[idx].x, proj[idx].y);
+          ctx.lineTo(carX, carY);
+          ctx.stroke();
+        }
+
+        // Start / End pins
+        const drawPin = (px: number, py: number, fill: string) => {
+          ctx.save();
+          ctx.translate(px, py - 18);
+          ctx.fillStyle = fill;
+          ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 0, 10, 0, Math.PI * 2);
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle = "#fff";
+          ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        };
+        drawPin(proj[0].x, proj[0].y, "#22c55e");
+        drawPin(proj[proj.length - 1].x, proj[proj.length - 1].y, "#0a0a0a");
+
+        // Car marker (rotated)
+        ctx.save();
+        ctx.translate(carX, carY);
+        ctx.rotate((heading * Math.PI) / 180);
+        // pulse halo
+        ctx.fillStyle = "rgba(212,175,55,0.25)";
+        ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
+        // body
+        ctx.fillStyle = GOLD;
+        ctx.strokeStyle = "#0a0a0a"; ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, -14);
+        ctx.lineTo(10, 10);
+        ctx.lineTo(0, 5);
+        ctx.lineTo(-10, 10);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        ctx.restore();
+
+        // ===== Top bar =====
+        const grad = ctx.createLinearGradient(0, 0, 0, 80);
+        grad.addColorStop(0, "rgba(0,0,0,0.85)");
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, 80);
+        ctx.fillStyle = GOLD;
+        ctx.font = "bold 11px Inter, sans-serif";
+        ctx.fillText("REPLAY DE VIAGEM", 24, 28);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 20px Inter, sans-serif";
+        ctx.fillText(vehicleName, 24, 54);
+        const realTime = new Date(data.startedAt.getTime() + playMs);
+        const tStr = realTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: data.timeZone });
+        ctx.font = "600 16px Inter, sans-serif";
+        ctx.textAlign = "right";
+        ctx.fillStyle = "rgba(255,255,255,0.85)";
+        ctx.fillText(tStr, W - 24, 32);
+        ctx.font = "11px Inter, sans-serif";
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.fillText(realTime.toLocaleDateString("pt-BR", { timeZone: data.timeZone }), W - 24, 52);
+        ctx.textAlign = "left";
+
+        // ===== Bottom HUD =====
+        const hudH = 130;
+        const g2 = ctx.createLinearGradient(0, H - hudH, 0, H);
+        g2.addColorStop(0, "rgba(0,0,0,0)");
+        g2.addColorStop(0.4, "rgba(0,0,0,0.85)");
+        g2.addColorStop(1, "rgba(0,0,0,0.95)");
+        ctx.fillStyle = g2;
+        ctx.fillRect(0, H - hudH, W, hudH);
+
+        // Speed (big)
+        ctx.fillStyle = GOLD;
+        ctx.font = "bold 11px Inter, sans-serif";
+        ctx.fillText("VELOCIDADE", 32, H - 92);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 56px Inter, sans-serif";
+        ctx.fillText(`${Math.round(curSpeed)}`, 32, H - 36);
+        ctx.font = "600 16px Inter, sans-serif";
+        ctx.fillStyle = "rgba(255,255,255,0.6)";
+        ctx.fillText("mph", 32 + ctx.measureText(`${Math.round(curSpeed)}`).width + 8, H - 40);
+
+        // Distance traveled
+        const distMi = (pts[idx].dist + (pts[idx + 1] ? (pts[idx + 1].dist - pts[idx].dist) * f : 0)) / 1609.34;
+        ctx.fillStyle = GOLD;
+        ctx.font = "bold 11px Inter, sans-serif";
+        ctx.fillText("DISTÂNCIA", 240, H - 92);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 32px Inter, sans-serif";
+        ctx.fillText(`${distMi.toFixed(1).replace(".", ",")} mi`, 240, H - 50);
+
+        // Duration / total
+        ctx.fillStyle = GOLD;
+        ctx.font = "bold 11px Inter, sans-serif";
+        ctx.fillText("TEMPO", 440, H - 92);
+        ctx.fillStyle = "#fff";
+        ctx.font = "bold 32px Inter, sans-serif";
+        ctx.fillText(`${fmtClock(playMs)} / ${fmtClock(data.durationMs)}`, 440, H - 50);
+
+        // Stats right
+        ctx.textAlign = "right";
+        ctx.fillStyle = "rgba(255,255,255,0.55)";
+        ctx.font = "600 12px Inter, sans-serif";
+        ctx.fillText(`Vel. máx: ${Math.round(data.maxSpeedMph)} mph  •  Média: ${Math.round(data.avgSpeedMph)} mph`, W - 32, H - 80);
+        ctx.fillText(`Freadas: ${data.hardBrakes}  •  Acel. bruscas: ${data.hardAccels}`, W - 32, H - 60);
+        ctx.textAlign = "left";
+
+        // Progress bar
+        const barY = H - 18, barX = 32, barW = W - 64, barH = 6;
+        ctx.fillStyle = "rgba(255,255,255,0.12)";
+        ctx.fillRect(barX, barY, barW, barH);
+        ctx.fillStyle = GOLD;
+        ctx.fillRect(barX, barY, barW * Math.min(1, playMs / data.durationMs), barH);
+      };
+
+      // ===== Render loop in real time so MediaRecorder records timing correctly =====
+      const recordSpeed = speedRef.current;
+      const playbackDurMs = data.durationMs / recordSpeed;
+      const tailMs = 800;
+      const totalMs = playbackDurMs + tailMs;
+      const frameMs = 1000 / 30;
+
+      const t0 = performance.now();
+      let lastDraw = -1;
+      while (true) {
+        if (cancelled) break;
+        const elapsed = performance.now() - t0;
+        if (elapsed > totalMs) break;
+        const playMs = Math.min(data.durationMs, elapsed * recordSpeed);
+        if (playMs !== lastDraw) {
+          drawFrameAt(playMs);
+          lastDraw = playMs;
+        }
+        setRecProgress(Math.min(1, elapsed / totalMs));
+        await new Promise((r) => setTimeout(r, frameMs));
+      }
+
+      // Stop & save
+      await new Promise<void>((res) => {
+        if (rec.state === "inactive") return res();
+        rec.onstop = () => res();
+        try { rec.stop(); } catch { res(); }
+      });
+      stream.getTracks().forEach((t) => t.stop());
+
+      if (chunks.length && !cancelled) {
+        const blob = new Blob(chunks, { type: mime });
+        const url = URL.createObjectURL(blob);
+        const aEl = document.createElement("a");
+        const safe = vehicleName.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+        const stamp = new Date().toISOString().slice(0, 10);
+        aEl.href = url;
+        aEl.download = `replay-${safe}-${stamp}-${recordSpeed}x.${ext}`;
+        document.body.appendChild(aEl);
+        aEl.click();
+        aEl.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      }
+    } catch (e: any) {
+      console.error("[downloadMp4]", e);
+      alert("Não foi possível gerar o vídeo: " + (e?.message ?? "erro desconhecido"));
+    } finally {
+      setRecording(false);
+      setRecProgress(0);
     }
-    setRecording(false);
-    setRecProgress(0);
   }, [data, recording, vehicleName]);
 
 
