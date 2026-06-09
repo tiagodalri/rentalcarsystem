@@ -37,6 +37,7 @@ type Booking = {
   contract_error?: string | null;
   clicksign_envelope_id?: string | null;
   booking_number?: string | null;
+  payment_status?: string | null;
 };
 
 type Customer = {
