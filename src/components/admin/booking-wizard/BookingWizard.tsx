@@ -738,26 +738,34 @@ function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number })
         </div>
         <div className="space-y-2">
           <FieldLabel>Onde será a retirada?</FieldLabel>
-          <div className="inline-flex rounded-lg border border-border/60 bg-muted/40 p-0.5">
+          <div className="flex flex-wrap gap-2">
             {([
               { v: "airport", label: "Aeroporto" },
               { v: "custom", label: "Endereço personalizado" },
-            ] as const).map((opt) => (
-              <button
-                key={opt.v}
-                type="button"
-                onClick={() => set("pickup_location_type", opt.v)}
-                className={`px-3 h-8 text-xs font-medium rounded-md transition-colors ${
-                  form.pickup_location_type === opt.v
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+            ] as const).map((opt) => {
+              const active = form.pickup_location_type === opt.v;
+              return (
+                <label
+                  key={opt.v}
+                  className={`flex items-center gap-2 px-3 h-10 rounded-lg border cursor-pointer transition-colors text-sm ${
+                    active
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border/60 bg-card hover:border-border text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={active}
+                    onChange={() => set("pickup_location_type", opt.v)}
+                    className="h-4 w-4 accent-primary"
+                  />
+                  {opt.label}
+                </label>
+              );
+            })}
           </div>
         </div>
+
         {form.pickup_location_type === "airport" ? (
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_180px] gap-3">
             <div>
@@ -808,26 +816,34 @@ function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number })
         </div>
         <div className="space-y-2">
           <FieldLabel>Onde será a devolução?</FieldLabel>
-          <div className="inline-flex rounded-lg border border-border/60 bg-muted/40 p-0.5">
+          <div className="flex flex-wrap gap-2">
             {([
               { v: "airport", label: "Aeroporto" },
               { v: "custom", label: "Endereço personalizado" },
-            ] as const).map((opt) => (
-              <button
-                key={opt.v}
-                type="button"
-                onClick={() => set("return_location_type", opt.v)}
-                className={`px-3 h-8 text-xs font-medium rounded-md transition-colors ${
-                  form.return_location_type === opt.v
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
+            ] as const).map((opt) => {
+              const active = form.return_location_type === opt.v;
+              return (
+                <label
+                  key={opt.v}
+                  className={`flex items-center gap-2 px-3 h-10 rounded-lg border cursor-pointer transition-colors text-sm ${
+                    active
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border/60 bg-card hover:border-border text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={active}
+                    onChange={() => set("return_location_type", opt.v)}
+                    className="h-4 w-4 accent-primary"
+                  />
+                  {opt.label}
+                </label>
+              );
+            })}
           </div>
         </div>
+
         {form.return_location_type === "airport" ? (
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_180px] gap-3">
             <div>
