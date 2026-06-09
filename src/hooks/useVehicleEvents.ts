@@ -18,7 +18,6 @@ export type EventCategory = "drive" | "vehicle" | "care";
 
 export function categorizeEvent(eventType: string): EventCategory {
   const t = eventType.toLowerCase();
-  if (t.includes("geofence")) return "vehicle";
   if (t.includes("brak") || t.includes("accel") || t.includes("speed") || t.includes("idle") || t.includes("trip")) return "drive";
   if (t.includes("mil") || t.includes("connect") || t.includes("battery") || t.includes("diagnostic")) return "vehicle";
   return "care";

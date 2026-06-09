@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Crosshair, ShieldPlus, X as XIcon } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { Crosshair } from "lucide-react";
 import { toast } from "sonner";
 import { loadGoogleMaps } from "@/lib/googleMapsLoader";
 import { useTripTrail, speedBandColor, type TrailPoint } from "@/hooks/useTripTrail";
 import type { LiveVehicle } from "@/hooks/useFleetLive";
 import { getCoverImage } from "@/data/vehicleImages";
 import { supabase } from "@/integrations/supabase/client";
-import { useGeofences } from "@/hooks/useGeofences";
 import { useNwsAlerts, nwsSeverityColor } from "@/hooks/useNwsAlerts";
 import { useVehicleEvents } from "@/hooks/useVehicleEvents";
 import { type MapLayers, DEFAULT_LAYERS } from "@/components/admin/live/MapControlsPanel";
@@ -280,7 +278,6 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const infoWindowRef = useRef<any>(null);
   const polylineRef = useRef<any[]>([]);
   const trafficLayerRef = useRef<any>(null);
-  const geofenceShapesRef = useRef<any[]>([]);
   const nwsShapesRef = useRef<any[]>([]);
   const eventMarkersRef = useRef<any[]>([]);
   const fittedRef = useRef(false);
@@ -291,16 +288,11 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [following, setFollowing] = useState<boolean>(false);
-  const [fenceMode, setFenceMode] = useState<boolean>(false);
-  const fenceModeRef = useRef(false);
-  const queryClient = useQueryClient();
 
-  useEffect(() => { fenceModeRef.current = fenceMode; }, [fenceMode]);
   useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
   useEffect(() => { followRef.current = following; }, [following]);
 
   const { points: trail } = useTripTrail(selectedId, 24);
-  const { data: geofences = [] } = useGeofences(layers.geoZones);
   const { data: nwsAlerts = [] } = useNwsAlerts("FL", layers.nwsAlerts);
   const { data: events = [] } = useVehicleEvents(selectedId, 7, layers.tripEvents && !!selectedId);
 
@@ -472,34 +464,6 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
         // Intercept POI clicks to render a rich Google Places card
         mapRef.current.addListener("click", async (e: any) => {
-          // Geofence placement mode short-circuits POI clicks.
-          if (fenceModeRef.current && e?.latLng) {
-            e.stop?.();
-            const lat = Number(e.latLng.lat());
-            const lng = Number(e.latLng.lng());
-            const radiusStr = window.prompt("Raio da cerca em metros:", "200");
-            if (radiusStr == null) { setFenceMode(false); return; }
-            const radius = Math.max(20, Math.min(50000, Number(radiusStr) || 200));
-            const name = window.prompt("Nome da cerca:", "Nova cerca") ?? "Nova cerca";
-            try {
-              const { error } = await supabase.from("vehicle_geofences").insert({
-                vehicle_id: null,
-                name,
-                geometry: { type: "circle", center: { lat, lng }, radius },
-                active: true,
-                notify_on_exit: true,
-                notify_on_enter: false,
-              });
-              if (error) throw error;
-              toast.success(`Cerca "${name}" criada (${radius} m)`);
-              queryClient.invalidateQueries({ queryKey: ["geofences-active"] });
-            } catch (err: any) {
-              toast.error("Falha ao salvar cerca: " + (err.message ?? "erro desconhecido"));
-            } finally {
-              setFenceMode(false);
-            }
-            return;
-          }
           if (!e?.placeId) return;
           e.stop?.();
           const placeId = e.placeId as string;
@@ -869,54 +833,6 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     }
   }, [trail, selectedId, ready]);
 
-  // 5. Geofences (geo-zone areas)
-  useEffect(() => {
-    if (!ready || !mapRef.current) return;
-    for (const s of geofenceShapesRef.current) s.setMap(null);
-    geofenceShapesRef.current = [];
-    if (!layers.geoZones) return;
-
-    const google = (window as any).google;
-    const map = mapRef.current;
-    for (const g of geofences) {
-      const geom = g.geometry;
-      if (!geom) continue;
-      try {
-        if (geom.type === "circle" && geom.center) {
-          const c = new google.maps.Circle({
-            map,
-            center: { lat: Number(geom.center.lat), lng: Number(geom.center.lng) },
-            radius: Number(geom.radius ?? 200),
-            strokeColor: "#D4AF37",
-            strokeOpacity: 0.85,
-            strokeWeight: 2,
-            fillColor: "#D4AF37",
-            fillOpacity: 0.12,
-            clickable: false,
-          });
-          geofenceShapesRef.current.push(c);
-        } else if (geom.type === "polygon" && Array.isArray(geom.coordinates)) {
-          const path = geom.coordinates.map((p: any) => ({
-            lat: Number(Array.isArray(p) ? p[1] : p.lat),
-            lng: Number(Array.isArray(p) ? p[0] : p.lng),
-          }));
-          const poly = new google.maps.Polygon({
-            map,
-            paths: path,
-            strokeColor: "#D4AF37",
-            strokeOpacity: 0.85,
-            strokeWeight: 2,
-            fillColor: "#D4AF37",
-            fillOpacity: 0.12,
-            clickable: false,
-          });
-          geofenceShapesRef.current.push(poly);
-        }
-      } catch (e) {
-        console.warn("[geofence] invalid geometry", g.id, e);
-      }
-    }
-  }, [geofences, layers.geoZones, ready]);
 
   // 6. NWS Alerts polygons
   useEffect(() => {
@@ -1012,21 +928,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
   return (
     <div className="relative w-full h-full">
-      <div ref={containerRef} className={`absolute inset-0 ${fenceMode ? "cursor-crosshair" : ""}`} />
-      {ready && (
-        <button
-          onClick={() => setFenceMode((v) => !v)}
-          className={`absolute top-3 left-3 z-10 flex items-center gap-2 px-3 py-2 rounded-full text-[11px] font-semibold uppercase tracking-wider border shadow-xl backdrop-blur-sm transition-all ${
-            fenceMode
-              ? "bg-[#D4AF37] text-[#0a0a0a] border-[#D4AF37]"
-              : "bg-[#0a0a0a]/90 hover:bg-[#0a0a0a] text-white border-[#D4AF37]/60"
-          }`}
-          title={fenceMode ? "Cancelar criação de cerca" : "Clique no mapa para criar uma cerca virtual"}
-        >
-          {fenceMode ? <XIcon size={13} /> : <ShieldPlus size={13} className="text-[#D4AF37]" />}
-          {fenceMode ? "Cancelar cerca" : "Nova cerca"}
-        </button>
-      )}
+      <div ref={containerRef} className="absolute inset-0" />
       {ready && selectedId && !following && (
         <button
           onClick={recentralize}

@@ -1,6 +1,5 @@
 // Bouncie webhook receiver — updates telemetry, history, trips, events, diagnostics.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { evaluateGeofences } from "../_shared/geofence.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -170,13 +169,6 @@ Deno.serve(async (req) => {
         });
       }
 
-      // 2b) Geofence transition detection (anti-theft alerts).
-      // Emergency throttle: evaluate only the latest point per webhook. The
-      // previous per-sample loop multiplied DB reads/writes during tripData
-      // bursts and can starve auth/admin queries.
-      if (lat !== null && lng !== null) {
-        await evaluateGeofences(admin, vehicleId, lat, lng, reportedAt);
-      }
 
       // 3) Structured event log (new)
       if (eventType) {

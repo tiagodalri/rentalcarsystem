@@ -1,7 +1,6 @@
 // Bouncie polling sync — refreshes token if needed, then pulls /vehicles
 // and upserts vehicle_telemetry rows by IMEI.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { evaluateGeofences } from "../_shared/geofence.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -118,13 +117,6 @@ Deno.serve(async (req) => {
         console.error("[bouncie-sync] upsert error:", imei, upErr.message);
       } else {
         updated += 1;
-      }
-
-      // Geofence transition detection on the polled position too.
-      if (update.lat !== undefined && update.lng !== undefined) {
-        await evaluateGeofences(
-          admin, veh.id, update.lat, update.lng, update.reported_at,
-        );
       }
     }
 
