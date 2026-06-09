@@ -300,9 +300,17 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
         >
           <ArrowLeft size={14} /> Cancelar
         </button>
-        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Etapa {stepIdx + 1} de {WIZARD_STEPS.length}
+        <div className="flex items-center gap-3">
+          {lastSavedAt && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+              <Check size={10} className="text-primary" /> Rascunho salvo
+            </span>
+          )}
+          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Etapa {stepIdx + 1} de {WIZARD_STEPS.length}
+          </div>
         </div>
+
       </div>
 
       {/* Stepper */}
