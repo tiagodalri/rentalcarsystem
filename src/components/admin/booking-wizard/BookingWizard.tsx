@@ -513,7 +513,7 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
           </div>
           <button
             type="button"
-            onClick={() => setPreview(selectedVeh.id)}
+            onClick={() => openPreview(selectedVeh.id)}
             className="text-[11px] font-medium text-primary hover:underline"
           >
             Trocar / revisar
@@ -547,7 +547,7 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
             <button
               key={v.id}
               type="button"
-              onClick={() => setPreview(v.id)}
+              onClick={() => openPreview(v.id)}
               className={`group text-left rounded-xl border overflow-hidden flex flex-col transition-all ${
                 selected ? "border-primary ring-1 ring-primary/40 bg-primary/5" : "border-border/50 bg-card hover:border-primary/40 hover:shadow-sm"
               }`}
