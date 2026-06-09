@@ -110,6 +110,7 @@ export default function AdminBookingDetail() {
   const [loading, setLoading] = useState(true);
   const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
+  const [incidentOpen, setIncidentOpen] = useState(false);
   const { isAdmin, hasAny } = useAdminAuth();
   const [sendingContract, setSendingContract] = useState(false);
 
