@@ -23,6 +23,7 @@ import {
   type AiExtractResult,
 } from "./types";
 import { createBooking, checkAvailability } from "@/lib/createBooking";
+import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 
 interface Props {
   aiMode: boolean;
