@@ -19,6 +19,7 @@ import {
   WIZARD_STEPS,
   initialWizardForm,
   DEFAULT_ADDON_PRESETS,
+  isCountableAddon,
   type StepId,
   type WizardFormState,
   type AiExtractResult,
