@@ -404,38 +404,76 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
     recCancelRef.current = () => { cancelled = true; };
 
     try {
-      // ===== Canvas + projection setup =====
-      const W = 1280, H = 720;
+      // ===== Canvas (1600x900 — 16:9 horizontal) =====
+      const W = 1600, H = 900;
       const canvas = document.createElement("canvas");
       canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext("2d")!;
 
-      // Mercator helpers
+      // ===== Mercator helpers =====
       const lngToMx = (lng: number) => (lng + 180) / 360 * 256;
       const latToMy = (lat: number) => {
         const s = Math.sin(Math.max(-89.9, Math.min(89.9, lat)) * Math.PI / 180);
         return (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * 256;
       };
 
-      // Fit zoom for static map (CSS size 640x360, scale=2 -> 1280x720 image)
-      const cssW = 640, cssH = 360, pad = 50;
+      // ===== Layout regions =====
+      const TOP_BAR_H = 64;
+      const RIGHT_PANEL_W = 340;
+      const mapX1 = 0, mapY1 = TOP_BAR_H, mapX2 = W - RIGHT_PANEL_W, mapY2 = H;
+      const mapW = mapX2 - mapX1;
+      const mapH = mapY2 - mapY1;
+
+      // ===== Fit zoom for the MAP area =====
+      // Static map will be requested at full canvas size; we project onto the map sub-area
+      // by adjusting center to the map sub-area's center.
+      const cssW = 800, cssH = 450, scale = 2; // static map css size; image returns 1600x900
+      const pad = 60;
       const b = data.bounds;
+      // Compute fit zoom against the MAP sub-area in image pixels.
+      const subW_img = mapW, subH_img = mapH;
       const dx = lngToMx(b.east) - lngToMx(b.west);
       const dy = latToMy(b.south) - latToMy(b.north);
-      const zX = Math.log2((cssW - 2 * pad) / Math.max(0.0001, dx));
-      const zY = Math.log2((cssH - 2 * pad) / Math.max(0.0001, dy));
-      const zoom = Math.max(2, Math.min(19, Math.floor(Math.min(zX, zY))));
-      const centerLat = (b.north + b.south) / 2;
-      const centerLng = (b.east + b.west) / 2;
-      const cMx = lngToMx(centerLng), cMy = latToMy(centerLat);
-      const scaleFactor = Math.pow(2, zoom) * 2; // 2 because image scale=2
+      const zX = Math.log2((subW_img - 2 * pad) / Math.max(0.0001, dx * scale * 2)); // dx*scale gives css px? rewritten below
+      void zX;
+      // Easier formulation: pixels-per-merc-unit = (2 ** zoom) * scale.
+      // Need (dx + 2*pad/ppmu) <= subW_img / ppmu  =>  ppmu <= (subW_img - 2*pad)/dx ...
+      // Solve for zoom such that ppmu * dx + 2*pad <= subW_img (image px).
+      const ppmuMaxX = (subW_img - 2 * pad) / Math.max(0.0001, dx);
+      const ppmuMaxY = (subH_img - 2 * pad) / Math.max(0.0001, dy);
+      const ppmuMax = Math.min(ppmuMaxX, ppmuMaxY);
+      const zoom = Math.max(2, Math.min(19, Math.floor(Math.log2(ppmuMax / scale))));
+      const ppmu = Math.pow(2, zoom) * scale; // image-pixels per merc-unit
+
+      // Center of route
+      const routeCMx = (lngToMx(b.east) + lngToMx(b.west)) / 2;
+      const routeCMy = (latToMy(b.north) + latToMy(b.south)) / 2;
+
+      // We want route to be centered inside the MAP sub-area, not the full canvas.
+      // Compute the geographic center that places route center at sub-area center
+      // when projecting onto full canvas.
+      // canvas projection of (lat,lng): cx = (mercX - imgCenterMx)*ppmu + W/2
+      // We want canvas_cx of route_center == mapX1 + mapW/2.
+      // Solve: (routeCMx - imgCenterMx)*ppmu + W/2 = mapX1 + mapW/2
+      // imgCenterMx = routeCMx - (mapX1 + mapW/2 - W/2)/ppmu
+      const imgCenterMx = routeCMx - ((mapX1 + mapW / 2) - W / 2) / ppmu;
+      const imgCenterMy = routeCMy - ((mapY1 + mapH / 2) - H / 2) / ppmu;
+
+      // Convert center merc -> lat/lng for the Static Maps request
+      const mxToLng = (mx: number) => (mx / 256) * 360 - 180;
+      const myToLat = (my: number) => {
+        const n = Math.PI - 2 * Math.PI * (my / 256);
+        return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+      };
+      const centerLat = myToLat(imgCenterMy);
+      const centerLng = mxToLng(imgCenterMx);
 
       const project = (lat: number, lng: number) => ({
-        x: (lngToMx(lng) - cMx) * scaleFactor + W / 2,
-        y: (latToMy(lat) - cMy) * scaleFactor + H / 2,
+        x: (lngToMx(lng) - imgCenterMx) * ppmu + W / 2,
+        y: (latToMy(lat) - imgCenterMy) * ppmu + H / 2,
       });
 
-      // ===== Build static map URL (background tiles, no route — we draw it ourselves) =====
+      // ===== Static map URL =====
       const apiKey = (import.meta as any).env?.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
       if (!apiKey) throw new Error("Google Maps key não configurada");
       const mapUrl =
@@ -443,9 +481,9 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
         `?center=${centerLat},${centerLng}` +
         `&zoom=${zoom}` +
         `&size=${cssW}x${cssH}` +
-        `&scale=2` +
+        `&scale=${scale}` +
         `&maptype=roadmap` +
-        `&style=feature:poi|visibility:off` +
+        `&style=feature:poi|visibility:simplified` +
         `&style=feature:transit|visibility:off` +
         `&key=${apiKey}`;
 
@@ -460,7 +498,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
       // Pre-project all points
       const proj = data.points.map((p) => project(p.lat, p.lng));
 
-      // ===== Capture stream + recorder =====
+      // ===== Stream + recorder =====
       const stream = (canvas as any).captureStream(30) as MediaStream;
       const candidates = [
         "video/mp4;codecs=avc1.640028",
@@ -473,20 +511,65 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
       ];
       const mime = candidates.find((m) => MR.isTypeSupported?.(m)) || "video/webm";
       const ext = mime.startsWith("video/mp4") ? "mp4" : "webm";
-      const rec: MediaRecorder = new MR(stream, { mimeType: mime, videoBitsPerSecond: 8_000_000 });
+      const rec: MediaRecorder = new MR(stream, { mimeType: mime, videoBitsPerSecond: 10_000_000 });
       const chunks: Blob[] = [];
       rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
       rec.start(250);
 
       // ===== Drawing helpers =====
+      const FONT = "Inter, system-ui, sans-serif";
+      const TZ = data.timeZone;
+
+      const drawText = (text: string, x: number, y: number, opts: {
+        size: number; weight?: number | string; color?: string; align?: CanvasTextAlign; tracking?: number;
+      }) => {
+        ctx.font = `${opts.weight ?? 400} ${opts.size}px ${FONT}`;
+        ctx.fillStyle = opts.color ?? "#fff";
+        ctx.textAlign = opts.align ?? "left";
+        if (opts.tracking) {
+          // crude letter-spacing
+          const chars = text.split("");
+          let xx = x;
+          if (opts.align === "right") {
+            const total = chars.reduce((s, c) => s + ctx.measureText(c).width + opts.tracking!, -opts.tracking!);
+            xx = x - total;
+          } else if (opts.align === "center") {
+            const total = chars.reduce((s, c) => s + ctx.measureText(c).width + opts.tracking!, -opts.tracking!);
+            xx = x - total / 2;
+          }
+          ctx.textAlign = "left";
+          for (const c of chars) {
+            ctx.fillText(c, xx, y);
+            xx += ctx.measureText(c).width + opts.tracking;
+          }
+        } else {
+          ctx.fillText(text, x, y);
+        }
+        ctx.textAlign = "left";
+      };
+
+      const roundRect = (x: number, y: number, w: number, h: number, r: number) => {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      };
+
+      // Sample events for timeline (max 14)
+      const tlEvents = data.events.slice(0, 14);
+
       const drawFrameAt = (playMs: number) => {
-        // Background map
+        // ===== 1) Background map =====
         ctx.drawImage(bg, 0, 0, W, H);
 
-        // Ghost route (subtle outline of full path)
+        // ===== 2) Route layers =====
         ctx.lineCap = "round"; ctx.lineJoin = "round";
+        // Ghost full route
         ctx.strokeStyle = "rgba(15,23,42,0.35)";
-        ctx.lineWidth = 7;
+        ctx.lineWidth = 8;
         ctx.beginPath();
         for (let i = 0; i < proj.length; i++) {
           const p = proj[i];
@@ -494,7 +577,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
         }
         ctx.stroke();
 
-        // Find current index/fraction
+        // Current position
         const pts = data.points;
         const idx = findIndex(pts, playMs);
         const a = pts[idx], nb = pts[idx + 1] ?? a;
@@ -505,17 +588,15 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
         const heading = lerpAngle(a.heading, nb.heading, f);
         const curSpeed = lerp(a.speed, nb.speed, f);
 
-        // Traveled colored polyline up to idx
-        ctx.lineWidth = 6;
+        // Traveled colored segments
+        ctx.lineWidth = 7;
         for (let i = 0; i < idx; i++) {
-          const p1 = proj[i], p2 = proj[i + 1];
           ctx.strokeStyle = speedBand((pts[i].speed + pts[i + 1].speed) / 2);
           ctx.beginPath();
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
+          ctx.moveTo(proj[i].x, proj[i].y);
+          ctx.lineTo(proj[i + 1].x, proj[i + 1].y);
           ctx.stroke();
         }
-        // Partial last segment
         if (idx < proj.length - 1) {
           ctx.strokeStyle = speedBand((a.speed + nb.speed) / 2);
           ctx.beginPath();
@@ -524,135 +605,309 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
           ctx.stroke();
         }
 
-        // Start / End pins
-        const drawPin = (px: number, py: number, fill: string) => {
+        // Start/End pins
+        const drawPin = (px: number, py: number, fill: string, glyph?: "flag" | "checker") => {
           ctx.save();
-          ctx.translate(px, py - 18);
+          ctx.translate(px, py - 22);
+          // teardrop
           ctx.fillStyle = fill;
-          ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
+          ctx.strokeStyle = "#fff"; ctx.lineWidth = 2.5;
           ctx.beginPath();
-          ctx.arc(0, 0, 10, 0, Math.PI * 2);
+          ctx.moveTo(0, 12);
+          ctx.bezierCurveTo(-14, -2, -14, -18, 0, -18);
+          ctx.bezierCurveTo(14, -18, 14, -2, 0, 12);
+          ctx.closePath();
           ctx.fill(); ctx.stroke();
+          // inner circle
           ctx.fillStyle = "#fff";
-          ctx.beginPath(); ctx.arc(0, 0, 4, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(0, -8, 5, 0, Math.PI * 2); ctx.fill();
+          if (glyph === "checker") {
+            ctx.fillStyle = "#0a0a0a";
+            const cs = 2;
+            for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+              if ((r + c) % 2 === 0) ctx.fillRect(-3 + c * cs, -11 + r * cs, cs, cs);
+            }
+          }
           ctx.restore();
         };
         drawPin(proj[0].x, proj[0].y, "#22c55e");
-        drawPin(proj[proj.length - 1].x, proj[proj.length - 1].y, "#0a0a0a");
+        drawPin(proj[proj.length - 1].x, proj[proj.length - 1].y, "#0a0a0a", "checker");
 
         // Car marker (rotated)
         ctx.save();
         ctx.translate(carX, carY);
+        // halo
+        ctx.fillStyle = "rgba(212,175,55,0.22)";
+        ctx.beginPath(); ctx.arc(0, 0, 24, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "rgba(10,10,10,0.95)";
+        ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fill();
         ctx.rotate((heading * Math.PI) / 180);
-        // pulse halo
-        ctx.fillStyle = "rgba(212,175,55,0.25)";
-        ctx.beginPath(); ctx.arc(0, 0, 22, 0, Math.PI * 2); ctx.fill();
-        // body
         ctx.fillStyle = GOLD;
-        ctx.strokeStyle = "#0a0a0a"; ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(0, -14);
-        ctx.lineTo(10, 10);
-        ctx.lineTo(0, 5);
-        ctx.lineTo(-10, 10);
+        ctx.moveTo(0, -9);
+        ctx.lineTo(6, 6);
+        ctx.lineTo(0, 3);
+        ctx.lineTo(-6, 6);
         ctx.closePath();
-        ctx.fill(); ctx.stroke();
+        ctx.fill();
         ctx.restore();
 
-        // ===== Top bar =====
-        const grad = ctx.createLinearGradient(0, 0, 0, 80);
-        grad.addColorStop(0, "rgba(0,0,0,0.85)");
-        grad.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, W, 80);
-        ctx.fillStyle = GOLD;
-        ctx.font = "bold 11px Inter, sans-serif";
-        ctx.fillText("REPLAY DE VIAGEM", 24, 28);
+        // ===== 3) TOP BAR =====
+        ctx.fillStyle = "rgba(0,0,0,0.78)";
+        ctx.fillRect(0, 0, W, TOP_BAR_H);
+        ctx.fillStyle = "rgba(255,255,255,0.06)";
+        ctx.fillRect(0, TOP_BAR_H - 1, W, 1);
+
+        // Logo square + title
+        const logoX = 18, logoY = 14, logoS = 36;
+        const lg = ctx.createLinearGradient(logoX, logoY, logoX + logoS, logoY + logoS);
+        lg.addColorStop(0, GOLD); lg.addColorStop(1, "#b8941f");
+        ctx.fillStyle = lg;
+        roundRect(logoX, logoY, logoS, logoS, 8); ctx.fill();
+        // Play triangle
+        ctx.fillStyle = "#0a0a0a";
+        ctx.beginPath();
+        ctx.moveTo(logoX + 13, logoY + 10);
+        ctx.lineTo(logoX + 27, logoY + 18);
+        ctx.lineTo(logoX + 13, logoY + 26);
+        ctx.closePath(); ctx.fill();
+
+        drawText("REPLAY DE VIAGEM", logoX + logoS + 12, 27, { size: 10, weight: 700, color: GOLD, tracking: 1.5 });
+        drawText(vehicleName, logoX + logoS + 12, 47, { size: 14, weight: 700, color: "#fff" });
+
+        // Level badge
+        const badgeX = logoX + logoS + 12 + ctx.measureText(vehicleName).width + 50;
+        const badgeText = data.level === 2 ? "REPLAY DETALHADO" : "REPLAY RESUMIDO";
+        ctx.font = "700 9px " + FONT;
+        const bw = ctx.measureText(badgeText).width + 22;
+        ctx.fillStyle = data.level === 2 ? "rgba(212,175,55,0.10)" : "rgba(255,255,255,0.05)";
+        ctx.strokeStyle = data.level === 2 ? "rgba(212,175,55,0.45)" : "rgba(255,255,255,0.18)";
+        ctx.lineWidth = 1;
+        roundRect(badgeX, 22, bw, 18, 9); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = data.level === 2 ? GOLD : "rgba(255,255,255,0.7)";
+        ctx.beginPath(); ctx.arc(badgeX + 9, 31, 2, 0, Math.PI * 2); ctx.fill();
+        drawText(badgeText, badgeX + 16, 34, { size: 9, weight: 700, color: data.level === 2 ? GOLD : "rgba(255,255,255,0.75)", tracking: 1.2 });
+
+        // Stats inline
+        type S = { icon: string; label: string; value: string };
+        const stats: S[] = [
+          { icon: "→", label: "DISTÂNCIA", value: `${data.totalDistanceMi.toFixed(1).replace(".", ",")} mi` },
+          { icon: "◷", label: "DURAÇÃO", value: fmtClock(data.durationMs) },
+          { icon: "◐", label: "VEL. MÉDIA", value: `${Math.round(data.avgSpeedMph)} mph` },
+          { icon: "▲", label: "VEL. MÁX", value: `${Math.round(data.maxSpeedMph)} mph` },
+          { icon: "!", label: "FREADAS", value: `${data.hardBrakes}` },
+          { icon: "⚡", label: "ACEL.", value: `${data.hardAccels}` },
+        ];
+        if (data.totalIdleSeconds > 60) stats.push({ icon: "‖", label: "PARADO", value: fmtMins(data.totalIdleSeconds) });
+        if (data.fuelConsumedGal != null && data.fuelConsumedGal > 0)
+          stats.push({ icon: "⛽", label: "COMBUST.", value: `${data.fuelConsumedGal.toFixed(2).replace(".", ",")} gal` });
+        if (data.avgMpg != null && data.avgMpg > 0)
+          stats.push({ icon: "≈", label: "CONSUMO", value: `${data.avgMpg.toFixed(1).replace(".", ",")} mpg` });
+        if (data.startOdometerMi != null && data.endOdometerMi != null)
+          stats.push({ icon: "◎", label: "ODÔMETRO", value: `${Math.round(data.startOdometerMi)} → ${Math.round(data.endOdometerMi)} mi` });
+
+        // Layout stats from the right edge of top bar going left, fitting before close area
+        const statsRight = W - 24;
+        const statsLeft = badgeX + bw + 30;
+        ctx.font = "700 10px " + FONT;
+        const widths = stats.map((s) => {
+          ctx.font = "700 10px " + FONT;
+          const lw = ctx.measureText(s.label).width;
+          ctx.font = "700 12px " + FONT;
+          const vw = ctx.measureText(s.value).width;
+          return Math.max(lw, vw) + 14;
+        });
+        const totalW = widths.reduce((s, w) => s + w, 0);
+        let drawAll = totalW <= (statsRight - statsLeft);
+        let curX = statsLeft;
+        for (let i = 0; i < stats.length; i++) {
+          if (!drawAll && curX + widths[i] > statsRight - 4) break;
+          const s = stats[i];
+          drawText(s.label, curX, 26, { size: 9, weight: 700, color: "rgba(255,255,255,0.5)", tracking: 0.8 });
+          drawText(s.value, curX, 46, { size: 12, weight: 700, color: "#fff" });
+          curX += widths[i];
+        }
+
+        // ===== 4) LEFT INSTRUMENT PANEL =====
+        const ipX = 16, ipY = TOP_BAR_H + 12, ipW = 230;
+        ctx.fillStyle = "rgba(10,10,10,0.88)";
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.lineWidth = 1;
+        roundRect(ipX, ipY, ipW, 290, 14); ctx.fill(); ctx.stroke();
+
+        // Speedometer (semicircular gauge)
+        const gCx = ipX + ipW / 2, gCy = ipY + 110, gR = 78;
+        // Bands
+        const bands = [
+          { from: 0,   to: 35, color: "#f59e0b" },
+          { from: 35,  to: 45, color: "#22c55e" },
+          { from: 45,  to: 50, color: "#3b82f6" },
+          { from: 50,  to: 65, color: "#ec4899" },
+          { from: 65,  to: 90, color: "#ef4444" },
+        ];
+        const MAX_SP = 90;
+        const a0 = Math.PI, a1 = 2 * Math.PI; // 180° to 360° (top half)
+        ctx.lineWidth = 14;
+        ctx.lineCap = "butt";
+        for (const band of bands) {
+          const start = a0 + (band.from / MAX_SP) * (a1 - a0);
+          const end = a0 + (band.to / MAX_SP) * (a1 - a0);
+          ctx.strokeStyle = band.color;
+          ctx.beginPath();
+          ctx.arc(gCx, gCy, gR, start, end);
+          ctx.stroke();
+        }
+        // Tick marks
+        ctx.strokeStyle = "rgba(255,255,255,0.35)";
+        ctx.lineWidth = 1.5;
+        for (let mph = 0; mph <= MAX_SP; mph += 10) {
+          const a = a0 + (mph / MAX_SP) * (a1 - a0);
+          const r1 = gR - 16, r2 = gR - 22;
+          ctx.beginPath();
+          ctx.moveTo(gCx + Math.cos(a) * r1, gCy + Math.sin(a) * r1);
+          ctx.lineTo(gCx + Math.cos(a) * r2, gCy + Math.sin(a) * r2);
+          ctx.stroke();
+        }
+        // Needle
+        const needleA = a0 + Math.min(MAX_SP, Math.max(0, curSpeed)) / MAX_SP * (a1 - a0);
+        ctx.save();
+        ctx.translate(gCx, gCy);
+        ctx.rotate(needleA);
         ctx.fillStyle = "#fff";
-        ctx.font = "bold 20px Inter, sans-serif";
-        ctx.fillText(vehicleName, 24, 54);
-        const realTime = new Date(data.startedAt.getTime() + playMs);
-        const tStr = realTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: data.timeZone });
-        ctx.font = "600 16px Inter, sans-serif";
-        ctx.textAlign = "right";
-        ctx.fillStyle = "rgba(255,255,255,0.85)";
-        ctx.fillText(tStr, W - 24, 32);
-        ctx.font = "11px Inter, sans-serif";
-        ctx.fillStyle = "rgba(255,255,255,0.55)";
-        ctx.fillText(realTime.toLocaleDateString("pt-BR", { timeZone: data.timeZone }), W - 24, 52);
-        ctx.textAlign = "left";
-
-        // ===== Bottom HUD =====
-        const hudH = 130;
-        const g2 = ctx.createLinearGradient(0, H - hudH, 0, H);
-        g2.addColorStop(0, "rgba(0,0,0,0)");
-        g2.addColorStop(0.4, "rgba(0,0,0,0.85)");
-        g2.addColorStop(1, "rgba(0,0,0,0.95)");
-        ctx.fillStyle = g2;
-        ctx.fillRect(0, H - hudH, W, hudH);
-
-        // Speed (big)
-        ctx.fillStyle = GOLD;
-        ctx.font = "bold 11px Inter, sans-serif";
-        ctx.fillText("VELOCIDADE", 32, H - 92);
+        ctx.beginPath();
+        ctx.moveTo(-3, 0);
+        ctx.lineTo(gR - 8, -1.5);
+        ctx.lineTo(gR - 8, 1.5);
+        ctx.lineTo(-3, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
         ctx.fillStyle = "#fff";
-        ctx.font = "bold 56px Inter, sans-serif";
-        ctx.fillText(`${Math.round(curSpeed)}`, 32, H - 36);
-        ctx.font = "600 16px Inter, sans-serif";
-        ctx.fillStyle = "rgba(255,255,255,0.6)";
-        ctx.fillText("mph", 32 + ctx.measureText(`${Math.round(curSpeed)}`).width + 8, H - 40);
+        ctx.beginPath(); ctx.arc(gCx, gCy, 5, 0, Math.PI * 2); ctx.fill();
 
-        // Distance traveled
+        // Current speed number + labels (centered below pivot)
+        drawText(`${Math.round(curSpeed)}`, gCx, gCy + 36, { size: 42, weight: 800, color: "#fff", align: "center" });
+        drawText("mph", gCx, gCy + 54, { size: 10, weight: 600, color: "rgba(255,255,255,0.55)", align: "center", tracking: 1.5 });
+
+        // Média / Pico
+        drawText("MÉDIA", gCx - 38, gCy + 78, { size: 9, weight: 700, color: "rgba(255,255,255,0.5)", align: "center", tracking: 1 });
+        drawText(`${Math.round(data.avgSpeedMph)}`, gCx - 38, gCy + 94, { size: 14, weight: 700, color: "#fff", align: "center" });
+        drawText("PICO", gCx + 38, gCy + 78, { size: 9, weight: 700, color: GOLD, align: "center", tracking: 1 });
+        drawText(`${Math.round(data.maxSpeedMph)}`, gCx + 38, gCy + 94, { size: 14, weight: 700, color: GOLD, align: "center" });
+
+        // Percorrido / Decorrido boxes
+        const boxY = ipY + 218;
+        const boxW = (ipW - 24) / 2;
         const distMi = (pts[idx].dist + (pts[idx + 1] ? (pts[idx + 1].dist - pts[idx].dist) * f : 0)) / 1609.34;
-        ctx.fillStyle = GOLD;
-        ctx.font = "bold 11px Inter, sans-serif";
-        ctx.fillText("DISTÂNCIA", 240, H - 92);
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 32px Inter, sans-serif";
-        ctx.fillText(`${distMi.toFixed(1).replace(".", ",")} mi`, 240, H - 50);
+        ctx.fillStyle = "rgba(255,255,255,0.04)";
+        ctx.strokeStyle = "rgba(255,255,255,0.07)";
+        roundRect(ipX + 8, boxY, boxW, 44, 8); ctx.fill(); ctx.stroke();
+        drawText("PERCORRIDO", ipX + 16, boxY + 14, { size: 8, weight: 700, color: "rgba(255,255,255,0.45)", tracking: 1 });
+        drawText(`${distMi.toFixed(1).replace(".", ",")} mi`, ipX + 16, boxY + 33, { size: 14, weight: 700, color: "#fff" });
+        roundRect(ipX + 16 + boxW, boxY, boxW, 44, 8); ctx.fill(); ctx.stroke();
+        drawText("DECORRIDO", ipX + 24 + boxW, boxY + 14, { size: 8, weight: 700, color: "rgba(255,255,255,0.45)", tracking: 1 });
+        drawText(fmtClock(playMs), ipX + 24 + boxW, boxY + 33, { size: 14, weight: 700, color: "#fff" });
 
-        // Duration / total
+        // Real-time clock under the panel
+        const realTime = new Date(data.startedAt.getTime() + playMs);
+        const tStr = realTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: TZ });
+        ctx.fillStyle = "rgba(255,255,255,0.04)";
+        roundRect(ipX, ipY + 290 + 8, ipW, 32, 10); ctx.fill();
         ctx.fillStyle = GOLD;
-        ctx.font = "bold 11px Inter, sans-serif";
-        ctx.fillText("TEMPO", 440, H - 92);
-        ctx.fillStyle = "#fff";
-        ctx.font = "bold 32px Inter, sans-serif";
-        ctx.fillText(`${fmtClock(playMs)} / ${fmtClock(data.durationMs)}`, 440, H - 50);
+        ctx.beginPath(); ctx.arc(ipX + 14, ipY + 290 + 24, 3, 0, Math.PI * 2); ctx.fill();
+        drawText(tStr, ipX + 26, ipY + 290 + 28, { size: 13, weight: 700, color: "#fff" });
 
-        // Stats right
-        ctx.textAlign = "right";
-        ctx.fillStyle = "rgba(255,255,255,0.55)";
-        ctx.font = "600 12px Inter, sans-serif";
-        ctx.fillText(`Vel. máx: ${Math.round(data.maxSpeedMph)} mph  •  Média: ${Math.round(data.avgSpeedMph)} mph`, W - 32, H - 80);
-        ctx.fillText(`Freadas: ${data.hardBrakes}  •  Acel. bruscas: ${data.hardAccels}`, W - 32, H - 60);
-        ctx.textAlign = "left";
+        // Odometer card (above clock — squeeze in if room)
+        if (data.startOdometerMi != null) {
+          // overlay over instrument panel just below boxes
+          const odY = boxY + 50;
+          ctx.fillStyle = "rgba(255,255,255,0.04)";
+          ctx.strokeStyle = "rgba(255,255,255,0.07)";
+          roundRect(ipX + 8, odY, ipW - 16, 30, 8); ctx.fill(); ctx.stroke();
+          drawText("ODÔMETRO", ipX + 16, odY + 12, { size: 8, weight: 700, color: "rgba(255,255,255,0.45)", tracking: 1 });
+          const curOdo = Math.round((data.startOdometerMi ?? 0) + distMi);
+          drawText(`${curOdo.toLocaleString("pt-BR")} mi`, ipX + 16, odY + 25, { size: 12, weight: 700, color: "#fff" });
+        }
 
-        // Progress bar
-        const barY = H - 18, barX = 32, barW = W - 64, barH = 6;
-        ctx.fillStyle = "rgba(255,255,255,0.12)";
-        ctx.fillRect(barX, barY, barW, barH);
+        // ===== 5) LEGEND (bottom-left) =====
+        const lgX = 16, lgY = H - 150, lgW = 220, lgH = 134;
+        ctx.fillStyle = "rgba(10,10,10,0.88)";
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        roundRect(lgX, lgY, lgW, lgH, 12); ctx.fill(); ctx.stroke();
+        drawText("VELOCIDADE NO TRAJETO", lgX + 14, lgY + 20, { size: 9, weight: 700, color: "rgba(255,255,255,0.55)", tracking: 1.2 });
+        const legendRows = [
+          { c: "#f59e0b", t: "até 35 mph" },
+          { c: "#22c55e", t: "35–45 mph" },
+          { c: "#3b82f6", t: "45–50 mph" },
+          { c: "#ec4899", t: "50–65 mph" },
+          { c: "#ef4444", t: "acima de 65 mph" },
+        ];
+        for (let i = 0; i < legendRows.length; i++) {
+          const r = legendRows[i];
+          const ry = lgY + 38 + i * 18;
+          ctx.fillStyle = r.c;
+          ctx.fillRect(lgX + 14, ry, 18, 3);
+          drawText(r.t, lgX + 40, ry + 6, { size: 11, weight: 500, color: "rgba(255,255,255,0.8)" });
+        }
+
+        // ===== 6) RIGHT TIMELINE PANEL =====
+        ctx.fillStyle = "rgba(8,8,8,0.95)";
+        ctx.fillRect(W - RIGHT_PANEL_W, TOP_BAR_H, RIGHT_PANEL_W, H - TOP_BAR_H);
+        ctx.fillStyle = "rgba(255,255,255,0.06)";
+        ctx.fillRect(W - RIGHT_PANEL_W, TOP_BAR_H, 1, H - TOP_BAR_H);
+
+        const tlX = W - RIGHT_PANEL_W + 20;
+        drawText("LINHA DO TEMPO", tlX, TOP_BAR_H + 28, { size: 10, weight: 700, color: GOLD, tracking: 1.5 });
+        drawText("Cronologia da viagem", tlX, TOP_BAR_H + 48, { size: 11, weight: 500, color: "rgba(255,255,255,0.55)" });
+
+        // Items
+        let tlY = TOP_BAR_H + 80;
+        for (const ev of tlEvents) {
+          const cfg = EVENT_CFG[ev.kind];
+          const passed = playMs >= ev.t;
+          // pill background
+          ctx.fillStyle = passed ? "rgba(212,175,55,0.06)" : "rgba(255,255,255,0.03)";
+          ctx.strokeStyle = passed ? "rgba(212,175,55,0.25)" : "rgba(255,255,255,0.07)";
+          roundRect(tlX, tlY, RIGHT_PANEL_W - 40, 56, 10); ctx.fill(); ctx.stroke();
+          // dot
+          ctx.fillStyle = cfg.color;
+          ctx.beginPath(); ctx.arc(tlX + 18, tlY + 28, 7, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5;
+          ctx.stroke();
+          // text
+          const lbl = ev.label.length > 32 ? ev.label.slice(0, 30) + "…" : ev.label;
+          drawText(lbl, tlX + 36, tlY + 22, { size: 11, weight: 700, color: passed ? "#fff" : "rgba(255,255,255,0.7)" });
+          const tEv = new Date(data.startedAt.getTime() + ev.t).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: TZ });
+          drawText(`${tEv}  •  ${fmtClock(ev.t)}`, tlX + 36, tlY + 40, { size: 10, weight: 500, color: "rgba(255,255,255,0.5)" });
+          tlY += 64;
+          if (tlY > H - 30) break;
+        }
+
+        // ===== 7) Progress bar bottom of map area =====
+        const barX = 0, barY = H - 4, barW = mapW;
+        ctx.fillStyle = "rgba(0,0,0,0.55)";
+        ctx.fillRect(barX, barY, barW, 4);
         ctx.fillStyle = GOLD;
-        ctx.fillRect(barX, barY, barW * Math.min(1, playMs / data.durationMs), barH);
+        ctx.fillRect(barX, barY, barW * Math.min(1, playMs / data.durationMs), 4);
       };
 
-      // ===== Render loop in real time so MediaRecorder records timing correctly =====
+      // ===== Render loop (real-time so MediaRecorder timestamps are correct) =====
       const recordSpeed = speedRef.current;
       const playbackDurMs = data.durationMs / recordSpeed;
-      const tailMs = 800;
+      const tailMs = 1000;
       const totalMs = playbackDurMs + tailMs;
       const frameMs = 1000 / 30;
 
+      // First draw to get one keyframe before recorder is hungry
+      drawFrameAt(0);
+
       const t0 = performance.now();
-      let lastDraw = -1;
       while (true) {
         if (cancelled) break;
         const elapsed = performance.now() - t0;
         if (elapsed > totalMs) break;
         const playMs = Math.min(data.durationMs, elapsed * recordSpeed);
-        if (playMs !== lastDraw) {
-          drawFrameAt(playMs);
-          lastDraw = playMs;
-        }
+        drawFrameAt(playMs);
         setRecProgress(Math.min(1, elapsed / totalMs));
         await new Promise((r) => setTimeout(r, frameMs));
       }
