@@ -69,6 +69,8 @@ export const initialWizardForm: WizardFormState = {
   customer_email: "",
   customer_phone: "",
   vehicle_id: "",
+  daily_price_override: "",
+
   pickup_date: "",
   pickup_time: "10:00",
   pickup_location: "",
