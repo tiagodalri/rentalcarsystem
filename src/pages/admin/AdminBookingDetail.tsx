@@ -11,6 +11,7 @@ import {
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { LocationDisplay } from "@/components/admin/LocationDisplay";
 import { EditBookingDialog } from "@/components/admin/EditBookingDialog";
+import { BookingIncidentDialog } from "@/components/admin/BookingIncidentDialog";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
