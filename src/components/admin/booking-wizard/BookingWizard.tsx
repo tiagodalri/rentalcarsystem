@@ -130,21 +130,24 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     setStepIdx(0);
   };
 
-  // Auto-suggest total + deposit/franchise from chosen vehicle
+  // Auto-suggest total from chosen vehicle + override daily price
   useEffect(() => {
     if (!form.vehicle_id) return;
     const veh = vehicles.find((v) => v.id === form.vehicle_id);
     if (!veh) return;
+    const daily = Number(form.daily_price_override) || Number(veh.daily_price_usd) || 0;
     setForm((p) => {
+      if (!p.pickup_date || !p.return_date) return p;
+      const d = Math.max(1, Math.round((new Date(p.return_date).getTime() - new Date(p.pickup_date).getTime()) / 86400000));
       const next = { ...p };
-      if (p.pickup_date && p.return_date && (!p.total_price || Number(p.total_price) === 0)) {
-        const days = Math.max(1, Math.round((new Date(p.return_date).getTime() - new Date(p.pickup_date).getTime()) / 86400000));
-        next.total_price = (Number(veh.daily_price_usd) * days).toFixed(2);
+      if (!p.total_price || Number(p.total_price) === 0) {
+        next.total_price = (daily * d).toFixed(2);
       }
       return next;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.vehicle_id, form.pickup_date, form.return_date]);
+  }, [form.vehicle_id, form.pickup_date, form.return_date, form.daily_price_override]);
+
 
   const days = useMemo(() => {
     if (!form.pickup_date || !form.return_date) return 0;
