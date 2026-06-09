@@ -130,21 +130,24 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     setStepIdx(0);
   };
 
-  // Auto-suggest total + deposit/franchise from chosen vehicle
+  // Auto-suggest total from chosen vehicle + override daily price
   useEffect(() => {
     if (!form.vehicle_id) return;
     const veh = vehicles.find((v) => v.id === form.vehicle_id);
     if (!veh) return;
+    const daily = Number(form.daily_price_override) || Number(veh.daily_price_usd) || 0;
     setForm((p) => {
+      if (!p.pickup_date || !p.return_date) return p;
+      const d = Math.max(1, Math.round((new Date(p.return_date).getTime() - new Date(p.pickup_date).getTime()) / 86400000));
       const next = { ...p };
-      if (p.pickup_date && p.return_date && (!p.total_price || Number(p.total_price) === 0)) {
-        const days = Math.max(1, Math.round((new Date(p.return_date).getTime() - new Date(p.pickup_date).getTime()) / 86400000));
-        next.total_price = (Number(veh.daily_price_usd) * days).toFixed(2);
+      if (!p.total_price || Number(p.total_price) === 0) {
+        next.total_price = (daily * d).toFixed(2);
       }
       return next;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.vehicle_id, form.pickup_date, form.return_date]);
+  }, [form.vehicle_id, form.pickup_date, form.return_date, form.daily_price_override]);
+
 
   const days = useMemo(() => {
     if (!form.pickup_date || !form.return_date) return 0;
@@ -445,6 +448,8 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
   const { vehicles } = useVehiclesDB();
   const [query, setQuery] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
+  const [editPrice, setEditPrice] = useState<string>("");
+
   const aiSuggested = aiKeys.has("vehicle_id") ? form.vehicle_id : null;
 
   const filtered = useMemo(() => {
@@ -476,12 +481,21 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
     return null;
   };
 
+  const openPreview = (id: string) => {
+    const v = vehicles.find((x) => x.id === id);
+    setEditPrice(v ? Number(v.daily_price_usd).toFixed(2) : "");
+    setPreview(id);
+  };
+
   const confirmSelection = () => {
     if (!previewVeh) return;
+    const price = Number(editPrice);
     set("vehicle_id", previewVeh.id);
+    set("daily_price_override", editPrice);
     setPreview(null);
     setTimeout(() => onAdvance?.(), 80);
   };
+
 
   return (
     <div className="space-y-4">
@@ -502,7 +516,7 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
           </div>
           <button
             type="button"
-            onClick={() => setPreview(selectedVeh.id)}
+            onClick={() => openPreview(selectedVeh.id)}
             className="text-[11px] font-medium text-primary hover:underline"
           >
             Trocar / revisar
@@ -536,7 +550,7 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
             <button
               key={v.id}
               type="button"
-              onClick={() => setPreview(v.id)}
+              onClick={() => openPreview(v.id)}
               className={`group text-left rounded-xl border overflow-hidden flex flex-col transition-all ${
                 selected ? "border-primary ring-1 ring-primary/40 bg-primary/5" : "border-border/50 bg-card hover:border-primary/40 hover:shadow-sm"
               }`}
@@ -610,10 +624,28 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
                 <InfoRow icon={Cog} label="Câmbio" value={previewVeh.transmission} />
                 <InfoRow icon={Fuel} label="Combustível" value={previewVeh.fuel} />
               </div>
-              <div className="rounded-lg bg-muted/50 px-3 py-2 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">Diária</span>
-                <span className="text-base font-bold tabular-nums">${Number(previewVeh.daily_price_usd).toFixed(2)}</span>
+              <div className="rounded-lg border border-border/50 bg-muted/40 px-3 py-2.5">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-foreground">Diária (USD)</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Padrão: ${Number(previewVeh.daily_price_usd).toFixed(2)} — ajuste se necessário
+                    </p>
+                  </div>
+                  <div className="relative w-32 shrink-0">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={editPrice}
+                      onChange={(e) => setEditPrice(e.target.value)}
+                      className="h-10 pl-6 text-right tabular-nums font-bold"
+                    />
+                  </div>
+                </div>
               </div>
+
             </div>
           )}
           <DialogFooter className="gap-2 sm:gap-2">
@@ -1034,7 +1066,7 @@ function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; day
       <Block title="Veículo" target="vehicle">
         <Row label="Modelo" value={vehicle?.name} aiKey="vehicle_id" />
         <Row label="Categoria" value={vehicle?.category} />
-        <Row label="Diária" value={vehicle ? `$${Number(vehicle.daily_price_usd).toFixed(2)}` : ""} />
+        <Row label="Diária" value={vehicle ? `$${(Number(form.daily_price_override) || Number(vehicle.daily_price_usd)).toFixed(2)}` : ""} />
       </Block>
 
       <Block title="Retirada e devolução" target="pickup">
