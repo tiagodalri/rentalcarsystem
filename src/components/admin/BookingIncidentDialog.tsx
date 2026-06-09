@@ -75,7 +75,7 @@ export function BookingIncidentDialog({ open, onOpenChange, bookingId, vehicleId
     const payload: any = {
       vehicle_id: vehicleId,
       booking_id: bookingId,
-      type: INCIDENT_TYPE_ENUM[form.type] || "other",
+      type: form.type,
       severity: form.severity,
       status: "open",
       title: form.title.trim(),
