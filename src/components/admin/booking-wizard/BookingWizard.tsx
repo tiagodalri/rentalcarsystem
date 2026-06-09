@@ -283,7 +283,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
             <DepositStep form={form} set={set} aiKeys={aiKeys} />
           )}
           {currentStep.id === "extras" && (
-            <ExtrasStep form={form} set={set} aiKeys={aiKeys} />
+            <ExtrasStep form={form} set={set} aiKeys={aiKeys} days={days} />
           )}
           {currentStep.id === "payment" && (
             <PaymentStep form={form} set={set} aiKeys={aiKeys} days={days} />
