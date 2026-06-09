@@ -72,7 +72,7 @@ export default function AdminVehicleNew() {
       current_odometer: form.current_odometer ?? 0,
       acquired_date: form.acquired_date || null,
       bouncie_imei: (form.bouncie_imei || "").trim() || null,
-      bouncie_vin: (form.bouncie_vin || "").trim().toUpperCase() || null,
+
     };
 
     const { data, error } = await supabase.from("vehicles").insert(payload).select("id").single();
