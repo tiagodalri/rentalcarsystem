@@ -70,7 +70,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   const { vehicles } = useVehiclesDB();
 
   // Persist drafts (form only, not customer object)
-  useFormDraft(DRAFT_KEY, form, (next) => setForm((prev) => ({ ...prev, ...next, customer: prev.customer })), phase === "wizard");
+  useFormDraft(DRAFT_KEY, form, (next) => setForm(next), phase === "wizard");
 
   const set = <K extends keyof WizardFormState>(k: K, v: WizardFormState[K]) => {
     setForm((p) => ({ ...p, [k]: v }));
