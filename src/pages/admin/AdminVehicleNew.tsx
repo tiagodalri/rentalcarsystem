@@ -12,7 +12,7 @@ const CATEGORIES = ["Economy", "Compact", "Midsize", "Fullsize", "SUV", "Premium
 const emptyVehicle = {
   name: "", brand: "", model: "", version: "",
   manufacture_year: null as number | null, model_year: null as number | null,
-  vin: "", renavam: "",
+  vin: "",
   license_plate: "", category: "Economy", daily_price_usd: null as number | null,
   passengers: 5, bags: 2, transmission: "Automatic", fuel: "Gasoline",
   status: "available",
