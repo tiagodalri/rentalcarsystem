@@ -36,14 +36,19 @@ export type WizardFormState = {
   // Pickup
   pickup_date: string;
   pickup_time: string;
+  pickup_location_type: "airport" | "custom";
   pickup_location: string;
+  pickup_terminal: string;
   pickup_notes: string;
 
   // Return
   return_date: string;
   return_time: string;
+  return_location_type: "airport" | "custom";
   return_location: string;
+  return_terminal: string;
   return_notes: string;
+
 
 
   // Deposit & franchise
@@ -80,12 +85,17 @@ export const initialWizardForm: WizardFormState = {
 
   pickup_date: "",
   pickup_time: "10:00",
+  pickup_location_type: "airport",
   pickup_location: "",
+  pickup_terminal: "",
   pickup_notes: "",
   return_date: "",
   return_time: "10:00",
+  return_location_type: "airport",
   return_location: "",
+  return_terminal: "",
   return_notes: "",
+
   deposit_amount: "",
   franchise_amount: "",
   deposit_refund_days: "30",

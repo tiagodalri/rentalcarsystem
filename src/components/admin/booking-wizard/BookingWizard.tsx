@@ -230,8 +230,13 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       pickup_time: form.pickup_time,
       return_date: form.return_date,
       return_time: form.return_time,
-      pickup_location: form.pickup_location || null,
-      return_location: form.return_location || null,
+      pickup_location: form.pickup_location
+        ? form.pickup_location + (form.pickup_location_type === "airport" && form.pickup_terminal ? ` — ${form.pickup_terminal}` : "")
+        : null,
+      return_location: form.return_location
+        ? form.return_location + (form.return_location_type === "airport" && form.return_terminal ? ` — ${form.return_terminal}` : "")
+        : null,
+
       plan_id: "unico",
       total_price: form.total_price ? Number(form.total_price) : null,
       status: "confirmed",
@@ -731,10 +736,46 @@ function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number })
             <Input type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} className="h-11" />
           </div>
         </div>
-        <div>
-          <FieldLabel ai={aiKeys.has("pickup_location")}>Local de retirada</FieldLabel>
-          <AddressAutocomplete value={form.pickup_location} onChange={(v) => set("pickup_location", v)} placeholder="Aeroporto, hotel, endereço..." />
+        <div className="space-y-2">
+          <FieldLabel>Onde será a retirada?</FieldLabel>
+          <div className="inline-flex rounded-lg border border-border/60 bg-muted/40 p-0.5">
+            {([
+              { v: "airport", label: "Aeroporto" },
+              { v: "custom", label: "Endereço personalizado" },
+            ] as const).map((opt) => (
+              <button
+                key={opt.v}
+                type="button"
+                onClick={() => set("pickup_location_type", opt.v)}
+                className={`px-3 h-8 text-xs font-medium rounded-md transition-colors ${
+                  form.pickup_location_type === opt.v
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
+        {form.pickup_location_type === "airport" ? (
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_180px] gap-3">
+            <div>
+              <FieldLabel ai={aiKeys.has("pickup_location")}>Aeroporto</FieldLabel>
+              <AddressAutocomplete value={form.pickup_location} onChange={(v) => set("pickup_location", v)} placeholder="Ex: Orlando International Airport (MCO)" />
+            </div>
+            <div>
+              <FieldLabel>Terminal</FieldLabel>
+              <Input value={form.pickup_terminal} onChange={(e) => set("pickup_terminal", e.target.value)} placeholder="Ex: Terminal A" className="h-11" />
+            </div>
+          </div>
+        ) : (
+          <div>
+            <FieldLabel ai={aiKeys.has("pickup_location")}>Endereço de retirada</FieldLabel>
+            <AddressAutocomplete value={form.pickup_location} onChange={(v) => set("pickup_location", v)} placeholder="Casa, hotel, endereço completo..." />
+          </div>
+        )}
+
         <div>
           <FieldLabel>Observações da retirada</FieldLabel>
           <Textarea
@@ -765,10 +806,46 @@ function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number })
             <Input type="time" value={form.return_time} onChange={(e) => set("return_time", e.target.value)} className="h-11" />
           </div>
         </div>
-        <div>
-          <FieldLabel ai={aiKeys.has("return_location")}>Local de devolução</FieldLabel>
-          <AddressAutocomplete value={form.return_location} onChange={(v) => set("return_location", v)} placeholder="Aeroporto, hotel, endereço..." />
+        <div className="space-y-2">
+          <FieldLabel>Onde será a devolução?</FieldLabel>
+          <div className="inline-flex rounded-lg border border-border/60 bg-muted/40 p-0.5">
+            {([
+              { v: "airport", label: "Aeroporto" },
+              { v: "custom", label: "Endereço personalizado" },
+            ] as const).map((opt) => (
+              <button
+                key={opt.v}
+                type="button"
+                onClick={() => set("return_location_type", opt.v)}
+                className={`px-3 h-8 text-xs font-medium rounded-md transition-colors ${
+                  form.return_location_type === opt.v
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
+        {form.return_location_type === "airport" ? (
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_180px] gap-3">
+            <div>
+              <FieldLabel ai={aiKeys.has("return_location")}>Aeroporto</FieldLabel>
+              <AddressAutocomplete value={form.return_location} onChange={(v) => set("return_location", v)} placeholder="Ex: Orlando International Airport (MCO)" />
+            </div>
+            <div>
+              <FieldLabel>Terminal</FieldLabel>
+              <Input value={form.return_terminal} onChange={(e) => set("return_terminal", e.target.value)} placeholder="Ex: Terminal B" className="h-11" />
+            </div>
+          </div>
+        ) : (
+          <div>
+            <FieldLabel ai={aiKeys.has("return_location")}>Endereço de devolução</FieldLabel>
+            <AddressAutocomplete value={form.return_location} onChange={(v) => set("return_location", v)} placeholder="Casa, hotel, endereço completo..." />
+          </div>
+        )}
+
         <div>
           <FieldLabel>Observações da devolução</FieldLabel>
           <Textarea
