@@ -84,7 +84,12 @@ export const initialWizardForm: WizardFormState = {
   currency: "USD",
   payment_method: "Cartão de Crédito",
   payment_status: "pending",
+  paid_date: "",
+  payment_due_date: "",
+  deposit_paid_amount: "",
+  deposit_paid_date: "",
   notes: "",
+
 };
 
 
