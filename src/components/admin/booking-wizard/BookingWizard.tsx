@@ -159,8 +159,8 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     switch (id) {
       case "customer": return !!form.customer_name.trim();
       case "vehicle": return !!form.vehicle_id;
-      case "pickup": return !!form.pickup_date && !!form.pickup_time;
-      case "return": return !!form.return_date && !!form.return_time && days > 0;
+      case "schedule": return !!form.pickup_date && !!form.pickup_time && !!form.return_date && !!form.return_time && days > 0;
+
       case "deposit": return true;
       case "extras": return true;
       case "payment": return !!form.total_price && Number(form.total_price) > 0;
