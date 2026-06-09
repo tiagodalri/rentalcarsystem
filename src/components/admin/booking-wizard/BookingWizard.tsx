@@ -230,8 +230,13 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       pickup_time: form.pickup_time,
       return_date: form.return_date,
       return_time: form.return_time,
-      pickup_location: form.pickup_location || null,
-      return_location: form.return_location || null,
+      pickup_location: form.pickup_location
+        ? form.pickup_location + (form.pickup_location_type === "airport" && form.pickup_terminal ? ` — ${form.pickup_terminal}` : "")
+        : null,
+      return_location: form.return_location
+        ? form.return_location + (form.return_location_type === "airport" && form.return_terminal ? ` — ${form.return_terminal}` : "")
+        : null,
+
       plan_id: "unico",
       total_price: form.total_price ? Number(form.total_price) : null,
       status: "confirmed",
