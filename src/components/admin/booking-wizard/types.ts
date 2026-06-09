@@ -42,13 +42,19 @@ export type WizardFormState = {
   franchise_amount: string;
   deposit_refund_days: string;
 
-  // Extras
-  plan_id: string;
-  extra_driver: boolean;
-  driver_age: string;
-  child_seat: boolean;
-  toll_tag: boolean;
-  premium_insurance: boolean;
+  // Extras (addons dynamic list)
+  addons_list: AddonItem[];
+
+  // Payment
+  total_price: string;
+  currency: "USD" | "BRL";
+  payment_method: string;
+  payment_status: "pending" | "paid";
+
+  // Notes
+  notes: string;
+};
+
 
   // Payment
   total_price: string;
