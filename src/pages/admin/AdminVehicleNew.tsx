@@ -56,7 +56,6 @@ export default function AdminVehicleNew() {
       manufacture_year: form.manufacture_year ?? null,
       model_year: form.model_year ?? null,
       vin: (form.vin || "").trim().toUpperCase() || null,
-      renavam: (form.renavam || "").trim() || null,
       license_plate: plate.toUpperCase(),
       category: form.category || "Economy",
       daily_price_usd: form.daily_price_usd ?? 0,
