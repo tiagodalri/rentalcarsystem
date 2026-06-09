@@ -17,7 +17,8 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const CLICKSIGN_API_TOKEN = Deno.env.get("CLICKSIGN_API_TOKEN")!;
-const CLICKSIGN_BASE_URL = Deno.env.get("CLICKSIGN_BASE_URL") ?? "https://app.clicksign.com";
+const CLICKSIGN_AUTH_TOKEN = CLICKSIGN_API_TOKEN.replace(/^Bearer\s+/i, "").trim();
+const CLICKSIGN_BASE_URL = (Deno.env.get("CLICKSIGN_BASE_URL") ?? "https://app.clicksign.com").replace(/\/$/, "");
 const ZEUS_SIGNER_EMAIL = Deno.env.get("ZEUS_SIGNER_EMAIL") ?? "zeusrentalcarorlando@gmail.com";
 const ZEUS_SIGNER_NAME = Deno.env.get("ZEUS_SIGNER_NAME") ?? "Zeus Rental Car";
 
@@ -663,7 +664,7 @@ async function cs(path: string, method: string, body?: unknown) {
   const res = await fetch(`${CLICKSIGN_BASE_URL}${path}`, {
     method,
     headers: {
-      "Authorization": `Bearer ${CLICKSIGN_API_TOKEN}`,
+      "Authorization": CLICKSIGN_AUTH_TOKEN,
       "Content-Type": "application/vnd.api+json",
       "Accept": "application/vnd.api+json",
     },
