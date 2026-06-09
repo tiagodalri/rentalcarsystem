@@ -1066,7 +1066,7 @@ function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; day
       <Block title="Veículo" target="vehicle">
         <Row label="Modelo" value={vehicle?.name} aiKey="vehicle_id" />
         <Row label="Categoria" value={vehicle?.category} />
-        <Row label="Diária" value={vehicle ? `$${Number(vehicle.daily_price_usd).toFixed(2)}` : ""} />
+        <Row label="Diária" value={vehicle ? `$${(Number(form.daily_price_override) || Number(vehicle.daily_price_usd)).toFixed(2)}` : ""} />
       </Block>
 
       <Block title="Retirada e devolução" target="pickup">
