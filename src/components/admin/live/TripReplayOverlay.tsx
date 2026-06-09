@@ -627,7 +627,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                 ? `linear-gradient(90deg, ${GOLD} ${Math.round(recProgress * 100)}%, rgba(212,175,55,0.15) ${Math.round(recProgress * 100)}%)`
                 : "rgba(212,175,55,0.08)",
             }}
-            title={recording ? "Renderizando vídeo em alta qualidade…" : "Baixar vídeo da animação (Full HD)"}
+            title={recording ? "Gravando a animação ao vivo…" : "Baixar vídeo MP4 — escolha 'esta aba' no seletor que vai aparecer"}
           >
             {recording ? (
               <>
