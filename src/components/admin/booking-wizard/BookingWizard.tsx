@@ -52,13 +52,13 @@ const PAYMENT_METHODS = [
 const STEP_ICONS: Record<StepId, any> = {
   customer: Users,
   vehicle: Car,
-  pickup: MapPin,
-  return: MapPin,
+  schedule: MapPin,
   deposit: Shield,
   extras: Wrench,
   payment: CreditCard,
   review: FileCheck2,
 };
+
 
 const AI_BADGE = (
   <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary">
@@ -77,6 +77,34 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
 
   // Persist drafts (form only, not customer object)
   useFormDraft(DRAFT_KEY, form, (next) => setForm(next), phase === "wizard");
+
+  // Persist current step index so user resumes exactly where they left off
+  const STEP_KEY = `${DRAFT_KEY}-step`;
+  useEffect(() => {
+    if (phase !== "wizard") return;
+    try {
+      const raw = localStorage.getItem(STEP_KEY);
+      if (raw !== null) {
+        const n = Number(raw);
+        if (Number.isInteger(n) && n >= 0 && n < WIZARD_STEPS.length) setStepIdx(n);
+      }
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "wizard") return;
+    try { localStorage.setItem(STEP_KEY, String(stepIdx)); } catch { /* ignore */ }
+  }, [stepIdx, phase, STEP_KEY]);
+
+  // Last-saved indicator
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  useEffect(() => {
+    if (phase !== "wizard") return;
+    const t = setTimeout(() => setLastSavedAt(new Date()), 500);
+    return () => clearTimeout(t);
+  }, [form, phase]);
+
 
   const set = <K extends keyof WizardFormState>(k: K, v: WizardFormState[K]) => {
     setForm((p) => ({ ...p, [k]: v }));
@@ -159,8 +187,8 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     switch (id) {
       case "customer": return !!form.customer_name.trim();
       case "vehicle": return !!form.vehicle_id;
-      case "pickup": return !!form.pickup_date && !!form.pickup_time;
-      case "return": return !!form.return_date && !!form.return_time && days > 0;
+      case "schedule": return !!form.pickup_date && !!form.pickup_time && !!form.return_date && !!form.return_time && days > 0;
+
       case "deposit": return true;
       case "extras": return true;
       case "payment": return !!form.total_price && Number(form.total_price) > 0;
@@ -242,6 +270,8 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       return;
     }
     clearFormDraft(DRAFT_KEY);
+    try { localStorage.removeItem(STEP_KEY); } catch { /* ignore */ }
+
     toast({ title: "Reserva criada com sucesso" });
     onDone();
   };
@@ -270,9 +300,17 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
         >
           <ArrowLeft size={14} /> Cancelar
         </button>
-        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Etapa {stepIdx + 1} de {WIZARD_STEPS.length}
+        <div className="flex items-center gap-3">
+          {lastSavedAt && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+              <Check size={10} className="text-primary" /> Rascunho salvo
+            </span>
+          )}
+          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Etapa {stepIdx + 1} de {WIZARD_STEPS.length}
+          </div>
         </div>
+
       </div>
 
       {/* Stepper */}
@@ -288,12 +326,10 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
           {currentStep.id === "vehicle" && (
             <VehicleStep form={form} set={set} aiKeys={aiKeys} onAdvance={goNext} />
           )}
-          {currentStep.id === "pickup" && (
-            <PickupStep form={form} set={set} aiKeys={aiKeys} />
+          {currentStep.id === "schedule" && (
+            <ScheduleStep form={form} set={set} aiKeys={aiKeys} days={days} />
           )}
-          {currentStep.id === "return" && (
-            <ReturnStep form={form} set={set} aiKeys={aiKeys} days={days} />
-          )}
+
           {currentStep.id === "deposit" && (
             <DepositStep form={form} set={set} aiKeys={aiKeys} />
           )}
@@ -345,19 +381,19 @@ function Stepper({ stepIdx, onJump, stepValid }: { stepIdx: number; onJump: (i: 
             <div key={s.id} className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => i <= stepIdx && onJump(i)}
-                disabled={i > stepIdx}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-all ${
+                onClick={() => onJump(i)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
                   active
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : completed
                       ? "bg-primary/15 text-primary hover:bg-primary/25"
-                      : "bg-muted text-muted-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                 }`}
               >
                 {completed ? <Check size={11} /> : <Icon size={11} />}
                 <span className="whitespace-nowrap">{s.title}</span>
               </button>
+
               {i < WIZARD_STEPS.length - 1 && (
                 <div className={`w-4 h-px ${i < stepIdx ? "bg-primary/40" : "bg-border"}`} />
               )}
@@ -374,8 +410,8 @@ function StepHeader({ id }: { id: StepId }) {
   const titles: Record<StepId, { t: string; s: string }> = {
     customer: { t: "Cliente", s: "Busque um cliente existente ou cadastre um novo." },
     vehicle: { t: "Veículo", s: "Selecione o carro alugado." },
-    pickup: { t: "Retirada", s: "Quando e onde o cliente retira o veículo." },
-    return: { t: "Devolução", s: "Quando e onde o veículo será devolvido." },
+    schedule: { t: "Retirada e devolução", s: "Quando e onde o cliente retira e devolve o veículo." },
+
     deposit: { t: "Caução & Franquia", s: "Confirme os valores e o prazo de devolução do caução." },
     extras: { t: "Opcionais", s: "Plano, motorista adicional e itens extras." },
     payment: { t: "Pagamento", s: "Valor total, forma e status do pagamento." },
@@ -672,44 +708,77 @@ function InfoRow({ icon: Icon, label, value, mono }: { icon: any; label: string;
   );
 }
 
-function PickupStep({ form, set, aiKeys }: StepProps) {
+function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <FieldLabel ai={aiKeys.has("pickup_date")}>Data de retirada *</FieldLabel>
-          <BookingDateField value={form.pickup_date} onChange={(v) => set("pickup_date", v)} />
+    <div className="space-y-5">
+      {/* Retirada */}
+      <div className="rounded-xl border border-border/50 bg-card p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+            <MapPin size={14} />
+          </div>
+          <h3 className="text-sm font-semibold">Retirada</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <FieldLabel ai={aiKeys.has("pickup_date")}>Data *</FieldLabel>
+            <BookingDateField value={form.pickup_date} onChange={(v) => set("pickup_date", v)} />
+          </div>
+          <div>
+            <FieldLabel ai={aiKeys.has("pickup_time")}>Horário *</FieldLabel>
+            <Input type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} className="h-11" />
+          </div>
         </div>
         <div>
-          <FieldLabel ai={aiKeys.has("pickup_time")}>Horário</FieldLabel>
-          <Input type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} className="h-11" />
+          <FieldLabel ai={aiKeys.has("pickup_location")}>Local de retirada</FieldLabel>
+          <AddressAutocomplete value={form.pickup_location} onChange={(v) => set("pickup_location", v)} placeholder="Aeroporto, hotel, endereço..." />
+        </div>
+        <div>
+          <FieldLabel>Observações da retirada</FieldLabel>
+          <Textarea
+            value={form.pickup_notes}
+            onChange={(e) => set("pickup_notes", e.target.value)}
+            placeholder="Ex: cliente vai pegar com o motorista, levar cadeirinha, etc."
+            rows={2}
+            className="resize-none"
+          />
         </div>
       </div>
-      <div>
-        <FieldLabel ai={aiKeys.has("pickup_location")}>Local de retirada</FieldLabel>
-        <AddressAutocomplete value={form.pickup_location} onChange={(v) => set("pickup_location", v)} placeholder="Aeroporto, hotel, endereço..." />
-      </div>
-    </div>
-  );
-}
 
-function ReturnStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
-  return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <FieldLabel ai={aiKeys.has("return_date")}>Data de devolução *</FieldLabel>
-          <BookingDateField value={form.return_date} onChange={(v) => set("return_date", v)} />
+      {/* Devolução */}
+      <div className="rounded-xl border border-border/50 bg-card p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+            <MapPin size={14} />
+          </div>
+          <h3 className="text-sm font-semibold">Devolução</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <FieldLabel ai={aiKeys.has("return_date")}>Data *</FieldLabel>
+            <BookingDateField value={form.return_date} onChange={(v) => set("return_date", v)} />
+          </div>
+          <div>
+            <FieldLabel ai={aiKeys.has("return_time")}>Horário *</FieldLabel>
+            <Input type="time" value={form.return_time} onChange={(e) => set("return_time", e.target.value)} className="h-11" />
+          </div>
         </div>
         <div>
-          <FieldLabel ai={aiKeys.has("return_time")}>Horário</FieldLabel>
-          <Input type="time" value={form.return_time} onChange={(e) => set("return_time", e.target.value)} className="h-11" />
+          <FieldLabel ai={aiKeys.has("return_location")}>Local de devolução</FieldLabel>
+          <AddressAutocomplete value={form.return_location} onChange={(v) => set("return_location", v)} placeholder="Aeroporto, hotel, endereço..." />
+        </div>
+        <div>
+          <FieldLabel>Observações da devolução</FieldLabel>
+          <Textarea
+            value={form.return_notes}
+            onChange={(e) => set("return_notes", e.target.value)}
+            placeholder="Ex: deixar com tanque cheio, exigência específica, etc."
+            rows={2}
+            className="resize-none"
+          />
         </div>
       </div>
-      <div>
-        <FieldLabel ai={aiKeys.has("return_location")}>Local de devolução</FieldLabel>
-        <AddressAutocomplete value={form.return_location} onChange={(v) => set("return_location", v)} placeholder="Aeroporto, hotel, endereço..." />
-      </div>
+
       {days > 0 && (
         <div className="rounded-xl bg-primary/10 border border-primary/30 px-4 py-3 text-sm">
           Duração da locação: <span className="font-semibold tabular-nums">{days} {days === 1 ? "dia" : "dias"}</span>
@@ -718,6 +787,7 @@ function ReturnStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
     </div>
   );
 }
+
 
 function DepositStep({ form, set, aiKeys }: StepProps) {
   return (
@@ -1069,12 +1139,15 @@ function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; day
         <Row label="Diária" value={vehicle ? `$${(Number(form.daily_price_override) || Number(vehicle.daily_price_usd)).toFixed(2)}` : ""} />
       </Block>
 
-      <Block title="Retirada e devolução" target="pickup">
+      <Block title="Retirada e devolução" target="schedule">
         <Row label="Retirada" value={`${form.pickup_date || "—"} ${form.pickup_time}`} aiKey="pickup_date" />
         <Row label="Local retirada" value={form.pickup_location} aiKey="pickup_location" />
+        {form.pickup_notes && <Row label="Obs. retirada" value={form.pickup_notes} />}
         <Row label="Devolução" value={`${form.return_date || "—"} ${form.return_time}`} aiKey="return_date" />
         <Row label="Local devolução" value={form.return_location} aiKey="return_location" />
+        {form.return_notes && <Row label="Obs. devolução" value={form.return_notes} />}
         <Row label="Duração" value={`${days} ${days === 1 ? "dia" : "dias"}`} />
+
       </Block>
 
       <Block title="Caução & Franquia" target="deposit">

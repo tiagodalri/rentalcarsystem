@@ -33,11 +33,14 @@ export type WizardFormState = {
   pickup_date: string;
   pickup_time: string;
   pickup_location: string;
+  pickup_notes: string;
 
   // Return
   return_date: string;
   return_time: string;
   return_location: string;
+  return_notes: string;
+
 
   // Deposit & franchise
   deposit_amount: string;
@@ -74,9 +77,11 @@ export const initialWizardForm: WizardFormState = {
   pickup_date: "",
   pickup_time: "10:00",
   pickup_location: "",
+  pickup_notes: "",
   return_date: "",
   return_time: "10:00",
   return_location: "",
+  return_notes: "",
   deposit_amount: "",
   franchise_amount: "",
   deposit_refund_days: "30",
@@ -119,12 +124,12 @@ export type AiExtractResult = {
 export const WIZARD_STEPS = [
   { id: "customer", title: "Cliente" },
   { id: "vehicle", title: "Veículo" },
-  { id: "pickup", title: "Retirada" },
-  { id: "return", title: "Devolução" },
+  { id: "schedule", title: "Retirada e devolução" },
   { id: "deposit", title: "Caução & Franquia" },
   { id: "extras", title: "Opcionais" },
   { id: "payment", title: "Pagamento" },
   { id: "review", title: "Revisão" },
+
 ] as const;
 
 export type StepId = (typeof WIZARD_STEPS)[number]["id"];
