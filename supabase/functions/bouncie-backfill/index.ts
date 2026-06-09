@@ -6,7 +6,7 @@
 // Resumível: cada invocação processa no máximo MAX_WEEKS_PER_RUN semanas por veículo
 // e MAX_VEHICLES_PER_RUN veículos, guardando o cursor em bouncie_backfill_progress.
 //
-// POST { force?: boolean, imei?: string, weeksPerVehicle?: number, vehiclesPerRun?: number }
+// POST { manual: true, imei?: string, weeksPerVehicle?: number, vehiclesPerRun?: number }
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -243,17 +243,21 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   const t0 = Date.now();
   try {
-    return new Response(JSON.stringify({
-      ok: true,
-      paused: true,
-      reason: "Backfill histórico pausado temporariamente para liberar o login/admin. Webhook, mapa ao vivo e sync de telemetria continuam ativos.",
-    }, null, 2), { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
-
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
+    const manual = body?.manual === true || req.headers.get("x-manual-backfill") === "true";
+    if (!manual) {
+      return new Response(JSON.stringify({
+        ok: true,
+        skipped: true,
+        manual_required: true,
+        reason: "Backfill histórico não roda mais por cron. Use o gatilho manual no painel quando quiser continuar a importação histórica.",
+      }, null, 2), { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
+    }
+
     const onlyImei: string | undefined = body?.imei;
-    const force: boolean = !!body?.force;
-    const weeksPerVehicle = Math.max(1, Math.min(20, Number(body?.weeksPerVehicle ?? 6)));
-    const vehiclesPerRun = Math.max(1, Math.min(40, Number(body?.vehiclesPerRun ?? 8)));
+    const weeksPerVehicle = Math.max(1, Math.min(8, Number(body?.weeksPerVehicle ?? 2)));
+    const vehiclesPerRun = Math.max(1, Math.min(5, Number(body?.vehiclesPerRun ?? 2)));
+    const maxRunMs = Math.max(10, Math.min(90, Number(body?.maxRunSeconds ?? 45))) * 1000;
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const token = await getToken(admin);
@@ -273,16 +277,16 @@ Deno.serve(async (req) => {
       (progressRows ?? []).map((p: any) => [p.vehicle_id, p]),
     );
 
-    // filtra os que ainda precisam de trabalho (a menos que force)
+    // filtra só veículos ainda não concluídos; dados já importados não são reprocessados.
     const candidates = vehicles.filter((v: any) => {
       const p = progressMap.get(v.id);
-      if (force) return true;
       if (!p) return true;
       return p.status !== "done";
     }).slice(0, vehiclesPerRun);
 
     const summary: any[] = [];
     for (const v of candidates) {
+      if (Date.now() - t0 >= maxRunMs) break;
       const r = await processVehicle(admin, token, v, progressMap.get(v.id), weeksPerVehicle);
       summary.push(r);
     }
@@ -301,7 +305,11 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify({
       ok: true, ran_in_seconds: Math.round((Date.now() - t0) / 1000),
-      processed: summary.length, summary, totals,
+      processed: summary.length,
+      all_done: totals.vehicles > 0 && totals.done === totals.vehicles,
+      more_needed: totals.vehicles > 0 && totals.done < totals.vehicles,
+      summary,
+      totals,
     }, null, 2), { status: 200, headers: { ...cors, "Content-Type": "application/json" } });
   } catch (e) {
     return new Response(JSON.stringify({ error: (e as Error).message }), {
