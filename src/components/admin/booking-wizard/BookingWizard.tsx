@@ -690,46 +690,147 @@ function DepositStep({ form, set, aiKeys }: StepProps) {
   );
 }
 
-function ExtrasStep({ form, set }: StepProps) {
-  const ToggleRow = ({ label, value, onChange, hint }: { label: string; value: boolean; onChange: (v: boolean) => void; hint?: string }) => (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-card px-4 py-3">
-      <div className="min-w-0">
-        <p className="text-sm font-medium">{label}</p>
-        {hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}
-      </div>
-      <Switch checked={value} onCheckedChange={onChange} />
-    </div>
+function ExtrasStep({ form, set, days }: StepProps & { days: number }) {
+  const addons = form.addons_list;
+
+  const update = (id: string, patch: Partial<AddonItem>) => {
+    set(
+      "addons_list",
+      addons.map((a) => (a.id === id ? { ...a, ...patch } : a)),
+    );
+  };
+
+  const remove = (id: string) => {
+    set("addons_list", addons.filter((a) => a.id !== id));
+  };
+
+  const addNew = (preset?: Omit<AddonItem, "id">) => {
+    const item: AddonItem = preset
+      ? { ...preset, id: `a-${Date.now()}-${Math.random().toString(36).slice(2, 6)}` }
+      : {
+          id: `a-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          name: "",
+          price: "0",
+          mode: "per_day",
+        };
+    set("addons_list", [...addons, item]);
+  };
+
+  const presetsAvailable = DEFAULT_ADDON_PRESETS.filter(
+    (p) => !addons.some((a) => a.name.toLowerCase() === p.name.toLowerCase()),
   );
+
+  const subtotal = addons.reduce((sum, a) => {
+    const price = Number(a.price) || 0;
+    return sum + (a.mode === "per_day" ? price * Math.max(days, 1) : price);
+  }, 0);
 
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <FieldLabel>Plano</FieldLabel>
-          <Select value={form.plan_id} onValueChange={(v) => set("plan_id", v)}>
-            <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="essencial">Essencial — $0</SelectItem>
-              <SelectItem value="conforto">Conforto — $29</SelectItem>
-              <SelectItem value="premium">Premium — $49</SelectItem>
-            </SelectContent>
-          </Select>
+      {addons.length === 0 && (
+        <div className="rounded-xl border border-dashed border-border/60 bg-muted/30 px-4 py-6 text-center text-xs text-muted-foreground">
+          Nenhum opcional adicionado. Use os botões abaixo para incluir.
         </div>
-        <div>
-          <FieldLabel>Idade do motorista</FieldLabel>
-          <Input type="number" min="18" max="99" value={form.driver_age} onChange={(e) => set("driver_age", e.target.value)} placeholder="30" className="h-11 tabular-nums" />
-        </div>
-      </div>
+      )}
 
       <div className="space-y-2">
-        <ToggleRow label="Motorista adicional" value={form.extra_driver} onChange={(v) => set("extra_driver", v)} />
-        <ToggleRow label="Cadeirinha infantil" value={form.child_seat} onChange={(v) => set("child_seat", v)} />
-        <ToggleRow label="Toll Tag (pedágio)" value={form.toll_tag} onChange={(v) => set("toll_tag", v)} />
-        <ToggleRow label="Seguro Premium" value={form.premium_insurance} onChange={(v) => set("premium_insurance", v)} />
+        {addons.map((a) => {
+          const price = Number(a.price) || 0;
+          const lineTotal = a.mode === "per_day" ? price * Math.max(days, 1) : price;
+          return (
+            <div key={a.id} className="rounded-xl border border-border/50 bg-card p-3 space-y-2">
+              <div className="grid grid-cols-12 gap-2 items-end">
+                <div className="col-span-12 sm:col-span-5">
+                  <FieldLabel>Nome</FieldLabel>
+                  <Input
+                    value={a.name}
+                    onChange={(e) => update(a.id, { name: e.target.value })}
+                    placeholder="Ex: Cadeirinha infantil"
+                    className="h-10"
+                  />
+                </div>
+                <div className="col-span-5 sm:col-span-3">
+                  <FieldLabel>Preço (USD)</FieldLabel>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={a.price}
+                    onChange={(e) => update(a.id, { price: e.target.value })}
+                    className="h-10 tabular-nums"
+                  />
+                </div>
+                <div className="col-span-5 sm:col-span-3">
+                  <FieldLabel>Cobrança</FieldLabel>
+                  <Select
+                    value={a.mode}
+                    onValueChange={(v) => update(a.id, { mode: v as AddonPricingMode })}
+                  >
+                    <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="per_day">Por diária</SelectItem>
+                      <SelectItem value="total">Valor total</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-2 sm:col-span-1 flex justify-end">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 text-muted-foreground hover:text-destructive"
+                    onClick={() => remove(a.id)}
+                    aria-label="Remover opcional"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
+              </div>
+              <div className="flex justify-end text-[11px] text-muted-foreground tabular-nums">
+                {a.mode === "per_day"
+                  ? `$${price.toFixed(2)} × ${Math.max(days, 1)} ${Math.max(days, 1) === 1 ? "dia" : "dias"} = `
+                  : "Total: "}
+                <span className="ml-1 font-semibold text-foreground">${lineTotal.toFixed(2)}</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      <div className="flex flex-wrap gap-2 pt-1">
+        {presetsAvailable.map((p) => (
+          <Button
+            key={p.name}
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-9 text-xs"
+            onClick={() => addNew(p)}
+          >
+            <Plus size={13} className="mr-1" /> {p.name}
+          </Button>
+        ))}
+        <Button
+          type="button"
+          variant="default"
+          size="sm"
+          className="h-9 text-xs"
+          onClick={() => addNew()}
+        >
+          <Plus size={13} className="mr-1" /> Opcional personalizado
+        </Button>
+      </div>
+
+      {addons.length > 0 && (
+        <div className="flex justify-between items-center rounded-xl border border-primary/30 bg-primary/5 px-4 py-2.5 text-xs">
+          <span className="text-muted-foreground">Subtotal de opcionais</span>
+          <span className="font-semibold text-foreground tabular-nums">${subtotal.toFixed(2)}</span>
+        </div>
+      )}
     </div>
   );
 }
+
 
 function PaymentStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
   return (
