@@ -28,6 +28,7 @@ interface Props {
   onCreated: () => void;
   mode?: "modal" | "page";
   onCancel?: () => void;
+  aiMode?: boolean;
 }
 
 const STATUS_OPTIONS = [
@@ -56,7 +57,7 @@ const CURRENCIES = [
   { value: "BRL", label: "BRL (R$)" },
 ];
 
-export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal", onCancel }: Props) {
+export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal", onCancel, aiMode = true }: Props) {
   const closeSelf = () => {
     if (mode === "page") onCancel?.();
     else onOpenChange?.(false);
@@ -390,16 +391,24 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
         : "px-4 sm:px-6 pt-5 pb-3 border-b border-border/50 shrink-0"}>
         {mode === "page" ? (
           <>
-            <h1 className="text-lg sm:text-xl font-semibold tracking-tight">Nova reserva manual</h1>
+            <h1 className="text-lg sm:text-xl font-semibold tracking-tight">
+              {aiMode ? "Nova reserva com IA" : "Nova reserva manual"}
+            </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Preencha em 7 etapas. Use a IA para extrair de prints e PDFs.
+              {aiMode
+                ? "Anexe prints, PDFs, texto ou áudio. A IA extrai e você revisa o que faltar."
+                : "Preencha as 7 etapas manualmente."}
             </p>
           </>
         ) : (
           <DialogHeader className="p-0">
-            <DialogTitle className="text-base sm:text-lg">Nova reserva manual</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">
+              {aiMode ? "Nova reserva com IA" : "Nova reserva manual"}
+            </DialogTitle>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Preencha em 7 etapas. Use a IA para extrair de prints e PDFs.
+              {aiMode
+                ? "Anexe prints, PDFs, texto ou áudio. A IA extrai e você revisa o que faltar."
+                : "Preencha as 7 etapas manualmente."}
             </p>
           </DialogHeader>
         )}
@@ -408,6 +417,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
 
         <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 space-y-4">
           {/* IA - Extração inteligente */}
+          {aiMode && (
           <section
             className={`rounded-2xl border-2 border-dashed p-4 sm:p-5 transition-colors ${
               dragOver
@@ -494,6 +504,9 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
               </p>
             )}
           </section>
+          )}
+
+
 
 
           {/* 1. Cliente */}
