@@ -1250,11 +1250,13 @@ export default function AdminBookings() {
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Veículo</th>
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Período</th>
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Horários</th>
-                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Local</th>
-                      <th className="px-5 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Valor</th>
-                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Status</th>
-                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold min-w-[120px]">Progresso</th>
-                      <th className="px-5 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Inspeção</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Local</th>
+                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Total</th>
+                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Caução</th>
+                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Franquia</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Status</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold min-w-[120px]">Progresso</th>
+                      <th className="px-3 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Inspeção</th>
                       <th className="px-5 py-3 w-10"></th>
                     </tr>
                   </thead>
@@ -1303,19 +1305,29 @@ export default function AdminBookings() {
                               </span>
                             </div>
                           </td>
-                          <td className="px-5 py-3.5 text-muted-foreground text-xs max-w-[180px] truncate">{b.pickup_location || "—"}</td>
-                          <td className="px-5 py-3.5 text-right tabular-nums">
-                            <div className="text-foreground font-semibold">${b.total_price?.toFixed(2) || "—"}</div>
-                            {(b.deposit_amount ?? 0) > 0 && (
-                              <div className="text-[10px] text-muted-foreground mt-0.5">
-                                Caução ${Number(b.deposit_amount).toFixed(0)}
-                                {b.deposit_refund_days ? ` • ${b.deposit_refund_days}d` : ""}
+                          <td className="px-3 py-3.5 text-muted-foreground text-xs max-w-[180px] truncate">{b.pickup_location || "—"}</td>
+                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap">
+                            <span className="text-foreground font-semibold text-[13px]">
+                              {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap">
+                            {(b.deposit_amount ?? 0) > 0 ? (
+                              <div className="leading-tight">
+                                <div className="text-[12px] text-foreground/80">${Number(b.deposit_amount).toFixed(0)}</div>
+                                {b.deposit_refund_days ? (
+                                  <div className="text-[10px] text-muted-foreground/70">{b.deposit_refund_days}d</div>
+                                ) : null}
                               </div>
+                            ) : (
+                              <span className="text-muted-foreground/50 text-xs">—</span>
                             )}
-                            {(b.franchise_amount ?? 0) > 0 && (
-                              <div className="text-[10px] text-muted-foreground">
-                                Franquia ${Number(b.franchise_amount).toFixed(0)}
-                              </div>
+                          </td>
+                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap">
+                            {(b.franchise_amount ?? 0) > 0 ? (
+                              <span className="text-[12px] text-foreground/80">${Number(b.franchise_amount).toFixed(0)}</span>
+                            ) : (
+                              <span className="text-muted-foreground/50 text-xs">—</span>
                             )}
                           </td>
                           <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
