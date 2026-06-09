@@ -1,5 +1,22 @@
 import type { CustomerLite } from "@/components/admin/CustomerCombobox";
 
+export type AddonPricingMode = "per_day" | "total";
+
+export type AddonItem = {
+  id: string;
+  name: string;
+  price: string; // stored as string for input control
+  mode: AddonPricingMode;
+};
+
+export const DEFAULT_ADDON_PRESETS: Omit<AddonItem, "id">[] = [
+  { name: "Motorista adicional", price: "10", mode: "per_day" },
+  { name: "Cadeirinha infantil", price: "8", mode: "per_day" },
+  { name: "Toll Tag (pedágio)", price: "12", mode: "per_day" },
+  { name: "Seguro Premium", price: "25", mode: "per_day" },
+];
+
+
 export type WizardFormState = {
   // Customer
   customer: CustomerLite | null;
@@ -25,13 +42,8 @@ export type WizardFormState = {
   franchise_amount: string;
   deposit_refund_days: string;
 
-  // Extras
-  plan_id: string;
-  extra_driver: boolean;
-  driver_age: string;
-  child_seat: boolean;
-  toll_tag: boolean;
-  premium_insurance: boolean;
+  // Extras (addons dynamic list)
+  addons_list: AddonItem[];
 
   // Payment
   total_price: string;
@@ -42,6 +54,7 @@ export type WizardFormState = {
   // Notes
   notes: string;
 };
+
 
 export const initialWizardForm: WizardFormState = {
   customer: null,
@@ -58,18 +71,17 @@ export const initialWizardForm: WizardFormState = {
   deposit_amount: "",
   franchise_amount: "",
   deposit_refund_days: "30",
-  plan_id: "conforto",
-  extra_driver: false,
-  driver_age: "",
-  child_seat: false,
-  toll_tag: false,
-  premium_insurance: false,
+  addons_list: DEFAULT_ADDON_PRESETS.map((a, i) => ({
+    ...a,
+    id: `preset-${i}-${Math.random().toString(36).slice(2, 8)}`,
+  })),
   total_price: "",
   currency: "USD",
   payment_method: "Cartão de Crédito",
   payment_status: "pending",
   notes: "",
 };
+
 
 export type AiExtractResult = {
   customer_name?: string | null;
