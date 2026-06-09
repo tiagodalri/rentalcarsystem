@@ -18,10 +18,14 @@ import { AiCapturePanel } from "./AiCapturePanel";
 import {
   WIZARD_STEPS,
   initialWizardForm,
+  DEFAULT_ADDON_PRESETS,
   type StepId,
   type WizardFormState,
   type AiExtractResult,
+  type AddonItem,
+  type AddonPricingMode,
 } from "./types";
+
 import { createBooking, checkAvailability } from "@/lib/createBooking";
 import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 
