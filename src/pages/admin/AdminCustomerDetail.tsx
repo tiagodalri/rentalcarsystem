@@ -441,9 +441,12 @@ export default function AdminCustomerDetail() {
                           <div className="flex items-center gap-4 text-[10px] text-muted-foreground ml-11 mt-2">
                             {checkin && (
                               <span>Entrega: {checkin.odometer_reading?.toLocaleString() || "—"} mi · {checkin.fuel_level || "—"}</span>
-...
+                            )}
+                            {checkout && (
                               <span>Devolução: {checkout.odometer_reading?.toLocaleString() || "—"} mi · {checkout.fuel_level || "—"}</span>
-...
+                            )}
+                            {checkin && checkout && checkin.odometer_reading && checkout.odometer_reading && (
+                              <span className="font-medium text-foreground">
                                 {(checkout.odometer_reading - checkin.odometer_reading).toLocaleString()} mi rodadas
                               </span>
                             )}

@@ -609,7 +609,7 @@ export default function AdminBookingDetail() {
               <MetricCard
                 icon={Gauge}
                 label="Milhas Rodadas"
-...
+                value={checkin.odometer_reading && checkout.odometer_reading
                   ? `${(checkout.odometer_reading - checkin.odometer_reading).toLocaleString()} mi`
                   : "—"}
               />

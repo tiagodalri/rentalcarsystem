@@ -280,7 +280,8 @@ export default function AdminVehicleHistory() {
                         </span>
                         {b.checkin?.odometer_reading && (
                           <span>Odômetro entrada: {b.checkin.odometer_reading.toLocaleString("pt-BR")} mi</span>
-...
+                        )}
+                        {b.checkout?.odometer_reading && (
                           <span>Odômetro saída: {b.checkout.odometer_reading.toLocaleString("pt-BR")} mi</span>
                         )}
                       </div>

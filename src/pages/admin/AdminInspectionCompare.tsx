@@ -191,18 +191,18 @@ export default function AdminInspectionCompare() {
         <div className="space-y-4">
           <h2 className="text-lg font-bold text-foreground">Diferenças Detectadas</h2>
 
-          {/* KM difference */}
+          {/* Mileage difference */}
           <Card className="border-border/40">
             <CardContent className="p-4 flex items-center gap-4">
               <Gauge size={20} className="text-primary" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Quilometragem percorrida</p>
+                <p className="text-sm font-medium text-foreground">Milhagem percorrida</p>
                 <p className="text-xs text-muted-foreground">
-                  {checkin.odometer_reading?.toLocaleString("pt-BR") || "?"} → {checkout.odometer_reading?.toLocaleString("pt-BR") || "?"} km
+                  {checkin.odometer_reading?.toLocaleString("pt-BR") || "?"} → {checkout.odometer_reading?.toLocaleString("pt-BR") || "?"} mi
                 </p>
               </div>
               <Badge variant="outline" className="text-lg font-bold">
-                {odometerDiff !== null ? `${odometerDiff.toLocaleString("pt-BR")} km` : "—"}
+                {odometerDiff !== null ? `${odometerDiff.toLocaleString("pt-BR")} mi` : "—"}
               </Badge>
             </CardContent>
           </Card>
