@@ -78,6 +78,34 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   // Persist drafts (form only, not customer object)
   useFormDraft(DRAFT_KEY, form, (next) => setForm(next), phase === "wizard");
 
+  // Persist current step index so user resumes exactly where they left off
+  const STEP_KEY = `${DRAFT_KEY}-step`;
+  useEffect(() => {
+    if (phase !== "wizard") return;
+    try {
+      const raw = localStorage.getItem(STEP_KEY);
+      if (raw !== null) {
+        const n = Number(raw);
+        if (Number.isInteger(n) && n >= 0 && n < WIZARD_STEPS.length) setStepIdx(n);
+      }
+    } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "wizard") return;
+    try { localStorage.setItem(STEP_KEY, String(stepIdx)); } catch { /* ignore */ }
+  }, [stepIdx, phase, STEP_KEY]);
+
+  // Last-saved indicator
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  useEffect(() => {
+    if (phase !== "wizard") return;
+    const t = setTimeout(() => setLastSavedAt(new Date()), 500);
+    return () => clearTimeout(t);
+  }, [form, phase]);
+
+
   const set = <K extends keyof WizardFormState>(k: K, v: WizardFormState[K]) => {
     setForm((p) => ({ ...p, [k]: v }));
     if (aiKeys.has(k as string)) {
