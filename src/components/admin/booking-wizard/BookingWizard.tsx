@@ -948,13 +948,23 @@ function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; day
       </Block>
 
       <Block title="Opcionais" target="extras">
-        <Row label="Plano" value={form.plan_id} />
-        <Row label="Idade do motorista" value={form.driver_age} />
-        <Row label="Motorista adicional" value={form.extra_driver ? "Sim" : "Não"} />
-        <Row label="Cadeirinha" value={form.child_seat ? "Sim" : "Não"} />
-        <Row label="Toll Tag" value={form.toll_tag ? "Sim" : "Não"} />
-        <Row label="Seguro Premium" value={form.premium_insurance ? "Sim" : "Não"} />
+        {form.addons_list.length === 0 ? (
+          <Row label="Opcionais" value="Nenhum" />
+        ) : (
+          form.addons_list.map((a) => {
+            const price = Number(a.price) || 0;
+            const total = a.mode === "per_day" ? price * Math.max(days, 1) : price;
+            return (
+              <Row
+                key={a.id}
+                label={a.name || "Opcional"}
+                value={`$${total.toFixed(2)} (${a.mode === "per_day" ? `$${price.toFixed(2)}/dia` : "valor total"})`}
+              />
+            );
+          })
+        )}
       </Block>
+
 
       <Block title="Pagamento" target="payment">
         <Row label="Total" value={form.total_price ? `${form.currency === "USD" ? "$" : "R$"} ${Number(form.total_price).toFixed(2)}` : ""} aiKey="total_price" />
