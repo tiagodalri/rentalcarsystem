@@ -52,13 +52,13 @@ const PAYMENT_METHODS = [
 const STEP_ICONS: Record<StepId, any> = {
   customer: Users,
   vehicle: Car,
-  pickup: MapPin,
-  return: MapPin,
+  schedule: MapPin,
   deposit: Shield,
   extras: Wrench,
   payment: CreditCard,
   review: FileCheck2,
 };
+
 
 const AI_BADGE = (
   <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary">
