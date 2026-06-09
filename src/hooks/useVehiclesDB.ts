@@ -44,7 +44,7 @@ export function useVehiclesDB() {
 
     supabase
       .from("vehicles")
-      .select("id, name, category, daily_price_usd, passengers, bags, transmission, fuel, year, status, features, image_url, published, photos")
+      .select("id, name, category, daily_price_usd, passengers, bags, transmission, fuel, year, status, features, image_url, published, photos, brand, model, model_year, color, license_plate, doors, default_deposit_amount, default_franchise_amount")
       .eq("published", true)
       .is("deleted_at", null)
       .order("daily_price_usd", { ascending: false })
