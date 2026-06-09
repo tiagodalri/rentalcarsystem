@@ -26,6 +26,8 @@ export type WizardFormState = {
 
   // Vehicle
   vehicle_id: string;
+  daily_price_override: string; // editable daily rate, defaults to vehicle's configured price
+
 
   // Pickup
   pickup_date: string;
