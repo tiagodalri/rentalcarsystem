@@ -343,19 +343,19 @@ function Stepper({ stepIdx, onJump, stepValid }: { stepIdx: number; onJump: (i: 
             <div key={s.id} className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => i <= stepIdx && onJump(i)}
-                disabled={i > stepIdx}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-all ${
+                onClick={() => onJump(i)}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
                   active
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : completed
                       ? "bg-primary/15 text-primary hover:bg-primary/25"
-                      : "bg-muted text-muted-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                 }`}
               >
                 {completed ? <Check size={11} /> : <Icon size={11} />}
                 <span className="whitespace-nowrap">{s.title}</span>
               </button>
+
               {i < WIZARD_STEPS.length - 1 && (
                 <div className={`w-4 h-px ${i < stepIdx ? "bg-primary/40" : "bg-border"}`} />
               )}
