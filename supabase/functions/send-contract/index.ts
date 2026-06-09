@@ -799,7 +799,6 @@ Deno.serve(async (req) => {
               signature_request: "email",
               signature_reminder: "email",
             },
-            auths: ["email"],
           },
         },
       });
@@ -819,7 +818,7 @@ Deno.serve(async (req) => {
               signature_request: "email",
               signature_reminder: "email",
             },
-            auths: ["email"],
+            
           },
         },
       });
