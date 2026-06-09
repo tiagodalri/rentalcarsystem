@@ -670,44 +670,77 @@ function InfoRow({ icon: Icon, label, value, mono }: { icon: any; label: string;
   );
 }
 
-function PickupStep({ form, set, aiKeys }: StepProps) {
+function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <FieldLabel ai={aiKeys.has("pickup_date")}>Data de retirada *</FieldLabel>
-          <BookingDateField value={form.pickup_date} onChange={(v) => set("pickup_date", v)} />
+    <div className="space-y-5">
+      {/* Retirada */}
+      <div className="rounded-xl border border-border/50 bg-card p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+            <MapPin size={14} />
+          </div>
+          <h3 className="text-sm font-semibold">Retirada</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <FieldLabel ai={aiKeys.has("pickup_date")}>Data *</FieldLabel>
+            <BookingDateField value={form.pickup_date} onChange={(v) => set("pickup_date", v)} />
+          </div>
+          <div>
+            <FieldLabel ai={aiKeys.has("pickup_time")}>Horário *</FieldLabel>
+            <Input type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} className="h-11" />
+          </div>
         </div>
         <div>
-          <FieldLabel ai={aiKeys.has("pickup_time")}>Horário</FieldLabel>
-          <Input type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} className="h-11" />
+          <FieldLabel ai={aiKeys.has("pickup_location")}>Local de retirada</FieldLabel>
+          <AddressAutocomplete value={form.pickup_location} onChange={(v) => set("pickup_location", v)} placeholder="Aeroporto, hotel, endereço..." />
+        </div>
+        <div>
+          <FieldLabel>Observações da retirada</FieldLabel>
+          <Textarea
+            value={form.pickup_notes}
+            onChange={(e) => set("pickup_notes", e.target.value)}
+            placeholder="Ex: cliente vai pegar com o motorista, levar cadeirinha, etc."
+            rows={2}
+            className="resize-none"
+          />
         </div>
       </div>
-      <div>
-        <FieldLabel ai={aiKeys.has("pickup_location")}>Local de retirada</FieldLabel>
-        <AddressAutocomplete value={form.pickup_location} onChange={(v) => set("pickup_location", v)} placeholder="Aeroporto, hotel, endereço..." />
-      </div>
-    </div>
-  );
-}
 
-function ReturnStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
-  return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <FieldLabel ai={aiKeys.has("return_date")}>Data de devolução *</FieldLabel>
-          <BookingDateField value={form.return_date} onChange={(v) => set("return_date", v)} />
+      {/* Devolução */}
+      <div className="rounded-xl border border-border/50 bg-card p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center">
+            <MapPin size={14} />
+          </div>
+          <h3 className="text-sm font-semibold">Devolução</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <FieldLabel ai={aiKeys.has("return_date")}>Data *</FieldLabel>
+            <BookingDateField value={form.return_date} onChange={(v) => set("return_date", v)} />
+          </div>
+          <div>
+            <FieldLabel ai={aiKeys.has("return_time")}>Horário *</FieldLabel>
+            <Input type="time" value={form.return_time} onChange={(e) => set("return_time", e.target.value)} className="h-11" />
+          </div>
         </div>
         <div>
-          <FieldLabel ai={aiKeys.has("return_time")}>Horário</FieldLabel>
-          <Input type="time" value={form.return_time} onChange={(e) => set("return_time", e.target.value)} className="h-11" />
+          <FieldLabel ai={aiKeys.has("return_location")}>Local de devolução</FieldLabel>
+          <AddressAutocomplete value={form.return_location} onChange={(v) => set("return_location", v)} placeholder="Aeroporto, hotel, endereço..." />
+        </div>
+        <div>
+          <FieldLabel>Observações da devolução</FieldLabel>
+          <Textarea
+            value={form.return_notes}
+            onChange={(e) => set("return_notes", e.target.value)}
+            placeholder="Ex: deixar com tanque cheio, exigência específica, etc."
+            rows={2}
+            className="resize-none"
+          />
         </div>
       </div>
-      <div>
-        <FieldLabel ai={aiKeys.has("return_location")}>Local de devolução</FieldLabel>
-        <AddressAutocomplete value={form.return_location} onChange={(v) => set("return_location", v)} placeholder="Aeroporto, hotel, endereço..." />
-      </div>
+
       {days > 0 && (
         <div className="rounded-xl bg-primary/10 border border-primary/30 px-4 py-3 text-sm">
           Duração da locação: <span className="font-semibold tabular-nums">{days} {days === 1 ? "dia" : "dias"}</span>
@@ -716,6 +749,7 @@ function ReturnStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
     </div>
   );
 }
+
 
 function DepositStep({ form, set, aiKeys }: StepProps) {
   return (
