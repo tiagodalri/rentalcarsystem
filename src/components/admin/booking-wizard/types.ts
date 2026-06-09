@@ -56,16 +56,6 @@ export type WizardFormState = {
 };
 
 
-  // Payment
-  total_price: string;
-  currency: "USD" | "BRL";
-  payment_method: string;
-  payment_status: "pending" | "paid";
-
-  // Notes
-  notes: string;
-};
-
 export const initialWizardForm: WizardFormState = {
   customer: null,
   customer_name: "",
@@ -81,18 +71,17 @@ export const initialWizardForm: WizardFormState = {
   deposit_amount: "",
   franchise_amount: "",
   deposit_refund_days: "30",
-  plan_id: "conforto",
-  extra_driver: false,
-  driver_age: "",
-  child_seat: false,
-  toll_tag: false,
-  premium_insurance: false,
+  addons_list: DEFAULT_ADDON_PRESETS.map((a, i) => ({
+    ...a,
+    id: `preset-${i}-${Math.random().toString(36).slice(2, 8)}`,
+  })),
   total_price: "",
   currency: "USD",
   payment_method: "Cartão de Crédito",
   payment_status: "pending",
   notes: "",
 };
+
 
 export type AiExtractResult = {
   customer_name?: string | null;
