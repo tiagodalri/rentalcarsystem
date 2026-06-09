@@ -249,6 +249,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
           name: a.name,
           price: Number(a.price) || 0,
           mode: a.mode,
+          quantity: isCountableAddon(a.name) ? Math.max(Number(a.quantity) || 1, 1) : 1,
         })),
         payment_schedule: {
           status: form.payment_status,
