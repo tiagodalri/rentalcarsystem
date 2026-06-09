@@ -503,25 +503,6 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
         />
       </div>
 
-      <div className="flex flex-wrap gap-1.5">
-        <button
-          type="button"
-          onClick={() => setFilter("all")}
-          className={`text-[11px] px-2.5 py-1 rounded-full font-medium ${filter === "all" ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
-        >
-          Todos
-        </button>
-        {categories.map((c) => (
-          <button
-            key={c}
-            type="button"
-            onClick={() => setFilter(c)}
-            className={`text-[11px] px-2.5 py-1 rounded-full font-medium ${filter === c ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[480px] overflow-y-auto pr-1">
         {filtered.length === 0 && (
