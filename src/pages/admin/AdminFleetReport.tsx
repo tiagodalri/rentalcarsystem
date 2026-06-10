@@ -16,6 +16,7 @@ import {
 import { EmptyState } from "@/components/admin/EmptyState";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { aggregateAddons, calcVehicleOccupancyPct } from "@/lib/fleetMetrics";
 
 type VehicleReport = {
   id: string;
@@ -143,19 +144,15 @@ export default function AdminFleetReport({ embedded = false }: { embedded?: bool
   const damageRanking = [...report].filter((r) => r.damageCount > 0).sort((a, b) => b.damageCount - a.damageCount).slice(0, 10);
 
   // Addon revenue calculations
-  const addonTotals = bookings.reduce(
-    (acc, b: any) => {
-      const addons = b.addons || {};
-      acc.planExtra += Number(addons.plan_extra) || 0;
-      acc.insurance += Number(addons.insurance_total) || 0;
-      acc.childSeat += Number(addons.child_seat_total) || 0;
-      acc.tollTag += Number(addons.toll_tag_total) || 0;
-      acc.extraDriver += Number(addons.extra_driver_total) || 0;
-      acc.returnFee += Number(addons.return_fee) || 0;
-      return acc;
-    },
-    { planExtra: 0, insurance: 0, childSeat: 0, tollTag: 0, extraDriver: 0, returnFee: 0 }
-  );
+  const _addons = aggregateAddons(bookings as any);
+  const addonTotals = {
+    planExtra: _addons.plan_extra,
+    insurance: _addons.insurance_total,
+    childSeat: _addons.child_seat_total,
+    tollTag: _addons.toll_tag_total,
+    extraDriver: _addons.extra_driver_total,
+    returnFee: _addons.return_fee,
+  };
 
   const addonChartData = [
     { name: "Upgrade de Plano", value: addonTotals.planExtra, icon: "✨" },
