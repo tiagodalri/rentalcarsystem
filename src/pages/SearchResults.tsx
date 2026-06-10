@@ -43,6 +43,7 @@ const SearchResults = () => {
 
   // Build vehicles list from DB
   const vehicles: SearchVehicle[] = dbVehicles.map((dbv) => ({
+    id: dbv.id,
     name: dbv.name,
     categoryKey: categoryToKey(dbv.category),
     passengers: dbv.passengers,
