@@ -70,6 +70,13 @@ const SearchResults = () => {
     ? Math.max(1, Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)))
     : 1;
 
+  // Fetch real pricing (seasons, overrides, weekend multipliers, duration discounts)
+  const { map: pricingMap } = useVehiclesPricingMap(
+    vehicles.map((v) => v.id),
+    pickupDate,
+    returnDate,
+  );
+
   const whatsappMsg = (name: string) => {
     const dateInfo = pickupDate
       ? `\nRetirada: ${format(pickupDate, "dd/MM/yyyy", { locale: pt })} às ${pickupTime}\nLocal: ${pickupLocation}`
