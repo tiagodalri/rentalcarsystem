@@ -133,7 +133,7 @@ const App = () => (
               {/* Admin routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<RequireRole roles={["admin","finance","operations","support"]}><AdminSuspense><AdminDashboard /></AdminSuspense></RequireRole>} />
+                <Route index element={<RequireRole roles={["admin","finance","operations","support"]}><AdminSuspense><AdminPainel /></AdminSuspense></RequireRole>} />
                 <Route path="bookings" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookings /></AdminSuspense></RequireRole>} />
                 <Route path="bookings/:bookingId" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookingDetail /></AdminSuspense></RequireRole>} />
                 <Route path="live" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminLive /></AdminSuspense></RequireRole>} />
