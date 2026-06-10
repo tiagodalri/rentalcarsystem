@@ -161,12 +161,12 @@ export default function AdminOpsToday() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
 
       {/* ────────── HEADER ────────── */}
-      <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-5">
+      <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
         <div className="min-w-0">
-          <div className="inline-flex items-center gap-1.5 mb-3">
+          <div className="inline-flex items-center gap-1.5 mb-1.5">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -175,47 +175,49 @@ export default function AdminOpsToday() {
               Painel de operação · {isToday ? "hoje" : "outro dia"}
             </span>
           </div>
-          <h1 className="admin-h1">
-            <span className="capitalize">{dayLabel}</span>
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1 capitalize">{weekdayLabel}</p>
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <h1 className="admin-h1 text-2xl leading-none">
+              <span className="capitalize">{dayLabel}</span>
+            </h1>
+            <p className="text-xs text-muted-foreground capitalize">{weekdayLabel}</p>
+          </div>
 
           {/* Date navigation */}
-          <div className="mt-3 inline-flex items-center gap-1 rounded-xl border border-border/50 bg-card/70 p-1 shadow-sm">
+          <div className="mt-2 inline-flex items-center gap-1 rounded-xl border border-border/50 bg-card/70 p-1 shadow-sm">
             <button
               onClick={() => setSelectedDate(d => addDays(d, -1))}
-              className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
               aria-label="Dia anterior"
               title="Dia anterior"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={14} />
             </button>
             <button
               onClick={() => setSelectedDate(startOfDay(new Date()))}
               disabled={isToday}
-              className={`h-8 px-3 inline-flex items-center gap-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`h-7 px-2.5 inline-flex items-center gap-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
                 isToday
                   ? "bg-muted text-muted-foreground cursor-default"
                   : "text-foreground hover:bg-muted"
               }`}
               title="Voltar para hoje"
             >
-              <CalendarDays size={13} />
+              <CalendarDays size={12} />
               {isToday ? "Hoje" : format(selectedDate, "dd 'de' MMM", { locale: ptBR })}
             </button>
             <button
               onClick={() => setSelectedDate(d => addDays(d, 1))}
-              className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
               aria-label="Próximo dia"
               title="Próximo dia"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={14} />
             </button>
           </div>
         </div>
 
         {/* Compact KPIs */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 xl:min-w-[640px]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 xl:min-w-[560px]">
           <KpiCard
             icon={<CalendarCheck size={18} className="text-emerald-600 dark:text-emerald-400" />}
             iconBg="bg-emerald-500/15"
@@ -248,7 +250,7 @@ export default function AdminOpsToday() {
 
 
       {/* ────────── PICKUPS + RETURNS (in evidence) ────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* RETIRADAS */}
         <SectionCard
           icon={<CalendarCheck size={18} />}
@@ -345,36 +347,36 @@ export default function AdminOpsToday() {
       </div>
 
 
-      {/* ────────── EM PREPARAÇÃO (compact bottom strip ~20%) ────────── */}
+      {/* ────────── EM PREPARAÇÃO (compact bottom strip) ────────── */}
       <div className="relative rounded-2xl border border-border/40 bg-gradient-to-r from-sky-500/[0.04] via-card/60 to-card/60 overflow-hidden">
         <GarageBackdrop />
-        <div className="relative z-10 p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-3 mb-3">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
-                <Wrench size={16} />
+        <div className="relative z-10 p-3 sm:p-4">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-lg bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                <Wrench size={14} />
               </div>
               <div>
-                <h2 className="text-sm font-medium uppercase tracking-[0.1em] text-sky-600 dark:text-sky-400">
+                <h2 className="text-xs font-medium uppercase tracking-[0.1em] text-sky-600 dark:text-sky-400">
                   Em preparação
                 </h2>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-[10px] text-muted-foreground mt-0.5">
                   Veículos sendo higienizados ou em manutenção
                 </p>
               </div>
             </div>
-            <span className="text-base font-medium tabular-nums text-sky-600 dark:text-sky-400 shrink-0">
+            <span className="text-sm font-medium tabular-nums text-sky-600 dark:text-sky-400 shrink-0">
               {maintenance.length}
             </span>
           </div>
 
           {maintenance.length === 0 ? (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground py-1">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Frota toda pronta para circular.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
               <PrepCategory
                 title="Em manutenção"
                 tone="amber"
@@ -403,30 +405,6 @@ export default function AdminOpsToday() {
 
         </div>
       </div>
-
-      {/* ────────── FOOTER TIPS ────────── */}
-      <div className="rounded-xl border border-border/40 bg-card/40 p-4 flex flex-col sm:flex-row gap-4 sm:gap-8">
-        <div className="flex items-start gap-3 flex-1">
-          <div className="h-9 w-9 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
-            <Clock size={16} className="text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">Fique atento aos horários</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Mantenha as retiradas em dia e garanta a melhor experiência para seus clientes.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-3 flex-1">
-          <div className="h-9 w-9 rounded-full bg-amber-500/15 flex items-center justify-center shrink-0">
-            <Sun size={16} className="text-amber-600 dark:text-amber-400" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">Bom dia.</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Tenha uma operação excelente.</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -440,21 +418,21 @@ function KpiCard({
   valueColor: string; sub: string; waveColor: string;
 }) {
   return (
-    <div className="relative rounded-xl border border-border/40 bg-card/80 p-3.5 overflow-hidden">
-      <div className="flex items-center gap-3 relative z-10">
-        <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${iconBg}`}>
+    <div className="relative rounded-xl border border-border/40 bg-card/80 p-2.5 overflow-hidden">
+      <div className="flex items-center gap-2.5 relative z-10">
+        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${iconBg}`}>
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] uppercase tracking-[0.14em] font-medium text-muted-foreground">
+          <p className="text-[9px] uppercase tracking-[0.14em] font-medium text-muted-foreground">
             {label}
           </p>
-          <p className={`text-2xl font-medium tabular-nums leading-none mt-0.5 ${valueColor}`}>
+          <p className={`text-xl font-medium tabular-nums leading-none mt-0.5 ${valueColor}`}>
             {value}
           </p>
         </div>
       </div>
-      <p className="text-[10px] text-muted-foreground mt-2 relative z-10">{sub}</p>
+      <p className="text-[9px] text-muted-foreground mt-1 relative z-10">{sub}</p>
       {/* decorative wave */}
       <svg
         className={`absolute -right-2 -bottom-1 ${waveColor}`}
@@ -475,21 +453,21 @@ function SectionCard({
   children: React.ReactNode; backdrop?: React.ReactNode;
 }) {
   return (
-    <div className={`relative rounded-2xl border border-border/40 bg-card/60 p-5 overflow-hidden flex flex-col min-h-[460px] ${className}`}>
+    <div className={`relative rounded-2xl border border-border/40 bg-card/60 p-4 overflow-hidden flex flex-col min-h-[320px] ${className}`}>
       {backdrop}
-      <div className="flex items-start justify-between gap-2 mb-4 relative z-10">
-        <div className="flex items-center gap-3">
-          <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${iconBg}`}>
+      <div className="flex items-start justify-between gap-2 mb-3 relative z-10">
+        <div className="flex items-center gap-2.5">
+          <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${iconBg}`}>
             {icon}
           </div>
           <div>
-            <h2 className={`text-sm font-medium uppercase tracking-[0.1em] ${titleColor}`}>
+            <h2 className={`text-xs font-medium uppercase tracking-[0.1em] ${titleColor}`}>
               {title}
             </h2>
             <div className={`mt-1 h-0.5 w-10 rounded-full ${accentColor}`} />
           </div>
         </div>
-        <span className={`text-base font-medium tabular-nums ${countColor}`}>{count}</span>
+        <span className={`text-sm font-medium tabular-nums ${countColor}`}>{count}</span>
       </div>
       <div className="flex-1 relative z-10">{children}</div>
     </div>
