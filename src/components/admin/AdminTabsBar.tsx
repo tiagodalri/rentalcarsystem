@@ -52,9 +52,10 @@ export function AdminTabsBar() {
       aria-label="Abas abertas"
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
     >
-      {tabs.map((t) => {
+      {tabs.map((t, idx) => {
         const active = t.id === activeId;
         const title = getTabTitle(t.path);
+        const isFirst = idx === 0;
         return (
           <div
             key={t.id}
@@ -68,7 +69,8 @@ export function AdminTabsBar() {
               }
             }}
             className={cn(
-              "group relative flex items-center gap-2 h-8 pl-3 pr-1.5 rounded-t-md text-xs cursor-pointer shrink-0 transition-colors max-w-[200px] min-w-[120px]",
+              "group relative flex items-center gap-2 h-8 pl-3 pr-1.5 text-xs cursor-pointer shrink-0 transition-colors max-w-[200px] min-w-[110px]",
+              isFirst ? "rounded-tr-md" : "rounded-t-md",
               active
                 ? "bg-background text-foreground border border-b-0 border-border/60 -mb-px z-10"
                 : "text-muted-foreground hover:text-foreground hover:bg-background/60",
