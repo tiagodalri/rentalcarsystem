@@ -290,20 +290,20 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
 
       {/* Bloco 1 — Operacional */}
       <section className="space-y-3">
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Operacional</h2>
+        <h2 className="admin-section-title">Operacional</h2>
         {renderCardGrid(operationalCards)}
       </section>
 
       {/* Bloco 2 — Frota */}
       <section className="space-y-3">
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Frota</h2>
+        <h2 className="admin-section-title">Frota</h2>
         {renderCardGrid(fleetCards)}
       </section>
 
       {/* Bloco 3 — Financeiro */}
       {showFinancial && (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Financeiro</h2>
+          <h2 className="admin-section-title">Financeiro</h2>
           {renderCardGrid(financeCards, "grid-cols-2 lg:grid-cols-3")}
         </section>
       )}
@@ -311,7 +311,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
       {/* Bloco 4 — Alertas Operacionais */}
       {showAlerts && (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Alertas Operacionais</h2>
+          <h2 className="admin-section-title">Alertas Operacionais</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {alertCards.map((alert) => {
               const hasAlert = alert.value > 0;
