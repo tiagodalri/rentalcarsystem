@@ -351,6 +351,55 @@ export default function AdminInspection() {
   const odometerPhotoRef = useRef<HTMLInputElement>(null);
   const fuelPhotoRef = useRef<HTMLInputElement>(null);
 
+  // Webcam dialog (desktop only — mobile uses native camera via input capture)
+  const isTouchDevice = typeof window !== "undefined"
+    && window.matchMedia?.("(pointer: coarse)").matches;
+  const [webcamTarget, setWebcamTarget] = useState<
+    | null
+    | { kind: "exterior"; position: string }
+    | { kind: "damage"; damageId: string }
+    | { kind: "odometer" }
+    | { kind: "fuel" }
+  >(null);
+  const webcamTitle =
+    webcamTarget?.kind === "exterior" ? `Foto: ${webcamTarget.position}`
+    : webcamTarget?.kind === "damage" ? "Foto da avaria"
+    : webcamTarget?.kind === "odometer" ? "Foto do odômetro"
+    : webcamTarget?.kind === "fuel" ? "Foto do tanque"
+    : "Capturar foto";
+
+  const handleWebcamFile = async (file: File) => {
+    if (!webcamTarget) return;
+    setUploading(true);
+    try {
+      if (webcamTarget.kind === "exterior") {
+        const url = await uploadPhoto(file, webcamTarget.position.replace(/\s/g, "_"));
+        if (url) {
+          setPhotos((prev) => {
+            const filtered = prev.filter((p) => p.position !== webcamTarget.position);
+            return [...filtered, { id: crypto.randomUUID(), position: webcamTarget.position, url }];
+          });
+        }
+      } else if (webcamTarget.kind === "damage") {
+        const url = await uploadPhoto(file, `damage-${webcamTarget.damageId.substring(0, 8)}`);
+        if (url) {
+          setDamages((prev) =>
+            prev.map((d) => (d.id === webcamTarget.damageId ? { ...d, photoUrl: url } : d))
+          );
+        }
+      } else if (webcamTarget.kind === "odometer") {
+        const url = await uploadPhoto(file, "odometro");
+        if (url) setOdometerPhoto(url);
+      } else if (webcamTarget.kind === "fuel") {
+        const url = await uploadPhoto(file, "tanque_combustivel");
+        if (url) setFuelPhoto(url);
+      }
+    } finally {
+      setUploading(false);
+      setWebcamTarget(null);
+    }
+  };
+
   useEffect(() => {
     loadData();
   }, [bookingId]);
