@@ -3,6 +3,7 @@ import {
   FileText,
   ShieldCheck,
   FileSignature,
+  ClipboardCheck,
   Paperclip,
   Upload,
   Trash2,
@@ -11,7 +12,7 @@ import {
 } from "lucide-react";
 import { inputCls, labelCls } from "./types";
 
-export type DocType = "purchase_contract" | "vehicle_registration" | "insurance_policy" | "other";
+export type DocType = "purchase_contract" | "vehicle_registration" | "insurance_policy" | "inspection_report" | "other";
 
 export type PendingDocument = {
   id: string;
@@ -53,6 +54,14 @@ const SLOTS: Slot[] = [
     title: "Apólice de seguro",
     description: "Apólice vigente do veículo.",
     Icon: ShieldCheck,
+    showExpiry: true,
+    customName: false,
+  },
+  {
+    type: "inspection_report",
+    title: "Laudo / Vistoria",
+    description: "Laudo cautelar ou vistoria mais recente.",
+    Icon: ClipboardCheck,
     showExpiry: true,
     customName: false,
   },
