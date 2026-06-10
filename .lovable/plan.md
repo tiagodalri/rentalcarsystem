@@ -1,110 +1,118 @@
-## Objetivo
+## Diagnóstico do estado atual
 
-Transformar o registro de reserva em uma **jornada guiada por etapas**, com a opção da IA pré-preencher tudo antes do wizard começar. Ao final, uma tela de revisão editável confirma e cria a reserva — já marcada como aprovada, porém com selos visíveis de **contrato pendente** e **pagamento pendente**, que dão baixa automaticamente quando concluídos.
+```
+Hoje:
+- 30 dias fixos, scroll horizontal
+- 1 só barra por reserva, sem hover
+- Sem filtros, sem busca, sem marca
+- Coluna do veículo simples (nome + categoria)
+- Legenda solta, KPIs zero
+- Sem ação ao clicar
+```
 
----
+## Visão da nova versão
 
-## Fluxo proposto (UX)
+Um **centro de operação** estilo HQ/airline-ops: header com KPIs em tempo real, barra de controles densa, timeline rica com logos e info contextual.
 
-### Caminho IA
-1. **Tela de captura** (atual painel "Extrair dados com IA", isolada — sem formulário embaixo)
-   - Anexar print/PDF, colar texto, gravar áudio
-   - Botão único: **"Interpretar com IA"**
-   - Loading com feedback ("Lendo documento...", "Identificando cliente...", "Cruzando com a frota...")
-2. Após sucesso → entra no **Wizard** com campos pré-preenchidos e badge "Sugerido pela IA" em cada campo tocado pela IA
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│  Calendário da Frota          [Hoje] [<][30 jun – 29 jul][>]    │
+│  ▸ 24 veículos • 18 reservas • 67% ocupação • 6 entregas hoje   │
+├─────────────────────────────────────────────────────────────────┤
+│  [Buscar...]  Status▾  Categoria▾  Marca▾  Escala: 7d|14d|30d|60│
+├──────────────┬──────────────────────────────────────────────────┤
+│ VEÍCULO      │ TER QUA QUI SEX SÁB DOM SEG TER QUA QUI SEX ...  │
+│              │ 10  11  12  13  14  15  16  17  18  19  20      │
+│ ┌─┐ Audi Q7  │░░░░│■■■■■■■■■■■■■■■■░░░░│■■■■■■                  │
+│ │A│ SUV Prem │    │ Alessandro Rossi   │ Maria S.               │
+│ └─┘ ABC-1234 │    │ ZRC-0142 • 5 dias  │ ZRC-0151 • 3 dias      │
+│ ┌─┐ BMW 330  │■■■■■■■■■■░░░░░░░░░░░░░░░│                        │
+│ │B│ Sedan    │ João Pereira • ZRC-0118 │                        │
+│ └─┘ XYZ-5678 │                         │                        │
+└──────────────┴──────────────────────────────────────────────────┘
+```
 
-### Caminho Manual
-- Pula direto ao **Wizard** com tudo vazio
+## Funcionalidades novas
 
-### Wizard (7 etapas + revisão)
-Header sticky com stepper horizontal (1/7, barra de progresso dourada), botões **Voltar / Avançar** no rodapé, atalho `Enter` para avançar:
+**Header / KPIs**
+- Janela navegável: Hoje · ← · intervalo · → · seletor de data direto.
+- 4 KPIs ao vivo: veículos ativos, reservas no período, % ocupação, entregas/devoluções de hoje.
 
-| # | Etapa | Conteúdo |
-|---|-------|----------|
-| 1 | **Cliente** | Buscar existente ou criar novo (reaproveita CustomerCombobox). IA pode pré-selecionar via match por nome/email/telefone; se não achar, abre "Criar novo" pré-preenchido |
-| 2 | **Veículo** | Grid visual da frota com cards (foto, nome, diária). IA marca o sugerido com selo "Sugerido". Filtro por categoria |
-| 3 | **Retirada** | Data + hora + local (com AddressAutocomplete) |
-| 4 | **Devolução** | Data + hora + local. Mostra duração calculada em destaque |
-| 5 | **Caução & Franquia** | Valor caução, valor franquia, prazo para devolução do caução (dias) |
-| 6 | **Opcionais** | Plano (Essencial/Conforto/Premium), motorista adicional, idade do motorista, addons |
-| 7 | **Pagamento** | Valor total (auto-calculado, editável), forma de pagamento (Pix/Cartão/Dinheiro/Stripe/Outro), status inicial do pagamento (Pendente / Pago) |
-| ✓ | **Revisão** | Página única com todos os blocos em modo leitura, cada bloco com botão "Editar" que volta à etapa. Botão final: **Confirmar e criar reserva** |
+**Barra de filtros (sticky)**
+- Busca por cliente / placa / nº reserva.
+- Multi-filtro: Status, Categoria, Marca.
+- Escala: 7 / 14 / 30 / 60 dias (re-densifica barras).
+- Toggle "Mostrar canceladas".
 
-### Pós-criação
-A reserva é criada com `status = 'confirmed'` e dois sub-status visíveis no card/detalhe:
-- **Contrato:** Pendente → Enviado → Assinado (já integrado via Clicksign)
-- **Pagamento:** Pendente → Pago
+**Coluna do veículo (linha)**
+- Avatar com **logotipo da marca** (usa `CAR_LOGO_CDN` já existente em `src/data/carBrands.ts`).
+- Nome + versão + placa em mono.
+- Pílula de status do veículo (disponível, em manutenção, alugado…).
+- Click → abre detalhes do veículo.
 
-Quando os dois ficam OK, o badge geral muda para "Aprovada — completa". Caso contrário, mostra chips: "Contrato pendente" e/ou "Pagamento pendente".
+**Barras de reserva**
+- Cantos arredondados com gradient sutil + ícone do status à esquerda.
+- Texto adaptativo: nome curto quando estreito, completo quando largo.
+- **Hover popover** com tudo: cliente, telefone, nº reserva, datas, dias, plano, valor total, motorista adicional, retirada/devolução.
+- **Click** → abre detalhe da reserva.
+- **Faixa "hoje"** vertical destacada cruzando todas as linhas.
+- Marcadores de **fim-de-semana** sutis na grade.
+- Listras vermelhas finas em dias sem reserva quando o carro está "em manutenção".
 
----
+**Legendas e densidade**
+- Legenda como chips clicáveis que filtram (toggle).
+- Modo compacto/confortável (altura da linha 36 / 52).
 
-## Detalhes técnicos
+**Estado vazio**
+- Quando o filtro zera resultados: card amigável com botão "Limpar filtros".
 
-### Banco de dados (migration)
-Adicionar à tabela `bookings`:
-- `payment_status text not null default 'pending'` (valores: `pending`, `paid`, `refunded`, `partial`)
-- `payment_method text` (`pix`, `card`, `cash`, `stripe`, `other`)
-- `paid_at timestamptz`
+## Arquitetura técnica
 
-`contract_status` já existe — manter. Sem mudanças de RLS.
+Refatoração de `src/pages/admin/AdminFleetGantt.tsx` em componentes:
 
-### Arquivos a criar
-- `src/components/admin/booking-wizard/BookingWizard.tsx` — orquestrador (state global do form + stepper)
-- `src/components/admin/booking-wizard/WizardStepper.tsx` — barra de progresso
-- `src/components/admin/booking-wizard/WizardFooter.tsx` — botões Voltar/Avançar
-- `src/components/admin/booking-wizard/steps/StepCustomer.tsx`
-- `src/components/admin/booking-wizard/steps/StepVehicle.tsx`
-- `src/components/admin/booking-wizard/steps/StepPickup.tsx`
-- `src/components/admin/booking-wizard/steps/StepReturn.tsx`
-- `src/components/admin/booking-wizard/steps/StepDepositFranchise.tsx`
-- `src/components/admin/booking-wizard/steps/StepExtras.tsx`
-- `src/components/admin/booking-wizard/steps/StepPayment.tsx`
-- `src/components/admin/booking-wizard/steps/StepReview.tsx`
-- `src/components/admin/booking-wizard/AiCapturePanel.tsx` — tela inicial de captura (caminho IA)
-- `src/components/admin/booking-wizard/types.ts` — `WizardFormState`, `AiSuggestedFields`
+```
+src/components/admin/fleet-calendar/
+  FleetCalendar.tsx          # container, fetch, estado
+  CalendarHeader.tsx         # título + KPIs + navegação
+  CalendarFilters.tsx        # busca, status, categoria, marca, escala
+  CalendarGrid.tsx           # grid de dias + linha "hoje" + fim-de-semana
+  VehicleRow.tsx             # linha (logo marca + placa + status)
+  BookingBar.tsx             # barra (gradient, ícone, hover popover)
+  BookingPopover.tsx         # conteúdo do hover
+  useFleetCalendarData.ts    # hook de dados + agregações (KPIs)
+```
 
-### Arquivos a editar
-- `src/pages/admin/AdminBookingNew.tsx` — após escolher modo, renderiza `<BookingWizard mode="ai|manual" />` em vez do `NewBookingDialog`
-- `src/components/admin/NewBookingDialog.tsx` — **mantido como está**, ainda usado em outros pontos (`AdminBookings`, agenda etc.). Não quebra nada.
-- Lugares que mostram status da reserva (`AdminBookingDetail`, `BookingCard`, listagem) — adicionar chips de contrato/pagamento pendentes
-- `src/data/bookingTypes.ts` — adicionar `payment_status`, `payment_method`
+- Reaproveita `CAR_LOGO_CDN` + `slugFromName()` (já existe) para o logo.
+- Reaproveita `STATUS_COLORS` mas troca por design tokens HSL (sem hardcode de cores).
+- `react-query` com staleTime 60s para filtros não dispararem refetch.
+- Popover via `@/components/ui/popover` (já no projeto).
+- Sem novas libs.
 
-### Estado do wizard
-Um único `useState<WizardFormState>` no `BookingWizard` é repassado por props às etapas (`value` + `onChange`). Cada etapa valida só seus campos antes de liberar "Avançar". `aiSuggestedKeys: Set<string>` controla quais campos mostram o selo dourado "IA".
+## Regras visuais
+- Off-white #fafafa / preto #0a0a0a (memória core).
+- `tabular-nums` em datas, valores, dias, ABC-1234.
+- Sem emojis. Ícones Lucide: `Car`, `Wrench`, `CalendarDays`, `Filter`, `Search`, `LayoutGrid`, `ChevronLeft/Right`, `Circle` (status), `MoreHorizontal`.
+- Densidade Linear/Notion: linhas 44px (confortável padrão), bordas suaves, grid quase invisível.
 
-### Persistência intermediária
-Usar `useFormDraft` (já existe no projeto) com chave `booking-wizard-draft` para não perder dados em refresh.
+## O que NÃO vou incluir (para não inflar)
+- Drag-to-move/resize de reservas (proponho num passo seguinte; muda lógica de booking).
+- Visão de **mês calendário tradicional** (você já tem em Reservas).
+- Criação de reserva via clique no calendário (também próxima iteração).
+- Print/export PDF.
 
-### Aproveitamento
-- Lógica de criação final (insert na `bookings`) reaproveita o handler de submit do `NewBookingDialog` extraído para `src/lib/createBooking.ts`
-- `extract-booking` edge function: sem mudanças
-- `VoiceRecorder`, `OcrReviewPanel`, `CustomerCombobox`, `AddressAutocomplete`, `BookingDateField`: reaproveitados
+Esses 3 itens entram numa fase 2 se você quiser, após validar a base.
 
----
-
-## O que NÃO está no escopo desta entrega
-- Mudar o fluxo do cliente público (`/booking`)
-- Refatorar `EditBookingDialog`
-- Mudar a integração Clicksign (já existe e dispara baixa automática)
-
----
-
-## Como testar depois de pronto
-1. Ir em **Reservas → Nova reserva → Utilizar Auxiliar de IA**
-2. Colar um texto de WhatsApp e clicar "Interpretar"
-3. Confirmar que o wizard abre na etapa 1 com cliente sugerido
-4. Passar pelas 7 etapas, conferir validações e selos "IA"
-5. Na revisão, editar um campo, confirmar e criar
-6. Conferir que a reserva aparece na listagem com chips "Contrato pendente" + "Pagamento pendente"
-7. Marcar pagamento como pago → chip some
-8. Assinar contrato no Clicksign → chip some → badge vira "Aprovada — completa"
-
----
+## Como vou testar
+1. Abrir `/admin/calendar` (rota atual) — KPIs batem com a query.
+2. Filtrar por marca "BMW" — só linhas BMW.
+3. Mudar escala 30 → 60 — barras recompõem corretamente.
+4. Hover em uma reserva — popover com todos os campos.
+5. Buscar por nº reserva — uma linha apenas.
+6. Mobile (375px) — KPIs viram 2x2, filtros viram dropdown sanduíche, timeline scroll horizontal.
 
 ## Riscos
-- Wizard longo pode cansar — mitigado pelo pré-preenchimento da IA e `useFormDraft`
-- `NewBookingDialog` continua sendo usado em outros pontos; manter compatibilidade
-- Migration adiciona colunas com default seguro, sem quebrar dados existentes
+- Logos do CDN podem demorar / falhar → fallback avatar com inicial da marca + cor do brand-hash.
+- Performance com 50+ veículos × 60 dias → barras virtualizadas só se passar disso (não vou virtualizar agora).
+- `category` na tabela pode estar como "SUV Premium" e quebrar filtros de marca; vou normalizar via `slugFromName(brand)`.
 
-Quer que eu siga com esse plano ou ajusto alguma etapa antes (ordem, agrupamento, campos extras)?
+Confirma o escopo, ou quer cortar/adicionar algo antes de eu codar?
