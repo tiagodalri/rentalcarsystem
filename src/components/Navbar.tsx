@@ -80,7 +80,7 @@ const Navbar = () => {
           <Home size={20} />
         </a>
 
-        {/* Desktop */}
+        {/* Desktop links */}
         <div className="hidden lg:flex items-center gap-6">
           {navLinks.map((link) =>
             link.isRoute ? (
@@ -102,81 +102,131 @@ const Navbar = () => {
             )
           )}
 
-          {/* Fullscreen Toggle */}
+          {/* Fullscreen — único item solto, ao lado do menu */}
           <button
             onClick={toggleFullscreen}
             className="text-muted-foreground hover:text-primary transition-colors duration-300"
             aria-label="Tela cheia"
+            title="Tela cheia"
           >
             {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
 
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="text-muted-foreground hover:text-primary transition-colors duration-300"
-            aria-label="Alternar tema"
-          >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-
-          {/* Language Switcher */}
+          {/* Menu agrupado — tema, idioma, moeda, reservar, conta, admin */}
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors duration-300 outline-none">
-              <Globe size={18} />
-              <span className="text-sm font-medium uppercase tracking-wider">{languageFlags[language]}</span>
+            <DropdownMenuTrigger
+              className="flex items-center justify-center h-9 w-9 rounded-lg text-muted-foreground hover:text-primary hover:bg-muted/40 transition-colors outline-none"
+              aria-label="Abrir menu"
+              title="Menu"
+            >
+              <Menu size={20} />
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-background/95 backdrop-blur-xl border-border/40">
-              {languages.map((lang) => (
-                <DropdownMenuItem
-                  key={lang}
-                  onClick={() => setLanguage(lang)}
-                  className={`cursor-pointer gap-2 ${language === lang ? "text-primary font-semibold" : ""}`}
-                >
-                  <span>{languageFlags[lang]}</span>
-                  <span>{languageLabels[lang]}</span>
-                </DropdownMenuItem>
-              ))}
+            <DropdownMenuContent
+              align="end"
+              className="bg-background/95 backdrop-blur-xl border-border/40 min-w-[240px] p-1.5"
+            >
+              {/* Reservar — destaque no topo */}
+              <a
+                href="https://wa.me/16892981754"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="gold-gradient text-primary-foreground px-3 py-2 rounded-md text-xs font-bold uppercase tracking-widest flex items-center justify-center hover:opacity-90 transition-opacity"
+              >
+                {t.nav.book}
+              </a>
+
+              <div className="my-1.5 border-t border-border/40" />
+
+              {/* Conta */}
+              <DropdownMenuItem
+                onClick={() => navigate(isLoggedIn ? "/minha-conta" : "/login")}
+                className="cursor-pointer gap-2 px-2 py-2"
+              >
+                {isLoggedIn && user ? (
+                  <>
+                    <span className="w-5 h-5 rounded-full gold-gradient flex items-center justify-center text-primary-foreground text-[9px] font-bold">
+                      {user.name.charAt(0)}
+                    </span>
+                    <span className="text-xs font-medium tracking-wider uppercase">
+                      {user.name.split(" ")[0]}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <User size={15} />
+                    <span className="text-xs font-medium tracking-wider uppercase">
+                      {t.nav.myBookings}
+                    </span>
+                  </>
+                )}
+              </DropdownMenuItem>
+
+              {/* Tema */}
+              <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer gap-2 px-2 py-2">
+                {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+                <span className="text-xs font-medium tracking-wider uppercase">
+                  {theme === "dark" ? "Modo claro" : "Modo escuro"}
+                </span>
+              </DropdownMenuItem>
+
+              {/* Idioma — submenu in-place */}
+              <div className="px-2 py-1.5">
+                <div className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.18em] uppercase text-muted-foreground mb-1.5">
+                  <Globe size={12} /> Idioma
+                </div>
+                <div className="grid grid-cols-3 gap-1">
+                  {languages.map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => setLanguage(lang)}
+                      className={`h-8 rounded-md text-sm flex items-center justify-center gap-1 transition-colors ${
+                        language === lang
+                          ? "bg-primary/15 text-primary font-semibold"
+                          : "hover:bg-muted text-muted-foreground"
+                      }`}
+                      title={languageLabels[lang]}
+                    >
+                      <span>{languageFlags[lang]}</span>
+                      <span className="text-[10px] uppercase">{lang}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Moeda */}
+              <div className="px-2 py-1.5">
+                <div className="text-[10px] font-semibold tracking-[0.18em] uppercase text-muted-foreground mb-1.5">
+                  Moeda
+                </div>
+                <div className="grid grid-cols-2 gap-1">
+                  {(["USD", "BRL"] as const).map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => { if (currency !== c) toggleCurrency(); }}
+                      className={`h-8 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors ${
+                        currency === c
+                          ? "bg-primary/15 text-primary"
+                          : "hover:bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="my-1.5 border-t border-border/40" />
+
+              {/* Admin discreto no rodapé */}
+              <DropdownMenuItem
+                onClick={() => navigate("/admin/login")}
+                className="cursor-pointer gap-2 px-2 py-2 text-muted-foreground/70"
+              >
+                <Shield size={14} />
+                <span className="text-[11px] tracking-wider uppercase">Admin</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* Currency Toggle */}
-          <CurrencyToggle />
-
-          <a
-            href="https://wa.me/16892981754"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-md shadow-primary/10"
-          >
-            {t.nav.book}
-          </a>
-          <button
-            onClick={() => navigate("/admin/login")}
-            className="flex items-center gap-1.5 text-muted-foreground/50 hover:text-primary transition-colors duration-300"
-            title="Admin"
-          >
-            <Shield size={16} />
-          </button>
-
-          <button
-            onClick={() => navigate(isLoggedIn ? "/minha-conta" : "/login")}
-            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors duration-300"
-            title={t.nav.myBookings}
-          >
-            {authLoading ? (
-              <span className="w-6 h-6 rounded-full bg-muted animate-pulse" />
-            ) : isLoggedIn && user ? (
-              <>
-                <span className="w-6 h-6 rounded-full gold-gradient flex items-center justify-center text-primary-foreground text-[10px] font-bold">
-                  {user.name.charAt(0)}
-                </span>
-                <span className="text-xs font-medium tracking-wider">{user.name.split(" ")[0]}</span>
-              </>
-            ) : (
-              <User size={18} />
-            )}
-          </button>
         </div>
 
         {/* Mobile toggle */}
