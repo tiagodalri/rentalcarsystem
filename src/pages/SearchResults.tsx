@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import WhatsAppBubble from "@/components/WhatsAppBubble";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { useVehiclesDB, categoryToKey, buildPriceMap } from "@/hooks/useVehiclesDB";
+import { useVehiclesPricingMap } from "@/hooks/useVehiclePricing";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useAuth } from "@/hooks/useAuth";
 import { calculateAge, isBlockedAge, isYoungDriver, YOUNG_DRIVER_SURCHARGE } from "@/lib/age";
