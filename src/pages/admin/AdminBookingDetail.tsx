@@ -753,6 +753,145 @@ export default function AdminBookingDetail() {
             </div>
           </div>
 
+          {/* Detalhamento do pagamento — instrução para o operador */}
+          {(() => {
+            const total = Number(booking.total_price || 0);
+            const deposit = Number(booking.deposit_amount || 0);
+            const franchise = Number(booking.franchise_amount || 0);
+            const ps = (booking.payment_status || "pending").toLowerCase();
+            const isPaid = ps === "paid";
+            const isRefunded = ps === "refunded";
+            const isFailed = ps === "failed";
+            const balanceDue = isPaid ? 0 : total;
+
+            const statusMap: Record<string, { label: string; tone: string; dot: string }> = {
+              paid: { label: "Pago com antecedência", tone: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30", dot: "bg-emerald-500" },
+              pending: { label: "Pagamento pendente", tone: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30", dot: "bg-amber-500" },
+              failed: { label: "Pagamento falhou", tone: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30", dot: "bg-red-500" },
+              refunded: { label: "Reembolsado", tone: "bg-sky-500/10 text-sky-700 dark:text-sky-400 border-sky-500/30", dot: "bg-sky-500" },
+              refund_partial: { label: "Reembolso parcial", tone: "bg-sky-500/10 text-sky-700 dark:text-sky-400 border-sky-500/30", dot: "bg-sky-500" },
+            };
+            const st = statusMap[ps] || statusMap.pending;
+
+            const methodMap: Record<string, string> = {
+              card: "Cartão",
+              credit_card: "Cartão de crédito",
+              debit_card: "Cartão de débito",
+              pix: "PIX",
+              cash: "Dinheiro",
+              bank_transfer: "Transferência",
+              stripe: "Stripe",
+            };
+
+            return (
+              <div className="mt-2 rounded-xl border border-border/40 bg-card/40 overflow-hidden">
+                <div className="px-5 py-3 border-b border-border/30 flex items-center justify-between gap-3">
+                  <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                    Detalhamento do pagamento
+                  </h3>
+                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border ${st.tone}`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${st.dot}`} />
+                    {st.label}
+                  </span>
+                </div>
+
+                <div className="divide-y divide-border/30">
+                  <div className="flex justify-between py-2.5 px-5">
+                    <span className="text-sm text-muted-foreground">Valor total</span>
+                    <span className="text-sm font-semibold text-foreground tabular-nums">${total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between py-2.5 px-5">
+                    <span className="text-sm text-muted-foreground">Já pago</span>
+                    <span className={`text-sm font-semibold tabular-nums ${isPaid ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
+                      {isPaid ? `$${total.toFixed(2)}` : "$0.00"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2.5 px-5">
+                    <span className="text-sm text-muted-foreground">Forma de pagamento</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {booking.payment_method ? (methodMap[booking.payment_method] || booking.payment_method) : "—"}
+                    </span>
+                  </div>
+                  {booking.paid_at && (
+                    <div className="flex justify-between py-2.5 px-5">
+                      <span className="text-sm text-muted-foreground">Pago em</span>
+                      <span className="text-sm font-semibold text-foreground tabular-nums">
+                        {new Date(booking.paid_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between py-2.5 px-5">
+                    <span className="text-sm text-muted-foreground">Caução {deposit > 0 ? "(reter na retirada)" : ""}</span>
+                    <span className={`text-sm font-semibold tabular-nums ${deposit > 0 ? "text-foreground" : "text-muted-foreground"}`}>
+                      {deposit > 0 ? `$${deposit.toFixed(2)}` : "Não aplicável"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-2.5 px-5">
+                    <span className="text-sm text-muted-foreground">Franquia (responsabilidade)</span>
+                    <span className="text-sm font-semibold text-foreground tabular-nums">
+                      {franchise > 0 ? `$${franchise.toFixed(2)}` : "—"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Banner de orientação ao operador */}
+                <div className={`px-5 py-3 border-t border-border/30 ${
+                  balanceDue > 0 || deposit > 0
+                    ? "bg-amber-500/[0.06]"
+                    : "bg-emerald-500/[0.06]"
+                }`}>
+                  {balanceDue > 0 ? (
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                      <div className="text-xs leading-relaxed">
+                        <p className="font-bold text-amber-700 dark:text-amber-400">
+                          Cobrar na retirada: <span className="tabular-nums">${balanceDue.toFixed(2)}</span>
+                        </p>
+                        <p className="text-muted-foreground mt-0.5">
+                          O cliente ainda não pagou a reserva. Confirme o pagamento antes de entregar o veículo
+                          {deposit > 0 ? <> e retenha a caução de <span className="tabular-nums font-semibold text-foreground">${deposit.toFixed(2)}</span></> : ""}.
+                        </p>
+                      </div>
+                    </div>
+                  ) : isRefunded ? (
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle size={15} className="text-sky-600 dark:text-sky-400 mt-0.5 shrink-0" />
+                      <div className="text-xs leading-relaxed">
+                        <p className="font-bold text-sky-700 dark:text-sky-400">Reserva reembolsada</p>
+                        <p className="text-muted-foreground mt-0.5">Confirme com a gerência antes de prosseguir com a entrega.</p>
+                      </div>
+                    </div>
+                  ) : isFailed ? (
+                    <div className="flex items-start gap-2.5">
+                      <AlertTriangle size={15} className="text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
+                      <div className="text-xs leading-relaxed">
+                        <p className="font-bold text-red-700 dark:text-red-400">Pagamento falhou</p>
+                        <p className="text-muted-foreground mt-0.5">Não entregue o veículo sem confirmar nova cobrança.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-2.5">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                      <div className="text-xs leading-relaxed">
+                        <p className="font-bold text-emerald-700 dark:text-emerald-400">
+                          Reserva quitada — nenhum valor a cobrar na retirada.
+                        </p>
+                        <p className="text-muted-foreground mt-0.5">
+                          {deposit > 0
+                            ? <>Apenas retenha a caução de <span className="tabular-nums font-semibold text-foreground">${deposit.toFixed(2)}</span> no cartão do cliente.</>
+                            : "Pode liberar o veículo após a vistoria de entrega."}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+
+
           {booking.notes && (
             <div className="bg-muted/30 p-6 rounded-xl border border-border/30">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
