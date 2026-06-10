@@ -423,7 +423,8 @@ export default function AdminInspection() {
         }
       } else if (webcamTarget.kind === "odometer") {
         const url = await uploadPhoto(file, "odometro");
-        if (url) setOdometerPhoto(url);
+        if (url) { setOdometerPhoto(url); setFuelPhoto(url); }
+
       } else if (webcamTarget.kind === "fuel") {
         const url = await uploadPhoto(file, "tanque_combustivel");
         if (url) setFuelPhoto(url);
@@ -528,7 +529,8 @@ export default function AdminInspection() {
     if (!file) return;
     setUploading(true);
     const url = await uploadPhoto(file, "odometro");
-    if (url) setOdometerPhoto(url);
+    if (url) { setOdometerPhoto(url); setFuelPhoto(url); }
+
     setUploading(false);
     if (odometerPhotoRef.current) odometerPhotoRef.current.value = "";
   };
@@ -790,8 +792,8 @@ export default function AdminInspection() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Odometer column */}
-              <div className="flex flex-col gap-4">
+              {/* Odometer input */}
+              <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-foreground">Leitura do Odômetro (mi)</label>
                 <Input
                   type="number"
@@ -802,40 +804,10 @@ export default function AdminInspection() {
                   className="tabular-nums"
                   disabled={isCompleted}
                 />
-                <div className="flex-1 flex flex-col">
-                  <label className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                    <Camera size={12} /> Foto do Odômetro
-                  </label>
-                  {odometerPhoto ? (
-                    <div className="relative group flex-1">
-                      <img src={odometerPhoto} alt="Odômetro" className="w-full h-full min-h-[180px] object-cover rounded-lg border border-border/40" />
-                      {!isCompleted && (
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                          <Button size="sm" variant="secondary" onClick={captureOdometerPhoto} className="h-7 text-xs">
-                            <Camera size={12} /> Refazer
-                          </Button>
-                          <Button size="sm" variant="destructive" onClick={() => setOdometerPhoto("")} className="h-7 text-xs">
-                            <Trash2 size={12} />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => !isCompleted && captureOdometerPhoto()}
-                      disabled={isCompleted || uploading}
-                      className="flex-1 min-h-[180px] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
-                    >
-                      <Camera size={24} />
-                      <span className="text-xs font-medium">Tirar foto do odômetro</span>
-                      <span className="text-[10px] text-muted-foreground/70">Focalize o painel mostrando a milhagem claramente</span>
-                    </button>
-                  )}
-                </div>
               </div>
 
-              {/* Fuel column */}
-              <div className="flex flex-col gap-4">
+              {/* Fuel selector */}
+              <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium text-foreground">Nível de Combustível</label>
                 <div className="flex items-center gap-3">
                   <Fuel size={20} className="text-muted-foreground shrink-0" />
@@ -849,7 +821,7 @@ export default function AdminInspection() {
                     {FUEL_LEVELS.find((f) => f.value === fuelLevel)?.label}
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 pt-1">
                   {FUEL_LEVELS.map((f) => (
                     <button
                       key={f.value}
@@ -865,37 +837,39 @@ export default function AdminInspection() {
                     </button>
                   ))}
                 </div>
-                <div className="flex-1 flex flex-col">
-                  <label className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                    <Camera size={12} /> Foto do Tanque de Combustível
-                  </label>
-                  {fuelPhoto ? (
-                    <div className="relative group flex-1">
-                      <img src={fuelPhoto} alt="Combustível" className="w-full h-full min-h-[180px] object-cover rounded-lg border border-border/40" />
-                      {!isCompleted && (
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                          <Button size="sm" variant="secondary" onClick={captureFuelPhoto} className="h-7 text-xs">
-                            <Camera size={12} /> Refazer
-                          </Button>
-                          <Button size="sm" variant="destructive" onClick={() => setFuelPhoto("")} className="h-7 text-xs">
-                            <Trash2 size={12} />
-                          </Button>
-                        </div>
-                      )}
+              </div>
+            </div>
+
+            {/* Unified dashboard photo */}
+            <div className="flex flex-col">
+              <label className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                <Camera size={12} /> Foto do Painel Aceso
+              </label>
+              {odometerPhoto ? (
+                <div className="relative group">
+                  <img src={odometerPhoto} alt="Painel do veículo" className="w-full h-auto max-h-[320px] object-cover rounded-lg border border-border/40" />
+                  {!isCompleted && (
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+                      <Button size="sm" variant="secondary" onClick={captureOdometerPhoto} className="h-7 text-xs">
+                        <Camera size={12} /> Refazer
+                      </Button>
+                      <Button size="sm" variant="destructive" onClick={() => { setOdometerPhoto(""); setFuelPhoto(""); }} className="h-7 text-xs">
+                        <Trash2 size={12} />
+                      </Button>
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => !isCompleted && captureFuelPhoto()}
-                      disabled={isCompleted || uploading}
-                      className="flex-1 min-h-[180px] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
-                    >
-                      <Camera size={24} />
-                      <span className="text-xs font-medium">Tirar foto do indicador de combustível</span>
-                      <span className="text-[10px] text-muted-foreground/70">Focalize o painel mostrando o nível do tanque</span>
-                    </button>
                   )}
                 </div>
-              </div>
+              ) : (
+                <button
+                  onClick={() => !isCompleted && captureOdometerPhoto()}
+                  disabled={isCompleted || uploading}
+                  className="min-h-[200px] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
+                >
+                  <Camera size={28} />
+                  <span className="text-sm font-medium">Tirar foto do painel aceso</span>
+                  <span className="text-[11px] text-muted-foreground/70">Mostre claramente o odômetro e o indicador de combustível</span>
+                </button>
+              )}
             </div>
 
             {uploading && (
@@ -906,6 +880,7 @@ export default function AdminInspection() {
           </CardContent>
         </Card>
       )}
+
 
       {/* Step 1: Exterior Photos */}
       {step === 1 && (
