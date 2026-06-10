@@ -175,7 +175,7 @@ export default function AdminOpsToday() {
               Painel de operação · {isToday ? "hoje" : "outro dia"}
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+          <h1 className="admin-h1">
             <span className="capitalize">{dayLabel}</span>
           </h1>
           <p className="text-sm text-muted-foreground mt-1 capitalize">{weekdayLabel}</p>
