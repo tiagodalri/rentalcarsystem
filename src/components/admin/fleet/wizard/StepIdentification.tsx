@@ -18,7 +18,7 @@ export default function StepIdentification({ form, set }: Props) {
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label className={labelCls}>Marca *</label>
-        <input className={inputCls} value={form.brand} onChange={(e) => set({ brand: e.target.value })} placeholder="Ex: Toyota" />
+        <BrandAutocomplete value={form.brand} onChange={(v) => set({ brand: v })} />
       </div>
       <div>
         <label className={labelCls}>Modelo *</label>
