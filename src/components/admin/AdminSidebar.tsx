@@ -53,7 +53,7 @@ const menuSections: MenuSection[] = [
     label: "Operações",
     items: [
       { title: "Dashboard",     url: "/admin",           icon: LayoutDashboard, allowedRoles: ["admin","finance","operations","support"] },
-      { title: "Operação Hoje", url: "/admin/ops-today", icon: Sparkles,        allowedRoles: ["admin","operations","support"] },
+      { title: "Operação", url: "/admin/ops-today", icon: Sparkles,        allowedRoles: ["admin","operations","support"] },
       { title: "Live",          url: "/admin/live",      icon: Radio,           allowedRoles: ["admin","operations"] },
     ],
   },
