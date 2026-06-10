@@ -30,7 +30,7 @@ export default function MiniLocationMap({ address, height = 160, className = "" 
         let coords = geoCache.get(address);
         if (coords === undefined) {
           const geocoder = new google.maps.Geocoder();
-          const result = await new Promise<google.maps.GeocoderResult[] | null>((resolve) => {
+          const result = await new Promise<any[] | null>((resolve) => {
             geocoder.geocode({ address }, (res: any, status: any) => {
               if (status === "OK" && res && res.length) resolve(res);
               else resolve(null);
