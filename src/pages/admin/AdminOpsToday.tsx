@@ -51,7 +51,7 @@ export default function AdminOpsToday() {
           .eq("return_date", today)
           .in("status", ["confirmed", "active", "in_progress"])
           .order("return_time"),
-        supabase.from("vehicles").select("id, name, status"),
+        supabase.from("vehicles").select("id, name, status, brand"),
       ]);
 
       const vMap: Record<string, Vehicle> = {};
