@@ -139,12 +139,9 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                       className="flex items-center gap-2.5 text-left"
                     >
                       <div className="h-9 w-12 rounded-md bg-muted/40 overflow-hidden shrink-0 flex items-center justify-center">
-                        {thumb ? (
-                          <img src={thumb} alt={v.name} className="w-full h-full object-cover" loading="lazy" />
-                        ) : (
-                          <Car size={14} className="text-muted-foreground/40" />
-                        )}
+                        <VehicleThumb name={v.name} src={thumb} />
                       </div>
+
                       <span className="font-medium text-foreground whitespace-nowrap">{v.name}</span>
                     </button>
                   </td>
