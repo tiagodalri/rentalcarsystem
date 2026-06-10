@@ -288,11 +288,11 @@ export default function AdminLive() {
             ) : filtered.length === 0 ? (
               <EmptyState
                 icon={Activity}
-                title={noTelemetry ? "Sem telemetria ainda" : "Nenhum veículo neste filtro"}
+                title={noTelemetry ? "Sem telemetria ainda" : "Nenhum veículo encontrado"}
                 description={
                   noTelemetry
                     ? "Cadastre o IMEI Bouncie em cada veículo e aguarde os primeiros eventos do rastreador."
-                    : "Ajuste o filtro acima para ver outros veículos."
+                    : "Tente outro termo na busca."
                 }
                 compact
               />
