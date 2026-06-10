@@ -1262,7 +1262,7 @@ export default function AdminBookings() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border/30 bg-muted/20">
-                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Cliente</th>
+                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap min-w-[200px]">Cliente</th>
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Veículo</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Retirada</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Hora</th>
@@ -1288,7 +1288,7 @@ export default function AdminBookings() {
                           onClick={() => navigate(`/admin/bookings/${b.id}`)}
                           className="border-b border-border/10 hover:bg-muted/20 transition-colors cursor-pointer group"
                         >
-                          <td className="px-5 py-3.5">
+                          <td className="px-5 py-3.5 whitespace-nowrap min-w-[200px]">
                             <p className="text-foreground font-medium text-[13px]">{formatName(b.customer_name)}</p>
                           </td>
                           <td className="px-5 py-3.5 border-l-2 border-border/60">
