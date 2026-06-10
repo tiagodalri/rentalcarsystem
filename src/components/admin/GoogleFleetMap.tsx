@@ -325,6 +325,7 @@ const HEADING_LERP_PER_FRAME = 0.18;
 const FOLLOW_PAN_INTERVAL_MS = 800;
 const FOLLOW_EDGE_PX = 110;
 const PROGRAMMATIC_PAN_GUARD_MS = 350;
+const PROGRAMMATIC_ZOOM_GUARD_MS = 450;
 
 // easeInOutCubic — soft start/end like Uber/Bouncie
 function ease(t: number): number {
@@ -372,6 +373,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const followRef = useRef<boolean>(false);
   const lastFollowPanRef = useRef<number>(0);
   const programmaticPanAtRef = useRef<number>(0);
+  const programmaticZoomAtRef = useRef<number>(0);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [following, setFollowing] = useState<boolean>(false);
@@ -416,6 +418,8 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           isFractionalZoomEnabled: true,
           clickableIcons: true,
           keyboardShortcuts: true,
+          draggableCursor: "grab",
+          draggingCursor: "grabbing",
         });
         containerRef.current.style.touchAction = "none";
         containerRef.current.style.overscrollBehavior = "contain";
