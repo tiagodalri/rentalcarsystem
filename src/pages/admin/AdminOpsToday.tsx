@@ -228,45 +228,33 @@ export default function AdminOpsToday() {
               Frota toda pronta para circular.
             </div>
           ) : (
-            <>
-              <div className="flex flex-wrap gap-2">
-                {(showAllPrep ? maintenance : maintenance.slice(0, 12)).map(v => (
-                  <button
-                    key={v.id}
-                    onClick={() => navigate(`/admin/fleet/${v.id}`)}
-                    className="group inline-flex items-center gap-2 rounded-full border border-border/40 bg-background/70 hover:bg-background hover:border-border/70 hover:shadow-sm pl-2 pr-3 py-1.5 transition-all"
-                  >
-                    <span className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 ${
-                      v.status === "maintenance"
-                        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-                        : "bg-sky-500/15 text-sky-600 dark:text-sky-400"
-                    }`}>
-                      <Car size={11} />
-                    </span>
-                    <span className="text-xs font-medium text-foreground truncate max-w-[160px] group-hover:text-primary">
-                      {v.name}
-                    </span>
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider ${
-                      v.status === "maintenance"
-                        ? "text-amber-600 dark:text-amber-400"
-                        : "text-sky-600 dark:text-sky-400"
-                    }`}>
-                      {v.status === "maintenance" ? "Manut." : "Prep."}
-                    </span>
-                  </button>
-                ))}
-              </div>
-              {maintenance.length > 12 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+              <PrepCategory
+                title="Em manutenção"
+                tone="amber"
+                vehicles={prepGroups.maintenance}
+                expanded={showAllPrep}
+                onNavigate={(id) => navigate(`/admin/fleet/${id}`)}
+              />
+              <PrepCategory
+                title="Em preparação"
+                tone="sky"
+                vehicles={prepGroups.preparing}
+                expanded={showAllPrep}
+                onNavigate={(id) => navigate(`/admin/fleet/${id}`)}
+              />
+              {(prepGroups.maintenance.length > 8 || prepGroups.preparing.length > 8) && (
                 <button
                   onClick={() => setShowAllPrep(!showAllPrep)}
-                  className="mt-3 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 transition-colors inline-flex items-center gap-1"
+                  className="md:col-span-2 mt-1 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 transition-colors inline-flex items-center justify-center gap-1"
                 >
                   {showAllPrep ? "Recolher" : `Ver todos (${maintenance.length})`}
                   <ChevronDown size={12} className={showAllPrep ? "rotate-180 transition-transform" : "transition-transform"} />
                 </button>
               )}
-            </>
+            </div>
           )}
+
         </div>
       </div>
 
