@@ -1,5 +1,6 @@
 import { WizardForm, inputCls, labelCls, CATEGORIES, FEATURE_OPTIONS } from "./types";
-import { Check } from "lucide-react";
+import { Check, Plus, X } from "lucide-react";
+import { useState } from "react";
 
 type Props = {
   form: WizardForm;
