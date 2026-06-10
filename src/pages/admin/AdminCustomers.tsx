@@ -11,6 +11,7 @@ import { CustomerTagsInline } from "@/components/admin/CustomerTagsManager";
 import { buildWhatsAppUrl, defaultClientMessage } from "@/lib/whatsapp";
 import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
+import { formatPersonName } from "@/lib/formatName";
 
 type Customer = {
   id: string;
@@ -373,58 +374,76 @@ export default function AdminCustomers() {
             <EmptyState icon={Users} title="Nenhum cliente cadastrado" description="Os clientes aparecerão aqui após se cadastrarem ou serem adicionados manualmente." actionLabel="Adicionar Cliente" onAction={() => { setEditing({ ...emptyCustomer }); setIsNew(true); }} compact />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm" style={{ tableLayout: "auto" }}>
                 <thead>
                   <tr className="border-b border-border/30 bg-muted/20">
-                    <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Nome</th>
-                    <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Contato</th>
-                    <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Tags</th>
-                    <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Documento</th>
-                    <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">CNH</th>
-                    <th className="px-5 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Reservas</th>
-                    <th className="px-5 py-3 w-20"></th>
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Cliente</th>
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">E-mail</th>
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Telefone</th>
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Documento</th>
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">CNH</th>
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Tags</th>
+                    <th className="px-4 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Reservas</th>
+                    <th className="px-3 py-3 w-16"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.map((c) => {
                     const wa = buildWhatsAppUrl(c.phone, defaultClientMessage(c.full_name));
+                    const displayName = formatPersonName(c.full_name);
+                    const initials = displayName.split(" ").filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join("");
                     return (
                     <tr key={c.id} onClick={() => navigate(`/admin/customers/${c.id}`)} className="border-b border-border/10 hover:bg-muted/20 transition-colors group cursor-pointer">
-                      <td className="px-5 py-3.5 text-foreground font-medium text-[13px]">{c.full_name}</td>
-                      <td className="px-5 py-3.5">
-                        <p className="text-muted-foreground text-xs">{c.email || "—"}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <p className="text-[11px] text-muted-foreground/60">{c.phone || ""}</p>
-                          {wa && (
-                            <a
-                              href={wa}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[9px] font-semibold hover:bg-emerald-500/20 transition-colors"
-                              title="Enviar WhatsApp"
-                            >
-                              <MessageCircle size={9} /> WA
-                            </a>
-                          )}
+                      <td className="px-4 py-2.5 whitespace-nowrap">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-muted/60 border border-border/40 flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0">
+                            {initials || "?"}
+                          </div>
+                          <span className="text-foreground font-medium text-[13px] truncate max-w-[200px]">{displayName}</span>
                         </div>
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-4 py-2.5 whitespace-nowrap text-muted-foreground text-xs truncate max-w-[220px]">
+                        {c.email || <span className="text-muted-foreground/30">—</span>}
+                      </td>
+                      <td className="px-4 py-2.5 whitespace-nowrap">
+                        {c.phone ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground text-xs font-mono tabular-nums">{c.phone}</span>
+                            {wa && (
+                              <a
+                                href={wa}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-500 text-[9px] font-semibold hover:bg-emerald-500/20 transition-colors"
+                                title="Enviar WhatsApp"
+                              >
+                                <MessageCircle size={9} /> WA
+                              </a>
+                            )}
+                          </div>
+                        ) : <span className="text-muted-foreground/30 text-xs">—</span>}
+                      </td>
+                      <td className="px-4 py-2.5 whitespace-nowrap text-muted-foreground text-xs font-mono tabular-nums">
+                        {c.document_number || <span className="text-muted-foreground/30">—</span>}
+                      </td>
+                      <td className="px-4 py-2.5 whitespace-nowrap text-muted-foreground text-xs font-mono tabular-nums">
+                        {c.driver_license || <span className="text-muted-foreground/30">—</span>}
+                      </td>
+                      <td className="px-4 py-2.5 whitespace-nowrap">
                         <CustomerTagsInline customerId={c.id} />
                       </td>
-                      <td className="px-5 py-3.5 text-muted-foreground text-xs font-mono tabular-nums">{c.document_number || "—"}</td>
-                      <td className="px-5 py-3.5 text-muted-foreground text-xs">{c.driver_license || "—"}</td>
-                      <td className="px-5 py-3.5 text-center">
+                      <td className="px-4 py-2.5 text-center whitespace-nowrap">
                         {c.booking_count ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/8 px-2 py-0.5 rounded-md border border-primary/15">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/8 px-2 py-0.5 rounded-md border border-primary/15 tabular-nums">
                             <FileText size={10} /> {c.booking_count}
                           </span>
                         ) : (
-                          <span className="text-[10px] text-muted-foreground/30">0</span>
+                          <span className="text-[10px] text-muted-foreground/30 tabular-nums">0</span>
                         )}
                       </td>
-                      <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <td className="px-3 py-2.5 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => { setEditing(c); setIsNew(false); }}
                             className="w-7 h-7 rounded-md bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
@@ -444,6 +463,7 @@ export default function AdminCustomers() {
                 </tbody>
               </table>
             </div>
+
           )}
         </CardContent>
       </Card>
