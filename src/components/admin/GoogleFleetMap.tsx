@@ -662,68 +662,38 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     }
   }, [vehicles, selectedId, ready, onSelect]);
 
-  // 2b. Single rAF loop — buffer-replay interpolation + smooth rotation + follow cam
+  // 2b. rAF loop — tween-based interpolation + smooth rotation + follow cam
   useEffect(() => {
     if (!ready) return;
     const states = statesRef.current;
     const markers = markersRef.current;
 
     const tick = () => {
-      const wallNow = Date.now();
-      const renderTime = wallNow - RENDER_DELAY_MS;
+      const now = performance.now();
 
       for (const [id, st] of states) {
         const marker = markers.get(id);
         if (!marker) continue;
 
-        const buf = st.buffer;
-        // Trim very old points (keep at least one)
-        const cutoff = renderTime - BUFFER_TTL_MS;
-        while (buf.length > 1 && buf[1].t < cutoff) buf.shift();
-
-        let display: { lat: number; lng: number };
-        let segA: BufferPoint | null = null;
-        let segB: BufferPoint | null = null;
-
-        if (buf.length === 0) {
-          display = { lat: st.displayLat, lng: st.displayLng };
-        } else if (buf.length === 1 || renderTime <= buf[0].t) {
-          display = { lat: buf[0].lat, lng: buf[0].lng };
-        } else if (renderTime >= buf[buf.length - 1].t) {
-          // No future point yet — hold the latest known so we don't extrapolate.
-          const last = buf[buf.length - 1];
-          display = { lat: last.lat, lng: last.lng };
-        } else {
-          // Find A,B bracketing renderTime
-          let lo = 0, hi = buf.length - 1;
-          while (lo < hi - 1) {
-            const mid = (lo + hi) >> 1;
-            if (buf[mid].t <= renderTime) lo = mid; else hi = mid;
-          }
-          segA = buf[lo];
-          segB = buf[hi];
-          const span = Math.max(1, segB.t - segA.t);
-          const f = Math.min(1, Math.max(0, (renderTime - segA.t) / span));
-          display = {
-            lat: segA.lat + (segB.lat - segA.lat) * f,
-            lng: segA.lng + (segB.lng - segA.lng) * f,
-          };
-        }
-
-        // Update target heading only when we have real motion segment (>= MIN_MOVE)
-        // AND vehicle is actually moving. Otherwise keep last drawn heading.
-        if (segA && segB && st.status === "moving" && st.speed > 1) {
-          const dSeg = haversineM(segA, segB);
-          if (dSeg >= MIN_MOVE_METERS) {
-            st.targetHeading = bearingDeg(segA, segB);
+        // Advance tween if one is active
+        if (st.tween) {
+          const tw = st.tween;
+          const raw = (now - tw.startMs) / tw.durationMs;
+          if (raw >= 1) {
+            st.displayLat = tw.toLat;
+            st.displayLng = tw.toLng;
+            st.tween = null;
+          } else {
+            const f = ease(Math.max(0, raw));
+            st.displayLat = tw.fromLat + (tw.toLat - tw.fromLat) * f;
+            st.displayLng = tw.fromLng + (tw.toLng - tw.fromLng) * f;
           }
         }
-        // Smooth rotation
+
+        // Smooth rotation toward target heading
         st.drawnHeading = lerpAngle(st.drawnHeading, st.targetHeading, HEADING_LERP_PER_FRAME);
 
-        st.displayLat = display.lat;
-        st.displayLng = display.lng;
-        marker.setPosition(display);
+        marker.setPosition({ lat: st.displayLat, lng: st.displayLng });
 
         // Refresh icon only when something visual changed (cheap key compare)
         const headingBucket = Math.round(st.drawnHeading / 3) * 3;
@@ -742,6 +712,8 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           );
         }
       }
+
+
 
       // --- Follow camera (selected vehicle only) ---
       const selId = selectedIdRef.current;
