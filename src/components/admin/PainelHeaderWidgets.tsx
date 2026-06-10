@@ -10,7 +10,7 @@ import {
   CloudLightning,
   type LucideIcon,
 } from "lucide-react";
-import tickerBg from "@/assets/ticker-banner-bg.jpg";
+
 
 /**
  * CNN-style colorful news ticker.
