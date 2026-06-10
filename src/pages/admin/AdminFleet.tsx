@@ -61,6 +61,8 @@ export default function AdminFleet() {
     load();
   }, []);
 
+  useRegisterFab({ icon: Plus, label: "Adicionar veículo", onClick: () => navigate("/admin/fleet/new") });
+
   useEffect(() => {
     try {
       localStorage.setItem(VIEW_KEY, view);
