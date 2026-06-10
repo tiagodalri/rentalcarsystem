@@ -185,7 +185,6 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
   const showAlerts = hasAny(["admin", "operations", "support"]);
 
   const operationalCards: StatCard[] = [
-    { label: "Reservas no Período", value: stats.totalBookings, icon: CalendarRange, color: "text-primary", onClick: goBookings },
     { label: "Ativas / Em Andamento", value: stats.activeBookings, icon: TrendingUp, color: "text-emerald-500", onClick: goBookings },
     { label: "Pendentes", value: stats.pendingBookings, icon: Clock, color: "text-yellow-500", onClick: goBookings },
     { label: "Clientes", value: stats.totalCustomers, icon: Users, color: "text-purple-400", onClick: goCustomers },
@@ -200,23 +199,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
 
   const financeCards: StatCard[] = [
     { label: "Investimento Total", value: fmtUSD(stats.totalInvestment), icon: DollarSign, color: "text-primary", onClick: goFleet },
-    { label: "Receita do Período", value: fmtUSD(stats.monthlyRevenue), icon: TrendingUp, color: "text-emerald-500", onClick: goFinance },
-    { label: "Ticket Medio", value: stats.avgTicket !== null ? fmtUSD2(stats.avgTicket) : "—", icon: Receipt, color: "text-foreground", onClick: goFinance },
-    {
-      label: "Taxa de Ocupacao",
-      value: stats.occupancyRate !== null ? `${stats.occupancyRate}%` : "—",
-      icon: Percent,
-      color: stats.occupancyRate !== null && stats.occupancyRate >= 60 ? "text-emerald-500" : "text-yellow-500",
-      onClick: goFleet,
-    },
     { label: "Custo Medio/Carro", value: fmtUSD(stats.avgCostPerCar), icon: Calculator, color: "text-foreground", onClick: goFleet },
-    {
-      label: "ROI da Frota",
-      value: stats.roiPct === null ? "—" : `${stats.roiPct.toFixed(1)}%`,
-      icon: Percent,
-      color: stats.roiPct !== null && stats.roiPct >= 100 ? "text-emerald-500" : "text-yellow-500",
-      onClick: goFleet,
-    },
   ];
 
   const renderCardGrid = (cards: StatCard[], cols = "grid-cols-2 lg:grid-cols-4") => (
