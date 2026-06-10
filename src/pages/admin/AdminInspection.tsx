@@ -947,7 +947,7 @@ export default function AdminInspection() {
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground mt-4">
-                  {photos.filter((p) => !p.position.startsWith("__")).length}/{PHOTO_POSITIONS.filter((p) => !p.optional).length} fotos obrigatórias capturadas <span className="text-muted-foreground/60">· estribo opcional</span>
+                  {photos.filter((p) => !p.position.startsWith("__")).length}/{PHOTO_POSITIONS.filter((p) => !p.optional).length} fotos obrigatórias capturadas <span className="text-muted-foreground/60">· estepe opcional</span>
                 </p>
               </CardContent>
             </Card>
