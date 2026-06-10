@@ -377,6 +377,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const lastFollowPanRef = useRef<number>(0);
   const programmaticPanAtRef = useRef<number>(0);
   const programmaticZoomAtRef = useRef<number>(0);
+  /** True while user is actively dragging/zooming — we skip marker work to keep gestures buttery. */
+  const interactingRef = useRef<boolean>(false);
+  const lastFrameMsRef = useRef<number>(0);
+  const followFrameCounterRef = useRef<number>(0);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [following, setFollowing] = useState<boolean>(false);
