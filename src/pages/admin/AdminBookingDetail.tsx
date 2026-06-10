@@ -234,7 +234,7 @@ export default function AdminBookingDetail() {
     if (!insp) {
       return (
         <Card className="bg-card/80 border-border/30 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-3 border-b border-border/20 bg-muted/20">
+          <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-border/20 bg-muted/20">
             <div className="flex items-center gap-2">
               {type === "checkin" ? <LogIn size={14} className="text-primary" /> : <LogOut size={14} className="text-primary" />}
               <h3 className="text-sm font-semibold text-foreground">{label}</h3>
@@ -265,7 +265,7 @@ export default function AdminBookingDetail() {
 
     return (
       <Card className="bg-card/80 border-border/30 overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-border/20 bg-muted/20">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-border/20 bg-muted/20">
           <div className="flex items-center gap-2">
             {type === "checkin" ? <LogIn size={14} className="text-primary" /> : <LogOut size={14} className="text-primary" />}
             <h3 className="text-sm font-semibold text-foreground">{label}</h3>
@@ -823,7 +823,7 @@ export default function AdminBookingDetail() {
 
             return (
               <div className="mt-2 rounded-xl border border-border/40 bg-card/40 overflow-hidden">
-                <div className="px-5 py-3 border-b border-border/30 flex items-center justify-between gap-3">
+                <div className="px-4 sm:px-5 py-3 border-b border-border/30 flex items-center justify-between gap-3">
                   <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                     Detalhamento do pagamento
                   </h3>
@@ -834,37 +834,37 @@ export default function AdminBookingDetail() {
                 </div>
 
                 <div className="divide-y divide-border/30">
-                  <div className="flex justify-between py-2.5 px-5">
+                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Valor total</span>
                     <span className="text-sm font-semibold text-foreground tabular-nums">${total.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between py-2.5 px-5">
+                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Já pago</span>
                     <span className={`text-sm font-semibold tabular-nums ${isPaid ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
                       {isPaid ? `$${total.toFixed(2)}` : "$0.00"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2.5 px-5">
+                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Forma de pagamento</span>
                     <span className="text-sm font-semibold text-foreground">
                       {booking.payment_method ? (methodMap[booking.payment_method] || booking.payment_method) : "—"}
                     </span>
                   </div>
                   {booking.paid_at && (
-                    <div className="flex justify-between py-2.5 px-5">
+                    <div className="flex justify-between py-2.5 px-4 sm:px-5">
                       <span className="text-sm text-muted-foreground">Pago em</span>
                       <span className="text-sm font-semibold text-foreground tabular-nums">
                         {new Date(booking.paid_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between py-2.5 px-5">
+                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Caução {deposit > 0 ? "(reter na retirada)" : ""}</span>
                     <span className={`text-sm font-semibold tabular-nums ${deposit > 0 ? "text-foreground" : "text-muted-foreground"}`}>
                       {deposit > 0 ? `$${deposit.toFixed(2)}` : "Não aplicável"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2.5 px-5">
+                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Franquia (responsabilidade)</span>
                     <span className="text-sm font-semibold text-foreground tabular-nums">
                       {franchise > 0 ? `$${franchise.toFixed(2)}` : "—"}
@@ -873,7 +873,7 @@ export default function AdminBookingDetail() {
                 </div>
 
                 {/* Banner de orientação ao operador */}
-                <div className={`px-5 py-3 border-t border-border/30 ${
+                <div className={`px-4 sm:px-5 py-3 border-t border-border/30 ${
                   balanceDue > 0 || deposit > 0
                     ? "bg-amber-500/[0.06]"
                     : "bg-emerald-500/[0.06]"
