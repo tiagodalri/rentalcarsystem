@@ -267,6 +267,35 @@
   border-color: hsl(var(--border) / 0.7);
 }
 
+/* ============================================================
+   ADMIN TABLES — unified typography (13px / weights / tracking)
+   Scoped to .admin-shell. Mirrors the FleetTable reference so
+   every table in the admin panel reads with the same rhythm.
+   ============================================================ */
+.admin-shell table {
+  font-size: 13px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.005em;
+}
+.admin-shell table thead th {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: hsl(var(--muted-foreground) / 0.7);
+}
+.admin-shell table tbody td {
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+/* Monetary / numeric columns keep the tabular rhythm */
+.admin-shell table [class*="text-right"] {
+  font-variant-numeric: tabular-nums;
+}
+
+
+
 
 @layer utilities {
   .text-balance {
