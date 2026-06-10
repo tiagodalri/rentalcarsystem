@@ -89,7 +89,7 @@ export function FleetCalendar() {
       setBookings((b.data as BookingLike[]) || []);
       setLoading(false);
     })();
-  }, [startDate, DAYS_WINDOW, showCancelled]);
+  }, [startDate, DAYS_WINDOW, showCancelled, reloadTick]);
 
   const days = useMemo(
     () => Array.from({ length: DAYS_WINDOW }, (_, i) => addDays(startDate, i)),
