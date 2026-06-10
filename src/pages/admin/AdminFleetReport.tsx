@@ -279,13 +279,11 @@ export default function AdminFleetReport({
                   <defs>
                     {/* Metallic gold with reflective sheen (horizontal bars) */}
                     <linearGradient id="goldShine" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%"   stopColor="#6b4a16" />
-                      <stop offset="18%"  stopColor="#a07a2a" />
-                      <stop offset="42%"  stopColor="#e7c873" />
-                      <stop offset="55%"  stopColor="#fff2c2" />
-                      <stop offset="68%"  stopColor="#e7c873" />
-                      <stop offset="88%"  stopColor="#a07a2a" />
-                      <stop offset="100%" stopColor="#6b4a16" />
+                      <stop offset="0%"   stopColor="#3a2a10" />
+                      <stop offset="25%"  stopColor="#5a4220" />
+                      <stop offset="55%"  stopColor="#8a6a30" />
+                      <stop offset="75%"  stopColor="#a78544" />
+                      <stop offset="100%" stopColor="#c9a35a" />
                     </linearGradient>
                     {/* Soft top-edge highlight to simulate brushed-metal curvature */}
                     <linearGradient id="goldEdge" x1="0" y1="0" x2="0" y2="1">
