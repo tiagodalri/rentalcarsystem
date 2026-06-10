@@ -149,22 +149,27 @@ export default function VehicleWizard() {
         <ol className="grid grid-cols-4 gap-2">
           {STEPS.map(({ id, title, Icon }) => {
             const isActive = step === id;
-            const isDone = step > id || (id < 4 && vehicleId);
+            const isDone = step > id || (id < 4 && !!vehicleId);
+            const isLocked = id === 4 && !vehicleId;
             return (
               <li key={id} className="min-w-0">
                 <button
                   type="button"
                   onClick={() => {
-                    if (id < step) setStep(id as any);
-                    else if (id === 4 && vehicleId) setStep(4);
+                    if (isLocked) {
+                      toast({ title: "Finalize o cadastro", description: "Conclua o passo 3 para liberar fotos e publicação." });
+                      return;
+                    }
+                    setStep(id as 1 | 2 | 3 | 4);
                   }}
-                  disabled={id > step && !(id === 4 && !!vehicleId)}
                   className={`w-full text-left rounded-xl border px-3 py-2.5 transition-colors ${
                     isActive
                       ? "border-primary/60 bg-primary/5"
                       : isDone
                       ? "border-border/40 bg-card/40 hover:bg-accent/40"
-                      : "border-border/30 bg-card/20 opacity-60"
+                      : isLocked
+                      ? "border-border/30 bg-card/20 opacity-60 cursor-not-allowed"
+                      : "border-border/40 bg-card/30 hover:bg-accent/40"
                   }`}
                 >
                   <div className="flex items-center gap-2">
