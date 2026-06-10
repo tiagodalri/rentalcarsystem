@@ -28,21 +28,22 @@ type KpiDef = {
   icon: LucideIcon;
   iconColor: string;
   format: "currency" | "percent" | "number" | "decimal";
-  invertCompare?: boolean; // true when higher = worse (cancellation, expenses)
+  invertCompare?: boolean;
+  emphasis?: boolean; // adds left accent bar (Lucro)
 };
 
 const kpisRow1: KpiDef[] = [
-  { label: "Receita Total", key: "revenue", icon: TrendingUp, iconColor: "text-emerald-400", format: "currency" },
-  { label: "Despesas Totais", key: "expenses", icon: TrendingDown, iconColor: "text-red-400", format: "currency", invertCompare: true },
-  { label: "Lucro Líquido", key: "profit", icon: Wallet, iconColor: "text-emerald-400", format: "currency" },
-  { label: "Margem", key: "margin", icon: BarChart3, iconColor: "text-sky-400", format: "percent" },
+  { label: "Receita Total", key: "revenue", icon: TrendingUp, iconColor: "text-emerald-500", format: "currency" },
+  { label: "Despesas Totais", key: "expenses", icon: TrendingDown, iconColor: "text-rose-500", format: "currency", invertCompare: true },
+  { label: "Lucro Líquido", key: "profit", icon: Wallet, iconColor: "text-primary", format: "currency", emphasis: true },
+  { label: "Margem", key: "margin", icon: BarChart3, iconColor: "text-sky-500", format: "percent" },
 ];
 
 const kpisRow2: KpiDef[] = [
-  { label: "Ticket Médio", key: "ticket", icon: Receipt, iconColor: "text-amber-400", format: "currency" },
-  { label: "Taxa de Ocupação", key: "occupancy", icon: Gauge, iconColor: "text-violet-400", format: "percent" },
-  { label: "Reservas no Período", key: "bookingsCount", icon: CalendarCheck, iconColor: "text-emerald-400", format: "number" },
-  { label: "Cancelamentos", key: "cancellationRate", icon: XCircle, iconColor: "text-red-400", format: "percent", invertCompare: true },
+  { label: "Ticket Médio", key: "ticket", icon: Receipt, iconColor: "text-primary", format: "currency" },
+  { label: "Taxa de Ocupação", key: "occupancy", icon: Gauge, iconColor: "text-violet-500", format: "percent" },
+  { label: "Reservas no Período", key: "bookingsCount", icon: CalendarCheck, iconColor: "text-emerald-500", format: "number" },
+  { label: "Cancelamentos", key: "cancellationRate", icon: XCircle, iconColor: "text-rose-500", format: "percent", invertCompare: true },
 ];
 
 function fmt(value: number, type: KpiDef["format"]): string {
@@ -59,21 +60,17 @@ function deltaPct(cur: number, prev: number): number | null {
 
 function CompareBadge({ delta, invert }: { delta: number | null; invert?: boolean }) {
   if (delta === null) {
-    return <span className="inline-flex items-center text-[10px] font-medium text-zinc-500 mt-2">sem dados anteriores</span>;
+    return <span className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70 mt-2">sem dados anteriores</span>;
+  }
+  if (delta === 0) {
+    return <span className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70 mt-2">sem variação</span>;
   }
   const isUp = delta > 0;
   const good = invert ? !isUp : isUp;
-  if (delta === 0) {
-    return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-zinc-400 bg-zinc-800/60 rounded-full px-2 py-0.5 mt-2">
-        — sem variação
-      </span>
-    );
-  }
-  const color = good ? "text-emerald-400 bg-emerald-400/10" : "text-red-400 bg-red-400/10";
+  const color = good ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400";
   const Icon = isUp ? ArrowUp : ArrowDown;
   return (
-    <span className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 mt-2 ${color}`}>
+    <span className={`inline-flex items-center gap-1 text-[10px] font-semibold tabular-nums mt-2 ${color}`}>
       <Icon className="h-3 w-3" />
       {Math.abs(delta).toFixed(1)}% vs período anterior
     </span>
@@ -84,18 +81,53 @@ function KpiCard({ def, current, previous, showCompare }: { def: KpiDef; current
   const Icon = def.icon;
   const delta = showCompare && previous !== undefined ? deltaPct(current, previous) : null;
   return (
-    <div className="relative rounded-xl bg-zinc-900 border border-zinc-800 p-4 hover:border-zinc-700 transition-colors">
+    <div
+      className={`relative rounded-xl bg-card border border-border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all hover:border-foreground/20 ${
+        def.emphasis ? "border-l-4 border-l-primary" : ""
+      }`}
+    >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[11px] uppercase tracking-wider text-zinc-400 font-medium">{def.label}</p>
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">{def.label}</p>
         <Icon className={`h-4 w-4 ${def.iconColor} shrink-0`} />
       </div>
-      <p className="text-2xl lg:text-3xl font-bold text-white tabular-nums mt-3 break-words">{fmt(current, def.format)}</p>
+      <p className="text-2xl font-bold text-foreground tabular-nums mt-3 break-words tracking-tight">{fmt(current, def.format)}</p>
       {showCompare && <CompareBadge delta={delta} invert={def.invertCompare} />}
     </div>
   );
 }
 
 const periodLabels: Record<Period, string> = { "3m": "3 meses", "6m": "6 meses", "12m": "12 meses", all: "Tudo" };
+
+// Circular gauge for "Tempo Médio de Locação"
+function RentalDaysGauge({ days }: { days: number }) {
+  const max = 30;
+  const pct = Math.min(days / max, 1);
+  const r = 58;
+  const c = 2 * Math.PI * r;
+  const offset = c * (1 - pct);
+  return (
+    <div className="relative flex items-center justify-center">
+      <svg className="w-32 h-32 -rotate-90" viewBox="0 0 128 128">
+        <circle cx="64" cy="64" r={r} className="stroke-muted" strokeWidth="8" fill="transparent" />
+        <circle
+          cx="64"
+          cy="64"
+          r={r}
+          className="stroke-primary"
+          strokeWidth="8"
+          fill="transparent"
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+        />
+      </svg>
+      <div className="absolute flex flex-col items-center">
+        <span className="text-4xl font-black text-foreground tabular-nums tracking-tight">{days.toFixed(1)}</span>
+        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">dias</span>
+      </div>
+    </div>
+  );
+}
 
 export function OverviewTab() {
   const data = useFinanceOverview();
@@ -107,13 +139,15 @@ export function OverviewTab() {
     <div className="space-y-6">
       {/* Period selector */}
       <div className="flex items-center justify-end">
-        <div className="inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full p-0.5">
+        <div className="inline-flex items-center bg-card border border-border rounded-full p-1">
           {(Object.keys(periodLabels) as Period[]).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all ${
-                period === p ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-400 hover:text-white"
+              className={`text-[11px] uppercase tracking-wider px-3 py-1 rounded-full font-bold transition-all ${
+                period === p
+                  ? "bg-foreground text-background shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {periodLabels[p]}
@@ -123,54 +157,64 @@ export function OverviewTab() {
       </div>
 
       {/* KPIs row 1 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpisRow1.map((def) => (
           <KpiCard key={def.key} def={def} current={current[def.key]} previous={previous?.[def.key]} showCompare={showCompare} />
         ))}
       </div>
 
       {/* KPIs row 2 */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpisRow2.map((def) => (
           <KpiCard key={def.key} def={def} current={current[def.key]} previous={previous?.[def.key]} showCompare={showCompare} />
         ))}
       </div>
 
       {/* Destaques: Top 5 + Tempo médio */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-6 lg:col-span-2">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-amber-400" />
-              Top 5 Veículos por Receita
-            </h3>
-            <span className="text-[10px] uppercase tracking-wider text-zinc-500">no período</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="rounded-xl bg-card border border-border p-6 lg:col-span-2 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-primary/10 text-primary rounded-lg">
+                <Trophy className="h-4 w-4" />
+              </div>
+              <h3 className="text-sm font-bold text-foreground">Top 5 Veículos por Receita</h3>
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">No Período</span>
           </div>
           {topVehicles.length === 0 ? (
             <EmptyState icon={DollarSign} title="Sem receita no período" description="Os veículos com maior faturamento aparecerão aqui." compact />
           ) : (
-            <ol className="space-y-3">
+            <ol className="space-y-5">
               {topVehicles.map((v, idx) => {
                 const max = topVehicles[0].revenue || 1;
                 const pct = (v.revenue / max) * 100;
+                const isTop = idx === 0;
                 return (
-                  <li key={v.vehicleId} className="group">
-                    <div className="flex items-center justify-between mb-1.5 gap-3">
+                  <li key={v.vehicleId} className="space-y-2">
+                    <div className="flex items-center justify-between text-sm gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 text-zinc-400 text-xs font-bold tabular-nums shrink-0">
-                          {idx + 1}
+                        <span
+                          className={`flex items-center justify-center w-6 h-6 rounded text-[10px] font-bold tabular-nums shrink-0 ${
+                            isTop ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {String(idx + 1).padStart(2, "0")}
                         </span>
-                        <span className="text-sm text-white font-medium truncate">{v.name}</span>
+                        <span className="font-semibold text-foreground truncate">{v.name}</span>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-bold text-white tabular-nums">
+                        <p className="text-sm font-bold text-foreground tabular-nums">
                           ${v.revenue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
-                        <p className="text-[10px] text-zinc-500 tabular-nums">{v.bookings} reservas</p>
+                        <p className="text-[10px] uppercase font-medium text-muted-foreground tabular-nums">{v.bookings} reservas</p>
                       </div>
                     </div>
-                    <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
-                      <div className="h-full rounded-full bg-emerald-400/70" style={{ width: `${pct}%` }} />
+                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all ${isTop ? "bg-primary" : "bg-muted-foreground/40"}`}
+                        style={{ width: `${pct}%` }}
+                      />
                     </div>
                   </li>
                 );
@@ -179,37 +223,33 @@ export function OverviewTab() {
           )}
         </div>
 
-        <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-6 flex flex-col">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Clock className="h-4 w-4 text-violet-400" />
-              Tempo Médio de Locação
-            </h3>
+        <div className="rounded-xl bg-card border border-border p-6 flex flex-col items-center justify-center text-center shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+          <div className="p-3 bg-muted/50 rounded-full mb-5 border border-border">
+            <Clock className="h-5 w-5 text-muted-foreground" />
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center py-8">
-            <p className="text-5xl font-bold text-white tabular-nums">{avgRentalDays.toFixed(1)}</p>
-            <p className="text-sm text-zinc-400 mt-1">dias por reserva</p>
-            <p className="text-[10px] text-zinc-500 mt-4 text-center">
-              média de reservas concluídas
-              <br />
-              no período selecionado
-            </p>
-          </div>
+          <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-5">
+            Tempo Médio de Locação
+          </h3>
+          <RentalDaysGauge days={avgRentalDays} />
+          <p className="text-sm font-medium text-foreground mt-5">dias por reserva</p>
+          <p className="text-[11px] text-muted-foreground leading-relaxed mt-3 max-w-[200px]">
+            Média baseada em reservas concluídas no período selecionado.
+          </p>
         </div>
       </div>
 
       {/* Charts row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5">
-          <h3 className="text-sm font-bold text-white mb-4">Receita vs Despesas</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="rounded-xl bg-card border border-border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+          <h3 className="text-sm font-bold text-foreground mb-5">Receita vs Despesas</h3>
           {monthlyData.length === 0 ? (
             <EmptyState icon={BarChart3} title="Sem movimentação" description="Os indicadores aparecem conforme reservas e despesas forem registradas." compact />
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={monthlyData} barGap={2}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#a1a1aa" }} />
-                <YAxis tick={{ fontSize: 10, fill: "#a1a1aa" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                 <Tooltip
                   {...darkTooltipProps}
                   formatter={(value: number, name: string) => [
@@ -217,30 +257,30 @@ export function OverviewTab() {
                     name === "revenue" ? "Receita" : name === "expenses" ? "Despesas" : "Incidentes",
                   ]}
                 />
-                <Legend formatter={(v) => (v === "revenue" ? "Receita" : v === "expenses" ? "Despesas" : "Incidentes")} />
-                <Bar dataKey="revenue" fill="#34d399" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="expenses" fill="#f87171" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="incidents" fill="#fbbf24" radius={[4, 4, 0, 0]} />
+                <Legend formatter={(v) => (v === "revenue" ? "Receita" : v === "expenses" ? "Despesas" : "Incidentes")} wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expenses" fill="#f43f5e" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="incidents" fill="#a1a1aa" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
         </div>
 
-        <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5">
-          <h3 className="text-sm font-bold text-white mb-4">Fluxo de Caixa Acumulado</h3>
+        <div className="rounded-xl bg-card border border-border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+          <h3 className="text-sm font-bold text-foreground mb-5">Fluxo de Caixa Acumulado</h3>
           {cashFlowData.length === 0 ? (
             <EmptyState icon={Wallet} title="Sem movimentação" description="O fluxo de caixa aparece conforme houver receita e despesas." compact />
           ) : (
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={cashFlowData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#a1a1aa" }} />
-                <YAxis tick={{ fontSize: 10, fill: "#a1a1aa" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                 <Tooltip
                   {...darkTooltipProps}
                   formatter={(value: number) => [`$${value.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, "Caixa Acumulado"]}
                 />
-                <Line type="monotone" dataKey="cashFlow" stroke="#34d399" strokeWidth={2.5} dot={{ r: 4, fill: "#34d399" }} />
+                <Line type="monotone" dataKey="cashFlow" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 3, fill: "hsl(var(--primary))" }} />
               </LineChart>
             </ResponsiveContainer>
           )}
@@ -248,46 +288,46 @@ export function OverviewTab() {
       </div>
 
       {/* Bottom row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5 lg:col-span-2">
-          <h3 className="text-sm font-bold text-white mb-4">Lucro Mensal</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="rounded-xl bg-card border border-border p-6 lg:col-span-2 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+          <h3 className="text-sm font-bold text-foreground mb-5">Lucro Mensal</h3>
           {monthlyData.length === 0 ? (
             <EmptyState icon={TrendingUp} title="Sem movimentação" description="O lucro mensal aparece com a operação." compact />
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={monthlyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#a1a1aa" }} />
-                <YAxis tick={{ fontSize: 10, fill: "#a1a1aa" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                 <Tooltip
                   {...darkTooltipProps}
                   formatter={(value: number) => [`$${value.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, "Lucro"]}
                 />
-                <Bar dataKey="profit" fill="#34d399" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="profit" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
         </div>
 
-        <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5">
-          <h3 className="text-sm font-bold text-white mb-4">Despesas por Categoria</h3>
+        <div className="rounded-xl bg-card border border-border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+          <h3 className="text-sm font-bold text-foreground mb-5">Despesas por Categoria</h3>
           {expensesByType.length === 0 ? (
             <EmptyState icon={DollarSign} title="Sem despesas" description="As despesas aparecerão aqui." compact />
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {expensesByType.map((et) => {
                 const total = expensesByType.reduce((s, x) => s + x.amount, 0);
                 const pct = total > 0 ? (et.amount / total) * 100 : 0;
                 return (
                   <div key={et.type}>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-zinc-400">{et.type}</span>
-                      <span className="font-semibold text-white tabular-nums">
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="text-muted-foreground font-medium">{et.type}</span>
+                      <span className="font-bold text-foreground tabular-nums">
                         ${et.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-zinc-800 overflow-hidden">
-                      <div className="h-full rounded-full bg-emerald-400/70 transition-all" style={{ width: `${pct}%` }} />
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -298,33 +338,33 @@ export function OverviewTab() {
       </div>
 
       {/* Summary row */}
-      <div className="rounded-xl bg-zinc-900 border border-zinc-800 p-5">
-        <h3 className="text-sm font-bold text-white mb-4">Resumo do Período</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div>
-            <p className="text-xs text-zinc-400 mb-1">Reservas</p>
-            <p className="text-lg font-bold text-white tabular-nums">{totalsRow.active}</p>
+      <div className="rounded-xl bg-card border border-border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <h3 className="text-sm font-bold text-foreground mb-5">Resumo do Período</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="border-r border-border last:border-r-0 md:border-r">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Reservas</p>
+            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{totalsRow.active}</p>
+          </div>
+          <div className="md:border-r border-border">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Canceladas</p>
+            <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 tabular-nums tracking-tight">{totalsRow.cancelled}</p>
+          </div>
+          <div className="border-r border-border last:border-r-0">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Despesas</p>
+            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{totalsRow.expensesCount}</p>
           </div>
           <div>
-            <p className="text-xs text-zinc-400 mb-1">Canceladas</p>
-            <p className="text-lg font-bold text-red-400 tabular-nums">{totalsRow.cancelled}</p>
-          </div>
-          <div>
-            <p className="text-xs text-zinc-400 mb-1">Despesas</p>
-            <p className="text-lg font-bold text-white tabular-nums">{totalsRow.expensesCount}</p>
-          </div>
-          <div>
-            <p className="text-xs text-zinc-400 mb-1">Incidentes</p>
-            <p className="text-lg font-bold text-white tabular-nums">{totalsRow.incidentsCount}</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Incidentes</p>
+            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{totalsRow.incidentsCount}</p>
           </div>
         </div>
       </div>
 
       {/* Lançamentos manuais info */}
       {current.manual !== 0 && (
-        <p className="text-[11px] text-zinc-500 text-right">
+        <p className="text-[11px] text-muted-foreground text-right">
           Lançamentos manuais no período:{" "}
-          <span className={current.manual >= 0 ? "text-emerald-400" : "text-red-400"}>
+          <span className={current.manual >= 0 ? "text-emerald-600 dark:text-emerald-400 font-semibold" : "text-rose-600 dark:text-rose-400 font-semibold"}>
             {current.manual >= 0 ? "+" : ""}${current.manual.toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </span>
         </p>
