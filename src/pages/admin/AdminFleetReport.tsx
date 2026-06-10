@@ -41,13 +41,21 @@ const CHART_COLORS = [
   "hsl(45 90% 50%)",
 ];
 
-export default function AdminFleetReport({ embedded = false }: { embedded?: boolean } = {}) {
+export default function AdminFleetReport({
+  embedded = false,
+  monthOverride,
+}: { embedded?: boolean; monthOverride?: Date } = {}) {
   const [loading, setLoading] = useState(true);
-  const [month, setMonth] = useState(startOfMonth(new Date()));
+  const [month, setMonth] = useState(startOfMonth(monthOverride ?? new Date()));
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [inspections, setInspections] = useState<any[]>([]);
   const [report, setReport] = useState<VehicleReport[]>([]);
+
+  // Sync with external override (global period filter)
+  useEffect(() => {
+    if (monthOverride) setMonth(startOfMonth(monthOverride));
+  }, [monthOverride?.getTime()]);
 
   const monthStart = startOfMonth(month);
   const monthEnd = endOfMonth(month);
