@@ -1146,7 +1146,6 @@ export default function AdminVehicleDetail() {
                 {renderField("Chassi (VIN)", "vin", "text")}
                 {renderField("Cor", "color", "text")}
                 {renderField("IMEI Bouncie", "bouncie_imei", "text")}
-                {renderField("VIN Bouncie", "bouncie_vin", "text")}
               </div>
               <p className="text-[11px] text-muted-foreground -mt-4 mb-6">Número do rastreador Bouncie — encontrado em Users & Devices no portal.</p>
 
