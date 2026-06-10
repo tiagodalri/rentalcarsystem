@@ -364,7 +364,7 @@ function ShortcutTile({
   label,
   onClick,
 }: {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: import("lucide-react").LucideIcon;
   label: string;
   onClick: () => void;
 }) {

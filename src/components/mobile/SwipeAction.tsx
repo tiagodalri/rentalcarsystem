@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
  */
 
 export interface SwipeActionItem {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: import("lucide-react").LucideIcon;
   label: string;
   /** Background of the action panel when this item is the "first" on its side. */
   color: "emerald" | "rose" | "blue" | "amber" | "neutral";
