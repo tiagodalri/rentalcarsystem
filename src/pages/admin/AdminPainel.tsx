@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { formatPersonName } from "@/lib/formatName";
+import { PainelHeaderWidgets } from "@/components/admin/PainelHeaderWidgets";
 
 /* ============================================================
    PAINEL — Cockpit executivo
