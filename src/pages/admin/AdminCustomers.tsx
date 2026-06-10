@@ -11,6 +11,7 @@ import { CustomerTagsInline } from "@/components/admin/CustomerTagsManager";
 import { buildWhatsAppUrl, defaultClientMessage } from "@/lib/whatsapp";
 import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
+import { formatPersonName } from "@/lib/formatName";
 
 type Customer = {
   id: string;
