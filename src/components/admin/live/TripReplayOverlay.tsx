@@ -1000,46 +1000,16 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
             <p className="text-[10px] uppercase tracking-[0.25em] font-bold" style={{ color: GOLD }}>Replay de viagem</p>
             <h2 className="text-sm font-bold text-white truncate">{vehicleName}</h2>
           </div>
-          {data && (
-            <span
-              className="hidden sm:inline-flex items-center gap-1.5 ml-2 px-2.5 py-1 rounded-full text-[9px] uppercase tracking-[0.2em] font-bold border"
-              style={
-                data.level === 2
-                  ? { color: GOLD, borderColor: `${GOLD}66`, background: `${GOLD}10` }
-                  : { color: "rgba(255,255,255,0.7)", borderColor: "rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.04)" }
-              }
-              title={
-                data.level === 2
-                  ? "Telemetria ponto-a-ponto (velocidade, tempo e eventos reais)"
-                  : "Apenas agregados da viagem — sem velocidade ponto-a-ponto"
-              }
-            >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: data.level === 2 ? GOLD : "rgba(255,255,255,0.5)" }} />
-              {data.level === 2 ? "Replay detalhado" : "Replay resumido"}
-            </span>
-          )}
         </div>
 
-
         {data && (
-          <div className="hidden md:flex items-center gap-4 lg:gap-5 text-xs text-white/70 flex-wrap justify-center">
+          <div className="hidden md:flex items-center gap-5 lg:gap-7 text-xs text-white/70 flex-wrap justify-center">
             <Stat icon={<Route size={11} />} label="Distância" value={`${data.totalDistanceMi.toFixed(1).replace(".", ",")} mi`} />
             <Stat icon={<Clock size={11} />} label="Duração" value={fmtClock(data.durationMs)} />
             <Stat icon={<Gauge size={11} />} label="Vel. média" value={`${Math.round(data.avgSpeedMph)} mph`} />
             <Stat icon={<TrendingUp size={11} />} label="Vel. máx" value={`${Math.round(data.maxSpeedMph)} mph`} />
-            <Stat icon={<AlertTriangle size={11} />} label="Freadas" value={`${data.hardBrakes}`} />
-            <Stat icon={<Zap size={11} />} label="Acel." value={`${data.hardAccels}`} />
-            {data.totalIdleSeconds > 60 && (
-              <Stat icon={<PauseCircle size={11} />} label="Parado" value={fmtMins(data.totalIdleSeconds)} />
-            )}
-            {data.fuelConsumedGal != null && data.fuelConsumedGal > 0 && (
-              <Stat icon={<Fuel size={11} />} label="Combust." value={`${data.fuelConsumedGal.toFixed(2).replace(".", ",")} gal`} />
-            )}
-            {data.avgMpg != null && data.avgMpg > 0 && (
-              <Stat icon={<Activity size={11} />} label="Consumo" value={`${data.avgMpg.toFixed(1).replace(".", ",")} mpg`} />
-            )}
             {data.startOdometerMi != null && data.endOdometerMi != null && (
-              <Stat icon={<Gauge size={11} />} label="Odômetro" value={`${Math.round(data.startOdometerMi)} → ${Math.round(data.endOdometerMi)} mi`} />
+              <Stat icon={<Activity size={11} />} label="Odômetro" value={`${Math.round(data.startOdometerMi)} → ${Math.round(data.endOdometerMi)} mi`} />
             )}
           </div>
         )}
