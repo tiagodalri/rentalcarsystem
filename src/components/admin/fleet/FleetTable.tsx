@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Car, Eye, EyeOff, Check, X as XIcon, Pencil, Trash2 } from "lucide-react";
+import { Car, Check, X as XIcon, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
 import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 import { storageThumb } from "@/lib/storageThumb";
 
@@ -53,12 +54,14 @@ const STATUS_LABEL: Record<string, string> = {
   available: "Disponível",
   rented: "Alugado",
   maintenance: "Manutenção",
+  preparing: "Em Preparação",
   unavailable: "Indisponível",
 };
 const STATUS_COLOR: Record<string, string> = {
   available: "bg-green-500/10 text-green-600 dark:text-green-500 border-green-500/30",
   rented: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30",
   maintenance: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/30",
+  preparing: "bg-amber-500/10 text-amber-600 dark:text-amber-500 border-amber-500/30",
   unavailable: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
@@ -173,15 +176,16 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                     )}
                   </td>
                   <td className="px-3 py-2">
-                    <button
-                      onClick={() => onTogglePublished(v)}
-                      className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                        v.published ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                      }`}
-                      title={v.published ? "Despublicar" : "Publicar"}
-                    >
-                      {v.published ? <><Eye size={10} /> No site</> : <><EyeOff size={10} /> Oculto</>}
-                    </button>
+                    <div className="inline-flex items-center gap-2">
+                      <Switch
+                        checked={v.published}
+                        onCheckedChange={() => onTogglePublished(v)}
+                        aria-label={v.published ? "Desativar do site" : "Ativar no site"}
+                      />
+                      <span className={`text-[10px] font-medium uppercase tracking-wider ${v.published ? "text-primary" : "text-muted-foreground"}`}>
+                        {v.published ? "Ativo" : "Inativo"}
+                      </span>
+                    </div>
                   </td>
                   {(["daily_price_usd", "default_deposit_amount", "default_franchise_amount"] as const).map((f) => (
                     <td key={f} className="px-3 py-2 text-right tabular-nums">

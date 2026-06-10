@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Car, Users as UsersIcon, Briefcase, History, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
+import { Car, Users as UsersIcon, Briefcase, History, Pencil, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 import { storageThumb } from "@/lib/storageThumb";
 
@@ -29,11 +30,18 @@ const statusColors: Record<string, string> = {
   available: "bg-green-500/10 text-green-600 dark:text-green-500",
   rented: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
   maintenance: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-500",
+  preparing: "bg-amber-500/10 text-amber-600 dark:text-amber-500",
   unavailable: "bg-destructive/10 text-destructive",
 };
 
-const statusLabel = (s: string) =>
-  s === "available" ? "Disponível" : s === "rented" ? "Alugado" : s === "maintenance" ? "Manutenção" : "Indisponível";
+const STATUS_LABEL: Record<string, string> = {
+  available: "Disponível",
+  rented: "Alugado",
+  maintenance: "Manutenção",
+  preparing: "Em Preparação",
+  unavailable: "Indisponível",
+};
+const statusLabel = (s: string) => STATUS_LABEL[s] || "Indisponível";
 
 export default function FleetGrid({ vehicles, onTogglePublished, onDelete }: Props) {
   const navigate = useNavigate();
@@ -90,9 +98,6 @@ export default function FleetGrid({ vehicles, onTogglePublished, onDelete }: Pro
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColors[v.status] || "bg-muted text-muted-foreground"}`}>
                   {statusLabel(v.status)}
                 </span>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1 ${v.published ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                  {v.published ? <><Eye size={10} /> No site</> : <><EyeOff size={10} /> Oculto</>}
-                </span>
               </div>
             </div>
 
@@ -102,16 +107,25 @@ export default function FleetGrid({ vehicles, onTogglePublished, onDelete }: Pro
               <span>{v.transmission === "Automatic" ? "Automático" : "Manual"}</span>
             </div>
 
+            {/* Publish switch — prominent per row */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center justify-between pt-2 border-t border-border/30"
+            >
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                {v.published ? "Ativo no site" : "Inativo no site"}
+              </span>
+              <Switch
+                checked={v.published}
+                onCheckedChange={() => onTogglePublished(v)}
+                aria-label={v.published ? "Desativar do site" : "Ativar no site"}
+              />
+            </div>
+
             <div className="flex items-center justify-between pt-2 border-t border-border/30">
               <span className="text-lg font-medium text-primary tabular-nums">${v.daily_price_usd}/dia</span>
               <div className="flex gap-2">
-                <button
-                  onClick={(e) => { e.stopPropagation(); onTogglePublished(v); }}
-                  className={`transition-colors ${v.published ? "text-primary hover:text-primary/70" : "text-muted-foreground hover:text-primary"}`}
-                  title={v.published ? "Despublicar do site" : "Publicar no site"}
-                >
-                  {v.published ? <Eye size={14} /> : <EyeOff size={14} />}
-                </button>
+
                 <button
                   onClick={(e) => { e.stopPropagation(); navigate(`/admin/vehicle-history/${v.id}`); }}
                   className="text-muted-foreground hover:text-primary transition-colors"
