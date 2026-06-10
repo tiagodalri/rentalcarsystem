@@ -233,7 +233,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                       isActive={active}
                       tooltip={item.title}
                       className={`relative h-8 rounded-lg transition-all duration-150 ${
-                        collapsed ? "justify-center px-0 [&>svg]:mx-auto" : "px-3"
+                        collapsed ? "mx-auto justify-center px-0 [&>svg]:mx-auto" : "px-3"
                       } ${
                         active
                           ? "bg-sidebar-primary/12 text-sidebar-primary font-semibold hover:bg-sidebar-primary/15 hover:text-sidebar-primary"
