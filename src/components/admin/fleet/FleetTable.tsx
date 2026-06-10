@@ -116,13 +116,13 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
               <th className="px-3 py-3 font-medium">Placa</th>
               <th className="px-3 py-3 font-medium">Categoria</th>
               <th className="px-3 py-3 font-medium">Status</th>
-              <th className="px-3 py-3 font-medium">Site</th>
               <th className="px-3 py-3 font-medium text-right">Diária</th>
               <th className="px-3 py-3 font-medium text-right">Caução</th>
               <th className="px-3 py-3 font-medium text-right">Franquia</th>
               <th className="px-3 py-3 font-medium">Seguro</th>
               <th className="px-3 py-3 font-medium">Registro</th>
               <th className="px-3 py-3 font-medium text-right">Ações</th>
+              <th className="px-3 py-3 font-medium">Site</th>
             </tr>
           </thead>
           <tbody>
