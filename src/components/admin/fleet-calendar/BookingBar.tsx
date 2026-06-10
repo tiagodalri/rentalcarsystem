@@ -130,7 +130,7 @@ export function BookingBar({ booking, left, width, height }: Props) {
           </Row>
           {booking.pickup_location && (
             <Row icon={<MapPin size={12} />} label="Local retirada">
-              <span className="truncate">{booking.pickup_location}</span>
+              <span className="block break-words leading-snug">{booking.pickup_location}</span>
             </Row>
           )}
           {booking.customer_phone && (
