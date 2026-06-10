@@ -200,7 +200,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
 
   const financeCards: StatCard[] = [
     { label: "Investimento Total", value: fmtUSD(stats.totalInvestment), icon: DollarSign, color: "text-primary", onClick: goFleet },
-    { label: "Receita Mensal", value: fmtUSD(stats.monthlyRevenue), icon: TrendingUp, color: "text-emerald-500", onClick: goFinance },
+    { label: "Receita do Período", value: fmtUSD(stats.monthlyRevenue), icon: TrendingUp, color: "text-emerald-500", onClick: goFinance },
     { label: "Ticket Medio", value: stats.avgTicket !== null ? fmtUSD2(stats.avgTicket) : "—", icon: Receipt, color: "text-foreground", onClick: goFinance },
     {
       label: "Taxa de Ocupacao",
