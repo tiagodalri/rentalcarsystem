@@ -9,6 +9,10 @@ import { toast } from "sonner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import MinimalFooter from "@/components/MinimalFooter";
 import FullscreenFab from "./FullscreenFab";
+import { AdminBottomNav } from "./AdminBottomNav";
+import { AdminFab } from "./AdminFab";
+import { AdminMobileHeader } from "./AdminMobileHeader";
+import { AdminFabProvider } from "@/hooks/useAdminFab";
 
 import { AdminShellSkeleton } from "@/components/skeletons/AdminShellSkeleton";
 import { useThemeMode } from "@/i18n/ThemeContext";
@@ -45,54 +49,63 @@ export default function AdminLayout() {
   return (
     <SidebarProvider
       style={{
-        // Match the reference mockup: wider sidebar on desktop AND mobile sheet.
         ["--sidebar-width" as any]: "19rem",
         ["--sidebar-width-mobile" as any]: "19rem",
-
       } as React.CSSProperties}
     >
       <AdminTabsProvider>
-        <div className="admin-shell min-h-[100dvh] flex w-full bg-background">
-          <AdminSidebar onSignOut={signOut} />
-          <div className="flex-1 flex flex-col min-w-0">
-            {/* Barra de abas no topo absoluto (estilo navegador) */}
-            <AdminTabsBar />
-            <header
-              className="h-14 flex items-center gap-2 sm:gap-3 border-b border-border/40 px-3 sm:px-4 bg-background/90 backdrop-blur-md sticky top-0 z-30"
-            >
-              <SidebarTrigger className="h-11 w-11 -ml-2 flex items-center justify-center text-muted-foreground hover:text-foreground" />
-              <div className="flex-1" />
-              <div className="flex items-center gap-1.5">
-                <FullscreenFab />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleTheme}
-                  aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-                  title={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-                  className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/60"
-                >
-                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                </Button>
-                <LanguageSwitcher className="h-9 w-9 justify-center rounded-full hover:bg-accent/60" />
+        <AdminFabProvider>
+          <div className="admin-shell min-h-[100dvh] flex w-full bg-background">
+            <AdminSidebar onSignOut={signOut} />
+            <div className="flex-1 flex flex-col min-w-0">
+              {/* Mobile: header compacto contextual */}
+              <AdminMobileHeader />
+
+              {/* Desktop: abas tipo navegador + header completo */}
+              <AdminTabsBar />
+              <header
+                className="hidden lg:flex h-14 items-center gap-2 sm:gap-3 border-b border-border/40 px-3 sm:px-4 bg-background/90 backdrop-blur-md sticky top-0 z-30"
+              >
+                <SidebarTrigger className="h-11 w-11 -ml-2 flex items-center justify-center text-muted-foreground hover:text-foreground" />
+                <div className="flex-1" />
+                <div className="flex items-center gap-1.5">
+                  <FullscreenFab />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleTheme}
+                    aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+                    title={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+                    className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                  >
+                    {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  </Button>
+                  <LanguageSwitcher className="h-9 w-9 justify-center rounded-full hover:bg-accent/60" />
+                </div>
+              </header>
+
+              <main
+                className="flex-1 px-4 pt-3 pb-4 lg:p-6"
+                style={{
+                  // Reserva espaço pra bottom nav em mobile; desktop usa o padding normal.
+                  paddingBottom:
+                    "max(calc(64px + env(safe-area-inset-bottom, 0px) + 16px), 1rem)",
+                }}
+              >
+                <Outlet />
+              </main>
+
+              <div className="hidden lg:block">
+                <MinimalFooter />
               </div>
-            </header>
-            <main
-              className="flex-1 p-3 sm:p-4 md:p-6"
-              style={{
-                paddingBottom:
-                  "max(env(safe-area-inset-bottom, 0px), clamp(1.5rem, 3vh, 3rem))",
-              }}
-            >
-              <Outlet />
-            </main>
+            </div>
 
-            <MinimalFooter />
+            {/* Mobile-only chrome */}
+            <AdminFab />
+            <AdminBottomNav />
           </div>
-        </div>
+        </AdminFabProvider>
       </AdminTabsProvider>
-
     </SidebarProvider>
   );
 }
-
