@@ -11,7 +11,7 @@ export type BookingLike = {
   pickup_date: string;
   return_date: string;
   total_price?: number | null;
-  addons?: Record<string, unknown> | null;
+  addons?: unknown;
 };
 
 export type VehicleLike = {
@@ -40,7 +40,7 @@ export type AddonKey = (typeof ADDON_KEYS)[number];
 
 /** Soma todos os addons de uma reserva. */
 export function sumBookingAddons(booking: BookingLike): number {
-  const a = (booking.addons ?? {}) as Record<string, unknown>;
+  const a = (booking.addons && typeof booking.addons === "object" ? booking.addons : {}) as Record<string, unknown>;
   return ADDON_KEYS.reduce((s, k) => s + (Number(a[k]) || 0), 0);
 }
 
@@ -48,7 +48,7 @@ export function sumBookingAddons(booking: BookingLike): number {
 export function aggregateAddons(bookings: BookingLike[]): Record<AddonKey, number> {
   const out = Object.fromEntries(ADDON_KEYS.map((k) => [k, 0])) as Record<AddonKey, number>;
   for (const b of bookings) {
-    const a = (b.addons ?? {}) as Record<string, unknown>;
+    const a = (b.addons && typeof b.addons === "object" ? b.addons : {}) as Record<string, unknown>;
     for (const k of ADDON_KEYS) out[k] += Number(a[k]) || 0;
   }
   return out;
