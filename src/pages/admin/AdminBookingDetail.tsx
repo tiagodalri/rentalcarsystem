@@ -709,9 +709,10 @@ export default function AdminBookingDetail() {
         </section>
 
         {/* Veículo */}
-        <section className="bg-card border border-border/40 rounded-2xl p-8 shadow-sm">
+        <section className="bg-card border border-border/40 rounded-2xl p-5 sm:p-8 shadow-sm">
           {vehicle ? (
-            <div className="flex flex-col md:flex-row gap-8 items-stretch">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch">
+
               <div className="w-full md:w-1/2 space-y-6">
                 <div>
                   <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-4">Veículo</h2>
