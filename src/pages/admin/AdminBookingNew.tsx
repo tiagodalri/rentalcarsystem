@@ -33,7 +33,7 @@ export default function AdminBookingNew() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
           Nova reserva
         </p>
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
+        <h1 className="admin-h1">
           Registrar a reserva
         </h1>
         <p className="text-sm text-muted-foreground">
