@@ -204,7 +204,7 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                       ) : (
                         <button
                           onClick={() => startEdit(v.id, f, (v as any)[f])}
-                          className="font-medium text-foreground hover:text-primary"
+                          className="font-normal text-foreground hover:text-primary tabular-nums"
                         >
                           {fmtMoney((v as any)[f])}
                         </button>
