@@ -109,20 +109,20 @@ function FleetMiniStats() {
   ).length;
 
   const Row = ({ value, label }: { value: number; label: string }) => (
-    <div>
-      <div className="text-xl font-medium tabular-nums leading-none text-sidebar-primary">
+    <div className="flex items-baseline gap-2">
+      <div className="text-[15px] font-medium tabular-nums leading-none text-sidebar-primary w-6">
         {value}
       </div>
-      <div className="text-[10px] text-sidebar-foreground/55 mt-1">{label}</div>
+      <div className="text-[10px] text-sidebar-foreground/55 leading-none">{label}</div>
     </div>
   );
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-sidebar-border/60 bg-gradient-to-br from-sidebar-accent/60 to-sidebar-accent/20 p-3">
-      <div className="text-[10px] font-semibold tracking-[0.18em] text-sidebar-primary mb-3">
+    <div className="relative overflow-hidden rounded-lg border border-sidebar-border/60 bg-gradient-to-br from-sidebar-accent/60 to-sidebar-accent/20 px-3 py-2.5">
+      <div className="text-[9px] font-semibold tracking-[0.18em] text-sidebar-primary mb-2">
         FROTA
       </div>
-      <div className="space-y-3">
+      <div className="space-y-1.5">
         <Row value={total} label="Veículos totais" />
         <Row value={available} label="Disponíveis" />
         <Row value={preparing} label="Em preparação" />
@@ -134,8 +134,8 @@ function FleetMiniStats() {
 /** Renders the gold uppercase section header with the trailing hairline rule. */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="px-3 mb-2 mt-5 flex items-center gap-3">
-      <span className="text-[10px] font-semibold tracking-[0.2em] text-sidebar-primary whitespace-nowrap">
+    <div className="px-3 mb-1.5 mt-3 flex items-center gap-3">
+      <span className="text-[9px] font-semibold tracking-[0.2em] text-sidebar-primary whitespace-nowrap">
         {children}
       </span>
       <span className="flex-1 h-px bg-sidebar-border/60" />
@@ -199,18 +199,18 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarContent className="px-2 pt-4 pb-3 gap-0 scrollbar-thin">
+      <SidebarContent className="px-2 pt-3 pb-2 gap-0 scrollbar-thin">
         {/* ===== Brand block ===== */}
-        <div className={`flex flex-col items-center ${collapsed ? "px-0 py-2" : "px-2 pb-5"}`}>
+        <div className={`flex flex-col items-center ${collapsed ? "px-0 py-2" : "px-2 pb-3"}`}>
           <img
             src={zeusLogo}
             alt="Zeus Rental Car"
             className={`${
-              collapsed ? "h-9 max-w-[36px]" : "h-14 max-w-[56px]"
+              collapsed ? "h-8 max-w-[32px]" : "h-11 max-w-[44px]"
             } w-auto object-contain opacity-95 transition-all`}
           />
           {!collapsed && (
-            <div className="mt-2.5 text-[13px] font-semibold tracking-[0.32em] text-sidebar-foreground/85 text-center leading-none">
+            <div className="mt-2 text-[11.5px] font-semibold tracking-[0.32em] text-sidebar-foreground/85 text-center leading-none">
               ZEUS RENTAL CAR
             </div>
           )}
@@ -230,23 +230,23 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                       onAuxClick={(e) => handleAuxClick(item.url, e)}
                       isActive={active}
                       tooltip={item.title}
-                      className={`relative h-10 rounded-lg px-3 transition-all duration-150 ${
+                      className={`relative h-8 rounded-lg px-3 transition-all duration-150 ${
                         active
                           ? "bg-sidebar-primary/12 text-sidebar-primary font-semibold hover:bg-sidebar-primary/15 hover:text-sidebar-primary"
                           : "text-sidebar-foreground/65 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
                       }`}
                     >
                       {active && !collapsed && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-sidebar-primary" />
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full bg-sidebar-primary" />
                       )}
                       <item.icon
-                        className={`h-[18px] w-[18px] shrink-0 ${
+                        className={`h-[16px] w-[16px] shrink-0 ${
                           active ? "text-sidebar-primary" : ""
                         }`}
                         strokeWidth={active ? 2.2 : 1.8}
                       />
                       {!collapsed && (
-                        <span className="text-[13.5px] leading-none">{item.title}</span>
+                        <span className="text-[12.5px] leading-none">{item.title}</span>
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -258,7 +258,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
 
         {/* ===== Fleet stats widget (hidden when collapsed) ===== */}
         {!collapsed && (
-          <div className="mt-6 px-1">
+          <div className="mt-3 px-1">
             <FleetMiniStats />
           </div>
         )}
@@ -285,7 +285,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                 type="button"
                 className="w-full flex items-center gap-3 p-2 rounded-lg border border-sidebar-border/60 bg-sidebar-accent/30 hover:bg-sidebar-accent/60 transition-colors text-left"
               >
-                <div className="h-9 w-9 shrink-0 rounded-full border border-sidebar-primary/60 bg-sidebar-accent/60 flex items-center justify-center text-[11px] font-medium text-sidebar-primary tabular-nums">
+                <div className="h-8 w-8 shrink-0 rounded-full border border-sidebar-primary/60 bg-sidebar-accent/60 flex items-center justify-center text-[11px] font-medium text-sidebar-primary tabular-nums">
                   {initials || "U"}
                 </div>
                 <div className="flex-1 min-w-0">
