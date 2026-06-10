@@ -5,8 +5,12 @@ import { OverviewTab } from "@/components/admin/finance/OverviewTab";
 import { TransactionsTab } from "@/components/admin/finance/TransactionsTab";
 import { CategoriesTab } from "@/components/admin/finance/CategoriesTab";
 import { AccountsTab } from "@/components/admin/finance/AccountsTab";
+import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+import MobileFinance from "./mobile/MobileFinance";
 
 export default function AdminFinance() {
+  const { isMobile } = useIsMobileApp();
+  if (isMobile) return <MobileFinance />;
   const [params, setParams] = useSearchParams();
   const activeTab = params.get("tab") || "overview";
   const setActiveTab = (v: string) => {

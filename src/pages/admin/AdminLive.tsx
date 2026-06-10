@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+import MobileLive from "./mobile/MobileLive";
 import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/admin/EmptyState";
@@ -36,6 +38,12 @@ const SPEED_BANDS = [
 ];
 
 export default function AdminLive() {
+  const { isMobile } = useIsMobileApp();
+  if (isMobile) return <MobileLive />;
+  return <AdminLiveDesktop />;
+}
+
+function AdminLiveDesktop() {
   const { vehicles, loading } = useFleetLive();
   const [selected, setSelected] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);

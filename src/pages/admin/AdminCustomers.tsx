@@ -1,5 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+import MobileCustomers from "./mobile/MobileCustomers";
 import { useRegisterFab } from "@/hooks/useAdminFab";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,6 +36,13 @@ const emptyCustomer = {
 };
 
 export default function AdminCustomers() {
+  const navigate = useNavigate();
+  const { isMobile } = useIsMobileApp();
+  if (isMobile) return <MobileCustomers />;
+  return <AdminCustomersDesktop />;
+}
+
+function AdminCustomersDesktop() {
   const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState("");
