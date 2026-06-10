@@ -456,6 +456,14 @@ export function FleetCalendar() {
           </div>
         )}
       </Card>
+
+      <InformalBookingDialog
+        open={informalOpen}
+        onOpenChange={setInformalOpen}
+        onCreated={() => setReloadTick(t => t + 1)}
+        vehicles={vehicles.map(v => ({ id: v.id, name: v.name, license_plate: v.license_plate }))}
+        defaultStartDate={format(startDate, "yyyy-MM-dd")}
+      />
     </div>
   );
 }
