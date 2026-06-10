@@ -330,6 +330,7 @@ function labelForDocType(t: PendingDocument["docType"]): string {
     case "purchase_contract": return "Contrato de compra e venda";
     case "vehicle_registration": return "Documento do veículo";
     case "insurance_policy": return "Apólice de seguro";
+    case "inspection_report": return "Laudo / Vistoria";
     default: return "Documento";
   }
 }
