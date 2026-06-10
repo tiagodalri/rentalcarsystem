@@ -453,7 +453,7 @@ function SectionCard({
   children: React.ReactNode; backdrop?: React.ReactNode;
 }) {
   return (
-    <div className={`relative rounded-2xl border border-border/40 bg-card/60 p-4 overflow-hidden flex flex-col min-h-[320px] ${className}`}>
+    <div className={`relative rounded-2xl border border-border/40 bg-card/60 p-4 overflow-hidden flex flex-col min-h-[min(640px,calc(100vh-280px))] ${className}`}>
       {backdrop}
       <div className="flex items-start justify-between gap-2 mb-3 relative z-10">
         <div className="flex items-center gap-2.5">
