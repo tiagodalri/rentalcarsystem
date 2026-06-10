@@ -8,7 +8,7 @@ import { EMPTY_FORM, WizardForm } from "./types";
 import StepIdentification from "./StepIdentification";
 import StepSpecs from "./StepSpecs";
 import StepCommercial from "./StepCommercial";
-import StepPhotosAndPublish from "./StepPhotosAndPublish";
+import StepPhotosAndPublish, { PendingPhoto } from "./StepPhotosAndPublish";
 
 const DRAFT_KEY = "new-vehicle";
 
@@ -23,15 +23,15 @@ export default function VehicleWizard() {
   const navigate = useNavigate();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [form, setForm] = useState<WizardForm>({ ...EMPTY_FORM });
-  const [vehicleId, setVehicleId] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<PendingPhoto[]>([]);
+  const [coverId, setCoverId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Auto-save de rascunho apenas até a criação
   useFormDraft(
     DRAFT_KEY,
     form as unknown as Record<string, any>,
     (v) => setForm((p) => ({ ...p, ...(v as Partial<WizardForm>) })),
-    !vehicleId,
+    true,
   );
 
   const set = (patch: Partial<WizardForm>) => setForm((p) => ({ ...p, ...patch }));
@@ -48,14 +48,9 @@ export default function VehicleWizard() {
     return null;
   };
 
-  const goNext = async () => {
+  const goNext = () => {
     const err = validateStep(step);
     if (err) return toast({ title: "Revise os campos", description: err, variant: "destructive" });
-
-    if (step === 3 && !vehicleId) {
-      await createVehicle();
-      return;
-    }
     setStep((s) => (Math.min(4, s + 1) as 1 | 2 | 3 | 4));
   };
 
@@ -69,63 +64,101 @@ export default function VehicleWizard() {
     return (form.name?.trim() || composed).trim();
   };
 
-  const createVehicle = async () => {
+  const finish = async () => {
+    const e1 = validateStep(1);
+    if (e1) { setStep(1); return toast({ title: "Revise os campos", description: e1, variant: "destructive" }); }
+    const e3 = validateStep(3);
+    if (e3) { setStep(3); return toast({ title: "Revise os campos", description: e3, variant: "destructive" }); }
+
     const name = buildName();
     if (!name) return toast({ title: "Nome obrigatório", variant: "destructive" });
 
     setSaving(true);
-    const payload = {
-      name,
-      brand: form.brand.trim(),
-      model: form.model.trim(),
-      version: form.version.trim() || null,
-      manufacture_year: form.manufacture_year,
-      model_year: form.model_year,
-      year: form.model_year || form.manufacture_year || null,
-      vin: form.vin.trim().toUpperCase() || null,
-      
-      license_plate: form.license_plate.trim().toUpperCase(),
-      color: form.color || null,
-      bouncie_imei: form.bouncie_imei.trim() || null,
-      category: form.category,
-      passengers: form.passengers,
-      bags: form.bags,
-      doors: form.doors,
-      transmission: form.transmission,
-      fuel: form.fuel,
-      engine_type: form.engine_type || null,
-      engine_size: form.engine_size || null,
-      features: form.features,
-      daily_price_usd: form.daily_price_usd ?? 0,
-      default_deposit_amount: form.default_deposit_amount ?? 0,
-      default_franchise_amount: form.default_franchise_amount ?? 0,
-      status: form.status,
-      purchase_price: form.purchase_price ?? 0,
-      acquired_date: form.acquired_date,
-      initial_odometer: form.initial_odometer ?? 0,
-      current_odometer: form.current_odometer ?? 0,
-      insurance_policy: form.insurance_policy || null,
-      insurance_expiry: form.insurance_expiry,
-      registration_expiry: form.registration_expiry,
-      published: false,
-    };
+    try {
+      const payload: any = {
+        name,
+        brand: form.brand.trim(),
+        model: form.model.trim(),
+        version: form.version.trim() || null,
+        manufacture_year: form.manufacture_year,
+        model_year: form.model_year,
+        year: form.model_year || form.manufacture_year || null,
+        vin: form.vin.trim().toUpperCase() || null,
+        license_plate: form.license_plate.trim().toUpperCase(),
+        color: form.color || null,
+        bouncie_imei: form.bouncie_imei.trim() || null,
+        category: form.category,
+        passengers: form.passengers,
+        bags: form.bags,
+        doors: form.doors,
+        transmission: form.transmission,
+        fuel: form.fuel,
+        engine_type: form.engine_type || null,
+        engine_size: form.engine_size || null,
+        features: form.features,
+        daily_price_usd: form.daily_price_usd ?? 0,
+        default_deposit_amount: form.default_deposit_amount ?? 0,
+        default_franchise_amount: form.default_franchise_amount ?? 0,
+        status: form.status,
+        purchase_price: form.purchase_price ?? 0,
+        acquired_date: form.acquired_date,
+        initial_odometer: form.initial_odometer ?? 0,
+        current_odometer: form.current_odometer ?? 0,
+        insurance_policy: form.insurance_policy || null,
+        insurance_expiry: form.insurance_expiry,
+        registration_expiry: form.registration_expiry,
+        published: false,
+      };
 
-    const { data, error } = await supabase.from("vehicles").insert(payload as any).select("id").single();
-    setSaving(false);
-    if (error || !data) {
-      toast({ title: "Erro ao criar veículo", description: error?.message, variant: "destructive" });
-      return;
+      const { data: created, error } = await supabase
+        .from("vehicles")
+        .insert(payload)
+        .select("id")
+        .single();
+      if (error || !created) throw error || new Error("Falha ao criar veículo");
+      const vehicleId = created.id;
+
+      // Upload photos in declared order; cover first if defined
+      const orderedIds = coverId
+        ? [coverId, ...photos.map((p) => p.id).filter((id) => id !== coverId)]
+        : photos.map((p) => p.id);
+      const ordered = orderedIds.map((id) => photos.find((p) => p.id === id)!).filter(Boolean);
+
+      const uploadedUrls: string[] = [];
+      for (const p of ordered) {
+        const ext = (p.file.name.split(".").pop() || "jpg").toLowerCase();
+        const path = `${vehicleId}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, p.file, {
+          cacheControl: "3600",
+          contentType: p.file.type || undefined,
+        });
+        if (upErr) {
+          toast({ title: "Erro ao enviar foto", description: upErr.message, variant: "destructive" });
+          continue;
+        }
+        const { data: pub } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
+        uploadedUrls.push(pub.publicUrl);
+      }
+
+      const updatePayload: any = {};
+      if (uploadedUrls.length) {
+        updatePayload.photos = uploadedUrls;
+        updatePayload.image_url = uploadedUrls[0];
+      }
+      if (form.published) updatePayload.published = true;
+      if (Object.keys(updatePayload).length) {
+        await supabase.from("vehicles").update(updatePayload).eq("id", vehicleId);
+      }
+
+      clearFormDraft(DRAFT_KEY);
+      photos.forEach((p) => URL.revokeObjectURL(p.previewUrl));
+      toast({ title: "Veículo cadastrado!", description: form.published ? "Publicado no site." : "Salvo como rascunho/oculto." });
+      navigate(`/admin/fleet/${vehicleId}`);
+    } catch (err: any) {
+      toast({ title: "Erro ao salvar", description: err?.message || "Tente novamente.", variant: "destructive" });
+    } finally {
+      setSaving(false);
     }
-    setForm((p) => ({ ...p, name }));
-    setVehicleId(data.id);
-    clearFormDraft(DRAFT_KEY);
-    toast({ title: "Veículo criado!", description: "Agora adicione as fotos e publique no site." });
-    setStep(4);
-  };
-
-  const finish = () => {
-    if (!vehicleId) return navigate("/admin/fleet");
-    navigate(`/admin/fleet/${vehicleId}`);
   };
 
   return (
@@ -140,35 +173,25 @@ export default function VehicleWizard() {
       <header className="mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Novo veículo</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Em 4 passos: identificação, especificações, preços e publicação com fotos.
+          Preencha tudo (identificação, especificações, preços e fotos) e finalize o cadastro de uma vez.
         </p>
       </header>
 
-      {/* Stepper */}
       <nav className="mb-6">
         <ol className="grid grid-cols-4 gap-2">
           {STEPS.map(({ id, title, Icon }) => {
             const isActive = step === id;
-            const isDone = step > id || (id < 4 && !!vehicleId);
-            const isLocked = id === 4 && !vehicleId;
+            const isDone = step > id;
             return (
               <li key={id} className="min-w-0">
                 <button
                   type="button"
-                  onClick={() => {
-                    if (isLocked) {
-                      toast({ title: "Finalize o cadastro", description: "Conclua o passo 3 para liberar fotos e publicação." });
-                      return;
-                    }
-                    setStep(id as 1 | 2 | 3 | 4);
-                  }}
+                  onClick={() => setStep(id as 1 | 2 | 3 | 4)}
                   className={`w-full text-left rounded-xl border px-3 py-2.5 transition-colors ${
                     isActive
                       ? "border-primary/60 bg-primary/5"
                       : isDone
                       ? "border-border/40 bg-card/40 hover:bg-accent/40"
-                      : isLocked
-                      ? "border-border/30 bg-card/20 opacity-60 cursor-not-allowed"
                       : "border-border/40 bg-card/30 hover:bg-accent/40"
                   }`}
                 >
@@ -198,7 +221,16 @@ export default function VehicleWizard() {
         {step === 1 && <StepIdentification form={form} set={set} />}
         {step === 2 && <StepSpecs form={form} set={set} />}
         {step === 3 && <StepCommercial form={form} set={set} />}
-        {step === 4 && vehicleId && <StepPhotosAndPublish vehicleId={vehicleId} form={form} set={set} />}
+        {step === 4 && (
+          <StepPhotosAndPublish
+            form={form}
+            set={set}
+            photos={photos}
+            setPhotos={setPhotos}
+            coverId={coverId}
+            setCoverId={setCoverId}
+          />
+        )}
       </section>
 
       <div
@@ -224,16 +256,16 @@ export default function VehicleWizard() {
               disabled={saving}
               className="h-11 px-5 rounded-xl gold-gradient text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 inline-flex items-center gap-2"
             >
-              {saving && <Loader2 size={14} className="animate-spin" />}
-              {step === 3 ? "Criar e ir para fotos" : "Próximo"}
-              <ArrowRight size={14} />
+              Próximo <ArrowRight size={14} />
             </button>
           ) : (
             <button
               onClick={finish}
-              className="h-11 px-5 rounded-xl gold-gradient text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2"
+              disabled={saving}
+              className="h-11 px-5 rounded-xl gold-gradient text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 inline-flex items-center gap-2"
             >
-              <Check size={14} /> Concluir cadastro
+              {saving ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+              {saving ? "Salvando…" : "Concluir cadastro"}
             </button>
           )}
         </div>
