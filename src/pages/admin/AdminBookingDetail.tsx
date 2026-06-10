@@ -505,10 +505,10 @@ export default function AdminBookingDetail() {
           )}
           <button
             onClick={() => setIncidentOpen(true)}
-            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors font-medium border border-destructive/30"
-            title="Registrar acidente, sinistro, multa ou outra ocorrência"
+            className="flex items-center justify-center w-9 h-9 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors shadow-sm"
+            title="Registrar ocorrência"
           >
-            <AlertTriangle size={13} /> Registrar ocorrência
+            <AlertTriangle size={15} />
           </button>
           {isAdmin && (
             <button
