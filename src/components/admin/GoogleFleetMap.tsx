@@ -561,7 +561,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       let st = states.get(v.vehicle_id);
       if (!st) {
         st = {
-          buffer: [{ lat: v.lat, lng: v.lng, t: reportedAtMs }],
+          tween: null,
           lastReportedMs: reportedAtMs,
           status: v.status,
           speed: v.speed ?? 0,
@@ -574,16 +574,40 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         };
         states.set(v.vehicle_id, st);
       } else {
-        // Same fix? skip buffer push. Different reportedAt → consider as new fix.
         const isNewFix = reportedAtMs !== st.lastReportedMs;
         if (isNewFix) {
-          const last = st.buffer[st.buffer.length - 1];
-          const d = last ? haversineM(last, { lat: v.lat, lng: v.lng }) : Infinity;
+          const from = { lat: st.displayLat, lng: st.displayLng };
+          const to = { lat: v.lat, lng: v.lng };
+          const d = haversineM(from, to);
           const speedMph = v.speed ?? 0;
           const stationary = speedMph < 1 && d < MIN_MOVE_METERS;
-          const absurdJump = last && d > MAX_JUMP_METERS && (reportedAtMs - last.t) < 10_000;
-          if (!stationary && !absurdJump) {
-            st.buffer.push({ lat: v.lat, lng: v.lng, t: reportedAtMs });
+          const absurdJump = d > MAX_JUMP_METERS && (reportedAtMs - st.lastReportedMs) < 10_000;
+          if (absurdJump) {
+            // discard
+          } else if (stationary) {
+            // snap silently — no animation
+            st.displayLat = to.lat;
+            st.displayLng = to.lng;
+            st.tween = null;
+          } else {
+            // Animate over the real interval between fixes (clamped), or use
+            // distance/speed if interval is unknown.
+            const intervalMs = reportedAtMs - st.lastReportedMs;
+            let duration = intervalMs > 0 ? intervalMs : TWEEN_DEFAULT_MS;
+            duration = Math.min(TWEEN_MAX_MS, Math.max(TWEEN_MIN_MS, duration));
+            st.tween = {
+              fromLat: from.lat,
+              fromLng: from.lng,
+              toLat: to.lat,
+              toLng: to.lng,
+              startMs: performance.now(),
+              durationMs: duration,
+            };
+            if (d >= MIN_MOVE_METERS) {
+              st.targetHeading = bearingDeg(from, to);
+            } else if (v.heading != null) {
+              st.targetHeading = v.heading;
+            }
           }
           st.lastReportedMs = reportedAtMs;
         }
@@ -591,6 +615,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         st.speed = v.speed ?? 0;
         st.selected = isSelected;
       }
+
 
       let marker = existing.get(v.vehicle_id);
       if (!marker) {
