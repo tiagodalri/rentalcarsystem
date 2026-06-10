@@ -284,7 +284,7 @@ export default function AdminBookingDetail() {
           </div>
         </div>
 
-        <CardContent className="p-5 space-y-5">
+        <CardContent className="p-4 sm:p-5 space-y-5">
           {/* Metrics row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <MetricCard icon={Gauge} label="Odômetro" value={insp.odometer_reading ? `${insp.odometer_reading.toLocaleString()} mi` : "—"} />
