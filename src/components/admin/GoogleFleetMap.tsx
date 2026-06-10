@@ -640,6 +640,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           targetHeading: v.heading ?? 0,
           displayLat: v.lat,
           displayLng: v.lng,
+          positionDirty: true,
           iconKey: "",
           selected: isSelected,
           brandSlug: slug,
