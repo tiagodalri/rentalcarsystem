@@ -330,7 +330,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
                       size={22}
                       className={hasAlert ? "text-destructive" : "text-muted-foreground/50"}
                     />
-                    <span className={`text-2xl font-bold tabular-nums ${hasAlert ? "text-destructive" : "text-foreground"}`}>
+                    <span className={`admin-kpi ${hasAlert ? "text-destructive" : ""}`}>
                       {alert.value}
                     </span>
                     <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
