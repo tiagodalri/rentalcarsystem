@@ -456,6 +456,10 @@ export default function AdminInspection() {
 
   // -- Photo capture
   const capturePhoto = (position: string) => {
+    if (!isTouchDevice) {
+      setWebcamTarget({ kind: "exterior", position });
+      return;
+    }
     setCapturePosition(position);
     fileInputRef.current?.click();
   };
