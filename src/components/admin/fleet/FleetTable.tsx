@@ -4,6 +4,28 @@ import { useState } from "react";
 import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 import { storageThumb } from "@/lib/storageThumb";
 
+function VehicleThumb({ name, src }: { name: string; src: string }) {
+  const fallback = hasCoverImage(name) ? getCoverImage(name) : "";
+  const [current, setCurrent] = useState(src || fallback);
+  const [errored, setErrored] = useState(false);
+  if (!current || errored) {
+    return <Car size={14} className="text-muted-foreground/40" />;
+  }
+  return (
+    <img
+      src={current}
+      alt={name}
+      className="w-full h-full object-cover"
+      loading="lazy"
+      decoding="async"
+      onError={() => {
+        if (fallback && current !== fallback) setCurrent(fallback);
+        else setErrored(true);
+      }}
+    />
+  );
+}
+
 export type FleetTableVehicle = {
   id: string;
   name: string;
