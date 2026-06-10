@@ -213,9 +213,6 @@ export default function BrandAutocomplete({ value, onChange, placeholder }: Prop
               );
             })
           )}
-          <div className="px-3 py-1.5 border-t border-border/40 text-[10px] text-muted-foreground bg-muted/30 sticky bottom-0">
-            {isTyping && query ? `${results.length} resultado${results.length === 1 ? "" : "s"}` : `${CAR_BRANDS.length} marcas`} • use ↑ ↓ ⏎ • Esc fecha
-          </div>
         </div>
       )}
     </div>
