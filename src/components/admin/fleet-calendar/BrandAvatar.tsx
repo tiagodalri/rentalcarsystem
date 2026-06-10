@@ -32,7 +32,7 @@ export function BrandAvatar({ brand, name, size = 32 }: Props) {
           alt={brand || name}
           loading="lazy"
           onError={() => setErrored(true)}
-          className="w-[78%] h-[78%] object-contain"
+          className="w-[78%] h-[78%] object-contain dark:invert dark:brightness-150 dark:contrast-125"
         />
       ) : (
         <span
