@@ -60,18 +60,18 @@ function deltaPct(cur: number, prev: number): number | null {
 
 function CompareBadge({ delta, invert }: { delta: number | null; invert?: boolean }) {
   if (delta === null) {
-    return <span className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70 mt-2">sem dados anteriores</span>;
+    return <span className="block text-[10px] uppercase tracking-[0.14em] text-muted-foreground/60 mt-2">sem dados anteriores</span>;
   }
   if (delta === 0) {
-    return <span className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70 mt-2">sem variação</span>;
+    return <span className="block text-[10px] uppercase tracking-[0.14em] text-muted-foreground/60 mt-2">sem variação</span>;
   }
   const isUp = delta > 0;
   const good = invert ? !isUp : isUp;
-  const color = good ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400";
+  const color = good ? "text-emerald-600/90 dark:text-emerald-400/90" : "text-rose-600/90 dark:text-rose-400/90";
   const Icon = isUp ? ArrowUp : ArrowDown;
   return (
-    <span className={`inline-flex items-center gap-1 text-[10px] font-semibold tabular-nums mt-2 ${color}`}>
-      <Icon className="h-3 w-3" />
+    <span className={`inline-flex items-center gap-1 text-[10px] font-medium tabular-nums mt-2 ${color}`}>
+      <Icon className="h-3 w-3" strokeWidth={2} />
       {Math.abs(delta).toFixed(1)}% vs período anterior
     </span>
   );
@@ -82,15 +82,17 @@ function KpiCard({ def, current, previous, showCompare }: { def: KpiDef; current
   const delta = showCompare && previous !== undefined ? deltaPct(current, previous) : null;
   return (
     <div
-      className={`relative rounded-xl bg-card border border-border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all hover:border-foreground/20 ${
-        def.emphasis ? "border-l-4 border-l-primary" : ""
+      className={`relative rounded-lg bg-card border border-border/70 p-5 transition-colors ${
+        def.emphasis ? "border-l-2 border-l-primary/70" : ""
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">{def.label}</p>
-        <Icon className={`h-4 w-4 ${def.iconColor} shrink-0`} />
+        <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80 font-medium">{def.label}</p>
+        <Icon className={`h-3.5 w-3.5 ${def.iconColor} opacity-70 shrink-0`} strokeWidth={1.75} />
       </div>
-      <p className="text-2xl font-bold text-foreground tabular-nums mt-3 break-words tracking-tight">{fmt(current, def.format)}</p>
+      <p className="text-[22px] leading-tight font-light text-foreground tabular-nums mt-4 break-words tracking-[-0.01em]">
+        {fmt(current, def.format)}
+      </p>
       {showCompare && <CompareBadge delta={delta} invert={def.invertCompare} />}
     </div>
   );
