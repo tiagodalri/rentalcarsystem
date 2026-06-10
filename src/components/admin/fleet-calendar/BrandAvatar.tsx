@@ -36,7 +36,7 @@ export function BrandAvatar({ brand, name, size = 32 }: Props) {
         />
       ) : (
         <span
-          className="w-full h-full flex items-center justify-center text-[11px] font-bold text-white"
+          className="w-full h-full flex items-center justify-center text-[11px] font-medium text-white"
           style={{ background: hashColor(brand || name) }}
         >
           {initial}

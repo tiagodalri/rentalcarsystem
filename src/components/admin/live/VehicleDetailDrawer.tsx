@@ -63,7 +63,7 @@ export function VehicleDetailDrawer({
           <button
             onClick={() => navigate(`/admin/fleet/${vehicle.vehicle_id}`)}
             aria-label="Abrir ficha"
-            className="absolute top-2 left-2 px-2.5 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider hover:bg-background transition-colors"
+            className="absolute top-2 left-2 px-2.5 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider hover:bg-background transition-colors"
           >
             <ExternalLink size={11} /> Ficha
           </button>
@@ -81,10 +81,10 @@ export function VehicleDetailDrawer({
         <div className="px-4 py-3">
           <div className="flex items-start justify-between gap-3 mb-1.5">
             <div className="min-w-0">
-              <h2 className="text-base font-bold text-foreground leading-tight truncate">{vehicle.name}</h2>
+              <h2 className="text-base font-medium text-foreground leading-tight truncate">{vehicle.name}</h2>
               <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{vehicle.plate ?? "—"}</p>
             </div>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${statusColor}`}>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium uppercase tracking-wider shrink-0 ${statusColor}`}>
               {statusLabel}
             </span>
           </div>
@@ -104,7 +104,7 @@ export function VehicleDetailDrawer({
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex-1 text-[10px] uppercase tracking-wider font-bold py-2.5 transition-colors relative ${
+                className={`flex-1 text-[10px] uppercase tracking-wider font-medium py-2.5 transition-colors relative ${
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 }`}
               >

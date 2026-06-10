@@ -130,7 +130,7 @@ export default function AdminVehicleHistory() {
             <img src={vehicle.image_url} alt={vehicle.name} className="w-20 h-14 object-cover rounded-lg border border-border/40" loading="lazy" width={80} height={56} />
           )}
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{vehicle.name}</h1>
+            <h1 className="text-2xl font-medium text-foreground">{vehicle.name}</h1>
             <p className="text-sm text-muted-foreground">
               {vehicle.category} • {vehicle.year} • {vehicle.transmission === "Automatic" ? "Automático" : "Manual"} • {vehicle.fuel}
             </p>
@@ -156,7 +156,7 @@ export default function AdminVehicleHistory() {
                   <Icon size={14} className="text-primary" />
                   <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{s.label}</span>
                 </div>
-                <p className="text-lg font-bold text-foreground">{s.value}</p>
+                <p className="text-lg font-medium text-foreground">{s.value}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">{s.sub}</p>
               </CardContent>
             </Card>
@@ -166,7 +166,7 @@ export default function AdminVehicleHistory() {
 
       {/* Booking History */}
       <div>
-        <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+        <h2 className="text-lg font-medium text-foreground mb-4 flex items-center gap-2">
           <BarChart3 size={18} className="text-primary" /> Histórico Completo de Locações
         </h2>
 
@@ -219,14 +219,14 @@ export default function AdminVehicleHistory() {
                       <div className="flex items-center gap-6 text-sm">
                         <div className="text-center">
                           <p className="text-[10px] text-muted-foreground">Valor</p>
-                          <p className="font-bold text-foreground">
+                          <p className="font-medium text-foreground">
                             ${b.total_price?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}
                           </p>
                         </div>
                         {kmDriven !== null && (
                           <div className="text-center">
                             <p className="text-[10px] text-muted-foreground">Milhas</p>
-                            <p className="font-bold text-foreground">{kmDriven.toLocaleString("pt-BR")}</p>
+                            <p className="font-medium text-foreground">{kmDriven.toLocaleString("pt-BR")}</p>
                           </div>
                         )}
                         {b.checkin?.fuel_level && b.checkout?.fuel_level && (
@@ -240,7 +240,7 @@ export default function AdminVehicleHistory() {
                         {checkoutDamages > 0 && (
                           <div className="text-center">
                             <p className="text-[10px] text-muted-foreground">Avarias</p>
-                            <p className="font-bold text-destructive">{checkoutDamages}</p>
+                            <p className="font-medium text-destructive">{checkoutDamages}</p>
                           </div>
                         )}
                       </div>

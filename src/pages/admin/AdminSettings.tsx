@@ -11,7 +11,7 @@ export default function AdminSettings() {
   return (
     <div className="space-y-6 max-w-xl">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Configurações</h1>
+        <h1 className="text-2xl font-medium text-foreground">Configurações</h1>
         <p className="text-sm text-muted-foreground mt-1">Gerencie sua conta de administrador</p>
       </div>
 

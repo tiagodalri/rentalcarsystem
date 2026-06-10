@@ -55,7 +55,7 @@ export default function AdminLogin() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <img src={zeusLogo} alt="Zeus Rental Car" className="h-20 w-auto mx-auto mb-4" />
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-2xl font-medium tracking-tight">
             <span className="text-primary">ZEUS</span>
             <span className="text-muted-foreground font-light ml-1.5">ADMIN</span>
           </h1>

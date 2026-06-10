@@ -62,7 +62,7 @@ const STEP_ICONS: Record<StepId, any> = {
 
 
 const AI_BADGE = (
-  <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary">
+  <span className="inline-flex items-center gap-1 text-[9px] font-medium uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/15 text-primary">
     <Sparkles size={9} /> IA
   </span>
 );
@@ -607,7 +607,7 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
                   </div>
                 )}
                 {selected && (
-                  <span className="absolute top-2 left-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-primary text-primary-foreground">
+                  <span className="absolute top-2 left-2 inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded bg-primary text-primary-foreground">
                     <Check size={10} /> Selecionado
                   </span>
                 )}
@@ -656,7 +656,7 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
                 )}
               </div>
               <div>
-                <h3 className="text-lg font-bold leading-tight">{previewVeh.name}</h3>
+                <h3 className="text-lg font-medium leading-tight">{previewVeh.name}</h3>
                 <p className="text-xs text-muted-foreground">{previewVeh.category}</p>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
@@ -683,7 +683,7 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
                       step="0.01"
                       value={editPrice}
                       onChange={(e) => setEditPrice(e.target.value)}
-                      className="h-10 pl-6 text-right tabular-nums font-bold"
+                      className="h-10 pl-6 text-right tabular-nums font-medium"
                     />
                   </div>
                 </div>

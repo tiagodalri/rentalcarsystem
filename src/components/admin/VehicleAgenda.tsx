@@ -105,7 +105,7 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={prevMonth}>
                 <ChevronLeft size={16} />
               </Button>
-              <h3 className="text-base sm:text-lg font-bold text-foreground min-w-[160px] text-center">
+              <h3 className="text-base sm:text-lg font-medium text-foreground min-w-[160px] text-center">
                 {MONTHS[month]} {year}
               </h3>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={nextMonth}>
@@ -165,7 +165,7 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
                 >
                   <span
                     className={`text-[10px] sm:text-xs font-medium ${
-                      today_ ? "text-primary font-bold" : type === "rented" || type === "reserved" ? "text-foreground" : "text-muted-foreground"
+                      today_ ? "text-primary font-medium" : type === "rented" || type === "reserved" ? "text-foreground" : "text-muted-foreground"
                     }`}
                   >
                     {day}
@@ -187,7 +187,7 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
                         return (
                           <div key={b.id} className="text-[10px] mb-2 last:mb-0 space-y-0.5">
                             <div className="flex items-center justify-between">
-                              <span className={`font-bold ${sc.text}`}>{sc.label}</span>
+                              <span className={`font-medium ${sc.text}`}>{sc.label}</span>
                               {b.total_price && (
                                 <span className="text-primary font-semibold">${b.total_price.toLocaleString("pt-BR")}</span>
                               )}
@@ -240,7 +240,7 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
       {/* Sidebar: upcoming bookings */}
       <Card className="border-border/40">
         <CardContent className="p-4 sm:p-5">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 mb-3">
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground flex items-center gap-2 mb-3">
             <Calendar size={12} className="text-primary" />
             Próximas reservas
           </h3>

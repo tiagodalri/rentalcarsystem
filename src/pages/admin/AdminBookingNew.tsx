@@ -73,7 +73,7 @@ export default function AdminBookingNew() {
           <div className="space-y-1 relative z-10">
             <div className="flex items-center gap-2">
               <h2 className="text-base font-semibold">Utilizar Auxiliar de IA</h2>
-              <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/20 text-primary">
+              <span className="text-[9px] font-medium uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/20 text-primary">
                 Recomendado
               </span>
             </div>

@@ -99,7 +99,7 @@ export default function AdminLive() {
             <Signal size={18} className="text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <h1 className="text-xl font-medium text-foreground flex items-center gap-2">
               Zeus Live Tracking
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -113,7 +113,7 @@ export default function AdminLive() {
           <button
             onClick={handleRunHistoricalBackfill}
             disabled={runningBackfill}
-            className="flex items-center gap-1.5 rounded-lg border border-border/40 px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-foreground hover:bg-muted/30 disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg border border-border/40 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground hover:bg-muted/30 disabled:opacity-50"
           >
             {runningBackfill ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />}
             Backfill histórico
@@ -134,7 +134,7 @@ export default function AdminLive() {
         ].map((s) => (
           <div key={s.label} className={`${s.bg} rounded-lg px-3 py-2 border border-border/30`}>
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{s.label}</p>
-            <p className={`text-lg font-bold tabular-nums ${s.color}`}>{s.value}</p>
+            <p className={`text-lg font-medium tabular-nums ${s.color}`}>{s.value}</p>
           </div>
         ))}
       </div>
@@ -291,7 +291,7 @@ export default function AdminLive() {
               <div className="p-3">
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="min-w-0">
-                    <p className="font-bold text-foreground text-sm leading-tight truncate">{selectedVehicle.name}</p>
+                    <p className="font-medium text-foreground text-sm leading-tight truncate">{selectedVehicle.name}</p>
                     <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{selectedVehicle.plate ?? "—"}</p>
                   </div>
                   <span
@@ -309,11 +309,11 @@ export default function AdminLive() {
                 <div className="grid grid-cols-2 gap-1.5 text-[11px] mb-2.5">
                   <div className="rounded-md bg-muted/30 px-2 py-1.5 border border-border/20">
                     <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1"><Gauge size={10} />Velocidade</p>
-                    <p className="font-bold text-foreground tabular-nums">{Math.round(selectedVehicle.speed ?? 0)} mph</p>
+                    <p className="font-medium text-foreground tabular-nums">{Math.round(selectedVehicle.speed ?? 0)} mph</p>
                   </div>
                   <div className="rounded-md bg-muted/30 px-2 py-1.5 border border-border/20">
                     <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold flex items-center gap-1"><Clock size={10} />Atualizado</p>
-                    <p className="font-bold text-foreground">{formatRelative(selectedVehicle.reported_at)}</p>
+                    <p className="font-medium text-foreground">{formatRelative(selectedVehicle.reported_at)}</p>
                   </div>
                 </div>
                 {selectedVehicle.address && (
@@ -324,13 +324,13 @@ export default function AdminLive() {
                 )}
                 <button
                   onClick={() => setDrawerOpen(true)}
-                  className="w-full flex items-center justify-center gap-2 rounded-lg gold-gradient text-primary-foreground hover:opacity-90 transition-opacity py-2 text-xs font-bold"
+                  className="w-full flex items-center justify-center gap-2 rounded-lg gold-gradient text-primary-foreground hover:opacity-90 transition-opacity py-2 text-xs font-medium"
                 >
                   Ver detalhes completos <ChevronRight size={13} />
                 </button>
                 <button
                   onClick={() => setPickerOpen(true)}
-                  className="mt-1.5 w-full flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 text-primary hover:bg-primary/10 transition-colors py-1.5 text-[11px] font-bold uppercase tracking-wider"
+                  className="mt-1.5 w-full flex items-center justify-center gap-1.5 rounded-lg border border-primary/40 text-primary hover:bg-primary/10 transition-colors py-1.5 text-[11px] font-medium uppercase tracking-wider"
                 >
                   <Play size={11} fill="currentColor" /> Reproduzir viagem
                 </button>

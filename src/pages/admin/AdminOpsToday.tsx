@@ -171,7 +171,7 @@ export default function AdminOpsToday() {
               <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-emerald-600 dark:text-emerald-400">
+            <span className="text-[10px] font-medium tracking-[0.18em] uppercase text-emerald-600 dark:text-emerald-400">
               Painel de operação · {isToday ? "hoje" : "outro dia"}
             </span>
           </div>
@@ -355,7 +355,7 @@ export default function AdminOpsToday() {
                 <Wrench size={16} />
               </div>
               <div>
-                <h2 className="text-sm font-bold uppercase tracking-[0.1em] text-sky-600 dark:text-sky-400">
+                <h2 className="text-sm font-medium uppercase tracking-[0.1em] text-sky-600 dark:text-sky-400">
                   Em preparação
                 </h2>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -363,7 +363,7 @@ export default function AdminOpsToday() {
                 </p>
               </div>
             </div>
-            <span className="text-base font-bold tabular-nums text-sky-600 dark:text-sky-400 shrink-0">
+            <span className="text-base font-medium tabular-nums text-sky-600 dark:text-sky-400 shrink-0">
               {maintenance.length}
             </span>
           </div>
@@ -446,10 +446,10 @@ function KpiCard({
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] uppercase tracking-[0.14em] font-bold text-muted-foreground">
+          <p className="text-[10px] uppercase tracking-[0.14em] font-medium text-muted-foreground">
             {label}
           </p>
-          <p className={`text-2xl font-bold tabular-nums leading-none mt-0.5 ${valueColor}`}>
+          <p className={`text-2xl font-medium tabular-nums leading-none mt-0.5 ${valueColor}`}>
             {value}
           </p>
         </div>
@@ -483,13 +483,13 @@ function SectionCard({
             {icon}
           </div>
           <div>
-            <h2 className={`text-sm font-bold uppercase tracking-[0.1em] ${titleColor}`}>
+            <h2 className={`text-sm font-medium uppercase tracking-[0.1em] ${titleColor}`}>
               {title}
             </h2>
             <div className={`mt-1 h-0.5 w-10 rounded-full ${accentColor}`} />
           </div>
         </div>
-        <span className={`text-base font-bold tabular-nums ${countColor}`}>{count}</span>
+        <span className={`text-base font-medium tabular-nums ${countColor}`}>{count}</span>
       </div>
       <div className="flex-1 relative z-10">{children}</div>
     </div>
@@ -509,7 +509,7 @@ function StatusLegend({
     <div className="mb-3 flex flex-wrap items-center gap-1.5">
       <button
         onClick={() => onChange("all")}
-        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider transition-colors ${
           active === "all"
             ? "border-foreground/30 bg-foreground/[0.06] text-foreground"
             : "border-border/40 bg-card/60 text-muted-foreground hover:text-foreground"
@@ -527,7 +527,7 @@ function StatusLegend({
           <button
             key={s}
             onClick={() => onChange(isActive ? "all" : s)}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider transition-colors ${
               isActive
                 ? `${m.chipBorder} ${m.chipBg} ${m.chipText}`
                 : "border-border/40 bg-card/60 text-muted-foreground hover:text-foreground"
@@ -578,13 +578,13 @@ function BookingRowCard({
           )}
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-3 flex-wrap">
-              <span className="text-xl font-bold tabular-nums text-foreground leading-none">
+              <span className="text-xl font-medium tabular-nums text-foreground leading-none">
                 {time ? time.slice(0, 5) : "—"}
               </span>
               <span className="text-sm font-semibold text-foreground truncate">
                 {formatPersonName(booking.customer_name)}
               </span>
-              <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${m.chipBorder} ${m.chipBg} ${m.chipText}`}>
+              <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider ${m.chipBorder} ${m.chipBg} ${m.chipText}`}>
                 <span className={`h-1 w-1 rounded-full ${m.dot}`} />
                 {m.label.replace(/s$/, "")}
               </span>
@@ -614,7 +614,7 @@ function BookingRowCard({
                 e.stopPropagation();
                 navigate(`/admin/inspection/${booking.id}?type=${inspectionType}`);
               }}
-              className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors ${inspectionTone}`}
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium uppercase tracking-wider transition-colors ${inspectionTone}`}
               title={type === "pickup" ? "Inspeção de entrega" : "Inspeção de devolução"}
             >
               <Play size={10} className="fill-current" />
@@ -649,10 +649,10 @@ function PrepCategory({
     <div>
       <div className="flex items-center gap-2 mb-2">
         <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-        <h3 className={`text-[11px] font-bold uppercase tracking-[0.14em] ${text}`}>
+        <h3 className={`text-[11px] font-medium uppercase tracking-[0.14em] ${text}`}>
           {title}
         </h3>
-        <span className={`text-[11px] font-bold tabular-nums ${text}`}>
+        <span className={`text-[11px] font-medium tabular-nums ${text}`}>
           {vehicles.length}
         </span>
       </div>

@@ -87,7 +87,7 @@ export function TripsTab({ vehicleId }: { vehicleId: string }) {
   return (
     <div className="p-3 space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-foreground">Viagens (últimos 30 dias)</h3>
+        <h3 className="text-sm font-medium text-foreground">Viagens (últimos 30 dias)</h3>
         <button
           onClick={handleSync}
           disabled={syncing}
@@ -112,7 +112,7 @@ export function TripsTab({ vehicleId }: { vehicleId: string }) {
           return (
             <div key={day} className="space-y-1.5">
               <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] font-bold tracking-wider text-muted-foreground">{dayHeader(day)}</span>
+                <span className="text-[10px] font-medium tracking-wider text-muted-foreground">{dayHeader(day)}</span>
                 <span className="text-[10px] font-semibold text-foreground tabular-nums">{fmtMi(total)} mi</span>
               </div>
               {dayTrips.map((t) => {
@@ -129,7 +129,7 @@ export function TripsTab({ vehicleId }: { vehicleId: string }) {
                           {fmtTime(t.started_at)} – {fmtTime(t.ended_at)}
                         </span>
                       </div>
-                      <span className="text-xs font-bold text-foreground tabular-nums">
+                      <span className="text-xs font-medium text-foreground tabular-nums">
                         {fmtMi(t.distance_mi)} <span className="text-[9px] font-normal text-muted-foreground">mi</span>
                       </span>
                     </button>
@@ -142,7 +142,7 @@ export function TripsTab({ vehicleId }: { vehicleId: string }) {
                               <div className="flex items-start gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 shrink-0" />
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-[9px] uppercase font-bold text-muted-foreground">Início</p>
+                                  <p className="text-[9px] uppercase font-medium text-muted-foreground">Início</p>
                                   <p className="text-foreground/80 truncate">{t.start_address}</p>
                                 </div>
                               </div>
@@ -151,7 +151,7 @@ export function TripsTab({ vehicleId }: { vehicleId: string }) {
                               <div className="flex items-start gap-2">
                                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0" />
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-[9px] uppercase font-bold text-muted-foreground">Fim</p>
+                                  <p className="text-[9px] uppercase font-medium text-muted-foreground">Fim</p>
                                   <p className="text-foreground/80 truncate">{t.end_address}</p>
                                 </div>
                               </div>
@@ -189,7 +189,7 @@ function Metric({ icon, label, value, alert }: { icon: React.ReactNode; label: s
       <div className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
         {icon}{label}
       </div>
-      <p className={`text-xs font-bold tabular-nums mt-0.5 ${alert ? "text-red-500" : "text-foreground"}`}>{value}</p>
+      <p className={`text-xs font-medium tabular-nums mt-0.5 ${alert ? "text-red-500" : "text-foreground"}`}>{value}</p>
     </div>
   );
 }

@@ -150,7 +150,7 @@ export default function AdminInspectionCompare() {
           <ChevronLeft size={20} />
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-foreground">Comparar Inspeções</h1>
+          <h1 className="text-2xl font-medium text-foreground">Comparar Inspeções</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {booking?.customer_name} • {vehicle?.name || "—"} •{" "}
             {booking && new Date(booking.pickup_date).toLocaleDateString("pt-BR")} →{" "}
@@ -189,7 +189,7 @@ export default function AdminInspectionCompare() {
       {/* Differences */}
       {checkin && checkout && (
         <div className="space-y-4">
-          <h2 className="text-lg font-bold text-foreground">Diferenças Detectadas</h2>
+          <h2 className="text-lg font-medium text-foreground">Diferenças Detectadas</h2>
 
           {/* Mileage difference */}
           <Card className="border-border/40">
@@ -201,7 +201,7 @@ export default function AdminInspectionCompare() {
                   {checkin.odometer_reading?.toLocaleString("pt-BR") || "?"} → {checkout.odometer_reading?.toLocaleString("pt-BR") || "?"} mi
                 </p>
               </div>
-              <Badge variant="outline" className="text-lg font-bold">
+              <Badge variant="outline" className="text-lg font-medium">
                 {odometerDiff !== null ? `${odometerDiff.toLocaleString("pt-BR")} mi` : "—"}
               </Badge>
             </CardContent>

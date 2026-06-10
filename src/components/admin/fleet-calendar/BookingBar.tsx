@@ -106,7 +106,7 @@ export function BookingBar({ booking, left, width, height }: Props) {
                 {token.label}
               </Badge>
             </div>
-            <div className="mt-1.5 text-sm font-bold text-foreground truncate">{formatPersonName(booking.customer_name)}</div>
+            <div className="mt-1.5 text-sm font-medium text-foreground truncate">{formatPersonName(booking.customer_name)}</div>
             <div className="text-[11px] text-muted-foreground tabular-nums flex items-center gap-1 mt-0.5">
               <Hash size={10} /> {booking.booking_number || "sem número"}
             </div>

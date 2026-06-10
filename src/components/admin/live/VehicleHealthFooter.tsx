@@ -61,7 +61,7 @@ export function VehicleHealthFooter({ vehicle }: { vehicle: LiveVehicle }) {
               {it.icon}
             </div>
             <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold leading-none">{it.label}</p>
-            <p className="text-[10px] font-bold text-foreground tabular-nums leading-tight truncate w-full">{it.value}</p>
+            <p className="text-[10px] font-medium text-foreground tabular-nums leading-tight truncate w-full">{it.value}</p>
           </div>
         ))}
       </div>

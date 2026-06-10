@@ -181,7 +181,7 @@ export function FleetCalendar() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Calendário da Frota</h1>
+          <h1 className="text-2xl font-medium tracking-tight">Calendário da Frota</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Visão de ocupação por veículo • <span className="tabular-nums">{rangeLabel}</span>
           </p>
@@ -347,10 +347,10 @@ export function FleetCalendar() {
                           isToday ? "bg-primary/15" : isWeekend ? "bg-muted/40" : ""
                         }`}
                       >
-                        <div className={`text-[9px] uppercase ${isToday ? "text-primary font-bold" : "text-muted-foreground"}`}>
+                        <div className={`text-[9px] uppercase ${isToday ? "text-primary font-medium" : "text-muted-foreground"}`}>
                           {format(d, "EEE", { locale: ptBR }).slice(0, 3)}
                         </div>
-                        <div className={`text-[11px] tabular-nums ${isToday ? "text-primary font-bold" : "text-foreground"}`}>
+                        <div className={`text-[11px] tabular-nums ${isToday ? "text-primary font-medium" : "text-foreground"}`}>
                           {format(d, "dd")}
                         </div>
                       </div>
@@ -455,7 +455,7 @@ function Kpi({ icon, label, value, tone }: { icon: React.ReactNode; label: strin
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
         {icon} {label}
       </div>
-      <div className="mt-1 text-2xl font-bold tabular-nums text-foreground">{value}</div>
+      <div className="mt-1 text-2xl font-medium tabular-nums text-foreground">{value}</div>
     </Card>
   );
 }

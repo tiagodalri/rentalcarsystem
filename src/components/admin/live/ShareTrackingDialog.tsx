@@ -79,7 +79,7 @@ export function ShareTrackingDialog({ vehicleId, vehicleName, open, onClose }: P
               <Share2 size={16} className="text-primary" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-foreground">Compartilhar rastreamento</h3>
+              <h3 className="text-sm font-medium text-foreground">Compartilhar rastreamento</h3>
               <p className="text-[11px] text-muted-foreground">{vehicleName}</p>
             </div>
           </div>
@@ -137,7 +137,7 @@ export function ShareTrackingDialog({ vehicleId, vehicleName, open, onClose }: P
               <button
                 onClick={handleCreate}
                 disabled={creating}
-                className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full h-11 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {creating ? <Loader2 size={14} className="animate-spin" /> : <Link2 size={14} />}
                 {creating ? "Gerando…" : "Gerar link de compartilhamento"}

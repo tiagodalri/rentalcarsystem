@@ -53,7 +53,7 @@ export default function PublicCardPreview({
         <div className="p-4 space-y-2">
           <div>
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{category || "Categoria"}</p>
-            <h3 className="text-base font-bold text-foreground truncate">{name || "Nome do veículo"}</h3>
+            <h3 className="text-base font-medium text-foreground truncate">{name || "Nome do veículo"}</h3>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1"><Users size={12} />{passengers} passageiros</span>
@@ -63,7 +63,7 @@ export default function PublicCardPreview({
           </div>
           <div className="flex items-end justify-between pt-2 border-t border-border/30">
             <span className="text-[11px] text-muted-foreground">A partir de</span>
-            <span className="text-xl font-bold text-primary tabular-nums">${daily_price_usd || 0}/dia</span>
+            <span className="text-xl font-medium text-primary tabular-nums">${daily_price_usd || 0}/dia</span>
           </div>
         </div>
       </div>

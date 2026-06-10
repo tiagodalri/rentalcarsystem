@@ -64,7 +64,7 @@ export function CategoriesTab() {
       <Card className="border-border/30">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+            <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
               <Icon size={14} className={type === "income" ? "text-emerald-500" : "text-red-500"} />
               {title} ({items.length})
             </h3>
@@ -100,7 +100,7 @@ export function CategoriesTab() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-bold text-foreground">Categorias</h2>
+        <h2 className="text-lg font-medium text-foreground">Categorias</h2>
         <p className="text-xs text-muted-foreground">Plano de contas para receitas e despesas</p>
       </div>
 

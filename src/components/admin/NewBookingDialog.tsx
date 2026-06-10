@@ -373,7 +373,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
   const Section = ({ step, title, children }: SectionProps) => (
     <section className="rounded-2xl border border-border/50 bg-card/40 p-4 sm:p-5">
       <header className="flex items-center gap-2.5 mb-4">
-        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/15 text-primary text-xs font-bold tabular-nums">
+        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-primary/15 text-primary text-xs font-medium tabular-nums">
           {step}
         </span>
         <h3 className="text-[13px] font-semibold uppercase tracking-wider text-foreground">

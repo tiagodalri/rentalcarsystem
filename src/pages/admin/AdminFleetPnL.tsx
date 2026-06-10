@@ -179,7 +179,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         {!embedded ? (
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Relatório de Frota — Lucro por Veículo</h1>
+            <h1 className="text-2xl font-medium text-foreground">Relatório de Frota — Lucro por Veículo</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Compra, gastos, receitas e lucro operacional de cada carro desde a aquisição
             </p>
@@ -187,7 +187,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         ) : <div />}
         <button
           onClick={() => { setCompareMode(!compareMode); if (compareMode) setCompareIds([]); }}
-          className={`inline-flex items-center gap-2 h-9 px-4 rounded-lg border text-xs font-bold uppercase tracking-wider transition-colors ${
+          className={`inline-flex items-center gap-2 h-9 px-4 rounded-lg border text-xs font-medium uppercase tracking-wider transition-colors ${
             compareMode
               ? "bg-primary text-primary-foreground border-primary"
               : "bg-card text-foreground border-border/40 hover:bg-muted"
@@ -294,7 +294,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Investimento</p>
-                <p className="text-xl font-bold text-foreground tabular-nums">${fmt(totals.purchase)}</p>
+                <p className="text-xl font-medium text-foreground tabular-nums">${fmt(totals.purchase)}</p>
               </div>
             </div>
           </CardContent>
@@ -309,7 +309,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita Total</p>
-                <p className="text-xl font-bold text-foreground tabular-nums">${fmt(totals.revenue)}</p>
+                <p className="text-xl font-medium text-foreground tabular-nums">${fmt(totals.revenue)}</p>
               </div>
             </div>
           </CardContent>
@@ -324,7 +324,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Gastos Totais</p>
-                <p className="text-xl font-bold text-foreground tabular-nums">${fmt(totals.expenses)}</p>
+                <p className="text-xl font-medium text-foreground tabular-nums">${fmt(totals.expenses)}</p>
               </div>
             </div>
           </CardContent>
@@ -339,7 +339,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Lucro Operacional</p>
-                <p className={`text-xl font-bold tabular-nums ${totals.opProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                <p className={`text-xl font-medium tabular-nums ${totals.opProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
                   {totals.opProfit >= 0 ? "" : "-"}${fmt(Math.abs(totals.opProfit))}
                 </p>
               </div>
@@ -358,7 +358,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                   </div>
                   <div>
                     <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Retorno sobre Investimento</p>
-                    <p className={`text-xl font-bold tabular-nums ${globalRoiPct === null ? "text-muted-foreground" : (globalRoiPct >= 0 ? "text-green-500" : "text-destructive")}`}>
+                    <p className={`text-xl font-medium tabular-nums ${globalRoiPct === null ? "text-muted-foreground" : (globalRoiPct >= 0 ? "text-green-500" : "text-destructive")}`}>
                       {globalRoiPct === null ? "—" : `${globalRoiPct.toFixed(1)}%`}
                     </p>
                   </div>
@@ -382,7 +382,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                   </div>
                   <div>
                     <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Payback Estimado</p>
-                    <p className={`text-xl font-bold tabular-nums ${paybackMonths === "recovered" ? "text-green-500" : "text-foreground"}`}>
+                    <p className={`text-xl font-medium tabular-nums ${paybackMonths === "recovered" ? "text-green-500" : "text-foreground"}`}>
                       {paybackMonths === null ? "—" : paybackMonths === "recovered" ? "Recuperado" : `${paybackMonths} meses`}
                     </p>
                   </div>
@@ -479,7 +479,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">
                       {r.expenses > 0 ? `-$${fmt(r.expenses)}` : "—"}
                     </td>
-                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-bold ${r.operatingProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.operatingProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
                       {r.operatingProfit >= 0 ? "" : "-"}${fmt(Math.abs(r.operatingProfit))}
                     </td>
                     <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.roiPct === null ? "text-muted-foreground" : (r.roiPct >= 0 ? "text-green-500" : "text-destructive")}`}>
@@ -517,7 +517,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">
                       {totals.expenses > 0 ? `-$${fmt(totals.expenses)}` : "—"}
                     </td>
-                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-bold ${totals.opProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${totals.opProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
                       {totals.opProfit >= 0 ? "" : "-"}${fmt(Math.abs(totals.opProfit))}
                     </td>
                     <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums ${(globalRoiPct ?? 0) >= 0 ? "text-green-500" : "text-destructive"}`}>

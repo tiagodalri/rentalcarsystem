@@ -85,7 +85,7 @@ export function CustomerNotesTimeline({ customerId }: Props) {
           <button
             onClick={add}
             disabled={!body.trim() || submitting}
-            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md gold-gradient text-primary-foreground text-[10px] font-bold uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md gold-gradient text-primary-foreground text-[10px] font-medium uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {submitting ? <Loader2 size={12} className="animate-spin" /> : <MessageSquarePlus size={12} />}
             Adicionar nota

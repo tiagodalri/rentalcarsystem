@@ -247,7 +247,7 @@ export default function VehicleWizard() {
                 >
                   <div className="flex items-center gap-2">
                     <div
-                      className={`h-7 w-7 rounded-full inline-flex items-center justify-center text-[11px] font-bold ${
+                      className={`h-7 w-7 rounded-full inline-flex items-center justify-center text-[11px] font-medium ${
                         isDone ? "bg-primary text-primary-foreground" : isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                       }`}
                     >

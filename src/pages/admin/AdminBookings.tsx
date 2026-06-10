@@ -178,7 +178,7 @@ function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (
                               className={`text-[9px] leading-tight px-1.5 py-1 rounded-md cursor-pointer transition-all hover:scale-[1.02] hover:shadow-sm border ${sc.calBg} ${sc.calText} border-transparent hover:border-current/20`}
                               title={`${b.vehicle_name || "—"} • ${b.customer_name} — ${sc.label}${isPickup ? ` (Retirada ${b.pickup_time || ""})` : ""}${isReturn ? ` (Devolução ${b.return_time || ""})` : ""}`}
                             >
-                              <div className="font-bold truncate">
+                              <div className="font-medium truncate">
                                 {isPickup && <span className="opacity-60">→ </span>}
                                 {isReturn && <span className="opacity-60">← </span>}
                                 {vehicleShort || "—"}
@@ -324,7 +324,7 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
                 <div className="text-[10px] uppercase tracking-wider font-semibold opacity-70">
                   {WEEKDAYS_FULL[i]}
                 </div>
-                <div className={`text-lg font-bold ${isToday ? "" : "text-foreground"}`}>
+                <div className={`text-lg font-medium ${isToday ? "" : "text-foreground"}`}>
                   {day.getDate()}
                 </div>
                 <div className="text-[10px] opacity-60">
@@ -352,12 +352,12 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
                       {(isPickup || isReturn) && (
                         <div className="flex items-center gap-1 mb-1.5">
                           {isPickup && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded">
+                            <span className="text-[9px] font-medium uppercase tracking-wider bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded">
                               → Retirada
                             </span>
                           )}
                           {isReturn && (
-                            <span className="text-[9px] font-bold uppercase tracking-wider bg-orange-500/20 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded">
+                            <span className="text-[9px] font-medium uppercase tracking-wider bg-orange-500/20 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded">
                               ← Devolução
                             </span>
                           )}
@@ -370,7 +370,7 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
                       )}
 
                       {/* Vehicle */}
-                      <div className="font-bold text-[11px] truncate">{vehicleShort}</div>
+                      <div className="font-medium text-[11px] truncate">{vehicleShort}</div>
 
                       {/* Customer */}
                       <div className="text-[10px] opacity-70 truncate">{customerFirst}</div>
@@ -952,7 +952,7 @@ export default function AdminBookings() {
               <SlidersHorizontal size={14} />
               Filtros
               {activeFilterCount > 0 && (
-                <span className="w-4.5 h-4.5 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center ml-0.5">
+                <span className="w-4.5 h-4.5 rounded-full bg-primary text-primary-foreground text-[9px] font-medium flex items-center justify-center ml-0.5">
                   {activeFilterCount}
                 </span>
               )}
@@ -960,7 +960,7 @@ export default function AdminBookings() {
           </PopoverTrigger>
           <PopoverContent className="w-[320px] p-0" align="end">
             <div className="p-3 border-b border-border/30 flex items-center justify-between">
-              <span className="text-xs font-bold text-foreground">Filtrar reservas</span>
+              <span className="text-xs font-medium text-foreground">Filtrar reservas</span>
               {activeFilterCount > 0 && (
                 <button
                   onClick={clearAllFilters}
@@ -1083,7 +1083,7 @@ export default function AdminBookings() {
           </PopoverTrigger>
           <PopoverContent className="w-[220px] p-0" align="end">
             <div className="p-3 border-b border-border/30">
-              <span className="text-xs font-bold text-foreground">Ordenar por</span>
+              <span className="text-xs font-medium text-foreground">Ordenar por</span>
             </div>
             <div className="p-2 space-y-0.5">
               {(Object.entries(sortLabels) as [SortField, string][]).map(([key, label]) => (
@@ -1100,7 +1100,7 @@ export default function AdminBookings() {
                 >
                   <span>{label}</span>
                   {filters.sortBy === key && (
-                    <span className="text-[10px] font-bold">{filters.sortDir === "desc" ? "↓ Recente" : "↑ Antigo"}</span>
+                    <span className="text-[10px] font-medium">{filters.sortDir === "desc" ? "↓ Recente" : "↑ Antigo"}</span>
                   )}
                 </button>
               ))}

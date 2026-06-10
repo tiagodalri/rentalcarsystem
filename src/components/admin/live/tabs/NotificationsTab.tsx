@@ -85,7 +85,7 @@ export function NotificationsTab({ vehicleId }: { vehicleId: string }) {
 
   return (
     <div className="p-3 space-y-3">
-      <h3 className="text-sm font-bold text-foreground">Notificações</h3>
+      <h3 className="text-sm font-medium text-foreground">Notificações</h3>
 
       <div className="flex gap-1 border border-border/30 rounded-lg p-0.5 bg-muted/20">
         {TABS.map((t) => {
@@ -95,7 +95,7 @@ export function NotificationsTab({ vehicleId }: { vehicleId: string }) {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1.5 rounded transition-colors flex items-center justify-center gap-1.5 ${
+              className={`flex-1 text-[10px] uppercase tracking-wider font-medium px-2 py-1.5 rounded transition-colors flex items-center justify-center gap-1.5 ${
                 active ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >

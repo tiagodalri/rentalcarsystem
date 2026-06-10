@@ -196,7 +196,7 @@ export default function AdminCustomerDetail() {
     <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-border/30 bg-card/80 gap-1.5 min-h-[88px]">
       <Icon size={16} className="text-primary/60" />
       <span className="text-[10px] text-muted-foreground uppercase tracking-wider text-center leading-tight">{label}</span>
-      <span className={`text-sm font-bold ${color}`}>{value}</span>
+      <span className={`text-sm font-medium ${color}`}>{value}</span>
     </div>
   );
 
@@ -212,7 +212,7 @@ export default function AdminCustomerDetail() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="space-y-2 min-w-0">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">{formatPersonName(customer.full_name)}</h1>
+          <h1 className="text-2xl font-medium text-foreground tracking-tight">{formatPersonName(customer.full_name)}</h1>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
             {customer.email && <span className="flex items-center gap-1"><Mail size={11} /> {customer.email}</span>}
             {customer.phone && <span className="flex items-center gap-1"><Phone size={11} /> {customer.phone}</span>}
@@ -231,7 +231,7 @@ export default function AdminCustomerDetail() {
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider hover:bg-emerald-500/25 transition-colors shrink-0"
+              className="inline-flex items-center gap-2 h-9 px-4 rounded-lg bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 text-xs font-medium uppercase tracking-wider hover:bg-emerald-500/25 transition-colors shrink-0"
             >
               <MessageCircle size={14} /> Enviar WhatsApp
             </a>
@@ -417,7 +417,7 @@ export default function AdminCustomerDetail() {
                           </div>
                           <div className="flex items-center gap-3">
                             <Badge className={`${sc.color} border text-[10px] px-2 py-0.5 font-semibold`}>{sc.label}</Badge>
-                            <span className="text-sm font-bold text-foreground tabular-nums">
+                            <span className="text-sm font-medium text-foreground tabular-nums">
                               {b.total_price ? `$${b.total_price.toFixed(2)}` : "—"}
                             </span>
                           </div>
