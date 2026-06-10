@@ -541,7 +541,7 @@ export default function AdminBookingDetail() {
             </div>
           )}
 
-          <div className="grid grid-cols-3 gap-2 sm:flex sm:justify-end">
+          <div className={`grid gap-2 sm:flex sm:justify-end ${isAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
             <button
               onClick={() => navigate(`/admin/inspection/report/${booking.id}`)}
               className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-border/40 bg-muted px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:h-9 sm:min-h-0 sm:w-9 sm:px-0"
