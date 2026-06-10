@@ -948,9 +948,10 @@ export default function AdminBookingDetail() {
       {/* Comparison bar */}
       {checkin && checkout && (
         <Card className="bg-card/80 border-border/30">
-          <CardContent className="p-5">
+          <CardContent className="p-4 sm:p-5">
             <SectionTitle>Comparativo Entrega × Devolução</SectionTitle>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+
               <MetricCard
                 icon={Gauge}
                 label="Milhas Rodadas"
