@@ -68,6 +68,12 @@ export default function AdminOpsToday() {
   const dayLabel = format(today, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
   const weekdayLabel = format(today, "EEEE", { locale: ptBR });
 
+  const prepGroups = useMemo(() => ({
+    maintenance: maintenance.filter(v => v.status === "maintenance"),
+    preparing: maintenance.filter(v => v.status === "preparing"),
+  }), [maintenance]);
+
+
   if (loading) {
     return <div className="p-10 text-center text-sm text-muted-foreground">Carregando operação do dia...</div>;
   }
