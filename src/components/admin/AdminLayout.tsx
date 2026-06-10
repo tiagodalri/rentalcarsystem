@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminTabsBar } from "./AdminTabsBar";
 import { AdminTabsProvider } from "@/hooks/useAdminTabs";
