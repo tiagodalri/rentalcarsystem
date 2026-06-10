@@ -769,7 +769,7 @@ export default function AdminInspection() {
                       <img src={odometerPhoto} alt="Odômetro" className="w-full h-full min-h-[180px] object-cover rounded-lg border border-border/40" />
                       {!isCompleted && (
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                          <Button size="sm" variant="secondary" onClick={() => odometerPhotoRef.current?.click()} className="h-7 text-xs">
+                          <Button size="sm" variant="secondary" onClick={captureOdometerPhoto} className="h-7 text-xs">
                             <Camera size={12} /> Refazer
                           </Button>
                           <Button size="sm" variant="destructive" onClick={() => setOdometerPhoto("")} className="h-7 text-xs">
@@ -780,7 +780,7 @@ export default function AdminInspection() {
                     </div>
                   ) : (
                     <button
-                      onClick={() => !isCompleted && odometerPhotoRef.current?.click()}
+                      onClick={() => !isCompleted && captureOdometerPhoto()}
                       disabled={isCompleted || uploading}
                       className="flex-1 min-h-[180px] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
                     >
@@ -832,7 +832,7 @@ export default function AdminInspection() {
                       <img src={fuelPhoto} alt="Combustível" className="w-full h-full min-h-[180px] object-cover rounded-lg border border-border/40" />
                       {!isCompleted && (
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                          <Button size="sm" variant="secondary" onClick={() => fuelPhotoRef.current?.click()} className="h-7 text-xs">
+                          <Button size="sm" variant="secondary" onClick={captureFuelPhoto} className="h-7 text-xs">
                             <Camera size={12} /> Refazer
                           </Button>
                           <Button size="sm" variant="destructive" onClick={() => setFuelPhoto("")} className="h-7 text-xs">
@@ -843,7 +843,7 @@ export default function AdminInspection() {
                     </div>
                   ) : (
                     <button
-                      onClick={() => !isCompleted && fuelPhotoRef.current?.click()}
+                      onClick={() => !isCompleted && captureFuelPhoto()}
                       disabled={isCompleted || uploading}
                       className="flex-1 min-h-[180px] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
                     >
