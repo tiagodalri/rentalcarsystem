@@ -47,7 +47,7 @@ export function AdminTabsBar() {
 
   return (
     <div
-      className="hidden lg:flex items-center gap-0.5 px-2 h-10 bg-muted/40 border-b border-border/60 overflow-x-auto scrollbar-none"
+      className="hidden lg:flex items-center gap-0.5 pl-0 pr-2 h-10 bg-muted/40 border-b border-border/60 overflow-x-auto scrollbar-none"
       role="tablist"
       aria-label="Abas abertas"
       style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
