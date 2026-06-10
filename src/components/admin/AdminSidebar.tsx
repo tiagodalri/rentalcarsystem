@@ -70,7 +70,6 @@ const menuSections: MenuSection[] = [
     label: "Financeiro",
     items: [
       { title: "Financeiro", url: "/admin/finance", icon: DollarSign, allowedRoles: ["admin","finance"] },
-      { title: "Relatórios", url: "/admin/report",  icon: BarChart3,  allowedRoles: ["admin","finance"] },
     ],
   },
   {
