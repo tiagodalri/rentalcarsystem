@@ -47,8 +47,8 @@ const AdminInspectionCompare = lazy(() => import("./pages/admin/AdminInspectionC
 const AdminInspectionReport = lazy(() => import("./pages/admin/AdminInspectionReport.tsx"));
 const AdminVehicleHistory = lazy(() => import("./pages/admin/AdminVehicleHistory.tsx"));
 const AdminVehicleDetail = lazy(() => import("./pages/admin/AdminVehicleDetail.tsx"));
-const AdminReportRedirect = lazy(() => import("./pages/admin/AdminPainel.tsx").then(m => ({ default: m.AdminReportRedirect })));
-const AdminFleetPnLRedirect = lazy(() => import("./pages/admin/AdminPainel.tsx").then(m => ({ default: m.AdminFleetPnLLegacyRedirect })));
+const AdminReport = lazy(() => import("./pages/admin/AdminReport.tsx"));
+const AdminFleetPnLRedirect = lazy(() => import("./pages/admin/AdminReport.tsx").then(m => ({ default: m.AdminFleetPnLRedirect })));
 const AdminBookingDetail = lazy(() => import("./pages/admin/AdminBookingDetail.tsx"));
 const AdminFinance = lazy(() => import("./pages/admin/AdminFinance.tsx"));
 const AdminTeam = lazy(() => import("./pages/admin/AdminTeam.tsx"));
