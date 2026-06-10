@@ -114,7 +114,7 @@ function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (
           <button onClick={prevMonth} className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
             <ChevronLeft size={16} />
           </button>
-          <h2 className="text-lg font-bold text-foreground min-w-[180px] text-center capitalize">
+          <h2 className="text-sm font-medium text-foreground min-w-[180px] text-center capitalize tracking-tight">
             {new Date(year, month).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
           </h2>
           <button onClick={nextMonth} className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
