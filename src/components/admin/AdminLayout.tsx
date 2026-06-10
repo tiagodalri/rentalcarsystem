@@ -90,7 +90,7 @@ export default function AdminLayout() {
                 style={{
                   // Reserva espaço pra bottom nav em mobile; desktop usa o padding normal.
                   paddingBottom:
-                    "max(calc(64px + env(safe-area-inset-bottom, 0px) + 16px), 1rem)",
+                    "max(calc(64px + env(safe-area-inset-bottom, 0px) + 20px), 1rem)",
                 }}
               >
                 <Outlet />
