@@ -38,45 +38,48 @@ const DARK_STYLE: any[] = [
  * - Tiny top-down car silhouette inside the puck
  */
 function puckSvg(color: string, selected: boolean, headingDeg: number, moving: boolean): any {
-  // Slightly larger when selected so it pops.
-  const size = selected ? 52 : 44;
+  // Display size in CSS px on the map.
+  const displaySize = selected ? 56 : 46;
+  // Render the SVG raster at 3x for retina-crisp pins (Google Marker rasterizes data: URIs).
+  const NATIVE = 132; // 44 * 3
   const h = ((headingDeg % 360) + 360) % 360;
-  const ringStroke = selected ? "#D4AF37" : "#ffffff";
-  const ringWidth = selected ? 3 : 2.2;
-  const haloOpacity = moving ? 0.22 : 0;
-  // Cone shown only when actually moving; rotates with heading.
+  const ringStroke = selected ? "#D4AF37" : "#0a0a0a";
+  const ringWidth = selected ? 3.2 : 2.4;
+  const haloOpacity = moving ? 0.28 : 0;
   const cone = moving
     ? `<g transform="rotate(${h} 22 22)">
-         <path d="M22 1 L30 12 L22 9 L14 12 Z" fill="${color}" opacity="0.95" />
+         <path d="M22 0.5 L30.5 12 L22 8.5 L13.5 12 Z" fill="${color}" stroke="#0a0a0a" stroke-width="0.6" stroke-linejoin="round" opacity="0.98" />
        </g>`
     : "";
-  // Tiny top-down car silhouette (white), also rotates with heading so it "looks where it goes"
   const carBody = `
-    <g transform="rotate(${h} 22 22)" opacity="0.95">
-      <rect x="18.5" y="16" width="7" height="12" rx="2" fill="#ffffff" />
-      <rect x="19.5" y="17.5" width="5" height="3.2" rx="0.6" fill="${color}" />
-      <rect x="19.5" y="22" width="5" height="4" rx="0.6" fill="${color}" opacity="0.6" />
+    <g transform="rotate(${h} 22 22)">
+      <rect x="18.4" y="15.8" width="7.2" height="12.4" rx="2.2" fill="#ffffff" stroke="#0a0a0a" stroke-width="0.5" opacity="0.98"/>
+      <rect x="19.4" y="17.4" width="5.2" height="3.4" rx="0.6" fill="${color}" />
+      <rect x="19.4" y="22" width="5.2" height="4.2" rx="0.6" fill="${color}" opacity="0.55" />
     </g>`;
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 44 44">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${NATIVE}" height="${NATIVE}" viewBox="0 0 44 44" shape-rendering="geometricPrecision">
       <defs>
-        <filter id="puckShadow" x="-30%" y="-30%" width="160%" height="160%">
-          <feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#000" flood-opacity="0.42"/>
+        <filter id="puckShadow" x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="0" dy="1.6" stdDeviation="1.8" flood-color="#000" flood-opacity="0.5"/>
         </filter>
       </defs>
       <circle cx="22" cy="22" r="19" fill="${color}" opacity="${haloOpacity}" />
       <g filter="url(#puckShadow)">
-        <circle cx="22" cy="22" r="12.5" fill="${color}" stroke="${ringStroke}" stroke-width="${ringWidth}" />
+        <circle cx="22" cy="22" r="13.5" fill="#ffffff" stroke="${ringStroke}" stroke-width="${ringWidth}" />
+        <circle cx="22" cy="22" r="11" fill="${color}" opacity="0.95"/>
       </g>
       ${cone}
       ${carBody}
     </svg>`;
   return {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-    scaledSize: { width: size, height: size } as any,
-    anchor: { x: size / 2, y: size / 2 } as any,
+    scaledSize: { width: displaySize, height: displaySize } as any,
+    size: { width: NATIVE, height: NATIVE } as any,
+    anchor: { x: displaySize / 2, y: displaySize / 2 } as any,
   };
 }
+
 
 function carvatarSvg(imageUrl: string, color: string, selected: boolean): any {
   const size = selected ? 56 : 44;
