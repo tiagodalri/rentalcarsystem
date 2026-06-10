@@ -91,7 +91,7 @@ export function VehicleDetailDrawer({
           {vehicle.address && (
             <p className="text-[11px] text-muted-foreground flex items-start gap-1.5 leading-snug">
               <MapPin size={11} className="text-primary mt-0.5 shrink-0" />
-              <span className="truncate">{vehicle.address}</span>
+              <span className="block truncate min-w-0">{vehicle.address}</span>
             </p>
           )}
         </div>

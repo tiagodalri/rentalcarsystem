@@ -1114,13 +1114,13 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
               {data.startAddress && playbackMs < 5000 && (
                 <p className="mt-2 text-[10px] text-white/50 leading-snug flex items-start gap-1">
                   <MapPin size={10} style={{ color: GOLD }} className="mt-0.5 shrink-0" />
-                  <span className="truncate">{data.startAddress}</span>
+                  <span className="block truncate min-w-0">{data.startAddress}</span>
                 </p>
               )}
               {data.endAddress && playbackMs > data.durationMs - 5000 && (
                 <p className="mt-2 text-[10px] text-white/50 leading-snug flex items-start gap-1">
                   <MapPin size={10} style={{ color: GOLD }} className="mt-0.5 shrink-0" />
-                  <span className="truncate">{data.endAddress}</span>
+                  <span className="block truncate min-w-0">{data.endAddress}</span>
                 </p>
               )}
             </div>

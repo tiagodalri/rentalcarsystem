@@ -319,7 +319,7 @@ export default function AdminLive() {
                 {selectedVehicle.address && (
                   <p className="text-[11px] text-muted-foreground flex items-start gap-1.5 leading-snug mb-2.5">
                     <MapPin size={11} className="text-primary mt-0.5 shrink-0" />
-                    <span className="truncate">{selectedVehicle.address}</span>
+                    <span className="block truncate min-w-0">{selectedVehicle.address}</span>
                   </p>
                 )}
                 <button
