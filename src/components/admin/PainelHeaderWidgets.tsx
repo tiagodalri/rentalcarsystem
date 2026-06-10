@@ -1,16 +1,27 @@
 import { useEffect, useState } from "react";
-import { Clock, DollarSign, Cloud, Sun, CloudRain, CloudSnow, CloudFog, CloudLightning, type LucideIcon } from "lucide-react";
+import {
+  Clock,
+  DollarSign,
+  Cloud,
+  Sun,
+  CloudRain,
+  CloudSnow,
+  CloudFog,
+  CloudLightning,
+  Radio,
+  type LucideIcon,
+} from "lucide-react";
 
 /**
- * Compact widget strip for the Painel header:
- * Orlando time · Brazil time · USD→BRL rate · Orlando temperature.
- * All data is fetched client-side with sensible caching; failures degrade silently.
+ * TV-news style ticker banner for the Painel.
+ * Thin full-width strip with an "AO VIVO" badge and an infinite horizontal marquee
+ * cycling Orlando time, Brasil time, USD→BRL and Orlando weather.
  */
 
 const RATE_CACHE_KEY = "painel_widget_rate";
-const RATE_TTL = 30 * 60 * 1000; // 30 min
+const RATE_TTL = 30 * 60 * 1000;
 const WEATHER_CACHE_KEY = "painel_widget_weather";
-const WEATHER_TTL = 15 * 60 * 1000; // 15 min
+const WEATHER_TTL = 15 * 60 * 1000;
 
 function useClock(timeZone: string) {
   const [now, setNow] = useState(() => new Date());
@@ -71,7 +82,6 @@ function useUsdBrl() {
 type Weather = { tempC: number; code: number } | null;
 
 function weatherIcon(code: number) {
-  // WMO weather interpretation codes (open-meteo)
   if (code === 0) return Sun;
   if ([1, 2, 3].includes(code)) return Cloud;
   if ([45, 48].includes(code)) return CloudFog;
@@ -127,29 +137,28 @@ function useOrlandoWeather() {
   return w;
 }
 
-function Widget({
+function TickerItem({
   icon: Icon,
   label,
   value,
-  loading,
 }: {
   icon: LucideIcon;
   label: string;
   value: string;
-  loading?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-border/40 bg-card/40 backdrop-blur-sm min-w-0">
-      <Icon className="h-3.5 w-3.5 text-muted-foreground shrink-0" strokeWidth={1.75} />
-      <div className="flex flex-col leading-tight min-w-0">
-        <span className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground/70 truncate">
-          {label}
-        </span>
-        <span className="text-[12px] font-medium tabular-nums text-foreground truncate">
-          {loading ? "—" : value}
-        </span>
-      </div>
-    </div>
+    <span className="inline-flex items-center gap-2 px-5 whitespace-nowrap">
+      <Icon className="h-3.5 w-3.5 text-primary/80 shrink-0" strokeWidth={1.9} />
+      <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/80">
+        {label}
+      </span>
+      <span className="text-[12px] font-medium tabular-nums text-foreground">
+        {value}
+      </span>
+      <span className="text-muted-foreground/30 select-none" aria-hidden>
+        •
+      </span>
+    </span>
   );
 }
 
@@ -160,22 +169,53 @@ export function PainelHeaderWidgets() {
   const weather = useOrlandoWeather();
   const WIcon = weather ? weatherIcon(weather.code) : Cloud;
 
-  return (
-    <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-1 px-1">
-      <Widget icon={Clock} label="Orlando" value={orlandoTime} />
-      <Widget icon={Clock} label="Brasil" value={brazilTime} />
-      <Widget
+  const items = (
+    <>
+      <TickerItem icon={Clock} label="Orlando" value={orlandoTime} />
+      <TickerItem icon={Clock} label="Brasil" value={brazilTime} />
+      <TickerItem
         icon={DollarSign}
         label="USD → BRL"
         value={rate ? `R$ ${rate.toFixed(2).replace(".", ",")}` : "—"}
-        loading={!rate}
       />
-      <Widget
+      <TickerItem
         icon={WIcon}
         label="Orlando"
         value={weather ? `${Math.round(weather.tempC)}°C` : "—"}
-        loading={!weather}
       />
+    </>
+  );
+
+  return (
+    <div
+      className="relative flex items-stretch w-full overflow-hidden rounded-md border border-border/50 bg-card/60 backdrop-blur-sm h-8"
+      role="status"
+      aria-label="Informações ao vivo"
+    >
+      {/* AO VIVO badge */}
+      <div className="flex items-center gap-1.5 px-3 bg-primary/10 border-r border-border/50 shrink-0">
+        <span className="relative flex h-1.5 w-1.5">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-70 animate-ping" />
+          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
+        </span>
+        <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-primary">
+          Ao vivo
+        </span>
+      </div>
+
+      {/* Marquee track */}
+      <div className="relative flex-1 overflow-hidden">
+        {/* edge fades */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-card to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-card to-transparent z-10" />
+
+        <div className="flex h-full items-center animate-marquee whitespace-nowrap will-change-transform">
+          <div className="flex items-center shrink-0">{items}</div>
+          <div className="flex items-center shrink-0" aria-hidden>
+            {items}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
