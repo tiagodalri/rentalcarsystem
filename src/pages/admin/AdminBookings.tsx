@@ -853,7 +853,7 @@ export default function AdminBookings() {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">Reservas</h1>
+          <h1 className="admin-h1">Reservas</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">{bookings.length} reservas • {filtered.length} exibidas</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
