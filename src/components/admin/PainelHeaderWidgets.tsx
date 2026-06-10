@@ -149,14 +149,14 @@ function TickerItem({
 }) {
   return (
     <span className="inline-flex items-center gap-2 px-6 whitespace-nowrap">
-      <Icon className="h-3.5 w-3.5 text-white/95 shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.55)]" strokeWidth={2} />
-      <span className="text-[10px] uppercase tracking-[0.2em] text-white/85 drop-shadow-[0_1px_1px_rgba(0,0,0,0.55)]">
+      <Icon className="h-3.5 w-3.5 text-primary shrink-0" strokeWidth={2} />
+      <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
         {label}
       </span>
-      <span className="text-[12.5px] font-semibold tabular-nums text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
+      <span className="text-[12.5px] font-semibold tabular-nums text-foreground">
         {value}
       </span>
-      <span className="text-white/40 select-none ml-2" aria-hidden>
+      <span className="text-border select-none ml-2" aria-hidden>
         ◆
       </span>
     </span>
@@ -189,28 +189,23 @@ export function PainelHeaderWidgets() {
 
   return (
     <div
-      className="relative flex items-stretch w-full overflow-hidden h-9 select-none"
+      className="relative flex items-stretch w-full overflow-hidden h-9 select-none bg-card"
       role="status"
       aria-label="Informações ao vivo"
-      style={{
-        backgroundImage: `url(${tickerBg})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
     >
-      {/* dark overlay para legibilidade */}
-      <div className="absolute inset-0 bg-black/25" aria-hidden />
-
-      {/* AO VIVO pill */}
-      <div className="relative flex items-center gap-2 px-3.5 bg-red-600 shrink-0 shadow-[2px_0_8px_rgba(0,0,0,0.25)]">
+      {/* AO VIVO pill — usa primary do tema */}
+      <div className="relative flex items-center gap-2 px-3.5 bg-primary shrink-0">
         <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+          <span className="absolute inline-flex h-full w-full rounded-full bg-primary-foreground opacity-75 animate-ping" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-foreground" />
         </span>
-        <span className="text-[10px] font-bold tracking-[0.22em] uppercase text-white">
+        <span className="text-[10px] font-bold tracking-[0.22em] uppercase text-primary-foreground">
           Ao vivo
         </span>
       </div>
+
+      {/* Subtle accent fade after the pill */}
+      <div className="relative w-12 shrink-0 bg-gradient-to-r from-accent/40 to-transparent" aria-hidden />
 
       {/* Marquee track */}
       <div className="relative flex-1 overflow-hidden">
