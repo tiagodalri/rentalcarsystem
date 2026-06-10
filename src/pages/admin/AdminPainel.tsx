@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import {
   Activity, CalendarDays, CalendarRange, Car, CheckCircle2,
@@ -9,8 +9,11 @@ import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { formatPersonName } from "@/lib/formatName";
+import MobilePainel from "./mobile/MobilePainel";
+
 
 
 /* ============================================================
