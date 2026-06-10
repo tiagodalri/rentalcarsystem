@@ -340,7 +340,12 @@ export default function AdminLive() {
 
           {/* Map controls (settings button + popup panel) */}
           <div className="absolute top-3 right-3 z-[1000]">
-            <MapControlsPanel layers={layers} onChange={setLayers} />
+            <MapControlsPanel
+              layers={layers}
+              onChange={setLayers}
+              onRunBackfill={handleRunHistoricalBackfill}
+              backfillRunning={runningBackfill}
+            />
           </div>
 
           {/* Speed bands legend */}
