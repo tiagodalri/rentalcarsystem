@@ -336,24 +336,24 @@ export function OverviewTab() {
       </div>
 
       {/* Summary row */}
-      <div className="rounded-xl bg-card border border-border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-        <h3 className="text-sm font-bold text-foreground mb-5">Resumo do Período</h3>
+      <div className="rounded-lg bg-card border border-border/70 p-6">
+        <h3 className="text-[11px] font-medium text-foreground uppercase tracking-[0.16em] mb-5">Resumo do Período</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="border-r border-border last:border-r-0 md:border-r">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Reservas</p>
-            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{totalsRow.active}</p>
+          <div className="border-r border-border/60 last:border-r-0 md:border-r">
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80 mb-2">Reservas</p>
+            <p className="text-xl font-light text-foreground tabular-nums tracking-[-0.01em]">{totalsRow.active}</p>
           </div>
-          <div className="md:border-r border-border">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Canceladas</p>
-            <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 tabular-nums tracking-tight">{totalsRow.cancelled}</p>
+          <div className="md:border-r border-border/60">
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80 mb-2">Canceladas</p>
+            <p className="text-xl font-light text-rose-600/90 dark:text-rose-400/90 tabular-nums tracking-[-0.01em]">{totalsRow.cancelled}</p>
           </div>
-          <div className="border-r border-border last:border-r-0">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Despesas</p>
-            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{totalsRow.expensesCount}</p>
+          <div className="border-r border-border/60 last:border-r-0">
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80 mb-2">Despesas</p>
+            <p className="text-xl font-light text-foreground tabular-nums tracking-[-0.01em]">{totalsRow.expensesCount}</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Incidentes</p>
-            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{totalsRow.incidentsCount}</p>
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80 mb-2">Incidentes</p>
+            <p className="text-xl font-light text-foreground tabular-nums tracking-[-0.01em]">{totalsRow.incidentsCount}</p>
           </div>
         </div>
       </div>
