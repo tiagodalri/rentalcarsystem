@@ -1,165 +1,424 @@
-import { lazy, Suspense, useMemo, useState } from "react";
-import { Navigate, useSearchParams } from "react-router-dom";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
+import { useEffect, useMemo, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard, BarChart3, TrendingUp, ChevronLeft, ChevronRight,
+  Activity, CalendarDays, CalendarRange, Car, CheckCircle2,
+  ChevronRight, Clock, DollarSign, LogIn, LogOut as LogOutIcon,
+  TrendingDown, TrendingUp, Wrench,
 } from "lucide-react";
-import { format, startOfMonth, addMonths, subMonths, isSameMonth } from "date-fns";
+import { format, startOfMonth, endOfMonth, startOfDay, endOfDay, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
-import { FleetReportSkeleton } from "@/components/skeletons/MinorPageSkeletons";
+import { supabase } from "@/integrations/supabase/client";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import AdminDashboard from "./AdminDashboard";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
+import { formatPersonName } from "@/lib/formatName";
 
-const AdminFleetReport = lazy(() => import("./AdminFleetReport"));
-const AdminFleetPnL = lazy(() => import("./AdminFleetPnL"));
+/* ============================================================
+   PAINEL — Cockpit executivo
+   Single screen, no tabs. Reads top→bottom in 3 zones:
+   AGORA (status em tempo real) → HOJE (agenda + ação)
+   → MÊS (KPIs com comparação vs. mês anterior).
+   Análise profunda (Desempenho, Rentabilidade) vive em /admin/report.
+   ============================================================ */
 
-type Tab = "visao-geral" | "desempenho" | "rentabilidade";
-const VALID: Tab[] = ["visao-geral", "desempenho", "rentabilidade"];
+type BookingRow = {
+  id: string;
+  status: string;
+  pickup_date: string;
+  return_date: string;
+  pickup_time: string | null;
+  return_time: string | null;
+  total_price: number | null;
+  created_at: string;
+  vehicle_id: string | null;
+  customer_name: string | null;
+};
+type VehicleRow = { id: string; name: string | null; status: string | null };
 
-/**
- * Painel unificado: substitui Dashboard + Relatórios.
- * - Visão Geral: KPIs operacionais, frota, financeiro (filtrados por período)
- * - Desempenho: análise mensal por veículo (filtrado por período)
- * - Rentabilidade: P&L all-time da frota
- *
- * Filtro de período (mês selecionado) afeta Visão Geral + Desempenho.
- * Rentabilidade permanece all-time (faz mais sentido para ROI / Payback).
- */
+const ACTIVE_STATUSES = new Set(["confirmed", "active", "in_progress"]);
+const PREP_STATUSES   = new Set(["maintenance", "preparing", "cleaning", "in_preparation"]);
+
+const fmtUSD = (n: number) =>
+  `$${Math.round(n).toLocaleString("en-US")}`;
+const fmtNum = (n: number) =>
+  Math.round(n).toLocaleString("pt-BR");
+const dateOnly = (iso: string) => iso.slice(0, 10);
+const todayStr = () => format(new Date(), "yyyy-MM-dd");
+const inMonth = (d: Date, anchor: Date) =>
+  d >= startOfMonth(anchor) && d <= endOfMonth(anchor);
+
+function pct(a: number, b: number) {
+  if (b === 0) return a === 0 ? 0 : 100;
+  return ((a - b) / b) * 100;
+}
+
 export default function AdminPainel() {
-  const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
   const { hasAny } = useAdminAuth();
+  const showFinancial = hasAny(["admin", "finance"]);
 
-  const canSeeAnalytics = hasAny(["admin", "finance"]);
+  const [loading, setLoading] = useState(true);
+  const [bookings, setBookings] = useState<BookingRow[]>([]);
+  const [vehicles, setVehicles] = useState<VehicleRow[]>([]);
 
-  const raw = (params.get("tab") || "visao-geral") as Tab;
-  const tab: Tab = VALID.includes(raw) ? raw : "visao-geral";
-  // Guard: ops/support sem acesso a abas analíticas caem em Visão Geral
-  const effectiveTab: Tab =
-    !canSeeAnalytics && tab !== "visao-geral" ? "visao-geral" : tab;
+  useEffect(() => {
+    (async () => {
+      const [b, v] = await Promise.all([
+        supabase.from("bookings")
+          .select("id, status, pickup_date, return_date, pickup_time, return_time, total_price, created_at, vehicle_id, customer_name")
+          .order("created_at", { ascending: false })
+          .limit(800),
+        supabase.from("vehicles").select("id, name, status"),
+      ]);
+      setBookings((b.data as BookingRow[]) || []);
+      setVehicles((v.data as VehicleRow[]) || []);
+      setLoading(false);
+    })();
+  }, []);
 
-  const [month, setMonth] = useState<Date>(startOfMonth(new Date()));
-  const isCurrent = isSameMonth(month, new Date());
-  const isPrev = isSameMonth(month, subMonths(new Date(), 1));
+  const today = todayStr();
+  const now = useMemo(() => new Date(), []);
+  const monthAnchor = useMemo(() => startOfMonth(now), [now]);
+  const prevMonthAnchor = useMemo(() => startOfMonth(subMonths(now, 1)), [now]);
+  const monthLabel = format(monthAnchor, "MMMM 'de' yyyy", { locale: ptBR });
 
-  const onTabChange = (v: string) => {
-    const next = new URLSearchParams(params);
-    next.set("tab", v);
-    setParams(next, { replace: true });
-  };
+  /* ─────────── AGORA ─────────── */
+  const rodando = bookings.filter(b =>
+    ACTIVE_STATUSES.has(b.status) &&
+    b.pickup_date <= today && b.return_date >= today,
+  ).length;
+  const disponiveis = vehicles.filter(v => v.status === "available").length;
+  const emPreparo   = vehicles.filter(v => PREP_STATUSES.has((v.status || "").toLowerCase())).length;
+  const pendentes   = bookings.filter(b => b.status === "pending").length;
+  const totalFrota  = vehicles.length;
+  const ocupacaoNow = totalFrota ? Math.round((rodando / totalFrota) * 100) : 0;
 
-  const periodLabel = useMemo(
-    () => format(month, "MMMM yyyy", { locale: ptBR }),
-    [month],
-  );
+  /* ─────────── HOJE ─────────── */
+  const checkinsHoje  = bookings
+    .filter(b => b.pickup_date === today && b.status !== "cancelled")
+    .sort((a, b) => (a.pickup_time || "").localeCompare(b.pickup_time || ""));
+  const checkoutsHoje = bookings
+    .filter(b => b.return_date === today && b.status !== "cancelled")
+    .sort((a, b) => (a.return_time || "").localeCompare(b.return_time || ""));
+
+  const proximaAcao = [...checkinsHoje.map(b => ({ b, kind: "in" as const, t: b.pickup_time })),
+                       ...checkoutsHoje.map(b => ({ b, kind: "out" as const, t: b.return_time }))]
+    .filter(x => x.t)
+    .sort((a, b) => (a.t || "").localeCompare(b.t || ""))[0];
+
+  /* ─────────── MÊS ─────────── */
+  const monthBookings = bookings.filter(b => inMonth(new Date(b.created_at), monthAnchor));
+  const prevBookings  = bookings.filter(b => inMonth(new Date(b.created_at), prevMonthAnchor));
+  const monthRevenue  = monthBookings.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
+  const prevRevenue   = prevBookings.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
+  const monthCount    = monthBookings.length;
+  const prevCount     = prevBookings.length;
+  const ticketAvg     = monthCount ? monthRevenue / monthCount : 0;
+  const prevTicket    = prevCount  ? prevRevenue  / prevCount  : 0;
+
+  if (loading) return <DashboardSkeleton />;
 
   return (
-    <div className="space-y-5">
-      {/* Header + Period filter */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
         <div>
           <h1 className="admin-h1">Painel</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Visão geral, desempenho e rentabilidade consolidada
+          <p className="text-sm text-muted-foreground/80 mt-1">
+            Cockpit operacional · {format(now, "EEEE, dd 'de' MMMM", { locale: ptBR })}
           </p>
         </div>
-
-        {effectiveTab !== "rentabilidade" && (
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-1">
-              <Button
-                variant={isCurrent ? "default" : "outline"}
-                size="sm"
-                className="h-8 text-xs"
-                onClick={() => setMonth(startOfMonth(new Date()))}
-              >
-                Este mês
-              </Button>
-              <Button
-                variant={isPrev ? "default" : "outline"}
-                size="sm"
-                className="h-8 text-xs"
-                onClick={() => setMonth(startOfMonth(subMonths(new Date(), 1)))}
-              >
-                Mês passado
-              </Button>
-            </div>
-            <div className="flex items-center gap-1 bg-muted/50 rounded-lg p-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setMonth(subMonths(month, 1))}
-                aria-label="Mês anterior"
-              >
-                <ChevronLeft size={16} />
-              </Button>
-              <span className="text-xs font-medium text-foreground px-2 min-w-[110px] text-center capitalize tabular-nums">
-                {periodLabel}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setMonth(addMonths(month, 1))}
-                aria-label="Próximo mês"
-              >
-                <ChevronRight size={16} />
-              </Button>
-            </div>
-          </div>
-        )}
+        <button
+          onClick={() => navigate("/admin/report")}
+          className="hidden sm:inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Ver análise completa <ChevronRight size={12} />
+        </button>
       </div>
 
-      <Tabs value={effectiveTab} onValueChange={onTabChange} className="w-full">
-        <TabsList
-          className={`grid w-full max-w-2xl ${
-            canSeeAnalytics ? "grid-cols-3" : "grid-cols-1"
-          }`}
-        >
-          <TabsTrigger value="visao-geral" className="flex items-center gap-2">
-            <LayoutDashboard size={14} /> Visão Geral
-          </TabsTrigger>
-          {canSeeAnalytics && (
-            <>
-              <TabsTrigger value="desempenho" className="flex items-center gap-2">
-                <BarChart3 size={14} /> Desempenho
-              </TabsTrigger>
-              <TabsTrigger value="rentabilidade" className="flex items-center gap-2">
-                <TrendingUp size={14} /> Rentabilidade
-              </TabsTrigger>
-            </>
+      {/* ═════════ AGORA ═════════ */}
+      <Zone label="Agora" caption="Status da operação em tempo real" icon={Activity}>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <KpiCard
+            label="Frota rodando"
+            value={`${rodando}/${totalFrota}`}
+            sub={`${ocupacaoNow}% de ocupação`}
+            icon={Car}
+            onClick={() => navigate("/admin/live")}
+            accent="emerald"
+          />
+          <KpiCard
+            label="Disponíveis"
+            value={disponiveis}
+            sub="Prontas para locação"
+            icon={CheckCircle2}
+            onClick={() => navigate("/admin/fleet?status=available")}
+          />
+          <KpiCard
+            label="Em preparo / manutenção"
+            value={emPreparo}
+            sub={emPreparo === 0 ? "Tudo em dia" : "Aguardando liberação"}
+            icon={Wrench}
+            onClick={() => navigate("/admin/fleet?status=maintenance")}
+            accent={emPreparo > 0 ? "amber" : undefined}
+          />
+          <KpiCard
+            label="Pendências"
+            value={pendentes}
+            sub={pendentes === 0 ? "Sem pendências" : "Reservas a confirmar"}
+            icon={Clock}
+            onClick={() => navigate("/admin/bookings?status=pending")}
+            accent={pendentes > 0 ? "rose" : undefined}
+          />
+        </div>
+      </Zone>
+
+      {/* ═════════ HOJE ═════════ */}
+      <Zone label="Hoje" caption="Agenda do dia e próxima ação" icon={CalendarDays}>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          {/* Próxima ação destacada */}
+          <button
+            onClick={() => navigate("/admin/ops-today")}
+            className="lg:col-span-1 group text-left rounded-xl border border-border/40 bg-card/70 hover:border-foreground/30 hover:bg-card transition-all p-4 flex flex-col justify-between min-h-[140px]"
+          >
+            <div className="flex items-center justify-between">
+              <span className="admin-label">Próxima ação</span>
+              <ChevronRight size={14} className="text-muted-foreground/50 group-hover:text-foreground transition-colors" />
+            </div>
+            {proximaAcao ? (
+              <div className="space-y-1">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-[28px] font-light text-foreground leading-none tabular-nums">
+                    {proximaAcao.t?.slice(0, 5) || "—"}
+                  </span>
+                  <span className={`text-[10px] uppercase tracking-[0.14em] font-medium ${
+                    proximaAcao.kind === "in" ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"
+                  }`}>
+                    {proximaAcao.kind === "in" ? "Check-in" : "Check-out"}
+                  </span>
+                </div>
+                <p className="text-[13px] text-foreground truncate">
+                  {formatPersonName(proximaAcao.b.customer_name || "—")}
+                </p>
+              </div>
+            ) : (
+              <p className="text-[13px] text-muted-foreground">Nenhuma operação programada para hoje.</p>
+            )}
+          </button>
+
+          {/* Check-ins */}
+          <MiniListCard
+            label="Check-ins hoje"
+            count={checkinsHoje.length}
+            icon={LogIn}
+            accent="emerald"
+            items={checkinsHoje.slice(0, 3).map(b => ({
+              id: b.id,
+              left: b.pickup_time?.slice(0, 5) || "—",
+              right: formatPersonName(b.customer_name || "—"),
+            }))}
+            onAll={() => navigate("/admin/ops-today")}
+          />
+
+          {/* Check-outs */}
+          <MiniListCard
+            label="Check-outs hoje"
+            count={checkoutsHoje.length}
+            icon={LogOutIcon}
+            accent="blue"
+            items={checkoutsHoje.slice(0, 3).map(b => ({
+              id: b.id,
+              left: b.return_time?.slice(0, 5) || "—",
+              right: formatPersonName(b.customer_name || "—"),
+            }))}
+            onAll={() => navigate("/admin/ops-today")}
+          />
+        </div>
+      </Zone>
+
+      {/* ═════════ MÊS ═════════ */}
+      <Zone
+        label="Mês"
+        caption={`${monthLabel} · comparado ao mês anterior`}
+        icon={CalendarRange}
+        action={showFinancial ? { label: "Ver relatório", onClick: () => navigate("/admin/report") } : undefined}
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {showFinancial && (
+            <DeltaCard
+              label="Receita do mês"
+              value={fmtUSD(monthRevenue)}
+              delta={pct(monthRevenue, prevRevenue)}
+              prev={`Anterior: ${fmtUSD(prevRevenue)}`}
+              icon={DollarSign}
+            />
           )}
-        </TabsList>
-
-        <TabsContent value="visao-geral" className="mt-5">
-          <AdminDashboard embedded periodMonth={month} />
-        </TabsContent>
-
-        {canSeeAnalytics && (
-          <>
-            <TabsContent value="desempenho" className="mt-5">
-              <Suspense fallback={<FleetReportSkeleton />}>
-                <AdminFleetReport embedded monthOverride={month} />
-              </Suspense>
-            </TabsContent>
-            <TabsContent value="rentabilidade" className="mt-5">
-              <Suspense fallback={<FleetReportSkeleton />}>
-                <AdminFleetPnL embedded />
-              </Suspense>
-            </TabsContent>
-          </>
-        )}
-      </Tabs>
+          <DeltaCard
+            label="Reservas no mês"
+            value={fmtNum(monthCount)}
+            delta={pct(monthCount, prevCount)}
+            prev={`Anterior: ${fmtNum(prevCount)}`}
+            icon={CalendarRange}
+          />
+          {showFinancial && (
+            <DeltaCard
+              label="Ticket médio"
+              value={fmtUSD(ticketAvg)}
+              delta={pct(ticketAvg, prevTicket)}
+              prev={`Anterior: ${fmtUSD(prevTicket)}`}
+              icon={TrendingUp}
+            />
+          )}
+        </div>
+      </Zone>
     </div>
   );
 }
 
-/** Redirects legados de /admin/report* → /admin?tab=... */
+/* ─────────── Building blocks ─────────── */
+
+function Zone({
+  label, caption, icon: Icon, action, children,
+}: {
+  label: string; caption: string; icon: typeof Activity;
+  action?: { label: string; onClick: () => void };
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-3">
+      <div className="flex items-end justify-between gap-3 border-b border-border/30 pb-2">
+        <div className="flex items-center gap-2.5">
+          <Icon size={14} className="text-muted-foreground/60" strokeWidth={1.75} />
+          <h2 className="admin-section-title">{label}</h2>
+          <span className="text-[11px] text-muted-foreground/70 hidden sm:inline">· {caption}</span>
+        </div>
+        {action && (
+          <button
+            onClick={action.onClick}
+            className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
+          >
+            {action.label} <ChevronRight size={11} />
+          </button>
+        )}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+type Accent = "emerald" | "amber" | "rose" | "blue";
+const ACCENT_DOT: Record<Accent, string> = {
+  emerald: "bg-emerald-500",
+  amber: "bg-amber-500",
+  rose: "bg-rose-500",
+  blue: "bg-blue-500",
+};
+const ACCENT_TEXT: Record<Accent, string> = {
+  emerald: "text-emerald-600 dark:text-emerald-400",
+  amber: "text-amber-600 dark:text-amber-400",
+  rose: "text-rose-600 dark:text-rose-400",
+  blue: "text-blue-600 dark:text-blue-400",
+};
+
+function KpiCard({
+  label, value, sub, icon: Icon, onClick, accent,
+}: {
+  label: string; value: string | number; sub?: string;
+  icon: typeof Activity; onClick?: () => void; accent?: Accent;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="group text-left rounded-xl border border-border/40 bg-card/70 hover:border-foreground/30 hover:bg-card transition-all p-4 flex flex-col gap-3"
+    >
+      <div className="flex items-center justify-between">
+        <span className="admin-label flex items-center gap-1.5">
+          {accent && <span className={`h-1.5 w-1.5 rounded-full ${ACCENT_DOT[accent]}`} />}
+          {label}
+        </span>
+        <Icon size={13} className="text-muted-foreground/50 group-hover:text-foreground transition-colors" strokeWidth={1.75} />
+      </div>
+      <div className={`admin-kpi ${accent ? ACCENT_TEXT[accent] : "text-foreground"}`}>{value}</div>
+      {sub && <span className="text-[11px] text-muted-foreground/70 leading-tight">{sub}</span>}
+    </button>
+  );
+}
+
+function MiniListCard({
+  label, count, icon: Icon, accent, items, onAll,
+}: {
+  label: string; count: number; icon: typeof Activity; accent: Accent;
+  items: { id: string; left: string; right: string }[];
+  onAll: () => void;
+}) {
+  return (
+    <div className="rounded-xl border border-border/40 bg-card/70 p-4 flex flex-col gap-3 min-h-[140px]">
+      <div className="flex items-center justify-between">
+        <span className="admin-label flex items-center gap-1.5">
+          <Icon size={12} className={ACCENT_TEXT[accent]} strokeWidth={1.75} />
+          {label}
+        </span>
+        <span className={`text-[15px] font-medium tabular-nums ${ACCENT_TEXT[accent]}`}>{count}</span>
+      </div>
+      {items.length === 0 ? (
+        <p className="text-[12px] text-muted-foreground/70 flex-1 flex items-center">
+          Nada programado.
+        </p>
+      ) : (
+        <ul className="flex-1 space-y-1.5">
+          {items.map(it => (
+            <li key={it.id} className="flex items-baseline gap-2 text-[12.5px]">
+              <span className="tabular-nums text-muted-foreground/80 w-10 shrink-0">{it.left}</span>
+              <span className="text-foreground truncate">{it.right}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {count > 3 && (
+        <button
+          onClick={onAll}
+          className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground self-start transition-colors"
+        >
+          Ver todos · {count}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function DeltaCard({
+  label, value, delta, prev, icon: Icon,
+}: {
+  label: string; value: string; delta: number; prev: string; icon: typeof Activity;
+}) {
+  const isUp = delta >= 0;
+  const isZero = Math.abs(delta) < 0.1;
+  const DeltaIcon = isUp ? TrendingUp : TrendingDown;
+  return (
+    <div className="rounded-xl border border-border/40 bg-card/70 p-4 flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <span className="admin-label">{label}</span>
+        <Icon size={13} className="text-muted-foreground/50" strokeWidth={1.75} />
+      </div>
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <span className="admin-kpi text-foreground">{value}</span>
+        {!isZero && (
+          <span className={`inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums ${
+            isUp ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+          }`}>
+            <DeltaIcon size={11} strokeWidth={2.2} />
+            {Math.abs(delta).toFixed(1)}%
+          </span>
+        )}
+      </div>
+      <span className="text-[11px] text-muted-foreground/70 leading-tight">{prev}</span>
+    </div>
+  );
+}
+
+/* Legacy redirects mantidos para compatibilidade com links antigos. */
 export function AdminReportRedirect() {
-  return <Navigate to="/admin?tab=desempenho" replace />;
+  return <Navigate to="/admin/report" replace />;
 }
 export function AdminFleetPnLLegacyRedirect() {
-  return <Navigate to="/admin?tab=rentabilidade" replace />;
+  return <Navigate to="/admin/report?tab=rentabilidade" replace />;
 }
