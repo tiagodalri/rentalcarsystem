@@ -276,6 +276,25 @@ export default function AdminFleetReport({
             {revenueChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={revenueChartData.length * 40 + 40}>
                 <BarChart data={revenueChartData} layout="vertical" margin={{ left: 10, right: 30, top: 5, bottom: 5 }}>
+                  <defs>
+                    {/* Metallic gold with reflective sheen (horizontal bars) */}
+                    <linearGradient id="goldShine" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%"   stopColor="#6b4a16" />
+                      <stop offset="18%"  stopColor="#a07a2a" />
+                      <stop offset="42%"  stopColor="#e7c873" />
+                      <stop offset="55%"  stopColor="#fff2c2" />
+                      <stop offset="68%"  stopColor="#e7c873" />
+                      <stop offset="88%"  stopColor="#a07a2a" />
+                      <stop offset="100%" stopColor="#6b4a16" />
+                    </linearGradient>
+                    {/* Soft top-edge highlight to simulate brushed-metal curvature */}
+                    <linearGradient id="goldEdge" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%"   stopColor="rgba(255,255,255,0.28)" />
+                      <stop offset="35%"  stopColor="rgba(255,255,255,0)" />
+                      <stop offset="65%"  stopColor="rgba(0,0,0,0)" />
+                      <stop offset="100%" stopColor="rgba(0,0,0,0.35)" />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
                   <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
                   <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
@@ -283,7 +302,8 @@ export default function AdminFleetReport({
                     {...darkTooltipProps}
                     formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
                   />
-                  <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={22} />
+                  <Bar dataKey="revenue" fill="url(#goldShine)" radius={[2, 4, 4, 2]} barSize={22} />
+                  <Bar dataKey="revenue" fill="url(#goldEdge)" radius={[2, 4, 4, 2]} barSize={22} stackId="overlay" legendType="none" isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
