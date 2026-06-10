@@ -66,20 +66,20 @@ self.addEventListener("fetch", (event) => {
   // Skip cross-origin (Supabase, fonts.googleapis, etc.)
   if (url.origin !== self.location.origin) return;
 
-  // 1) HTML navigations -> NetworkFirst (3s timeout) -> offline fallback.
+  // 1) HTML navigations -> StaleWhileRevalidate. Cache wins for instant load;
+  //    network refresh runs in background and updates cache for next visit.
   if (request.mode === "navigate") {
     event.respondWith(
       (async () => {
-        try {
-          const fresh = await fetch(request);
-          const cache = await caches.open(HTML_CACHE);
-          cache.put(OFFLINE_URL, fresh.clone());
-          return fresh;
-        } catch {
-          const cache = await caches.open(HTML_CACHE);
-          const cached = await cache.match(request);
-          return cached || (await cache.match(OFFLINE_URL));
-        }
+        const cache = await caches.open(HTML_CACHE);
+        const cached = (await cache.match(request)) || (await cache.match(OFFLINE_URL));
+        const networkPromise = fetch(request)
+          .then((res) => {
+            if (res && res.ok) cache.put(OFFLINE_URL, res.clone());
+            return res;
+          })
+          .catch(() => null);
+        return cached || (await networkPromise) || (await cache.match(OFFLINE_URL));
       })()
     );
     return;
