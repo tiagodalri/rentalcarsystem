@@ -743,9 +743,9 @@ export default function AdminBookingDetail() {
               </div>
 
               <div className="w-full md:w-1/2 flex flex-col items-center justify-center md:border-l border-t md:border-t-0 border-border/40 md:pl-8 pt-6 md:pt-0 py-2 md:py-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-2">Valor da Diária</p>
-                <p className="text-4xl sm:text-5xl font-bold tabular-nums text-foreground">
-                  <span className="text-lg sm:text-xl font-medium text-muted-foreground mr-1">$</span>
+                <p className="admin-label mb-2">Valor da Diária</p>
+                <p className="text-3xl sm:text-4xl font-light tabular-nums text-foreground tracking-[-0.02em]">
+                  <span className="text-base sm:text-lg font-normal text-muted-foreground/80 mr-1">$</span>
                   {vehicle.daily_price_usd.toFixed(2)}
                 </p>
               </div>
