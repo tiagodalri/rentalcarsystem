@@ -162,9 +162,9 @@ export function BookingBar({ booking, left, width, height }: Props) {
 function Row({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-2">
-      <span className="mt-0.5 text-muted-foreground">{icon}</span>
+      <span className="mt-0.5 text-muted-foreground shrink-0">{icon}</span>
       <span className="text-muted-foreground w-24 shrink-0">{label}</span>
-      <span className="flex-1 min-w-0 text-foreground">{children}</span>
+      <span className="flex-1 min-w-0 text-foreground break-words">{children}</span>
     </div>
   );
 }
