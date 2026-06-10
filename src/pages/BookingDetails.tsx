@@ -15,6 +15,7 @@ import WhatsAppBubble from "@/components/WhatsAppBubble";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { Switch } from "@/components/ui/switch";
 import { useVehiclesDB, buildPriceMap, buildTrimMap, categoryToKey } from "@/hooks/useVehiclesDB";
+import { useVehiclePricing } from "@/hooks/useVehiclePricing";
 import { getCoverImage } from "@/data/vehicleImages";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
