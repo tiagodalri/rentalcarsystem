@@ -30,16 +30,19 @@ type VehicleReport = {
   damageCount: number;
 };
 
+// Sophisticated emerald/teal palette — bold yet refined
 const CHART_COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--chart-2, 160 60% 45%))",
-  "hsl(var(--chart-3, 30 80% 55%))",
-  "hsl(var(--chart-4, 280 65% 60%))",
-  "hsl(var(--chart-5, 340 75% 55%))",
-  "hsl(200 70% 50%)",
-  "hsl(120 50% 45%)",
-  "hsl(45 90% 50%)",
+  "hsl(160 84% 28%)",  // deep emerald
+  "hsl(170 60% 38%)",  // teal-emerald
+  "hsl(145 55% 42%)",  // forest
+  "hsl(180 45% 35%)",  // deep teal
+  "hsl(155 40% 52%)",  // sage
+  "hsl(165 70% 30%)",  // jade
+  "hsl(140 35% 45%)",  // moss
+  "hsl(175 50% 48%)",  // mint-teal
 ];
+const GREEN_PRIMARY = "hsl(160 84% 28%)";
+const GREEN_SECONDARY = "hsl(170 60% 38%)";
 
 export default function AdminFleetReport({
   embedded = false,
@@ -216,7 +219,7 @@ export default function AdminFleetReport({
                 <DollarSign size={18} className="text-primary" />
               </div>
               <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita Total</p>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita do Mês</p>
                 <p className="text-xl font-medium text-foreground">${totalRevenue.toLocaleString()}</p>
               </div>
             </div>
@@ -277,20 +280,11 @@ export default function AdminFleetReport({
               <ResponsiveContainer width="100%" height={revenueChartData.length * 40 + 40}>
                 <BarChart data={revenueChartData} layout="vertical" margin={{ left: 10, right: 30, top: 5, bottom: 5 }}>
                   <defs>
-                    {/* Metallic gold with reflective sheen (horizontal bars) */}
-                    <linearGradient id="goldShine" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%"   stopColor="#3a2a10" />
-                      <stop offset="25%"  stopColor="#5a4220" />
-                      <stop offset="55%"  stopColor="#8a6a30" />
-                      <stop offset="75%"  stopColor="#a78544" />
-                      <stop offset="100%" stopColor="#c9a35a" />
-                    </linearGradient>
-                    {/* Soft top-edge highlight to simulate brushed-metal curvature */}
-                    <linearGradient id="goldEdge" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="rgba(255,255,255,0.28)" />
-                      <stop offset="35%"  stopColor="rgba(255,255,255,0)" />
-                      <stop offset="65%"  stopColor="rgba(0,0,0,0)" />
-                      <stop offset="100%" stopColor="rgba(0,0,0,0.35)" />
+                    {/* Emerald gradient with subtle depth */}
+                    <linearGradient id="emeraldShine" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%"   stopColor="hsl(160 84% 22%)" />
+                      <stop offset="50%"  stopColor="hsl(160 84% 32%)" />
+                      <stop offset="100%" stopColor="hsl(170 70% 42%)" />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
@@ -300,7 +294,7 @@ export default function AdminFleetReport({
                     {...darkTooltipProps}
                     formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
                   />
-                  <Bar dataKey="revenue" fill="url(#goldShine)" radius={[2, 3, 3, 2]} barSize={16} />
+                  <Bar dataKey="revenue" fill="url(#emeraldShine)" radius={[2, 4, 4, 2]} barSize={18} />
 
                 </BarChart>
               </ResponsiveContainer>
@@ -328,7 +322,7 @@ export default function AdminFleetReport({
                     {...darkTooltipProps}
                     formatter={(v: number) => [`${v}%`, "Ocupação"]}
                   />
-                  <Bar dataKey="occupancy" fill="hsl(var(--chart-2, 160 60% 45%))" radius={[0, 4, 4, 0]} barSize={22} />
+                  <Bar dataKey="occupancy" fill={GREEN_SECONDARY} radius={[0, 4, 4, 0]} barSize={22} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -411,98 +405,40 @@ export default function AdminFleetReport({
         </Card>
       </div>
 
-      {/* Charts Row 3 — Addon Revenue */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Addon Revenue Breakdown */}
-        <Card className="border-border/40">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Sparkles size={16} className="text-primary" /> Receita de Opcionais
-              {totalAddonRevenue > 0 && (
-                <Badge variant="outline" className="ml-auto text-xs font-medium">${totalAddonRevenue.toLocaleString()}</Badge>
-              )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {addonChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={addonChartData.length * 50 + 40}>
-                <BarChart data={addonChartData} layout="vertical" margin={{ left: 10, right: 30, top: 5, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
-                  <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
-                  <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
-                  <Tooltip
-                    {...darkTooltipProps}
-                    formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
-                  />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
-                    {addonChartData.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <EmptyState icon={Sparkles} title="Sem receita de opcionais" description="A receita de opcionais aparecerá quando houver reservas com adicionais neste mês." compact />
+      {/* Addon Revenue Breakdown — full width since Plano card was removed */}
+      <Card className="border-border/40">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Sparkles size={16} className="text-primary" /> Receita de Opcionais
+            {totalAddonRevenue > 0 && (
+              <Badge variant="outline" className="ml-auto text-xs font-medium">${totalAddonRevenue.toLocaleString()}</Badge>
             )}
-          </CardContent>
-        </Card>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {addonChartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={addonChartData.length * 44 + 40}>
+              <BarChart data={addonChartData} layout="vertical" margin={{ left: 10, right: 30, top: 5, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
+                <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
+                <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
+                <Tooltip
+                  {...darkTooltipProps}
+                  formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
+                />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
+                  {addonChartData.map((_, i) => (
+                    <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyState icon={Sparkles} title="Sem receita de opcionais" description="A receita de opcionais aparecerá quando houver reservas com adicionais neste mês." compact />
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Plan Distribution */}
-        <Card className="border-border/40">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Shield size={16} className="text-primary" /> Plano
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {totalBookingsWithPlan > 0 ? (
-              <div className="flex flex-col items-center justify-center py-6 gap-3">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Shield size={28} className="text-primary" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-foreground">Zeus</p>
-                  <p className="text-[11px] text-muted-foreground">Plano único</p>
-                </div>
-                <div className="grid grid-cols-2 gap-2 w-full mt-1">
-                  <div className="text-center p-2 rounded-lg bg-muted/30 border border-border/20">
-                    <p className="text-[10px] text-muted-foreground">Reservas</p>
-                    <p className="text-sm font-medium text-foreground">{totalBookingsWithPlan}</p>
-                  </div>
-                  <div className="text-center p-2 rounded-lg bg-muted/30 border border-border/20">
-                    <p className="text-[10px] text-muted-foreground">% do total</p>
-                    <p className="text-sm font-medium text-foreground">100%</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <EmptyState icon={Shield} title="Sem dados" description="Os dados do plano aparecerão quando houver reservas neste mês." compact />
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Addon KPI Cards */}
-      {totalAddonRevenue > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {[
-            { label: "Upgrade Plano", value: addonTotals.planExtra, icon: Sparkles },
-            { label: "Seguro Premium", value: addonTotals.insurance, icon: Shield },
-            { label: "Cadeirinha", value: addonTotals.childSeat, icon: Baby },
-            { label: "TAG Pedágio", value: addonTotals.tollTag, icon: Radio },
-            { label: "Condutor Extra", value: addonTotals.extraDriver, icon: Users },
-            { label: "Taxa One-Way", value: addonTotals.returnFee, icon: Car },
-          ].map(({ label, value, icon: Icon }) => (
-            <Card key={label} className="border-border/40">
-              <CardContent className="p-3 text-center">
-                <Icon size={16} className="text-primary mx-auto mb-1" />
-                <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{label}</p>
-                <p className="text-base font-medium text-foreground">${value.toLocaleString()}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
 
       {/* Full vehicle table */}
       <Card className="border-border/40">

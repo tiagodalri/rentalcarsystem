@@ -308,7 +308,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                 <DollarSign size={18} className="text-primary" />
               </div>
               <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita Total</p>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita Acumulada</p>
                 <p className="text-xl font-medium text-foreground tabular-nums">${fmt(totals.revenue)}</p>
               </div>
             </div>
@@ -334,12 +334,12 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         <Card className="border-border/40">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${totals.opProfit >= 0 ? "bg-green-500/10" : "bg-destructive/10"}`}>
-                <TrendingUp size={18} className={totals.opProfit >= 0 ? "text-green-500" : "text-destructive"} />
+              <div className={`p-2 rounded-lg ${totals.opProfit >= 0 ? "bg-emerald-700/10" : "bg-destructive/10"}`}>
+                <TrendingUp size={18} className={totals.opProfit >= 0 ? "text-emerald-700" : "text-destructive"} />
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Lucro Operacional</p>
-                <p className={`text-xl font-medium tabular-nums ${totals.opProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                <p className={`text-xl font-medium tabular-nums ${totals.opProfit >= 0 ? "text-emerald-700" : "text-destructive"}`}>
                   {totals.opProfit >= 0 ? "" : "-"}${fmt(Math.abs(totals.opProfit))}
                 </p>
               </div>
@@ -353,12 +353,12 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
             <Card className="border-border/40 cursor-help">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${(globalRoiPct ?? 0) >= 0 ? "bg-green-500/10" : "bg-destructive/10"}`}>
-                    <Percent size={18} className={(globalRoiPct ?? 0) >= 0 ? "text-green-500" : "text-destructive"} />
+                  <div className={`p-2 rounded-lg ${(globalRoiPct ?? 0) >= 0 ? "bg-emerald-700/10" : "bg-destructive/10"}`}>
+                    <Percent size={18} className={(globalRoiPct ?? 0) >= 0 ? "text-emerald-700" : "text-destructive"} />
                   </div>
                   <div>
                     <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Retorno sobre Investimento</p>
-                    <p className={`text-xl font-medium tabular-nums ${globalRoiPct === null ? "text-muted-foreground" : (globalRoiPct >= 0 ? "text-green-500" : "text-destructive")}`}>
+                    <p className={`text-xl font-medium tabular-nums ${globalRoiPct === null ? "text-muted-foreground" : (globalRoiPct >= 0 ? "text-emerald-700" : "text-destructive")}`}>
                       {globalRoiPct === null ? "—" : `${globalRoiPct.toFixed(1)}%`}
                     </p>
                   </div>
@@ -377,12 +377,12 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
             <Card className="border-border/40 cursor-help">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${paybackMonths === "recovered" ? "bg-green-500/10" : "bg-muted"}`}>
-                    <Clock size={18} className={paybackMonths === "recovered" ? "text-green-500" : "text-foreground"} />
+                  <div className={`p-2 rounded-lg ${paybackMonths === "recovered" ? "bg-emerald-700/10" : "bg-muted"}`}>
+                    <Clock size={18} className={paybackMonths === "recovered" ? "text-emerald-700" : "text-foreground"} />
                   </div>
                   <div>
                     <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Payback Estimado</p>
-                    <p className={`text-xl font-medium tabular-nums ${paybackMonths === "recovered" ? "text-green-500" : "text-foreground"}`}>
+                    <p className={`text-xl font-medium tabular-nums ${paybackMonths === "recovered" ? "text-emerald-700" : "text-foreground"}`}>
                       {paybackMonths === null ? "—" : paybackMonths === "recovered" ? "Recuperado" : `${paybackMonths} meses`}
                     </p>
                   </div>
@@ -479,17 +479,17 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">
                       {r.expenses > 0 ? `-$${fmt(r.expenses)}` : "—"}
                     </td>
-                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.operatingProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.operatingProfit >= 0 ? "text-emerald-700" : "text-destructive"}`}>
                       {r.operatingProfit >= 0 ? "" : "-"}${fmt(Math.abs(r.operatingProfit))}
                     </td>
-                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.roiPct === null ? "text-muted-foreground" : (r.roiPct >= 0 ? "text-green-500" : "text-destructive")}`}>
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.roiPct === null ? "text-muted-foreground" : (r.roiPct >= 0 ? "text-emerald-700" : "text-destructive")}`}>
                       {r.roiPct === null ? "—" : `${r.roiPct.toFixed(1)}%`}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-center">
                       {r.purchase_price === 0 ? (
                         <Badge variant="outline" className="text-[10px] whitespace-nowrap">Sem dados</Badge>
                       ) : r.paidOff ? (
-                        <Badge className="bg-green-500/15 text-green-500 hover:bg-green-500/20 border-0 text-[10px] whitespace-nowrap">Pagou-se</Badge>
+                        <Badge className="bg-emerald-700/12 text-emerald-700 hover:bg-emerald-700/18 border-0 text-[10px] whitespace-nowrap">Pagou-se</Badge>
                       ) : (
                         <Badge variant="outline" className="border-yellow-500/40 text-yellow-500 text-[10px] whitespace-nowrap">
                           Falta ${fmt(r.purchase_price - (r.totalRevenue - r.expenses))}
@@ -517,10 +517,10 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">
                       {totals.expenses > 0 ? `-$${fmt(totals.expenses)}` : "—"}
                     </td>
-                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${totals.opProfit >= 0 ? "text-green-500" : "text-destructive"}`}>
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${totals.opProfit >= 0 ? "text-emerald-700" : "text-destructive"}`}>
                       {totals.opProfit >= 0 ? "" : "-"}${fmt(Math.abs(totals.opProfit))}
                     </td>
-                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums ${(globalRoiPct ?? 0) >= 0 ? "text-green-500" : "text-destructive"}`}>
+                    <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums ${(globalRoiPct ?? 0) >= 0 ? "text-emerald-700" : "text-destructive"}`}>
                       {globalRoiPct === null ? "—" : `${globalRoiPct.toFixed(1)}%`}
                     </td>
                     <td />
