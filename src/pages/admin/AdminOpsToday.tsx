@@ -418,7 +418,7 @@ function KpiCard({
   valueColor: string; sub: string; waveColor: string;
 }) {
   return (
-    <div className="relative rounded-xl border border-border/40 bg-card/80 p-3.5 overflow-hidden">
+    <div className="relative rounded-xl border border-border/40 bg-card/80 p-2.5 overflow-hidden">
       <div className="flex items-center gap-3 relative z-10">
         <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${iconBg}`}>
           {icon}
