@@ -258,7 +258,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
 
         {/* ===== Fleet stats widget (hidden when collapsed) ===== */}
         {!collapsed && (
-          <div className="mt-6 px-1">
+          <div className="mt-3 px-1">
             <FleetMiniStats />
           </div>
         )}
