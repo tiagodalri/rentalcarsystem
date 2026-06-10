@@ -706,7 +706,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
       let marker = existing.get(v.vehicle_id);
       if (!marker) {
-        const initialIcon = puckSvg(
+        const initialIcon = getPuckIcon(
           statusColor(v.status),
           isSelected,
           st.drawnHeading,
@@ -770,28 +770,33 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           if (raw >= 1) {
             st.displayLat = tw.toLat;
             st.displayLng = tw.toLng;
+            st.positionDirty = true;
             st.tween = null;
           } else {
             const f = ease(Math.max(0, raw));
             st.displayLat = tw.fromLat + (tw.toLat - tw.fromLat) * f;
             st.displayLng = tw.fromLng + (tw.toLng - tw.fromLng) * f;
+            st.positionDirty = true;
           }
         }
 
         // Smooth rotation toward target heading
         st.drawnHeading = lerpAngle(st.drawnHeading, st.targetHeading, HEADING_LERP_PER_FRAME);
 
-        marker.setPosition({ lat: st.displayLat, lng: st.displayLng });
+        if (st.positionDirty) {
+          st.positionDirty = false;
+          marker.setPosition({ lat: st.displayLat, lng: st.displayLng });
+        }
 
         // Refresh icon only when something visual changed (cheap key compare)
-        const headingBucket = Math.round(st.drawnHeading / 3) * 3;
+        const headingBucket = st.status === "moving" ? Math.round(st.drawnHeading / 6) * 6 : 0;
         const movingFlag = st.status === "moving" ? "M" : st.status === "idle" ? "I" : "P";
         const selFlag = st.selected ? "S" : "_";
-        const key = `${movingFlag}${selFlag}${headingBucket}`;
+        const key = `${movingFlag}${selFlag}${headingBucket}${st.logoDataUri ? "L" : "_"}`;
         if (key !== st.iconKey) {
           st.iconKey = key;
           marker.setIcon(
-            puckSvg(
+            getPuckIcon(
               statusColor(st.status),
               st.selected,
               st.drawnHeading,
