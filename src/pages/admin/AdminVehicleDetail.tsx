@@ -20,6 +20,7 @@ import { EmptyState } from "@/components/admin/EmptyState";
 import { Receipt, ShieldCheck, ChevronDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import VehicleAgenda from "@/components/admin/VehicleAgenda";
+import PricingPanel from "@/components/admin/pricing/PricingPanel";
 import { VehicleDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 
 // ─── Types ────────────────────────────────────────────────────────────
