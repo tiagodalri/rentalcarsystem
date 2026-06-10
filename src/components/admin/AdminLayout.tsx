@@ -51,21 +51,24 @@ export default function AdminLayout() {
             {/* Barra de abas no topo absoluto (estilo navegador) */}
             <AdminTabsBar />
             <header
-              className="h-14 flex items-center gap-2 sm:gap-4 border-b border-border/40 px-3 sm:px-4 bg-background/90 backdrop-blur-md sticky top-0 z-30"
+              className="h-14 flex items-center gap-2 sm:gap-3 border-b border-border/40 px-3 sm:px-4 bg-background/90 backdrop-blur-md sticky top-0 z-30"
             >
               <SidebarTrigger className="h-11 w-11 -ml-2 flex items-center justify-center text-muted-foreground hover:text-foreground" />
               <div className="flex-1" />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleTheme}
-                aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-                title={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-                className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/60"
-              >
-                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </Button>
-              <LanguageSwitcher />
+              <div className="flex items-center gap-0.5">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleTheme}
+                  aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+                  title={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+                  className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                >
+                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
+                <FullscreenFab />
+                <LanguageSwitcher />
+              </div>
               <span className="hidden md:inline text-xs text-muted-foreground truncate max-w-[200px]">
                 {user.email}
               </span>
@@ -82,7 +85,6 @@ export default function AdminLayout() {
 
             <MinimalFooter />
           </div>
-          <FullscreenFab />
         </div>
       </AdminTabsProvider>
 
