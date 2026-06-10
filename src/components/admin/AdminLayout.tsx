@@ -63,7 +63,6 @@ export default function AdminLayout() {
               <div className="flex-1" />
               <div className="flex items-center gap-1.5">
                 <FullscreenFab />
-                <LanguageSwitcher />
                 <Button
                   variant="ghost"
                   size="icon"
@@ -74,6 +73,7 @@ export default function AdminLayout() {
                 >
                   {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </Button>
+                <LanguageSwitcher />
               </div>
             </header>
             <main
