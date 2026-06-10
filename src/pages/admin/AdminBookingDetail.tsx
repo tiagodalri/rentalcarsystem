@@ -558,14 +558,36 @@ export default function AdminBookingDetail() {
               ) => {
                 const addr = (rawAddress || "").trim();
                 const parts = addr.split(",").map((s) => s.trim()).filter(Boolean);
-                const primary = parts[0] || (addr || "—");
-                const secondary = parts.slice(1).join(", ");
+                let primary = parts[0] || (addr || "—");
+                let terminal: string | null = null;
+                // Extract terminal info from any part (e.g. "Terminal B", "Terminal 2", "Terminal Norte")
+                const terminalRegex = /\bTerminal\b[\s\-]*[A-Za-z0-9ÀÁÂÃÉÊÍÓÔÕÚÇ]+/i;
+                const terminalIdx = parts.findIndex((p) => terminalRegex.test(p));
+                if (terminalIdx >= 0) {
+                  const match = parts[terminalIdx].match(terminalRegex);
+                  if (match) {
+                    terminal = match[0].replace(/\s+/g, " ").trim();
+                    // Remove the terminal token from that part
+                    parts[terminalIdx] = parts[terminalIdx].replace(terminalRegex, "").replace(/^[\s\-–—,]+|[\s\-–—,]+$/g, "");
+                    if (terminalIdx === 0) {
+                      primary = parts[0] || primary;
+                    }
+                  }
+                }
+                const secondary = parts.slice(1).filter(Boolean).join(", ");
                 return (
                   <div key={kind} className="relative">
                     <div className={`absolute -left-[33px] top-1.5 w-2 h-2 rounded-full border-2 bg-background ${dotClass}`} />
                     <div className="space-y-2">
                       <p className={`text-[10px] font-bold uppercase tracking-wider ${accent}`}>{label}</p>
-                      <h3 className="text-lg font-semibold text-foreground leading-tight">{primary}</h3>
+                      <h3 className="text-lg font-semibold text-foreground leading-tight flex items-baseline gap-2 flex-wrap">
+                        <span>{primary}</span>
+                        {terminal && (
+                          <span className="text-sm font-normal text-muted-foreground">
+                            <span className="mr-1.5">–</span>{terminal}
+                          </span>
+                        )}
+                      </h3>
                       {secondary && (
                         <p className="text-xs text-muted-foreground leading-snug max-w-xl">{secondary}</p>
                       )}
