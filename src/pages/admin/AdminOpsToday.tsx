@@ -347,36 +347,36 @@ export default function AdminOpsToday() {
       </div>
 
 
-      {/* ────────── EM PREPARAÇÃO (compact bottom strip ~20%) ────────── */}
+      {/* ────────── EM PREPARAÇÃO (compact bottom strip) ────────── */}
       <div className="relative rounded-2xl border border-border/40 bg-gradient-to-r from-sky-500/[0.04] via-card/60 to-card/60 overflow-hidden">
         <GarageBackdrop />
-        <div className="relative z-10 p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-3 mb-3">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
-                <Wrench size={16} />
+        <div className="relative z-10 p-3 sm:p-4">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-lg bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                <Wrench size={14} />
               </div>
               <div>
-                <h2 className="text-sm font-medium uppercase tracking-[0.1em] text-sky-600 dark:text-sky-400">
+                <h2 className="text-xs font-medium uppercase tracking-[0.1em] text-sky-600 dark:text-sky-400">
                   Em preparação
                 </h2>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-[10px] text-muted-foreground mt-0.5">
                   Veículos sendo higienizados ou em manutenção
                 </p>
               </div>
             </div>
-            <span className="text-base font-medium tabular-nums text-sky-600 dark:text-sky-400 shrink-0">
+            <span className="text-sm font-medium tabular-nums text-sky-600 dark:text-sky-400 shrink-0">
               {maintenance.length}
             </span>
           </div>
 
           {maintenance.length === 0 ? (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground py-1">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
               Frota toda pronta para circular.
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
               <PrepCategory
                 title="Em manutenção"
                 tone="amber"
@@ -403,30 +403,6 @@ export default function AdminOpsToday() {
             </div>
           )}
 
-        </div>
-      </div>
-
-      {/* ────────── FOOTER TIPS ────────── */}
-      <div className="rounded-xl border border-border/40 bg-card/40 p-4 flex flex-col sm:flex-row gap-4 sm:gap-8">
-        <div className="flex items-start gap-3 flex-1">
-          <div className="h-9 w-9 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
-            <Clock size={16} className="text-emerald-600 dark:text-emerald-400" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">Fique atento aos horários</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Mantenha as retiradas em dia e garanta a melhor experiência para seus clientes.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-3 flex-1">
-          <div className="h-9 w-9 rounded-full bg-amber-500/15 flex items-center justify-center shrink-0">
-            <Sun size={16} className="text-amber-600 dark:text-amber-400" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">Bom dia.</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Tenha uma operação excelente.</p>
-          </div>
         </div>
       </div>
     </div>
