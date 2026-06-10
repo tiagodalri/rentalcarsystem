@@ -36,9 +36,9 @@ export default function FullscreenFab() {
       onClick={toggle}
       aria-label={isFs ? "Sair da tela cheia" : "Tela cheia"}
       title={isFs ? "Sair da tela cheia (F11)" : "Tela cheia (F11)"}
-      className="fixed bottom-3 left-3 z-[60] h-9 w-9 rounded-full border border-border/60 bg-background/70 text-muted-foreground shadow-sm backdrop-blur-md transition-all hover:bg-background hover:text-foreground hover:shadow-md opacity-60 hover:opacity-100 print:hidden"
+      className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/60 flex items-center justify-center transition-colors print:hidden"
     >
-      {isFs ? <Minimize2 className="h-4 w-4 mx-auto" /> : <Maximize2 className="h-4 w-4 mx-auto" />}
+      {isFs ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
     </button>
   );
 }
