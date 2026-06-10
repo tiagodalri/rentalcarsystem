@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Settings2, X, Check } from "lucide-react";
+import { Settings2, X, Check, Database, Loader2 } from "lucide-react";
 
 export type MapLayers = {
   mapType: "roadmap" | "satellite" | "satellite3d";
