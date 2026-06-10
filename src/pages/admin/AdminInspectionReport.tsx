@@ -891,10 +891,13 @@ export default function AdminInspectionReport() {
         </Card>
       )}
 
-      {/* Footer */}
-      <div className="text-center text-[10px] text-muted-foreground pt-4 border-t border-border/30">
+      {/* Footer (screen only — print uses fixed footer) */}
+      <div className="text-center text-[10px] text-muted-foreground pt-4 border-t border-border/30 print:hidden">
         Laudo gerado em {fmtDateTime(new Date().toISOString())} • Zeus Rental Car • Documento {reportNumber}
       </div>
-    </div>
+      </div>{/* /.laudo-content */}
+      </div>{/* /.laudo-print */}
+    </>
   );
 }
+
