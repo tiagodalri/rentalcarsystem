@@ -236,7 +236,7 @@ export default function AdminCustomers() {
         <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setEditing(null)}>
           <div className="bg-card rounded-2xl border border-border/40 shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-border/20">
-              <h2 className="text-base font-bold text-foreground">{isNew ? "Novo Cliente" : "Editar Cliente"}</h2>
+              <h2 className="admin-h2">{isNew ? "Novo Cliente" : "Editar Cliente"}</h2>
               <button onClick={() => setEditing(null)} className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
                 <X size={16} />
               </button>
