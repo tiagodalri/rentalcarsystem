@@ -294,6 +294,8 @@ type VehicleState = {
   /** Icon cache key — avoid setIcon every frame */
   iconKey: string;
   selected: boolean;
+  brandSlug: string | null;
+  logoDataUri: string | null;
 };
 
 const TWEEN_MIN_MS = 1500;             // never animate faster than this
