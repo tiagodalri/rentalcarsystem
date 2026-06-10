@@ -12,6 +12,7 @@ import FullscreenFab from "./FullscreenFab";
 import { AdminBottomNav } from "./AdminBottomNav";
 import { AdminFab } from "./AdminFab";
 import { AdminMobileHeader } from "./AdminMobileHeader";
+import { PainelHeaderWidgets } from "./PainelHeaderWidgets";
 import { AdminFabProvider } from "@/hooks/useAdminFab";
 
 import { AdminShellSkeleton } from "@/components/skeletons/AdminShellSkeleton";
@@ -61,28 +62,29 @@ export default function AdminLayout() {
               {/* Mobile: header compacto contextual */}
               <AdminMobileHeader />
 
-              {/* Desktop: abas tipo navegador + header completo */}
+              {/* Desktop: abas tipo navegador + ticker CNN-style + barra de utilitários */}
               <AdminTabsBar />
-              <header
-                className="hidden lg:flex h-14 items-center gap-2 sm:gap-3 border-b border-border/40 px-3 sm:px-4 bg-background/90 backdrop-blur-md sticky top-0 z-30"
-              >
-                <SidebarTrigger className="h-11 w-11 -ml-2 flex items-center justify-center text-muted-foreground hover:text-foreground" />
-                <div className="flex-1" />
-                <div className="flex items-center gap-1.5">
-                  <FullscreenFab />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleTheme}
-                    aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-                    title={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-                    className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/60"
-                  >
-                    {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                  </Button>
-                  <LanguageSwitcher className="h-9 w-9 justify-center rounded-full hover:bg-accent/60" />
+              <header className="hidden lg:flex items-stretch border-b border-border/40 bg-background/90 backdrop-blur-md sticky top-0 z-30">
+                <SidebarTrigger className="h-9 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground border-r border-border/40 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <PainelHeaderWidgets />
                 </div>
               </header>
+              {/* Utilitários (tema, idioma, fullscreen) — abaixo da divisão */}
+              <div className="hidden lg:flex h-10 items-center justify-end gap-1.5 px-3 sm:px-4">
+                <FullscreenFab />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleTheme}
+                  aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+                  title={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
+                  className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                >
+                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
+                <LanguageSwitcher className="h-9 w-9 justify-center rounded-full hover:bg-accent/60" />
+              </div>
 
               <main
                 className="flex-1 px-4 pt-3 pb-4 lg:p-6"
