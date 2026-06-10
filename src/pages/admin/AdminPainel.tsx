@@ -5,7 +5,7 @@ import {
   ChevronRight, Clock, DollarSign, LogIn, LogOut as LogOutIcon,
   TrendingDown, TrendingUp, Wrench,
 } from "lucide-react";
-import { format, startOfMonth, endOfMonth, startOfDay, endOfDay, subMonths } from "date-fns";
+import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
