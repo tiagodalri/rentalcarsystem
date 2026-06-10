@@ -1,0 +1,225 @@
+import { useNavigate } from "react-router-dom";
+import { Car, Eye, EyeOff, Check, X as XIcon, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
+import { storageThumb } from "@/lib/storageThumb";
+
+export type FleetTableVehicle = {
+  id: string;
+  name: string;
+  license_plate: string | null;
+  category: string;
+  status: string;
+  published: boolean;
+  daily_price_usd: number;
+  default_deposit_amount: number | null;
+  default_franchise_amount: number | null;
+  insurance_expiry: string | null;
+  registration_expiry: string | null;
+  image_url: string | null;
+  photos: string[] | null;
+};
+
+type Props = {
+  vehicles: FleetTableVehicle[];
+  onTogglePublished: (v: FleetTableVehicle) => void;
+  onInlineSave: (id: string, patch: Partial<FleetTableVehicle>) => Promise<void>;
+  onDelete: (id: string) => void;
+};
+
+const STATUS_LABEL: Record<string, string> = {
+  available: "Disponível",
+  rented: "Alugado",
+  maintenance: "Manutenção",
+  unavailable: "Indisponível",
+};
+const STATUS_COLOR: Record<string, string> = {
+  available: "bg-green-500/10 text-green-600 dark:text-green-500 border-green-500/30",
+  rented: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30",
+  maintenance: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/30",
+  unavailable: "bg-destructive/10 text-destructive border-destructive/30",
+};
+
+const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("pt-BR") : "—");
+const fmtMoney = (n: number | null | undefined) =>
+  n != null ? `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—";
+
+const isExpiring = (d: string | null) => {
+  if (!d) return false;
+  const dt = new Date(d);
+  const now = new Date();
+  const in30 = new Date(now.getTime() + 30 * 86400000);
+  return dt >= now && dt <= in30;
+};
+
+export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, onDelete }: Props) {
+  const navigate = useNavigate();
+  const [editing, setEditing] = useState<{ id: string; field: "daily_price_usd" | "default_deposit_amount" | "default_franchise_amount" | "status" } | null>(null);
+  const [draft, setDraft] = useState<string>("");
+  const [saving, setSaving] = useState(false);
+
+  const startEdit = (
+    id: string,
+    field: "daily_price_usd" | "default_deposit_amount" | "default_franchise_amount" | "status",
+    current: any,
+  ) => {
+    setEditing({ id, field });
+    setDraft(current == null ? "" : String(current));
+  };
+
+  const commit = async () => {
+    if (!editing) return;
+    setSaving(true);
+    try {
+      const patch: any = {};
+      if (editing.field === "status") patch.status = draft;
+      else patch[editing.field] = draft === "" ? 0 : Number(draft);
+      await onInlineSave(editing.id, patch);
+    } finally {
+      setSaving(false);
+      setEditing(null);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-border/40 bg-card/40 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-[10px] uppercase tracking-wider text-muted-foreground border-b border-border/40">
+              <th className="px-3 py-2.5 font-semibold">Veículo</th>
+              <th className="px-3 py-2.5 font-semibold">Placa</th>
+              <th className="px-3 py-2.5 font-semibold">Categoria</th>
+              <th className="px-3 py-2.5 font-semibold">Status</th>
+              <th className="px-3 py-2.5 font-semibold">Site</th>
+              <th className="px-3 py-2.5 font-semibold text-right">Diária</th>
+              <th className="px-3 py-2.5 font-semibold text-right">Caução</th>
+              <th className="px-3 py-2.5 font-semibold text-right">Franquia</th>
+              <th className="px-3 py-2.5 font-semibold">Seguro</th>
+              <th className="px-3 py-2.5 font-semibold">Registro</th>
+              <th className="px-3 py-2.5 font-semibold text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {vehicles.map((v) => {
+              const raw = v.image_url || (v.photos && v.photos[0]) || "";
+              const dbImg = raw && !raw.includes("placeholder") ? raw : "";
+              const thumb = storageThumb(dbImg, 80, 60) || (hasCoverImage(v.name) ? getCoverImage(v.name) : "");
+              const isEditingCell = (f: string) => editing?.id === v.id && editing?.field === f;
+              return (
+                <tr
+                  key={v.id}
+                  className="border-b border-border/30 hover:bg-accent/30 transition-colors"
+                >
+                  <td className="px-3 py-2">
+                    <button
+                      onClick={() => navigate(`/admin/fleet/${v.id}`)}
+                      className="flex items-center gap-2.5 text-left"
+                    >
+                      <div className="h-9 w-12 rounded-md bg-muted/40 overflow-hidden shrink-0 flex items-center justify-center">
+                        {thumb ? (
+                          <img src={thumb} alt={v.name} className="w-full h-full object-cover" loading="lazy" />
+                        ) : (
+                          <Car size={14} className="text-muted-foreground/40" />
+                        )}
+                      </div>
+                      <span className="font-medium text-foreground whitespace-nowrap">{v.name}</span>
+                    </button>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-xs text-muted-foreground uppercase">{v.license_plate || "—"}</td>
+                  <td className="px-3 py-2 text-muted-foreground">{v.category}</td>
+                  <td className="px-3 py-2">
+                    {isEditingCell("status") ? (
+                      <div className="inline-flex items-center gap-1">
+                        <select
+                          autoFocus
+                          value={draft}
+                          onChange={(e) => setDraft(e.target.value)}
+                          className="h-7 px-1.5 text-xs rounded border border-border/60 bg-background"
+                        >
+                          {Object.entries(STATUS_LABEL).map(([k, l]) => (
+                            <option key={k} value={k}>{l}</option>
+                          ))}
+                        </select>
+                        <button disabled={saving} onClick={commit} className="h-7 w-7 rounded inline-flex items-center justify-center text-primary hover:bg-primary/10"><Check size={13} /></button>
+                        <button onClick={() => setEditing(null)} className="h-7 w-7 rounded inline-flex items-center justify-center text-muted-foreground hover:bg-accent"><XIcon size={13} /></button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => startEdit(v.id, "status", v.status)}
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${STATUS_COLOR[v.status] || "bg-muted text-muted-foreground border-border"}`}
+                      >
+                        {STATUS_LABEL[v.status] || v.status}
+                      </button>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
+                    <button
+                      onClick={() => onTogglePublished(v)}
+                      className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                        v.published ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                      }`}
+                      title={v.published ? "Despublicar" : "Publicar"}
+                    >
+                      {v.published ? <><Eye size={10} /> No site</> : <><EyeOff size={10} /> Oculto</>}
+                    </button>
+                  </td>
+                  {(["daily_price_usd", "default_deposit_amount", "default_franchise_amount"] as const).map((f) => (
+                    <td key={f} className="px-3 py-2 text-right tabular-nums">
+                      {isEditingCell(f) ? (
+                        <div className="inline-flex items-center gap-1">
+                          <input
+                            autoFocus
+                            type="number"
+                            value={draft}
+                            onChange={(e) => setDraft(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") commit();
+                              if (e.key === "Escape") setEditing(null);
+                            }}
+                            className="w-20 h-7 px-1.5 text-xs rounded border border-border/60 bg-background text-right tabular-nums"
+                          />
+                          <button disabled={saving} onClick={commit} className="h-7 w-7 rounded inline-flex items-center justify-center text-primary hover:bg-primary/10"><Check size={13} /></button>
+                          <button onClick={() => setEditing(null)} className="h-7 w-7 rounded inline-flex items-center justify-center text-muted-foreground hover:bg-accent"><XIcon size={13} /></button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => startEdit(v.id, f, (v as any)[f])}
+                          className="font-medium text-foreground hover:text-primary"
+                        >
+                          {fmtMoney((v as any)[f])}
+                        </button>
+                      )}
+                    </td>
+                  ))}
+                  <td className={`px-3 py-2 whitespace-nowrap ${isExpiring(v.insurance_expiry) ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+                    {fmtDate(v.insurance_expiry)}
+                  </td>
+                  <td className={`px-3 py-2 whitespace-nowrap ${isExpiring(v.registration_expiry) ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+                    {fmtDate(v.registration_expiry)}
+                  </td>
+                  <td className="px-3 py-2 text-right whitespace-nowrap">
+                    <button
+                      onClick={() => navigate(`/admin/fleet/${v.id}?tab=details`)}
+                      className="text-muted-foreground hover:text-primary p-1.5 rounded transition-colors"
+                      title="Editar ficha completa"
+                    >
+                      <Pencil size={13} />
+                    </button>
+                    <button
+                      onClick={() => onDelete(v.id)}
+                      className="text-muted-foreground hover:text-destructive p-1.5 rounded transition-colors"
+                      title="Excluir"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
