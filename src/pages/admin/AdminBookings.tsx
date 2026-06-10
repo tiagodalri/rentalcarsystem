@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Search, Trash2, LogIn, LogOut, GitCompare, CalendarDays, List, ChevronLeft, ChevronRight, Clock, SlidersHorizontal, ArrowUpDown, X, Check, Download, FileText, FileSpreadsheet, CalendarIcon, Plus, Car, Plane, MapPin } from "lucide-react";
 
 import { EmptyState } from "@/components/admin/EmptyState";
+import { MobileBookingCard } from "@/components/admin/MobileBookingCard";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate, useSearchParams } from "react-router-dom";
