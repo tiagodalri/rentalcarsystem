@@ -1187,65 +1187,15 @@ export default function AdminBookings() {
               )
             ) : (
               <>
-                {/* Mobile: card list */}
-                <div className="md:hidden divide-y divide-border/15">
-                  {filtered.map((b) => {
-                    const sc = statusConfig[b.status] || statusConfig.pending;
-                    const progress = getBookingProgress(b.pickup_date, b.return_date, b.status);
-                    return (
-                      <div
-                        key={b.id}
-                        onClick={() => navigate(`/admin/bookings/${b.id}`)}
-                        className={`p-3.5 active:bg-muted/40 transition-colors cursor-pointer border-l-[3px] ${sc.accent}`}
-                      >
-                        <div className="flex items-start gap-3">
-                          {b.vehicle_image ? (
-                            <img
-                              src={b.vehicle_image}
-                              alt={b.vehicle_name || ""}
-                              className="w-14 h-10 rounded-md object-cover bg-muted border border-border/30 flex-shrink-0"
-                              loading="lazy"
-                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                            />
-                          ) : (
-                            <div className="w-14 h-10 rounded-md bg-muted border border-border/30 flex-shrink-0 flex items-center justify-center">
-                              <Car className="w-4 h-4 text-muted-foreground/50" />
-                            </div>
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center justify-between gap-2">
-                              <p className="font-semibold text-[14px] text-foreground truncate">{formatName(b.customer_name)}</p>
-                              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border whitespace-nowrap ${sc.color}`}>
-                                {sc.label}
-                              </span>
-                            </div>
-                            <p className="text-[12px] text-muted-foreground truncate">{b.vehicle_name || "—"}</p>
-                            <div className="flex items-center justify-between mt-1.5 text-[11px] tabular-nums text-muted-foreground">
-                              <span>
-                                {new Date(b.pickup_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
-                                {" → "}
-                                {new Date(b.return_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
-                              </span>
-                              <span className="text-foreground font-semibold">${b.total_price?.toFixed(0) || "—"}</span>
-                            </div>
-                            <div className="flex items-center gap-2 mt-2">
-                              <div className="flex-1 h-1 rounded-full bg-muted overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full ${
-                                    b.status === "completed" ? "bg-emerald-500"
-                                    : b.status === "active" || b.status === "in_progress" ? "bg-amber-500"
-                                    : "bg-muted-foreground/20"
-                                  }`}
-                                  style={{ width: `${progress}%` }}
-                                />
-                              </div>
-                              <span className="text-[10px] text-muted-foreground tabular-nums min-w-[28px] text-right">{progress}%</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                {/* Mobile: native-style cards */}
+                <div className="md:hidden p-3 space-y-3 bg-background">
+                  {filtered.map((b) => (
+                    <MobileBookingCard
+                      key={b.id}
+                      booking={b}
+                      onOpen={() => navigate(`/admin/bookings/${b.id}`)}
+                    />
+                  ))}
                 </div>
 
                 {/* Desktop: table */}
