@@ -182,8 +182,11 @@ const SearchResults = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {vehicles.map((v, i) => {
               const basePrice = vehiclePrices[v.name] || 99;
-              const dailyPrice = youngDriver ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
-              const totalPrice = dailyPrice * days;
+              const pricing = pricingMap[v.id];
+              const ruleSubtotal = pricing?.subtotal_rental ?? basePrice * days;
+              const avgDaily = pricing?.avg_per_day ?? basePrice;
+              const dailyDisplay = youngDriver ? Math.ceil(avgDaily * (1 + YOUNG_DRIVER_SURCHARGE)) : avgDaily;
+              const totalPrice = youngDriver ? Math.ceil(ruleSubtotal * (1 + YOUNG_DRIVER_SURCHARGE)) : ruleSubtotal;
 
               const bookingUrl = `/reserva/${encodeURIComponent(v.name)}?${searchParams.toString()}`;
 
