@@ -150,9 +150,9 @@ export default function AdminFleet() {
         </div>
         <button
           onClick={() => navigate("/admin/fleet/new")}
-          className="gold-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity"
+          className="gold-gradient text-primary-foreground px-3 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 hover:opacity-90 transition-opacity"
         >
-          <Plus size={16} /> Adicionar veículo
+          <Plus size={12} /> Adicionar veículo
         </button>
       </div>
 
