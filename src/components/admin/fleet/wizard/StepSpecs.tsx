@@ -100,6 +100,51 @@ export default function StepSpecs({ form, set }: Props) {
               </button>
             );
           })}
+
+          {customFeatures.map((f) => (
+            <span
+              key={f}
+              className="inline-flex items-center gap-1.5 pl-3 pr-1.5 h-8 rounded-full border border-primary/60 bg-primary/10 text-primary text-xs font-medium"
+            >
+              <Check size={11} />
+              {f}
+              <button
+                type="button"
+                onClick={() => toggleFeature(f)}
+                className="ml-0.5 inline-flex items-center justify-center w-5 h-5 rounded-full hover:bg-primary/15"
+                aria-label={`Remover ${f}`}
+              >
+                <X size={11} />
+              </button>
+            </span>
+          ))}
+
+          {adding ? (
+            <span className="inline-flex items-center gap-1 h-8 rounded-full border border-border bg-background px-2">
+              <input
+                autoFocus
+                value={newFeat}
+                onChange={(e) => setNewFeat(e.target.value)}
+                onBlur={commitNew}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") { e.preventDefault(); commitNew(); }
+                  if (e.key === "Escape") { setNewFeat(""); setAdding(false); }
+                }}
+                placeholder="Nova comodidade"
+                className="bg-transparent outline-none text-xs w-36 placeholder:text-muted-foreground"
+              />
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className="inline-flex items-center gap-1 px-3 h-8 rounded-full border border-dashed border-border/80 bg-background text-xs font-medium text-muted-foreground hover:text-foreground hover:border-border"
+              aria-label="Adicionar comodidade"
+            >
+              <Plus size={12} />
+              Adicionar
+            </button>
+          )}
         </div>
       </div>
     </div>
