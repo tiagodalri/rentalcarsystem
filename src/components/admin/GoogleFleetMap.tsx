@@ -37,40 +37,34 @@ const DARK_STYLE: any[] = [
  * - Translucent outer halo (only when moving) for the "alive" feel
  * - Tiny top-down car silhouette inside the puck
  */
-function puckSvg(color: string, selected: boolean, headingDeg: number, moving: boolean): any {
-  // Display size in CSS px on the map.
-  const displaySize = selected ? 56 : 46;
-  // Render the SVG raster at 3x for retina-crisp pins (Google Marker rasterizes data: URIs).
-  const NATIVE = 132; // 44 * 3
+function puckSvg(color: string, selected: boolean, headingDeg: number, moving: boolean, logoDataUri: string | null): any {
+  const displaySize = selected ? 60 : 50;
+  const NATIVE = 132;
   const h = ((headingDeg % 360) + 360) % 360;
-  const ringStroke = selected ? "#D4AF37" : "#0a0a0a";
-  const ringWidth = selected ? 3.2 : 2.4;
-  const haloOpacity = moving ? 0.28 : 0;
+  const ringStroke = selected ? "#D4AF37" : color;
+  const ringWidth = selected ? 3.4 : 2.8;
+  const haloOpacity = moving ? 0.32 : 0;
   const cone = moving
     ? `<g transform="rotate(${h} 22 22)">
-         <path d="M22 0.5 L30.5 12 L22 8.5 L13.5 12 Z" fill="${color}" stroke="#0a0a0a" stroke-width="0.6" stroke-linejoin="round" opacity="0.98" />
+         <path d="M22 1.2 L29.8 11 L22 8.2 L14.2 11 Z" fill="${color}" stroke="#0a0a0a" stroke-width="0.5" stroke-linejoin="round" opacity="0.98" />
        </g>`
     : "";
-  const carBody = `
-    <g transform="rotate(${h} 22 22)">
-      <rect x="18.4" y="15.8" width="7.2" height="12.4" rx="2.2" fill="#ffffff" stroke="#0a0a0a" stroke-width="0.5" opacity="0.98"/>
-      <rect x="19.4" y="17.4" width="5.2" height="3.4" rx="0.6" fill="${color}" />
-      <rect x="19.4" y="22" width="5.2" height="4.2" rx="0.6" fill="${color}" opacity="0.55" />
-    </g>`;
+  const inner = logoDataUri
+    ? `<image href="${logoDataUri}" x="11" y="11" width="22" height="22" preserveAspectRatio="xMidYMid meet" />`
+    : `<circle cx="22" cy="22" r="3.4" fill="${color}"/>`;
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${NATIVE}" height="${NATIVE}" viewBox="0 0 44 44" shape-rendering="geometricPrecision">
       <defs>
         <filter id="puckShadow" x="-40%" y="-40%" width="180%" height="180%">
-          <feDropShadow dx="0" dy="1.6" stdDeviation="1.8" flood-color="#000" flood-opacity="0.5"/>
+          <feDropShadow dx="0" dy="1.8" stdDeviation="2" flood-color="#000" flood-opacity="0.55"/>
         </filter>
       </defs>
       <circle cx="22" cy="22" r="19" fill="${color}" opacity="${haloOpacity}" />
-      <g filter="url(#puckShadow)">
-        <circle cx="22" cy="22" r="13.5" fill="#ffffff" stroke="${ringStroke}" stroke-width="${ringWidth}" />
-        <circle cx="22" cy="22" r="11" fill="${color}" opacity="0.95"/>
-      </g>
       ${cone}
-      ${carBody}
+      <g filter="url(#puckShadow)">
+        <circle cx="22" cy="22" r="14" fill="#ffffff" stroke="${ringStroke}" stroke-width="${ringWidth}" />
+      </g>
+      ${inner}
     </svg>`;
   return {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
@@ -78,6 +72,62 @@ function puckSvg(color: string, selected: boolean, headingDeg: number, moving: b
     size: { width: NATIVE, height: NATIVE } as any,
     anchor: { x: displaySize / 2, y: displaySize / 2 } as any,
   };
+}
+
+// --- Brand logo resolution (Simple Icons CDN, cached + inlined as data URI) ---
+const BRAND_SLUGS: Record<string, string> = {
+  porsche: "porsche",
+  chevrolet: "chevrolet",
+  corvette: "chevrolet",
+  audi: "audi",
+  mercedes: "mercedes",
+  "mercedes-benz": "mercedes",
+  ford: "ford",
+  mustang: "ford",
+  volkswagen: "volkswagen",
+  vw: "volkswagen",
+  "t-cross": "volkswagen",
+  lexus: "lexus",
+  bmw: "bmw",
+  kia: "kia",
+  chrysler: "chrysler",
+  jeep: "jeep",
+  nissan: "nissan",
+  cadillac: "cadillac",
+  dodge: "dodge",
+  mitsubishi: "mitsubishimotors",
+  volvo: "volvo",
+  toyota: "toyota",
+  honda: "honda",
+  hyundai: "hyundai",
+  tesla: "tesla",
+  fiat: "fiat",
+  subaru: "subaru",
+  mazda: "mazda",
+};
+function brandSlugFromName(name: string): string | null {
+  if (!name) return null;
+  const lower = name.toLowerCase().trim();
+  const tokens = lower.split(/[\s]+/);
+  const candidates = [tokens[0], tokens.slice(0, 2).join(" "), tokens.slice(0, 2).join("-")];
+  for (const c of candidates) {
+    if (c && BRAND_SLUGS[c]) return BRAND_SLUGS[c];
+  }
+  return null;
+}
+const brandLogoCache = new Map<string, Promise<string | null>>();
+function loadBrandLogo(slug: string): Promise<string | null> {
+  const cached = brandLogoCache.get(slug);
+  if (cached) return cached;
+  const p = fetch(`https://cdn.simpleicons.org/${slug}/0a0a0a`)
+    .then(async (r) => {
+      if (!r.ok) return null;
+      const text = await r.text();
+      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(text);
+    })
+    .catch(() => null);
+  brandLogoCache.set(slug, p);
+  return p;
 }
 
 
@@ -244,6 +294,8 @@ type VehicleState = {
   /** Icon cache key — avoid setIcon every frame */
   iconKey: string;
   selected: boolean;
+  brandSlug: string | null;
+  logoDataUri: string | null;
 };
 
 const TWEEN_MIN_MS = 1500;             // never animate faster than this
@@ -560,6 +612,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
       let st = states.get(v.vehicle_id);
       if (!st) {
+        const slug = brandSlugFromName(v.name);
         st = {
           tween: null,
           lastReportedMs: reportedAtMs,
@@ -571,8 +624,18 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           displayLng: v.lng,
           iconKey: "",
           selected: isSelected,
+          brandSlug: slug,
+          logoDataUri: null,
         };
         states.set(v.vehicle_id, st);
+        if (slug) {
+          loadBrandLogo(slug).then((uri) => {
+            if (uri && states.get(v.vehicle_id)) {
+              states.get(v.vehicle_id)!.logoDataUri = uri;
+              states.get(v.vehicle_id)!.iconKey = ""; // force redraw on next tick
+            }
+          });
+        }
       } else {
         const isNewFix = reportedAtMs !== st.lastReportedMs;
         if (isNewFix) {
@@ -624,6 +687,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           isSelected,
           st.drawnHeading,
           v.status === "moving",
+          st.logoDataUri,
         );
         marker = new google.maps.Marker({
           map,
@@ -708,6 +772,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
               st.selected,
               st.drawnHeading,
               st.status === "moving",
+              st.logoDataUri,
             ),
           );
         }
