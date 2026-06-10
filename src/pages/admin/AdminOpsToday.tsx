@@ -28,29 +28,86 @@ type BookingRow = {
 
 type Vehicle = { id: string; name: string; status: string; brand?: string | null };
 
+type OpsStatus = "completed" | "late" | "cancelled" | "pending";
+
+const STATUS_META: Record<OpsStatus, { label: string; bar: string; dot: string; chipBg: string; chipText: string; chipBorder: string }> = {
+  completed: {
+    label: "Concluídas",
+    bar: "bg-emerald-500",
+    dot: "bg-emerald-500",
+    chipBg: "bg-emerald-500/10",
+    chipText: "text-emerald-600 dark:text-emerald-400",
+    chipBorder: "border-emerald-500/30",
+  },
+  late: {
+    label: "Atrasadas",
+    bar: "bg-red-500",
+    dot: "bg-red-500",
+    chipBg: "bg-red-500/10",
+    chipText: "text-red-600 dark:text-red-400",
+    chipBorder: "border-red-500/30",
+  },
+  pending: {
+    label: "Pendentes",
+    bar: "bg-amber-500",
+    dot: "bg-amber-500",
+    chipBg: "bg-amber-500/10",
+    chipText: "text-amber-600 dark:text-amber-400",
+    chipBorder: "border-amber-500/30",
+  },
+  cancelled: {
+    label: "Canceladas",
+    bar: "bg-muted-foreground/50",
+    dot: "bg-muted-foreground/60",
+    chipBg: "bg-muted",
+    chipText: "text-muted-foreground",
+    chipBorder: "border-border",
+  },
+};
+
+function deriveStatus(b: BookingRow, kind: "pickup" | "return", now: Date): OpsStatus {
+  if (b.status === "cancelled") return "cancelled";
+  if (kind === "pickup") {
+    if (["active", "in_progress", "completed"].includes(b.status)) return "completed";
+    const t = b.pickup_time ? b.pickup_time.slice(0, 5) : "23:59";
+    const dt = new Date(`${b.pickup_date}T${t}:00`);
+    if (dt.getTime() < now.getTime()) return "late";
+    return "pending";
+  } else {
+    if (b.status === "completed") return "completed";
+    const t = b.return_time ? b.return_time.slice(0, 5) : "23:59";
+    const dt = new Date(`${b.return_date}T${t}:00`);
+    if (dt.getTime() < now.getTime()) return "late";
+    return "pending";
+  }
+}
+
 export default function AdminOpsToday() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()));
   const [pickups, setPickups] = useState<BookingRow[]>([]);
   const [returns, setReturns] = useState<BookingRow[]>([]);
   const [vehicles, setVehicles] = useState<Record<string, Vehicle>>({});
   const [maintenance, setMaintenance] = useState<Vehicle[]>([]);
   const [showAllPrep, setShowAllPrep] = useState(false);
+  const [pickupFilter, setPickupFilter] = useState<OpsStatus | "all">("all");
+  const [returnFilter, setReturnFilter] = useState<OpsStatus | "all">("all");
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const today = format(new Date(), "yyyy-MM-dd");
+      const dayStr = format(selectedDate, "yyyy-MM-dd");
       const [pk, rt, vs] = await Promise.all([
         supabase.from("bookings")
           .select("id, customer_name, customer_phone, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, vehicle_id, status, booking_number")
-          .eq("pickup_date", today)
-          .in("status", ["pending", "confirmed", "active", "in_progress"])
+          .eq("pickup_date", dayStr)
+          .in("status", ["pending", "confirmed", "active", "in_progress", "completed", "cancelled"])
           .order("pickup_time"),
         supabase.from("bookings")
           .select("id, customer_name, customer_phone, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, vehicle_id, status, booking_number")
-          .eq("return_date", today)
-          .in("status", ["confirmed", "active", "in_progress"])
+          .eq("return_date", dayStr)
+          .in("status", ["confirmed", "active", "in_progress", "completed", "cancelled"])
           .order("return_time"),
         supabase.from("vehicles").select("id, name, status"),
       ]);
@@ -63,21 +120,37 @@ export default function AdminOpsToday() {
       setMaintenance(((vs.data as Vehicle[]) || []).filter(v => ["maintenance", "preparing"].includes(v.status)));
       setLoading(false);
     })();
-  }, []);
+  }, [selectedDate]);
 
-  const today = new Date();
-  const dayLabel = format(today, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-  const weekdayLabel = format(today, "EEEE", { locale: ptBR });
+  const isToday = isSameDay(selectedDate, new Date());
+  const dayLabel = format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+  const weekdayLabel = format(selectedDate, "EEEE", { locale: ptBR });
+  const now = new Date();
 
-  const prepGroups = useMemo(() => ({
-    maintenance: maintenance.filter(v => v.status === "maintenance"),
-    preparing: maintenance.filter(v => v.status === "preparing"),
-  }), [maintenance]);
+  const pickupsWithStatus = useMemo(
+    () => pickups.map(b => ({ b, s: deriveStatus(b, "pickup", now) })),
+    [pickups, now],
+  );
+  const returnsWithStatus = useMemo(
+    () => returns.map(b => ({ b, s: deriveStatus(b, "return", now) })),
+    [returns, now],
+  );
 
+  const countBy = (arr: { s: OpsStatus }[]) => {
+    const c: Record<OpsStatus, number> = { completed: 0, late: 0, pending: 0, cancelled: 0 };
+    arr.forEach(({ s }) => { c[s]++; });
+    return c;
+  };
+  const pickupCounts = countBy(pickupsWithStatus);
+  const returnCounts = countBy(returnsWithStatus);
 
-  if (loading) {
-    return <div className="p-10 text-center text-sm text-muted-foreground">Carregando operação do dia...</div>;
-  }
+  const filteredPickups = pickupFilter === "all"
+    ? pickupsWithStatus
+    : pickupsWithStatus.filter(x => x.s === pickupFilter);
+  const filteredReturns = returnFilter === "all"
+    ? returnsWithStatus
+    : returnsWithStatus.filter(x => x.s === returnFilter);
+
 
   return (
     <div className="space-y-5">
