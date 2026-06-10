@@ -14,6 +14,7 @@ import {
   Download, GitCompare, Info, Eye
 } from "lucide-react";
 import { generateInspectionPDF } from "@/utils/inspectionPdf";
+import { WebcamCaptureDialog } from "@/components/admin/WebcamCaptureDialog";
 import refFrente from "@/assets/inspection/frente.jpg";
 import refTraseira from "@/assets/inspection/traseira.jpg";
 import refLatEsq from "@/assets/inspection/lateral-esquerda.jpg";
@@ -350,6 +351,55 @@ export default function AdminInspection() {
   const odometerPhotoRef = useRef<HTMLInputElement>(null);
   const fuelPhotoRef = useRef<HTMLInputElement>(null);
 
+  // Webcam dialog (desktop only — mobile uses native camera via input capture)
+  const isTouchDevice = typeof window !== "undefined"
+    && window.matchMedia?.("(pointer: coarse)").matches;
+  const [webcamTarget, setWebcamTarget] = useState<
+    | null
+    | { kind: "exterior"; position: string }
+    | { kind: "damage"; damageId: string }
+    | { kind: "odometer" }
+    | { kind: "fuel" }
+  >(null);
+  const webcamTitle =
+    webcamTarget?.kind === "exterior" ? `Foto: ${webcamTarget.position}`
+    : webcamTarget?.kind === "damage" ? "Foto da avaria"
+    : webcamTarget?.kind === "odometer" ? "Foto do odômetro"
+    : webcamTarget?.kind === "fuel" ? "Foto do tanque"
+    : "Capturar foto";
+
+  const handleWebcamFile = async (file: File) => {
+    if (!webcamTarget) return;
+    setUploading(true);
+    try {
+      if (webcamTarget.kind === "exterior") {
+        const url = await uploadPhoto(file, webcamTarget.position.replace(/\s/g, "_"));
+        if (url) {
+          setPhotos((prev) => {
+            const filtered = prev.filter((p) => p.position !== webcamTarget.position);
+            return [...filtered, { id: crypto.randomUUID(), position: webcamTarget.position, url }];
+          });
+        }
+      } else if (webcamTarget.kind === "damage") {
+        const url = await uploadPhoto(file, `damage-${webcamTarget.damageId.substring(0, 8)}`);
+        if (url) {
+          setDamages((prev) =>
+            prev.map((d) => (d.id === webcamTarget.damageId ? { ...d, photoUrl: url } : d))
+          );
+        }
+      } else if (webcamTarget.kind === "odometer") {
+        const url = await uploadPhoto(file, "odometro");
+        if (url) setOdometerPhoto(url);
+      } else if (webcamTarget.kind === "fuel") {
+        const url = await uploadPhoto(file, "tanque_combustivel");
+        if (url) setFuelPhoto(url);
+      }
+    } finally {
+      setUploading(false);
+      setWebcamTarget(null);
+    }
+  };
+
   useEffect(() => {
     loadData();
   }, [bookingId]);
@@ -406,6 +456,10 @@ export default function AdminInspection() {
 
   // -- Photo capture
   const capturePhoto = (position: string) => {
+    if (!isTouchDevice) {
+      setWebcamTarget({ kind: "exterior", position });
+      return;
+    }
     setCapturePosition(position);
     fileInputRef.current?.click();
   };
@@ -427,6 +481,14 @@ export default function AdminInspection() {
   };
 
   // Odometer photo
+  const captureOdometerPhoto = () => {
+    if (!isTouchDevice) {
+      setWebcamTarget({ kind: "odometer" });
+      return;
+    }
+    odometerPhotoRef.current?.click();
+  };
+
   const handleOdometerPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -438,6 +500,14 @@ export default function AdminInspection() {
   };
 
   // Fuel photo
+  const captureFuelPhoto = () => {
+    if (!isTouchDevice) {
+      setWebcamTarget({ kind: "fuel" });
+      return;
+    }
+    fuelPhotoRef.current?.click();
+  };
+
   const handleFuelPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -450,6 +520,10 @@ export default function AdminInspection() {
 
   // -- Damage photo
   const captureDamagePhoto = (damageId: string) => {
+    if (!isTouchDevice) {
+      setWebcamTarget({ kind: "damage", damageId });
+      return;
+    }
     setDamagePhotoTarget(damageId);
     damageFileRef.current?.click();
   };
@@ -602,6 +676,14 @@ export default function AdminInspection() {
       <input ref={odometerPhotoRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleOdometerPhoto} />
       <input ref={fuelPhotoRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFuelPhoto} />
 
+      {/* Webcam dialog — only used on desktop/notebook (no touch). Mobile uses native camera via input capture. */}
+      <WebcamCaptureDialog
+        open={!!webcamTarget}
+        onClose={() => setWebcamTarget(null)}
+        onCapture={handleWebcamFile}
+        title={webcamTitle}
+      />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate("/admin/bookings")}>
@@ -695,7 +777,7 @@ export default function AdminInspection() {
                       <img src={odometerPhoto} alt="Odômetro" className="w-full h-full min-h-[180px] object-cover rounded-lg border border-border/40" />
                       {!isCompleted && (
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                          <Button size="sm" variant="secondary" onClick={() => odometerPhotoRef.current?.click()} className="h-7 text-xs">
+                          <Button size="sm" variant="secondary" onClick={captureOdometerPhoto} className="h-7 text-xs">
                             <Camera size={12} /> Refazer
                           </Button>
                           <Button size="sm" variant="destructive" onClick={() => setOdometerPhoto("")} className="h-7 text-xs">
@@ -706,7 +788,7 @@ export default function AdminInspection() {
                     </div>
                   ) : (
                     <button
-                      onClick={() => !isCompleted && odometerPhotoRef.current?.click()}
+                      onClick={() => !isCompleted && captureOdometerPhoto()}
                       disabled={isCompleted || uploading}
                       className="flex-1 min-h-[180px] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
                     >
@@ -758,7 +840,7 @@ export default function AdminInspection() {
                       <img src={fuelPhoto} alt="Combustível" className="w-full h-full min-h-[180px] object-cover rounded-lg border border-border/40" />
                       {!isCompleted && (
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                          <Button size="sm" variant="secondary" onClick={() => fuelPhotoRef.current?.click()} className="h-7 text-xs">
+                          <Button size="sm" variant="secondary" onClick={captureFuelPhoto} className="h-7 text-xs">
                             <Camera size={12} /> Refazer
                           </Button>
                           <Button size="sm" variant="destructive" onClick={() => setFuelPhoto("")} className="h-7 text-xs">
@@ -769,7 +851,7 @@ export default function AdminInspection() {
                     </div>
                   ) : (
                     <button
-                      onClick={() => !isCompleted && fuelPhotoRef.current?.click()}
+                      onClick={() => !isCompleted && captureFuelPhoto()}
                       disabled={isCompleted || uploading}
                       className="flex-1 min-h-[180px] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
                     >
