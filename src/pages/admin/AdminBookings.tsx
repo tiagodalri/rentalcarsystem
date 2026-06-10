@@ -1248,8 +1248,10 @@ export default function AdminBookings() {
                     <tr className="border-b border-border/30 bg-muted/20">
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Cliente</th>
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Veículo</th>
-                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Período</th>
-                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Horários</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Retirada</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Hora</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Devolução</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Hora</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Local</th>
                       <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Total</th>
                       <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Caução</th>
@@ -1292,18 +1294,23 @@ export default function AdminBookings() {
                               <span className="text-foreground text-[13px] font-medium truncate">{b.vehicle_name || "—"}</span>
                             </div>
                           </td>
-                          <td className="px-5 py-3.5 text-muted-foreground tabular-nums text-xs">
-                            {new Date(b.pickup_date).toLocaleDateString("pt-BR")} → {new Date(b.return_date).toLocaleDateString("pt-BR")}
+                          <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1.5">
+                              <span className="text-emerald-500 text-[10px]">→</span>
+                              {new Date(b.pickup_date).toLocaleDateString("pt-BR")}
+                            </span>
                           </td>
-                          <td className="px-5 py-3.5 text-xs text-muted-foreground tabular-nums">
-                            <div className="flex flex-col gap-0.5">
-                              <span className="flex items-center gap-1">
-                                <span className="text-emerald-500 text-[10px]">→</span> {b.pickup_time || "—"}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <span className="text-orange-500 text-[10px]">←</span> {b.return_time || "—"}
-                              </span>
-                            </div>
+                          <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
+                            {b.pickup_time || "—"}
+                          </td>
+                          <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
+                            <span className="inline-flex items-center gap-1.5">
+                              <span className="text-orange-500 text-[10px]">←</span>
+                              {new Date(b.return_date).toLocaleDateString("pt-BR")}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
+                            {b.return_time || "—"}
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground text-xs max-w-[180px] truncate">{b.pickup_location || "—"}</td>
                           <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap">
