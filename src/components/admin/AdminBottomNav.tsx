@@ -30,28 +30,36 @@ export function AdminBottomNav() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="lg:hidden fixed bottom-0 inset-x-0 z-30 border-t border-border/40 bg-background/95 backdrop-blur-md"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-background/95 backdrop-blur-xl"
+      style={{
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        boxShadow: "inset 0 1px 0 hsl(var(--border) / 0.6), 0 -8px 24px -16px hsl(var(--foreground) / 0.08)",
+      }}
     >
       <ul className="grid grid-cols-5 h-16">
         {visible.map((tab) => {
           const Icon = tab.icon;
           const isActive = tab.url ? pathname === tab.url || pathname.startsWith(tab.url + "/") : false;
           const baseClass = cn(
-            "relative h-full w-full flex flex-col items-center justify-center gap-1 text-[10px] tabular-nums tracking-wide uppercase",
-            isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground transition-colors"
+            "relative h-full w-full flex flex-col items-center justify-center gap-0.5 text-[10px] tracking-tight transition-colors active:bg-muted/30",
+            isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground"
           );
-          const indicator = isActive ? (
-            <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-foreground" />
-          ) : null;
+          const indicator = (
+            <span
+              className={cn(
+                "absolute top-0 left-1/2 -translate-x-1/2 h-[3px] rounded-b-full bg-foreground transition-all duration-200",
+                isActive ? "w-10 opacity-100" : "w-0 opacity-0"
+              )}
+            />
+          );
 
           if (tab.action === "open-sidebar") {
             return (
               <li key={tab.label}>
-                <button type="button" onClick={() => setOpenMobile(true)} className={baseClass}>
+                <button type="button" onClick={() => setOpenMobile(true)} className={baseClass} aria-label={tab.label}>
                   {indicator}
-                  <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2.25 : 1.75} />
-                  <span>{tab.label}</span>
+                  <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2 : 1.6} />
+                  <span className={cn("leading-none", isActive && "font-medium")}>{tab.label}</span>
                 </button>
               </li>
             );
@@ -59,10 +67,10 @@ export function AdminBottomNav() {
 
           return (
             <li key={tab.label}>
-              <NavLink to={tab.url!} className={baseClass}>
+              <NavLink to={tab.url!} className={baseClass} aria-label={tab.label}>
                 {indicator}
-                <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2.25 : 1.75} />
-                <span>{tab.label}</span>
+                <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2 : 1.6} />
+                <span className={cn("leading-none", isActive && "font-medium")}>{tab.label}</span>
               </NavLink>
             </li>
           );
