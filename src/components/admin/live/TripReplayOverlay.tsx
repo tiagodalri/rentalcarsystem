@@ -1472,7 +1472,8 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }
 
