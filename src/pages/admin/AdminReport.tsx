@@ -1,67 +1,50 @@
-import { lazy, Suspense, useMemo } from "react";
-import { useNavigate, useSearchParams, Navigate } from "react-router-dom";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { lazy, Suspense } from "react";
+import { Navigate } from "react-router-dom";
 import { BarChart3, TrendingUp } from "lucide-react";
 import { FleetReportSkeleton } from "@/components/skeletons/MinorPageSkeletons";
 
 const AdminFleetReport = lazy(() => import("./AdminFleetReport"));
 const AdminFleetPnL = lazy(() => import("./AdminFleetPnL"));
 
-type Tab = "mensal" | "rentabilidade";
-const VALID: Tab[] = ["mensal", "rentabilidade"];
-
 /**
- * Wrapper unificado: substitui as antigas entradas separadas "Relatório" e
- * "Lucro Frota" no menu. Mantém os dois relatórios como abas internas
- * compartilhando a mesma rota /admin/report?tab=...
+ * Relatório único e consolidado: Desempenho mensal + Rentabilidade
+ * em uma única página estratégica, sem abas.
  */
 export default function AdminReport() {
-  const [params, setParams] = useSearchParams();
-  const navigate = useNavigate();
-  const raw = (params.get("tab") || "mensal") as Tab;
-  const tab: Tab = VALID.includes(raw) ? raw : "mensal";
-
-  const onTabChange = (v: string) => {
-    const next = new URLSearchParams(params);
-    next.set("tab", v);
-    setParams(next, { replace: true });
-  };
-
   return (
-    <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-medium text-foreground">Relatórios</h1>
+    <div className="space-y-10">
+      <header>
+        <h1 className="admin-h1">Relatório consolidado</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Desempenho mensal e rentabilidade consolidada da frota
+          Visão estratégica única — desempenho operacional mensal e rentabilidade
+          completa da frota lado a lado.
         </p>
-      </div>
+      </header>
 
-      <Tabs value={tab} onValueChange={onTabChange} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="mensal" className="flex items-center gap-2">
-            <BarChart3 size={14} /> Desempenho mensal
-          </TabsTrigger>
-          <TabsTrigger value="rentabilidade" className="flex items-center gap-2">
-            <TrendingUp size={14} /> Rentabilidade
-          </TabsTrigger>
-        </TabsList>
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-border/60">
+          <BarChart3 size={14} className="text-muted-foreground" />
+          <h2 className="admin-section-title">Desempenho mensal</h2>
+        </div>
+        <Suspense fallback={<FleetReportSkeleton />}>
+          <AdminFleetReport embedded />
+        </Suspense>
+      </section>
 
-        <TabsContent value="mensal" className="mt-4">
-          <Suspense fallback={<FleetReportSkeleton />}>
-            <AdminFleetReport embedded />
-          </Suspense>
-        </TabsContent>
-        <TabsContent value="rentabilidade" className="mt-4">
-          <Suspense fallback={<FleetReportSkeleton />}>
-            <AdminFleetPnL embedded />
-          </Suspense>
-        </TabsContent>
-      </Tabs>
+      <section className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-border/60">
+          <TrendingUp size={14} className="text-muted-foreground" />
+          <h2 className="admin-section-title">Rentabilidade da frota</h2>
+        </div>
+        <Suspense fallback={<FleetReportSkeleton />}>
+          <AdminFleetPnL embedded />
+        </Suspense>
+      </section>
     </div>
   );
 }
 
-/** Redirect legado: /admin/report/fleet-pnl → /admin/report?tab=rentabilidade */
+/** Redirect legado: /admin/report/fleet-pnl → /admin/report */
 export function AdminFleetPnLRedirect() {
-  return <Navigate to="/admin/report?tab=rentabilidade" replace />;
+  return <Navigate to="/admin/report" replace />;
 }
