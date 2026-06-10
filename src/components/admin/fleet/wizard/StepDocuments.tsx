@@ -57,6 +57,14 @@ const SLOTS: Slot[] = [
     showExpiry: true,
     customName: false,
   },
+  {
+    type: "inspection_report",
+    title: "Laudo / Vistoria",
+    description: "Laudo cautelar ou vistoria mais recente.",
+    Icon: ClipboardCheck,
+    showExpiry: true,
+    customName: false,
+  },
 ];
 
 type Props = {
