@@ -225,8 +225,6 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                       <Trash2 size={13} />
                     </button>
                   </td>
-                    </button>
-                  </td>
                   <td className="px-3 py-2">
                     <div className="inline-flex items-center gap-2">
                       <Switch
