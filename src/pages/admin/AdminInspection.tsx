@@ -41,6 +41,8 @@ const PHOTO_REFERENCES: Record<string, string> = {
   "Roda Dianteira Dir.": refRodaDD,
   "Roda Traseira Esq.": refRodaTE,
   "Roda Traseira Dir.": refRodaTD,
+  "Estribo Esq.": refLatEsq,
+  "Estribo Dir.": refLatDir,
 };
 
 type DamageItem = {
@@ -174,12 +176,41 @@ const PhotoIllustration = ({ position }: { position: string }) => {
           />
         </svg>
       );
+    case "Estribo Esq.":
+    case "Estribo Dir.": {
+      const isLeftStep = position.includes("Esq");
+      return (
+        <svg viewBox="0 0 48 48" width={s} height={s}>
+          {/* Faded car body */}
+          <path d="M12 30 L12 22 L16 14 L32 14 L36 22 L36 30 Z" fill="hsl(var(--muted) / 0.15)" stroke={bodyStroke} strokeWidth="0.6" opacity="0.4"/>
+          <circle cx="17" cy="30" r="2.5" fill="none" stroke={bodyStroke} strokeWidth="0.6" opacity="0.4"/>
+          <circle cx="31" cy="30" r="2.5" fill="none" stroke={bodyStroke} strokeWidth="0.6" opacity="0.4"/>
+          {/* Highlighted running board (step) */}
+          <rect
+            x={isLeftStep ? 10 : 30}
+            y="33"
+            width="8"
+            height="2.5"
+            rx="1"
+            fill="hsl(var(--primary) / 0.25)"
+            stroke={stroke}
+            strokeWidth="1.4"
+          />
+          <path
+            d={isLeftStep ? "M11 36 L17 36" : "M31 36 L37 36"}
+            stroke={stroke}
+            strokeWidth="0.8"
+            opacity="0.6"
+          />
+        </svg>
+      );
+    }
     default:
       return carBody(null);
   }
 };
 
-const PHOTO_POSITIONS: { name: string; guide: string }[] = [
+const PHOTO_POSITIONS: { name: string; guide: string; optional?: boolean }[] = [
   { name: "Frente", guide: "Foto centralizada da frente do veículo, mostrando faróis, grade e placa inteiros. Distância: ~2 metros." },
   { name: "Traseira", guide: "Foto centralizada da traseira, mostrando lanternas, placa e para-choque inteiros. Distância: ~2 metros." },
   { name: "Lateral Esquerda", guide: "Foto lateral completa do lado do motorista. Posicione-se no meio do carro. Distância: ~3 metros." },
@@ -192,7 +223,10 @@ const PHOTO_POSITIONS: { name: string; guide: string }[] = [
   { name: "Roda Dianteira Dir.", guide: "Foto focada na roda dianteira direita: pneu, calota/roda e suspensão visível." },
   { name: "Roda Traseira Esq.", guide: "Foto focada na roda traseira esquerda: pneu, calota/roda e suspensão visível." },
   { name: "Roda Traseira Dir.", guide: "Foto focada na roda traseira direita: pneu, calota/roda e suspensão visível." },
+  { name: "Estribo Esq.", guide: "Somente se o veículo possuir estribo lateral (running board). Foto focada no estribo do lado esquerdo, mostrando estado geral e fixação.", optional: true },
+  { name: "Estribo Dir.", guide: "Somente se o veículo possuir estribo lateral (running board). Foto focada no estribo do lado direito, mostrando estado geral e fixação.", optional: true },
 ];
+
 
 const FUEL_LEVELS = [
   { value: "empty", label: "Vazio", pct: 0 },
@@ -924,13 +958,21 @@ export default function AdminInspection() {
                           <button
                             onClick={() => { !isCompleted && capturePhoto(pos.name); setActiveGuide(pos.name); }}
                             disabled={isCompleted || uploading}
-                            className="aspect-[4/3] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-1.5 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors w-full"
+                            className={`aspect-[4/3] rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1.5 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors w-full ${
+                              pos.optional ? "border-border/40 bg-muted/20" : "border-border/60"
+                            }`}
                           >
                             <PhotoIllustration position={pos.name} />
                             <Camera size={18} />
                             <span className="text-[10px] font-medium leading-tight text-center px-1">{pos.name}</span>
+                            {pos.optional && (
+                              <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70 border border-border/40 rounded px-1.5 py-0.5">
+                                Se houver
+                              </span>
+                            )}
                           </button>
                         )}
+
                         {/* Guide tooltip on hover */}
                         <button
                           onClick={() => setActiveGuide(activeGuide === pos.name ? null : pos.name)}
@@ -949,7 +991,7 @@ export default function AdminInspection() {
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground mt-4">
-                  {photos.filter((p) => !p.position.startsWith("__")).length}/{PHOTO_POSITIONS.length} fotos capturadas
+                  {photos.filter((p) => !p.position.startsWith("__")).length}/{PHOTO_POSITIONS.filter((p) => !p.optional).length} fotos obrigatórias capturadas <span className="text-muted-foreground/60">· estribo opcional</span>
                 </p>
               </CardContent>
             </Card>
@@ -1012,7 +1054,7 @@ export default function AdminInspection() {
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Sequência recomendada</p>
                     <span className="text-[10px] text-muted-foreground tabular-nums">
-                      {photos.filter((p) => !p.position.startsWith("__")).length}/{PHOTO_POSITIONS.length}
+                      {photos.filter((p) => !p.position.startsWith("__")).length}/{PHOTO_POSITIONS.filter((p) => !p.optional).length}
                     </span>
                   </div>
                   <div className="space-y-1.5">
