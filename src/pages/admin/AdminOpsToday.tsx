@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CalendarCheck, CalendarX2, Wrench, Car, MapPin, ChevronRight, Sun,
-  Clock, ChevronDown,
+  Clock, ChevronDown, KeyRound,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -82,7 +82,7 @@ export default function AdminOpsToday() {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
             <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-emerald-600 dark:text-emerald-400">
-              Operação de hoje
+              Painel de operação · ao vivo
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
@@ -123,11 +123,10 @@ export default function AdminOpsToday() {
         </div>
       </div>
 
-      {/* ────────── 3-COLUMN GRID ────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      {/* ────────── PICKUPS + RETURNS (in evidence) ────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* RETIRADAS */}
         <SectionCard
-          className="lg:col-span-4"
           icon={<CalendarCheck size={18} />}
           iconBg="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
           title="Retiradas de hoje"
@@ -135,6 +134,7 @@ export default function AdminOpsToday() {
           accentColor="bg-emerald-500"
           count={pickups.length}
           countColor="text-emerald-600 dark:text-emerald-400"
+          backdrop={<SunriseBackdrop />}
         >
           {pickups.length === 0 ? (
             <EmptyState
@@ -156,12 +156,10 @@ export default function AdminOpsToday() {
               ))}
             </div>
           )}
-          <CityBackdrop tone="emerald" />
         </SectionCard>
 
         {/* DEVOLUÇÕES */}
         <SectionCard
-          className="lg:col-span-4"
           icon={<CalendarX2 size={18} />}
           iconBg="bg-amber-500/15 text-amber-600 dark:text-amber-400"
           title="Devoluções de hoje"
@@ -169,6 +167,7 @@ export default function AdminOpsToday() {
           accentColor="bg-amber-500"
           count={returns.length}
           countColor="text-amber-600 dark:text-amber-400"
+          backdrop={<SunsetBackdrop />}
         >
           {returns.length === 0 ? (
             <EmptyState
@@ -190,64 +189,78 @@ export default function AdminOpsToday() {
               ))}
             </div>
           )}
-          <CityBackdrop tone="amber" />
         </SectionCard>
+      </div>
 
-        {/* EM PREPARAÇÃO */}
-        <SectionCard
-          className="lg:col-span-4"
-          icon={<Wrench size={18} />}
-          iconBg="bg-sky-500/15 text-sky-600 dark:text-sky-400"
-          title="Em preparação"
-          titleColor="text-sky-600 dark:text-sky-400"
-          accentColor="bg-sky-500"
-          count={maintenance.length}
-          countColor="text-sky-600 dark:text-sky-400"
-        >
+      {/* ────────── EM PREPARAÇÃO (compact bottom strip ~20%) ────────── */}
+      <div className="relative rounded-2xl border border-border/40 bg-gradient-to-r from-sky-500/[0.04] via-card/60 to-card/60 overflow-hidden">
+        <GarageBackdrop />
+        <div className="relative z-10 p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                <Wrench size={16} />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold uppercase tracking-[0.1em] text-sky-600 dark:text-sky-400">
+                  Em preparação
+                </h2>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Veículos sendo higienizados ou em manutenção
+                </p>
+              </div>
+            </div>
+            <span className="text-base font-bold tabular-nums text-sky-600 dark:text-sky-400 shrink-0">
+              {maintenance.length}
+            </span>
+          </div>
+
           {maintenance.length === 0 ? (
-            <EmptyState
-              icon={<Wrench size={26} />}
-              tone="sky"
-              title="Nenhum carro em preparação."
-              subtitle="Frota toda pronta para circular."
-            />
+            <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              Frota toda pronta para circular.
+            </div>
           ) : (
             <>
-              <ul className="divide-y divide-border/40">
-                {(showAllPrep ? maintenance : maintenance.slice(0, 10)).map(v => (
-                  <li
+              <div className="flex flex-wrap gap-2">
+                {(showAllPrep ? maintenance : maintenance.slice(0, 12)).map(v => (
+                  <button
                     key={v.id}
                     onClick={() => navigate(`/admin/fleet/${v.id}`)}
-                    className="flex items-center justify-between py-2.5 cursor-pointer group hover:bg-muted/30 -mx-2 px-2 rounded-md transition-colors"
+                    className="group inline-flex items-center gap-2 rounded-full border border-border/40 bg-background/70 hover:bg-background hover:border-border/70 hover:shadow-sm pl-2 pr-3 py-1.5 transition-all"
                   >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Car size={15} className="text-sky-500 shrink-0" />
-                      <span className="text-sm text-foreground font-medium truncate group-hover:text-primary">
-                        {v.name}
-                      </span>
-                    </div>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-md font-semibold uppercase tracking-wider shrink-0 ${
+                    <span className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 ${
                       v.status === "maintenance"
                         ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
                         : "bg-sky-500/15 text-sky-600 dark:text-sky-400"
                     }`}>
-                      {v.status === "maintenance" ? "Manutenção" : "Preparando"}
+                      <Car size={11} />
                     </span>
-                  </li>
+                    <span className="text-xs font-medium text-foreground truncate max-w-[160px] group-hover:text-primary">
+                      {v.name}
+                    </span>
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider ${
+                      v.status === "maintenance"
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-sky-600 dark:text-sky-400"
+                    }`}>
+                      {v.status === "maintenance" ? "Manut." : "Prep."}
+                    </span>
+                  </button>
                 ))}
-              </ul>
-              {maintenance.length > 10 && (
+              </div>
+              {maintenance.length > 12 && (
                 <button
                   onClick={() => setShowAllPrep(!showAllPrep)}
-                  className="w-full pt-3 mt-1 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 transition-colors flex items-center justify-center gap-1"
+                  className="mt-3 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 transition-colors inline-flex items-center gap-1"
                 >
-                  {showAllPrep ? "Recolher" : "Ver todos"}
+                  {showAllPrep ? "Recolher" : `Ver todos (${maintenance.length})`}
                   <ChevronDown size={12} className={showAllPrep ? "rotate-180 transition-transform" : "transition-transform"} />
                 </button>
               )}
             </>
           )}
-        </SectionCard>
+        </div>
       </div>
 
       {/* ────────── FOOTER TIPS ────────── */}
@@ -314,14 +327,15 @@ function KpiCard({
 }
 
 function SectionCard({
-  className = "", icon, iconBg, title, titleColor, accentColor, count, countColor, children,
+  className = "", icon, iconBg, title, titleColor, accentColor, count, countColor, children, backdrop,
 }: {
   className?: string; icon: React.ReactNode; iconBg: string; title: string;
   titleColor: string; accentColor: string; count: number; countColor: string;
-  children: React.ReactNode;
+  children: React.ReactNode; backdrop?: React.ReactNode;
 }) {
   return (
-    <div className={`relative rounded-2xl border border-border/40 bg-card/60 p-5 overflow-hidden flex flex-col min-h-[420px] ${className}`}>
+    <div className={`relative rounded-2xl border border-border/40 bg-card/60 p-5 overflow-hidden flex flex-col min-h-[460px] ${className}`}>
+      {backdrop}
       <div className="flex items-start justify-between gap-2 mb-4 relative z-10">
         <div className="flex items-center gap-3">
           <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${iconBg}`}>
@@ -356,7 +370,7 @@ function BookingRowCard({
   return (
     <button
       onClick={onClick}
-      className="w-full text-left rounded-xl border border-border/40 bg-background/70 hover:bg-background hover:border-border/70 hover:shadow-sm transition-all group relative overflow-hidden"
+      className="w-full text-left rounded-xl border border-border/40 bg-background/80 backdrop-blur-sm hover:bg-background hover:border-border/70 hover:shadow-md transition-all group relative overflow-hidden"
     >
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${accent}`} />
       <div className="pl-4 pr-3 py-3">
@@ -418,39 +432,164 @@ function EmptyState({
   );
 }
 
-/** Subtle Orlando-skyline + palm silhouette decoration anchored at the card bottom. */
-function CityBackdrop({ tone }: { tone: "emerald" | "amber" }) {
-  const color = tone === "emerald"
-    ? "text-emerald-500/10 dark:text-emerald-400/10"
-    : "text-amber-500/10 dark:text-amber-400/10";
+/* ─────────────── decorative backdrops ─────────────── */
+
+/** Morning scene: sun rising, clouds, road, palms — for Pickups card */
+function SunriseBackdrop() {
   return (
     <svg
-      className={`absolute left-0 right-0 bottom-0 w-full ${color} pointer-events-none`}
-      viewBox="0 0 400 90" preserveAspectRatio="none" fill="currentColor" aria-hidden="true"
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      viewBox="0 0 600 460" preserveAspectRatio="xMidYMax slice" aria-hidden="true"
     >
-      {/* skyline */}
-      <rect x="20" y="40" width="14" height="50" />
-      <rect x="38" y="28" width="20" height="62" />
-      <rect x="62" y="46" width="12" height="44" />
-      <rect x="78" y="20" width="22" height="70" />
-      <rect x="104" y="38" width="14" height="52" />
-      <rect x="122" y="50" width="18" height="40" />
-      <rect x="144" y="34" width="16" height="56" />
-      <rect x="164" y="44" width="12" height="46" />
-      <rect x="180" y="26" width="22" height="64" />
-      <rect x="206" y="42" width="14" height="48" />
-      {/* ground line */}
-      <rect x="0" y="86" width="400" height="4" />
-      {/* palm tree trunks */}
-      <rect x="320" y="40" width="3" height="50" />
-      <rect x="358" y="50" width="3" height="40" />
-      {/* palm fronds */}
-      <path d="M321 40 q -18 -8 -28 -2 q 14 -2 26 6 z" />
-      <path d="M321 40 q 18 -8 28 -2 q -14 -2 -26 6 z" />
-      <path d="M321 40 q -6 -16 -2 -26 q 6 12 6 26 z" />
-      <path d="M359 50 q -14 -6 -22 -1 q 11 -1 20 5 z" />
-      <path d="M359 50 q 14 -6 22 -1 q -11 -1 -20 5 z" />
-      <path d="M359 50 q -4 -12 -1 -20 q 5 9 5 20 z" />
+      {/* soft sky glow */}
+      <defs>
+        <radialGradient id="sunriseGlow" cx="80%" cy="22%" r="40%">
+          <stop offset="0%" stopColor="hsl(142 71% 45%)" stopOpacity="0.10" />
+          <stop offset="100%" stopColor="hsl(142 71% 45%)" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="600" height="460" fill="url(#sunriseGlow)" />
+      {/* sun */}
+      <circle cx="500" cy="90" r="34" className="fill-emerald-400/15" />
+      <circle cx="500" cy="90" r="22" className="fill-emerald-400/25" />
+      {/* clouds */}
+      <g className="fill-emerald-500/10 dark:fill-emerald-400/10">
+        <ellipse cx="120" cy="70" rx="28" ry="8" />
+        <ellipse cx="150" cy="78" rx="22" ry="7" />
+        <ellipse cx="370" cy="55" rx="34" ry="8" />
+        <ellipse cx="405" cy="62" rx="20" ry="6" />
+      </g>
+      {/* horizon road */}
+      <g className="fill-emerald-500/12 dark:fill-emerald-400/12">
+        <path d="M0 410 L 600 410 L 600 420 L 0 420 Z" />
+        {/* dashed center line */}
+        <rect x="40" y="414" width="30" height="2" />
+        <rect x="100" y="414" width="30" height="2" />
+        <rect x="160" y="414" width="30" height="2" />
+        <rect x="220" y="414" width="30" height="2" />
+        <rect x="280" y="414" width="30" height="2" />
+        <rect x="340" y="414" width="30" height="2" />
+        <rect x="400" y="414" width="30" height="2" />
+        <rect x="460" y="414" width="30" height="2" />
+        <rect x="520" y="414" width="30" height="2" />
+      </g>
+      {/* palms */}
+      <g className="fill-emerald-500/12 dark:fill-emerald-400/12">
+        <rect x="36" y="350" width="3" height="60" />
+        <path d="M37 350 q -20 -10 -32 -3 q 18 -2 30 7 z" />
+        <path d="M37 350 q 22 -10 34 -3 q -18 -2 -30 7 z" />
+        <path d="M37 350 q -6 -18 -2 -30 q 7 14 7 30 z" />
+        <rect x="560" y="360" width="3" height="50" />
+        <path d="M561 360 q -16 -8 -26 -2 q 14 -2 24 6 z" />
+        <path d="M561 360 q 18 -8 28 -2 q -14 -2 -26 6 z" />
+        <path d="M561 360 q -5 -14 -1 -24 q 6 12 6 24 z" />
+      </g>
+      {/* tiny car silhouette */}
+      <g className="fill-emerald-500/14 dark:fill-emerald-400/14">
+        <path d="M260 400 q 4 -12 14 -12 l 50 0 q 8 0 12 6 l 8 6 l 14 0 q 6 0 6 6 l 0 4 l -110 0 l 0 -6 q 0 -2 6 -4 z" />
+        <circle cx="282" cy="410" r="4" />
+        <circle cx="346" cy="410" r="4" />
+      </g>
+    </svg>
+  );
+}
+
+/** Evening scene: setting sun, longer shadows — for Returns card */
+function SunsetBackdrop() {
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      viewBox="0 0 600 460" preserveAspectRatio="xMidYMax slice" aria-hidden="true"
+    >
+      <defs>
+        <radialGradient id="sunsetGlow" cx="18%" cy="25%" r="42%">
+          <stop offset="0%" stopColor="hsl(38 92% 50%)" stopOpacity="0.10" />
+          <stop offset="100%" stopColor="hsl(38 92% 50%)" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="600" height="460" fill="url(#sunsetGlow)" />
+      {/* low sun */}
+      <circle cx="90" cy="110" r="36" className="fill-amber-400/15" />
+      <circle cx="90" cy="110" r="22" className="fill-amber-400/25" />
+      {/* clouds */}
+      <g className="fill-amber-500/10 dark:fill-amber-400/10">
+        <ellipse cx="220" cy="60" rx="30" ry="7" />
+        <ellipse cx="255" cy="68" rx="20" ry="6" />
+        <ellipse cx="450" cy="80" rx="34" ry="8" />
+        <ellipse cx="490" cy="88" rx="20" ry="6" />
+      </g>
+      {/* skyline silhouettes */}
+      <g className="fill-amber-500/10 dark:fill-amber-400/10">
+        <rect x="380" y="350" width="14" height="60" />
+        <rect x="398" y="335" width="20" height="75" />
+        <rect x="422" y="360" width="12" height="50" />
+        <rect x="438" y="320" width="22" height="90" />
+        <rect x="464" y="345" width="14" height="65" />
+        <rect x="482" y="360" width="18" height="50" />
+      </g>
+      {/* horizon road */}
+      <g className="fill-amber-500/12 dark:fill-amber-400/12">
+        <path d="M0 410 L 600 410 L 600 420 L 0 420 Z" />
+        <rect x="40" y="414" width="30" height="2" />
+        <rect x="100" y="414" width="30" height="2" />
+        <rect x="160" y="414" width="30" height="2" />
+        <rect x="220" y="414" width="30" height="2" />
+        <rect x="280" y="414" width="30" height="2" />
+        <rect x="340" y="414" width="30" height="2" />
+        <rect x="400" y="414" width="30" height="2" />
+        <rect x="460" y="414" width="30" height="2" />
+        <rect x="520" y="414" width="30" height="2" />
+      </g>
+      {/* palm */}
+      <g className="fill-amber-500/12 dark:fill-amber-400/12">
+        <rect x="540" y="350" width="3" height="60" />
+        <path d="M541 350 q -20 -10 -32 -3 q 18 -2 30 7 z" />
+        <path d="M541 350 q 22 -10 34 -3 q -18 -2 -30 7 z" />
+        <path d="M541 350 q -6 -18 -2 -30 q 7 14 7 30 z" />
+      </g>
+      {/* car returning */}
+      <g className="fill-amber-500/14 dark:fill-amber-400/14">
+        <path d="M150 400 q 4 -12 14 -12 l 50 0 q 8 0 12 6 l 8 6 l 14 0 q 6 0 6 6 l 0 4 l -110 0 l 0 -6 q 0 -2 6 -4 z" />
+        <circle cx="172" cy="410" r="4" />
+        <circle cx="236" cy="410" r="4" />
+      </g>
+    </svg>
+  );
+}
+
+/** Garage scene watermark for prep strip */
+function GarageBackdrop() {
+  return (
+    <svg
+      className="absolute inset-0 w-full h-full text-sky-500/[0.07] dark:text-sky-400/[0.07] pointer-events-none"
+      viewBox="0 0 800 160" preserveAspectRatio="xMidYMid slice" fill="currentColor" aria-hidden="true"
+    >
+      {/* gears */}
+      <g transform="translate(720,80)">
+        <circle r="22" />
+        <circle r="10" className="fill-background" />
+        <g>
+          <rect x="-3" y="-30" width="6" height="8" />
+          <rect x="-3" y="22" width="6" height="8" />
+          <rect x="-30" y="-3" width="8" height="6" />
+          <rect x="22" y="-3" width="8" height="6" />
+        </g>
+      </g>
+      {/* wrench */}
+      <path d="M30 110 l 18 -18 a 14 14 0 1 1 8 8 l -18 18 z" />
+      {/* dashed road on bottom */}
+      <rect x="0" y="148" width="800" height="3" />
+      <rect x="60" y="150" width="24" height="1.5" />
+      <rect x="120" y="150" width="24" height="1.5" />
+      <rect x="180" y="150" width="24" height="1.5" />
+      <rect x="240" y="150" width="24" height="1.5" />
+      <rect x="300" y="150" width="24" height="1.5" />
+      <rect x="360" y="150" width="24" height="1.5" />
+      <rect x="420" y="150" width="24" height="1.5" />
+      <rect x="480" y="150" width="24" height="1.5" />
+      <rect x="540" y="150" width="24" height="1.5" />
+      <rect x="600" y="150" width="24" height="1.5" />
+      <rect x="660" y="150" width="24" height="1.5" />
     </svg>
   );
 }
