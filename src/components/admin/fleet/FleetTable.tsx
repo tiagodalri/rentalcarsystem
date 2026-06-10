@@ -175,18 +175,6 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                       </button>
                     )}
                   </td>
-                  <td className="px-3 py-2">
-                    <div className="inline-flex items-center gap-2">
-                      <Switch
-                        checked={v.published}
-                        onCheckedChange={() => onTogglePublished(v)}
-                        aria-label={v.published ? "Desativar do site" : "Ativar no site"}
-                      />
-                      <span className={`text-[10px] font-medium uppercase tracking-wider ${v.published ? "text-primary" : "text-muted-foreground"}`}>
-                        {v.published ? "Ativo" : "Inativo"}
-                      </span>
-                    </div>
-                  </td>
                   {(["daily_price_usd", "default_deposit_amount", "default_franchise_amount"] as const).map((f) => (
                     <td key={f} className="px-3 py-2 text-right tabular-nums">
                       {isEditingCell(f) ? (
