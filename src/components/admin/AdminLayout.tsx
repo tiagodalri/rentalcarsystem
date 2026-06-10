@@ -46,8 +46,9 @@ export default function AdminLayout() {
     <SidebarProvider
       style={{
         // Match the reference mockup: wider sidebar on desktop AND mobile sheet.
-        ["--sidebar-width" as any]: "17rem",
-        ["--sidebar-width-mobile" as any]: "17rem",
+        ["--sidebar-width" as any]: "19rem",
+        ["--sidebar-width-mobile" as any]: "19rem",
+
       } as React.CSSProperties}
     >
       <AdminTabsProvider>
