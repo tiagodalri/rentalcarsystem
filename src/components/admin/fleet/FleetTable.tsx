@@ -106,20 +106,20 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
   return (
     <div className="rounded-xl border border-border/40 bg-card/40 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-[13px]">
           <thead>
-            <tr className="text-left text-[10px] uppercase tracking-wider text-muted-foreground border-b border-border/40">
-              <th className="px-3 py-2.5 font-semibold">Veículo</th>
-              <th className="px-3 py-2.5 font-semibold">Placa</th>
-              <th className="px-3 py-2.5 font-semibold">Categoria</th>
-              <th className="px-3 py-2.5 font-semibold">Status</th>
-              <th className="px-3 py-2.5 font-semibold">Site</th>
-              <th className="px-3 py-2.5 font-semibold text-right">Diária</th>
-              <th className="px-3 py-2.5 font-semibold text-right">Caução</th>
-              <th className="px-3 py-2.5 font-semibold text-right">Franquia</th>
-              <th className="px-3 py-2.5 font-semibold">Seguro</th>
-              <th className="px-3 py-2.5 font-semibold">Registro</th>
-              <th className="px-3 py-2.5 font-semibold text-right">Ações</th>
+            <tr className="text-left text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70 border-b border-border/40">
+              <th className="px-3 py-3 font-medium">Veículo</th>
+              <th className="px-3 py-3 font-medium">Placa</th>
+              <th className="px-3 py-3 font-medium">Categoria</th>
+              <th className="px-3 py-3 font-medium">Status</th>
+              <th className="px-3 py-3 font-medium">Site</th>
+              <th className="px-3 py-3 font-medium text-right">Diária</th>
+              <th className="px-3 py-3 font-medium text-right">Caução</th>
+              <th className="px-3 py-3 font-medium text-right">Franquia</th>
+              <th className="px-3 py-3 font-medium">Seguro</th>
+              <th className="px-3 py-3 font-medium">Registro</th>
+              <th className="px-3 py-3 font-medium text-right">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -133,7 +133,7 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                   key={v.id}
                   className="border-b border-border/30 hover:bg-accent/30 transition-colors"
                 >
-                  <td className="px-3 py-2">
+                  <td className="px-3 py-2.5">
                     <button
                       onClick={() => navigate(`/admin/fleet/${v.id}`)}
                       className="flex items-center gap-2.5 text-left"
@@ -142,11 +142,11 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                         <VehicleThumb name={v.name} src={thumb} />
                       </div>
 
-                      <span className="font-medium text-foreground whitespace-nowrap">{v.name}</span>
+                      <span className="font-normal text-foreground whitespace-nowrap tracking-[-0.005em]">{v.name}</span>
                     </button>
                   </td>
-                  <td className="px-3 py-2 font-mono text-xs text-muted-foreground uppercase">{v.license_plate || "—"}</td>
-                  <td className="px-3 py-2 text-muted-foreground">{v.category}</td>
+                  <td className="px-3 py-2.5 font-mono text-[11px] text-muted-foreground/80 uppercase tracking-wider">{v.license_plate || "—"}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground">{v.category}</td>
                   <td className="px-3 py-2">
                     {isEditingCell("status") ? (
                       <div className="inline-flex items-center gap-1">
