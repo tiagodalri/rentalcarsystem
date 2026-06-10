@@ -303,7 +303,7 @@ export default function AdminFleetReport({
                     formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
                   />
                   <Bar dataKey="revenue" fill="url(#goldShine)" radius={[2, 4, 4, 2]} barSize={22} />
-                  <Bar dataKey="revenue" fill="url(#goldEdge)" radius={[2, 4, 4, 2]} barSize={22} stackId="overlay" legendType="none" isAnimationActive={false} />
+
                 </BarChart>
               </ResponsiveContainer>
             ) : (
