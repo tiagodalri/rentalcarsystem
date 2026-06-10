@@ -513,10 +513,10 @@ export default function AdminBookingDetail() {
           {isAdmin && (
             <button
               onClick={() => setEditOpen(true)}
-              className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors font-medium"
-              title="Editar reserva (apenas admin)"
+              className="flex items-center justify-center w-9 h-9 rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors"
+              title="Editar reserva"
             >
-              <Pencil size={13} /> Editar
+              <Pencil size={15} />
             </button>
           )}
         </div>
