@@ -250,7 +250,7 @@ export default function AdminOpsToday() {
 
 
       {/* ────────── PICKUPS + RETURNS (in evidence) ────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* RETIRADAS */}
         <SectionCard
           icon={<CalendarCheck size={18} />}
