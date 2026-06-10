@@ -595,7 +595,7 @@ export default function AdminBookingDetail() {
       />
 
       {/* Executive dossier: single-column vertical flow */}
-      <div className="max-w-3xl mx-auto w-full space-y-14 pt-4">
+      <div className="max-w-3xl mx-auto w-full space-y-10 sm:space-y-14 pt-2 sm:pt-4">
 
         {/* Itinerário */}
         <section className="relative pl-8">
