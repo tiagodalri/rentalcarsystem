@@ -197,10 +197,10 @@ export default function AdminCustomers() {
           <div className="relative group">
             <button
               onClick={() => window.open("/cadastro", "_blank")}
-              className="border border-border/40 bg-card text-foreground px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider flex items-center gap-2 hover:bg-muted/50 transition-colors"
+              className="border border-border/40 bg-card text-foreground px-3 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 hover:bg-muted/50 transition-colors"
             >
-              <FileText size={14} /> Formulário de Cadastro
-              <ExternalLink size={12} className="text-muted-foreground" />
+              <FileText size={12} /> Formulário de Cadastro
+              <ExternalLink size={11} className="text-muted-foreground" />
             </button>
             <button
               onClick={() => {
@@ -208,7 +208,7 @@ export default function AdminCustomers() {
                 navigator.clipboard.writeText(url);
                 toast({ title: "Link copiado!", description: url });
               }}
-              className="absolute -right-2 -top-2 w-6 h-6 rounded-full bg-muted border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-colors opacity-0 group-hover:opacity-100"
+              className="absolute -right-2 -top-2 w-5 h-5 rounded-full bg-muted border border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-background transition-colors opacity-0 group-hover:opacity-100"
               title="Copiar link"
             >
               <Copy size={10} />
@@ -216,9 +216,9 @@ export default function AdminCustomers() {
           </div>
           <button
             onClick={() => { setEditing({ ...emptyCustomer }); setIsNew(true); }}
-            className="gold-gradient text-primary-foreground px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider flex items-center gap-2 hover:opacity-90 transition-opacity"
+            className="gold-gradient text-primary-foreground px-3 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 hover:opacity-90 transition-opacity"
           >
-            <Plus size={14} /> Adicionar
+            <Plus size={12} /> Adicionar
           </button>
         </div>
       </div>
