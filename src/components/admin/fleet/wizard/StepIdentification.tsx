@@ -47,10 +47,6 @@ export default function StepIdentification({ form, set }: Props) {
         <label className={labelCls}>Chassi (VIN)</label>
         <input className={`${inputCls} uppercase font-mono text-sm`} maxLength={17} value={form.vin} onChange={(e) => set({ vin: e.target.value.toUpperCase() })} placeholder="17 caracteres" />
       </div>
-      <div>
-        <label className={labelCls}>Renavam</label>
-        <input className={`${inputCls} tabular-nums`} inputMode="numeric" value={form.renavam} onChange={(e) => set({ renavam: e.target.value.replace(/\D/g, "") })} placeholder="11 dígitos" />
-      </div>
       <div className="sm:col-span-2">
         <label className={labelCls}>IMEI Bouncie (rastreador)</label>
         <input className={`${inputCls} tabular-nums font-mono text-sm`} inputMode="numeric" value={form.bouncie_imei} onChange={(e) => set({ bouncie_imei: e.target.value.replace(/\s/g, "") })} placeholder="Ex: 351234567890123" />

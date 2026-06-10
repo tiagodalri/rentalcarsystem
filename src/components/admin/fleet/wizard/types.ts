@@ -7,7 +7,7 @@ export type WizardForm = {
   manufacture_year: number | null;
   model_year: number | null;
   vin: string;
-  renavam: string;
+  
   license_plate: string;
   color: string;
   bouncie_imei: string;
@@ -45,7 +45,7 @@ export const EMPTY_FORM: WizardForm = {
   manufacture_year: null,
   model_year: null,
   vin: "",
-  renavam: "",
+  
   license_plate: "",
   color: "",
   bouncie_imei: "",
