@@ -59,7 +59,7 @@ export default function AdminPainel() {
       {/* Header + Period filter */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Painel</h1>
+          <h1 className="admin-h1">Painel</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Visão geral, desempenho e rentabilidade consolidada
           </p>
