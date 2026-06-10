@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, Search } from "lucide-react";
+import { Check, ChevronDown, Search, X } from "lucide-react";
 import { CAR_BRANDS, CarBrand, findBrandByName, searchBrands } from "@/data/carBrands";
 import { inputCls } from "./types";
 
@@ -30,12 +30,20 @@ function BrandLogo({ brand, size = 18 }: { brand: CarBrand; size?: number }) {
 
 export default function BrandAutocomplete({ value, onChange, placeholder }: Props) {
   const [open, setOpen] = useState(false);
+  // query is what filters the list; independent from the committed `value`
+  const [query, setQuery] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
   const matched = useMemo(() => findBrandByName(value), [value]);
-  const results = useMemo(() => searchBrands(value, 50), [value]);
+  // While typing, filter by query. While just browsing (focused without typing), show full list.
+  const results = useMemo(
+    () => (isTyping && query ? searchBrands(query, 100) : CAR_BRANDS),
+    [isTyping, query],
+  );
 
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
@@ -45,18 +53,52 @@ export default function BrandAutocomplete({ value, onChange, placeholder }: Prop
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  useEffect(() => setActiveIdx(0), [value]);
+  // Reset active highlight when results change
+  useEffect(() => {
+    if (!open) return;
+    if (matched) {
+      const idx = results.findIndex((r) => r.slug === matched.slug);
+      setActiveIdx(idx >= 0 ? idx : 0);
+    } else {
+      setActiveIdx(0);
+    }
+  }, [results, open, matched]);
+
+  // Scroll active option into view
+  useEffect(() => {
+    if (!open || !listRef.current) return;
+    const el = listRef.current.querySelector<HTMLElement>(`[data-idx="${activeIdx}"]`);
+    el?.scrollIntoView({ block: "nearest" });
+  }, [activeIdx, open]);
+
+  const openBrowse = () => {
+    setIsTyping(false);
+    setQuery("");
+    setOpen(true);
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  };
 
   const pick = (b: CarBrand) => {
     onChange(b.name);
+    setIsTyping(false);
+    setQuery("");
     setOpen(false);
+  };
+
+  const clear = () => {
+    onChange("");
+    setQuery("");
+    setIsTyping(false);
+    setOpen(true);
+    inputRef.current?.focus();
   };
 
   const onKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setOpen(true);
-      setActiveIdx((i) => Math.min(results.length - 1, i + 1));
+      if (!open) openBrowse();
+      else setActiveIdx((i) => Math.min(results.length - 1, i + 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActiveIdx((i) => Math.max(0, i - 1));
@@ -70,10 +112,13 @@ export default function BrandAutocomplete({ value, onChange, placeholder }: Prop
     }
   };
 
+  // What to show inside the input
+  const displayValue = isTyping ? query : value;
+
   return (
     <div ref={wrapRef} className="relative">
       <div className="relative">
-        {matched ? (
+        {matched && !isTyping ? (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <BrandLogo brand={matched} size={18} />
           </div>
@@ -81,27 +126,50 @@ export default function BrandAutocomplete({ value, onChange, placeholder }: Prop
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
         )}
         <input
-          className={`${inputCls} pl-9 pr-8`}
-          value={value}
-          onFocus={() => setOpen(true)}
+          ref={inputRef}
+          className={`${inputCls} pl-9 pr-16`}
+          value={displayValue}
+          onFocus={openBrowse}
+          onClick={openBrowse}
           onChange={(e) => {
-            onChange(e.target.value);
+            const v = e.target.value;
+            setQuery(v);
+            setIsTyping(true);
             setOpen(true);
+            onChange(v);
           }}
           onKeyDown={onKey}
-          placeholder={placeholder ?? "Ex: Toyota"}
+          placeholder={placeholder ?? "Buscar marca…"}
           autoComplete="off"
           spellCheck={false}
         />
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-          tabIndex={-1}
-          aria-label="Abrir lista de marcas"
-        >
-          <ChevronDown size={14} />
-        </button>
+        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+          {value && (
+            <button
+              type="button"
+              onClick={clear}
+              className="h-7 w-7 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              tabIndex={-1}
+              aria-label="Limpar marca"
+              title="Limpar"
+            >
+              <X size={14} />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              if (open) setOpen(false);
+              else openBrowse();
+            }}
+            className="h-7 w-7 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            tabIndex={-1}
+            aria-label="Abrir lista de marcas"
+          >
+            <ChevronDown size={14} className={open ? "rotate-180 transition-transform" : "transition-transform"} />
+          </button>
+        </div>
       </div>
 
       {open && (
@@ -109,6 +177,11 @@ export default function BrandAutocomplete({ value, onChange, placeholder }: Prop
           ref={listRef}
           className="absolute z-30 mt-1 w-full max-h-72 overflow-auto rounded-xl border border-border/60 bg-popover shadow-lg"
         >
+          {!isTyping && (
+            <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold bg-muted/40 sticky top-0">
+              Mais comuns na Flórida
+            </div>
+          )}
           {results.length === 0 ? (
             <div className="px-3 py-4 text-xs text-muted-foreground text-center">
               Nenhuma marca encontrada — você pode digitar manualmente.
@@ -120,6 +193,7 @@ export default function BrandAutocomplete({ value, onChange, placeholder }: Prop
               return (
                 <button
                   key={b.slug}
+                  data-idx={i}
                   type="button"
                   onMouseDown={(e) => {
                     e.preventDefault();
@@ -139,8 +213,8 @@ export default function BrandAutocomplete({ value, onChange, placeholder }: Prop
               );
             })
           )}
-          <div className="px-3 py-1.5 border-t border-border/40 text-[10px] text-muted-foreground bg-muted/30">
-            {CAR_BRANDS.length} marcas disponíveis • use ↑ ↓ ⏎
+          <div className="px-3 py-1.5 border-t border-border/40 text-[10px] text-muted-foreground bg-muted/30 sticky bottom-0">
+            {isTyping && query ? `${results.length} resultado${results.length === 1 ? "" : "s"}` : `${CAR_BRANDS.length} marcas`} • use ↑ ↓ ⏎ • Esc fecha
           </div>
         </div>
       )}
