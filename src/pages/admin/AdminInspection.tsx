@@ -481,6 +481,14 @@ export default function AdminInspection() {
   };
 
   // Odometer photo
+  const captureOdometerPhoto = () => {
+    if (!isTouchDevice) {
+      setWebcamTarget({ kind: "odometer" });
+      return;
+    }
+    odometerPhotoRef.current?.click();
+  };
+
   const handleOdometerPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
