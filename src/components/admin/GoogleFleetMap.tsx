@@ -537,7 +537,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
               if (firstFix) {
                 firstFix = false;
                 mapRef.current.panTo(center);
-                if ((mapRef.current.getZoom() ?? 9) < 14) mapRef.current.setZoom(15);
+                if ((mapRef.current.getZoom() ?? 9) < 14) {
+                  programmaticZoomAtRef.current = performance.now();
+                  mapRef.current.setZoom(15);
+                }
                 setBtnState("active", "Seguindo sua localização (toque pra parar)");
               } else if (followMe) {
                 mapRef.current.panTo(center);
@@ -884,25 +887,36 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     if (target) {
       programmaticPanAtRef.current = performance.now();
       map.panTo(target);
-      if (map.getZoom() < 14) map.setZoom(15);
+      if (map.getZoom() < 14) {
+        programmaticZoomAtRef.current = performance.now();
+        map.setZoom(15);
+      }
     }
     setFollowing(true);
     lastFollowPanRef.current = performance.now();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, ready]);
 
-  // 3b. Detect user dragging the map → turn off follow (unless it's our own panTo)
+  // 3b. Detect user map interaction → turn off follow (unless it's our own pan/zoom)
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     const google = (window as any).google;
     const map = mapRef.current;
-    const handler = map.addListener("dragstart", () => {
+    const stopFollowingFromUser = () => {
       const sincePan = performance.now() - programmaticPanAtRef.current;
+      const sinceZoom = performance.now() - programmaticZoomAtRef.current;
       if (sincePan > PROGRAMMATIC_PAN_GUARD_MS && followRef.current) {
         setFollowing(false);
       }
-    });
-    return () => google?.maps?.event?.removeListener(handler);
+      if (sinceZoom > PROGRAMMATIC_ZOOM_GUARD_MS && followRef.current) {
+        setFollowing(false);
+      }
+    };
+    const listeners = [
+      map.addListener("dragstart", stopFollowingFromUser),
+      map.addListener("zoom_changed", stopFollowingFromUser),
+    ];
+    return () => listeners.forEach((handler) => google?.maps?.event?.removeListener(handler));
   }, [ready]);
 
   const recentralize = useCallback(() => {
