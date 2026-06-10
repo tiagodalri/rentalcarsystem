@@ -300,7 +300,7 @@ export default function AdminFleetReport({
                     {...darkTooltipProps}
                     formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
                   />
-                  <Bar dataKey="revenue" fill="url(#goldShine)" radius={[2, 4, 4, 2]} barSize={22} />
+                  <Bar dataKey="revenue" fill="url(#goldShine)" radius={[2, 3, 3, 2]} barSize={16} />
 
                 </BarChart>
               </ResponsiveContainer>
