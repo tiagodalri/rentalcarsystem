@@ -1247,18 +1247,18 @@ export default function AdminBookings() {
                   <thead>
                     <tr className="border-b border-border/30 bg-muted/20">
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Cliente</th>
-                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Veículo</th>
-                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Retirada</th>
+                      <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Veículo</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Retirada</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Hora</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Devolução</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Hora</th>
-                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Local</th>
-                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Total</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Local</th>
+                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Total</th>
                       <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Caução</th>
                       <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Franquia</th>
-                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Status</th>
-                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold min-w-[120px]">Progresso</th>
-                      <th className="px-3 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Inspeção</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Status</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold min-w-[120px] border-l-2 border-border/60 pl-5">Progresso</th>
+                      <th className="px-3 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Inspeção</th>
                       <th className="px-5 py-3 w-10"></th>
                     </tr>
                   </thead>
@@ -1276,7 +1276,7 @@ export default function AdminBookings() {
                             <p className="text-foreground font-medium text-[13px]">{b.customer_name}</p>
                             <p className="text-[11px] text-muted-foreground/60 mt-0.5">{b.customer_email}</p>
                           </td>
-                          <td className="px-5 py-3.5">
+                          <td className="px-5 py-3.5 border-l-2 border-border/60">
                             <div className="flex items-center gap-2.5 min-w-[160px]">
                               {b.vehicle_image ? (
                                 <img
@@ -1294,7 +1294,7 @@ export default function AdminBookings() {
                               <span className="text-foreground text-[13px] font-medium truncate">{b.vehicle_name || "—"}</span>
                             </div>
                           </td>
-                          <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
+                          <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
                             <span className="inline-flex items-center gap-1.5">
                               <span className="text-emerald-500 text-[10px]">→</span>
                               {new Date(b.pickup_date).toLocaleDateString("pt-BR")}
@@ -1312,7 +1312,7 @@ export default function AdminBookings() {
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
                             {b.return_time || "—"}
                           </td>
-                          <td className="px-3 py-3.5 text-xs max-w-[240px]">
+                          <td className="px-3 py-3.5 text-xs max-w-[240px] border-l-2 border-border/60 pl-5">
                             {(() => {
                               const parseLoc = (raw: string | null) => {
                                 if (!raw) return null;
@@ -1375,7 +1375,7 @@ export default function AdminBookings() {
                               );
                             })()}
                           </td>
-                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap">
+                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
                             <span className="text-foreground font-semibold text-[13px]">
                               {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
                             </span>
@@ -1399,7 +1399,7 @@ export default function AdminBookings() {
                               <span className="text-muted-foreground/50 text-xs">—</span>
                             )}
                           </td>
-                          <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
+                          <td className="px-5 py-3.5 border-l-2 border-border/60" onClick={(e) => e.stopPropagation()}>
                             <select
                               value={b.status}
                               onChange={(e) => updateStatus(b.id, e.target.value)}
@@ -1410,7 +1410,7 @@ export default function AdminBookings() {
                               ))}
                             </select>
                           </td>
-                          <td className="px-5 py-3.5">
+                          <td className="px-5 py-3.5 border-l-2 border-border/60">
                             <div className="flex items-center gap-2.5">
                               <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                                 <div
@@ -1425,7 +1425,7 @@ export default function AdminBookings() {
                               <span className="text-[10px] text-muted-foreground font-medium tabular-nums min-w-[28px] text-right">{progress}%</span>
                             </div>
                           </td>
-                          <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
+                          <td className="px-5 py-3.5 border-l-2 border-border/60" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-center gap-1">
                               <button
                                 onClick={() => navigate(`/admin/inspection/${b.id}?type=checkin`)}
