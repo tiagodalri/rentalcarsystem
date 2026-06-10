@@ -60,18 +60,18 @@ function deltaPct(cur: number, prev: number): number | null {
 
 function CompareBadge({ delta, invert }: { delta: number | null; invert?: boolean }) {
   if (delta === null) {
-    return <span className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70 mt-2">sem dados anteriores</span>;
+    return <span className="block text-[10px] uppercase tracking-[0.14em] text-muted-foreground/60 mt-2">sem dados anteriores</span>;
   }
   if (delta === 0) {
-    return <span className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70 mt-2">sem variação</span>;
+    return <span className="block text-[10px] uppercase tracking-[0.14em] text-muted-foreground/60 mt-2">sem variação</span>;
   }
   const isUp = delta > 0;
   const good = invert ? !isUp : isUp;
-  const color = good ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400";
+  const color = good ? "text-emerald-600/90 dark:text-emerald-400/90" : "text-rose-600/90 dark:text-rose-400/90";
   const Icon = isUp ? ArrowUp : ArrowDown;
   return (
-    <span className={`inline-flex items-center gap-1 text-[10px] font-semibold tabular-nums mt-2 ${color}`}>
-      <Icon className="h-3 w-3" />
+    <span className={`inline-flex items-center gap-1 text-[10px] font-medium tabular-nums mt-2 ${color}`}>
+      <Icon className="h-3 w-3" strokeWidth={2} />
       {Math.abs(delta).toFixed(1)}% vs período anterior
     </span>
   );
@@ -82,15 +82,17 @@ function KpiCard({ def, current, previous, showCompare }: { def: KpiDef; current
   const delta = showCompare && previous !== undefined ? deltaPct(current, previous) : null;
   return (
     <div
-      className={`relative rounded-xl bg-card border border-border p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] transition-all hover:border-foreground/20 ${
-        def.emphasis ? "border-l-4 border-l-primary" : ""
+      className={`relative rounded-lg bg-card border border-border/70 p-5 transition-colors ${
+        def.emphasis ? "border-l-2 border-l-primary/70" : ""
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">{def.label}</p>
-        <Icon className={`h-4 w-4 ${def.iconColor} shrink-0`} />
+        <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80 font-medium">{def.label}</p>
+        <Icon className={`h-3.5 w-3.5 ${def.iconColor} opacity-70 shrink-0`} strokeWidth={1.75} />
       </div>
-      <p className="text-2xl font-bold text-foreground tabular-nums mt-3 break-words tracking-tight">{fmt(current, def.format)}</p>
+      <p className="text-[22px] leading-tight font-light text-foreground tabular-nums mt-4 break-words tracking-[-0.01em]">
+        {fmt(current, def.format)}
+      </p>
       {showCompare && <CompareBadge delta={delta} invert={def.invertCompare} />}
     </div>
   );
@@ -122,8 +124,8 @@ function RentalDaysGauge({ days }: { days: number }) {
         />
       </svg>
       <div className="absolute flex flex-col items-center">
-        <span className="text-4xl font-black text-foreground tabular-nums tracking-tight">{days.toFixed(1)}</span>
-        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">dias</span>
+        <span className="text-3xl font-light text-foreground tabular-nums tracking-[-0.02em]">{days.toFixed(1)}</span>
+        <span className="text-[10px] font-medium text-muted-foreground/80 uppercase tracking-[0.16em] mt-0.5">dias</span>
       </div>
     </div>
   );
@@ -139,14 +141,14 @@ export function OverviewTab() {
     <div className="space-y-6">
       {/* Period selector */}
       <div className="flex items-center justify-end">
-        <div className="inline-flex items-center bg-card border border-border rounded-full p-1">
+        <div className="inline-flex items-center bg-card border border-border/70 rounded-full p-0.5">
           {(Object.keys(periodLabels) as Period[]).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`text-[11px] uppercase tracking-wider px-3 py-1 rounded-full font-bold transition-all ${
+              className={`text-[10px] uppercase tracking-[0.16em] px-3 py-1 rounded-full font-medium transition-all ${
                 period === p
-                  ? "bg-foreground text-background shadow-sm"
+                  ? "bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -172,15 +174,13 @@ export function OverviewTab() {
 
       {/* Destaques: Top 5 + Tempo médio */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="rounded-xl bg-card border border-border p-6 lg:col-span-2 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <div className="rounded-lg bg-card border border-border/70 p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-primary/10 text-primary rounded-lg">
-                <Trophy className="h-4 w-4" />
-              </div>
-              <h3 className="text-sm font-bold text-foreground">Top 5 Veículos por Receita</h3>
+              <Trophy className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.75} />
+              <h3 className="text-[11px] font-medium text-foreground uppercase tracking-[0.16em]">Top 5 Veículos por Receita</h3>
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">No Período</span>
+            <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/70">No Período</span>
           </div>
           {topVehicles.length === 0 ? (
             <EmptyState icon={DollarSign} title="Sem receita no período" description="Os veículos com maior faturamento aparecerão aqui." compact />
@@ -195,24 +195,24 @@ export function OverviewTab() {
                     <div className="flex items-center justify-between text-sm gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <span
-                          className={`flex items-center justify-center w-6 h-6 rounded text-[10px] font-bold tabular-nums shrink-0 ${
-                            isTop ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
+                          className={`text-[10px] font-medium tabular-nums shrink-0 w-5 ${
+                            isTop ? "text-foreground" : "text-muted-foreground/70"
                           }`}
                         >
                           {String(idx + 1).padStart(2, "0")}
                         </span>
-                        <span className="font-semibold text-foreground truncate">{v.name}</span>
+                        <span className="text-sm font-normal text-foreground truncate">{v.name}</span>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-bold text-foreground tabular-nums">
+                        <p className="text-sm font-normal text-foreground tabular-nums tracking-[-0.01em]">
                           ${v.revenue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
-                        <p className="text-[10px] uppercase font-medium text-muted-foreground tabular-nums">{v.bookings} reservas</p>
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground/70 tabular-nums">{v.bookings} reservas</p>
                       </div>
                     </div>
-                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div className="h-px w-full bg-border/60 overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${isTop ? "bg-primary" : "bg-muted-foreground/40"}`}
+                        className={`h-full transition-all ${isTop ? "bg-primary/70" : "bg-muted-foreground/30"}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -223,16 +223,14 @@ export function OverviewTab() {
           )}
         </div>
 
-        <div className="rounded-xl bg-card border border-border p-6 flex flex-col items-center justify-center text-center shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <div className="p-3 bg-muted/50 rounded-full mb-5 border border-border">
-            <Clock className="h-5 w-5 text-muted-foreground" />
-          </div>
-          <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-5">
+        <div className="rounded-lg bg-card border border-border/70 p-6 flex flex-col items-center justify-center text-center">
+          <Clock className="h-4 w-4 text-muted-foreground/70 mb-4" strokeWidth={1.75} />
+          <h3 className="text-[10px] font-medium text-muted-foreground/80 uppercase tracking-[0.16em] mb-5">
             Tempo Médio de Locação
           </h3>
           <RentalDaysGauge days={avgRentalDays} />
-          <p className="text-sm font-medium text-foreground mt-5">dias por reserva</p>
-          <p className="text-[11px] text-muted-foreground leading-relaxed mt-3 max-w-[200px]">
+          <p className="text-xs font-normal text-muted-foreground mt-5">dias por reserva</p>
+          <p className="text-[11px] text-muted-foreground/70 leading-relaxed mt-3 max-w-[200px]">
             Média baseada em reservas concluídas no período selecionado.
           </p>
         </div>
@@ -240,8 +238,8 @@ export function OverviewTab() {
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="rounded-xl bg-card border border-border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <h3 className="text-sm font-bold text-foreground mb-5">Receita vs Despesas</h3>
+        <div className="rounded-lg bg-card border border-border/70 p-6">
+          <h3 className="text-[11px] font-medium text-foreground uppercase tracking-[0.16em] mb-5">Receita vs Despesas</h3>
           {monthlyData.length === 0 ? (
             <EmptyState icon={BarChart3} title="Sem movimentação" description="Os indicadores aparecem conforme reservas e despesas forem registradas." compact />
           ) : (
@@ -266,8 +264,8 @@ export function OverviewTab() {
           )}
         </div>
 
-        <div className="rounded-xl bg-card border border-border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <h3 className="text-sm font-bold text-foreground mb-5">Fluxo de Caixa Acumulado</h3>
+        <div className="rounded-lg bg-card border border-border/70 p-6">
+          <h3 className="text-[11px] font-medium text-foreground uppercase tracking-[0.16em] mb-5">Fluxo de Caixa Acumulado</h3>
           {cashFlowData.length === 0 ? (
             <EmptyState icon={Wallet} title="Sem movimentação" description="O fluxo de caixa aparece conforme houver receita e despesas." compact />
           ) : (
@@ -289,8 +287,8 @@ export function OverviewTab() {
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="rounded-xl bg-card border border-border p-6 lg:col-span-2 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <h3 className="text-sm font-bold text-foreground mb-5">Lucro Mensal</h3>
+        <div className="rounded-lg bg-card border border-border/70 p-6 lg:col-span-2">
+          <h3 className="text-[11px] font-medium text-foreground uppercase tracking-[0.16em] mb-5">Lucro Mensal</h3>
           {monthlyData.length === 0 ? (
             <EmptyState icon={TrendingUp} title="Sem movimentação" description="O lucro mensal aparece com a operação." compact />
           ) : (
@@ -309,8 +307,8 @@ export function OverviewTab() {
           )}
         </div>
 
-        <div className="rounded-xl bg-card border border-border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <h3 className="text-sm font-bold text-foreground mb-5">Despesas por Categoria</h3>
+        <div className="rounded-lg bg-card border border-border/70 p-6">
+          <h3 className="text-[11px] font-medium text-foreground uppercase tracking-[0.16em] mb-5">Despesas por Categoria</h3>
           {expensesByType.length === 0 ? (
             <EmptyState icon={DollarSign} title="Sem despesas" description="As despesas aparecerão aqui." compact />
           ) : (
@@ -321,13 +319,13 @@ export function OverviewTab() {
                 return (
                   <div key={et.type}>
                     <div className="flex justify-between text-xs mb-1.5">
-                      <span className="text-muted-foreground font-medium">{et.type}</span>
-                      <span className="font-bold text-foreground tabular-nums">
+                      <span className="text-muted-foreground/80 font-normal">{et.type}</span>
+                      <span className="font-normal text-foreground tabular-nums">
                         ${et.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+                    <div className="h-px rounded-full bg-border/60 overflow-hidden">
+                      <div className="h-full rounded-full bg-primary/70 transition-all" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -338,24 +336,24 @@ export function OverviewTab() {
       </div>
 
       {/* Summary row */}
-      <div className="rounded-xl bg-card border border-border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-        <h3 className="text-sm font-bold text-foreground mb-5">Resumo do Período</h3>
+      <div className="rounded-lg bg-card border border-border/70 p-6">
+        <h3 className="text-[11px] font-medium text-foreground uppercase tracking-[0.16em] mb-5">Resumo do Período</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="border-r border-border last:border-r-0 md:border-r">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Reservas</p>
-            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{totalsRow.active}</p>
+          <div className="border-r border-border/60 last:border-r-0 md:border-r">
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80 mb-2">Reservas</p>
+            <p className="text-xl font-light text-foreground tabular-nums tracking-[-0.01em]">{totalsRow.active}</p>
           </div>
-          <div className="md:border-r border-border">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Canceladas</p>
-            <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 tabular-nums tracking-tight">{totalsRow.cancelled}</p>
+          <div className="md:border-r border-border/60">
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80 mb-2">Canceladas</p>
+            <p className="text-xl font-light text-rose-600/90 dark:text-rose-400/90 tabular-nums tracking-[-0.01em]">{totalsRow.cancelled}</p>
           </div>
-          <div className="border-r border-border last:border-r-0">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Despesas</p>
-            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{totalsRow.expensesCount}</p>
+          <div className="border-r border-border/60 last:border-r-0">
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80 mb-2">Despesas</p>
+            <p className="text-xl font-light text-foreground tabular-nums tracking-[-0.01em]">{totalsRow.expensesCount}</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Incidentes</p>
-            <p className="text-2xl font-bold text-foreground tabular-nums tracking-tight">{totalsRow.incidentsCount}</p>
+            <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/80 mb-2">Incidentes</p>
+            <p className="text-xl font-light text-foreground tabular-nums tracking-[-0.01em]">{totalsRow.incidentsCount}</p>
           </div>
         </div>
       </div>
