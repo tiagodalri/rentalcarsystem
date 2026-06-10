@@ -1395,7 +1395,7 @@ export default function AdminBookings() {
                               {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
                             </span>
                           </td>
-                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap">
+                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
                             {(b.deposit_amount ?? 0) > 0 ? (
                               <div className="leading-tight">
                                 <div className="text-[12px] text-foreground/80">${Number(b.deposit_amount).toFixed(0)}</div>
@@ -1407,7 +1407,7 @@ export default function AdminBookings() {
                               <span className="text-muted-foreground/50 text-xs">—</span>
                             )}
                           </td>
-                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap">
+                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
                             {(b.franchise_amount ?? 0) > 0 ? (
                               <span className="text-[12px] text-foreground/80">${Number(b.franchise_amount).toFixed(0)}</span>
                             ) : (
