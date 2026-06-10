@@ -10,6 +10,7 @@ import {
   ArrowLeftRight,
   Loader2,
   Info,
+  Camera,
 } from "lucide-react";
 import PublicCardPreview from "../PublicCardPreview";
 import { WizardForm } from "./types";
@@ -174,37 +175,60 @@ export default function StepPhotosAndPublish({
         </div>
 
         {/* UPLOADER */}
-        <label
-          className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-colors min-h-[140px] px-4 py-6 text-center cursor-pointer ${
-            busy
-              ? "border-border/60 bg-muted/30 cursor-wait"
-              : "border-border/60 bg-muted/20 hover:bg-muted/30 hover:border-primary/60"
-          }`}
-        >
-          {busy ? (
-            <Loader2 size={24} className="text-muted-foreground animate-spin" />
-          ) : (
-            <Upload size={24} className="text-muted-foreground" />
-          )}
-          <p className="text-sm font-semibold text-foreground">
-            {busy ? "Processando…" : "Arraste fotos aqui ou clique"}
-          </p>
-          <p className="text-[11px] text-muted-foreground">
-            Envia para a aba <strong>{tab === "registry" ? "Registro interno" : "Vitrine pública"}</strong>.
-            JPG, PNG ou WEBP — múltiplos arquivos.
-          </p>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            disabled={busy}
-            className="hidden"
-            onChange={(e) => {
-              addFiles(e.target.files);
-              e.target.value = "";
-            }}
-          />
-        </label>
+        <div className="space-y-2">
+          <label
+            className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition-colors min-h-[140px] px-4 py-6 text-center cursor-pointer ${
+              busy
+                ? "border-border/60 bg-muted/30 cursor-wait"
+                : "border-border/60 bg-muted/20 hover:bg-muted/30 hover:border-primary/60"
+            }`}
+          >
+            {busy ? (
+              <Loader2 size={24} className="text-muted-foreground animate-spin" />
+            ) : (
+              <Upload size={24} className="text-muted-foreground" />
+            )}
+            <p className="text-sm font-semibold text-foreground">
+              {busy ? "Processando…" : "Arraste fotos aqui ou clique para escolher"}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              Envia para a aba <strong>{tab === "registry" ? "Registro interno" : "Vitrine pública"}</strong>.
+              JPG, PNG ou WEBP — múltiplos arquivos.
+            </p>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              disabled={busy}
+              className="hidden"
+              onChange={(e) => {
+                addFiles(e.target.files);
+                e.target.value = "";
+              }}
+            />
+          </label>
+
+          {/* Botão dedicado de câmera (essencial em mobile/PWA) */}
+          <label
+            className={`sm:hidden flex items-center justify-center gap-2 h-11 rounded-xl border border-border/60 bg-card text-sm font-semibold text-foreground active:scale-[0.98] transition-transform ${
+              busy ? "opacity-50 pointer-events-none" : ""
+            }`}
+          >
+            <Camera size={16} className="text-primary" />
+            Tirar foto com a câmera
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              disabled={busy}
+              className="hidden"
+              onChange={(e) => {
+                addFiles(e.target.files);
+                e.target.value = "";
+              }}
+            />
+          </label>
+        </div>
 
         {/* GRID DA ABA ATIVA */}
         {visible.length > 0 ? (

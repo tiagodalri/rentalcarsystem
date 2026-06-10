@@ -121,7 +121,7 @@ export default function AdminPainel() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="min-w-0">
+      <div className="min-w-0 hidden lg:block">
         <h1 className="admin-h1">Painel</h1>
         <p className="text-sm text-muted-foreground/80 mt-1">
           Cockpit operacional · {format(now, "EEEE, dd 'de' MMMM", { locale: ptBR })}

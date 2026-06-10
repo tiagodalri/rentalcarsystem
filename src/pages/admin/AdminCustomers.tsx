@@ -189,7 +189,7 @@ export default function AdminCustomers() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
+        <div className="hidden lg:block">
           <h1 className="admin-h1">Clientes</h1>
           <p className="text-sm text-muted-foreground mt-1">{customers.length} clientes cadastrados</p>
         </div>

@@ -13,7 +13,7 @@ const AdminFleetPnL = lazy(() => import("./AdminFleetPnL"));
 export default function AdminReport() {
   return (
     <div className="space-y-10">
-      <header>
+      <header className="hidden lg:block">
         <h1 className="admin-h1">Relatório consolidado</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Visão estratégica única — desempenho operacional mensal e rentabilidade
