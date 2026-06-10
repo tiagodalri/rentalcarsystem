@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Loader2, Car as CarIcon, Wrench, DollarSign, ImagePlus } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Loader2, Car as CarIcon, Wrench, DollarSign, ImagePlus, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useFormDraft, clearFormDraft } from "@/hooks/useFormDraft";
@@ -8,21 +8,26 @@ import { EMPTY_FORM, WizardForm } from "./types";
 import StepIdentification from "./StepIdentification";
 import StepSpecs from "./StepSpecs";
 import StepCommercial from "./StepCommercial";
+import StepDocuments, { PendingDocument } from "./StepDocuments";
 import StepPhotosAndPublish, { PendingPhoto } from "./StepPhotosAndPublish";
 
 const DRAFT_KEY = "new-vehicle";
+
+type StepId = 1 | 2 | 3 | 4 | 5;
 
 const STEPS = [
   { id: 1, title: "Identificação", Icon: CarIcon },
   { id: 2, title: "Especificações", Icon: Wrench },
   { id: 3, title: "Comercial & Preços", Icon: DollarSign },
-  { id: 4, title: "Fotos & Publicação", Icon: ImagePlus },
+  { id: 4, title: "Documentação", Icon: FileText },
+  { id: 5, title: "Fotos & Publicação", Icon: ImagePlus },
 ] as const;
 
 export default function VehicleWizard() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step, setStep] = useState<StepId>(1);
   const [form, setForm] = useState<WizardForm>({ ...EMPTY_FORM });
+  const [documents, setDocuments] = useState<PendingDocument[]>([]);
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
   const [coverId, setCoverId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -51,12 +56,12 @@ export default function VehicleWizard() {
   const goNext = () => {
     const err = validateStep(step);
     if (err) return toast({ title: "Revise os campos", description: err, variant: "destructive" });
-    setStep((s) => (Math.min(4, s + 1) as 1 | 2 | 3 | 4));
+    setStep((s) => (Math.min(5, s + 1) as StepId));
   };
 
   const goBack = () => {
     if (step === 1) return navigate("/admin/fleet");
-    setStep((s) => (Math.max(1, s - 1) as 1 | 2 | 3 | 4));
+    setStep((s) => (Math.max(1, s - 1) as StepId));
   };
 
   const buildName = () => {
@@ -118,7 +123,37 @@ export default function VehicleWizard() {
       if (error || !created) throw error || new Error("Falha ao criar veículo");
       const vehicleId = created.id;
 
-      // Separa por tipo; vitrine vai com a capa primeiro
+      // === DOCUMENTOS ===
+      const docsWithFile = documents.filter((d) => d.file && (d.name?.trim() || d.docType !== "other"));
+      for (const d of docsWithFile) {
+        const file = d.file!;
+        const ext = (file.name.split(".").pop() || "bin").toLowerCase();
+        const path = `${vehicleId}/${d.docType}/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("vehicle-documents")
+          .upload(path, file, {
+            cacheControl: "3600",
+            contentType: file.type || undefined,
+          });
+        if (upErr) {
+          toast({ title: "Erro ao enviar documento", description: upErr.message, variant: "destructive" });
+          continue;
+        }
+        const insertRow: any = {
+          vehicle_id: vehicleId,
+          doc_type: d.docType,
+          name: d.name?.trim() || labelForDocType(d.docType),
+          file_path: path,
+          file_name: file.name,
+          mime_type: file.type || null,
+          size_bytes: file.size,
+          expires_at: d.expiresAt,
+          notes: d.notes?.trim() || null,
+        };
+        await (supabase as any).from("vehicle_documents").insert(insertRow);
+      }
+
+      // === FOTOS ===
       const showcase = photos.filter((p) => p.kind === "showcase");
       const registry = photos.filter((p) => p.kind === "registry");
       const showcaseOrdered = coverId
@@ -188,12 +223,12 @@ export default function VehicleWizard() {
       <header className="mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Novo veículo</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Preencha tudo (identificação, especificações, preços e fotos) e finalize o cadastro de uma vez.
+          Preencha tudo (identificação, especificações, preços, documentação e fotos) e finalize o cadastro de uma vez.
         </p>
       </header>
 
       <nav className="mb-6">
-        <ol className="grid grid-cols-4 gap-2">
+        <ol className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
           {STEPS.map(({ id, title, Icon }) => {
             const isActive = step === id;
             const isDone = step > id;
@@ -201,7 +236,7 @@ export default function VehicleWizard() {
               <li key={id} className="min-w-0">
                 <button
                   type="button"
-                  onClick={() => setStep(id as 1 | 2 | 3 | 4)}
+                  onClick={() => setStep(id as StepId)}
                   className={`w-full text-left rounded-xl border px-3 py-2.5 transition-colors ${
                     isActive
                       ? "border-primary/60 bg-primary/5"
@@ -236,7 +271,8 @@ export default function VehicleWizard() {
         {step === 1 && <StepIdentification form={form} set={set} />}
         {step === 2 && <StepSpecs form={form} set={set} />}
         {step === 3 && <StepCommercial form={form} set={set} />}
-        {step === 4 && (
+        {step === 4 && <StepDocuments documents={documents} setDocuments={setDocuments} />}
+        {step === 5 && (
           <StepPhotosAndPublish
             form={form}
             set={set}
@@ -262,10 +298,10 @@ export default function VehicleWizard() {
           </button>
 
           <div className="text-xs text-muted-foreground hidden sm:block">
-            Passo {step} de 4
+            Passo {step} de 5
           </div>
 
-          {step < 4 ? (
+          {step < 5 ? (
             <button
               onClick={goNext}
               disabled={saving}
@@ -287,4 +323,13 @@ export default function VehicleWizard() {
       </div>
     </div>
   );
+}
+
+function labelForDocType(t: PendingDocument["docType"]): string {
+  switch (t) {
+    case "purchase_contract": return "Contrato de compra e venda";
+    case "vehicle_registration": return "Documento do veículo";
+    case "insurance_policy": return "Apólice de seguro";
+    default: return "Documento";
+  }
 }
