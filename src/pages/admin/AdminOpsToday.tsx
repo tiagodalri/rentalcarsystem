@@ -1,3 +1,4 @@
+import { formatPersonName } from "@/lib/formatName";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -93,7 +94,7 @@ export default function AdminOpsToday() {
               {time || "—"}
             </span>
             <span className="text-[10px] text-muted-foreground/60">•</span>
-            <span className="text-xs text-foreground font-medium truncate">{b.customer_name}</span>
+            <span className="text-xs text-foreground font-medium truncate">{formatPersonName(b.customer_name)}</span>
           </div>
           {b.booking_number && (
             <span className="text-[9px] font-mono text-muted-foreground shrink-0">{b.booking_number}</span>

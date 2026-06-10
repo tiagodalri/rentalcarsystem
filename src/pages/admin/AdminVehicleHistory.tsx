@@ -1,3 +1,4 @@
+import { formatPersonName } from "@/lib/formatName";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -195,7 +196,7 @@ export default function AdminVehicleHistory() {
                       {/* Main info */}
                       <div className="flex-1 min-w-0 space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold text-foreground">{b.customer_name}</span>
+                          <span className="font-semibold text-foreground">{formatPersonName(b.customer_name)}</span>
                           <Badge variant="outline" className={`text-[10px] ${sc.color}`}>{sc.label}</Badge>
                         </div>
                         <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">

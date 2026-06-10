@@ -169,7 +169,7 @@ function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (
                           const isPickup = new Date(b.pickup_date).getDate() === day && new Date(b.pickup_date).getMonth() === month;
                           const isReturn = new Date(b.return_date).getDate() === day && new Date(b.return_date).getMonth() === month;
                           const vehicleShort = b.vehicle_name ? b.vehicle_name.split(" ").slice(0, 2).join(" ") : "";
-                          const customerFirst = b.customer_name.split(" ")[0];
+                          const customerFirst = formatName(b.customer_name).split(" ")[0];
                           const time = isPickup ? b.pickup_time : isReturn ? b.return_time : null;
                           return (
                             <div
@@ -340,7 +340,7 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
                 {entries.map(({ booking: b, isPickup, isReturn, isMid }) => {
                   const sc = statusConfig[b.status] || statusConfig.pending;
                   const vehicleShort = b.vehicle_name ? b.vehicle_name.split(" ").slice(0, 2).join(" ") : "—";
-                  const customerFirst = b.customer_name.split(" ")[0];
+                  const customerFirst = formatName(b.customer_name).split(" ")[0];
 
                   return (
                     <div
@@ -431,19 +431,8 @@ function CalendarLegend() {
 }
 
 // Format full names: capitalize each word, lowercase particles (da, de, do, das, dos, e)
-const formatName = (raw: string | null | undefined): string => {
-  if (!raw) return "—";
-  const particles = new Set(["da", "de", "di", "do", "du", "das", "des", "dos", "e", "y"]);
-  return raw
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .map((w, i) => {
-      if (i > 0 && particles.has(w)) return w;
-      return w.charAt(0).toUpperCase() + w.slice(1);
-    })
-    .join(" ");
-};
+import { formatPersonName } from "@/lib/formatName";
+const formatName = (raw: string | null | undefined): string => formatPersonName(raw) || "—";
 
 
 // ─── Filter types ───────────────────────────────────────────
@@ -1223,7 +1212,7 @@ export default function AdminBookings() {
                           )}
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between gap-2">
-                              <p className="font-semibold text-[14px] text-foreground truncate">{b.customer_name}</p>
+                              <p className="font-semibold text-[14px] text-foreground truncate">{formatName(b.customer_name)}</p>
                               <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded border whitespace-nowrap ${sc.color}`}>
                                 {sc.label}
                               </span>
