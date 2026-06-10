@@ -83,7 +83,7 @@ export default function VehicleWizard() {
       model_year: form.model_year,
       year: form.model_year || form.manufacture_year || null,
       vin: form.vin.trim().toUpperCase() || null,
-      renavam: form.renavam.trim() || null,
+      
       license_plate: form.license_plate.trim().toUpperCase(),
       color: form.color || null,
       bouncie_imei: form.bouncie_imei.trim() || null,
