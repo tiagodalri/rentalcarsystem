@@ -672,7 +672,7 @@ export default function AdminBookingDetail() {
           <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-6">Cliente</h2>
           {customer ? (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-12">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-6 sm:gap-x-8 md:gap-x-12">
                 <div>
                   <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Nome</label>
                   <p className="text-sm font-medium text-foreground break-words">{formatPersonName(customer.full_name) || "—"}</p>
