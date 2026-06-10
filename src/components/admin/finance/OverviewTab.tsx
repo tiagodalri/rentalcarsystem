@@ -307,8 +307,8 @@ export function OverviewTab() {
           )}
         </div>
 
-        <div className="rounded-xl bg-card border border-border p-6 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <h3 className="text-sm font-bold text-foreground mb-5">Despesas por Categoria</h3>
+        <div className="rounded-lg bg-card border border-border/70 p-6">
+          <h3 className="text-[11px] font-medium text-foreground uppercase tracking-[0.16em] mb-5">Despesas por Categoria</h3>
           {expensesByType.length === 0 ? (
             <EmptyState icon={DollarSign} title="Sem despesas" description="As despesas aparecerão aqui." compact />
           ) : (
@@ -319,13 +319,13 @@ export function OverviewTab() {
                 return (
                   <div key={et.type}>
                     <div className="flex justify-between text-xs mb-1.5">
-                      <span className="text-muted-foreground font-medium">{et.type}</span>
-                      <span className="font-bold text-foreground tabular-nums">
+                      <span className="text-muted-foreground/80 font-normal">{et.type}</span>
+                      <span className="font-normal text-foreground tabular-nums">
                         ${et.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                       </span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+                    <div className="h-px rounded-full bg-border/60 overflow-hidden">
+                      <div className="h-full rounded-full bg-primary/70 transition-all" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
