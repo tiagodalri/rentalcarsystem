@@ -4,10 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CalendarCheck, CalendarX2, Wrench, Car, MapPin, ChevronRight, Sun,
-  Clock, ChevronDown,
+  Clock, ChevronDown, ChevronLeft, CalendarDays,
 } from "lucide-react";
-import { format } from "date-fns";
+import { addDays, format, isSameDay, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
+
 import { BrandAvatar } from "@/components/admin/fleet-calendar/BrandAvatar";
 
 type BookingRow = {
