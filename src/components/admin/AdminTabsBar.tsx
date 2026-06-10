@@ -1,4 +1,4 @@
-import { X, Plus, LayoutDashboard, Sparkles, Radio, CalendarRange, CalendarDays, Car, Users, DollarSign, UsersRound, BarChart3, Settings, Copy } from "lucide-react";
+import { X, Plus, LayoutDashboard, Sparkles, Radio, CalendarRange, CalendarDays, Car, Users, DollarSign, UsersRound, Settings, Copy } from "lucide-react";
 import { useAdminTabs, getTabTitle, MAX_TABS } from "@/hooks/useAdminTabs";
 import { cn } from "@/lib/utils";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
