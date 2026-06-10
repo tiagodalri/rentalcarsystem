@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRegisterFab } from "@/hooks/useAdminFab";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Plus, Pencil, Trash2, X, FileText, Upload, Camera, Loader2, ExternalLink, Copy, Check, Users, MessageCircle } from "lucide-react";
@@ -40,6 +41,7 @@ export default function AdminCustomers() {
   const [editing, setEditing] = useState<Partial<Customer> | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
+  useRegisterFab({ icon: Plus, label: "Adicionar cliente", onClick: () => { setEditing({ ...emptyCustomer }); setIsNew(true); } });
   const [cepLoading, setCepLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { loading: ocrLoading, result: ocrResult, runOcr, reset: resetOcr } = useDocumentOcr();

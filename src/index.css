@@ -357,3 +357,50 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(212, 175, 55, 0.4) rgba(26, 26, 26, 0.5);
 }
+
+/* ============================================
+   Admin mobile-first tokens & utilities
+   ============================================ */
+:root {
+  --admin-touch-min: 44px;
+  --admin-mobile-card-pad: 0.875rem;
+}
+
+/* Touch target helper for primary mobile controls */
+.admin-touch {
+  min-height: var(--admin-touch-min);
+  min-width: var(--admin-touch-min);
+}
+
+/* Horizontal scrolling chips (replaces wrap on mobile) */
+.admin-chip-scroll {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  scrollbar-width: none;
+}
+.admin-chip-scroll::-webkit-scrollbar { display: none; }
+.admin-chip-scroll > * { scroll-snap-align: start; flex-shrink: 0; }
+
+/* Vertical stack with mobile-tighter spacing */
+.admin-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+@media (min-width: 1024px) {
+  .admin-stack { gap: 1rem; }
+}
+
+/* Mobile-scaled admin H1 */
+@media (max-width: 1023px) {
+  .admin-h1 {
+    font-size: 1.5rem !important;
+    line-height: 1.15 !important;
+  }
+}
