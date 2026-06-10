@@ -553,7 +553,7 @@ export default function AdminTeam() {
                   <div className="space-y-1.5 mb-3">
                     {m.email && (
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Mail size={11} /> <span className="truncate">{m.email}</span>
+                        <Mail size={11} /> <span className="block truncate min-w-0">{m.email}</span>
                       </div>
                     )}
                     {m.phone && (
