@@ -478,10 +478,11 @@ export default function AdminBookingDetail() {
             <LogOut size={13} /> Devolução
           </button>
           <button
-            onClick={() => navigate(`/admin/inspection/compare/${booking.id}`)}
-            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-muted text-muted-foreground hover:text-foreground transition-colors font-medium border border-border/40"
+            onClick={() => navigate(`/admin/inspection/report/${booking.id}`)}
+            className="flex items-center justify-center w-9 h-9 rounded-lg bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border/40"
+            title="Ver laudo"
           >
-            <GitCompare size={13} /> Comparar
+            <FileText size={15} />
           </button>
           {canSendContract && ["not_sent", "failed"].includes(booking.contract_status || "not_sent") && (
             <div className="flex items-center gap-2">
@@ -504,18 +505,18 @@ export default function AdminBookingDetail() {
           )}
           <button
             onClick={() => setIncidentOpen(true)}
-            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors font-medium border border-destructive/30"
-            title="Registrar acidente, sinistro, multa ou outra ocorrência"
+            className="flex items-center justify-center w-9 h-9 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors shadow-sm"
+            title="Registrar ocorrência"
           >
-            <AlertTriangle size={13} /> Registrar ocorrência
+            <AlertTriangle size={15} />
           </button>
           {isAdmin && (
             <button
               onClick={() => setEditOpen(true)}
-              className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors font-medium"
-              title="Editar reserva (apenas admin)"
+              className="flex items-center justify-center w-9 h-9 rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors"
+              title="Editar reserva"
             >
-              <Pencil size={13} /> Editar
+              <Pencil size={15} />
             </button>
           )}
         </div>
