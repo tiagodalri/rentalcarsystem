@@ -419,20 +419,20 @@ function KpiCard({
 }) {
   return (
     <div className="relative rounded-xl border border-border/40 bg-card/80 p-2.5 overflow-hidden">
-      <div className="flex items-center gap-3 relative z-10">
-        <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${iconBg}`}>
+      <div className="flex items-center gap-2.5 relative z-10">
+        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${iconBg}`}>
           {icon}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] uppercase tracking-[0.14em] font-medium text-muted-foreground">
+          <p className="text-[9px] uppercase tracking-[0.14em] font-medium text-muted-foreground">
             {label}
           </p>
-          <p className={`text-2xl font-medium tabular-nums leading-none mt-0.5 ${valueColor}`}>
+          <p className={`text-xl font-medium tabular-nums leading-none mt-0.5 ${valueColor}`}>
             {value}
           </p>
         </div>
       </div>
-      <p className="text-[10px] text-muted-foreground mt-2 relative z-10">{sub}</p>
+      <p className="text-[9px] text-muted-foreground mt-1 relative z-10">{sub}</p>
       {/* decorative wave */}
       <svg
         className={`absolute -right-2 -bottom-1 ${waveColor}`}
