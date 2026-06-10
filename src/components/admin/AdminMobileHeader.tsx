@@ -50,9 +50,10 @@ export function AdminMobileHeader() {
 
   return (
     <header
-      className="lg:hidden sticky top-0 z-30 flex items-center gap-1 px-2 h-14 bg-background/95 backdrop-blur-md"
+      className="lg:hidden sticky top-0 z-30 flex items-center gap-1 px-2 bg-background/95 backdrop-blur-md"
       style={{
-        paddingTop: "max(env(safe-area-inset-top, 0px), 4px)",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)",
+        paddingBottom: "10px",
         boxShadow: "inset 0 -1px 0 hsl(var(--border) / 0.6)",
       }}
     >
