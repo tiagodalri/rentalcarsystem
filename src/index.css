@@ -103,7 +103,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "kern" 1, "liga" 1;
+    font-feature-settings: "kern" 1, "liga" 1, "ss01" 1, "cv11" 1;
     /* Don't put overflow-x:hidden on <html>; it breaks position:sticky and
        iOS Safari momentum scrolling, especially inside installed PWAs. */
   }
@@ -123,6 +123,15 @@
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
   }
+
+  /* iOS: prevent focus-zoom on form fields (anything <16px triggers it).
+     Desktop keeps the denser typography from the component overrides. */
+  @media (max-width: 1023px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
+
 
 
 
