@@ -35,6 +35,7 @@ const BookingDetailClient = lazy(() => import("./pages/BookingDetailClient.tsx")
 
 // Lazy-loaded: admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.tsx"));
+const AdminPainel = lazy(() => import("./pages/admin/AdminPainel.tsx"));
 const AdminBookings = lazy(() => import("./pages/admin/AdminBookings.tsx"));
 const AdminFleet = lazy(() => import("./pages/admin/AdminFleet.tsx"));
 const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers.tsx"));
