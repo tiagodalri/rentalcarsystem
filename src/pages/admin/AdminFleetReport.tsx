@@ -212,58 +212,30 @@ export default function AdminFleetReport({
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-border/40">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <DollarSign size={18} className="text-primary" />
+        {[
+          { Icon: DollarSign, label: "Receita do Mês", value: `$${totalRevenue.toLocaleString()}`, tone: "primary" as const },
+          { Icon: CalendarDays, label: "Reservas", value: String(totalBookings), tone: "primary" as const },
+          { Icon: Percent, label: "Ocupação Média", value: `${avgOccupancy}%`, tone: "primary" as const },
+          { Icon: AlertTriangle, label: "Avarias", value: String(totalDamages), tone: "destructive" as const },
+        ].map(({ Icon, label, value, tone }) => (
+          <Card key={label} className="border-border/40">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className={`shrink-0 h-10 w-10 rounded-lg flex items-center justify-center ${
+                    tone === "destructive" ? "bg-destructive/10" : "bg-primary/10"
+                  }`}
+                >
+                  <Icon size={18} className={tone === "destructive" ? "text-destructive" : "text-primary"} />
+                </div>
+                <div className="min-w-0 flex flex-col justify-center leading-none">
+                  <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1.5 truncate">{label}</p>
+                  <p className="text-xl font-medium text-foreground tabular-nums leading-none">{value}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita do Mês</p>
-                <p className="text-xl font-medium text-foreground">${totalRevenue.toLocaleString()}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <CalendarDays size={18} className="text-primary" />
-              </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Reservas</p>
-                <p className="text-xl font-medium text-foreground">{totalBookings}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Percent size={18} className="text-primary" />
-              </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Ocupação Média</p>
-                <p className="text-xl font-medium text-foreground">{avgOccupancy}%</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-destructive/10">
-                <AlertTriangle size={18} className="text-destructive" />
-              </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Avarias</p>
-                <p className="text-xl font-medium text-foreground">{totalDamages}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       {/* Charts Row 1 */}
