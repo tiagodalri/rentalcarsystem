@@ -490,7 +490,7 @@ export default function AdminVehicleDetail() {
             <TabsTrigger value="health" className="whitespace-nowrap">Saúde</TabsTrigger>
             <TabsTrigger value="expenses" className="whitespace-nowrap">Gastos</TabsTrigger>
             <TabsTrigger value="incidents" className="whitespace-nowrap">Ocorrências</TabsTrigger>
-            <TabsTrigger value="timeline" className="whitespace-nowrap">Timeline</TabsTrigger>
+            
             <TabsTrigger value="history" className="whitespace-nowrap">Locações</TabsTrigger>
             <TabsTrigger value="details" className="whitespace-nowrap">Ficha Técnica</TabsTrigger>
           </TabsList>
@@ -1059,29 +1059,8 @@ export default function AdminVehicleDetail() {
           )}
         </TabsContent>
 
-        {/* ── Timeline Tab ── */}
-        <TabsContent value="timeline" className="mt-4">
-          {timelineEvents.length === 0 ? (
-            <Card className="border-border/40"><CardContent className="p-0"><EmptyState icon={Clock} title="Nenhum evento registrado" description="O histórico de eventos deste veículo aparecerá aqui conforme ações forem registradas." compact /></CardContent></Card>
-          ) : (
-            <div className="relative pl-8">
-              <div className="absolute left-[15px] top-2 bottom-2 w-px bg-border" />
-              {timelineEvents.map((ev, i) => {
-                const Icon = ev.icon;
-                return (
-                  <div key={i} className="relative mb-6 last:mb-0">
-                    <div className="absolute -left-8 w-8 h-8 rounded-full bg-background border-2 border-border flex items-center justify-center"><Icon size={14} className={ev.color} /></div>
-                    <div className="ml-4">
-                      <p className="text-[11px] text-muted-foreground mb-0.5">{new Date(ev.date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}</p>
-                      <p className="font-semibold text-sm text-foreground">{ev.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{ev.desc}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </TabsContent>
+
+
 
         {/* ── History Tab ── */}
         <TabsContent value="history" className="mt-4">
