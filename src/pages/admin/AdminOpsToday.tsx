@@ -496,14 +496,61 @@ function SectionCard({
   );
 }
 
-function BookingRowCard({
-  booking, vehicle, type, onClick,
+function StatusLegend({
+  counts, active, onChange,
 }: {
-  booking: BookingRow; vehicle?: Vehicle; type: "pickup" | "return"; onClick: () => void;
+  counts: Record<OpsStatus, number>;
+  active: OpsStatus | "all";
+  onChange: (s: OpsStatus | "all") => void;
+}) {
+  const total = counts.completed + counts.late + counts.pending + counts.cancelled;
+  const order: OpsStatus[] = ["completed", "late", "pending", "cancelled"];
+  return (
+    <div className="mb-3 flex flex-wrap items-center gap-1.5">
+      <button
+        onClick={() => onChange("all")}
+        className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+          active === "all"
+            ? "border-foreground/30 bg-foreground/[0.06] text-foreground"
+            : "border-border/40 bg-card/60 text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        Todas
+        <span className="tabular-nums">{total}</span>
+      </button>
+      {order.map(s => {
+        const m = STATUS_META[s];
+        const c = counts[s];
+        if (c === 0 && active !== s) return null;
+        const isActive = active === s;
+        return (
+          <button
+            key={s}
+            onClick={() => onChange(isActive ? "all" : s)}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors ${
+              isActive
+                ? `${m.chipBorder} ${m.chipBg} ${m.chipText}`
+                : "border-border/40 bg-card/60 text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${m.dot}`} />
+            {m.label}
+            <span className="tabular-nums">{c}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function BookingRowCard({
+  booking, vehicle, type, opsStatus, onClick,
+}: {
+  booking: BookingRow; vehicle?: Vehicle; type: "pickup" | "return"; opsStatus: OpsStatus; onClick: () => void;
 }) {
   const time = type === "pickup" ? booking.pickup_time : booking.return_time;
   const loc = type === "pickup" ? booking.pickup_location : booking.return_location;
-  const accent = type === "pickup" ? "bg-emerald-500" : "bg-amber-500";
+  const m = STATUS_META[opsStatus];
   const badge = type === "pickup"
     ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
     : "bg-amber-500/15 text-amber-600 dark:text-amber-400";
@@ -514,19 +561,23 @@ function BookingRowCard({
       onClick={onClick}
       className="w-full text-left rounded-xl border border-border/40 bg-background/80 backdrop-blur-sm hover:bg-background hover:border-border/70 hover:shadow-md transition-all group relative overflow-hidden"
     >
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${accent}`} />
+      <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.bar}`} />
       <div className="pl-4 pr-3 py-3">
         <div className="flex items-start gap-3">
           {vehicle && (
             <BrandAvatar brand={brand} name={vehicle.name} size={36} />
           )}
           <div className="min-w-0 flex-1">
-            <div className="flex items-baseline gap-3">
+            <div className="flex items-baseline gap-3 flex-wrap">
               <span className="text-xl font-bold tabular-nums text-foreground leading-none">
                 {time ? time.slice(0, 5) : "—"}
               </span>
               <span className="text-sm font-semibold text-foreground truncate">
                 {formatPersonName(booking.customer_name)}
+              </span>
+              <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${m.chipBorder} ${m.chipBg} ${m.chipText}`}>
+                <span className={`h-1 w-1 rounded-full ${m.dot}`} />
+                {m.label.replace(/s$/, "")}
               </span>
             </div>
             <div className="mt-2 space-y-1">
@@ -555,6 +606,7 @@ function BookingRowCard({
     </button>
   );
 }
+
 
 function PrepCategory({
   title, tone, vehicles, expanded, onNavigate,
