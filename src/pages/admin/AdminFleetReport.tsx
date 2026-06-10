@@ -322,7 +322,7 @@ export default function AdminFleetReport({
                     {...darkTooltipProps}
                     formatter={(v: number) => [`${v}%`, "Ocupação"]}
                   />
-                  <Bar dataKey="occupancy" fill="hsl(var(--chart-2, 160 60% 45%))" radius={[0, 4, 4, 0]} barSize={22} />
+                  <Bar dataKey="occupancy" fill={GREEN_SECONDARY} radius={[0, 4, 4, 0]} barSize={22} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
