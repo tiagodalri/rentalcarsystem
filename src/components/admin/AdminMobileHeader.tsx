@@ -65,7 +65,7 @@ export function AdminMobileHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-11 w-11 rounded-full text-muted-foreground hover:text-foreground"
+            className="admin-icon-btn"
             aria-label="Mais opções"
           >
             <MoreVertical className="h-5 w-5" />
