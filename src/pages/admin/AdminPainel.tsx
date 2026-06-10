@@ -121,16 +121,11 @@ export default function AdminPainel() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0">
-            <h1 className="admin-h1">Painel</h1>
-            <p className="text-sm text-muted-foreground/80 mt-1">
-              Cockpit operacional · {format(now, "EEEE, dd 'de' MMMM", { locale: ptBR })}
-            </p>
-          </div>
-        </div>
-        <PainelHeaderWidgets />
+      <div className="min-w-0">
+        <h1 className="admin-h1">Painel</h1>
+        <p className="text-sm text-muted-foreground/80 mt-1">
+          Cockpit operacional · {format(now, "EEEE, dd 'de' MMMM", { locale: ptBR })}
+        </p>
       </div>
 
       {/* ═════════ AGORA ═════════ */}

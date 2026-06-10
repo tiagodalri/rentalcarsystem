@@ -8,14 +8,15 @@ import {
   CloudSnow,
   CloudFog,
   CloudLightning,
-  Radio,
   type LucideIcon,
 } from "lucide-react";
+import tickerBg from "@/assets/ticker-banner-bg.jpg";
 
 /**
- * TV-news style ticker banner for the Painel.
- * Thin full-width strip with an "AO VIVO" badge and an infinite horizontal marquee
- * cycling Orlando time, Brasil time, USD→BRL and Orlando weather.
+ * CNN-style colorful news ticker.
+ * Full-width banner with a vivid AI-generated background, a pulsing "AO VIVO"
+ * badge on the left and an infinite marquee with: Orlando time, Brasil time,
+ * USD→BRL rate and Orlando weather.
  */
 
 const RATE_CACHE_KEY = "painel_widget_rate";
@@ -147,16 +148,16 @@ function TickerItem({
   value: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-2 px-5 whitespace-nowrap">
-      <Icon className="h-3.5 w-3.5 text-primary/80 shrink-0" strokeWidth={1.9} />
-      <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground/80">
+    <span className="inline-flex items-center gap-2 px-6 whitespace-nowrap">
+      <Icon className="h-3.5 w-3.5 text-white/95 shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.55)]" strokeWidth={2} />
+      <span className="text-[10px] uppercase tracking-[0.2em] text-white/85 drop-shadow-[0_1px_1px_rgba(0,0,0,0.55)]">
         {label}
       </span>
-      <span className="text-[12px] font-medium tabular-nums text-foreground">
+      <span className="text-[12.5px] font-semibold tabular-nums text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">
         {value}
       </span>
-      <span className="text-muted-foreground/30 select-none" aria-hidden>
-        •
+      <span className="text-white/40 select-none ml-2" aria-hidden>
+        ◆
       </span>
     </span>
   );
@@ -188,27 +189,31 @@ export function PainelHeaderWidgets() {
 
   return (
     <div
-      className="relative flex items-stretch w-full overflow-hidden rounded-md border border-border/50 bg-card/60 backdrop-blur-sm h-8"
+      className="relative flex items-stretch w-full overflow-hidden h-9 select-none"
       role="status"
       aria-label="Informações ao vivo"
+      style={{
+        backgroundImage: `url(${tickerBg})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     >
-      {/* AO VIVO badge */}
-      <div className="flex items-center gap-1.5 px-3 bg-primary/10 border-r border-border/50 shrink-0">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full rounded-full bg-primary opacity-70 animate-ping" />
-          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
+      {/* dark overlay para legibilidade */}
+      <div className="absolute inset-0 bg-black/25" aria-hidden />
+
+      {/* AO VIVO pill */}
+      <div className="relative flex items-center gap-2 px-3.5 bg-red-600 shrink-0 shadow-[2px_0_8px_rgba(0,0,0,0.25)]">
+        <span className="relative flex h-2 w-2">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-75 animate-ping" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
         </span>
-        <span className="text-[9px] font-semibold tracking-[0.2em] uppercase text-primary">
+        <span className="text-[10px] font-bold tracking-[0.22em] uppercase text-white">
           Ao vivo
         </span>
       </div>
 
       {/* Marquee track */}
       <div className="relative flex-1 overflow-hidden">
-        {/* edge fades */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-card to-transparent z-10" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-card to-transparent z-10" />
-
         <div className="flex h-full items-center animate-marquee whitespace-nowrap will-change-transform">
           <div className="flex items-center shrink-0">{items}</div>
           <div className="flex items-center shrink-0" aria-hidden>
