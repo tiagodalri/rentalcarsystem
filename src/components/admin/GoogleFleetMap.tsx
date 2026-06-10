@@ -687,6 +687,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           isSelected,
           st.drawnHeading,
           v.status === "moving",
+          st.logoDataUri,
         );
         marker = new google.maps.Marker({
           map,
