@@ -185,6 +185,88 @@
   }
 }
 
+/* ============================================================
+   ADMIN ELEGANCE LAYER (Safra-style private bank typography)
+   Scoped to .admin-shell so it never touches the public site.
+   ============================================================ */
+@layer components {
+  /* Reusable typography utilities — explicit use in admin pages */
+  .admin-h1 {
+    @apply text-xl font-medium text-foreground tracking-[-0.01em];
+  }
+  .admin-h2 {
+    @apply text-base font-medium text-foreground tracking-[-0.005em];
+  }
+  .admin-section-title {
+    @apply text-[11px] font-medium text-foreground uppercase tracking-[0.16em];
+  }
+  .admin-label {
+    @apply text-[10px] font-medium text-muted-foreground/80 uppercase tracking-[0.16em];
+  }
+  .admin-kpi {
+    @apply text-[22px] leading-tight font-light text-foreground tabular-nums tracking-[-0.01em];
+  }
+  .admin-kpi-sm {
+    @apply text-lg font-light text-foreground tabular-nums tracking-[-0.01em];
+  }
+  .admin-number {
+    @apply font-normal tabular-nums tracking-[-0.005em];
+  }
+  .admin-muted {
+    @apply text-muted-foreground/80;
+  }
+  .admin-card {
+    @apply rounded-lg bg-card border border-border/70;
+  }
+}
+
+/* Scoped overrides — apply only inside the admin shell */
+.admin-shell {
+  letter-spacing: -0.008em;
+}
+
+/* Headings inside admin: drop the heavy default weights */
+.admin-shell h1 {
+  @apply text-xl font-medium tracking-[-0.01em];
+}
+.admin-shell h2 {
+  @apply text-base font-medium tracking-[-0.005em];
+}
+.admin-shell h3 {
+  font-weight: 500;
+  letter-spacing: -0.003em;
+}
+
+/* Tame the brand gold-gradient inside admin → solid black "private bank" CTA */
+.admin-shell .gold-gradient {
+  background: hsl(var(--foreground)) !important;
+  color: hsl(var(--background)) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.01em;
+  transition: background-color 0.18s ease;
+}
+.admin-shell .gold-gradient:hover {
+  background: hsl(var(--foreground) / 0.88) !important;
+}
+
+/* Dark mode: invert for proper contrast */
+.dark .admin-shell .gold-gradient {
+  background: hsl(var(--foreground)) !important;
+  color: hsl(var(--background)) !important;
+}
+
+/* Refine card shadow inside admin */
+.admin-shell .shadow-sm,
+.admin-shell .shadow {
+  box-shadow: none !important;
+}
+
+/* Softer borders by default inside admin */
+.admin-shell [class*="border-border"]:not([class*="border-border/"]):not([class*="border-l"]):not([class*="border-r"]):not([class*="border-t"]):not([class*="border-b"]) {
+  border-color: hsl(var(--border) / 0.7);
+}
+
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
