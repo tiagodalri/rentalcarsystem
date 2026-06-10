@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { LocationDisplay } from "@/components/admin/LocationDisplay";
+import MiniLocationMap from "@/components/admin/MiniLocationMap";
 import { EditBookingDialog } from "@/components/admin/EditBookingDialog";
 import { BookingIncidentDialog } from "@/components/admin/BookingIncidentDialog";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -546,23 +547,45 @@ export default function AdminBookingDetail() {
           <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-8">Itinerário</h2>
 
           <div className="space-y-10">
-            <div className="relative">
-              <div className="absolute -left-[33px] top-1.5 w-2 h-2 rounded-full border-2 border-primary bg-background" />
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Retirada</p>
-                <h3 className="text-xl font-medium text-foreground">{booking.pickup_location || "—"}</h3>
-                <p className="text-sm text-muted-foreground tabular-nums">{pickup.toLocaleDateString("pt-BR")}</p>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="absolute -left-[33px] top-1.5 w-2 h-2 rounded-full border-2 border-border bg-background" />
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Devolução</p>
-                <h3 className="text-xl font-medium text-foreground">{booking.return_location || "—"}</h3>
-                <p className="text-sm text-muted-foreground tabular-nums">{returnD.toLocaleDateString("pt-BR")}</p>
-              </div>
-            </div>
+            {(() => {
+              const renderLoc = (
+                kind: "pickup" | "return",
+                label: string,
+                accent: string,
+                dotClass: string,
+                rawAddress: string | null,
+                date: Date,
+              ) => {
+                const addr = (rawAddress || "").trim();
+                const parts = addr.split(",").map((s) => s.trim()).filter(Boolean);
+                const primary = parts[0] || (addr || "—");
+                const secondary = parts.slice(1).join(", ");
+                return (
+                  <div key={kind} className="relative">
+                    <div className={`absolute -left-[33px] top-1.5 w-2 h-2 rounded-full border-2 bg-background ${dotClass}`} />
+                    <div className="space-y-2">
+                      <p className={`text-[10px] font-bold uppercase tracking-wider ${accent}`}>{label}</p>
+                      <h3 className="text-lg font-semibold text-foreground leading-tight">{primary}</h3>
+                      {secondary && (
+                        <p className="text-xs text-muted-foreground leading-snug max-w-xl">{secondary}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground tabular-nums pt-0.5">{date.toLocaleDateString("pt-BR")}</p>
+                      {addr && addr !== "—" && (
+                        <div className="pt-2 max-w-md">
+                          <MiniLocationMap address={addr} height={140} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              };
+              return (
+                <>
+                  {renderLoc("pickup", "Retirada", "text-primary", "border-primary", booking.pickup_location, pickup)}
+                  {renderLoc("return", "Devolução", "text-muted-foreground", "border-border", booking.return_location, returnD)}
+                </>
+              );
+            })()}
           </div>
         </section>
 
