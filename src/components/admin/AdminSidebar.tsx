@@ -200,7 +200,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarContent className="px-2 pt-3 pb-2 gap-0 scrollbar-thin">
+      <SidebarContent className="pt-3 pb-2 gap-0 scrollbar-thin px-[8px] mx-[8px]">
         {/* ===== Brand block ===== */}
         <div className={`flex flex-col items-center ${collapsed ? "px-0 py-2" : "px-2 pb-3"}`}>
           <img
