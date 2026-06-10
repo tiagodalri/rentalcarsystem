@@ -9,6 +9,7 @@ import FleetKpiStrip from "@/components/admin/fleet/FleetKpiStrip";
 import FleetToolbar, { FleetFilters } from "@/components/admin/fleet/FleetToolbar";
 import FleetGrid, { FleetVehicleCard } from "@/components/admin/fleet/FleetGrid";
 import FleetTable, { FleetTableVehicle } from "@/components/admin/fleet/FleetTable";
+import { useRegisterFab } from "@/hooks/useAdminFab";
 
 type Vehicle = FleetVehicleCard &
   FleetTableVehicle & {
