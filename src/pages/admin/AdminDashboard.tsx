@@ -3,14 +3,12 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  CalendarRange, Car, Users, DollarSign, TrendingUp, Clock,
-  CheckCircle2, Wrench, Gauge, Calculator, Percent,
-  CalendarClock, AlertCircle, Receipt, FileText,
+  Car, Users, DollarSign, TrendingUp, Clock,
+  CheckCircle2, Wrench, Gauge, Calculator,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { calcRoiPct, sumTotalRevenue } from "@/lib/fleetMetrics";
 
 interface DashboardStats {
   totalBookings: number;
@@ -22,15 +20,7 @@ interface DashboardStats {
   maintenanceVehicles: number;
   avgOdometer: number;
   totalInvestment: number;
-  monthlyRevenue: number;
   avgCostPerCar: number;
-  roiPct: number | null;
-  avgTicket: number | null;
-  occupancyRate: number | null;
-  returnsToday: number;
-  pendingOver24h: number;
-  maintenanceOverdue: number;
-  expiredLicenses: number;
 }
 
 type StatCard = {
@@ -52,9 +42,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
   const [stats, setStats] = useState<DashboardStats>({
     totalBookings: 0, activeBookings: 0, pendingBookings: 0, totalCustomers: 0,
     totalVehicles: 0, availableVehicles: 0, maintenanceVehicles: 0, avgOdometer: 0,
-    totalInvestment: 0, monthlyRevenue: 0, avgCostPerCar: 0, roiPct: null,
-    avgTicket: null, occupancyRate: null,
-    returnsToday: 0, pendingOver24h: 0, maintenanceOverdue: 0, expiredLicenses: 0,
+    totalInvestment: 0, avgCostPerCar: 0,
   });
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,78 +54,30 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
     async function load() {
       const [bookings, vehicles, customers] = await Promise.all([
         supabase.from("bookings").select("id, status, created_at, return_date, total_price, customer_name, customer_email, vehicle_id, pickup_date").order("created_at", { ascending: false }).limit(500),
-        supabase.from("vehicles").select("id, name, status, purchase_price, current_odometer, next_service_km"),
-        supabase.from("customers").select("id, driver_license_expiry"),
+        supabase.from("vehicles").select("id, name, status, purchase_price, current_odometer"),
+        supabase.from("customers").select("id"),
       ]);
 
       const bList = bookings.data || [];
       const vList = vehicles.data || [];
       const cList = customers.data || [];
 
-      // Period revenue (selected month — defaults to current)
-      const now = new Date();
+      // Period window (selected month — defaults to current)
       const monthStart = new Date(periodAnchor.getFullYear(), periodAnchor.getMonth(), 1);
       const monthEnd = new Date(periodAnchor.getFullYear(), periodAnchor.getMonth() + 1, 0, 23, 59, 59);
-      const revenueStatuses = ["confirmed", "in_progress", "completed"];
-      const monthlyBookings = bList.filter(b => {
-        const created = new Date(b.created_at);
-        return revenueStatuses.includes(b.status) && created >= monthStart && created <= monthEnd;
-      });
-      const monthlyRevenue = monthlyBookings.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
-
-      // Avg ticket
-      const completedBookings = bList.filter(b => b.status === "completed" && Number(b.total_price) > 0);
-      const avgTicket = completedBookings.length > 0
-        ? completedBookings.reduce((s, b) => s + Number(b.total_price), 0) / completedBookings.length
-        : null;
-
-      // Occupancy rate via RPC
-      let occupancyRate: number | null = null;
-      try {
-        const { data: occData } = await supabase.rpc("get_occupancy_rate" as any);
-        if (occData !== null && occData !== undefined) {
-          occupancyRate = Number(occData);
-        }
-      } catch {
-        // fallback
-      }
 
       const totalInvestment = vList.reduce((sum, v) => sum + (Number(v.purchase_price) || 0), 0);
       const vehiclesWithPurchase = vList.filter((v) => Number(v.purchase_price) > 0);
       const avgCostPerCar = vehiclesWithPurchase.length > 0
         ? totalInvestment / vehiclesWithPurchase.length
         : 0;
-      const totalRevenueAll = sumTotalRevenue(bList);
-      const roiPct = calcRoiPct(totalRevenueAll, 0, totalInvestment);
 
       const vehiclesWithOdo = vList.filter((v) => Number(v.current_odometer) > 0);
       const avgOdometer = vehiclesWithOdo.length > 0
         ? vehiclesWithOdo.reduce((s, v) => s + Number(v.current_odometer), 0) / vehiclesWithOdo.length
         : 0;
 
-      // Operational alerts
-      const todayStr = now.toISOString().slice(0, 10);
-      const returnsToday = bList.filter(b =>
-        b.return_date === todayStr && ["confirmed", "in_progress"].includes(b.status)
-      ).length;
-
-      const twentyFourAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      const pendingOver24h = bList.filter(b =>
-        b.status === "pending" && new Date(b.created_at) < twentyFourAgo
-      ).length;
-
-      // Maintenance overdue: vehicles where current_odometer >= next_service_km
-      const maintenanceOverdue = vList.filter(v =>
-        v.next_service_km != null && v.current_odometer != null && Number(v.current_odometer) >= Number(v.next_service_km)
-      ).length;
-
-      // Expired driver licenses
-      const todayDate = todayStr;
-      const expiredLicenses = cList.filter((c: any) =>
-        c.driver_license_expiry && c.driver_license_expiry < todayDate
-      ).length;
-
-      // Period bookings count (created_at within selected month) — useful for monthly closing
+      // Period bookings count (created_at within selected month)
       const periodBookingsCount = bList.filter(b => {
         const created = new Date(b.created_at);
         return created >= monthStart && created <= monthEnd;
@@ -153,15 +93,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
         maintenanceVehicles: vList.filter((v) => v.status === "maintenance" || v.status === "preparing").length,
         avgOdometer,
         totalInvestment,
-        monthlyRevenue,
         avgCostPerCar,
-        roiPct,
-        avgTicket,
-        occupancyRate,
-        returnsToday,
-        pendingOver24h,
-        maintenanceOverdue,
-        expiredLicenses,
       });
 
       setRecentBookings(bList.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 8));
@@ -172,17 +104,13 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
 
   const fmtUSD = (n: number) =>
     `$${n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-  const fmtUSD2 = (n: number) =>
-    `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const fmtNum = (n: number) => Math.round(n).toLocaleString("pt-BR");
 
   const goBookings = () => navigate("/admin/bookings");
   const goCustomers = () => navigate("/admin/customers");
   const goFleet = () => navigate("/admin/fleet");
-  const goFinance = () => navigate("/admin/finance");
 
   const showFinancial = hasAny(["admin", "finance"]);
-  const showAlerts = hasAny(["admin", "operations", "support"]);
 
   const operationalCards: StatCard[] = [
     { label: "Ativas / Em Andamento", value: stats.activeBookings, icon: TrendingUp, color: "text-emerald-500", onClick: goBookings },
@@ -223,33 +151,6 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
       ))}
     </div>
   );
-
-  const alertCards = [
-    {
-      label: "Devolucoes Hoje",
-      value: stats.returnsToday,
-      icon: CalendarClock,
-      onClick: () => navigate("/admin/bookings"),
-    },
-    {
-      label: "Pendentes >24h",
-      value: stats.pendingOver24h,
-      icon: AlertCircle,
-      onClick: () => navigate("/admin/bookings"),
-    },
-    {
-      label: "Manutencao Atrasada",
-      value: stats.maintenanceOverdue,
-      icon: Wrench,
-      onClick: () => navigate("/admin/fleet"),
-    },
-    {
-      label: "CNH Vencida",
-      value: stats.expiredLicenses,
-      icon: FileText,
-      onClick: () => navigate("/admin/customers"),
-    },
-  ];
 
   const statusMap: Record<string, { label: string; className: string }> = {
     pending: { label: "Pendente", className: "bg-yellow-500/10 text-yellow-600 border border-yellow-500/20" },
