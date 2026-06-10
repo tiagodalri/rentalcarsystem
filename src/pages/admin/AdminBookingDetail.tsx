@@ -931,7 +931,7 @@ export default function AdminBookingDetail() {
 
 
           {booking.notes && (
-            <div className="bg-muted/30 p-6 rounded-xl border border-border/30">
+            <div className="bg-muted/30 p-4 sm:p-6 rounded-xl border border-border/30">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
                 Observações
               </label>
