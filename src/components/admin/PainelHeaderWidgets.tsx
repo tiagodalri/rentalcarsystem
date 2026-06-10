@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Clock, DollarSign, Cloud, Sun, CloudRain, CloudSnow, CloudFog, CloudLightning } from "lucide-react";
+import { Clock, DollarSign, Cloud, Sun, CloudRain, CloudSnow, CloudFog, CloudLightning, type LucideIcon } from "lucide-react";
 
 /**
  * Compact widget strip for the Painel header:
@@ -133,7 +133,7 @@ function Widget({
   value,
   loading,
 }: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  icon: LucideIcon;
   label: string;
   value: string;
   loading?: boolean;
