@@ -15,6 +15,7 @@ import { buildWhatsAppUrl, defaultClientMessage } from "@/lib/whatsapp";
 import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import { formatPersonName } from "@/lib/formatName";
+import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
 
 type Customer = {
   id: string;
@@ -197,7 +198,9 @@ function AdminCustomersDesktop() {
 
   return (
     <div className="space-y-6">
+      <CustomersSubNav />
       <div className="flex items-center justify-between">
+
         <div className="hidden lg:block">
           <h1 className="admin-h1">Clientes</h1>
           <p className="text-sm text-muted-foreground mt-1">{customers.length} clientes cadastrados</p>

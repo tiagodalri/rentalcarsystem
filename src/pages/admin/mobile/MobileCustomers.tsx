@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Search, Plus, Phone, MessageCircle, X } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
+import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
 
 /* ============================================================
    CLIENTES — Mobile-first
@@ -61,7 +62,10 @@ export default function MobileCustomers() {
   return (
     <PullToRefresh onRefresh={load}>
       <div className="pb-28">
-        <div className="px-4 pt-2">
+        <div className="px-3 pt-2">
+          <CustomersSubNav />
+        </div>
+        <div className="px-4">
           <h1 className="admin-h1 text-2xl">Clientes</h1>
           <p className="text-xs text-muted-foreground mt-1">{filtered.length} cadastrados</p>
 
