@@ -175,35 +175,18 @@ const PhotoIllustration = ({ position }: { position: string }) => {
           />
         </svg>
       );
-    case "Estribo Esq.":
-    case "Estribo Dir.": {
-      const isLeftStep = position.includes("Esq");
+    case "Estepe":
       return (
         <svg viewBox="0 0 48 48" width={s} height={s}>
-          {/* Faded car body */}
-          <path d="M12 30 L12 22 L16 14 L32 14 L36 22 L36 30 Z" fill="hsl(var(--muted) / 0.15)" stroke={bodyStroke} strokeWidth="0.6" opacity="0.4"/>
-          <circle cx="17" cy="30" r="2.5" fill="none" stroke={bodyStroke} strokeWidth="0.6" opacity="0.4"/>
-          <circle cx="31" cy="30" r="2.5" fill="none" stroke={bodyStroke} strokeWidth="0.6" opacity="0.4"/>
-          {/* Highlighted running board (step) */}
-          <rect
-            x={isLeftStep ? 10 : 30}
-            y="33"
-            width="8"
-            height="2.5"
-            rx="1"
-            fill="hsl(var(--primary) / 0.25)"
-            stroke={stroke}
-            strokeWidth="1.4"
-          />
-          <path
-            d={isLeftStep ? "M11 36 L17 36" : "M31 36 L37 36"}
-            stroke={stroke}
-            strokeWidth="0.8"
-            opacity="0.6"
-          />
+          {/* Trunk / undercarriage outline */}
+          <rect x="10" y="14" width="28" height="22" rx="3" fill="hsl(var(--muted) / 0.15)" stroke={bodyStroke} strokeWidth="0.6" opacity="0.4"/>
+          <path d="M10 20 L38 20" stroke={bodyStroke} strokeWidth="0.8" opacity="0.3"/>
+          {/* Highlighted spare tire */}
+          <circle cx="24" cy="28" r="8" fill="hsl(var(--primary) / 0.15)" stroke={stroke} strokeWidth="1.4"/>
+          <circle cx="24" cy="28" r="3" fill="none" stroke={stroke} strokeWidth="0.8"/>
+          <path d="M16 28 L32 28 M24 20 L24 36" stroke={stroke} strokeWidth="0.6" opacity="0.5"/>
         </svg>
       );
-    }
     default:
       return carBody(null);
   }
