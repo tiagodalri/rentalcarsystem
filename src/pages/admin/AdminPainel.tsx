@@ -58,26 +58,28 @@ function pct(a: number, b: number) {
 export default function AdminPainel() {
   const navigate = useNavigate();
   const { hasAny } = useAdminAuth();
+  const { isMobile } = useIsMobileApp();
   const showFinancial = hasAny(["admin", "finance"]);
 
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [vehicles, setVehicles] = useState<VehicleRow[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const [b, v] = await Promise.all([
-        supabase.from("bookings")
-          .select("id, status, pickup_date, return_date, pickup_time, return_time, total_price, created_at, vehicle_id, customer_name")
-          .order("created_at", { ascending: false })
-          .limit(800),
-        supabase.from("vehicles").select("id, name, status"),
-      ]);
-      setBookings((b.data as BookingRow[]) || []);
-      setVehicles((v.data as VehicleRow[]) || []);
-      setLoading(false);
-    })();
+  const load = useCallback(async () => {
+    const [b, v] = await Promise.all([
+      supabase.from("bookings")
+        .select("id, status, pickup_date, return_date, pickup_time, return_time, total_price, created_at, vehicle_id, customer_name")
+        .order("created_at", { ascending: false })
+        .limit(800),
+      supabase.from("vehicles").select("id, name, status"),
+    ]);
+    setBookings((b.data as BookingRow[]) || []);
+    setVehicles((v.data as VehicleRow[]) || []);
+    setLoading(false);
   }, []);
+
+  useEffect(() => { void load(); }, [load]);
+
 
   const today = todayStr();
   const now = useMemo(() => new Date(), []);
