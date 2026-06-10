@@ -124,8 +124,8 @@ function RentalDaysGauge({ days }: { days: number }) {
         />
       </svg>
       <div className="absolute flex flex-col items-center">
-        <span className="text-4xl font-black text-foreground tabular-nums tracking-tight">{days.toFixed(1)}</span>
-        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">dias</span>
+        <span className="text-3xl font-light text-foreground tabular-nums tracking-[-0.02em]">{days.toFixed(1)}</span>
+        <span className="text-[10px] font-medium text-muted-foreground/80 uppercase tracking-[0.16em] mt-0.5">dias</span>
       </div>
     </div>
   );
