@@ -283,8 +283,8 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
     <div className="space-y-8">
       {!embedded && (
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">Visao geral do sistema Zeus Rental Car</p>
+          <h1 className="admin-h1">Dashboard</h1>
+          <p className="text-sm text-muted-foreground/80 mt-1">Visão geral do sistema Zeus Rental Car</p>
         </div>
       )}
 
