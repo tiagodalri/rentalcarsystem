@@ -74,6 +74,22 @@ function puckSvg(color: string, selected: boolean, headingDeg: number, moving: b
   };
 }
 
+const puckIconCache = new Map<string, any>();
+function puckIconKey(color: string, selected: boolean, headingDeg: number, moving: boolean, logoDataUri: string | null): string {
+  const headingBucket = moving ? Math.round(headingDeg / 6) * 6 : 0;
+  return `${color}|${selected ? "S" : "_"}|${moving ? "M" : "_"}|${headingBucket}|${logoDataUri ?? "no-logo"}`;
+}
+function getPuckIcon(color: string, selected: boolean, headingDeg: number, moving: boolean, logoDataUri: string | null): any {
+  const key = puckIconKey(color, selected, headingDeg, moving, logoDataUri);
+  const cached = puckIconCache.get(key);
+  if (cached) return cached;
+  const headingBucket = moving ? Math.round(headingDeg / 6) * 6 : 0;
+  const icon = puckSvg(color, selected, headingBucket, moving, logoDataUri);
+  if (puckIconCache.size > 700) puckIconCache.clear();
+  puckIconCache.set(key, icon);
+  return icon;
+}
+
 // --- Brand logo resolution (Simple Icons CDN, cached + inlined as data URI) ---
 const BRAND_SLUGS: Record<string, string> = {
   porsche: "porsche",
@@ -291,6 +307,8 @@ type VehicleState = {
   /** Currently displayed lat/lng */
   displayLat: number;
   displayLng: number;
+  /** Avoid forcing Google Maps to relayout markers every animation frame */
+  positionDirty: boolean;
   /** Icon cache key — avoid setIcon every frame */
   iconKey: string;
   selected: boolean;
@@ -307,6 +325,7 @@ const HEADING_LERP_PER_FRAME = 0.18;
 const FOLLOW_PAN_INTERVAL_MS = 800;
 const FOLLOW_EDGE_PX = 110;
 const PROGRAMMATIC_PAN_GUARD_MS = 350;
+const PROGRAMMATIC_ZOOM_GUARD_MS = 450;
 
 // easeInOutCubic — soft start/end like Uber/Bouncie
 function ease(t: number): number {
@@ -354,6 +373,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const followRef = useRef<boolean>(false);
   const lastFollowPanRef = useRef<number>(0);
   const programmaticPanAtRef = useRef<number>(0);
+  const programmaticZoomAtRef = useRef<number>(0);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [following, setFollowing] = useState<boolean>(false);
@@ -394,9 +414,16 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           rotateControlOptions: { position: (window as any).google?.maps?.ControlPosition?.RIGHT_BOTTOM },
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
+          scrollwheel: true,
+          isFractionalZoomEnabled: true,
           clickableIcons: true,
           keyboardShortcuts: true,
+          draggableCursor: "grab",
+          draggingCursor: "grabbing",
         });
+        containerRef.current.style.touchAction = "none";
+        containerRef.current.style.overscrollBehavior = "contain";
+        containerRef.current.style.contain = "layout paint size";
         infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false, maxWidth: 320 });
 
         // ===== Custom "minha localização" control (discrete, next to zoom) =====
@@ -511,7 +538,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
               if (firstFix) {
                 firstFix = false;
                 mapRef.current.panTo(center);
-                if ((mapRef.current.getZoom() ?? 9) < 14) mapRef.current.setZoom(15);
+                if ((mapRef.current.getZoom() ?? 9) < 14) {
+                  programmaticZoomAtRef.current = performance.now();
+                  mapRef.current.setZoom(15);
+                }
                 setBtnState("active", "Seguindo sua localização (toque pra parar)");
               } else if (followMe) {
                 mapRef.current.panTo(center);
@@ -622,6 +652,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           targetHeading: v.heading ?? 0,
           displayLat: v.lat,
           displayLng: v.lng,
+          positionDirty: true,
           iconKey: "",
           selected: isSelected,
           brandSlug: slug,
@@ -649,8 +680,9 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
             // discard
           } else if (stationary) {
             // snap silently — no animation
-            st.displayLat = to.lat;
-            st.displayLng = to.lng;
+              st.displayLat = to.lat;
+              st.displayLng = to.lng;
+              st.positionDirty = true;
             st.tween = null;
           } else {
             // Animate over the real interval between fixes (clamped), or use
@@ -682,7 +714,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
       let marker = existing.get(v.vehicle_id);
       if (!marker) {
-        const initialIcon = puckSvg(
+        const initialIcon = getPuckIcon(
           statusColor(v.status),
           isSelected,
           st.drawnHeading,
@@ -695,7 +727,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           icon: initialIcon,
           title: v.name,
           zIndex: isSelected ? 999 : 1,
-          optimized: false,
+          optimized: true,
         });
         marker.addListener("click", () => {
           onSelect(v.vehicle_id);
@@ -746,28 +778,33 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           if (raw >= 1) {
             st.displayLat = tw.toLat;
             st.displayLng = tw.toLng;
+            st.positionDirty = true;
             st.tween = null;
           } else {
             const f = ease(Math.max(0, raw));
             st.displayLat = tw.fromLat + (tw.toLat - tw.fromLat) * f;
             st.displayLng = tw.fromLng + (tw.toLng - tw.fromLng) * f;
+            st.positionDirty = true;
           }
         }
 
         // Smooth rotation toward target heading
         st.drawnHeading = lerpAngle(st.drawnHeading, st.targetHeading, HEADING_LERP_PER_FRAME);
 
-        marker.setPosition({ lat: st.displayLat, lng: st.displayLng });
+        if (st.positionDirty) {
+          st.positionDirty = false;
+          marker.setPosition({ lat: st.displayLat, lng: st.displayLng });
+        }
 
         // Refresh icon only when something visual changed (cheap key compare)
-        const headingBucket = Math.round(st.drawnHeading / 3) * 3;
+        const headingBucket = st.status === "moving" ? Math.round(st.drawnHeading / 6) * 6 : 0;
         const movingFlag = st.status === "moving" ? "M" : st.status === "idle" ? "I" : "P";
         const selFlag = st.selected ? "S" : "_";
-        const key = `${movingFlag}${selFlag}${headingBucket}`;
+        const key = `${movingFlag}${selFlag}${headingBucket}${st.logoDataUri ? "L" : "_"}`;
         if (key !== st.iconKey) {
           st.iconKey = key;
           marker.setIcon(
-            puckSvg(
+            getPuckIcon(
               statusColor(st.status),
               st.selected,
               st.drawnHeading,
@@ -851,25 +888,33 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     if (target) {
       programmaticPanAtRef.current = performance.now();
       map.panTo(target);
-      if (map.getZoom() < 14) map.setZoom(15);
+      if (map.getZoom() < 14) {
+        programmaticZoomAtRef.current = performance.now();
+        map.setZoom(15);
+      }
     }
     setFollowing(true);
     lastFollowPanRef.current = performance.now();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, ready]);
 
-  // 3b. Detect user dragging the map → turn off follow (unless it's our own panTo)
+  // 3b. Detect user map interaction → turn off follow (unless it's our own pan/zoom)
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     const google = (window as any).google;
     const map = mapRef.current;
-    const handler = map.addListener("dragstart", () => {
+    const stopFollowingFromUser = () => {
       const sincePan = performance.now() - programmaticPanAtRef.current;
-      if (sincePan > PROGRAMMATIC_PAN_GUARD_MS && followRef.current) {
+      const sinceZoom = performance.now() - programmaticZoomAtRef.current;
+      if (sincePan > PROGRAMMATIC_PAN_GUARD_MS && sinceZoom > PROGRAMMATIC_ZOOM_GUARD_MS && followRef.current) {
         setFollowing(false);
       }
-    });
-    return () => google?.maps?.event?.removeListener(handler);
+    };
+    const listeners = [
+      map.addListener("dragstart", stopFollowingFromUser),
+      map.addListener("zoom_changed", stopFollowingFromUser),
+    ];
+    return () => listeners.forEach((handler) => google?.maps?.event?.removeListener(handler));
   }, [ready]);
 
   const recentralize = useCallback(() => {
