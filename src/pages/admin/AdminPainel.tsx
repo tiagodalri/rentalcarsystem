@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { formatPersonName } from "@/lib/formatName";
+import { PainelHeaderWidgets } from "@/components/admin/PainelHeaderWidgets";
 
 /* ============================================================
    PAINEL — Cockpit executivo
@@ -120,19 +121,22 @@ export default function AdminPainel() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
-        <div>
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
           <h1 className="admin-h1">Painel</h1>
           <p className="text-sm text-muted-foreground/80 mt-1">
             Cockpit operacional · {format(now, "EEEE, dd 'de' MMMM", { locale: ptBR })}
           </p>
         </div>
-        <button
-          onClick={() => navigate("/admin/report")}
-          className="hidden sm:inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Ver análise completa <ChevronRight size={12} />
-        </button>
+        <div className="flex items-center gap-3 lg:gap-4">
+          <PainelHeaderWidgets />
+          <button
+            onClick={() => navigate("/admin/report")}
+            className="hidden xl:inline-flex shrink-0 items-center gap-1.5 text-[11px] uppercase tracking-[0.14em] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Ver análise completa <ChevronRight size={12} />
+          </button>
+        </div>
       </div>
 
       {/* ═════════ AGORA ═════════ */}
