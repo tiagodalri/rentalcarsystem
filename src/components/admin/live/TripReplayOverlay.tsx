@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import {
   X, Play, Pause, Loader2, Maximize2, MapPin, Flag, AlertTriangle,
   Zap, PauseCircle, Gauge, Clock, Route, TrendingUp, SkipBack, SkipForward,
@@ -986,8 +987,9 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
     return () => window.removeEventListener("keydown", ESC);
   }, [ESC]);
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[2000] bg-[#050505] animate-in fade-in duration-200 flex flex-col">
+
       {/* Top bar */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-white/5 bg-black/60 backdrop-blur-sm">
         <div className="flex items-center gap-3 min-w-0">
@@ -1470,7 +1472,8 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body,
   );
 }
 
