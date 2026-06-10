@@ -39,7 +39,10 @@ export default function AdminLive() {
   const { vehicles, loading } = useFleetLive();
   const [selected, setSelected] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [filter, setFilter] = useState<"all" | "moving" | "idle" | "parked">("all");
+  const [query, setQuery] = useState("");
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [highlight, setHighlight] = useState(0);
+  const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const [layers, setLayers] = useMapLayers();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [replayTripId, setReplayTripId] = useState<string | null>(null);
