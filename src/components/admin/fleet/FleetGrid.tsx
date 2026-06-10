@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Car, Users as UsersIcon, Briefcase, History, Eye, EyeOff, Pencil, Trash2 } from "lucide-react";
+import { Car, Users as UsersIcon, Briefcase, History, Pencil, Trash2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 import { storageThumb } from "@/lib/storageThumb";
 
@@ -29,11 +30,18 @@ const statusColors: Record<string, string> = {
   available: "bg-green-500/10 text-green-600 dark:text-green-500",
   rented: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
   maintenance: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-500",
+  preparing: "bg-amber-500/10 text-amber-600 dark:text-amber-500",
   unavailable: "bg-destructive/10 text-destructive",
 };
 
-const statusLabel = (s: string) =>
-  s === "available" ? "Disponível" : s === "rented" ? "Alugado" : s === "maintenance" ? "Manutenção" : "Indisponível";
+const STATUS_LABEL: Record<string, string> = {
+  available: "Disponível",
+  rented: "Alugado",
+  maintenance: "Manutenção",
+  preparing: "Em Preparação",
+  unavailable: "Indisponível",
+};
+const statusLabel = (s: string) => STATUS_LABEL[s] || "Indisponível";
 
 export default function FleetGrid({ vehicles, onTogglePublished, onDelete }: Props) {
   const navigate = useNavigate();
