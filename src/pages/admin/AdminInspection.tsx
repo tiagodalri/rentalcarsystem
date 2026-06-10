@@ -210,7 +210,7 @@ const PhotoIllustration = ({ position }: { position: string }) => {
   }
 };
 
-const PHOTO_POSITIONS: { name: string; guide: string }[] = [
+const PHOTO_POSITIONS: { name: string; guide: string; optional?: boolean }[] = [
   { name: "Frente", guide: "Foto centralizada da frente do veículo, mostrando faróis, grade e placa inteiros. Distância: ~2 metros." },
   { name: "Traseira", guide: "Foto centralizada da traseira, mostrando lanternas, placa e para-choque inteiros. Distância: ~2 metros." },
   { name: "Lateral Esquerda", guide: "Foto lateral completa do lado do motorista. Posicione-se no meio do carro. Distância: ~3 metros." },
@@ -223,7 +223,10 @@ const PHOTO_POSITIONS: { name: string; guide: string }[] = [
   { name: "Roda Dianteira Dir.", guide: "Foto focada na roda dianteira direita: pneu, calota/roda e suspensão visível." },
   { name: "Roda Traseira Esq.", guide: "Foto focada na roda traseira esquerda: pneu, calota/roda e suspensão visível." },
   { name: "Roda Traseira Dir.", guide: "Foto focada na roda traseira direita: pneu, calota/roda e suspensão visível." },
+  { name: "Estribo Esq.", guide: "Somente se o veículo possuir estribo lateral (running board). Foto focada no estribo do lado esquerdo, mostrando estado geral e fixação.", optional: true },
+  { name: "Estribo Dir.", guide: "Somente se o veículo possuir estribo lateral (running board). Foto focada no estribo do lado direito, mostrando estado geral e fixação.", optional: true },
 ];
+
 
 const FUEL_LEVELS = [
   { value: "empty", label: "Vazio", pct: 0 },
