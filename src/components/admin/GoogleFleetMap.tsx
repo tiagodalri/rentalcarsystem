@@ -322,10 +322,13 @@ const TWEEN_DEFAULT_MS = 4000;         // default duration when we can't infer
 const MIN_MOVE_METERS = 4;             // ignore micro-jitter while parked
 const MAX_JUMP_METERS = 2_000;         // discard absurd GPS jumps
 const HEADING_LERP_PER_FRAME = 0.18;
+const HEADING_BUCKET_DEG = 15;         // coarser bucket = fewer setIcon calls
 const FOLLOW_PAN_INTERVAL_MS = 800;
 const FOLLOW_EDGE_PX = 110;
+const FOLLOW_CHECK_EVERY_N_FRAMES = 10; // ~6x/sec instead of every frame
 const PROGRAMMATIC_PAN_GUARD_MS = 350;
 const PROGRAMMATIC_ZOOM_GUARD_MS = 450;
+const FRAME_MIN_INTERVAL_MS = 33;       // cap rAF to ~30fps to free main thread
 
 // easeInOutCubic — soft start/end like Uber/Bouncie
 function ease(t: number): number {
@@ -374,6 +377,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const lastFollowPanRef = useRef<number>(0);
   const programmaticPanAtRef = useRef<number>(0);
   const programmaticZoomAtRef = useRef<number>(0);
+  /** True while user is actively dragging/zooming — we skip marker work to keep gestures buttery. */
+  const interactingRef = useRef<boolean>(false);
+  const lastFrameMsRef = useRef<number>(0);
+  const followFrameCounterRef = useRef<number>(0);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [following, setFollowing] = useState<boolean>(false);
@@ -415,7 +422,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
           scrollwheel: true,
-          isFractionalZoomEnabled: true,
+          // Fractional zoom forces continuous tile re-render and is the #1
+          // cause of "laggy" wheel-zoom on weaker GPUs. Integer zoom is what
+          // Google Maps uses by default and feels snappier.
+          isFractionalZoomEnabled: false,
           clickableIcons: true,
           keyboardShortcuts: true,
           draggableCursor: "grab",
@@ -584,6 +594,20 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
               `<div style="font-family:'Inter',sans-serif;padding:8px 12px;font-size:12px;color:#ef4444">Não foi possível carregar detalhes do local.</div>`
             );
           }
+        });
+        // Track active user interaction so the rAF loop can pause heavy work
+        // (setPosition/setIcon for every marker) — this is what causes the
+        // "laggy/delayed" feeling while zooming or dragging.
+        const beginInteract = () => { interactingRef.current = true; };
+        const endInteract = () => {
+          // small delay so the inertia/zoom animation finishes cleanly
+          window.setTimeout(() => { interactingRef.current = false; }, 120);
+        };
+        mapRef.current.addListener("dragstart", beginInteract);
+        mapRef.current.addListener("dragend", endInteract);
+        mapRef.current.addListener("zoom_changed", () => {
+          interactingRef.current = true;
+          endInteract();
         });
         setReady(true);
       })
@@ -767,6 +791,15 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     const tick = () => {
       const now = performance.now();
 
+      // Throttle to ~30fps. Skip ALL work while the user is mid-gesture
+      // (drag/zoom) — Google Maps owns the main thread during gestures, and
+      // any setPosition/setIcon we issue piles up and shows up as "lag".
+      if (interactingRef.current || now - lastFrameMsRef.current < FRAME_MIN_INTERVAL_MS) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      lastFrameMsRef.current = now;
+
       for (const [id, st] of states) {
         const marker = markers.get(id);
         if (!marker) continue;
@@ -788,16 +821,22 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           }
         }
 
-        // Smooth rotation toward target heading
-        st.drawnHeading = lerpAngle(st.drawnHeading, st.targetHeading, HEADING_LERP_PER_FRAME);
+        // Smooth rotation toward target heading (only while moving — otherwise
+        // there's nothing to animate and lerping wastes cycles).
+        if (st.status === "moving" && Math.abs(((st.targetHeading - st.drawnHeading + 540) % 360) - 180) > 0.5) {
+          st.drawnHeading = lerpAngle(st.drawnHeading, st.targetHeading, HEADING_LERP_PER_FRAME);
+        }
 
         if (st.positionDirty) {
           st.positionDirty = false;
           marker.setPosition({ lat: st.displayLat, lng: st.displayLng });
         }
 
-        // Refresh icon only when something visual changed (cheap key compare)
-        const headingBucket = st.status === "moving" ? Math.round(st.drawnHeading / 6) * 6 : 0;
+        // Refresh icon only when something visual changed (cheap key compare).
+        // Coarser bucket = far fewer setIcon calls during turns.
+        const headingBucket = st.status === "moving"
+          ? Math.round(st.drawnHeading / HEADING_BUCKET_DEG) * HEADING_BUCKET_DEG
+          : 0;
         const movingFlag = st.status === "moving" ? "M" : st.status === "idle" ? "I" : "P";
         const selFlag = st.selected ? "S" : "_";
         const key = `${movingFlag}${selFlag}${headingBucket}${st.logoDataUri ? "L" : "_"}`;
@@ -815,15 +854,14 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         }
       }
 
-
-
       // --- Follow camera (selected vehicle only) ---
+      // Heavy projection math — only run every N frames.
+      followFrameCounterRef.current = (followFrameCounterRef.current + 1) % FOLLOW_CHECK_EVERY_N_FRAMES;
       const selId = selectedIdRef.current;
       const map = mapRef.current;
-      if (followRef.current && selId && map) {
+      if (followFrameCounterRef.current === 0 && followRef.current && selId && map) {
         const sel = states.get(selId);
         if (sel) {
-          const now = performance.now();
           const dueByTime = now - lastFollowPanRef.current >= FOLLOW_PAN_INTERVAL_MS;
           let nearEdge = false;
           try {
@@ -843,7 +881,6 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
                 if (worldOrigin && worldSw && worldCar) {
                   const px = (worldCar.x - worldSw.x) * scale;
                   const py = (worldOrigin.y - worldCar.y) * scale;
-                  // px/py in pixels from bottom-left & top-right respectively — approx edge check:
                   if (px < FOLLOW_EDGE_PX || py < FOLLOW_EDGE_PX ||
                       px > (w - FOLLOW_EDGE_PX) || py > (h - FOLLOW_EDGE_PX)) {
                     nearEdge = true;
