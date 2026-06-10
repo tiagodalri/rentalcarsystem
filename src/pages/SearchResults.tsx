@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { calculateAge, isBlockedAge, isYoungDriver, YOUNG_DRIVER_SURCHARGE } from "@/lib/age";
 
 interface SearchVehicle {
+  id: string;
   name: string;
   categoryKey: string;
   passengers: number;
