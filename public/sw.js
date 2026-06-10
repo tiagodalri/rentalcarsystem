@@ -1,11 +1,14 @@
 // Zeus Rental Car — Service Worker
 // Strategy:
-//  - HTML navigations: NetworkFirst (so new deploys are seen immediately;
-//    cached shell only serves as offline fallback).
+//  - HTML navigations: StaleWhileRevalidate (cached HTML served INSTANTLY;
+//    fresh version fetched in background and stored for next visit).
+//    The update only "lands" when the user navigates (see useSwUpdateOnNavigate),
+//    so the in-progress task is never interrupted, AND every page load feels
+//    instant because we never block on the network for HTML.
 //  - Static assets (JS/CSS/fonts/images): StaleWhileRevalidate.
 //  - Everything else: pass-through.
 
-const VERSION = "v5";
+const VERSION = "v6";
 const HTML_CACHE = `zeus-html-${VERSION}`;
 const ASSET_CACHE = `zeus-assets-${VERSION}`;
 const OFFLINE_URL = "/";
