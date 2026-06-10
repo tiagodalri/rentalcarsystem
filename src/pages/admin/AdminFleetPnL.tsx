@@ -8,6 +8,7 @@ import { TrendingUp, TrendingDown, DollarSign, Car, Search, Percent, Clock, GitC
 import { EmptyState } from "@/components/admin/EmptyState";
 import { format, parseISO, differenceInDays, differenceInMonths, subMonths, startOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { calcRoiPct, vehicleRevenueBreakdown, sumVehicleExpenses } from "@/lib/fleetMetrics";
 
 type Row = {
   id: string;
@@ -76,44 +77,12 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
 
     const result: Row[] = vehs.map((v: any) => {
       const vBookings = bks.filter((b: any) => b.vehicle_id === v.id);
-
-      const rentalRevenue = vBookings.reduce((s: number, b: any) => {
-        const days = Math.max(differenceInDays(parseISO(b.return_date), parseISO(b.pickup_date)), 1);
-        const dailyTotal = days * Number(v.daily_price_usd || 0);
-        const addons = b.addons || {};
-        const addonSum =
-          (Number(addons.plan_extra) || 0) +
-          (Number(addons.insurance_total) || 0) +
-          (Number(addons.child_seat_total) || 0) +
-          (Number(addons.toll_tag_total) || 0) +
-          (Number(addons.extra_driver_total) || 0) +
-          (Number(addons.return_fee) || 0);
-        const total = Number(b.total_price) || 0;
-        return s + Math.max(total - addonSum, dailyTotal);
-      }, 0);
-
-      const addonRevenue = vBookings.reduce((s: number, b: any) => {
-        const a = b.addons || {};
-        return s +
-          (Number(a.plan_extra) || 0) +
-          (Number(a.insurance_total) || 0) +
-          (Number(a.child_seat_total) || 0) +
-          (Number(a.toll_tag_total) || 0) +
-          (Number(a.extra_driver_total) || 0) +
-          (Number(a.return_fee) || 0);
-      }, 0);
-
-      const totalRevenue = rentalRevenue + addonRevenue;
-
-      const vExpenses = exps.filter((e: any) => e.vehicle_id === v.id);
-      const expenses = vExpenses.reduce((s: number, e: any) => s + (Number(e.amount) || 0), 0);
-
+      const { rentalRevenue, addonRevenue, totalRevenue } = vehicleRevenueBreakdown(v, vBookings);
+      const expenses = sumVehicleExpenses(v.id, exps);
       const purchasePrice = Number(v.purchase_price) || 0;
       const operatingProfit = totalRevenue - expenses;
-      const roiPct = purchasePrice > 0
-        ? Math.round(((totalRevenue - expenses - purchasePrice) / purchasePrice) * 1000) / 10
-        : null;
-      const paidOff = totalRevenue - expenses >= purchasePrice && purchasePrice > 0;
+      const roiPct = calcRoiPct(totalRevenue, expenses, purchasePrice);
+      const paidOff = operatingProfit >= purchasePrice && purchasePrice > 0;
 
       const daysOwned = v.acquired_date
         ? Math.max(differenceInDays(today, parseISO(v.acquired_date)), 1)
