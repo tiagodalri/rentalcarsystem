@@ -14,6 +14,33 @@ import {
   Download, GitCompare, Info, Eye
 } from "lucide-react";
 import { generateInspectionPDF } from "@/utils/inspectionPdf";
+import refFrente from "@/assets/inspection/frente.jpg";
+import refTraseira from "@/assets/inspection/traseira.jpg";
+import refLatEsq from "@/assets/inspection/lateral-esquerda.jpg";
+import refLatDir from "@/assets/inspection/lateral-direita.jpg";
+import refPainel from "@/assets/inspection/painel.jpg";
+import refBancoD from "@/assets/inspection/banco-dianteiro.jpg";
+import refBancoT from "@/assets/inspection/banco-traseiro.jpg";
+import refPortaMalas from "@/assets/inspection/porta-malas.jpg";
+import refRodaDE from "@/assets/inspection/roda-de.jpg";
+import refRodaDD from "@/assets/inspection/roda-dd.jpg";
+import refRodaTE from "@/assets/inspection/roda-te.jpg";
+import refRodaTD from "@/assets/inspection/roda-td.jpg";
+
+const PHOTO_REFERENCES: Record<string, string> = {
+  "Frente": refFrente,
+  "Traseira": refTraseira,
+  "Lateral Esquerda": refLatEsq,
+  "Lateral Direita": refLatDir,
+  "Painel": refPainel,
+  "Banco Dianteiro": refBancoD,
+  "Banco Traseiro": refBancoT,
+  "Porta-Malas": refPortaMalas,
+  "Roda Dianteira Esq.": refRodaDE,
+  "Roda Dianteira Dir.": refRodaDD,
+  "Roda Traseira Esq.": refRodaTE,
+  "Roda Traseira Dir.": refRodaTD,
+};
 
 type DamageItem = {
   id: string;
@@ -857,14 +884,27 @@ export default function AdminInspection() {
               <CardContent className="space-y-4">
                 {activeGuide ? (
                   <>
-                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <PhotoIllustration position={activeGuide} />
-                        <h4 className="font-semibold text-foreground text-sm">{activeGuide}</h4>
+                    <div className="rounded-lg overflow-hidden border border-border/40 bg-muted/30">
+                      <div className="relative aspect-[3/2] bg-muted">
+                        <img
+                          src={PHOTO_REFERENCES[activeGuide]}
+                          alt={`Exemplo: ${activeGuide}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute top-2 left-2 bg-background/90 backdrop-blur px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-medium text-muted-foreground border border-border/40">
+                          Exemplo
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
-                        {PHOTO_POSITIONS.find((p) => p.name === activeGuide)?.guide}
-                      </p>
+                      <div className="p-3 space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <PhotoIllustration position={activeGuide} />
+                          <h4 className="font-semibold text-foreground text-sm">{activeGuide}</h4>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          {PHOTO_POSITIONS.find((p) => p.name === activeGuide)?.guide}
+                        </p>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Dicas gerais</p>
@@ -887,21 +927,40 @@ export default function AdminInspection() {
 
                 {/* Quick overview of all positions */}
                 <div className="border-t border-border/30 pt-3">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-2">Sequência recomendada</p>
-                  <div className="space-y-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Sequência recomendada</p>
+                    <span className="text-[10px] text-muted-foreground tabular-nums">
+                      {photos.filter((p) => !p.position.startsWith("__")).length}/{PHOTO_POSITIONS.length}
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
                     {PHOTO_POSITIONS.map((pos, i) => {
                       const done = photos.some((p) => p.position === pos.name);
+                      const isActive = activeGuide === pos.name;
                       return (
                         <button
                           key={pos.name}
                           onClick={() => setActiveGuide(pos.name)}
-                          className={`w-full flex items-center gap-2 px-2 py-1 rounded text-[11px] text-left transition-colors ${
-                            activeGuide === pos.name ? "bg-primary/10 text-primary" : "hover:bg-muted/50"
+                          className={`w-full flex items-center gap-2.5 p-1.5 pr-2 rounded-md text-[11px] text-left transition-all border ${
+                            isActive
+                              ? "bg-primary/10 border-primary/30 text-primary"
+                              : "border-transparent hover:bg-muted/50 hover:border-border/40"
                           }`}
                         >
-                          <span className="w-4 text-center">{done ? <CheckCircle2 size={12} className="text-emerald-500" /> : <span className="text-muted-foreground">{i + 1}</span>}</span>
-                          <span className="w-5 shrink-0"><PhotoIllustration position={pos.name} /></span>
-                          <span className={done ? "text-muted-foreground line-through" : "text-foreground"}>{pos.name}</span>
+                          <span className="w-4 text-center text-[10px] font-medium tabular-nums shrink-0">
+                            {done ? <CheckCircle2 size={13} className="text-emerald-500" /> : <span className="text-muted-foreground">{i + 1}</span>}
+                          </span>
+                          <div className="relative w-10 h-10 rounded overflow-hidden bg-muted shrink-0 border border-border/30">
+                            <img
+                              src={PHOTO_REFERENCES[pos.name]}
+                              alt=""
+                              className={`w-full h-full object-cover transition ${done ? "opacity-60" : ""}`}
+                              loading="lazy"
+                            />
+                          </div>
+                          <span className={`flex-1 truncate ${done ? "text-muted-foreground line-through" : "text-foreground"}`}>
+                            {pos.name}
+                          </span>
                         </button>
                       );
                     })}
