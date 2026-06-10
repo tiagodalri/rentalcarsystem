@@ -551,17 +551,17 @@ function BookingRowCard({
       className="w-full text-left rounded-xl border border-border/40 bg-background/80 backdrop-blur-sm hover:bg-background hover:border-border/70 hover:shadow-md transition-all group relative overflow-hidden cursor-pointer"
     >
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.bar}`} />
-      <div className="pl-4 pr-3 py-3">
-        <div className="flex items-start gap-3">
+      <div className="pl-3 pr-2.5 py-2">
+        <div className="flex items-center gap-2.5">
           {vehicle && (
-            <BrandAvatar brand={brand} name={vehicle.name} size={36} />
+            <BrandAvatar brand={brand} name={vehicle.name} size={28} />
           )}
           <div className="min-w-0 flex-1">
-            <div className="flex items-baseline gap-3 flex-wrap">
-              <span className="text-xl font-medium tabular-nums text-foreground leading-none">
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-base font-medium tabular-nums text-foreground leading-none">
                 {time ? time.slice(0, 5) : "—"}
               </span>
-              <span className="text-sm font-semibold text-foreground truncate">
+              <span className="text-[13px] font-semibold text-foreground truncate">
                 {formatPersonName(booking.customer_name)}
               </span>
               <span className={`inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider ${m.chipBorder} ${m.chipBg} ${m.chipText}`}>
@@ -569,22 +569,22 @@ function BookingRowCard({
                 {m.label.replace(/s$/, "")}
               </span>
             </div>
-            <div className="mt-2 space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Car size={11} className="shrink-0" />
+            <div className="mt-1 flex items-center gap-3 text-[11px] text-muted-foreground min-w-0">
+              <span className="inline-flex items-center gap-1 truncate">
+                <Car size={10} className="shrink-0" />
                 <span className="truncate">{vehicle?.name || "—"}</span>
-              </div>
+              </span>
               {loc && (
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <MapPin size={11} className="shrink-0" />
+                <span className="inline-flex items-center gap-1 truncate">
+                  <MapPin size={10} className="shrink-0" />
                   <span className="truncate">{loc}</span>
-                </div>
+                </span>
               )}
             </div>
           </div>
-          <div className="flex flex-col items-end gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             {booking.booking_number && (
-              <span className={`text-[10px] font-mono tabular-nums px-2 py-0.5 rounded-md font-semibold ${badge}`}>
+              <span className={`text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded-md font-semibold ${badge}`}>
                 {booking.booking_number}
               </span>
             )}
@@ -597,13 +597,14 @@ function BookingRowCard({
               className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium uppercase tracking-wider transition-colors ${inspectionTone}`}
               title={type === "pickup" ? "Inspeção de entrega" : "Inspeção de devolução"}
             >
-              <Play size={10} className="fill-current" />
+              <Play size={9} className="fill-current" />
               Inspeção
             </button>
             <ChevronRight size={14} className="text-muted-foreground/60 group-hover:text-foreground transition-colors" />
           </div>
         </div>
       </div>
+
     </div>
   );
 }
