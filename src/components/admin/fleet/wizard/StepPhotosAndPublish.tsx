@@ -10,6 +10,7 @@ import {
   ArrowLeftRight,
   Loader2,
   Info,
+  Camera,
 } from "lucide-react";
 import PublicCardPreview from "../PublicCardPreview";
 import { WizardForm } from "./types";
