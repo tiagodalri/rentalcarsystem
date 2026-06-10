@@ -282,7 +282,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
               <SidebarMenuButton
                 onClick={onSignOut}
                 tooltip="Sair"
-                className="text-destructive/80 hover:text-destructive hover:bg-destructive/10"
+                className="mx-auto justify-center px-0 [&>svg]:mx-auto text-destructive/80 hover:text-destructive hover:bg-destructive/10"
               >
                 <LogOut className="h-4 w-4" />
               </SidebarMenuButton>
