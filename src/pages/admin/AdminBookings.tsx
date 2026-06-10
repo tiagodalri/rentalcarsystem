@@ -1282,6 +1282,17 @@ export default function AdminBookings() {
                           <td className="px-5 py-3.5 whitespace-nowrap min-w-[200px]">
                             <p className="text-foreground font-medium text-[13px]">{formatName(b.customer_name)}</p>
                           </td>
+                          <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
+                            {(() => {
+                              const d = new Date(b.created_at);
+                              return (
+                                <div className="leading-tight">
+                                  <div className="text-foreground/85 text-[12px]">{d.toLocaleDateString("pt-BR")}</div>
+                                  <div className="text-[10px] text-muted-foreground/70">{d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</div>
+                                </div>
+                              );
+                            })()}
+                          </td>
                           <td className="px-5 py-3.5 border-l-2 border-border/60">
                             <div className="flex items-center gap-2.5 min-w-[160px]">
                               {b.vehicle_image ? (
