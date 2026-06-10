@@ -141,14 +141,14 @@ export function OverviewTab() {
     <div className="space-y-6">
       {/* Period selector */}
       <div className="flex items-center justify-end">
-        <div className="inline-flex items-center bg-card border border-border rounded-full p-1">
+        <div className="inline-flex items-center bg-card border border-border/70 rounded-full p-0.5">
           {(Object.keys(periodLabels) as Period[]).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
-              className={`text-[11px] uppercase tracking-wider px-3 py-1 rounded-full font-bold transition-all ${
+              className={`text-[10px] uppercase tracking-[0.16em] px-3 py-1 rounded-full font-medium transition-all ${
                 period === p
-                  ? "bg-foreground text-background shadow-sm"
+                  ? "bg-foreground text-background"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
