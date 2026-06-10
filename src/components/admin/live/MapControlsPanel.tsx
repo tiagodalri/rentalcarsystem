@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Settings2, X, Check } from "lucide-react";
+import { Settings2, X, Check, Database, Loader2 } from "lucide-react";
 
 export type MapLayers = {
   mapType: "roadmap" | "satellite" | "satellite3d";
@@ -174,9 +174,11 @@ const previews = {
 type Props = {
   layers: MapLayers;
   onChange: (l: MapLayers) => void;
+  onRunBackfill?: () => void;
+  backfillRunning?: boolean;
 };
 
-export function MapControlsPanel({ layers, onChange }: Props) {
+export function MapControlsPanel({ layers, onChange, onRunBackfill, backfillRunning }: Props) {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -274,6 +276,31 @@ export function MapControlsPanel({ layers, onChange }: Props) {
               />
             </div>
           </div>
+
+          {onRunBackfill && (
+            <div className="mt-5 pt-4 border-t border-border/40">
+              <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-2">
+                Manutenção
+              </h3>
+              <button
+                onClick={() => {
+                  onRunBackfill();
+                }}
+                disabled={backfillRunning}
+                className="w-full flex items-center justify-center gap-2 rounded-lg border border-border/40 bg-card/60 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-foreground hover:bg-muted/40 disabled:opacity-50 transition-colors"
+              >
+                {backfillRunning ? (
+                  <Loader2 size={13} className="animate-spin" />
+                ) : (
+                  <Database size={13} />
+                )}
+                Backfill histórico
+              </button>
+              <p className="mt-1.5 text-[10px] text-muted-foreground leading-snug">
+                Reimporta o histórico recente do Bouncie para os veículos vinculados.
+              </p>
+            </div>
+          )}
         </div>
       )}
     </>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play, Database, Loader2, Search } from "lucide-react";
+import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
@@ -133,18 +133,6 @@ export default function AdminLive() {
             </h1>
             <p className="text-xs text-muted-foreground">Telemetria Bouncie em tempo real • Google Maps</p>
           </div>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <button
-            onClick={handleRunHistoricalBackfill}
-            disabled={runningBackfill}
-            className="flex items-center gap-1.5 rounded-lg border border-border/40 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground hover:bg-muted/30 disabled:opacity-50"
-          >
-            {runningBackfill ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />}
-            Backfill histórico
-          </button>
-          <Clock size={12} />
-          {new Date().toLocaleTimeString("pt-BR")}
         </div>
       </div>
 
@@ -352,7 +340,12 @@ export default function AdminLive() {
 
           {/* Map controls (settings button + popup panel) */}
           <div className="absolute top-3 right-3 z-[1000]">
-            <MapControlsPanel layers={layers} onChange={setLayers} />
+            <MapControlsPanel
+              layers={layers}
+              onChange={setLayers}
+              onRunBackfill={handleRunHistoricalBackfill}
+              backfillRunning={runningBackfill}
+            />
           </div>
 
           {/* Speed bands legend */}
