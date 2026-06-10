@@ -612,6 +612,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
       let st = states.get(v.vehicle_id);
       if (!st) {
+        const slug = brandSlugFromName(v.name);
         st = {
           tween: null,
           lastReportedMs: reportedAtMs,
@@ -623,8 +624,18 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           displayLng: v.lng,
           iconKey: "",
           selected: isSelected,
+          brandSlug: slug,
+          logoDataUri: null,
         };
         states.set(v.vehicle_id, st);
+        if (slug) {
+          loadBrandLogo(slug).then((uri) => {
+            if (uri && states.get(v.vehicle_id)) {
+              states.get(v.vehicle_id)!.logoDataUri = uri;
+              states.get(v.vehicle_id)!.iconKey = ""; // force redraw on next tick
+            }
+          });
+        }
       } else {
         const isNewFix = reportedAtMs !== st.lastReportedMs;
         if (isNewFix) {
