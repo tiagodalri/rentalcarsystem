@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   User, FileText, LogIn, LogOut, GitCompare,
   Fuel, Gauge, CheckCircle2, AlertTriangle, ChevronRight,
-  Camera, PenTool, Image, Check, X as XIcon, Pencil, Send, Loader2
+  Camera, PenTool, Image, Check, X as XIcon, Pencil, Send, Loader2, MessageCircle
 } from "lucide-react";
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { LocationDisplay } from "@/components/admin/LocationDisplay";
@@ -431,114 +431,147 @@ export default function AdminBookingDetail() {
       </div>
 
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">{formatPersonName(booking.customer_name)}</h1>
-            <Badge className={`${sc.color} border text-[10px] px-2.5 py-0.5 font-semibold`}>{sc.label}</Badge>
-            {(() => {
-              const cs = contractStatusConfig[booking.contract_status || "not_sent"] || contractStatusConfig.not_sent;
-              const badge = (
-                <Badge className={`${cs.cls} border text-[10px] px-2.5 py-0.5 font-semibold`}>{cs.label}</Badge>
-              );
-              if (booking.contract_status === "failed" && booking.contract_error) {
-                return (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild><span>{badge}</span></TooltipTrigger>
-                      <TooltipContent className="max-w-sm text-xs">{booking.contract_error}</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 rounded-2xl border border-border/40 bg-card/50 p-4 shadow-sm sm:p-5 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+        <div className="min-w-0 space-y-3">
+          <div className="space-y-2">
+            <h1 className="text-[22px] sm:text-2xl font-bold text-foreground tracking-tight leading-tight break-words">
+              {formatPersonName(booking.customer_name)}
+            </h1>
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <Badge className={`${sc.color} border text-[10px] px-2.5 py-0.5 font-semibold whitespace-nowrap`}>{sc.label}</Badge>
+              {(() => {
+                const cs = contractStatusConfig[booking.contract_status || "not_sent"] || contractStatusConfig.not_sent;
+                const badge = (
+                  <Badge className={`${cs.cls} border text-[10px] px-2.5 py-0.5 font-semibold whitespace-nowrap`}>{cs.label}</Badge>
                 );
-              }
-              return badge;
-            })()}
-            {(() => {
-              const ps = booking.payment_status || "pending";
-              const cls = ps === "paid"
-                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
-                : "bg-amber-500/10 text-amber-600 border-amber-500/30";
-              const label = ps === "paid" ? "Pagamento OK" : "Pagamento pendente";
-              return <Badge className={`${cls} border text-[10px] px-2.5 py-0.5 font-semibold`}>{label}</Badge>;
-            })()}
+                if (booking.contract_status === "failed" && booking.contract_error) {
+                  return (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild><span className="inline-flex max-w-full">{badge}</span></TooltipTrigger>
+                        <TooltipContent className="max-w-sm text-xs">{booking.contract_error}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  );
+                }
+                return badge;
+              })()}
+              {(() => {
+                const ps = booking.payment_status || "pending";
+                const cls = ps === "paid"
+                  ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                  : "bg-amber-500/10 text-amber-600 border-amber-500/30";
+                const label = ps === "paid" ? "Pagamento OK" : "Pagamento pendente";
+                return <Badge className={`${cls} border text-[10px] px-2.5 py-0.5 font-semibold whitespace-nowrap`}>{label}</Badge>;
+              })()}
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>{pickup.toLocaleDateString("pt-BR")} → {returnD.toLocaleDateString("pt-BR")}</span>
-            <span className="text-border">|</span>
-            <span>{days} dia{days > 1 ? "s" : ""}</span>
-            <span className="text-border">|</span>
-            <span className="font-semibold text-foreground">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</span>
+
+          <div className="grid w-full grid-cols-[1.35fr_0.65fr_0.9fr] overflow-hidden rounded-xl border border-border/40 bg-background/60 sm:inline-grid sm:w-auto sm:min-w-[430px]">
+            <div className="min-w-0 px-3 py-2 border-r border-border/30">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Período</p>
+              <p className="truncate text-xs font-medium text-foreground tabular-nums" title={`${pickup.toLocaleDateString("pt-BR")} → ${returnD.toLocaleDateString("pt-BR")}`}>
+                {pickup.toLocaleDateString("pt-BR")} → {returnD.toLocaleDateString("pt-BR")}
+              </p>
+            </div>
+            <div className="min-w-0 px-3 py-2 border-r border-border/30">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Dias</p>
+              <p className="truncate text-xs font-medium text-foreground tabular-nums">{days}</p>
+            </div>
+            <div className="min-w-0 px-3 py-2">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Total</p>
+              <p className="truncate text-xs font-bold text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {booking.customer_phone && (
-            <a
-              href={`https://wa.me/${booking.customer_phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá ${formatPersonName(booking.customer_name) || ""}, aqui é da Zeus Rental Car sobre sua reserva ${booking.booking_number || ""}.`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={`WhatsApp: ${booking.customer_phone}`}
-              className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-[#25D366]/10 text-[#128C7E] dark:text-[#25D366] hover:bg-[#25D366]/20 transition-colors font-medium border border-[#25D366]/30"
+
+        <div className="w-full lg:w-auto lg:min-w-[360px] space-y-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:justify-end">
+            {booking.customer_phone && (
+              <a
+                href={`https://wa.me/${booking.customer_phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá ${formatPersonName(booking.customer_name) || ""}, aqui é da Zeus Rental Car sobre sua reserva ${booking.booking_number || ""}.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`WhatsApp: ${booking.customer_phone}`}
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-center text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400 sm:min-h-9"
+              >
+                <MessageCircle size={13} />
+                <span className="leading-tight">WhatsApp Cliente</span>
+              </a>
+            )}
+            <button
+              onClick={() => navigate(`/admin/inspection/${booking.id}?type=checkin`)}
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-primary/20 sm:min-h-9"
             >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
-              </svg>
-              WhatsApp Cliente
-            </a>
-          )}
-          <button
-            onClick={() => navigate(`/admin/inspection/${booking.id}?type=checkin`)}
-            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium border border-primary/20"
-          >
-            <LogIn size={13} /> Entrega
-          </button>
-          <button
-            onClick={() => navigate(`/admin/inspection/${booking.id}?type=checkout`)}
-            className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-muted text-foreground hover:bg-muted/80 transition-colors font-medium border border-border/40"
-          >
-            <LogOut size={13} /> Devolução
-          </button>
-          <button
-            onClick={() => navigate(`/admin/inspection/report/${booking.id}`)}
-            className="flex items-center justify-center w-9 h-9 rounded-lg bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border/40"
-            title="Ver laudo"
-          >
-            <FileText size={15} />
-          </button>
-          {canSendContract && ["not_sent", "failed"].includes(booking.contract_status || "not_sent") && (
-            <div className="flex items-center gap-2">
-              {!canActuallySendContract && (
-                <div className="flex items-center gap-1.5 text-[11px] px-2.5 py-2 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-medium">
-                  <AlertTriangle size={12} />
-                  <span>Cliente sem {missingContractFields.join(", ")}</span>
-                </div>
-              )}
+              <LogIn size={13} /> Entrega
+            </button>
+            <button
+              onClick={() => navigate(`/admin/inspection/${booking.id}?type=checkout`)}
+              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border/40 bg-muted px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted/80 sm:min-h-9"
+            >
+              <LogOut size={13} /> Devolução
+            </button>
+            {canSendContract && ["not_sent", "failed"].includes(booking.contract_status || "not_sent") && canActuallySendContract && (
               <button
                 onClick={handleSendContract}
-                disabled={sendingContract || !canActuallySendContract}
-                title={!canActuallySendContract ? `Preencha: ${missingContractFields.join(", ")}` : undefined}
-                className="flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={sendingContract}
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-9"
               >
                 {sendingContract ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                 {sendingContract ? "Enviando..." : "Enviar Contrato"}
               </button>
+            )}
+          </div>
+
+          {canSendContract && ["not_sent", "failed"].includes(booking.contract_status || "not_sent") && !canActuallySendContract && (
+            <div className="grid gap-2 sm:flex sm:justify-end">
+              <div className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-2 text-center text-[11px] font-medium text-amber-700 dark:text-amber-400">
+                <AlertTriangle size={12} className="shrink-0" />
+                <span className="min-w-0">Cliente sem {missingContractFields.join(", ")}</span>
+              </div>
+              <button
+                onClick={handleSendContract}
+                disabled
+                title={`Preencha: ${missingContractFields.join(", ")}`}
+                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground opacity-50 disabled:cursor-not-allowed"
+              >
+                <Send size={13} />
+                Enviar Contrato
+              </button>
             </div>
           )}
-          <button
-            onClick={() => setIncidentOpen(true)}
-            className="flex items-center justify-center w-9 h-9 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors shadow-sm"
-            title="Registrar ocorrência"
-          >
-            <AlertTriangle size={15} />
-          </button>
-          {isAdmin && (
+
+          <div className="grid grid-cols-3 gap-2 sm:flex sm:justify-end">
             <button
-              onClick={() => setEditOpen(true)}
-              className="flex items-center justify-center w-9 h-9 rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors"
-              title="Editar reserva"
+              onClick={() => navigate(`/admin/inspection/report/${booking.id}`)}
+              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-border/40 bg-muted px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:h-9 sm:min-h-0 sm:w-9 sm:px-0"
+              title="Ver laudo"
+              aria-label="Ver laudo"
             >
-              <Pencil size={15} />
+              <FileText size={15} />
+              <span className="sm:sr-only">Laudo</span>
             </button>
-          )}
+            <button
+              onClick={() => setIncidentOpen(true)}
+              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-destructive px-3 text-xs font-medium text-destructive-foreground shadow-sm transition-colors hover:bg-destructive/90 sm:h-9 sm:min-h-0 sm:w-9 sm:px-0"
+              title="Registrar ocorrência"
+              aria-label="Registrar ocorrência"
+            >
+              <AlertTriangle size={15} />
+              <span className="sm:sr-only">Ocorrência</span>
+            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setEditOpen(true)}
+                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-foreground px-3 text-xs font-medium text-background transition-colors hover:bg-foreground/90 sm:h-9 sm:min-h-0 sm:w-9 sm:px-0"
+                title="Editar reserva"
+                aria-label="Editar reserva"
+              >
+                <Pencil size={15} />
+                <span className="sm:sr-only">Editar</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
