@@ -232,7 +232,9 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                       onAuxClick={(e) => handleAuxClick(item.url, e)}
                       isActive={active}
                       tooltip={item.title}
-                      className={`relative h-8 rounded-lg px-3 transition-all duration-150 ${
+                      className={`relative h-8 rounded-lg transition-all duration-150 ${
+                        collapsed ? "justify-center px-0 [&>svg]:mx-auto" : "px-3"
+                      } ${
                         active
                           ? "bg-sidebar-primary/12 text-sidebar-primary font-semibold hover:bg-sidebar-primary/15 hover:text-sidebar-primary"
                           : "text-sidebar-foreground/65 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
