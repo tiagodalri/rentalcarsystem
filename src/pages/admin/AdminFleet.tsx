@@ -140,7 +140,7 @@ export default function AdminFleet() {
     <div className="space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Frota</h1>
+          <h1 className="admin-h1">Frota</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {vehicles.length} veículos cadastrados · {vehicles.filter((v) => v.published).length} publicados
           </p>
