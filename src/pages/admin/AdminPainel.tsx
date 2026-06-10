@@ -123,6 +123,12 @@ export default function AdminPainel() {
 
   if (loading) return <DashboardSkeleton />;
 
+  // ───── Mobile-first layout ─────
+  if (isMobile) {
+    return <MobilePainel bookings={bookings} vehicles={vehicles} onRefresh={load} />;
+  }
+
+
   return (
     <div className="space-y-6">
       {/* Header */}
