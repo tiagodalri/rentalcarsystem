@@ -296,7 +296,156 @@ export default function AdminInspectionReport() {
   // Layout
   // ============================================================
   return (
-    <div className="space-y-5 max-w-5xl mx-auto pb-12 print:p-0">
+    <>
+      {/* ============ PRINT STYLES (papel timbrado Zeus) ============ */}
+      <style>{`
+        @media print {
+          @page {
+            size: A4;
+            margin: 22mm 18mm 22mm 18mm;
+          }
+          html, body {
+            background: #ffffff !important;
+            color: #0a0a0a !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+            font-size: 10pt;
+            line-height: 1.45;
+          }
+          /* Hide entire admin chrome */
+          body * { visibility: hidden !important; }
+          .laudo-print, .laudo-print * { visibility: visible !important; }
+          .laudo-print {
+            position: absolute;
+            inset: 0;
+            left: 0; top: 0; right: 0;
+            margin: 0;
+            padding: 0;
+            max-width: 100% !important;
+            width: 100% !important;
+            background: #ffffff !important;
+          }
+          .laudo-letterhead, .laudo-letterhead * { visibility: visible !important; }
+          .laudo-footer, .laudo-footer * { visibility: visible !important; }
+
+          /* Running letterhead on every page */
+          .laudo-letterhead {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 18mm;
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6mm 18mm 4mm 18mm;
+            border-bottom: 0.4pt solid #0a0a0a;
+            background: #ffffff;
+            z-index: 9999;
+          }
+          .laudo-footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 14mm;
+            display: flex !important;
+            align-items: center;
+            justify-content: space-between;
+            padding: 3mm 18mm 5mm 18mm;
+            border-top: 0.4pt solid #d4d4d4;
+            background: #ffffff;
+            font-size: 7.5pt;
+            color: #525252;
+            z-index: 9999;
+          }
+          .laudo-page-number::after {
+            content: "Página " counter(page) " de " counter(pages);
+          }
+
+          /* Card-level controls */
+          .laudo-print .lov-card,
+          .laudo-print [class*="rounded-xl"],
+          .laudo-print [class*="rounded-lg"] {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          .laudo-print h2, .laudo-print h3, .laudo-print h4 {
+            page-break-after: avoid;
+            break-after: avoid;
+          }
+          .laudo-print img {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          .laudo-print .print-break-before {
+            page-break-before: always;
+            break-before: page;
+          }
+
+          /* Neutralize gradients/shadows for print clarity */
+          .laudo-print [class*="bg-gradient"] {
+            background: #fafafa !important;
+          }
+          .laudo-print [class*="shadow"] { box-shadow: none !important; }
+          .laudo-print [class*="backdrop-blur"] { backdrop-filter: none !important; }
+
+          /* Force borders to be visible & subtle */
+          .laudo-print [class*="border"] {
+            border-color: #d4d4d4 !important;
+          }
+
+          /* Hide all interactive controls inside the laudo */
+          .laudo-print button:not(.allow-print),
+          .laudo-print a[role="button"]:not(.allow-print) {
+            display: none !important;
+          }
+
+          /* Outer wrapper offset so content does not collide with running header/footer */
+          .laudo-content {
+            margin-top: 8mm;
+            margin-bottom: 8mm;
+          }
+        }
+      `}</style>
+
+      {/* ============ LETTERHEAD (print only) ============ */}
+      <div className="laudo-letterhead hidden print:flex">
+        <div className="flex items-center gap-3">
+          <img src={zeusLogo} alt="Zeus Rental Car" style={{ height: "10mm", width: "auto" }} />
+          <div className="leading-tight">
+            <p style={{ fontSize: "8pt", letterSpacing: "0.2em", textTransform: "uppercase", color: "#737373", fontWeight: 600 }}>
+              Zeus Rental Car
+            </p>
+            <p style={{ fontSize: "7pt", color: "#737373", marginTop: "0.5mm" }}>
+              Premium Concierge · Orlando, FL · +1 689 298 1754
+            </p>
+          </div>
+        </div>
+        <div className="text-right leading-tight">
+          <p style={{ fontSize: "8pt", letterSpacing: "0.2em", textTransform: "uppercase", color: "#737373", fontWeight: 600 }}>
+            Laudo de Serviço
+          </p>
+          <p style={{ fontSize: "9pt", fontFamily: "ui-monospace, SFMono-Regular, monospace", color: "#0a0a0a", marginTop: "0.5mm" }}>
+            {reportNumber}
+          </p>
+        </div>
+      </div>
+
+      {/* ============ FOOTER (print only) ============ */}
+      <div className="laudo-footer hidden print:flex">
+        <div>
+          <p style={{ fontWeight: 600, color: "#0a0a0a" }}>Zeus Rental Car</p>
+          <p style={{ marginTop: "0.5mm" }}>www.zeusrentalcar.com · contato@zeusrentalcar.com</p>
+        </div>
+        <div className="text-center">
+          <p style={{ letterSpacing: "0.15em", textTransform: "uppercase" }}>Documento Confidencial</p>
+          <p style={{ marginTop: "0.5mm" }}>Reserva {booking.booking_number}</p>
+        </div>
+        <div className="text-right">
+          <p className="laudo-page-number" style={{ fontWeight: 600, color: "#0a0a0a" }}></p>
+          <p style={{ marginTop: "0.5mm" }}>Emitido em {new Date().toLocaleDateString("pt-BR")}</p>
+        </div>
+      </div>
+
+      <div className="laudo-print space-y-5 max-w-5xl mx-auto pb-12 print:max-w-full print:mx-0">
       {/* Top bar */}
       <div className="flex items-center gap-3 print:hidden">
         <Button variant="ghost" size="icon" onClick={() => navigate("/admin/bookings")}>
@@ -312,6 +461,9 @@ export default function AdminInspectionReport() {
           <Printer size={14} className="mr-1.5" /> Imprimir / PDF
         </Button>
       </div>
+
+      <div className="laudo-content space-y-5">
+
 
       {/* ===== EXECUTIVE HEADER ===== */}
       <Card className="border-border/50 overflow-hidden">
