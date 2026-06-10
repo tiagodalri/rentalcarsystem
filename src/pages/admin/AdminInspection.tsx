@@ -41,6 +41,8 @@ const PHOTO_REFERENCES: Record<string, string> = {
   "Roda Dianteira Dir.": refRodaDD,
   "Roda Traseira Esq.": refRodaTE,
   "Roda Traseira Dir.": refRodaTD,
+  "Estribo Esq.": refLatEsq,
+  "Estribo Dir.": refLatDir,
 };
 
 type DamageItem = {
