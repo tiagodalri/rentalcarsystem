@@ -905,10 +905,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     const stopFollowingFromUser = () => {
       const sincePan = performance.now() - programmaticPanAtRef.current;
       const sinceZoom = performance.now() - programmaticZoomAtRef.current;
-      if (sincePan > PROGRAMMATIC_PAN_GUARD_MS && followRef.current) {
-        setFollowing(false);
-      }
-      if (sinceZoom > PROGRAMMATIC_ZOOM_GUARD_MS && followRef.current) {
+      if (sincePan > PROGRAMMATIC_PAN_GUARD_MS && sinceZoom > PROGRAMMATIC_ZOOM_GUARD_MS && followRef.current) {
         setFollowing(false);
       }
     };
