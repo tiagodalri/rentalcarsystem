@@ -1150,6 +1150,14 @@ export default function AdminVehicleDetail() {
               </div>
               <p className="text-[11px] text-muted-foreground -mt-4 mb-6">Número do rastreador Bouncie — encontrado em Users & Devices no portal.</p>
 
+              {/* Comercial */}
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Comercial</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {renderField("Diária (USD)", "daily_price_usd", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—")}
+                {renderField("Caução padrão (USD)", "default_deposit_amount", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—")}
+                {renderField("Franquia padrão (USD)", "default_franchise_amount", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—")}
+              </div>
+
               {/* Financial */}
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Financeiro</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
