@@ -1275,6 +1275,7 @@ export default function AdminBookings() {
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Status</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold min-w-[120px] border-l-2 border-border/60 pl-5">Progresso</th>
                       <th className="px-3 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Inspeção</th>
+                      <th className="px-3 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Laudo</th>
                       <th className="px-5 py-3 w-10"></th>
                     </tr>
                   </thead>
