@@ -1,92 +1,106 @@
-## Objetivo
 
-Transformar o admin em um app mobile de verdade — densidade certa, bordas e espaçamentos consistentes, áreas de toque confortáveis, transições sutis, zero sensação de "site espremido". Manter a estética **private-bank** já registrada (off-white/preto, Inter, tabular-nums), só refinando.
+# Redesign Mobile/PWA — Experiência Nativa
 
-Como o admin tem ~25 páginas, divido em **4 ondas**. Após cada onda você revisa antes da próxima.
+Objetivo: cada tela do admin no celular vira uma versão própria, pensada de baixo pra cima pro polegar — não uma redução do desktop. Trabalho em **fases sequenciais**, cada uma entregue completa e testável antes da próxima.
 
----
+## Fundação compartilhada (Fase 0 — faço antes de tudo)
 
-## Onda 1 — Fundação (toca tudo de uma vez)
+Vou criar primitivos que todas as próximas fases vão usar. Sem isso, cada tela vira improviso de novo.
 
-São as mudanças que sozinhas elevam a cara do app inteiro, sem mexer página por página.
+- **MobileSheet** — bottom sheet com handle, snap points, swipe-to-dismiss, safe-area. Substitui Dialog em mobile.
+- **MobileListItem** — linha 56pt+ com avatar/ícone, título, subtítulo, badge, chevron, área de toque inteira clicável.
+- **SwipeAction** — swipe-left/right em itens de lista pra ações rápidas (arquivar, confirmar, ligar).
+- **PullToRefresh** — gesto nativo em listas que dependem de dados frescos.
+- **SegmentedControl** — substitui Tabs em mobile (iOS-style).
+- **MobileFormField** — input com label flutuante, alvo 48pt, teclado correto (`inputMode`, `enterKeyHint`), scroll-into-view quando focado.
+- **StickyActionBar** — barra inferior fixa pra ação primária (acima do bottom nav, respeita safe-area).
+- **Hook `useIsMobileApp`** — `useIsMobile()` + detecção de standalone PWA pra decidir layouts.
 
-1. **Tokens mobile no `index.css`**
-   - Escala tipográfica mobile (`.admin-h1`, `.admin-h2`, `.admin-section-title`, `.admin-kpi`, `.admin-label`) recalibrada para 360–414px.
-   - Espaçamento padrão: gap 12 / pad 14 mobile → 16/24 desktop (via utilitários `.admin-stack`, `.admin-pad`, `.admin-gap`).
-   - Raio de bordas unificado: `0.625rem` mobile / `0.75rem` desktop (cards, inputs, botões).
-   - Bordas hairline (`border-border/50`) e sombras quase imperceptíveis (private-bank style).
-   - `.admin-card`, `.admin-card-row`, `.admin-list-row` com bordas e divisões alinhadas pixel-perfect.
-   - `font-feature-settings` ligado globalmente: `"ss01","cv11","tnum"` → números mais limpos.
-
-2. **Shell mobile (`AdminLayout`, `AdminMobileHeader`, `AdminBottomNav`, `AdminFab`)**
-   - Header mobile: altura 56px, título com `tracking-tight` e peso 500, separador hairline em vez de `border-border/40` cheio.
-   - Safe-area top: `max(env(safe-area-inset-top), 8px)` para não colar no notch.
-   - Bottom nav: 64px → 56px de altura útil + safe-area; ícones 22px, label `text-[10px]` em `font-medium` (não uppercase pesado), indicador ativo virá uma "barra-pílula" 4×4 no topo do item ativo, com transição.
-   - FAB reposicionado: `right-4 bottom-[calc(64px+safe+12px)]`, sombra mais leve, ring sutil no active.
-   - Conteúdo principal: padding lateral 16px, topo 12px, bottom reserva `64+safe+12` (já existe mas refinado).
-
-3. **Componentes base globais**
-   - `Button`: tamanho default mobile 44px (atende WCAG), `size="sm"` vira 40px (era 36px). `size="icon"` mobile = 44×44.
-   - `Input`, `Select`, `Textarea`: altura 44px mobile, font-size 16px (impede zoom do iOS), label acima com `text-xs` consistente.
-   - `Dialog`: em mobile vira sheet de baixo (full-width, rounded-t-2xl, drag handle no topo, max-h 92dvh com scroll interno), em vez do dialog centralizado que estoura a tela.
-   - `Card`: padding mobile 14px / desktop 20px, divisões internas com `border-border/40`.
-   - `Badge`: altura 22px com `text-[10px]` tabular, ponto colorido inline padronizado (verde/âmbar/azul/cinza/vermelho).
-   - `Switch`, `Checkbox`, `Radio`: tap-area 44px via wrapper.
-
-4. **PWA polish**
-   - Manifest já tem ícones e shortcuts — vou só validar `display_override: ["standalone"]` e `theme_color` reagindo ao tema atual via JS (já tem meta light/dark).
-   - `apple-mobile-web-app-status-bar-style` mantido `black-translucent` (combina com fundo escuro).
+Tudo isolado em `src/components/mobile/*` e `src/hooks/`, sem mexer no desktop.
 
 ---
 
-## Onda 2 — Listas e tabelas (a dor #1)
+## Fase 1 — Painel (`/admin`)
 
-Reservas, Frota, Clientes, Financeiro hoje usam tabelas que viram um aperto no celular.
+Hoje é uma versão comprimida do desktop. Vira:
 
-1. **Padronizar `<MobileListCard>`** — um único componente reusável (avatar opcional, título, linha 2 metadados, status à direita, chevron) usado por:
-   - `AdminBookings` (já tem `MobileBookingCard` — uniformizar).
-   - `AdminFleet` → `FleetGrid` mobile já existe; refinar e mover o switch "site" para um sheet de ações.
-   - `AdminCustomers` → criar `MobileCustomerCard`.
-   - `AdminFinance` → criar `MobileTransactionRow`.
-   - `AdminTeam` → criar `MobileTeamMemberCard`.
+- **Hero "agora"**: card grande no topo com a próxima ação (check-in/out das próximas 2h), nome do cliente, horário, botão primário "Iniciar inspeção" full-width.
+- **KPIs em scroll horizontal** (chips): Frota rodando · Disponíveis · Em preparo · Pendências. Tap abre sheet com lista.
+- **Timeline do dia**: lista vertical de check-ins/check-outs, agrupada por período (Manhã/Tarde/Noite), com swipe-action pra abrir reserva ou ligar pro cliente.
+- **Atalhos rápidos**: 4 botões grandes (Nova reserva · Nova inspeção · Live · Frota).
+- Remove KPIs duplicados e textos longos do desktop.
 
-2. **Headers de página padronizados** — H1 + subtítulo + ações primárias (botão único + ícone "filtro") via componente `<AdminPageHeader />`. Hoje cada página inventa o seu.
+## Fase 2 — Operação / Hoje (`/admin/ops-today`)
 
-3. **Filtros em sheet** — em vez de chips/dropdowns espalhados, um botão "Filtros" abre sheet com tudo (status, datas, busca avançada), botão "Aplicar" sticky no rodapé do sheet.
+- Header com data + navegação dia-anterior/próximo em swipe horizontal (gesto, não só botões).
+- Segmented control: **Retiradas · Devoluções · Em preparo**.
+- Lista de cards grandes com foto do veículo, cliente, horário, status (atrasada em vermelho), botão "Inspeção" primário.
+- Swipe-right no card = abrir reserva. Swipe-left = ligar cliente / WhatsApp.
+- FAB contextual já existe — passa a "Nova inspeção rápida".
 
-4. **Toolbar de busca sticky** abaixo do header mobile, com clear icon e contador de resultados.
+## Fase 3 — Reservas (`/admin/bookings` + detalhe + nova)
+
+- Lista vira cards (não tabela). Cada card: cliente, veículo, datas compactas (10-13 jun), valor, status badge.
+- Filtros viram bottom sheet com chips selecionáveis (status, período, plano) — não dropdowns.
+- Busca colapsada vira ícone que expande full-width.
+- **Detalhe da reserva** em mobile: layout em seções colapsáveis (Cliente · Veículo · Pagamento · Contrato · Timeline), action bar fixa embaixo com ação primária por status (Confirmar / Iniciar check-in / Finalizar).
+- **Nova reserva mobile**: wizard step-by-step (1 campo grande por vez quando faz sentido), barra de progresso, teclado certo por campo.
+
+## Fase 4 — Frota + Inspeção
+
+- **Frota**: cards grid 2 colunas com foto do carro, modelo, placa, status colorido. Filtros em sheet.
+- **Detalhe do veículo**: hero image full-width, abas em segmented control (Visão · Agenda · Histórico · Documentos).
+- **Inspeção** (já parcialmente ok): wizard em tela cheia, um passo por vez, action bar fixa, foto via câmera nativa (já feito), preview grande, swipe pra reordenar fotos.
+
+## Fase 5 — Clientes + Detalhe
+
+- Lista estilo "contatos do iPhone": avatar + nome, agrupada por inicial, busca sticky no topo, swipe pra ligar/WhatsApp.
+- Detalhe: hero com avatar grande, ações inline (ligar, WhatsApp, email), seções colapsáveis (Documentos, Reservas, Notas, Tags).
+
+## Fase 6 — Financeiro + Relatórios + Equipe + Configurações
+
+- Financeiro: KPIs em scroll horizontal, transações como lista de extratos bancários (data agrupada, valor à direita, swipe pra editar/excluir).
+- Relatórios: gráficos full-width, tap pra zoom, sem tabelas largas.
+- Equipe/Configurações: lista no estilo iOS Settings (linhas com label + valor à direita + chevron).
+
+## Fase 7 — Live (`/admin/live`)
+
+- Mapa full-screen como base. Lista de veículos vira bottom sheet com snap points (peek/half/full).
+- KPIs no topo viram chips compactos em scroll horizontal.
+- Tap em veículo abre detail sheet por cima do mapa.
 
 ---
 
-## Onda 3 — Formulários, diálogos e detalhes
+## Princípios aplicados em todas as fases
 
-1. **`NewBookingDialog`, `EditBookingDialog`, `BookingIncidentDialog`, `InformalBookingDialog`** → migrar para o novo `<Sheet>` mobile com seções acordeáveis.
-2. **`AdminBookingDetail`, `AdminVehicleDetail`, `AdminCustomerDetail`** → 3 colunas viram 1 coluna com seções em cards, tabs sticky no topo, ações primárias em barra fixa no rodapé (acima do bottom-nav).
-3. **Datepickers mobile** — usar input nativo `type="date"` em mobile (mais rápido e familiar) e calendário rich em desktop.
-4. **Wizard de veículo (`VehicleWizard`)** — stepper compacto no topo, navegação anterior/próximo sticky no rodapé.
+- Nada de tabelas em mobile — sempre cards/listas.
+- Alvos de toque mínimo 44pt, primários 56pt+.
+- Ação primária sempre visível (action bar fixa ou FAB), nunca escondida em menu.
+- Modais → bottom sheets.
+- Tabs → segmented control.
+- Dropdowns → bottom sheet com opções.
+- Forms longos → wizards / seções colapsáveis.
+- Toda lista que depende de dados frescos → pull-to-refresh.
+- Sem texto duplicado entre header e conteúdo.
+- Safe-area respeitada em topo e base sempre.
 
----
+## Como vou trabalhar
 
-## Onda 4 — Agenda, Live, Painel, Inspeção
+1. Faço a Fase 0 (fundação) e te aviso.
+2. Faço a Fase 1 (Painel), te mostro pra testar no PWA do celular.
+3. Você aprova ou pede ajuste pontual.
+4. Sigo automaticamente Fase 2 → 7, sempre te mostrando ao final de cada uma.
 
-1. **Agenda da Frota** — em mobile vira lista vertical por veículo com mini-timeline horizontal scrollável (já é Gantt, precisa adaptar).
-2. **Painel** — KPIs em grid 2×N, com a sequência de prioridade reordenada para mobile.
-3. **Live tracking** — mapa full-bleed com card flutuante inferior arrastável (já existe lógica, refinar).
-4. **Inspeção** — mantém o fluxo atual, só ajusta paddings e botão de câmera maior.
+Desktop **não é tocado** em nenhuma fase. Tudo é condicionado a `useIsMobile()` / breakpoint `lg`.
 
----
+## Riscos / pontos cegos
 
-## Como vamos validar
+- **Tamanho**: são ~25 telas mobile sendo reescritas. Vai durar várias rodadas. Se quiser ritmo mais rápido em troca de menos polimento, me avisa.
+- **Componentes compartilhados**: alguns componentes (ex: `BookingCard`, `FleetGrid`) hoje são usados em desktop e mobile. Vou criar variantes mobile-only quando o desktop sofrer; em alguns casos, refatoro o componente pra ter dois modos.
+- **Gestos (swipe-action, pull-to-refresh)**: implemento com touch events nativos + Framer Motion (já tá no projeto). Sem libs novas.
+- **Performance**: listas grandes (reservas, clientes) vou virtualizar com `react-window` se passarem de ~50 itens — adiciona dep pequena.
+- **Não vou mexer em**: regras de negócio, schema do banco, autenticação, edge functions. Só camada de apresentação mobile.
 
-Após cada onda eu listo:
-- Arquivos alterados.
-- Como testar (3–5 rotas-chave + viewport 390×844 e 414×896).
-- Riscos / regressões possíveis no desktop.
+## Confirmação
 
-Você aprova/ajusta antes de eu seguir para a próxima onda.
-
----
-
-## Confirma?
-
-Quer que eu comece pela **Onda 1 (fundação)** agora? Ela é a que dá retorno visual imediato em **toda** a aplicação e é pré-requisito para as outras ondas.
+Se ok com esse plano, começo agora pela **Fase 0 + Fase 1** numa mesma entrega. Quer ajustar prioridade de alguma fase ou pular alguma?
