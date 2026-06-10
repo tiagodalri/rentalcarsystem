@@ -43,6 +43,7 @@ const AdminSettings = lazy(() => import("./pages/admin/AdminSettings.tsx"));
 const AdminLive = lazy(() => import("./pages/admin/AdminLive.tsx"));
 const AdminInspection = lazy(() => import("./pages/admin/AdminInspection.tsx"));
 const AdminInspectionCompare = lazy(() => import("./pages/admin/AdminInspectionCompare.tsx"));
+const AdminInspectionReport = lazy(() => import("./pages/admin/AdminInspectionReport.tsx"));
 const AdminVehicleHistory = lazy(() => import("./pages/admin/AdminVehicleHistory.tsx"));
 const AdminVehicleDetail = lazy(() => import("./pages/admin/AdminVehicleDetail.tsx"));
 const AdminFleetReport = lazy(() => import("./pages/admin/AdminFleetReport.tsx"));
@@ -143,6 +144,7 @@ const App = () => (
                 <Route path="settings" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminSettings /></AdminSuspense></RequireRole>} />
                 <Route path="inspection/:bookingId" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminInspection /></AdminSuspense></RequireRole>} />
                 <Route path="inspection/compare/:bookingId" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminInspectionCompare /></AdminSuspense></RequireRole>} />
+                <Route path="inspection/report/:bookingId" element={<RequireRole roles={["admin","operations","finance"]}><AdminSuspense><AdminInspectionReport /></AdminSuspense></RequireRole>} />
                 <Route path="vehicle-history/:vehicleId" element={<RequireRole roles={["admin","finance","operations"]}><AdminSuspense><AdminVehicleHistory /></AdminSuspense></RequireRole>} />
                 <Route path="fleet/:vehicleId" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminVehicleDetail /></AdminSuspense></RequireRole>} />
                 <Route path="report" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminFleetReport /></AdminSuspense></RequireRole>} />
