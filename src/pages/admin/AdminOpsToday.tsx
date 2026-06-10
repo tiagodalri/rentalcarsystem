@@ -161,12 +161,12 @@ export default function AdminOpsToday() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3">
 
       {/* ────────── HEADER ────────── */}
-      <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-5">
+      <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
         <div className="min-w-0">
-          <div className="inline-flex items-center gap-1.5 mb-3">
+          <div className="inline-flex items-center gap-1.5 mb-1.5">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -175,47 +175,49 @@ export default function AdminOpsToday() {
               Painel de operação · {isToday ? "hoje" : "outro dia"}
             </span>
           </div>
-          <h1 className="admin-h1">
-            <span className="capitalize">{dayLabel}</span>
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1 capitalize">{weekdayLabel}</p>
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <h1 className="admin-h1 text-2xl leading-none">
+              <span className="capitalize">{dayLabel}</span>
+            </h1>
+            <p className="text-xs text-muted-foreground capitalize">{weekdayLabel}</p>
+          </div>
 
           {/* Date navigation */}
-          <div className="mt-3 inline-flex items-center gap-1 rounded-xl border border-border/50 bg-card/70 p-1 shadow-sm">
+          <div className="mt-2 inline-flex items-center gap-1 rounded-xl border border-border/50 bg-card/70 p-1 shadow-sm">
             <button
               onClick={() => setSelectedDate(d => addDays(d, -1))}
-              className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
               aria-label="Dia anterior"
               title="Dia anterior"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={14} />
             </button>
             <button
               onClick={() => setSelectedDate(startOfDay(new Date()))}
               disabled={isToday}
-              className={`h-8 px-3 inline-flex items-center gap-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`h-7 px-2.5 inline-flex items-center gap-1.5 rounded-lg text-[11px] font-semibold transition-colors ${
                 isToday
                   ? "bg-muted text-muted-foreground cursor-default"
                   : "text-foreground hover:bg-muted"
               }`}
               title="Voltar para hoje"
             >
-              <CalendarDays size={13} />
+              <CalendarDays size={12} />
               {isToday ? "Hoje" : format(selectedDate, "dd 'de' MMM", { locale: ptBR })}
             </button>
             <button
               onClick={() => setSelectedDate(d => addDays(d, 1))}
-              className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
               aria-label="Próximo dia"
               title="Próximo dia"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={14} />
             </button>
           </div>
         </div>
 
         {/* Compact KPIs */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 xl:min-w-[640px]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 xl:min-w-[560px]">
           <KpiCard
             icon={<CalendarCheck size={18} className="text-emerald-600 dark:text-emerald-400" />}
             iconBg="bg-emerald-500/15"
