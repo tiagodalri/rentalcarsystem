@@ -9,11 +9,13 @@ import Footer from "@/components/Footer";
 import WhatsAppBubble from "@/components/WhatsAppBubble";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { useVehiclesDB, categoryToKey, buildPriceMap } from "@/hooks/useVehiclesDB";
+import { useVehiclesPricingMap } from "@/hooks/useVehiclePricing";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useAuth } from "@/hooks/useAuth";
 import { calculateAge, isBlockedAge, isYoungDriver, YOUNG_DRIVER_SURCHARGE } from "@/lib/age";
 
 interface SearchVehicle {
+  id: string;
   name: string;
   categoryKey: string;
   passengers: number;
@@ -41,6 +43,7 @@ const SearchResults = () => {
 
   // Build vehicles list from DB
   const vehicles: SearchVehicle[] = dbVehicles.map((dbv) => ({
+    id: dbv.id,
     name: dbv.name,
     categoryKey: categoryToKey(dbv.category),
     passengers: dbv.passengers,
@@ -66,6 +69,13 @@ const SearchResults = () => {
   const days = pickupDate && returnDate
     ? Math.max(1, Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)))
     : 1;
+
+  // Fetch real pricing (seasons, overrides, weekend multipliers, duration discounts)
+  const { map: pricingMap } = useVehiclesPricingMap(
+    vehicles.map((v) => v.id),
+    pickupDate,
+    returnDate,
+  );
 
   const whatsappMsg = (name: string) => {
     const dateInfo = pickupDate
@@ -172,8 +182,11 @@ const SearchResults = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {vehicles.map((v, i) => {
               const basePrice = vehiclePrices[v.name] || 99;
-              const dailyPrice = youngDriver ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
-              const totalPrice = dailyPrice * days;
+              const pricing = pricingMap[v.id];
+              const ruleSubtotal = pricing?.subtotal_rental ?? basePrice * days;
+              const avgDaily = pricing?.avg_per_day ?? basePrice;
+              const dailyDisplay = youngDriver ? Math.ceil(avgDaily * (1 + YOUNG_DRIVER_SURCHARGE)) : avgDaily;
+              const totalPrice = youngDriver ? Math.ceil(ruleSubtotal * (1 + YOUNG_DRIVER_SURCHARGE)) : ruleSubtotal;
 
               const bookingUrl = `/reserva/${encodeURIComponent(v.name)}?${searchParams.toString()}`;
 
@@ -242,7 +255,7 @@ const SearchResults = () => {
                       <div>
                         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">A partir de</p>
                         <p className="text-2xl font-black text-foreground">
-                          {formatPrice(dailyPrice)}
+                          {formatPrice(dailyDisplay)}
                           <span className="text-sm font-medium text-muted-foreground"> /dia</span>
                         </p>
                         {days > 1 && (
