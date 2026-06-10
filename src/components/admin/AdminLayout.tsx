@@ -73,7 +73,7 @@ export default function AdminLayout() {
                 >
                   {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </Button>
-                <LanguageSwitcher />
+                <LanguageSwitcher className="h-9 w-9 justify-center rounded-full hover:bg-accent/60" />
               </div>
             </header>
             <main
