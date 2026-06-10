@@ -676,6 +676,14 @@ export default function AdminInspection() {
       <input ref={odometerPhotoRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleOdometerPhoto} />
       <input ref={fuelPhotoRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFuelPhoto} />
 
+      {/* Webcam dialog — only used on desktop/notebook (no touch). Mobile uses native camera via input capture. */}
+      <WebcamCaptureDialog
+        open={!!webcamTarget}
+        onClose={() => setWebcamTarget(null)}
+        onCapture={handleWebcamFile}
+        title={webcamTitle}
+      />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate("/admin/bookings")}>
