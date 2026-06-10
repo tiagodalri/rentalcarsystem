@@ -28,6 +28,7 @@ import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import { AdminShellSkeleton } from "./components/skeletons/AdminShellSkeleton.tsx";
 import { AccountSkeleton } from "./components/skeletons/AccountSkeleton.tsx";
 import InstallPrompt from "./components/InstallPrompt.tsx";
+import { useSwUpdateOnNavigate } from "./hooks/useSwUpdateOnNavigate.ts";
 
 // Lazy-loaded: client authenticated pages
 const MyAccount = lazy(() => import("./pages/MyAccount.tsx"));
@@ -102,6 +103,11 @@ const ScrollToTop = () => {
   return null;
 };
 
+const SwUpdateOnNavigate = () => {
+  useSwUpdateOnNavigate();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -113,6 +119,7 @@ const App = () => (
           <InstallPrompt />
           <BrowserRouter>
             <ScrollToTop />
+            <SwUpdateOnNavigate />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/share/track/:token" element={<PublicTrack />} />
