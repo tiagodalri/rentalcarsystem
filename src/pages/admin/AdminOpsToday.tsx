@@ -165,20 +165,53 @@ export default function AdminOpsToday() {
 
       {/* ────────── HEADER ────────── */}
       <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-5">
-        <div>
+        <div className="min-w-0">
           <div className="inline-flex items-center gap-1.5 mb-3">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60 animate-ping" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
             <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-emerald-600 dark:text-emerald-400">
-              Painel de operação · ao vivo
+              Painel de operação · {isToday ? "hoje" : "outro dia"}
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
             <span className="capitalize">{dayLabel}</span>
           </h1>
           <p className="text-sm text-muted-foreground mt-1 capitalize">{weekdayLabel}</p>
+
+          {/* Date navigation */}
+          <div className="mt-3 inline-flex items-center gap-1 rounded-xl border border-border/50 bg-card/70 p-1 shadow-sm">
+            <button
+              onClick={() => setSelectedDate(d => addDays(d, -1))}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Dia anterior"
+              title="Dia anterior"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              onClick={() => setSelectedDate(startOfDay(new Date()))}
+              disabled={isToday}
+              className={`h-8 px-3 inline-flex items-center gap-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                isToday
+                  ? "bg-muted text-muted-foreground cursor-default"
+                  : "text-foreground hover:bg-muted"
+              }`}
+              title="Voltar para hoje"
+            >
+              <CalendarDays size={13} />
+              Hoje
+            </button>
+            <button
+              onClick={() => setSelectedDate(d => addDays(d, 1))}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Próximo dia"
+              title="Próximo dia"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Compact KPIs */}
@@ -189,7 +222,7 @@ export default function AdminOpsToday() {
             label="Retiradas"
             value={pickups.length}
             valueColor="text-emerald-600 dark:text-emerald-400"
-            sub={pickups.length === 1 ? "programada para hoje" : "programadas para hoje"}
+            sub={pickups.length === 1 ? "programada para o dia" : "programadas para o dia"}
             waveColor="text-emerald-500/15"
           />
           <KpiCard
@@ -198,7 +231,7 @@ export default function AdminOpsToday() {
             label="Devoluções"
             value={returns.length}
             valueColor="text-amber-600 dark:text-amber-400"
-            sub={returns.length === 1 ? "programada para hoje" : "programadas para hoje"}
+            sub={returns.length === 1 ? "programada para o dia" : "programadas para o dia"}
             waveColor="text-amber-500/15"
           />
           <KpiCard
@@ -212,6 +245,7 @@ export default function AdminOpsToday() {
           />
         </div>
       </div>
+
 
       {/* ────────── PICKUPS + RETURNS (in evidence) ────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
