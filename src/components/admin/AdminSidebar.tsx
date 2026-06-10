@@ -13,7 +13,7 @@ import {
   CalendarDays,
   ChevronDown,
 } from "lucide-react";
-import zeusLogo from "@/assets/zeus-logo-hd.png";
+import zeusLogo from "@/assets/zeus-logo-mark.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAdminTabs } from "@/hooks/useAdminTabs";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
@@ -207,19 +207,13 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
             src={zeusLogo}
             alt="Zeus Rental Car"
             className={`${
-              collapsed ? "h-8 max-w-[36px]" : "h-12 max-w-[110px]"
-            } w-auto object-contain opacity-90 transition-all`}
-
+              collapsed ? "h-9 max-w-[36px]" : "h-14 max-w-[56px]"
+            } w-auto object-contain opacity-95 transition-all`}
           />
           {!collapsed && (
-            <>
-              <div className="mt-2 text-[15px] font-bold tracking-[0.14em] text-sidebar-foreground text-center leading-none">
-                ZEUS RENTAL CAR
-              </div>
-              <div className="mt-1.5 text-[9px] tracking-[0.22em] text-sidebar-foreground/45 text-center">
-                PREMIUM FLEET MANAGEMENT
-              </div>
-            </>
+            <div className="mt-2.5 text-[13px] font-semibold tracking-[0.32em] text-sidebar-foreground/85 text-center leading-none">
+              ZEUS RENTAL CAR
+            </div>
           )}
         </div>
 
