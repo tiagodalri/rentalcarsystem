@@ -199,18 +199,18 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarContent className="px-2 pt-4 pb-3 gap-0 scrollbar-thin">
+      <SidebarContent className="px-2 pt-3 pb-2 gap-0 scrollbar-thin">
         {/* ===== Brand block ===== */}
-        <div className={`flex flex-col items-center ${collapsed ? "px-0 py-2" : "px-2 pb-5"}`}>
+        <div className={`flex flex-col items-center ${collapsed ? "px-0 py-2" : "px-2 pb-3"}`}>
           <img
             src={zeusLogo}
             alt="Zeus Rental Car"
             className={`${
-              collapsed ? "h-9 max-w-[36px]" : "h-14 max-w-[56px]"
+              collapsed ? "h-8 max-w-[32px]" : "h-11 max-w-[44px]"
             } w-auto object-contain opacity-95 transition-all`}
           />
           {!collapsed && (
-            <div className="mt-2.5 text-[13px] font-semibold tracking-[0.32em] text-sidebar-foreground/85 text-center leading-none">
+            <div className="mt-2 text-[11.5px] font-semibold tracking-[0.32em] text-sidebar-foreground/85 text-center leading-none">
               ZEUS RENTAL CAR
             </div>
           )}
