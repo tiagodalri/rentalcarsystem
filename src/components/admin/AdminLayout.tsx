@@ -56,15 +56,14 @@ export default function AdminLayout() {
               <SidebarTrigger className="h-11 w-11 -ml-2 flex items-center justify-center text-muted-foreground hover:text-foreground" />
               <div className="flex-1" />
               <Button
-                variant="outline"
-                size="sm"
+                variant="ghost"
+                size="icon"
                 onClick={toggleTheme}
                 aria-label={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
                 title={theme === "dark" ? "Ativar modo claro" : "Ativar modo escuro"}
-                className="min-h-11 min-w-11 border-border/70 bg-card/70 px-3 text-foreground shadow-sm hover:bg-accent"
+                className="h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/60"
               >
                 {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                <span className="hidden sm:inline">{theme === "dark" ? "Claro" : "Escuro"}</span>
               </Button>
               <LanguageSwitcher />
               <span className="hidden md:inline text-xs text-muted-foreground truncate max-w-[200px]">
