@@ -1303,7 +1303,7 @@ export default function AdminBookings() {
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
                             {b.pickup_time || "—"}
                           </td>
-                          <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
+                          <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
                             <span className="inline-flex items-center gap-1.5">
                               <span className="text-orange-500 text-[10px]">←</span>
                               {new Date(b.return_date).toLocaleDateString("pt-BR")}
@@ -1312,7 +1312,69 @@ export default function AdminBookings() {
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
                             {b.return_time || "—"}
                           </td>
-                          <td className="px-3 py-3.5 text-muted-foreground text-xs max-w-[180px] truncate">{b.pickup_location || "—"}</td>
+                          <td className="px-3 py-3.5 text-xs max-w-[240px]">
+                            {(() => {
+                              const parseLoc = (raw: string | null) => {
+                                if (!raw) return null;
+                                const [addrRaw, ...termParts] = raw.split(" — ");
+                                const addr = (addrRaw || "").trim();
+                                const terminal = termParts.join(" — ").trim();
+                                const isAirport = /airport|aeroporto|\bMCO\b|\bMIA\b|\bTPA\b|\bFLL\b|\bSFB\b/i.test(addr);
+                                return { addr, terminal, isAirport };
+                              };
+                              const pu = parseLoc(b.pickup_location);
+                              const rt = parseLoc(b.return_location);
+                              const sameLocation = pu && rt && pu.addr === rt.addr && pu.terminal === rt.terminal;
+                              const Row = ({ data, arrow, color }: { data: NonNullable<ReturnType<typeof parseLoc>>; arrow: string; color: string }) => (
+                                <div className="flex items-start gap-1.5 min-w-0">
+                                  <span className={`${color} text-[10px] mt-0.5 flex-shrink-0`}>{arrow}</span>
+                                  {data.isAirport ? (
+                                    <Plane className="w-3 h-3 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
+                                  ) : (
+                                    <MapPin className="w-3 h-3 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
+                                  )}
+                                  <div className="min-w-0 flex-1">
+                                    <div className="text-foreground/85 text-[12px] leading-tight truncate" title={data.addr}>{data.addr}</div>
+                                    {data.terminal && (
+                                      <div className="mt-0.5">
+                                        <span className="inline-flex items-center rounded-sm bg-primary/10 text-primary text-[9px] font-medium px-1.5 py-0.5 leading-none tracking-wide uppercase">
+                                          {data.terminal}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                              if (!pu && !rt) return <span className="text-muted-foreground/50">—</span>;
+                              if (sameLocation && pu) {
+                                return (
+                                  <div className="flex items-start gap-1.5 min-w-0">
+                                    {pu.isAirport ? (
+                                      <Plane className="w-3.5 h-3.5 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
+                                    ) : (
+                                      <MapPin className="w-3.5 h-3.5 text-muted-foreground/70 mt-0.5 flex-shrink-0" />
+                                    )}
+                                    <div className="min-w-0 flex-1">
+                                      <div className="text-foreground/85 text-[12px] leading-tight truncate" title={pu.addr}>{pu.addr}</div>
+                                      {pu.terminal && (
+                                        <div className="mt-0.5">
+                                          <span className="inline-flex items-center rounded-sm bg-primary/10 text-primary text-[9px] font-medium px-1.5 py-0.5 leading-none tracking-wide uppercase">
+                                            {pu.terminal}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return (
+                                <div className="space-y-1">
+                                  {pu && <Row data={pu} arrow="→" color="text-emerald-500" />}
+                                  {rt && <Row data={rt} arrow="←" color="text-orange-500" />}
+                                </div>
+                              );
+                            })()}
+                          </td>
                           <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap">
                             <span className="text-foreground font-semibold text-[13px]">
                               {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
