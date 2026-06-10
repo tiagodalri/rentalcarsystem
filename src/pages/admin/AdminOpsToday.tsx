@@ -1,13 +1,14 @@
 import { formatPersonName } from "@/lib/formatName";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CalendarCheck, CalendarX2, Wrench, Car, MapPin, ChevronRight, Sun,
-  Clock, ChevronDown, KeyRound,
+  Clock, ChevronDown,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { BrandAvatar } from "@/components/admin/fleet-calendar/BrandAvatar";
 
 type BookingRow = {
   id: string;
@@ -24,7 +25,7 @@ type BookingRow = {
   booking_number: string | null;
 };
 
-type Vehicle = { id: string; name: string; status: string };
+type Vehicle = { id: string; name: string; status: string; brand?: string | null };
 
 export default function AdminOpsToday() {
   const navigate = useNavigate();
@@ -66,6 +67,12 @@ export default function AdminOpsToday() {
   const today = new Date();
   const dayLabel = format(today, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
   const weekdayLabel = format(today, "EEEE", { locale: ptBR });
+
+  const prepGroups = useMemo(() => ({
+    maintenance: maintenance.filter(v => v.status === "maintenance"),
+    preparing: maintenance.filter(v => v.status === "preparing"),
+  }), [maintenance]);
+
 
   if (loading) {
     return <div className="p-10 text-center text-sm text-muted-foreground">Carregando operação do dia...</div>;
@@ -221,45 +228,33 @@ export default function AdminOpsToday() {
               Frota toda pronta para circular.
             </div>
           ) : (
-            <>
-              <div className="flex flex-wrap gap-2">
-                {(showAllPrep ? maintenance : maintenance.slice(0, 12)).map(v => (
-                  <button
-                    key={v.id}
-                    onClick={() => navigate(`/admin/fleet/${v.id}`)}
-                    className="group inline-flex items-center gap-2 rounded-full border border-border/40 bg-background/70 hover:bg-background hover:border-border/70 hover:shadow-sm pl-2 pr-3 py-1.5 transition-all"
-                  >
-                    <span className={`h-5 w-5 rounded-full flex items-center justify-center shrink-0 ${
-                      v.status === "maintenance"
-                        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-                        : "bg-sky-500/15 text-sky-600 dark:text-sky-400"
-                    }`}>
-                      <Car size={11} />
-                    </span>
-                    <span className="text-xs font-medium text-foreground truncate max-w-[160px] group-hover:text-primary">
-                      {v.name}
-                    </span>
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider ${
-                      v.status === "maintenance"
-                        ? "text-amber-600 dark:text-amber-400"
-                        : "text-sky-600 dark:text-sky-400"
-                    }`}>
-                      {v.status === "maintenance" ? "Manut." : "Prep."}
-                    </span>
-                  </button>
-                ))}
-              </div>
-              {maintenance.length > 12 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+              <PrepCategory
+                title="Em manutenção"
+                tone="amber"
+                vehicles={prepGroups.maintenance}
+                expanded={showAllPrep}
+                onNavigate={(id) => navigate(`/admin/fleet/${id}`)}
+              />
+              <PrepCategory
+                title="Em preparação"
+                tone="sky"
+                vehicles={prepGroups.preparing}
+                expanded={showAllPrep}
+                onNavigate={(id) => navigate(`/admin/fleet/${id}`)}
+              />
+              {(prepGroups.maintenance.length > 8 || prepGroups.preparing.length > 8) && (
                 <button
                   onClick={() => setShowAllPrep(!showAllPrep)}
-                  className="mt-3 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 transition-colors inline-flex items-center gap-1"
+                  className="md:col-span-2 mt-1 text-xs font-semibold text-sky-600 dark:text-sky-400 hover:text-sky-500 transition-colors inline-flex items-center justify-center gap-1"
                 >
                   {showAllPrep ? "Recolher" : `Ver todos (${maintenance.length})`}
                   <ChevronDown size={12} className={showAllPrep ? "rotate-180 transition-transform" : "transition-transform"} />
                 </button>
               )}
-            </>
+            </div>
           )}
+
         </div>
       </div>
 
@@ -367,6 +362,7 @@ function BookingRowCard({
     ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
     : "bg-amber-500/15 text-amber-600 dark:text-amber-400";
 
+  const brand = vehicle?.name?.split(" ")[0];
   return (
     <button
       onClick={onClick}
@@ -374,7 +370,10 @@ function BookingRowCard({
     >
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${accent}`} />
       <div className="pl-4 pr-3 py-3">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          {vehicle && (
+            <BrandAvatar brand={brand} name={vehicle.name} size={36} />
+          )}
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-3">
               <span className="text-xl font-bold tabular-nums text-foreground leading-none">
@@ -411,6 +410,58 @@ function BookingRowCard({
   );
 }
 
+function PrepCategory({
+  title, tone, vehicles, expanded, onNavigate,
+}: {
+  title: string;
+  tone: "amber" | "sky";
+  vehicles: Vehicle[];
+  expanded: boolean;
+  onNavigate: (id: string) => void;
+}) {
+  const dot = tone === "amber" ? "bg-amber-500" : "bg-sky-500";
+  const text = tone === "amber"
+    ? "text-amber-600 dark:text-amber-400"
+    : "text-sky-600 dark:text-sky-400";
+  const visible = expanded ? vehicles : vehicles.slice(0, 8);
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+        <h3 className={`text-[11px] font-bold uppercase tracking-[0.14em] ${text}`}>
+          {title}
+        </h3>
+        <span className={`text-[11px] font-bold tabular-nums ${text}`}>
+          {vehicles.length}
+        </span>
+      </div>
+      {vehicles.length === 0 ? (
+        <p className="text-[11px] text-muted-foreground italic pl-3.5">Nenhum veículo nesta categoria.</p>
+      ) : (
+        <div className="flex flex-wrap gap-1.5">
+          {visible.map(v => {
+            const brand = v.name.split(" ")[0];
+            return (
+              <button
+                key={v.id}
+                onClick={() => onNavigate(v.id)}
+                className="group inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-background/70 hover:bg-background hover:border-border/70 hover:shadow-sm pl-1 pr-2.5 py-1 transition-all"
+              >
+                <BrandAvatar brand={brand} name={v.name} size={20} />
+                <span className="text-xs font-medium text-foreground truncate max-w-[160px] group-hover:text-primary">
+                  {v.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function EmptyState({
   icon, tone, title, subtitle,
 }: {
@@ -432,164 +483,91 @@ function EmptyState({
   );
 }
 
-/* ─────────────── decorative backdrops ─────────────── */
+/* ─────────────── decorative backdrops (discreet) ─────────────── */
 
-/** Morning scene: sun rising, clouds, road, palms — for Pickups card */
 function SunriseBackdrop() {
-  return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      viewBox="0 0 600 460" preserveAspectRatio="xMidYMax slice" aria-hidden="true"
-    >
-      {/* soft sky glow */}
-      <defs>
-        <radialGradient id="sunriseGlow" cx="80%" cy="22%" r="40%">
-          <stop offset="0%" stopColor="hsl(142 71% 45%)" stopOpacity="0.10" />
-          <stop offset="100%" stopColor="hsl(142 71% 45%)" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="600" height="460" fill="url(#sunriseGlow)" />
-      {/* sun */}
-      <circle cx="500" cy="90" r="34" className="fill-emerald-400/15" />
-      <circle cx="500" cy="90" r="22" className="fill-emerald-400/25" />
-      {/* clouds */}
-      <g className="fill-emerald-500/10 dark:fill-emerald-400/10">
-        <ellipse cx="120" cy="70" rx="28" ry="8" />
-        <ellipse cx="150" cy="78" rx="22" ry="7" />
-        <ellipse cx="370" cy="55" rx="34" ry="8" />
-        <ellipse cx="405" cy="62" rx="20" ry="6" />
-      </g>
-      {/* horizon road */}
-      <g className="fill-emerald-500/12 dark:fill-emerald-400/12">
-        <path d="M0 410 L 600 410 L 600 420 L 0 420 Z" />
-        {/* dashed center line */}
-        <rect x="40" y="414" width="30" height="2" />
-        <rect x="100" y="414" width="30" height="2" />
-        <rect x="160" y="414" width="30" height="2" />
-        <rect x="220" y="414" width="30" height="2" />
-        <rect x="280" y="414" width="30" height="2" />
-        <rect x="340" y="414" width="30" height="2" />
-        <rect x="400" y="414" width="30" height="2" />
-        <rect x="460" y="414" width="30" height="2" />
-        <rect x="520" y="414" width="30" height="2" />
-      </g>
-      {/* palms */}
-      <g className="fill-emerald-500/12 dark:fill-emerald-400/12">
-        <rect x="36" y="350" width="3" height="60" />
-        <path d="M37 350 q -20 -10 -32 -3 q 18 -2 30 7 z" />
-        <path d="M37 350 q 22 -10 34 -3 q -18 -2 -30 7 z" />
-        <path d="M37 350 q -6 -18 -2 -30 q 7 14 7 30 z" />
-        <rect x="560" y="360" width="3" height="50" />
-        <path d="M561 360 q -16 -8 -26 -2 q 14 -2 24 6 z" />
-        <path d="M561 360 q 18 -8 28 -2 q -14 -2 -26 6 z" />
-        <path d="M561 360 q -5 -14 -1 -24 q 6 12 6 24 z" />
-      </g>
-      {/* tiny car silhouette */}
-      <g className="fill-emerald-500/14 dark:fill-emerald-400/14">
-        <path d="M260 400 q 4 -12 14 -12 l 50 0 q 8 0 12 6 l 8 6 l 14 0 q 6 0 6 6 l 0 4 l -110 0 l 0 -6 q 0 -2 6 -4 z" />
-        <circle cx="282" cy="410" r="4" />
-        <circle cx="346" cy="410" r="4" />
-      </g>
-    </svg>
-  );
+  return <CityPalmsBackdrop tone="emerald" />;
 }
 
-/** Evening scene: setting sun, longer shadows — for Returns card */
 function SunsetBackdrop() {
+  return <CityPalmsBackdrop tone="amber" />;
+}
+
+/**
+ * Discreet horizon scene: faint city skyline, palms, a few birds and a small
+ * car silhouette — anchored to the bottom of the card.
+ */
+function CityPalmsBackdrop({ tone }: { tone: "emerald" | "amber" }) {
+  const color = tone === "emerald"
+    ? "text-emerald-500/[0.09] dark:text-emerald-400/[0.09]"
+    : "text-amber-500/[0.09] dark:text-amber-400/[0.09]";
   return (
     <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      viewBox="0 0 600 460" preserveAspectRatio="xMidYMax slice" aria-hidden="true"
+      className={`absolute left-0 right-0 bottom-0 w-full ${color} pointer-events-none`}
+      viewBox="0 0 600 180" preserveAspectRatio="xMidYMax slice" fill="currentColor" aria-hidden="true"
     >
-      <defs>
-        <radialGradient id="sunsetGlow" cx="18%" cy="25%" r="42%">
-          <stop offset="0%" stopColor="hsl(38 92% 50%)" stopOpacity="0.10" />
-          <stop offset="100%" stopColor="hsl(38 92% 50%)" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <rect width="600" height="460" fill="url(#sunsetGlow)" />
-      {/* low sun */}
-      <circle cx="90" cy="110" r="36" className="fill-amber-400/15" />
-      <circle cx="90" cy="110" r="22" className="fill-amber-400/25" />
-      {/* clouds */}
-      <g className="fill-amber-500/10 dark:fill-amber-400/10">
-        <ellipse cx="220" cy="60" rx="30" ry="7" />
-        <ellipse cx="255" cy="68" rx="20" ry="6" />
-        <ellipse cx="450" cy="80" rx="34" ry="8" />
-        <ellipse cx="490" cy="88" rx="20" ry="6" />
+      {/* distant skyline */}
+      <g>
+        <rect x="40" y="110" width="14" height="60" />
+        <rect x="58" y="95" width="20" height="75" />
+        <rect x="82" y="118" width="12" height="52" />
+        <rect x="98" y="88" width="22" height="82" />
+        <rect x="120" y="118" width="3" height="20" />{/* antenna */}
+        <rect x="124" y="105" width="14" height="65" />
+        <rect x="142" y="120" width="18" height="50" />
+        <rect x="164" y="100" width="16" height="70" />
+        <rect x="184" y="115" width="12" height="55" />
+        <rect x="200" y="92" width="22" height="78" />
+        <rect x="226" y="112" width="14" height="58" />
+        <rect x="244" y="122" width="18" height="48" />
       </g>
-      {/* skyline silhouettes */}
-      <g className="fill-amber-500/10 dark:fill-amber-400/10">
-        <rect x="380" y="350" width="14" height="60" />
-        <rect x="398" y="335" width="20" height="75" />
-        <rect x="422" y="360" width="12" height="50" />
-        <rect x="438" y="320" width="22" height="90" />
-        <rect x="464" y="345" width="14" height="65" />
-        <rect x="482" y="360" width="18" height="50" />
+      {/* birds */}
+      <g>
+        <path d="M250 38 q 4 -4 8 0 q 4 -4 8 0" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M275 50 q 3 -3 6 0 q 3 -3 6 0" fill="none" stroke="currentColor" strokeWidth="1.2" />
+        <path d="M305 32 q 4 -4 8 0 q 4 -4 8 0" fill="none" stroke="currentColor" strokeWidth="1.5" />
       </g>
-      {/* horizon road */}
-      <g className="fill-amber-500/12 dark:fill-amber-400/12">
-        <path d="M0 410 L 600 410 L 600 420 L 0 420 Z" />
-        <rect x="40" y="414" width="30" height="2" />
-        <rect x="100" y="414" width="30" height="2" />
-        <rect x="160" y="414" width="30" height="2" />
-        <rect x="220" y="414" width="30" height="2" />
-        <rect x="280" y="414" width="30" height="2" />
-        <rect x="340" y="414" width="30" height="2" />
-        <rect x="400" y="414" width="30" height="2" />
-        <rect x="460" y="414" width="30" height="2" />
-        <rect x="520" y="414" width="30" height="2" />
+      {/* palms (front, varied heights) */}
+      <g>
+        {/* tall palm */}
+        <rect x="335" y="80" width="3" height="90" />
+        <path d="M336.5 80 q -22 -8 -34 -1 q 20 -2 32 7 z" />
+        <path d="M336.5 80 q 22 -8 34 -1 q -20 -2 -32 7 z" />
+        <path d="M336.5 80 q -6 -20 -2 -32 q 7 16 7 32 z" />
+        <path d="M336.5 80 q 6 -20 2 -32 q -7 16 -7 32 z" />
+        {/* medium palm */}
+        <rect x="395" y="100" width="3" height="70" />
+        <path d="M396.5 100 q -18 -6 -28 -1 q 16 -2 26 6 z" />
+        <path d="M396.5 100 q 18 -6 28 -1 q -16 -2 -26 6 z" />
+        <path d="M396.5 100 q -5 -16 -1 -26 q 6 12 6 26 z" />
+        {/* smaller palm */}
+        <rect x="450" y="115" width="3" height="55" />
+        <path d="M451.5 115 q -14 -5 -22 -1 q 12 -1 20 5 z" />
+        <path d="M451.5 115 q 14 -5 22 -1 q -12 -1 -20 5 z" />
+        <path d="M451.5 115 q -4 -12 -1 -20 q 5 10 5 20 z" />
+        {/* far right palm */}
+        <rect x="540" y="105" width="3" height="65" />
+        <path d="M541.5 105 q -16 -6 -26 -1 q 14 -2 24 6 z" />
+        <path d="M541.5 105 q 16 -6 26 -1 q -14 -2 -24 6 z" />
+        <path d="M541.5 105 q -5 -14 -1 -24 q 5 11 5 24 z" />
       </g>
-      {/* palm */}
-      <g className="fill-amber-500/12 dark:fill-amber-400/12">
-        <rect x="540" y="350" width="3" height="60" />
-        <path d="M541 350 q -20 -10 -32 -3 q 18 -2 30 7 z" />
-        <path d="M541 350 q 22 -10 34 -3 q -18 -2 -30 7 z" />
-        <path d="M541 350 q -6 -18 -2 -30 q 7 14 7 30 z" />
-      </g>
-      {/* car returning */}
-      <g className="fill-amber-500/14 dark:fill-amber-400/14">
-        <path d="M150 400 q 4 -12 14 -12 l 50 0 q 8 0 12 6 l 8 6 l 14 0 q 6 0 6 6 l 0 4 l -110 0 l 0 -6 q 0 -2 6 -4 z" />
-        <circle cx="172" cy="410" r="4" />
-        <circle cx="236" cy="410" r="4" />
+      {/* tiny car silhouette near horizon */}
+      <g>
+        <path d="M470 158 q 3 -8 10 -8 l 36 0 q 6 0 9 4 l 6 4 l 10 0 q 4 0 4 4 l 0 3 l -78 0 l 0 -4 q 0 -1 3 -3 z" />
       </g>
     </svg>
   );
 }
 
-/** Garage scene watermark for prep strip */
+/** Discreet wrench mark on the right side of the prep strip */
 function GarageBackdrop() {
   return (
     <svg
-      className="absolute inset-0 w-full h-full text-sky-500/[0.07] dark:text-sky-400/[0.07] pointer-events-none"
-      viewBox="0 0 800 160" preserveAspectRatio="xMidYMid slice" fill="currentColor" aria-hidden="true"
+      className="absolute right-4 top-1/2 -translate-y-1/2 text-sky-500/[0.07] dark:text-sky-400/[0.07] pointer-events-none"
+      width="80" height="80" viewBox="0 0 80 80" fill="currentColor" aria-hidden="true"
     >
-      {/* gears */}
-      <g transform="translate(720,80)">
-        <circle r="22" />
-        <circle r="10" className="fill-background" />
-        <g>
-          <rect x="-3" y="-30" width="6" height="8" />
-          <rect x="-3" y="22" width="6" height="8" />
-          <rect x="-30" y="-3" width="8" height="6" />
-          <rect x="22" y="-3" width="8" height="6" />
-        </g>
-      </g>
-      {/* wrench */}
-      <path d="M30 110 l 18 -18 a 14 14 0 1 1 8 8 l -18 18 z" />
-      {/* dashed road on bottom */}
-      <rect x="0" y="148" width="800" height="3" />
-      <rect x="60" y="150" width="24" height="1.5" />
-      <rect x="120" y="150" width="24" height="1.5" />
-      <rect x="180" y="150" width="24" height="1.5" />
-      <rect x="240" y="150" width="24" height="1.5" />
-      <rect x="300" y="150" width="24" height="1.5" />
-      <rect x="360" y="150" width="24" height="1.5" />
-      <rect x="420" y="150" width="24" height="1.5" />
-      <rect x="480" y="150" width="24" height="1.5" />
-      <rect x="540" y="150" width="24" height="1.5" />
-      <rect x="600" y="150" width="24" height="1.5" />
-      <rect x="660" y="150" width="24" height="1.5" />
+      <path d="M14 64 l 28 -28 a 18 18 0 1 1 10 10 l -28 28 z" />
     </svg>
   );
 }
+
