@@ -431,19 +431,8 @@ function CalendarLegend() {
 }
 
 // Format full names: capitalize each word, lowercase particles (da, de, do, das, dos, e)
-const formatName = (raw: string | null | undefined): string => {
-  if (!raw) return "—";
-  const particles = new Set(["da", "de", "di", "do", "du", "das", "des", "dos", "e", "y"]);
-  return raw
-    .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .map((w, i) => {
-      if (i > 0 && particles.has(w)) return w;
-      return w.charAt(0).toUpperCase() + w.slice(1);
-    })
-    .join(" ");
-};
+import { formatPersonName } from "@/lib/formatName";
+const formatName = (raw: string | null | undefined): string => formatPersonName(raw) || "—";
 
 
 // ─── Filter types ───────────────────────────────────────────
