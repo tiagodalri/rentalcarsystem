@@ -285,7 +285,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                 type="button"
                 className="w-full flex items-center gap-3 p-2 rounded-lg border border-sidebar-border/60 bg-sidebar-accent/30 hover:bg-sidebar-accent/60 transition-colors text-left"
               >
-                <div className="h-9 w-9 shrink-0 rounded-full border border-sidebar-primary/60 bg-sidebar-accent/60 flex items-center justify-center text-[11px] font-medium text-sidebar-primary tabular-nums">
+                <div className="h-8 w-8 shrink-0 rounded-full border border-sidebar-primary/60 bg-sidebar-accent/60 flex items-center justify-center text-[11px] font-medium text-sidebar-primary tabular-nums">
                   {initials || "U"}
                 </div>
                 <div className="flex-1 min-w-0">
