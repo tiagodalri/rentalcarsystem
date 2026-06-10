@@ -169,9 +169,9 @@ export default function MobileOps() {
             value={tab}
             onChange={(v) => setTab(v as Tab)}
             options={[
-              { value: "pickups", label: "Retiradas", icon: <CalendarCheck size={13} />, badge: counts.pickups },
-              { value: "returns", label: "Devoluções", icon: <CalendarX2 size={13} />, badge: counts.returns },
-              { value: "prep", label: "Em preparo", icon: <Wrench size={13} />, badge: counts.prep },
+              { value: "pickups", label: "Retiradas", badge: counts.pickups },
+              { value: "returns", label: "Devoluções", badge: counts.returns },
+              { value: "prep", label: "Em preparo", badge: counts.prep },
             ]}
           />
         </div>

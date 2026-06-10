@@ -24,8 +24,8 @@ export default function MobileReport() {
             value={tab}
             onChange={(v) => setTab(v as any)}
             options={[
-              { value: "perf", label: "Desempenho", icon: <BarChart3 size={13} /> },
-              { value: "pnl", label: "Rentabilidade", icon: <TrendingUp size={13} /> },
+              { value: "perf", label: "Desempenho" },
+              { value: "pnl", label: "Rentabilidade" },
             ]}
           />
         </div>
