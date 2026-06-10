@@ -50,43 +50,44 @@
   }
 
   .dark {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 100%;
+    /* Unified "private bank chumbo" palette — aligned with sidebar tones */
+    --background: 220 7% 7%;
+    --foreground: 0 0% 96%;
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 100%;
+    --card: 220 7% 10%;
+    --card-foreground: 0 0% 96%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 220 7% 10%;
+    --popover-foreground: 0 0% 96%;
 
     --primary: 38 72% 42%;
-    --primary-foreground: 0 0% 4%;
+    --primary-foreground: 220 7% 7%;
 
     --secondary: 40 65% 50%;
-    --secondary-foreground: 0 0% 4%;
+    --secondary-foreground: 220 7% 7%;
 
-    --muted: 0 0% 16%;
-    --muted-foreground: 0 0% 69%;
+    --muted: 220 6% 14%;
+    --muted-foreground: 220 5% 68%;
 
-    --accent: 0 0% 16%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 220 6% 14%;
+    --accent-foreground: 0 0% 96%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 40 100% 48%;
+    --border: 220 6% 16%;
+    --input: 220 6% 16%;
+    --ring: 42 38% 64%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 6%;
-    --sidebar-foreground: 0 0% 100%;
+    --sidebar-background: 220 7% 9%;
+    --sidebar-foreground: 0 0% 96%;
     --sidebar-primary: 42 38% 64%;
-    --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 16%;
+    --sidebar-primary-foreground: 220 7% 7%;
+    --sidebar-accent: 220 6% 13%;
+    --sidebar-accent-foreground: 0 0% 96%;
+    --sidebar-border: 220 6% 16%;
     --sidebar-ring: 42 38% 64%;
 
     --gold-glow: 0 0 30px hsl(40, 100%, 48%, 0.3);
