@@ -109,20 +109,20 @@ function FleetMiniStats() {
   ).length;
 
   const Row = ({ value, label }: { value: number; label: string }) => (
-    <div>
-      <div className="text-xl font-medium tabular-nums leading-none text-sidebar-primary">
+    <div className="flex items-baseline gap-2">
+      <div className="text-[15px] font-medium tabular-nums leading-none text-sidebar-primary w-6">
         {value}
       </div>
-      <div className="text-[10px] text-sidebar-foreground/55 mt-1">{label}</div>
+      <div className="text-[10px] text-sidebar-foreground/55 leading-none">{label}</div>
     </div>
   );
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-sidebar-border/60 bg-gradient-to-br from-sidebar-accent/60 to-sidebar-accent/20 p-3">
-      <div className="text-[10px] font-semibold tracking-[0.18em] text-sidebar-primary mb-3">
+    <div className="relative overflow-hidden rounded-lg border border-sidebar-border/60 bg-gradient-to-br from-sidebar-accent/60 to-sidebar-accent/20 px-3 py-2.5">
+      <div className="text-[9px] font-semibold tracking-[0.18em] text-sidebar-primary mb-2">
         FROTA
       </div>
-      <div className="space-y-3">
+      <div className="space-y-1.5">
         <Row value={total} label="Veículos totais" />
         <Row value={available} label="Disponíveis" />
         <Row value={preparing} label="Em preparação" />
