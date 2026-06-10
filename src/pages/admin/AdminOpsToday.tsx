@@ -362,6 +362,7 @@ function BookingRowCard({
     ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
     : "bg-amber-500/15 text-amber-600 dark:text-amber-400";
 
+  const brand = vehicle?.name?.split(" ")[0];
   return (
     <button
       onClick={onClick}
@@ -369,7 +370,10 @@ function BookingRowCard({
     >
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${accent}`} />
       <div className="pl-4 pr-3 py-3">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          {vehicle && (
+            <BrandAvatar brand={brand} name={vehicle.name} size={36} />
+          )}
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-3">
               <span className="text-xl font-bold tabular-nums text-foreground leading-none">
@@ -405,6 +409,58 @@ function BookingRowCard({
     </button>
   );
 }
+
+function PrepCategory({
+  title, tone, vehicles, expanded, onNavigate,
+}: {
+  title: string;
+  tone: "amber" | "sky";
+  vehicles: Vehicle[];
+  expanded: boolean;
+  onNavigate: (id: string) => void;
+}) {
+  const dot = tone === "amber" ? "bg-amber-500" : "bg-sky-500";
+  const text = tone === "amber"
+    ? "text-amber-600 dark:text-amber-400"
+    : "text-sky-600 dark:text-sky-400";
+  const visible = expanded ? vehicles : vehicles.slice(0, 8);
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
+        <h3 className={`text-[11px] font-bold uppercase tracking-[0.14em] ${text}`}>
+          {title}
+        </h3>
+        <span className={`text-[11px] font-bold tabular-nums ${text}`}>
+          {vehicles.length}
+        </span>
+      </div>
+      {vehicles.length === 0 ? (
+        <p className="text-[11px] text-muted-foreground italic pl-3.5">Nenhum veículo nesta categoria.</p>
+      ) : (
+        <div className="flex flex-wrap gap-1.5">
+          {visible.map(v => {
+            const brand = v.name.split(" ")[0];
+            return (
+              <button
+                key={v.id}
+                onClick={() => onNavigate(v.id)}
+                className="group inline-flex items-center gap-1.5 rounded-full border border-border/40 bg-background/70 hover:bg-background hover:border-border/70 hover:shadow-sm pl-1 pr-2.5 py-1 transition-all"
+              >
+                <BrandAvatar brand={brand} name={v.name} size={20} />
+                <span className="text-xs font-medium text-foreground truncate max-w-[160px] group-hover:text-primary">
+                  {v.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 function EmptyState({
   icon, tone, title, subtitle,
