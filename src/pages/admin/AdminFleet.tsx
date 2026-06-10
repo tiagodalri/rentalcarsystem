@@ -10,6 +10,8 @@ import FleetToolbar, { FleetFilters } from "@/components/admin/fleet/FleetToolba
 import FleetGrid, { FleetVehicleCard } from "@/components/admin/fleet/FleetGrid";
 import FleetTable, { FleetTableVehicle } from "@/components/admin/fleet/FleetTable";
 import { useRegisterFab } from "@/hooks/useAdminFab";
+import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+import MobileFleet from "./mobile/MobileFleet";
 
 type Vehicle = FleetVehicleCard &
   FleetTableVehicle & {
@@ -31,6 +33,7 @@ const isExpiringSoon = (v: Vehicle) => {
 
 export default function AdminFleet() {
   const navigate = useNavigate();
+  const { isMobile } = useIsMobileApp();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"grid" | "table">(
@@ -138,6 +141,8 @@ export default function AdminFleet() {
     setVehicles((prev) => prev.map((v) => (v.id === id ? ({ ...v, ...patch } as Vehicle) : v)));
     toast({ title: "Atualizado" });
   };
+
+  if (isMobile) return <MobileFleet />;
 
   return (
     <div className="space-y-5">

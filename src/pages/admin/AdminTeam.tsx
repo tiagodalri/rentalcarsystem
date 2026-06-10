@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+import MobileTeam from "./mobile/MobileTeam";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
@@ -127,6 +129,12 @@ const emptyForm: FormData = {
 
 // ─── Component ──────────────────────────────────────────────
 export default function AdminTeam() {
+  const { isMobile } = useIsMobileApp();
+  if (isMobile) return <MobileTeam />;
+  return <AdminTeamDesktop />;
+}
+
+function AdminTeamDesktop() {
   const { isAdmin } = useAdminAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);

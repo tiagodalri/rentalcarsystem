@@ -2,6 +2,8 @@ import { lazy, Suspense } from "react";
 import { Navigate } from "react-router-dom";
 import { BarChart3, TrendingUp } from "lucide-react";
 import { FleetReportSkeleton } from "@/components/skeletons/MinorPageSkeletons";
+import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+import MobileReport from "./mobile/MobileReport";
 
 const AdminFleetReport = lazy(() => import("./AdminFleetReport"));
 const AdminFleetPnL = lazy(() => import("./AdminFleetPnL"));
@@ -11,6 +13,8 @@ const AdminFleetPnL = lazy(() => import("./AdminFleetPnL"));
  * em uma única página estratégica, sem abas.
  */
 export default function AdminReport() {
+  const { isMobile } = useIsMobileApp();
+  if (isMobile) return <MobileReport />;
   return (
     <div className="space-y-10">
       <header className="hidden lg:block">

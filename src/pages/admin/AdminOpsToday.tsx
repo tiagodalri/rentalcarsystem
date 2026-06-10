@@ -82,8 +82,12 @@ function deriveStatus(b: BookingRow, kind: "pickup" | "return", now: Date): OpsS
   }
 }
 
+import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+import MobileOps from "./mobile/MobileOps";
+
 export default function AdminOpsToday() {
   const navigate = useNavigate();
+  const { isMobile } = useIsMobileApp();
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(startOfDay(new Date()));
   const [pickups, setPickups] = useState<BookingRow[]>([]);
@@ -159,6 +163,8 @@ export default function AdminOpsToday() {
   if (loading) {
     return <div className="p-10 text-center text-sm text-muted-foreground">Carregando operação do dia...</div>;
   }
+  if (isMobile) return <MobileOps />;
+
 
   return (
     <div className="space-y-3">
