@@ -88,11 +88,32 @@ export const CAR_BRAND_SLUGS: string[] = ["9ff","abadal","abarth","abbott-detroi
 
 export type CarBrand = { slug: string; name: string; logoUrl: string };
 
-export const CAR_BRANDS: CarBrand[] = CAR_BRAND_SLUGS.map((slug) => ({
-  slug,
-  name: brandNameFromSlug(slug),
-  logoUrl: carLogoUrl(slug),
-}));
+// Popularity ranking tuned for the Florida (Orlando/Miami) rental market.
+// Lower index = more commercial / more in-demand.
+const POPULARITY_ORDER: string[] = [
+  "toyota", "honda", "ford", "chevrolet", "jeep", "nissan", "hyundai", "kia",
+  "tesla", "bmw", "mercedes-benz", "audi", "lexus", "acura", "mazda", "subaru",
+  "dodge", "ram", "gmc", "cadillac", "chrysler", "lincoln", "infiniti", "buick",
+  "volkswagen", "volvo", "porsche", "land-rover", "jaguar", "mini", "fiat",
+  "mitsubishi", "genesis", "rivian", "polestar", "lucid",
+  "ferrari", "lamborghini", "maserati", "bentley", "rolls-royce", "aston-martin",
+  "mclaren", "bugatti", "alfa-romeo", "mercedes-amg", "bmw-m", "audi-sport",
+  "ford-mustang", "chevrolet-corvette", "dodge-viper",
+];
+
+const popularityRank = (slug: string) => {
+  const i = POPULARITY_ORDER.indexOf(slug);
+  return i === -1 ? POPULARITY_ORDER.length : i;
+};
+
+export const CAR_BRANDS: CarBrand[] = CAR_BRAND_SLUGS
+  .map((slug) => ({ slug, name: brandNameFromSlug(slug), logoUrl: carLogoUrl(slug) }))
+  .sort((a, b) => {
+    const ra = popularityRank(a.slug);
+    const rb = popularityRank(b.slug);
+    if (ra !== rb) return ra - rb;
+    return a.name.localeCompare(b.name);
+  });
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
@@ -107,11 +128,12 @@ export function searchBrands(query: string, limit = 12): CarBrand[] {
   if (!q) return CAR_BRANDS.slice(0, limit);
   const starts: CarBrand[] = [];
   const contains: CarBrand[] = [];
+  // CAR_BRANDS already sorted by popularity, so matches naturally come ranked
   for (const b of CAR_BRANDS) {
     const n = norm(b.name);
     if (n.startsWith(q)) starts.push(b);
     else if (n.includes(q)) contains.push(b);
-    if (starts.length >= limit) break;
   }
   return [...starts, ...contains].slice(0, limit);
 }
+
