@@ -118,33 +118,48 @@ export default function VehicleWizard() {
       if (error || !created) throw error || new Error("Falha ao criar veículo");
       const vehicleId = created.id;
 
-      // Upload photos in declared order; cover first if defined
-      const orderedIds = coverId
-        ? [coverId, ...photos.map((p) => p.id).filter((id) => id !== coverId)]
-        : photos.map((p) => p.id);
-      const ordered = orderedIds.map((id) => photos.find((p) => p.id === id)!).filter(Boolean);
+      // Separa por tipo; vitrine vai com a capa primeiro
+      const showcase = photos.filter((p) => p.kind === "showcase");
+      const registry = photos.filter((p) => p.kind === "registry");
+      const showcaseOrdered = coverId
+        ? [
+            ...showcase.filter((p) => p.id === coverId),
+            ...showcase.filter((p) => p.id !== coverId),
+          ]
+        : showcase;
 
-      const uploadedUrls: string[] = [];
-      for (const p of ordered) {
-        const ext = (p.file.name.split(".").pop() || "jpg").toLowerCase();
-        const path = `${vehicleId}/${crypto.randomUUID()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("vehicle-photos").upload(path, p.file, {
-          cacheControl: "3600",
-          contentType: p.file.type || undefined,
-        });
-        if (upErr) {
-          toast({ title: "Erro ao enviar foto", description: upErr.message, variant: "destructive" });
-          continue;
+      const uploadGroup = async (group: PendingPhoto[], folder: "showcase" | "registry") => {
+        const urls: string[] = [];
+        for (const p of group) {
+          const ext = (p.file.name.split(".").pop() || "jpg").toLowerCase();
+          const path = `${vehicleId}/${folder}/${crypto.randomUUID()}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("vehicle-photos")
+            .upload(path, p.file, {
+              cacheControl: "3600",
+              contentType: p.file.type || undefined,
+            });
+          if (upErr) {
+            toast({ title: "Erro ao enviar foto", description: upErr.message, variant: "destructive" });
+            continue;
+          }
+          const { data: pub } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
+          urls.push(pub.publicUrl);
         }
-        const { data: pub } = supabase.storage.from("vehicle-photos").getPublicUrl(path);
-        uploadedUrls.push(pub.publicUrl);
-      }
+        return urls;
+      };
+
+      const [showcaseUrls, registryUrls] = await Promise.all([
+        uploadGroup(showcaseOrdered, "showcase"),
+        uploadGroup(registry, "registry"),
+      ]);
 
       const updatePayload: any = {};
-      if (uploadedUrls.length) {
-        updatePayload.photos = uploadedUrls;
-        updatePayload.image_url = uploadedUrls[0];
+      if (showcaseUrls.length) {
+        updatePayload.photos = showcaseUrls;
+        updatePayload.image_url = showcaseUrls[0];
       }
+      if (registryUrls.length) updatePayload.registry_photos = registryUrls;
       if (form.published) updatePayload.published = true;
       if (Object.keys(updatePayload).length) {
         await supabase.from("vehicles").update(updatePayload).eq("id", vehicleId);
