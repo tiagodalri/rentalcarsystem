@@ -103,7 +103,7 @@ export default function FleetGrid({ vehicles, onTogglePublished, onDelete }: Pro
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-border/30">
-              <span className="text-lg font-bold text-primary tabular-nums">${v.daily_price_usd}/dia</span>
+              <span className="text-lg font-medium text-primary tabular-nums">${v.daily_price_usd}/dia</span>
               <div className="flex gap-2">
                 <button
                   onClick={(e) => { e.stopPropagation(); onTogglePublished(v); }}

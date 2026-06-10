@@ -38,7 +38,7 @@ export function DetailsTab({ vehicle, vehicleId }: { vehicle: LiveVehicle; vehic
       <Section title="Resumo de hoje" icon={<Activity size={13} />}>
         {vehicle.address && (
           <div className="px-3 py-2.5 border-b border-border/20">
-            <p className="text-[9px] uppercase tracking-wider font-bold text-muted-foreground mb-0.5">Localização atual</p>
+            <p className="text-[9px] uppercase tracking-wider font-medium text-muted-foreground mb-0.5">Localização atual</p>
             <p className="text-[11px] text-foreground leading-snug flex items-start gap-1.5">
               <MapPin size={11} className="text-primary mt-0.5 shrink-0" />
               <span>{vehicle.address}</span>
@@ -94,7 +94,7 @@ export function DetailsTab({ vehicle, vehicleId }: { vehicle: LiveVehicle; vehic
 function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <h4 className="text-xs font-bold text-foreground px-1 flex items-center gap-1.5">
+      <h4 className="text-xs font-medium text-foreground px-1 flex items-center gap-1.5">
         <span className="text-primary">{icon}</span>
         {title}
       </h4>
@@ -106,7 +106,7 @@ function Section({ title, icon, children }: { title: string; icon: React.ReactNo
 function Cell({ label, value, mono, small }: { label: string; value: string; mono?: boolean; small?: boolean }) {
   return (
     <div className="px-3 py-2 border-b border-r border-border/20 last:border-r-0 odd:border-r [&:nth-last-child(-n+2)]:border-b-0">
-      <p className="text-[9px] uppercase tracking-wider font-bold text-muted-foreground">{label}</p>
+      <p className="text-[9px] uppercase tracking-wider font-medium text-muted-foreground">{label}</p>
       <p className={`text-foreground mt-0.5 ${mono ? "font-mono" : "font-medium"} ${small ? "text-[10px]" : "text-[11px]"} break-all`}>
         {value}
       </p>

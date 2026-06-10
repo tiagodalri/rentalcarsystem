@@ -44,7 +44,7 @@ export function StatsTab({ vehicleId }: { vehicleId: string }) {
 
   return (
     <div className="p-3 space-y-4">
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
         Últimos 30 dias • {stats.n} viagens
       </p>
 
@@ -75,7 +75,7 @@ export function StatsTab({ vehicleId }: { vehicleId: string }) {
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1.5">
-      <h4 className="text-xs font-bold text-foreground px-1">{title}</h4>
+      <h4 className="text-xs font-medium text-foreground px-1">{title}</h4>
       <div className="rounded-lg border border-border/30 bg-card/40 divide-y divide-border/20">
         {children}
       </div>
@@ -88,7 +88,7 @@ function Row({ label, value, avg, alert }: { label: string; value: string; avg?:
     <div className="flex items-center justify-between px-3 py-2.5">
       <span className="text-[11px] text-muted-foreground">{label}</span>
       <div className="text-right">
-        <p className={`text-sm font-bold tabular-nums ${alert ? "text-red-500" : "text-foreground"}`}>{value}</p>
+        <p className={`text-sm font-medium tabular-nums ${alert ? "text-red-500" : "text-foreground"}`}>{value}</p>
         {avg && <p className="text-[10px] text-muted-foreground/70 tabular-nums">{avg}</p>}
       </div>
     </div>

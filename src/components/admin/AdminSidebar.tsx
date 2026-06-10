@@ -110,7 +110,7 @@ function FleetMiniStats() {
 
   const Row = ({ value, label }: { value: number; label: string }) => (
     <div>
-      <div className="text-xl font-bold tabular-nums leading-none text-sidebar-primary">
+      <div className="text-xl font-medium tabular-nums leading-none text-sidebar-primary">
         {value}
       </div>
       <div className="text-[10px] text-sidebar-foreground/55 mt-1">{label}</div>
@@ -285,7 +285,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                 type="button"
                 className="w-full flex items-center gap-3 p-2 rounded-lg border border-sidebar-border/60 bg-sidebar-accent/30 hover:bg-sidebar-accent/60 transition-colors text-left"
               >
-                <div className="h-9 w-9 shrink-0 rounded-full border border-sidebar-primary/60 bg-sidebar-accent/60 flex items-center justify-center text-[11px] font-bold text-sidebar-primary tabular-nums">
+                <div className="h-9 w-9 shrink-0 rounded-full border border-sidebar-primary/60 bg-sidebar-accent/60 flex items-center justify-center text-[11px] font-medium text-sidebar-primary tabular-nums">
                   {initials || "U"}
                 </div>
                 <div className="flex-1 min-w-0">

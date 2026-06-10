@@ -160,7 +160,7 @@ export function TransactionsTab() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h2 className="text-lg font-bold text-foreground">Lançamentos</h2>
+          <h2 className="text-lg font-medium text-foreground">Lançamentos</h2>
           <p className="text-xs text-muted-foreground">Receitas e despesas manuais</p>
         </div>
         <div className="flex gap-2">
@@ -257,15 +257,15 @@ export function TransactionsTab() {
       <div className="grid grid-cols-3 gap-3">
         <Card className="border-border/30"><CardContent className="p-4">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Receitas</p>
-          <p className="text-lg font-bold text-emerald-500 tabular-nums">{fmtUSD(totals.income)}</p>
+          <p className="text-lg font-medium text-emerald-500 tabular-nums">{fmtUSD(totals.income)}</p>
         </CardContent></Card>
         <Card className="border-border/30"><CardContent className="p-4">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Despesas</p>
-          <p className="text-lg font-bold text-red-500 tabular-nums">{fmtUSD(totals.expense)}</p>
+          <p className="text-lg font-medium text-red-500 tabular-nums">{fmtUSD(totals.expense)}</p>
         </CardContent></Card>
         <Card className="border-border/30"><CardContent className="p-4">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Saldo</p>
-          <p className={cn("text-lg font-bold tabular-nums", totals.balance >= 0 ? "text-emerald-500" : "text-red-500")}>{fmtUSD(totals.balance)}</p>
+          <p className={cn("text-lg font-medium tabular-nums", totals.balance >= 0 ? "text-emerald-500" : "text-red-500")}>{fmtUSD(totals.balance)}</p>
         </CardContent></Card>
       </div>
 

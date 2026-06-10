@@ -230,7 +230,7 @@ export default function StepPhotosAndPublish({
 
                   {/* Badge de capa (apenas vitrine) */}
                   {isCover && (
-                    <span className="absolute top-1.5 left-1.5 inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary text-primary-foreground">
+                    <span className="absolute top-1.5 left-1.5 inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-primary text-primary-foreground">
                       <Star size={9} /> CAPA
                     </span>
                   )}
@@ -359,7 +359,7 @@ function TabButton({
       {icon}
       <span className="truncate">{label}</span>
       <span
-        className={`inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-[10px] tabular-nums font-bold ${
+        className={`inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full text-[10px] tabular-nums font-medium ${
           active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"
         }`}
       >

@@ -30,7 +30,7 @@ export default function AdminReport() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
+        <h1 className="text-2xl font-medium text-foreground">Relatórios</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Desempenho mensal e rentabilidade consolidada da frota
         </p>

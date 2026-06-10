@@ -61,7 +61,7 @@ function ToggleCard({ label, active, onClick, preview, liveBadge }: ToggleCardPr
       >
         {preview}
         {liveBadge && (
-          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-bold tracking-wider text-white bg-primary px-1.5 py-0.5 rounded">
+          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-medium tracking-wider text-white bg-primary px-1.5 py-0.5 rounded">
             LIVE
           </span>
         )}
@@ -216,7 +216,7 @@ export function MapControlsPanel({ layers, onChange }: Props) {
           </button>
 
           <div className="mb-4">
-            <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold mb-3">
+            <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-3">
               Aparência do mapa
             </h3>
             <div className="flex gap-4">
@@ -242,7 +242,7 @@ export function MapControlsPanel({ layers, onChange }: Props) {
           </div>
 
           <div>
-            <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold mb-3">
+            <h3 className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-3">
               Camadas do mapa
             </h3>
             <div className="grid grid-cols-3 gap-3">

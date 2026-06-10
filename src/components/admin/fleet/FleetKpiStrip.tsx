@@ -49,15 +49,15 @@ export default function FleetKpiStrip({ vehicles, onFilter, activeKey }: Props) 
           <button
             key={key}
             onClick={() => onFilter?.(key as any)}
-            className={`text-left rounded-xl border bg-card/40 hover:bg-card/70 transition-colors px-3 py-2.5 ${
-              active ? "border-primary/60 ring-1 ring-primary/30" : "border-border/40"
+            className={`text-left rounded-lg border bg-card hover:bg-accent/30 transition-colors px-3 py-2.5 ${
+              active ? "border-foreground/40" : "border-border/70"
             }`}
           >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{label}</span>
-              <Icon size={13} className={accent} />
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="admin-label">{label}</span>
+              <Icon size={13} className={`${accent} opacity-70`} strokeWidth={1.75} />
             </div>
-            <div className={`text-xl font-bold tabular-nums ${accent}`}>{value}</div>
+            <div className={`admin-kpi-sm ${accent}`}>{value}</div>
           </button>
         );
       })}

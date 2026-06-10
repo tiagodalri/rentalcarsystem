@@ -277,7 +277,7 @@ export default function AdminTeam() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-medium text-foreground tracking-tight flex items-center gap-2">
             <UsersRound className="h-6 w-6 text-primary" /> Equipe
           </h1>
           <p className="text-sm text-muted-foreground mt-1">{stats.total} membros • {stats.active} ativos</p>
@@ -314,7 +314,7 @@ export default function AdminTeam() {
                 <s.icon className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="text-xl font-bold text-foreground tabular-nums">{s.value}</p>
+                <p className="text-xl font-medium text-foreground tabular-nums">{s.value}</p>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
               </div>
             </CardContent>
@@ -328,7 +328,7 @@ export default function AdminTeam() {
           <CardContent className="p-0">
             {/* Form header */}
             <div className="flex items-center justify-between p-5 pb-0">
-              <h3 className="text-sm font-bold text-foreground">{editingId ? "Editar Membro" : "Novo Membro"}</h3>
+              <h3 className="text-sm font-medium text-foreground">{editingId ? "Editar Membro" : "Novo Membro"}</h3>
               <button onClick={() => { setShowForm(false); setEditingId(null); }} className="text-muted-foreground hover:text-foreground"><X size={16} /></button>
             </div>
 
@@ -368,7 +368,7 @@ export default function AdminTeam() {
 
               {/* Permissions section */}
               <div className="border-t border-border/30 pt-4">
-                <h4 className="text-xs font-bold text-foreground mb-3 flex items-center gap-2">
+                <h4 className="text-xs font-medium text-foreground mb-3 flex items-center gap-2">
                   <Shield size={14} className="text-primary" /> Permissões de Acesso
                 </h4>
 
@@ -461,7 +461,7 @@ export default function AdminTeam() {
                         <div className="space-y-3">
                           {Object.entries(capGroups).map(([group, caps]) => (
                             <div key={group}>
-                              <p className="text-[10px] font-bold text-muted-foreground/70 uppercase tracking-wider mb-1.5">{group}</p>
+                              <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wider mb-1.5">{group}</p>
                               <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5">
                                 {caps.map((cap) => {
                                   const active = perms.capabilities.includes(cap.key);
@@ -537,7 +537,7 @@ export default function AdminTeam() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-sm">
                         {m.full_name.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -545,7 +545,7 @@ export default function AdminTeam() {
                         {m.position && <p className="text-[11px] text-muted-foreground">{m.position}</p>}
                       </div>
                     </div>
-                    <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border ${roleColors[m.role] || roleColors.support}`}>
+                    <span className={`text-[9px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md border ${roleColors[m.role] || roleColors.support}`}>
                       {roleLabels[m.role] || m.role}
                     </span>
                   </div>

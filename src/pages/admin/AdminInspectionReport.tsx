@@ -196,7 +196,7 @@ export default function AdminInspectionReport() {
   const SectionHeader = ({ icon: Icon, title, kicker, action }: { icon: any; title: string; kicker?: string; action?: React.ReactNode }) => (
     <div className="flex items-end justify-between gap-3 mb-4 pb-3 border-b border-border/40">
       <div>
-        {kicker && <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-1">{kicker}</p>}
+        {kicker && <p className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-1">{kicker}</p>}
         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
           <Icon size={16} className="text-primary" /> {title}
         </h3>
@@ -215,7 +215,7 @@ export default function AdminInspectionReport() {
       : "text-muted-foreground border-border";
     const Icon = isUp ? TrendingUp : isDown ? TrendingDown : Minus;
     return (
-      <Badge variant="outline" className={`${color} text-sm font-bold tabular-nums px-2.5 py-1 gap-1`}>
+      <Badge variant="outline" className={`${color} text-sm font-medium tabular-nums px-2.5 py-1 gap-1`}>
         <Icon size={12} />{value > 0 ? "+" : ""}{value}{suffix}
       </Badge>
     );
@@ -233,7 +233,7 @@ export default function AdminInspectionReport() {
       <div className={`rounded-xl border border-border/40 ${accent} p-5 space-y-4`}>
         <div className="flex items-center justify-between gap-2">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-bold">{type === "checkin" ? "ENTREGA" : "DEVOLUÇÃO"}</p>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-medium">{type === "checkin" ? "ENTREGA" : "DEVOLUÇÃO"}</p>
             <h4 className="text-sm font-semibold text-foreground mt-0.5">{label}</h4>
           </div>
           {done ? (
@@ -252,19 +252,19 @@ export default function AdminInspectionReport() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
                 <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><Gauge size={9}/> Odômetro</p>
-                <p className="text-sm font-bold text-foreground tabular-nums">{data.odometer_reading?.toLocaleString("pt-BR") || "—"} <span className="text-[10px] font-normal text-muted-foreground">mi</span></p>
+                <p className="text-sm font-medium text-foreground tabular-nums">{data.odometer_reading?.toLocaleString("pt-BR") || "—"} <span className="text-[10px] font-normal text-muted-foreground">mi</span></p>
               </div>
               <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
                 <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><Fuel size={9}/> Combustível</p>
-                <p className="text-sm font-bold text-foreground">{FUEL_LABELS[data.fuel_level] || "—"}</p>
+                <p className="text-sm font-medium text-foreground">{FUEL_LABELS[data.fuel_level] || "—"}</p>
               </div>
               <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
                 <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><AlertTriangle size={9}/> Avarias</p>
-                <p className="text-sm font-bold text-foreground tabular-nums">{((data.damages as any[]) || []).length}</p>
+                <p className="text-sm font-medium text-foreground tabular-nums">{((data.damages as any[]) || []).length}</p>
               </div>
               <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
                 <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><Camera size={9}/> Fotos</p>
-                <p className="text-sm font-bold text-foreground tabular-nums">{((data.exterior_photos as any[]) || []).length}</p>
+                <p className="text-sm font-medium text-foreground tabular-nums">{((data.exterior_photos as any[]) || []).length}</p>
               </div>
             </div>
             <div className="text-[11px] text-muted-foreground border-t border-border/30 pt-2 space-y-0.5">
@@ -455,7 +455,7 @@ export default function AdminInspectionReport() {
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
             Laudo de Conclusão de Serviço
           </p>
-          <h1 className="text-2xl font-bold text-foreground tabular-nums">{reportNumber}</h1>
+          <h1 className="text-2xl font-medium text-foreground tabular-nums">{reportNumber}</h1>
         </div>
         <Button variant="outline" size="sm" onClick={() => window.print()}>
           <Printer size={14} className="mr-1.5" /> Imprimir / PDF
@@ -472,9 +472,9 @@ export default function AdminInspectionReport() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Sparkles size={12} className="text-primary" />
-                <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold">Zeus Rental Car</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-medium">Zeus Rental Car</p>
               </div>
-              <h2 className="text-2xl font-bold text-foreground">Laudo Completo de Serviço</h2>
+              <h2 className="text-2xl font-medium text-foreground">Laudo Completo de Serviço</h2>
               <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 tabular-nums">
                 <span><Hash size={10} className="inline mr-0.5" />{reportNumber}</span>
                 <span className="text-border">•</span>
@@ -491,22 +491,22 @@ export default function AdminInspectionReport() {
         <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border/30 border-b border-border/30">
           <div className="p-4 text-center">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Período</p>
-            <p className="text-sm font-bold text-foreground tabular-nums">{fmtDate(booking.pickup_date)}</p>
+            <p className="text-sm font-medium text-foreground tabular-nums">{fmtDate(booking.pickup_date)}</p>
             <p className="text-[10px] text-muted-foreground tabular-nums">até {fmtDate(booking.return_date)}</p>
           </div>
           <div className="p-4 text-center">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Milhas Rodadas</p>
-            <p className="text-sm font-bold text-foreground tabular-nums">{odometerDiff !== null ? `${odometerDiff.toLocaleString("pt-BR")} mi` : "—"}</p>
+            <p className="text-sm font-medium text-foreground tabular-nums">{odometerDiff !== null ? `${odometerDiff.toLocaleString("pt-BR")} mi` : "—"}</p>
             <p className="text-[10px] text-muted-foreground">no período</p>
           </div>
           <div className="p-4 text-center">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Novas Avarias</p>
-            <p className={`text-sm font-bold tabular-nums ${newDamages.length > 0 ? "text-destructive" : "text-emerald-700"}`}>{newDamages.length}</p>
+            <p className={`text-sm font-medium tabular-nums ${newDamages.length > 0 ? "text-destructive" : "text-emerald-700"}`}>{newDamages.length}</p>
             <p className="text-[10px] text-muted-foreground">{newDamages.length === 0 ? "nenhuma" : "documentadas"}</p>
           </div>
           <div className="p-4 text-center">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Cobranças Extras</p>
-            <p className={`text-sm font-bold tabular-nums ${totalExtras > 0 ? "text-destructive" : "text-emerald-700"}`}>{fmtMoney(totalExtras)}</p>
+            <p className={`text-sm font-medium tabular-nums ${totalExtras > 0 ? "text-destructive" : "text-emerald-700"}`}>{fmtMoney(totalExtras)}</p>
             <p className="text-[10px] text-muted-foreground">{totalExtras > 0 ? "a deduzir" : "caução integral"}</p>
           </div>
         </div>
@@ -515,19 +515,19 @@ export default function AdminInspectionReport() {
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-2 flex items-center gap-1.5"><User size={11} /> Cliente</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 flex items-center gap-1.5"><User size={11} /> Cliente</p>
               <p className="font-semibold text-foreground">{fmtName(booking.customer_name)}</p>
               <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1"><Mail size={10} />{booking.customer_email || "—"}</p>
               <p className="text-xs text-muted-foreground flex items-center gap-1"><Phone size={10} />{booking.customer_phone || "—"}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-2 flex items-center gap-1.5"><Car size={11} /> Veículo</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 flex items-center gap-1.5"><Car size={11} /> Veículo</p>
               <p className="font-semibold text-foreground">{vehicle?.name || `${vehicle?.brand || ""} ${vehicle?.model || ""}`.trim() || "—"}</p>
               <p className="text-xs text-muted-foreground">Placa <span className="font-mono">{vehicle?.license_plate || "—"}</span> • {vehicle?.year || "—"}</p>
               <p className="text-xs text-muted-foreground capitalize">{vehicle?.category || ""}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-2 flex items-center gap-1.5"><MapPin size={11} /> Logística</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 flex items-center gap-1.5"><MapPin size={11} /> Logística</p>
               <p className="text-xs text-foreground"><span className="text-muted-foreground">Retirada:</span> {booking.pickup_location || "—"}</p>
               <p className="text-xs text-foreground mt-0.5"><span className="text-muted-foreground">Devolução:</span> {booking.return_location || "—"}</p>
               <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">{booking.pickup_time || "—"} → {booking.return_time || "—"}</p>
@@ -638,7 +638,7 @@ export default function AdminInspectionReport() {
             <SectionHeader icon={AlertTriangle} title="Avarias e Danos" kicker="Comparativo Estrutural" />
 
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Pré-existentes (entrega)</p>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">Pré-existentes (entrega)</p>
               {checkinDamages.length === 0 ? (
                 <div className="flex items-center gap-2 p-3 rounded-md border border-emerald-500/30 bg-emerald-500/5">
                   <CheckCircle2 size={14} className="text-emerald-700" />
@@ -660,7 +660,7 @@ export default function AdminInspectionReport() {
             <Separator />
 
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Novas avarias (devolução)</p>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">Novas avarias (devolução)</p>
               {newDamages.length === 0 ? (
                 <div className="flex items-center gap-2 p-3 rounded-md border border-emerald-500/30 bg-emerald-500/5">
                   <CheckCircle2 size={14} className="text-emerald-700" />
@@ -685,7 +685,7 @@ export default function AdminInspectionReport() {
               <>
                 <Separator />
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Acessórios faltantes</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">Acessórios faltantes</p>
                   <div className="flex flex-wrap gap-1.5">
                     {missingAcc.map((k) => (
                       <Badge key={k} variant="outline" className="text-xs bg-destructive/5 text-destructive border-destructive/30 px-2 py-0.5">
@@ -717,11 +717,11 @@ export default function AdminInspectionReport() {
                       </div>
                       <div className="grid grid-cols-2 divide-x divide-border/30">
                         <div className="p-2">
-                          <p className="text-[9px] uppercase tracking-wider text-primary font-bold mb-1.5">Entrega</p>
+                          <p className="text-[9px] uppercase tracking-wider text-primary font-medium mb-1.5">Entrega</p>
                           <img src={ciPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded" loading="lazy" />
                         </div>
                         <div className="p-2">
-                          <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold mb-1.5">Devolução</p>
+                          <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5">Devolução</p>
                           {coPhoto ? (
                             <img src={coPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded" loading="lazy" />
                           ) : (
@@ -779,7 +779,7 @@ export default function AdminInspectionReport() {
             ].map((kpi) => (
               <div key={kpi.label} className="rounded-lg border border-border/30 bg-muted/20 p-3">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">{kpi.label}</p>
-                <p className={`text-sm font-bold tabular-nums ${kpi.highlight ? "text-emerald-700" : "text-foreground"}`}>{kpi.value}</p>
+                <p className={`text-sm font-medium tabular-nums ${kpi.highlight ? "text-emerald-700" : "text-foreground"}`}>{kpi.value}</p>
               </div>
             ))}
           </div>
@@ -788,7 +788,7 @@ export default function AdminInspectionReport() {
             <>
               <Separator />
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Cobranças Adicionais Apuradas</p>
+                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">Cobranças Adicionais Apuradas</p>
                 <div className="rounded-lg border border-border/30 overflow-hidden">
                   {extraCharges.map((c, i) => (
                     <div key={i} className="flex items-center justify-between text-sm p-3 bg-background border-b border-border/20 last:border-0">
@@ -796,12 +796,12 @@ export default function AdminInspectionReport() {
                         <p className="font-semibold text-foreground">{c.label}</p>
                         <p className="text-[11px] text-muted-foreground mt-0.5">{c.reason}</p>
                       </div>
-                      <span className="font-bold text-destructive tabular-nums">{fmtMoney(c.amount)}</span>
+                      <span className="font-medium text-destructive tabular-nums">{fmtMoney(c.amount)}</span>
                     </div>
                   ))}
                   <div className="flex items-center justify-between text-sm p-3 bg-destructive/5 border-t border-destructive/20">
-                    <span className="font-bold text-foreground">Total a deduzir da caução</span>
-                    <span className="font-bold text-destructive text-base tabular-nums">{fmtMoney(totalExtras)}</span>
+                    <span className="font-medium text-foreground">Total a deduzir da caução</span>
+                    <span className="font-medium text-destructive text-base tabular-nums">{fmtMoney(totalExtras)}</span>
                   </div>
                 </div>
               </div>
@@ -812,7 +812,7 @@ export default function AdminInspectionReport() {
             <>
               <Separator />
               <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Lançamentos Financeiros</p>
+                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">Lançamentos Financeiros</p>
                 <div className="space-y-1.5">
                   {transactions.map((t) => (
                     <div key={t.id} className="flex items-center justify-between text-xs p-2.5 rounded border border-border/30">
@@ -820,7 +820,7 @@ export default function AdminInspectionReport() {
                         <p className="font-medium text-foreground">{t.description}</p>
                         <p className="text-[10px] text-muted-foreground tabular-nums">{fmtDate(t.transaction_date)} • <span className="capitalize">{t.type}</span></p>
                       </div>
-                      <span className={`font-bold tabular-nums ${t.type === "income" ? "text-emerald-700" : "text-destructive"}`}>
+                      <span className={`font-medium tabular-nums ${t.type === "income" ? "text-emerald-700" : "text-destructive"}`}>
                         {t.type === "income" ? "+" : "−"}{fmtMoney(Number(t.amount))}
                       </span>
                     </div>
@@ -839,13 +839,13 @@ export default function AdminInspectionReport() {
             <SectionHeader icon={FileText} title="Observações do Agente" kicker="Notas de Campo" />
             {checkin?.notes && (
               <div className="rounded-lg border-l-2 border-l-primary/60 bg-primary/[0.025] border-y border-r border-border/30 p-3">
-                <p className="text-[10px] uppercase tracking-wider text-primary font-bold mb-1">Entrega</p>
+                <p className="text-[10px] uppercase tracking-wider text-primary font-medium mb-1">Entrega</p>
                 <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">{checkin.notes}</p>
               </div>
             )}
             {checkout?.notes && (
               <div className="rounded-lg border-l-2 border-l-foreground/40 bg-muted/30 border-y border-r border-border/30 p-3">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">Devolução</p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Devolução</p>
                 <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">{checkout.notes}</p>
               </div>
             )}
@@ -864,7 +864,7 @@ export default function AdminInspectionReport() {
                 { label: "Devolução", data: checkout, accent: "border-l-foreground/40" },
               ].map((s) => (
                 <div key={s.label} className={`rounded-lg border border-border/30 border-l-2 ${s.accent} p-4 space-y-2`}>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{s.label}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{s.label}</p>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-[9px] uppercase text-muted-foreground mb-1">Cliente</p>

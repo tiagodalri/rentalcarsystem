@@ -221,7 +221,7 @@ export default function VehicleWizard() {
       </button>
 
       <header className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Novo veículo</h1>
+        <h1 className="admin-h1">Novo veículo</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Preencha tudo (identificação, especificações, preços, documentação e fotos) e finalize o cadastro de uma vez.
         </p>
@@ -247,7 +247,7 @@ export default function VehicleWizard() {
                 >
                   <div className="flex items-center gap-2">
                     <div
-                      className={`h-7 w-7 rounded-full inline-flex items-center justify-center text-[11px] font-bold ${
+                      className={`h-7 w-7 rounded-full inline-flex items-center justify-center text-[11px] font-medium ${
                         isDone ? "bg-primary text-primary-foreground" : isActive ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                       }`}
                     >

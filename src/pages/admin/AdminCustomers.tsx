@@ -188,7 +188,7 @@ export default function AdminCustomers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Clientes</h1>
+          <h1 className="admin-h1">Clientes</h1>
           <p className="text-sm text-muted-foreground mt-1">{customers.length} clientes cadastrados</p>
         </div>
         <div className="flex items-center gap-2">
@@ -236,7 +236,7 @@ export default function AdminCustomers() {
         <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setEditing(null)}>
           <div className="bg-card rounded-2xl border border-border/40 shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-border/20">
-              <h2 className="text-base font-bold text-foreground">{isNew ? "Novo Cliente" : "Editar Cliente"}</h2>
+              <h2 className="admin-h2">{isNew ? "Novo Cliente" : "Editar Cliente"}</h2>
               <button onClick={() => setEditing(null)} className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
                 <X size={16} />
               </button>
@@ -351,7 +351,7 @@ export default function AdminCustomers() {
             <div className="px-6 py-4 border-t border-border/20">
               <button
                 onClick={save}
-                className="w-full h-10 gold-gradient text-primary-foreground rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
+                className="w-full h-10 gold-gradient text-primary-foreground rounded-lg text-[11px] font-medium uppercase tracking-[0.16em] hover:opacity-90 transition-opacity"
               >
                 {isNew ? "Adicionar Cliente" : "Salvar Alterações"}
               </button>
@@ -396,7 +396,7 @@ export default function AdminCustomers() {
                     <tr key={c.id} onClick={() => navigate(`/admin/customers/${c.id}`)} className="border-b border-border/10 hover:bg-muted/20 transition-colors group cursor-pointer">
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-muted/60 border border-border/40 flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-muted/60 border border-border/40 flex items-center justify-center text-[10px] font-medium text-muted-foreground shrink-0">
                             {initials || "?"}
                           </div>
                           <span className="text-foreground font-medium text-[13px] truncate max-w-[200px]">{displayName}</span>

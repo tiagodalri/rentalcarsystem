@@ -78,7 +78,7 @@ export default function OcrReviewPanel({ extracted, current, fields, onApply, on
   return (
     <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-primary">
+        <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-primary">
           <Sparkles size={12} /> Dados lidos do documento — revise e confirme
         </div>
         <button type="button" onClick={onDismiss} className="text-muted-foreground hover:text-foreground" title="Descartar">

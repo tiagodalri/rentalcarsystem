@@ -229,10 +229,10 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
         >
           <CardContent className="p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium leading-tight">{card.label}</p>
-              <card.icon className={`h-4 w-4 ${card.color} opacity-50`} />
+              <p className="admin-label leading-tight">{card.label}</p>
+              <card.icon className={`h-3.5 w-3.5 ${card.color} opacity-60`} strokeWidth={1.75} />
             </div>
-            <p className={`text-xl font-bold tabular-nums ${card.color}`}>
+            <p className={`admin-kpi ${card.color}`}>
               {card.value}
             </p>
           </CardContent>
@@ -283,27 +283,27 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
     <div className="space-y-8">
       {!embedded && (
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">Visao geral do sistema Zeus Rental Car</p>
+          <h1 className="admin-h1">Dashboard</h1>
+          <p className="text-sm text-muted-foreground/80 mt-1">Visão geral do sistema Zeus Rental Car</p>
         </div>
       )}
 
       {/* Bloco 1 — Operacional */}
       <section className="space-y-3">
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Operacional</h2>
+        <h2 className="admin-section-title">Operacional</h2>
         {renderCardGrid(operationalCards)}
       </section>
 
       {/* Bloco 2 — Frota */}
       <section className="space-y-3">
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Frota</h2>
+        <h2 className="admin-section-title">Frota</h2>
         {renderCardGrid(fleetCards)}
       </section>
 
       {/* Bloco 3 — Financeiro */}
       {showFinancial && (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Financeiro</h2>
+          <h2 className="admin-section-title">Financeiro</h2>
           {renderCardGrid(financeCards, "grid-cols-2 lg:grid-cols-3")}
         </section>
       )}
@@ -311,7 +311,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
       {/* Bloco 4 — Alertas Operacionais */}
       {showAlerts && (
         <section className="space-y-3">
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Alertas Operacionais</h2>
+          <h2 className="admin-section-title">Alertas Operacionais</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {alertCards.map((alert) => {
               const hasAlert = alert.value > 0;
@@ -330,7 +330,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
                       size={22}
                       className={hasAlert ? "text-destructive" : "text-muted-foreground/50"}
                     />
-                    <span className={`text-2xl font-bold tabular-nums ${hasAlert ? "text-destructive" : "text-foreground"}`}>
+                    <span className={`admin-kpi ${hasAlert ? "text-destructive" : ""}`}>
                       {alert.value}
                     </span>
                     <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">

@@ -226,7 +226,7 @@ export default function AdminBookingDetail() {
     <div className="flex flex-col items-center justify-center p-3 rounded-xl border border-border/30 bg-card/80 gap-1 min-h-[80px]">
       <Icon size={14} className="text-primary/60" />
       <span className="text-[9px] text-muted-foreground uppercase tracking-wider text-center leading-tight">{label}</span>
-      <span className={`text-sm font-bold ${color}`}>{value}</span>
+      <span className={`text-sm font-medium ${color}`}>{value}</span>
     </div>
   );
 
@@ -435,7 +435,7 @@ export default function AdminBookingDetail() {
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 rounded-2xl border border-border/40 bg-card/50 p-4 shadow-sm sm:p-5 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
         <div className="min-w-0 space-y-3">
           <div className="space-y-2">
-            <h1 className="text-[22px] sm:text-2xl font-bold text-foreground tracking-tight leading-tight break-words">
+            <h1 className="text-[22px] sm:text-2xl font-medium text-foreground tracking-tight leading-tight break-words">
               {formatPersonName(booking.customer_name)}
             </h1>
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -470,18 +470,18 @@ export default function AdminBookingDetail() {
 
           <div className="grid w-full grid-cols-[1fr_auto_auto] gap-px overflow-hidden rounded-xl border border-border/40 bg-border/40 sm:inline-grid sm:w-auto sm:min-w-[430px] sm:grid-cols-[1.35fr_0.65fr_0.9fr] sm:gap-0 sm:bg-background/60">
             <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent sm:border-r sm:border-border/30">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Período</p>
+              <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Período</p>
               <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums" title={`${pickup.toLocaleDateString("pt-BR")} → ${returnD.toLocaleDateString("pt-BR")}`}>
                 {pickup.toLocaleDateString("pt-BR")} → {returnD.toLocaleDateString("pt-BR")}
               </p>
             </div>
             <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent sm:border-r sm:border-border/30">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Dias</p>
+              <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Dias</p>
               <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{days}</p>
             </div>
             <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent">
-              <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Total</p>
-              <p className="truncate text-[11px] sm:text-xs font-bold text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
+              <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Total</p>
+              <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
             </div>
           </div>
 
@@ -600,7 +600,7 @@ export default function AdminBookingDetail() {
         {/* Itinerário */}
         <section className="relative pl-8">
           <div className="absolute left-[3px] top-2 bottom-2 w-px bg-gradient-to-b from-primary via-primary/20 to-transparent" />
-          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-8">Itinerário</h2>
+          <h2 className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-8">Itinerário</h2>
 
           <div className="space-y-10">
             {(() => {
@@ -635,7 +635,7 @@ export default function AdminBookingDetail() {
                   <div key={kind} className="relative">
                     <div className={`absolute -left-[33px] top-1.5 w-2 h-2 rounded-full border-2 bg-background ${dotClass}`} />
                     <div className="space-y-2">
-                      <p className={`text-[10px] font-bold uppercase tracking-wider ${accent}`}>{label}</p>
+                      <p className={`text-[10px] font-medium uppercase tracking-wider ${accent}`}>{label}</p>
                       <h3 className="text-lg font-semibold text-foreground leading-tight flex items-baseline gap-2 flex-wrap">
                         <span>{primary}</span>
                         {terminal && (
@@ -669,33 +669,33 @@ export default function AdminBookingDetail() {
 
         {/* Cliente */}
         <section>
-          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-6">Cliente</h2>
+          <h2 className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-6">Cliente</h2>
           {customer ? (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-6 sm:gap-x-8 md:gap-x-12">
                 <div>
-                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Nome</label>
+                  <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">Nome</label>
                   <p className="text-sm font-medium text-foreground break-words">{formatPersonName(customer.full_name) || "—"}</p>
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">E-mail</label>
+                  <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">E-mail</label>
                   <p className="text-sm font-medium text-foreground break-all">{customer.email || "—"}</p>
                 </div>
 
                 <div>
-                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Telefone</label>
+                  <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">Telefone</label>
                   <p className="text-sm font-medium text-foreground tabular-nums">{customer.phone || "—"}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Nacionalidade</label>
+                  <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">Nacionalidade</label>
                   <p className="text-sm font-medium text-foreground">{customer.nationality || "—"}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Documento</label>
+                  <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">Documento</label>
                   <p className="text-sm font-medium text-foreground tabular-nums">{customer.document_number || "—"}</p>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">CNH</label>
+                  <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">CNH</label>
                   <p className="text-sm font-medium text-foreground tabular-nums">{customer.driver_license || "—"}</p>
                 </div>
               </div>
@@ -715,8 +715,8 @@ export default function AdminBookingDetail() {
 
               <div className="w-full md:w-1/2 space-y-6">
                 <div>
-                  <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-4">Veículo</h2>
-                  <h3 className="text-2xl font-bold text-foreground">{vehicle.name}</h3>
+                  <h2 className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">Veículo</h2>
+                  <h3 className="text-2xl font-medium text-foreground">{vehicle.name}</h3>
                   <p className="text-primary font-medium mt-1 uppercase tracking-widest text-[11px]">
                     {vehicle.year ? `${vehicle.year} • ` : ""}{vehicle.category}
                   </p>
@@ -724,28 +724,28 @@ export default function AdminBookingDetail() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
-                    <p className="text-[9px] text-muted-foreground/70 font-bold uppercase tracking-wider">Transmissão</p>
+                    <p className="text-[9px] text-muted-foreground/70 font-medium uppercase tracking-wider">Transmissão</p>
                     <p className="text-xs font-semibold text-foreground mt-0.5">{vehicle.transmission}</p>
                   </div>
                   <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
-                    <p className="text-[9px] text-muted-foreground/70 font-bold uppercase tracking-wider">Combustível</p>
+                    <p className="text-[9px] text-muted-foreground/70 font-medium uppercase tracking-wider">Combustível</p>
                     <p className="text-xs font-semibold text-foreground mt-0.5">{vehicle.fuel}</p>
                   </div>
                   <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
-                    <p className="text-[9px] text-muted-foreground/70 font-bold uppercase tracking-wider">Passageiros</p>
+                    <p className="text-[9px] text-muted-foreground/70 font-medium uppercase tracking-wider">Passageiros</p>
                     <p className="text-xs font-semibold text-foreground tabular-nums mt-0.5">{vehicle.passengers}</p>
                   </div>
                   <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
-                    <p className="text-[9px] text-muted-foreground/70 font-bold uppercase tracking-wider">Malas</p>
+                    <p className="text-[9px] text-muted-foreground/70 font-medium uppercase tracking-wider">Malas</p>
                     <p className="text-xs font-semibold text-foreground tabular-nums mt-0.5">{vehicle.bags}</p>
                   </div>
                 </div>
               </div>
 
               <div className="w-full md:w-1/2 flex flex-col items-center justify-center md:border-l border-t md:border-t-0 border-border/40 md:pl-8 pt-6 md:pt-0 py-2 md:py-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-2">Valor da Diária</p>
-                <p className="text-4xl sm:text-5xl font-bold tabular-nums text-foreground">
-                  <span className="text-lg sm:text-xl font-medium text-muted-foreground mr-1">$</span>
+                <p className="admin-label mb-2">Valor da Diária</p>
+                <p className="text-3xl sm:text-4xl font-light tabular-nums text-foreground tracking-[-0.02em]">
+                  <span className="text-base sm:text-lg font-normal text-muted-foreground/80 mr-1">$</span>
                   {vehicle.daily_price_usd.toFixed(2)}
                 </p>
               </div>
@@ -758,7 +758,7 @@ export default function AdminBookingDetail() {
 
         {/* Resumo Financeiro & Observações */}
         <section className="space-y-6 pt-2">
-          <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-2">
+          <h2 className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-2">
             Resumo Financeiro & Observações
           </h2>
 
@@ -784,8 +784,8 @@ export default function AdminBookingDetail() {
               </span>
             </div>
             <div className="flex justify-between items-baseline py-5">
-              <span className="text-base font-bold text-foreground">Total da Reserva</span>
-              <span className="text-2xl font-bold tabular-nums text-primary">
+              <span className="text-base font-medium text-foreground">Total da Reserva</span>
+              <span className="text-2xl font-medium tabular-nums text-primary">
                 {booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}
               </span>
             </div>
@@ -824,7 +824,7 @@ export default function AdminBookingDetail() {
             return (
               <div className="mt-2 rounded-xl border border-border/40 bg-card/40 overflow-hidden">
                 <div className="px-4 sm:px-5 py-3 border-b border-border/30 flex items-center justify-between gap-3">
-                  <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
+                  <h3 className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                     Detalhamento do pagamento
                   </h3>
                   <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border ${st.tone}`}>
@@ -882,7 +882,7 @@ export default function AdminBookingDetail() {
                     <div className="flex items-start gap-2.5">
                       <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
                       <div className="text-xs leading-relaxed">
-                        <p className="font-bold text-amber-700 dark:text-amber-400">
+                        <p className="font-medium text-amber-700 dark:text-amber-400">
                           Cobrar na retirada: <span className="tabular-nums">${balanceDue.toFixed(2)}</span>
                         </p>
                         <p className="text-muted-foreground mt-0.5">
@@ -895,7 +895,7 @@ export default function AdminBookingDetail() {
                     <div className="flex items-start gap-2.5">
                       <AlertTriangle size={15} className="text-sky-600 dark:text-sky-400 mt-0.5 shrink-0" />
                       <div className="text-xs leading-relaxed">
-                        <p className="font-bold text-sky-700 dark:text-sky-400">Reserva reembolsada</p>
+                        <p className="font-medium text-sky-700 dark:text-sky-400">Reserva reembolsada</p>
                         <p className="text-muted-foreground mt-0.5">Confirme com a gerência antes de prosseguir com a entrega.</p>
                       </div>
                     </div>
@@ -903,7 +903,7 @@ export default function AdminBookingDetail() {
                     <div className="flex items-start gap-2.5">
                       <AlertTriangle size={15} className="text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
                       <div className="text-xs leading-relaxed">
-                        <p className="font-bold text-red-700 dark:text-red-400">Pagamento falhou</p>
+                        <p className="font-medium text-red-700 dark:text-red-400">Pagamento falhou</p>
                         <p className="text-muted-foreground mt-0.5">Não entregue o veículo sem confirmar nova cobrança.</p>
                       </div>
                     </div>
@@ -913,7 +913,7 @@ export default function AdminBookingDetail() {
                         <path d="M20 6L9 17l-5-5" />
                       </svg>
                       <div className="text-xs leading-relaxed">
-                        <p className="font-bold text-emerald-700 dark:text-emerald-400">
+                        <p className="font-medium text-emerald-700 dark:text-emerald-400">
                           Reserva quitada — nenhum valor a cobrar na retirada.
                         </p>
                         <p className="text-muted-foreground mt-0.5">
@@ -932,7 +932,7 @@ export default function AdminBookingDetail() {
 
           {booking.notes && (
             <div className="bg-muted/30 p-4 sm:p-6 rounded-xl border border-border/30">
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              <label className="block text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-2">
                 Observações
               </label>
               <p className="text-sm italic text-muted-foreground leading-relaxed">{booking.notes}</p>

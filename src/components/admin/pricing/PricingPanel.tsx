@@ -227,7 +227,7 @@ export default function PricingPanel({ vehicleId, basePrice, onBasePriceSaved }:
       <Card className="bg-card/80 border-border/30 p-5">
         <div className="flex items-center gap-2 mb-3">
           <DollarSign size={16} className="text-primary" />
-          <h3 className="text-sm font-bold text-foreground">Diária base</h3>
+          <h3 className="text-sm font-medium text-foreground">Diária base</h3>
           <span className="text-[10px] text-muted-foreground ml-1">
             valor padrão quando nenhuma regra se aplica
           </span>
@@ -249,7 +249,7 @@ export default function PricingPanel({ vehicleId, basePrice, onBasePriceSaved }:
           <button
             onClick={saveBase}
             disabled={saving}
-            className="h-9 px-4 gold-gradient text-primary-foreground rounded-lg text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 hover:opacity-90 disabled:opacity-50"
+            className="h-9 px-4 gold-gradient text-primary-foreground rounded-lg text-xs font-medium uppercase tracking-widest flex items-center gap-1.5 hover:opacity-90 disabled:opacity-50"
           >
             <Save size={12} /> Salvar
           </button>
@@ -260,7 +260,7 @@ export default function PricingPanel({ vehicleId, basePrice, onBasePriceSaved }:
       <Card className="bg-card/80 border-border/30 p-5">
         <div className="flex items-center gap-2 mb-1">
           <CalendarRange size={16} className="text-primary" />
-          <h3 className="text-sm font-bold text-foreground">Temporadas</h3>
+          <h3 className="text-sm font-medium text-foreground">Temporadas</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-4">
           Alta/baixa temporada por intervalo. Quanto maior a prioridade, mais forte (vence outras temporadas no mesmo dia).
@@ -376,7 +376,7 @@ export default function PricingPanel({ vehicleId, basePrice, onBasePriceSaved }:
       <Card className="bg-card/80 border-border/30 p-5">
         <div className="flex items-center gap-2 mb-1">
           <Sparkles size={16} className="text-primary" />
-          <h3 className="text-sm font-bold text-foreground">Preços por dia (calendário)</h3>
+          <h3 className="text-sm font-medium text-foreground">Preços por dia (calendário)</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-4">
           Selecione vários dias, informe o preço e aplique. Esses preços vencem temporadas e base.
@@ -437,7 +437,7 @@ export default function PricingPanel({ vehicleId, basePrice, onBasePriceSaved }:
                 <button
                   onClick={applyOverrides}
                   disabled={!selectedDays?.length || !overridePrice}
-                  className="h-9 px-4 gold-gradient text-primary-foreground rounded-lg text-xs font-bold uppercase tracking-widest disabled:opacity-40"
+                  className="h-9 px-4 gold-gradient text-primary-foreground rounded-lg text-xs font-medium uppercase tracking-widest disabled:opacity-40"
                 >
                   Aplicar
                 </button>
@@ -503,7 +503,7 @@ export default function PricingPanel({ vehicleId, basePrice, onBasePriceSaved }:
       <Card className="bg-card/80 border-border/30 p-5">
         <div className="flex items-center gap-2 mb-1">
           <TrendingDown size={16} className="text-primary" />
-          <h3 className="text-sm font-bold text-foreground">Regras dinâmicas</h3>
+          <h3 className="text-sm font-medium text-foreground">Regras dinâmicas</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-4">
           Ajustes aplicados em cima do preço resolvido (override → temporada → base).
@@ -584,7 +584,7 @@ export default function PricingPanel({ vehicleId, basePrice, onBasePriceSaved }:
           <button
             onClick={saveRules}
             disabled={saving}
-            className="ml-auto h-9 px-4 gold-gradient text-primary-foreground rounded-lg text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 hover:opacity-90 disabled:opacity-50"
+            className="ml-auto h-9 px-4 gold-gradient text-primary-foreground rounded-lg text-xs font-medium uppercase tracking-widest flex items-center gap-1.5 hover:opacity-90 disabled:opacity-50"
           >
             <Save size={12} /> Salvar regras
           </button>

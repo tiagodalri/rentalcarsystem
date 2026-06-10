@@ -609,7 +609,7 @@ export default function AdminInspection() {
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-2xl font-medium text-foreground">
               {type === "checkin" ? "Entrega do Veículo" : "Devolução do Veículo"}
             </h1>
             {isCompleted && (
@@ -1004,7 +1004,7 @@ export default function AdminInspection() {
                       title={zone.label}
                     >
                       {hasDamage ? (
-                        <span className="text-[10px] font-bold">{zoneDamages.length}</span>
+                        <span className="text-[10px] font-medium">{zoneDamages.length}</span>
                       ) : (
                         <span className="text-[10px]">+</span>
                       )}

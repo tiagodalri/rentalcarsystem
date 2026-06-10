@@ -186,7 +186,7 @@ export default function AdminFleetReport({
       <div className="flex items-center justify-between">
         {!embedded ? (
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Relatório Mensal de Frota</h1>
+            <h1 className="text-2xl font-medium text-foreground">Relatório Mensal de Frota</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Análise de desempenho, utilização e avarias
             </p>
@@ -217,7 +217,7 @@ export default function AdminFleetReport({
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita Total</p>
-                <p className="text-xl font-bold text-foreground">${totalRevenue.toLocaleString()}</p>
+                <p className="text-xl font-medium text-foreground">${totalRevenue.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -230,7 +230,7 @@ export default function AdminFleetReport({
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Reservas</p>
-                <p className="text-xl font-bold text-foreground">{totalBookings}</p>
+                <p className="text-xl font-medium text-foreground">{totalBookings}</p>
               </div>
             </div>
           </CardContent>
@@ -243,7 +243,7 @@ export default function AdminFleetReport({
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Ocupação Média</p>
-                <p className="text-xl font-bold text-foreground">{avgOccupancy}%</p>
+                <p className="text-xl font-medium text-foreground">{avgOccupancy}%</p>
               </div>
             </div>
           </CardContent>
@@ -256,7 +256,7 @@ export default function AdminFleetReport({
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Avarias</p>
-                <p className="text-xl font-bold text-foreground">{totalDamages}</p>
+                <p className="text-xl font-medium text-foreground">{totalDamages}</p>
               </div>
             </div>
           </CardContent>
@@ -371,7 +371,7 @@ export default function AdminFleetReport({
               <div className="space-y-2">
                 {damageRanking.map((r, i) => (
                   <div key={r.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30 border border-border/20">
-                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
                       i === 0 ? "bg-destructive/20 text-destructive" : i < 3 ? "bg-muted text-foreground" : "bg-muted/50 text-muted-foreground"
                     }`}>
                       {i + 1}
@@ -401,7 +401,7 @@ export default function AdminFleetReport({
             <CardTitle className="text-sm flex items-center gap-2">
               <Sparkles size={16} className="text-primary" /> Receita de Opcionais
               {totalAddonRevenue > 0 && (
-                <Badge variant="outline" className="ml-auto text-xs font-bold">${totalAddonRevenue.toLocaleString()}</Badge>
+                <Badge variant="outline" className="ml-auto text-xs font-medium">${totalAddonRevenue.toLocaleString()}</Badge>
               )}
             </CardTitle>
           </CardHeader>
@@ -443,17 +443,17 @@ export default function AdminFleetReport({
                   <Shield size={28} className="text-primary" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-bold text-foreground">Zeus</p>
+                  <p className="text-sm font-medium text-foreground">Zeus</p>
                   <p className="text-[11px] text-muted-foreground">Plano único</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2 w-full mt-1">
                   <div className="text-center p-2 rounded-lg bg-muted/30 border border-border/20">
                     <p className="text-[10px] text-muted-foreground">Reservas</p>
-                    <p className="text-sm font-bold text-foreground">{totalBookingsWithPlan}</p>
+                    <p className="text-sm font-medium text-foreground">{totalBookingsWithPlan}</p>
                   </div>
                   <div className="text-center p-2 rounded-lg bg-muted/30 border border-border/20">
                     <p className="text-[10px] text-muted-foreground">% do total</p>
-                    <p className="text-sm font-bold text-foreground">100%</p>
+                    <p className="text-sm font-medium text-foreground">100%</p>
                   </div>
                 </div>
               </div>
@@ -479,7 +479,7 @@ export default function AdminFleetReport({
               <CardContent className="p-3 text-center">
                 <Icon size={16} className="text-primary mx-auto mb-1" />
                 <p className="text-[9px] text-muted-foreground uppercase tracking-wider">{label}</p>
-                <p className="text-base font-bold text-foreground">${value.toLocaleString()}</p>
+                <p className="text-base font-medium text-foreground">${value.toLocaleString()}</p>
               </CardContent>
             </Card>
           ))}

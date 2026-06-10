@@ -50,7 +50,7 @@ export function AccountsTab() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-foreground">Contas</h2>
+          <h2 className="text-lg font-medium text-foreground">Contas</h2>
           <p className="text-xs text-muted-foreground">Origens do dinheiro (bancos, cartões, caixa)</p>
         </div>
         <Button onClick={() => { setEditing(null); setDialogOpen(true); }}>

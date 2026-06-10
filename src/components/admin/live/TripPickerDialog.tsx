@@ -156,8 +156,8 @@ export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold">Replay de viagem</p>
-            <h2 className="text-base font-bold text-white mt-0.5">{vehicleName}</h2>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-medium">Replay de viagem</p>
+            <h2 className="text-base font-medium text-white mt-0.5">{vehicleName}</h2>
             <p className="text-[11px] text-white/50 mt-0.5">Selecione uma viagem para reproduzir</p>
           </div>
           <button
@@ -177,7 +177,7 @@ export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick
               onClick={() => onPick(`live:${vehicleId}`)}
               className="w-full text-left rounded-xl border border-emerald-500/40 hover:border-emerald-400 bg-gradient-to-br from-emerald-500/10 via-emerald-500/[0.04] to-transparent transition-all px-3 py-3 mb-3 group relative overflow-hidden"
             >
-              <div className="absolute top-2 right-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+              <div className="absolute top-2 right-2 flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-emerald-400">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
@@ -189,7 +189,7 @@ export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick
                   <Radio size={16} className="text-emerald-400" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-white">Em andamento</p>
+                  <p className="text-sm font-medium text-white">Em andamento</p>
                   <p className="text-[11px] text-white/60 mt-0.5 flex items-center gap-3 flex-wrap">
                     <span className="flex items-center gap-1 tabular-nums">
                       <Clock size={10} />{fmtTime(live.startedAt)} • há {liveElapsedMin} min
@@ -226,7 +226,7 @@ export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick
                 return (
                   <div key={day} className="space-y-1.5">
                     <div className="flex items-center justify-between px-2">
-                      <span className="text-[10px] font-bold tracking-wider text-[#D4AF37]/80">
+                      <span className="text-[10px] font-medium tracking-wider text-[#D4AF37]/80">
                         {dayHeader(day)}
                       </span>
                       <span className="text-[10px] font-semibold text-white/60 tabular-nums">
@@ -257,7 +257,7 @@ export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick
                                 </p>
                               </div>
                             </div>
-                            <span className="text-sm font-bold text-white tabular-nums shrink-0">
+                            <span className="text-sm font-medium text-white tabular-nums shrink-0">
                               {(t.distance_mi ?? 0).toFixed(1).replace(".", ",")}
                               <span className="text-[9px] font-normal text-white/40 ml-1">mi</span>
                             </span>

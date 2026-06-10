@@ -413,7 +413,7 @@ export default function AdminVehicleDetail() {
         <Button variant="ghost" size="icon" onClick={() => navigate("/admin/fleet")} className="mt-1"><ChevronLeft size={20} /></Button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-foreground">{vehicle.name}</h1>
+            <h1 className="text-2xl font-medium text-foreground">{vehicle.name}</h1>
             <Badge variant="outline" className={vs.color}>{vs.label}</Badge>
             {openIncidents > 0 && (
               <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30 flex items-center gap-1">
@@ -444,7 +444,7 @@ export default function AdminVehicleDetail() {
                   <Icon size={14} className={s.color} />
                   <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium truncate">{s.label}</span>
                 </div>
-                <p className="text-base sm:text-lg font-bold text-foreground leading-tight tabular-nums">{s.value}</p>
+                <p className="text-base sm:text-lg font-medium text-foreground leading-tight tabular-nums">{s.value}</p>
                 <p className="text-[11px] text-muted-foreground mt-1 truncate">{s.sub}</p>
               </CardContent>
             </Card>
@@ -474,7 +474,7 @@ export default function AdminVehicleDetail() {
                     <Icon size={12} className="text-primary" />
                     <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium truncate">{s.label}</span>
                   </div>
-                  <p className="text-sm font-bold text-foreground tabular-nums">{s.value}</p>
+                  <p className="text-sm font-medium text-foreground tabular-nums">{s.value}</p>
                 </CardContent>
               </Card>
             );
@@ -525,7 +525,7 @@ export default function AdminVehicleDetail() {
                       <div className="px-5 pt-4 pb-3 flex items-center justify-between gap-2 border-b border-border/40">
                         <div className="flex items-center gap-2">
                           <Star size={14} className="text-primary" />
-                          <h3 className="font-bold text-foreground text-sm">Capa atual</h3>
+                          <h3 className="font-medium text-foreground text-sm">Capa atual</h3>
                         </div>
                         <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Exibida no site e cards</span>
                       </div>
@@ -558,7 +558,7 @@ export default function AdminVehicleDetail() {
                   <Card className="border-border/40 lg:col-span-2">
                     <CardContent className="p-5 h-full flex flex-col">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                        <h3 className="font-medium text-foreground text-sm flex items-center gap-2">
                           <Upload size={14} className="text-primary" /> Enviar fotos
                         </h3>
                         <span className="text-[10px] text-muted-foreground">{photos.length} {photos.length === 1 ? "foto" : "fotos"}</span>
@@ -605,7 +605,7 @@ export default function AdminVehicleDetail() {
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                       <div>
-                        <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                        <h3 className="font-medium text-foreground text-sm flex items-center gap-2">
                           <ImageIcon size={14} className="text-primary" /> Galeria completa
                         </h3>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -669,11 +669,11 @@ export default function AdminVehicleDetail() {
                                   decoding="async"
                                 />
                                 <div className="absolute top-2 left-2 flex flex-col gap-1">
-                                  <span className="bg-background/95 text-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
+                                  <span className="bg-background/95 text-foreground text-[10px] font-medium px-1.5 py-0.5 rounded-md shadow-sm">
                                     #{idx + 1}
                                   </span>
                                   {isCover && (
-                                    <span className="bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-sm">
+                                    <span className="bg-primary text-primary-foreground text-[9px] font-medium px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-sm">
                                       <Star size={9} fill="currentColor" /> CAPA
                                     </span>
                                   )}
@@ -761,7 +761,7 @@ export default function AdminVehicleDetail() {
         <TabsContent value="health" className="mt-4 space-y-4">
           <Card className="border-border/40">
             <CardContent className="p-6">
-              <h3 className="font-bold text-foreground flex items-center gap-2 mb-4">
+              <h3 className="font-medium text-foreground flex items-center gap-2 mb-4">
                 <Heart size={16} className={healthColor} /> Condição Geral — {healthScore}/100
               </h3>
               <div className="w-full h-3 rounded-full bg-muted overflow-hidden mb-6">
@@ -780,7 +780,7 @@ export default function AdminVehicleDetail() {
                   return (
                     <div key={item.key} className="text-center p-4 rounded-lg border border-border/30 bg-card/50">
                       <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">{item.label}</p>
-                      <p className={`text-sm font-bold ${cl.color}`}>{cl.label}</p>
+                      <p className={`text-sm font-medium ${cl.color}`}>{cl.label}</p>
                       <div className="mt-2 w-full h-1.5 rounded-full bg-muted overflow-hidden">
                         <div className={`h-full rounded-full ${conditionScore(val) >= 80 ? "bg-emerald-500" : conditionScore(val) >= 50 ? "bg-yellow-500" : "bg-destructive"}`}
                           style={{ width: `${conditionScore(val)}%` }} />
@@ -797,19 +797,19 @@ export default function AdminVehicleDetail() {
             <Card className="border-border/40">
               <CardContent className="p-4">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Última Revisão</p>
-                <p className="font-bold text-foreground">{vehicle.last_service_date ? new Date(vehicle.last_service_date).toLocaleDateString("pt-BR") : "—"}</p>
+                <p className="font-medium text-foreground">{vehicle.last_service_date ? new Date(vehicle.last_service_date).toLocaleDateString("pt-BR") : "—"}</p>
               </CardContent>
             </Card>
             <Card className="border-border/40">
               <CardContent className="p-4">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Próxima Revisão (mi)</p>
-                <p className="font-bold text-foreground">{vehicle.next_service_km ? `${vehicle.next_service_km.toLocaleString("pt-BR")} mi` : "—"}</p>
+                <p className="font-medium text-foreground">{vehicle.next_service_km ? `${vehicle.next_service_km.toLocaleString("pt-BR")} mi` : "—"}</p>
               </CardContent>
             </Card>
             <Card className="border-border/40">
               <CardContent className="p-4">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Avarias em Locações</p>
-                <p className="font-bold text-foreground">{totalDamages} registradas</p>
+                <p className="font-medium text-foreground">{totalDamages} registradas</p>
               </CardContent>
             </Card>
           </div>
@@ -817,7 +817,7 @@ export default function AdminVehicleDetail() {
           {/* Quick stats */}
           <Card className="border-border/40">
             <CardContent className="p-6">
-              <h3 className="font-bold text-foreground mb-4">Resumo de Gastos por Categoria</h3>
+              <h3 className="font-medium text-foreground mb-4">Resumo de Gastos por Categoria</h3>
               {expenses.length === 0 ? <EmptyState icon={Receipt} title="Nenhum gasto registrado" description="Registre manutenções, combustível e outros custos operacionais deste veículo." compact /> : (
                 <div className="space-y-2">
                   {Object.entries(expenses.reduce((acc, e) => { acc[e.type] = (acc[e.type] || 0) + e.amount; return acc; }, {} as Record<string, number>))
@@ -833,7 +833,7 @@ export default function AdminVehicleDetail() {
                           <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                             <div className="h-full rounded-full bg-primary/60" style={{ width: `${pct}%` }} />
                           </div>
-                          <span className="text-xs font-bold text-foreground tabular-nums w-24 text-right">${total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                          <span className="text-xs font-medium text-foreground tabular-nums w-24 text-right">${total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
                         </div>
                       );
                     })}
@@ -846,7 +846,7 @@ export default function AdminVehicleDetail() {
         {/* ── Expenses Tab ── */}
         <TabsContent value="expenses" className="mt-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-foreground">Gastos do Veículo</h3>
+            <h3 className="font-medium text-foreground">Gastos do Veículo</h3>
             <Button size="sm" onClick={() => setShowExpenseForm(true)} className="gold-gradient text-primary-foreground">
               <Plus size={14} className="mr-1" /> Novo Gasto
             </Button>
@@ -857,7 +857,7 @@ export default function AdminVehicleDetail() {
             <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setShowExpenseForm(false)}>
               <div className="bg-card rounded-xl border border-border/50 shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-foreground">Registrar Gasto</h3>
+                  <h3 className="font-medium text-foreground">Registrar Gasto</h3>
                   <button onClick={() => setShowExpenseForm(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
                 </div>
                 <div className="space-y-3">
@@ -947,7 +947,7 @@ export default function AdminVehicleDetail() {
                         <p className="text-xs text-muted-foreground truncate">{e.description || e.supplier || "—"}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-foreground">${e.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+                        <p className="font-medium text-foreground">${e.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
                         <p className="text-[10px] text-muted-foreground">{new Date(e.expense_date).toLocaleDateString("pt-BR")}</p>
                       </div>
                       <button onClick={() => deleteExpense(e.id)} className="text-muted-foreground/30 hover:text-destructive transition-colors"><Trash2 size={14} /></button>
@@ -957,7 +957,7 @@ export default function AdminVehicleDetail() {
               })}
               <div className="pt-2 border-t border-border/30 flex justify-between items-center">
                 <span className="text-sm font-medium text-muted-foreground">Total de Gastos</span>
-                <span className="text-lg font-bold text-foreground">${totalExpenses.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                <span className="text-lg font-medium text-foreground">${totalExpenses.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
               </div>
             </div>
           )}
@@ -966,7 +966,7 @@ export default function AdminVehicleDetail() {
         {/* ── Incidents Tab ── */}
         <TabsContent value="incidents" className="mt-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-foreground">Ocorrências</h3>
+            <h3 className="font-medium text-foreground">Ocorrências</h3>
             <Button size="sm" onClick={() => setShowIncidentForm(true)} className="bg-destructive/90 text-destructive-foreground hover:bg-destructive">
               <Plus size={14} className="mr-1" /> Nova Ocorrência
             </Button>
@@ -977,7 +977,7 @@ export default function AdminVehicleDetail() {
             <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setShowIncidentForm(false)}>
               <div className="bg-card rounded-xl border border-border/50 shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-foreground">Abrir Ocorrência</h3>
+                  <h3 className="font-medium text-foreground">Abrir Ocorrência</h3>
                   <button onClick={() => setShowIncidentForm(false)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
                 </div>
                 <div className="space-y-3">
@@ -1042,7 +1042,7 @@ export default function AdminVehicleDetail() {
                           {inc.resolution_notes && <p className="text-xs text-emerald-600 mt-1">✓ {inc.resolution_notes}</p>}
                         </div>
                         <div className="text-right shrink-0">
-                          {(inc.estimated_cost || 0) > 0 && <p className="font-bold text-foreground text-sm">${(inc.actual_cost || inc.estimated_cost || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>}
+                          {(inc.estimated_cost || 0) > 0 && <p className="font-medium text-foreground text-sm">${(inc.actual_cost || inc.estimated_cost || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>}
                         </div>
                       </div>
                       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/20">
@@ -1091,9 +1091,9 @@ export default function AdminVehicleDetail() {
                         <div className="flex items-center gap-6 text-sm">
                           <div className="text-center">
                             <p className="text-[10px] text-muted-foreground">Valor</p>
-                            <p className="font-bold text-foreground">${b.total_price?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}</p>
+                            <p className="font-medium text-foreground">${b.total_price?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}</p>
                           </div>
-                          {kmDriven !== null && <div className="text-center"><p className="text-[10px] text-muted-foreground">Milhas</p><p className="font-bold text-foreground">{kmDriven.toLocaleString("pt-BR")}</p></div>}
+                          {kmDriven !== null && <div className="text-center"><p className="text-[10px] text-muted-foreground">Milhas</p><p className="font-medium text-foreground">{kmDriven.toLocaleString("pt-BR")}</p></div>}
                         </div>
                       </div>
                     </CardContent>
@@ -1122,7 +1122,7 @@ export default function AdminVehicleDetail() {
           <Card className="border-border/40">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-bold text-foreground flex items-center gap-2"><Settings size={16} className="text-primary" /> Ficha Completa do Veículo</h3>
+                <h3 className="font-medium text-foreground flex items-center gap-2"><Settings size={16} className="text-primary" /> Ficha Completa do Veículo</h3>
                 {!editingDetails ? (
                   <Button variant="outline" size="sm" onClick={() => { setEditForm(vehicle); setEditingDetails(true); }}><Pencil size={12} className="mr-1" /> Editar</Button>
                 ) : (
@@ -1235,7 +1235,7 @@ export default function AdminVehicleDetail() {
             {Object.entries(conditionLabels).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>
         ) : (
-          <p className={`text-sm font-bold ${cl.color}`}>{cl.label}</p>
+          <p className={`text-sm font-medium ${cl.color}`}>{cl.label}</p>
         )}
       </div>
     );

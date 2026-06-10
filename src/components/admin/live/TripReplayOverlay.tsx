@@ -997,8 +997,8 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
             <Play size={16} className="text-black ml-0.5" fill="currentColor" />
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.25em] font-bold" style={{ color: GOLD }}>Replay de viagem</p>
-            <h2 className="text-sm font-bold text-white truncate">{vehicleName}</h2>
+            <p className="text-[10px] uppercase tracking-[0.25em] font-medium" style={{ color: GOLD }}>Replay de viagem</p>
+            <h2 className="text-sm font-medium text-white truncate">{vehicleName}</h2>
           </div>
         </div>
 
@@ -1075,7 +1075,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                 <AlertTriangle size={22} className="mx-auto text-red-500 mb-2" />
                 <p className="text-sm font-semibold text-white">Não foi possível abrir a viagem</p>
                 <p className="text-xs text-white/60 mt-1">{error}</p>
-                <button onClick={onClose} className="mt-4 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 text-white">
+                <button onClick={onClose} className="mt-4 text-xs font-medium uppercase tracking-wider px-4 py-2 rounded-full bg-white/10 hover:bg-white/15 text-white">
                   Fechar
                 </button>
               </div>
@@ -1100,7 +1100,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
               {data.startOdometerMi != null && data.endOdometerMi != null && (
                 <div className="mt-2 rounded-md bg-white/[0.04] border border-white/5 px-2 py-1.5">
                   <p className="text-[8px] uppercase tracking-wider text-white/40 font-semibold">Odômetro</p>
-                  <p className="text-xs font-bold text-white tabular-nums">
+                  <p className="text-xs font-medium text-white tabular-nums">
                     {Math.round(
                       data.startOdometerMi + (data.endOdometerMi - data.startOdometerMi) * (playbackMs / data.durationMs)
                     ).toLocaleString("pt-BR")} mi
@@ -1145,10 +1145,10 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
           {data && intro && !loading && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/55 backdrop-blur-[2px] animate-in fade-in duration-300 pointer-events-none">
               <div className="text-center px-8 animate-in fade-in zoom-in-95 duration-500">
-                <p className="text-[10px] uppercase tracking-[0.4em] font-bold mb-3" style={{ color: GOLD }}>
+                <p className="text-[10px] uppercase tracking-[0.4em] font-medium mb-3" style={{ color: GOLD }}>
                   Preparando replay
                 </p>
-                <h3 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
+                <h3 className="text-2xl sm:text-3xl font-medium text-white leading-tight">
                   {vehicleName}
                 </h3>
                 {data.startAddress && (
@@ -1163,11 +1163,11 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                   </p>
                 )}
                 <div className="mt-4 flex items-center justify-center gap-5 text-[10px] uppercase tracking-wider text-white/50">
-                  <span><span className="tabular-nums text-white font-bold">{data.totalDistanceMi.toFixed(1).replace(".", ",")}</span> mi</span>
+                  <span><span className="tabular-nums text-white font-medium">{data.totalDistanceMi.toFixed(1).replace(".", ",")}</span> mi</span>
                   <span className="w-1 h-1 rounded-full bg-white/30" />
-                  <span><span className="tabular-nums text-white font-bold">{fmtClock(data.durationMs)}</span></span>
+                  <span><span className="tabular-nums text-white font-medium">{fmtClock(data.durationMs)}</span></span>
                   <span className="w-1 h-1 rounded-full bg-white/30" />
-                  <span>pico <span className="tabular-nums text-white font-bold">{Math.round(data.maxSpeedMph)}</span> mph</span>
+                  <span>pico <span className="tabular-nums text-white font-medium">{Math.round(data.maxSpeedMph)}</span> mph</span>
                 </div>
               </div>
             </div>
@@ -1192,8 +1192,8 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                     <Trophy size={16} className="text-black" />
                   </div>
                   <div>
-                    <p className="text-[9px] uppercase tracking-[0.3em] font-bold" style={{ color: GOLD }}>Viagem concluída</p>
-                    <h4 className="text-base font-bold text-white leading-tight">{vehicleName}</h4>
+                    <p className="text-[9px] uppercase tracking-[0.3em] font-medium" style={{ color: GOLD }}>Viagem concluída</p>
+                    <h4 className="text-base font-medium text-white leading-tight">{vehicleName}</h4>
                   </div>
                 </div>
 
@@ -1234,7 +1234,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                   {data.startOdometerMi != null && data.endOdometerMi != null && (
                     <div className="col-span-2 rounded-md bg-white/[0.04] border border-white/5 px-2 py-1.5">
                       <p className="text-[8px] uppercase tracking-wider text-white/40 font-semibold">Odômetro</p>
-                      <p className="text-xs font-bold text-white tabular-nums">
+                      <p className="text-xs font-medium text-white tabular-nums">
                         {Math.round(data.startOdometerMi).toLocaleString("pt-BR")} → {Math.round(data.endOdometerMi).toLocaleString("pt-BR")} mi
                       </p>
                     </div>
@@ -1249,14 +1249,14 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                       setShowSummary(false);
                       setPlaying(true);
                     }}
-                    className="flex-1 text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-full text-black hover:scale-[1.02] transition-transform flex items-center justify-center gap-1.5"
+                    className="flex-1 text-[11px] font-medium uppercase tracking-wider px-4 py-2.5 rounded-full text-black hover:scale-[1.02] transition-transform flex items-center justify-center gap-1.5"
                     style={{ background: GOLD }}
                   >
                     <RotateCcw size={12} /> Assistir de novo
                   </button>
                   <button
                     onClick={onClose}
-                    className="text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-full border border-white/15 text-white/80 hover:bg-white/5"
+                    className="text-[11px] font-medium uppercase tracking-wider px-4 py-2.5 rounded-full border border-white/15 text-white/80 hover:bg-white/5"
                   >
                     Fechar
                   </button>
@@ -1270,7 +1270,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
         {data && (
           <div className="lg:w-[280px] lg:border-l border-t lg:border-t-0 border-white/5 bg-black/70 backdrop-blur-md flex flex-col max-h-[40vh] lg:max-h-none">
             <div className="px-4 py-3 border-b border-white/5">
-              <p className="text-[10px] uppercase tracking-[0.2em] font-bold" style={{ color: GOLD }}>Linha do tempo</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] font-medium" style={{ color: GOLD }}>Linha do tempo</p>
               <p className="text-[11px] text-white/50 mt-0.5">Clique para pular ao momento</p>
             </div>
             <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1 scrollbar-thin">
@@ -1395,7 +1395,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
                 <button
                   key={s}
                   onClick={() => setSpeed(s)}
-                  className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full transition-colors ${
+                  className={`text-[10px] font-medium uppercase tracking-wider px-2 py-1 rounded-full transition-colors ${
                     speed === s ? "bg-[#D4AF37] text-black" : "text-white/70 hover:text-white"
                   }`}
                   title={s === 18 ? "Velocidade padrão" : s < 18 ? "Mais lento" : "Mais rápido"}
@@ -1452,7 +1452,7 @@ function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; va
     <div className="flex items-center gap-1.5">
       <span className="text-white/40">{icon}</span>
       <span className="text-[9px] uppercase tracking-wider text-white/40 font-semibold">{label}</span>
-      <span className="text-xs font-bold text-white tabular-nums">{value}</span>
+      <span className="text-xs font-medium text-white tabular-nums">{value}</span>
     </div>
   );
 }
@@ -1461,7 +1461,7 @@ function MiniStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md bg-white/[0.04] border border-white/5 px-2 py-1.5">
       <p className="text-[8px] uppercase tracking-wider text-white/40 font-semibold">{label}</p>
-      <p className="text-xs font-bold text-white tabular-nums">{value}</p>
+      <p className="text-xs font-medium text-white tabular-nums">{value}</p>
     </div>
   );
 }
@@ -1470,7 +1470,7 @@ function BigStat({ label, value, unit, highlight }: { label: string; value: stri
   return (
     <div className={`rounded-xl border px-3 py-3 text-center ${highlight ? "border-[#D4AF37]/40 bg-[#D4AF37]/[0.06]" : "border-white/10 bg-white/[0.03]"}`}>
       <p className="text-[8px] uppercase tracking-wider text-white/50 font-semibold">{label}</p>
-      <p className={`text-lg font-bold tabular-nums leading-tight mt-1 ${highlight ? "text-[#D4AF37]" : "text-white"}`}>
+      <p className={`text-lg font-medium tabular-nums leading-tight mt-1 ${highlight ? "text-[#D4AF37]" : "text-white"}`}>
         {value}
         {unit && <span className="text-[9px] font-normal text-white/50 ml-1 uppercase">{unit}</span>}
       </p>
@@ -1534,7 +1534,7 @@ function Speedometer({ mph, max, maxMarker, caption }: { mph: number; max: numbe
         </g>
       </svg>
       <div className="absolute inset-x-0 bottom-1 text-center px-1">
-        <p className="text-2xl font-bold text-white tabular-nums leading-none">{Math.round(mph)}</p>
+        <p className="text-2xl font-medium text-white tabular-nums leading-none">{Math.round(mph)}</p>
         <p className="text-[9px] uppercase tracking-wider text-white/50 font-semibold mt-0.5 whitespace-nowrap truncate">{caption ?? "mph"}</p>
         {maxMarker != null && (
           <p className="text-[8px] uppercase tracking-wider text-red-400/80 font-semibold mt-0.5 whitespace-nowrap">
