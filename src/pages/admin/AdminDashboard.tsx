@@ -229,10 +229,10 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
         >
           <CardContent className="p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium leading-tight">{card.label}</p>
-              <card.icon className={`h-4 w-4 ${card.color} opacity-50`} />
+              <p className="admin-label leading-tight">{card.label}</p>
+              <card.icon className={`h-3.5 w-3.5 ${card.color} opacity-60`} strokeWidth={1.75} />
             </div>
-            <p className={`text-xl font-bold tabular-nums ${card.color}`}>
+            <p className={`admin-kpi ${card.color}`}>
               {card.value}
             </p>
           </CardContent>
