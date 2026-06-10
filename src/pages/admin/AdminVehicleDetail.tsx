@@ -1104,6 +1104,19 @@ export default function AdminVehicleDetail() {
           )}
         </TabsContent>
 
+        {/* ── Precificação ── */}
+        <TabsContent value="pricing" className="mt-4">
+          {vehicle && (
+            <PricingPanel
+              vehicleId={vehicle.id}
+              basePrice={Number((vehicle as any).daily_price_usd) || 0}
+              onBasePriceSaved={(next) =>
+                setVehicle({ ...(vehicle as any), daily_price_usd: next } as any)
+              }
+            />
+          )}
+        </TabsContent>
+
         {/* ── Details / Ficha Técnica ── */}
         <TabsContent value="details" className="mt-4">
           <Card className="border-border/40">
