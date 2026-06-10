@@ -64,6 +64,9 @@ export function FleetCalendar() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
   const [showCancelled, setShowCancelled] = useState(false);
+  const [informalOpen, setInformalOpen] = useState(false);
+  const [reloadTick, setReloadTick] = useState(0);
+
 
   useEffect(() => {
     (async () => {
