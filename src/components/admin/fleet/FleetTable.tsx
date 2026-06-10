@@ -211,10 +211,10 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                       )}
                     </td>
                   ))}
-                  <td className={`px-3 py-2 whitespace-nowrap ${isExpiring(v.insurance_expiry) ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+                  <td className={`px-3 py-2.5 whitespace-nowrap tabular-nums ${isExpiring(v.insurance_expiry) ? "text-destructive font-medium" : "text-muted-foreground"}`}>
                     {fmtDate(v.insurance_expiry)}
                   </td>
-                  <td className={`px-3 py-2 whitespace-nowrap ${isExpiring(v.registration_expiry) ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+                  <td className={`px-3 py-2.5 whitespace-nowrap tabular-nums ${isExpiring(v.registration_expiry) ? "text-destructive font-medium" : "text-muted-foreground"}`}>
                     {fmtDate(v.registration_expiry)}
                   </td>
                   <td className="px-3 py-2 text-right whitespace-nowrap">
