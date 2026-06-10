@@ -6,7 +6,7 @@ import {
   LogOut,
   Settings,
   Radio,
-  // BarChart3, // removido com unificação Painel
+  BarChart3,
   DollarSign,
   UsersRound,
   Sparkles,
