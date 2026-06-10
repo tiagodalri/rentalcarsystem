@@ -255,7 +255,7 @@ const SearchResults = () => {
                       <div>
                         <p className="text-[10px] uppercase tracking-widest text-muted-foreground">A partir de</p>
                         <p className="text-2xl font-black text-foreground">
-                          {formatPrice(dailyPrice)}
+                          {formatPrice(dailyDisplay)}
                           <span className="text-sm font-medium text-muted-foreground"> /dia</span>
                         </p>
                         {days > 1 && (
