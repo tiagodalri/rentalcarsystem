@@ -14,6 +14,7 @@ import {
   Download, GitCompare, Info, Eye
 } from "lucide-react";
 import { generateInspectionPDF } from "@/utils/inspectionPdf";
+import { WebcamCaptureDialog } from "@/components/admin/WebcamCaptureDialog";
 import refFrente from "@/assets/inspection/frente.jpg";
 import refTraseira from "@/assets/inspection/traseira.jpg";
 import refLatEsq from "@/assets/inspection/lateral-esquerda.jpg";
