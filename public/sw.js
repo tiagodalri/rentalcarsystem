@@ -1,11 +1,14 @@
 // Zeus Rental Car — Service Worker
 // Strategy:
-//  - HTML navigations: NetworkFirst (so new deploys are seen immediately;
-//    cached shell only serves as offline fallback).
+//  - HTML navigations: StaleWhileRevalidate (cached HTML served INSTANTLY;
+//    fresh version fetched in background and stored for next visit).
+//    The update only "lands" when the user navigates (see useSwUpdateOnNavigate),
+//    so the in-progress task is never interrupted, AND every page load feels
+//    instant because we never block on the network for HTML.
 //  - Static assets (JS/CSS/fonts/images): StaleWhileRevalidate.
 //  - Everything else: pass-through.
 
-const VERSION = "v5";
+const VERSION = "v6";
 const HTML_CACHE = `zeus-html-${VERSION}`;
 const ASSET_CACHE = `zeus-assets-${VERSION}`;
 const OFFLINE_URL = "/";
@@ -63,20 +66,20 @@ self.addEventListener("fetch", (event) => {
   // Skip cross-origin (Supabase, fonts.googleapis, etc.)
   if (url.origin !== self.location.origin) return;
 
-  // 1) HTML navigations -> NetworkFirst (3s timeout) -> offline fallback.
+  // 1) HTML navigations -> StaleWhileRevalidate. Cache wins for instant load;
+  //    network refresh runs in background and updates cache for next visit.
   if (request.mode === "navigate") {
     event.respondWith(
       (async () => {
-        try {
-          const fresh = await fetch(request);
-          const cache = await caches.open(HTML_CACHE);
-          cache.put(OFFLINE_URL, fresh.clone());
-          return fresh;
-        } catch {
-          const cache = await caches.open(HTML_CACHE);
-          const cached = await cache.match(request);
-          return cached || (await cache.match(OFFLINE_URL));
-        }
+        const cache = await caches.open(HTML_CACHE);
+        const cached = (await cache.match(request)) || (await cache.match(OFFLINE_URL));
+        const networkPromise = fetch(request)
+          .then((res) => {
+            if (res && res.ok) cache.put(OFFLINE_URL, res.clone());
+            return res;
+          })
+          .catch(() => null);
+        return cached || (await networkPromise) || (await cache.match(OFFLINE_URL));
       })()
     );
     return;
