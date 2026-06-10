@@ -529,7 +529,8 @@ export default function AdminInspection() {
     if (!file) return;
     setUploading(true);
     const url = await uploadPhoto(file, "odometro");
-    if (url) setOdometerPhoto(url);
+    if (url) { setOdometerPhoto(url); setFuelPhoto(url); }
+
     setUploading(false);
     if (odometerPhotoRef.current) odometerPhotoRef.current.value = "";
   };
