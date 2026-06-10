@@ -230,23 +230,23 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                       onAuxClick={(e) => handleAuxClick(item.url, e)}
                       isActive={active}
                       tooltip={item.title}
-                      className={`relative h-10 rounded-lg px-3 transition-all duration-150 ${
+                      className={`relative h-8 rounded-lg px-3 transition-all duration-150 ${
                         active
                           ? "bg-sidebar-primary/12 text-sidebar-primary font-semibold hover:bg-sidebar-primary/15 hover:text-sidebar-primary"
                           : "text-sidebar-foreground/65 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
                       }`}
                     >
                       {active && !collapsed && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-sidebar-primary" />
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full bg-sidebar-primary" />
                       )}
                       <item.icon
-                        className={`h-[18px] w-[18px] shrink-0 ${
+                        className={`h-[16px] w-[16px] shrink-0 ${
                           active ? "text-sidebar-primary" : ""
                         }`}
                         strokeWidth={active ? 2.2 : 1.8}
                       />
                       {!collapsed && (
-                        <span className="text-[13.5px] leading-none">{item.title}</span>
+                        <span className="text-[12.5px] leading-none">{item.title}</span>
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
