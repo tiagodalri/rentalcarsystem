@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play, Database, Loader2 } from "lucide-react";
 import { toast } from "sonner";
