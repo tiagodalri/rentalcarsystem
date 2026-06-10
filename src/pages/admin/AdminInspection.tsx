@@ -14,6 +14,33 @@ import {
   Download, GitCompare, Info, Eye
 } from "lucide-react";
 import { generateInspectionPDF } from "@/utils/inspectionPdf";
+import refFrente from "@/assets/inspection/frente.jpg";
+import refTraseira from "@/assets/inspection/traseira.jpg";
+import refLatEsq from "@/assets/inspection/lateral-esquerda.jpg";
+import refLatDir from "@/assets/inspection/lateral-direita.jpg";
+import refPainel from "@/assets/inspection/painel.jpg";
+import refBancoD from "@/assets/inspection/banco-dianteiro.jpg";
+import refBancoT from "@/assets/inspection/banco-traseiro.jpg";
+import refPortaMalas from "@/assets/inspection/porta-malas.jpg";
+import refRodaDE from "@/assets/inspection/roda-de.jpg";
+import refRodaDD from "@/assets/inspection/roda-dd.jpg";
+import refRodaTE from "@/assets/inspection/roda-te.jpg";
+import refRodaTD from "@/assets/inspection/roda-td.jpg";
+
+const PHOTO_REFERENCES: Record<string, string> = {
+  "Frente": refFrente,
+  "Traseira": refTraseira,
+  "Lateral Esquerda": refLatEsq,
+  "Lateral Direita": refLatDir,
+  "Painel": refPainel,
+  "Banco Dianteiro": refBancoD,
+  "Banco Traseiro": refBancoT,
+  "Porta-Malas": refPortaMalas,
+  "Roda Dianteira Esq.": refRodaDE,
+  "Roda Dianteira Dir.": refRodaDD,
+  "Roda Traseira Esq.": refRodaTE,
+  "Roda Traseira Dir.": refRodaTD,
+};
 
 type DamageItem = {
   id: string;
