@@ -950,7 +950,7 @@ export default function AdminInspection() {
                           <span className="w-4 text-center text-[10px] font-medium tabular-nums shrink-0">
                             {done ? <CheckCircle2 size={13} className="text-emerald-500" /> : <span className="text-muted-foreground">{i + 1}</span>}
                           </span>
-                          <div className="relative w-10 h-10 rounded overflow-hidden bg-muted shrink-0 border border-border/30">
+                          <div className="relative w-20 h-16 sm:w-24 sm:h-[72px] rounded-md overflow-hidden bg-muted shrink-0 border border-border/30">
                             <img
                               src={PHOTO_REFERENCES[pos.name]}
                               alt=""
