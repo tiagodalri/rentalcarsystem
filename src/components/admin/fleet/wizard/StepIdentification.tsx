@@ -1,4 +1,5 @@
 import { WizardForm, inputCls, labelCls } from "./types";
+import BrandAutocomplete from "./BrandAutocomplete";
 
 const currentYear = new Date().getFullYear();
 
