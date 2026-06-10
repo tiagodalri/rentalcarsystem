@@ -4,6 +4,28 @@ import { useState } from "react";
 import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 import { storageThumb } from "@/lib/storageThumb";
 
+function VehicleThumb({ name, src }: { name: string; src: string }) {
+  const fallback = hasCoverImage(name) ? getCoverImage(name) : "";
+  const [current, setCurrent] = useState(src || fallback);
+  const [errored, setErrored] = useState(false);
+  if (!current || errored) {
+    return <Car size={14} className="text-muted-foreground/40" />;
+  }
+  return (
+    <img
+      src={current}
+      alt={name}
+      className="w-full h-full object-cover"
+      loading="lazy"
+      decoding="async"
+      onError={() => {
+        if (fallback && current !== fallback) setCurrent(fallback);
+        else setErrored(true);
+      }}
+    />
+  );
+}
+
 export type FleetTableVehicle = {
   id: string;
   name: string;
@@ -117,12 +139,9 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                       className="flex items-center gap-2.5 text-left"
                     >
                       <div className="h-9 w-12 rounded-md bg-muted/40 overflow-hidden shrink-0 flex items-center justify-center">
-                        {thumb ? (
-                          <img src={thumb} alt={v.name} className="w-full h-full object-cover" loading="lazy" />
-                        ) : (
-                          <Car size={14} className="text-muted-foreground/40" />
-                        )}
+                        <VehicleThumb name={v.name} src={thumb} />
                       </div>
+
                       <span className="font-medium text-foreground whitespace-nowrap">{v.name}</span>
                     </button>
                   </td>
