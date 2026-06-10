@@ -308,41 +308,6 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
         </section>
       )}
 
-      {/* Bloco 4 — Alertas Operacionais */}
-      {showAlerts && (
-        <section className="space-y-3">
-          <h2 className="admin-section-title">Alertas Operacionais</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {alertCards.map((alert) => {
-              const hasAlert = alert.value > 0;
-              return (
-                <Card
-                  key={alert.label}
-                  onClick={alert.onClick}
-                  className={`cursor-pointer transition-all duration-200 ${
-                    hasAlert
-                      ? "bg-destructive/5 border-destructive/30 hover:border-destructive/50"
-                      : "bg-card/80 border-border/30 hover:border-primary/30"
-                  }`}
-                >
-                  <CardContent className="p-5 flex flex-col items-center justify-center gap-2 text-center min-h-[100px]">
-                    <alert.icon
-                      size={22}
-                      className={hasAlert ? "text-destructive" : "text-muted-foreground/50"}
-                    />
-                    <span className={`admin-kpi ${hasAlert ? "text-destructive" : ""}`}>
-                      {alert.value}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
-                      {alert.label}
-                    </span>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </section>
-      )}
 
       {/* Recent bookings */}
       <Card className="bg-card/80 border-border/30">
