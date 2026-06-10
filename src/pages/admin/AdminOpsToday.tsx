@@ -151,9 +151,18 @@ export default function AdminOpsToday() {
     ? returnsWithStatus
     : returnsWithStatus.filter(x => x.s === returnFilter);
 
+  const prepGroups = useMemo(() => ({
+    maintenance: maintenance.filter(v => v.status === "maintenance"),
+    preparing: maintenance.filter(v => v.status === "preparing"),
+  }), [maintenance]);
+
+  if (loading) {
+    return <div className="p-10 text-center text-sm text-muted-foreground">Carregando operação do dia...</div>;
+  }
 
   return (
     <div className="space-y-5">
+
       {/* ────────── HEADER ────────── */}
       <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-5">
         <div>
