@@ -11,6 +11,7 @@ import {
   Calendar, MapPin, User, Car, Loader2, ExternalLink, ArrowRight,
   TrendingUp, TrendingDown, Minus, Sparkles, Hash, Phone, Mail,
 } from "lucide-react";
+import zeusLogo from "@/assets/zeus-logo-hd.png";
 
 const FUEL_LABELS: Record<string, string> = {
   empty: "Vazio", "1/8": "1/8", "1/4": "1/4", "3/8": "3/8",
