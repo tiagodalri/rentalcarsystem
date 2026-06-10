@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CalendarCheck, CalendarX2, Wrench, Car, MapPin, ChevronRight, Sun,
-  Clock, ChevronDown, ChevronLeft, CalendarDays,
+  Clock, ChevronDown, ChevronLeft, CalendarDays, Play,
 } from "lucide-react";
 import { addDays, format, isSameDay, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -548,6 +548,7 @@ function BookingRowCard({
 }: {
   booking: BookingRow; vehicle?: Vehicle; type: "pickup" | "return"; opsStatus: OpsStatus; onClick: () => void;
 }) {
+  const navigate = useNavigate();
   const time = type === "pickup" ? booking.pickup_time : booking.return_time;
   const loc = type === "pickup" ? booking.pickup_location : booking.return_location;
   const m = STATUS_META[opsStatus];
@@ -555,11 +556,19 @@ function BookingRowCard({
     ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
     : "bg-amber-500/15 text-amber-600 dark:text-amber-400";
 
+  const inspectionType = type === "pickup" ? "checkin" : "checkout";
+  const inspectionTone = type === "pickup"
+    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/20"
+    : "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20";
+
   const brand = vehicle?.name?.split(" ")[0];
   return (
-    <button
+    <div
       onClick={onClick}
-      className="w-full text-left rounded-xl border border-border/40 bg-background/80 backdrop-blur-sm hover:bg-background hover:border-border/70 hover:shadow-md transition-all group relative overflow-hidden"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(); } }}
+      className="w-full text-left rounded-xl border border-border/40 bg-background/80 backdrop-blur-sm hover:bg-background hover:border-border/70 hover:shadow-md transition-all group relative overflow-hidden cursor-pointer"
     >
       <div className={`absolute left-0 top-0 bottom-0 w-1 ${m.bar}`} />
       <div className="pl-4 pr-3 py-3">
@@ -599,13 +608,26 @@ function BookingRowCard({
                 {booking.booking_number}
               </span>
             )}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/admin/inspection/${booking.id}?type=${inspectionType}`);
+              }}
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors ${inspectionTone}`}
+              title={type === "pickup" ? "Inspeção de entrega" : "Inspeção de devolução"}
+            >
+              <Play size={10} className="fill-current" />
+              Inspeção
+            </button>
             <ChevronRight size={14} className="text-muted-foreground/60 group-hover:text-foreground transition-colors" />
           </div>
         </div>
       </div>
-    </button>
+    </div>
   );
 }
+
 
 
 function PrepCategory({
