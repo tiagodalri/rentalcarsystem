@@ -1250,7 +1250,7 @@ export default function AdminBookings() {
                       <th className="px-5 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Veículo</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Retirada</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Hora</th>
-                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Devolução</th>
+                      <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Devolução</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Hora</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Local</th>
                       <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Total</th>
