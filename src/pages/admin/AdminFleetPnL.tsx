@@ -308,7 +308,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                 <DollarSign size={18} className="text-primary" />
               </div>
               <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita Total</p>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita Acumulada</p>
                 <p className="text-xl font-medium text-foreground tabular-nums">${fmt(totals.revenue)}</p>
               </div>
             </div>
