@@ -30,16 +30,19 @@ type VehicleReport = {
   damageCount: number;
 };
 
+// Sophisticated emerald/teal palette — bold yet refined
 const CHART_COLORS = [
-  "hsl(var(--primary))",
-  "hsl(var(--chart-2, 160 60% 45%))",
-  "hsl(var(--chart-3, 30 80% 55%))",
-  "hsl(var(--chart-4, 280 65% 60%))",
-  "hsl(var(--chart-5, 340 75% 55%))",
-  "hsl(200 70% 50%)",
-  "hsl(120 50% 45%)",
-  "hsl(45 90% 50%)",
+  "hsl(160 84% 28%)",  // deep emerald
+  "hsl(170 60% 38%)",  // teal-emerald
+  "hsl(145 55% 42%)",  // forest
+  "hsl(180 45% 35%)",  // deep teal
+  "hsl(155 40% 52%)",  // sage
+  "hsl(165 70% 30%)",  // jade
+  "hsl(140 35% 45%)",  // moss
+  "hsl(175 50% 48%)",  // mint-teal
 ];
+const GREEN_PRIMARY = "hsl(160 84% 28%)";
+const GREEN_SECONDARY = "hsl(170 60% 38%)";
 
 export default function AdminFleetReport({
   embedded = false,
