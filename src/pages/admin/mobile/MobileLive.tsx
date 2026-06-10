@@ -42,7 +42,7 @@ export default function MobileLive() {
     <div className="fixed inset-0 top-14 bottom-16 z-10">
       {/* Map fills entire mobile viewport (under header & nav) */}
       <div className="absolute inset-0">
-        <GoogleFleetMap vehicles={onMap} onSelect={() => {}} />
+        <GoogleFleetMap vehicles={onMap} selectedId={null} onSelect={() => {}} onOpen={(id) => navigate(`/admin/fleet/${id}`)} />
       </div>
 
       {/* Floating KPI strip */}
@@ -91,8 +91,8 @@ export default function MobileLive() {
             <div className="py-10 text-center text-sm text-muted-foreground">Nenhum veículo.</div>
           ) : filtered.map((v) => (
             <button
-              key={v.id}
-              onClick={() => navigate(`/admin/fleet/${v.id}`)}
+              key={v.vehicle_id}
+              onClick={() => navigate(`/admin/fleet/${v.vehicle_id}`)}
               className="w-full flex items-center gap-3 px-4 py-3 border-b border-border/30 active:bg-muted/40 text-left"
             >
               <Signal size={14} className={v.lat ? "text-emerald-500" : "text-muted-foreground"} />
@@ -103,7 +103,7 @@ export default function MobileLive() {
                   {v.speed != null && (
                     <span className="inline-flex items-center gap-1"><Gauge size={10} /> {Math.round(v.speed)} mph</span>
                   )}
-                  <span className="inline-flex items-center gap-1"><MapPin size={10} /> {formatRelative(v.last_seen_at)}</span>
+                  <span className="inline-flex items-center gap-1"><MapPin size={10} /> {formatRelative(v.reported_at)}</span>
                 </div>
               </div>
             </button>

@@ -12,10 +12,10 @@ import { AccountsTab } from "@/components/admin/finance/AccountsTab";
    ============================================================ */
 
 const TABS = [
-  { value: "overview", label: "Visão", icon: <TrendingUp size={13} /> },
-  { value: "transactions", label: "Lançam.", icon: <List size={13} /> },
-  { value: "categories", label: "Categ.", icon: <Tag size={13} /> },
-  { value: "accounts", label: "Contas", icon: <Wallet size={13} /> },
+  { value: "overview", label: "Visão" },
+  { value: "transactions", label: "Lançam." },
+  { value: "categories", label: "Categ." },
+  { value: "accounts", label: "Contas" },
 ];
 
 export default function MobileFinance() {
