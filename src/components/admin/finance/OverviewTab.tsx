@@ -287,8 +287,8 @@ export function OverviewTab() {
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="rounded-xl bg-card border border-border p-6 lg:col-span-2 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <h3 className="text-sm font-bold text-foreground mb-5">Lucro Mensal</h3>
+        <div className="rounded-lg bg-card border border-border/70 p-6 lg:col-span-2">
+          <h3 className="text-[11px] font-medium text-foreground uppercase tracking-[0.16em] mb-5">Lucro Mensal</h3>
           {monthlyData.length === 0 ? (
             <EmptyState icon={TrendingUp} title="Sem movimentação" description="O lucro mensal aparece com a operação." compact />
           ) : (
