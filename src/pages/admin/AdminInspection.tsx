@@ -205,8 +205,7 @@ const PHOTO_POSITIONS: { name: string; guide: string; optional?: boolean }[] = [
   { name: "Roda Dianteira Dir.", guide: "Foto focada na roda dianteira direita: pneu, calota/roda e suspensão visível." },
   { name: "Roda Traseira Esq.", guide: "Foto focada na roda traseira esquerda: pneu, calota/roda e suspensão visível." },
   { name: "Roda Traseira Dir.", guide: "Foto focada na roda traseira direita: pneu, calota/roda e suspensão visível." },
-  { name: "Estribo Esq.", guide: "Somente se o veículo possuir estribo lateral (running board). Foto focada no estribo do lado esquerdo, mostrando estado geral e fixação.", optional: true },
-  { name: "Estribo Dir.", guide: "Somente se o veículo possuir estribo lateral (running board). Foto focada no estribo do lado direito, mostrando estado geral e fixação.", optional: true },
+  { name: "Estepe", guide: "Somente se o veículo possuir estepe visível ou acessível. Registre o estado do pneu reserva, independente de onde esteja (porta-malas, porta traseira, sob o veículo, etc.)", optional: true },
 ];
 
 
