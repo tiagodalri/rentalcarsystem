@@ -430,6 +430,22 @@ function CalendarLegend() {
   );
 }
 
+// Format full names: capitalize each word, lowercase particles (da, de, do, das, dos, e)
+const formatName = (raw: string | null | undefined): string => {
+  if (!raw) return "—";
+  const particles = new Set(["da", "de", "di", "do", "du", "das", "des", "dos", "e", "y"]);
+  return raw
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .map((w, i) => {
+      if (i > 0 && particles.has(w)) return w;
+      return w.charAt(0).toUpperCase() + w.slice(1);
+    })
+    .join(" ");
+};
+
+
 // ─── Filter types ───────────────────────────────────────────
 type SortField = "created_at" | "pickup_date" | "return_date" | "total_price" | "customer_name";
 type SortDir = "asc" | "desc";
@@ -1273,8 +1289,7 @@ export default function AdminBookings() {
                           className="border-b border-border/10 hover:bg-muted/20 transition-colors cursor-pointer group"
                         >
                           <td className="px-5 py-3.5">
-                            <p className="text-foreground font-medium text-[13px]">{b.customer_name}</p>
-                            <p className="text-[11px] text-muted-foreground/60 mt-0.5">{b.customer_email}</p>
+                            <p className="text-foreground font-medium text-[13px]">{formatName(b.customer_name)}</p>
                           </td>
                           <td className="px-5 py-3.5 border-l-2 border-border/60">
                             <div className="flex items-center gap-2.5 min-w-[160px]">
