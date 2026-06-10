@@ -1054,7 +1054,7 @@ export default function AdminInspection() {
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Sequência recomendada</p>
                     <span className="text-[10px] text-muted-foreground tabular-nums">
-                      {photos.filter((p) => !p.position.startsWith("__")).length}/{PHOTO_POSITIONS.length}
+                      {photos.filter((p) => !p.position.startsWith("__")).length}/{PHOTO_POSITIONS.filter((p) => !p.optional).length}
                     </span>
                   </div>
                   <div className="space-y-1.5">
