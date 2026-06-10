@@ -50,11 +50,14 @@ export function AdminMobileHeader() {
 
   return (
     <header
-      className="lg:hidden sticky top-0 z-30 flex items-center gap-2 px-2 h-[52px] border-b border-border/40 bg-background/95 backdrop-blur-md"
-      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
+      className="lg:hidden sticky top-0 z-30 flex items-center gap-1 px-2 h-14 bg-background/95 backdrop-blur-md"
+      style={{
+        paddingTop: "max(env(safe-area-inset-top, 0px), 4px)",
+        boxShadow: "inset 0 -1px 0 hsl(var(--border) / 0.6)",
+      }}
     >
-      <SidebarTrigger className="h-11 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0" />
-      <h1 className="flex-1 min-w-0 truncate text-base font-medium tracking-tight text-foreground">
+      <SidebarTrigger className="admin-icon-btn" aria-label="Abrir menu" />
+      <h1 className="flex-1 min-w-0 truncate text-[15px] font-medium tracking-tight text-foreground">
         {title}
       </h1>
       <DropdownMenu>
@@ -62,7 +65,7 @@ export function AdminMobileHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-11 w-11 rounded-full text-muted-foreground hover:text-foreground"
+            className="admin-icon-btn"
             aria-label="Mais opções"
           >
             <MoreVertical className="h-5 w-5" />

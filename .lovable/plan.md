@@ -1,112 +1,92 @@
-## Frente 1 — Fundação mobile-first do admin
+## Objetivo
 
-Objetivo: parar de parecer "desktop adaptado". Criar uma camada de padrões globais que toda tela do admin herda. Mudanças concentradas em `AdminLayout.tsx` + 3 componentes novos + 1 arquivo de tokens CSS. **Zero mudança em telas individuais nessa frente** — elas se beneficiam automaticamente da nova moldura e serão refinadas nas frentes 2 e 3.
+Transformar o admin em um app mobile de verdade — densidade certa, bordas e espaçamentos consistentes, áreas de toque confortáveis, transições sutis, zero sensação de "site espremido". Manter a estética **private-bank** já registrada (off-white/preto, Inter, tabular-nums), só refinando.
 
----
-
-### 1. Header mobile compacto e contextual
-
-Hoje: header de 56px só com hambúrguer + fullscreen + tema + idioma. Em mobile desperdiça espaço e não mostra contexto.
-
-Novo (`AdminLayout.tsx`, breakpoint `< lg`):
-- Altura 52px, sticky, com `safe-area-inset-top`
-- Esquerda: hambúrguer (sidebar continua para "Mais" / config)
-- Centro: **título da tela atual** (vem de um `useAdminPageTitle()` hook simples baseado em pathname → fallback no nome da rota)
-- Direita: 1 ação contextual (busca/filtro quando faz sentido) + menu kebab com tema/idioma/fullscreen agrupados
-- Desktop (`≥ lg`): mantém layout atual
-
-### 2. Bottom Tab Bar (5 seções)
-
-Novo componente `src/components/admin/AdminBottomNav.tsx`:
-- Visível só em `< lg`, fixo no rodapé com `safe-area-inset-bottom`
-- 5 abas: **Hoje** (`/admin/ops-today`), **Reservas** (`/admin/bookings`), **Frota** (`/admin/fleet`), **Clientes** (`/admin/customers`), **Mais** (abre a sidebar como sheet)
-- Cada aba: ícone Lucide 22px + label 11px tabular-nums, estado ativo com indicador superior fino + cor `foreground`
-- Filtragem por role (reaproveita `useAdminAuth().roles` igual à sidebar — se a role não tem acesso, oculta a aba)
-- Altura 64px + safe area
-- Renderizado dentro do `AdminLayout` depois do `<main>`, fora do scroll do conteúdo
-
-### 3. FAB contextual
-
-Novo componente `src/components/admin/AdminFab.tsx` + hook `useAdminFab()` (Context API):
-- Cada tela pode registrar a ação primária via `useRegisterFab({ icon, label, onClick })` no mount
-- FAB renderizado pelo layout em mobile, posicionado acima da tab bar (`bottom: calc(64px + safe-area + 16px)`)
-- Botão circular 56px, `bg-foreground text-background`, sombra
-- Se a tela não registrar, FAB não aparece
-- Nessa frente: criar a infra + ligar em Reservas (`+ Nova reserva`), Clientes (`+ Adicionar`) e Frota (`+ Veículo`). Demais telas ficam para depois.
-
-### 4. Padding e safe-area do `<main>`
-
-Hoje o `<main>` tem `paddingBottom` clamp genérico. Em mobile precisa reservar espaço da tab bar:
-- Desktop: mantém
-- Mobile: `paddingBottom: calc(64px + env(safe-area-inset-bottom) + 16px)` para o conteúdo não ficar atrás da tab bar
-- `padding-top` do main some em mobile (header já cuida); horizontal cai de `p-3` para `px-4 pt-3`
-
-### 5. Tokens mobile-first em `index.css`
-
-Adicionar variáveis utilitárias usadas pelas telas individuais nas frentes seguintes (cria a "linguagem" agora):
-- `--admin-touch-min: 44px` (alvo de toque mínimo)
-- `--admin-mobile-h1: 1.5rem` / `--admin-desktop-h1: 1.875rem` aplicados via `.admin-h1` com media query
-- `--admin-mobile-card-pad: 0.875rem`
-- Classe `.admin-chip-scroll` → `overflow-x-auto flex gap-2 -mx-4 px-4 snap-x` (para resolver chips em wrap nas frentes 2/3)
-- Classe `.admin-stack` → `flex flex-col gap-3` mobile, `gap-4` desktop
-
-### 6. Esconder elementos redundantes em mobile
-
-- Idioma + tema + fullscreen saem do header → entram no menu kebab + na sidebar (já existem lá)
-- `AdminTabsBar` (abas de navegador) **fica oculta em `< lg`** — em celular não faz sentido ter abas de navegador competindo com bottom nav
+Como o admin tem ~25 páginas, divido em **4 ondas**. Após cada onda você revisa antes da próxima.
 
 ---
 
-### Arquivos afetados
+## Onda 1 — Fundação (toca tudo de uma vez)
 
-**Editados:**
-- `src/components/admin/AdminLayout.tsx` — novo header mobile, monta tab bar + FAB, ajusta padding do main
-- `src/components/admin/AdminTabsBar.tsx` — adicionar `hidden lg:flex`
-- `src/index.css` — tokens e utilitários novos
+São as mudanças que sozinhas elevam a cara do app inteiro, sem mexer página por página.
 
-**Criados:**
-- `src/components/admin/AdminBottomNav.tsx`
-- `src/components/admin/AdminFab.tsx`
-- `src/components/admin/AdminMobileHeader.tsx` (extraído do Layout pra não inchar)
-- `src/hooks/useAdminFab.tsx` (Context + provider + `useRegisterFab` hook)
-- `src/hooks/useAdminPageTitle.ts` (mapa pathname → título)
+1. **Tokens mobile no `index.css`**
+   - Escala tipográfica mobile (`.admin-h1`, `.admin-h2`, `.admin-section-title`, `.admin-kpi`, `.admin-label`) recalibrada para 360–414px.
+   - Espaçamento padrão: gap 12 / pad 14 mobile → 16/24 desktop (via utilitários `.admin-stack`, `.admin-pad`, `.admin-gap`).
+   - Raio de bordas unificado: `0.625rem` mobile / `0.75rem` desktop (cards, inputs, botões).
+   - Bordas hairline (`border-border/50`) e sombras quase imperceptíveis (private-bank style).
+   - `.admin-card`, `.admin-card-row`, `.admin-list-row` com bordas e divisões alinhadas pixel-perfect.
+   - `font-feature-settings` ligado globalmente: `"ss01","cv11","tnum"` → números mais limpos.
 
-**Pontuais (registro do FAB):**
-- `src/pages/admin/AdminBookings.tsx` — registra "Nova reserva"
-- `src/pages/admin/AdminCustomers.tsx` — registra "Adicionar cliente"
-- `src/pages/admin/AdminFleet.tsx` — registra "Adicionar veículo"
+2. **Shell mobile (`AdminLayout`, `AdminMobileHeader`, `AdminBottomNav`, `AdminFab`)**
+   - Header mobile: altura 56px, título com `tracking-tight` e peso 500, separador hairline em vez de `border-border/40` cheio.
+   - Safe-area top: `max(env(safe-area-inset-top), 8px)` para não colar no notch.
+   - Bottom nav: 64px → 56px de altura útil + safe-area; ícones 22px, label `text-[10px]` em `font-medium` (não uppercase pesado), indicador ativo virá uma "barra-pílula" 4×4 no topo do item ativo, com transição.
+   - FAB reposicionado: `right-4 bottom-[calc(64px+safe+12px)]`, sombra mais leve, ring sutil no active.
+   - Conteúdo principal: padding lateral 16px, topo 12px, bottom reserva `64+safe+12` (já existe mas refinado).
 
----
+3. **Componentes base globais**
+   - `Button`: tamanho default mobile 44px (atende WCAG), `size="sm"` vira 40px (era 36px). `size="icon"` mobile = 44×44.
+   - `Input`, `Select`, `Textarea`: altura 44px mobile, font-size 16px (impede zoom do iOS), label acima com `text-xs` consistente.
+   - `Dialog`: em mobile vira sheet de baixo (full-width, rounded-t-2xl, drag handle no topo, max-h 92dvh com scroll interno), em vez do dialog centralizado que estoura a tela.
+   - `Card`: padding mobile 14px / desktop 20px, divisões internas com `border-border/40`.
+   - `Badge`: altura 22px com `text-[10px]` tabular, ponto colorido inline padronizado (verde/âmbar/azul/cinza/vermelho).
+   - `Switch`, `Checkbox`, `Radio`: tap-area 44px via wrapper.
 
-### Como testar
-
-1. Mobile (390×844): header 52px com título da rota, tab bar 5 ícones no rodapé, FAB visível em Reservas/Clientes/Frota
-2. Desktop (1280+): tudo igual ao atual — sidebar visível, tab bar **não aparece**, FAB **não aparece**, header com tema/idioma normais
-3. Rotacionar entre rotas: título do header muda; aba ativa do bottom nav muda
-4. Role limitada (ex: finance): só vê abas permitidas no bottom nav
-5. iOS safe-area: tab bar não fica sob a barra do sistema
-
----
-
-### Riscos
-
-1. **Conflito visual com `AdminTabsBar`**: hoje aparece sempre. Ocultá-la em mobile é uma escolha — se você usa abas de browser no celular pra alternar entre 2 reservas abertas, melhor manter. Confirma: **oculta em mobile** ou **mantém visível acima do header**?
-2. **FAB cobrindo conteúdo**: telas com botão "carregar mais" no rodapé podem ficar tampadas. Mitigação: padding-bottom do main já reserva espaço.
-3. **"Mais" no bottom nav abre sidebar como sheet**: usa o `SidebarTrigger` programaticamente. Funciona com `collapsible="offcanvas"` (padrão do shadcn em mobile), sem mudanças extras.
-4. **Performance**: 3 listeners de pathname (header título + tab bar ativo + tabs bar). Tudo barato, mas centralizo em um único `useLocation()` por componente.
+4. **PWA polish**
+   - Manifest já tem ícones e shortcuts — vou só validar `display_override: ["standalone"]` e `theme_color` reagindo ao tema atual via JS (já tem meta light/dark).
+   - `apple-mobile-web-app-status-bar-style` mantido `black-translucent` (combina com fundo escuro).
 
 ---
 
-### O que NÃO entra nessa frente (deixei pra depois)
+## Onda 2 — Listas e tabelas (a dor #1)
 
-- Redesign dos cards de reserva
-- Filtros virando bottom sheet
-- Calendário agenda vertical
-- Tabela de clientes → cards
-- Swipe actions
+Reservas, Frota, Clientes, Financeiro hoje usam tabelas que viram um aperto no celular.
 
-Essas são Frentes 2 e 3 — só fazem sentido depois que a moldura mobile estiver de pé.
+1. **Padronizar `<MobileListCard>`** — um único componente reusável (avatar opcional, título, linha 2 metadados, status à direita, chevron) usado por:
+   - `AdminBookings` (já tem `MobileBookingCard` — uniformizar).
+   - `AdminFleet` → `FleetGrid` mobile já existe; refinar e mover o switch "site" para um sheet de ações.
+   - `AdminCustomers` → criar `MobileCustomerCard`.
+   - `AdminFinance` → criar `MobileTransactionRow`.
+   - `AdminTeam` → criar `MobileTeamMemberCard`.
+
+2. **Headers de página padronizados** — H1 + subtítulo + ações primárias (botão único + ícone "filtro") via componente `<AdminPageHeader />`. Hoje cada página inventa o seu.
+
+3. **Filtros em sheet** — em vez de chips/dropdowns espalhados, um botão "Filtros" abre sheet com tudo (status, datas, busca avançada), botão "Aplicar" sticky no rodapé do sheet.
+
+4. **Toolbar de busca sticky** abaixo do header mobile, com clear icon e contador de resultados.
 
 ---
 
-**Confirma a Frente 1 como descrita?** Em especial o item 1 dos Riscos (ocultar `AdminTabsBar` em mobile).
+## Onda 3 — Formulários, diálogos e detalhes
+
+1. **`NewBookingDialog`, `EditBookingDialog`, `BookingIncidentDialog`, `InformalBookingDialog`** → migrar para o novo `<Sheet>` mobile com seções acordeáveis.
+2. **`AdminBookingDetail`, `AdminVehicleDetail`, `AdminCustomerDetail`** → 3 colunas viram 1 coluna com seções em cards, tabs sticky no topo, ações primárias em barra fixa no rodapé (acima do bottom-nav).
+3. **Datepickers mobile** — usar input nativo `type="date"` em mobile (mais rápido e familiar) e calendário rich em desktop.
+4. **Wizard de veículo (`VehicleWizard`)** — stepper compacto no topo, navegação anterior/próximo sticky no rodapé.
+
+---
+
+## Onda 4 — Agenda, Live, Painel, Inspeção
+
+1. **Agenda da Frota** — em mobile vira lista vertical por veículo com mini-timeline horizontal scrollável (já é Gantt, precisa adaptar).
+2. **Painel** — KPIs em grid 2×N, com a sequência de prioridade reordenada para mobile.
+3. **Live tracking** — mapa full-bleed com card flutuante inferior arrastável (já existe lógica, refinar).
+4. **Inspeção** — mantém o fluxo atual, só ajusta paddings e botão de câmera maior.
+
+---
+
+## Como vamos validar
+
+Após cada onda eu listo:
+- Arquivos alterados.
+- Como testar (3–5 rotas-chave + viewport 390×844 e 414×896).
+- Riscos / regressões possíveis no desktop.
+
+Você aprova/ajusta antes de eu seguir para a próxima onda.
+
+---
+
+## Confirma?
+
+Quer que eu comece pela **Onda 1 (fundação)** agora? Ela é a que dá retorno visual imediato em **toda** a aplicação e é pré-requisito para as outras ondas.
