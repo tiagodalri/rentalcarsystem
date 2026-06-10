@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Signal, Gauge, MapPin, Activity, X, ChevronRight, Play, Loader2, Search } from "lucide-react";
+import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
