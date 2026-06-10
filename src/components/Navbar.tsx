@@ -74,14 +74,14 @@ const Navbar = () => {
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto flex items-center justify-between py-3 sm:py-4 px-5 sm:px-6 lg:px-8 safe-x">
+      <div className="container mx-auto relative flex items-center justify-between py-3 sm:py-4 px-5 sm:px-6 lg:px-8 safe-x">
 
-        <a href="/#" className="text-muted-foreground hover:text-primary transition-colors duration-300">
+        <a href="/#" className="text-muted-foreground hover:text-primary transition-colors duration-300 relative z-10">
           <Home size={20} />
         </a>
 
-        {/* Desktop links */}
-        <div className="hidden lg:flex items-center gap-6">
+        {/* Desktop links — centralizados absolutamente no meio da tela */}
+        <div className="hidden lg:flex items-center gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           {navLinks.map((link) =>
             link.isRoute ? (
               <button
@@ -101,8 +101,10 @@ const Navbar = () => {
               </a>
             )
           )}
+        </div>
 
-          {/* Fullscreen — único item solto, ao lado do menu */}
+        {/* Ações à direita */}
+        <div className="hidden lg:flex items-center gap-4 relative z-10">
           <button
             onClick={toggleFullscreen}
             className="text-muted-foreground hover:text-primary transition-colors duration-300"
