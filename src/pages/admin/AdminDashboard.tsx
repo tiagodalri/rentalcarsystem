@@ -41,7 +41,12 @@ type StatCard = {
   onClick: () => void;
 };
 
-export default function AdminDashboard() {
+interface AdminDashboardProps {
+  periodMonth?: Date;
+  embedded?: boolean;
+}
+
+export default function AdminDashboard({ periodMonth, embedded = false }: AdminDashboardProps = {}) {
   const navigate = useNavigate();
   const { hasAny } = useAdminAuth();
   const [stats, setStats] = useState<DashboardStats>({
@@ -53,6 +58,9 @@ export default function AdminDashboard() {
   });
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const periodAnchor = periodMonth ?? new Date();
+  const periodKey = `${periodAnchor.getFullYear()}-${periodAnchor.getMonth()}`;
 
   useEffect(() => {
     async function load() {
@@ -66,10 +74,10 @@ export default function AdminDashboard() {
       const vList = vehicles.data || [];
       const cList = customers.data || [];
 
-      // Monthly revenue (current month only)
+      // Period revenue (selected month — defaults to current)
       const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      const monthStart = new Date(periodAnchor.getFullYear(), periodAnchor.getMonth(), 1);
+      const monthEnd = new Date(periodAnchor.getFullYear(), periodAnchor.getMonth() + 1, 0, 23, 59, 59);
       const revenueStatuses = ["confirmed", "in_progress", "completed"];
       const monthlyBookings = bList.filter(b => {
         const created = new Date(b.created_at);
@@ -129,8 +137,14 @@ export default function AdminDashboard() {
         c.driver_license_expiry && c.driver_license_expiry < todayDate
       ).length;
 
+      // Period bookings count (created_at within selected month) — useful for monthly closing
+      const periodBookingsCount = bList.filter(b => {
+        const created = new Date(b.created_at);
+        return created >= monthStart && created <= monthEnd;
+      }).length;
+
       setStats({
-        totalBookings: bList.length,
+        totalBookings: periodBookingsCount,
         activeBookings: bList.filter((b) => b.status === "confirmed" || b.status === "active" || b.status === "in_progress").length,
         pendingBookings: bList.filter((b) => b.status === "pending").length,
         totalCustomers: cList.length,
@@ -154,7 +168,7 @@ export default function AdminDashboard() {
       setLoading(false);
     }
     load();
-  }, []);
+  }, [periodKey]);
 
   const fmtUSD = (n: number) =>
     `$${n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
@@ -171,7 +185,7 @@ export default function AdminDashboard() {
   const showAlerts = hasAny(["admin", "operations", "support"]);
 
   const operationalCards: StatCard[] = [
-    { label: "Reservas Totais", value: stats.totalBookings, icon: CalendarRange, color: "text-primary", onClick: goBookings },
+    { label: "Reservas no Período", value: stats.totalBookings, icon: CalendarRange, color: "text-primary", onClick: goBookings },
     { label: "Ativas / Em Andamento", value: stats.activeBookings, icon: TrendingUp, color: "text-emerald-500", onClick: goBookings },
     { label: "Pendentes", value: stats.pendingBookings, icon: Clock, color: "text-yellow-500", onClick: goBookings },
     { label: "Clientes", value: stats.totalCustomers, icon: Users, color: "text-purple-400", onClick: goCustomers },
@@ -186,7 +200,7 @@ export default function AdminDashboard() {
 
   const financeCards: StatCard[] = [
     { label: "Investimento Total", value: fmtUSD(stats.totalInvestment), icon: DollarSign, color: "text-primary", onClick: goFleet },
-    { label: "Receita Mensal", value: fmtUSD(stats.monthlyRevenue), icon: TrendingUp, color: "text-emerald-500", onClick: goFinance },
+    { label: "Receita do Período", value: fmtUSD(stats.monthlyRevenue), icon: TrendingUp, color: "text-emerald-500", onClick: goFinance },
     { label: "Ticket Medio", value: stats.avgTicket !== null ? fmtUSD2(stats.avgTicket) : "—", icon: Receipt, color: "text-foreground", onClick: goFinance },
     {
       label: "Taxa de Ocupacao",
@@ -267,10 +281,12 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">Visao geral do sistema Zeus Rental Car</p>
-      </div>
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Visao geral do sistema Zeus Rental Car</p>
+        </div>
+      )}
 
       {/* Bloco 1 — Operacional */}
       <section className="space-y-3">

@@ -1,4 +1,4 @@
-import { X, Plus, LayoutDashboard, Sparkles, Radio, CalendarRange, CalendarDays, Car, Users, DollarSign, UsersRound, BarChart3, Settings, Copy } from "lucide-react";
+import { X, Plus, LayoutDashboard, Sparkles, Radio, CalendarRange, CalendarDays, Car, Users, DollarSign, UsersRound, Settings, Copy } from "lucide-react";
 import { useAdminTabs, getTabTitle, MAX_TABS } from "@/hooks/useAdminTabs";
 import { cn } from "@/lib/utils";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
@@ -9,7 +9,7 @@ import { useState } from "react";
 type RouteOption = { title: string; url: string; icon: typeof LayoutDashboard; allowedRoles: AppRole[] };
 
 const ROUTE_OPTIONS: RouteOption[] = [
-  { title: "Dashboard",     url: "/admin",                  icon: LayoutDashboard, allowedRoles: ["admin","finance","operations","support"] },
+  { title: "Painel",        url: "/admin",                  icon: LayoutDashboard, allowedRoles: ["admin","finance","operations","support"] },
   { title: "Operação Hoje", url: "/admin/ops-today",        icon: Sparkles,        allowedRoles: ["admin","operations","support"] },
   { title: "Live",          url: "/admin/live",             icon: Radio,           allowedRoles: ["admin","operations"] },
   { title: "Reservas",      url: "/admin/bookings",         icon: CalendarRange,   allowedRoles: ["admin","operations","support"] },
@@ -18,7 +18,6 @@ const ROUTE_OPTIONS: RouteOption[] = [
   { title: "Clientes",      url: "/admin/customers",        icon: Users,           allowedRoles: ["admin","operations","support"] },
   { title: "Financeiro",    url: "/admin/finance",          icon: DollarSign,      allowedRoles: ["admin","finance"] },
   { title: "Equipe",        url: "/admin/team",             icon: UsersRound,      allowedRoles: ["admin"] },
-  { title: "Relatórios",    url: "/admin/report",           icon: BarChart3,       allowedRoles: ["admin","finance"] },
   { title: "Configurações", url: "/admin/settings",         icon: Settings,        allowedRoles: ["admin"] },
 ];
 

@@ -35,6 +35,7 @@ const BookingDetailClient = lazy(() => import("./pages/BookingDetailClient.tsx")
 
 // Lazy-loaded: admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.tsx"));
+const AdminPainel = lazy(() => import("./pages/admin/AdminPainel.tsx"));
 const AdminBookings = lazy(() => import("./pages/admin/AdminBookings.tsx"));
 const AdminFleet = lazy(() => import("./pages/admin/AdminFleet.tsx"));
 const AdminCustomers = lazy(() => import("./pages/admin/AdminCustomers.tsx"));
@@ -46,8 +47,8 @@ const AdminInspectionCompare = lazy(() => import("./pages/admin/AdminInspectionC
 const AdminInspectionReport = lazy(() => import("./pages/admin/AdminInspectionReport.tsx"));
 const AdminVehicleHistory = lazy(() => import("./pages/admin/AdminVehicleHistory.tsx"));
 const AdminVehicleDetail = lazy(() => import("./pages/admin/AdminVehicleDetail.tsx"));
-const AdminReport = lazy(() => import("./pages/admin/AdminReport.tsx"));
-const AdminFleetPnLRedirect = lazy(() => import("./pages/admin/AdminReport.tsx").then(m => ({ default: m.AdminFleetPnLRedirect })));
+const AdminReportRedirect = lazy(() => import("./pages/admin/AdminPainel.tsx").then(m => ({ default: m.AdminReportRedirect })));
+const AdminFleetPnLRedirect = lazy(() => import("./pages/admin/AdminPainel.tsx").then(m => ({ default: m.AdminFleetPnLLegacyRedirect })));
 const AdminBookingDetail = lazy(() => import("./pages/admin/AdminBookingDetail.tsx"));
 const AdminFinance = lazy(() => import("./pages/admin/AdminFinance.tsx"));
 const AdminTeam = lazy(() => import("./pages/admin/AdminTeam.tsx"));
@@ -132,7 +133,7 @@ const App = () => (
               {/* Admin routes */}
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<RequireRole roles={["admin","finance","operations","support"]}><AdminSuspense><AdminDashboard /></AdminSuspense></RequireRole>} />
+                <Route index element={<RequireRole roles={["admin","finance","operations","support"]}><AdminSuspense><AdminPainel /></AdminSuspense></RequireRole>} />
                 <Route path="bookings" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookings /></AdminSuspense></RequireRole>} />
                 <Route path="bookings/:bookingId" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookingDetail /></AdminSuspense></RequireRole>} />
                 <Route path="live" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminLive /></AdminSuspense></RequireRole>} />
@@ -147,8 +148,9 @@ const App = () => (
                 <Route path="inspection/report/:bookingId" element={<RequireRole roles={["admin","operations","finance"]}><AdminSuspense><AdminInspectionReport /></AdminSuspense></RequireRole>} />
                 <Route path="vehicle-history/:vehicleId" element={<RequireRole roles={["admin","finance","operations"]}><AdminSuspense><AdminVehicleHistory /></AdminSuspense></RequireRole>} />
                 <Route path="fleet/:vehicleId" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminVehicleDetail /></AdminSuspense></RequireRole>} />
-                <Route path="report" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminReport /></AdminSuspense></RequireRole>} />
+                <Route path="report" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminReportRedirect /></AdminSuspense></RequireRole>} />
                 <Route path="report/fleet-pnl" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminFleetPnLRedirect /></AdminSuspense></RequireRole>} />
+
                 <Route path="finance" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminFinance /></AdminSuspense></RequireRole>} />
                 <Route path="team" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminTeam /></AdminSuspense></RequireRole>} />
                 <Route path="ops-today" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminOpsToday /></AdminSuspense></RequireRole>} />

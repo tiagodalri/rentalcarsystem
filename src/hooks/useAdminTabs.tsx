@@ -158,7 +158,7 @@ export function useAdminTabs() {
 
 // Resolve um título amigável a partir do path
 const TITLE_MAP: Array<{ test: (p: string) => boolean; title: string }> = [
-  { test: (p) => p === "/admin" || p === "/admin/", title: "Dashboard" },
+  { test: (p) => p === "/admin" || p === "/admin/", title: "Painel" },
   { test: (p) => p.startsWith("/admin/ops-today"), title: "Operação Hoje" },
   { test: (p) => p.startsWith("/admin/live"), title: "Live" },
   { test: (p) => p.startsWith("/admin/bookings/new"), title: "Nova reserva" },

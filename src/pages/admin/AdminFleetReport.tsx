@@ -41,13 +41,21 @@ const CHART_COLORS = [
   "hsl(45 90% 50%)",
 ];
 
-export default function AdminFleetReport({ embedded = false }: { embedded?: boolean } = {}) {
+export default function AdminFleetReport({
+  embedded = false,
+  monthOverride,
+}: { embedded?: boolean; monthOverride?: Date } = {}) {
   const [loading, setLoading] = useState(true);
-  const [month, setMonth] = useState(startOfMonth(new Date()));
+  const [month, setMonth] = useState(startOfMonth(monthOverride ?? new Date()));
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [inspections, setInspections] = useState<any[]>([]);
   const [report, setReport] = useState<VehicleReport[]>([]);
+
+  // Sync with external override (global period filter)
+  useEffect(() => {
+    if (monthOverride) setMonth(startOfMonth(monthOverride));
+  }, [monthOverride?.getTime()]);
 
   const monthStart = startOfMonth(month);
   const monthEnd = endOfMonth(month);
@@ -184,17 +192,19 @@ export default function AdminFleetReport({ embedded = false }: { embedded?: bool
             </p>
           </div>
         ) : <div />}
-        <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(subMonths(month, 1))}>
-            <ChevronLeft size={16} />
-          </Button>
-          <span className="text-sm font-medium text-foreground px-3 min-w-[140px] text-center capitalize">
-            {format(month, "MMMM yyyy", { locale: ptBR })}
-          </span>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(addMonths(month, 1))}>
-            <ChevronRight size={16} />
-          </Button>
-        </div>
+        {!monthOverride && (
+          <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(subMonths(month, 1))}>
+              <ChevronLeft size={16} />
+            </Button>
+            <span className="text-sm font-medium text-foreground px-3 min-w-[140px] text-center capitalize">
+              {format(month, "MMMM yyyy", { locale: ptBR })}
+            </span>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(addMonths(month, 1))}>
+              <ChevronRight size={16} />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* KPI Cards */}

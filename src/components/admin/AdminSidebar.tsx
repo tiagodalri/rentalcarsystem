@@ -6,7 +6,7 @@ import {
   LogOut,
   Settings,
   Radio,
-  BarChart3,
+  // BarChart3, // removido com unificação Painel
   DollarSign,
   UsersRound,
   Sparkles,
@@ -52,7 +52,7 @@ const menuSections: MenuSection[] = [
   {
     label: "Operações",
     items: [
-      { title: "Dashboard",     url: "/admin",           icon: LayoutDashboard, allowedRoles: ["admin","finance","operations","support"] },
+      { title: "Painel",        url: "/admin",           icon: LayoutDashboard, allowedRoles: ["admin","finance","operations","support"] },
       { title: "Operação", url: "/admin/ops-today", icon: Sparkles,        allowedRoles: ["admin","operations","support"] },
       { title: "Live",          url: "/admin/live",      icon: Radio,           allowedRoles: ["admin","operations"] },
     ],
@@ -70,7 +70,6 @@ const menuSections: MenuSection[] = [
     label: "Financeiro",
     items: [
       { title: "Financeiro", url: "/admin/finance", icon: DollarSign, allowedRoles: ["admin","finance"] },
-      { title: "Relatórios", url: "/admin/report",  icon: BarChart3,  allowedRoles: ["admin","finance"] },
     ],
   },
   {
