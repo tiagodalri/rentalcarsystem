@@ -201,7 +201,7 @@ export default function AdminOpsToday() {
               title="Voltar para hoje"
             >
               <CalendarDays size={13} />
-              Hoje
+              {isToday ? "Hoje" : format(selectedDate, "dd 'de' MMM", { locale: ptBR })}
             </button>
             <button
               onClick={() => setSelectedDate(d => addDays(d, 1))}
