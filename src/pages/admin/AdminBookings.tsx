@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/admin/EmptyState";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useRegisterFab } from "@/hooks/useAdminFab";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -508,6 +509,7 @@ function getPresetRange(key: PresetKey): { from?: Date; to?: Date } {
 // ─── Main Component ─────────────────────────────────────────
 export default function AdminBookings() {
   const navigate = useNavigate();
+  useRegisterFab({ icon: Plus, label: "Nova reserva", onClick: () => navigate("/admin/bookings/new") });
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
