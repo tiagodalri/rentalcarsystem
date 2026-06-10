@@ -41,7 +41,12 @@ type StatCard = {
   onClick: () => void;
 };
 
-export default function AdminDashboard() {
+interface AdminDashboardProps {
+  periodMonth?: Date;
+  embedded?: boolean;
+}
+
+export default function AdminDashboard({ periodMonth, embedded = false }: AdminDashboardProps = {}) {
   const navigate = useNavigate();
   const { hasAny } = useAdminAuth();
   const [stats, setStats] = useState<DashboardStats>({
@@ -53,6 +58,9 @@ export default function AdminDashboard() {
   });
   const [recentBookings, setRecentBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const periodAnchor = periodMonth ?? new Date();
+  const periodKey = `${periodAnchor.getFullYear()}-${periodAnchor.getMonth()}`;
 
   useEffect(() => {
     async function load() {
@@ -66,10 +74,10 @@ export default function AdminDashboard() {
       const vList = vehicles.data || [];
       const cList = customers.data || [];
 
-      // Monthly revenue (current month only)
+      // Period revenue (selected month — defaults to current)
       const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+      const monthStart = new Date(periodAnchor.getFullYear(), periodAnchor.getMonth(), 1);
+      const monthEnd = new Date(periodAnchor.getFullYear(), periodAnchor.getMonth() + 1, 0, 23, 59, 59);
       const revenueStatuses = ["confirmed", "in_progress", "completed"];
       const monthlyBookings = bList.filter(b => {
         const created = new Date(b.created_at);
