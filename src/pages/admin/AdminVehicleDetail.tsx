@@ -20,6 +20,7 @@ import { EmptyState } from "@/components/admin/EmptyState";
 import { Receipt, ShieldCheck, ChevronDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import VehicleAgenda from "@/components/admin/VehicleAgenda";
+import PricingPanel from "@/components/admin/pricing/PricingPanel";
 import { VehicleDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 
 // ─── Types ────────────────────────────────────────────────────────────
@@ -492,6 +493,7 @@ export default function AdminVehicleDetail() {
             <TabsTrigger value="incidents" className="whitespace-nowrap">Ocorrências</TabsTrigger>
             
             <TabsTrigger value="history" className="whitespace-nowrap">Locações</TabsTrigger>
+            <TabsTrigger value="pricing" className="whitespace-nowrap">Precificação</TabsTrigger>
             <TabsTrigger value="details" className="whitespace-nowrap">Ficha Técnica</TabsTrigger>
           </TabsList>
         </div>
@@ -1099,6 +1101,19 @@ export default function AdminVehicleDetail() {
                 );
               })}
             </div>
+          )}
+        </TabsContent>
+
+        {/* ── Precificação ── */}
+        <TabsContent value="pricing" className="mt-4">
+          {vehicle && (
+            <PricingPanel
+              vehicleId={vehicle.id}
+              basePrice={Number((vehicle as any).daily_price_usd) || 0}
+              onBasePriceSaved={(next) =>
+                setVehicle({ ...(vehicle as any), daily_price_usd: next } as any)
+              }
+            />
           )}
         </TabsContent>
 

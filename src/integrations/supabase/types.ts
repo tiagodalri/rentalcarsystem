@@ -1255,6 +1255,126 @@ export type Database = {
           },
         ]
       }
+      vehicle_price_overrides: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          note: string | null
+          price_usd: number
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          note?: string | null
+          price_usd: number
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          note?: string | null
+          price_usd?: number
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_price_overrides_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_price_seasons: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          name: string
+          price_usd: number
+          priority: number
+          start_date: string
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          name: string
+          price_usd: number
+          priority?: number
+          start_date: string
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          name?: string
+          price_usd?: number
+          priority?: number
+          start_date?: string
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_price_seasons_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicle_pricing_rules: {
+        Row: {
+          min_nights: number
+          monthly_discount_pct: number
+          updated_at: string
+          vehicle_id: string
+          weekend_days: number[]
+          weekend_multiplier: number
+          weekly_discount_pct: number
+        }
+        Insert: {
+          min_nights?: number
+          monthly_discount_pct?: number
+          updated_at?: string
+          vehicle_id: string
+          weekend_days?: number[]
+          weekend_multiplier?: number
+          weekly_discount_pct?: number
+        }
+        Update: {
+          min_nights?: number
+          monthly_discount_pct?: number
+          updated_at?: string
+          vehicle_id?: string
+          weekend_days?: number[]
+          weekend_multiplier?: number
+          weekly_discount_pct?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_pricing_rules_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: true
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_telemetry: {
         Row: {
           address: string | null
@@ -1639,6 +1759,16 @@ export type Database = {
         Returns: boolean
       }
       get_occupancy_rate: { Args: never; Returns: number }
+      get_vehicle_pricing: {
+        Args: { p_pickup: string; p_return: string; p_vehicle_id: string }
+        Returns: {
+          avg_per_day: number
+          base_price: number
+          discount_pct: number
+          nights: number
+          subtotal_rental: number
+        }[]
+      }
       has_any_role: {
         Args: {
           _roles: Database["public"]["Enums"]["app_role"][]
