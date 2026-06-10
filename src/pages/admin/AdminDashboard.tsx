@@ -137,8 +137,14 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
         c.driver_license_expiry && c.driver_license_expiry < todayDate
       ).length;
 
+      // Period bookings count (created_at within selected month) — useful for monthly closing
+      const periodBookingsCount = bList.filter(b => {
+        const created = new Date(b.created_at);
+        return created >= monthStart && created <= monthEnd;
+      }).length;
+
       setStats({
-        totalBookings: bList.length,
+        totalBookings: periodBookingsCount,
         activeBookings: bList.filter((b) => b.status === "confirmed" || b.status === "active" || b.status === "in_progress").length,
         pendingBookings: bList.filter((b) => b.status === "pending").length,
         totalCustomers: cList.length,
@@ -162,7 +168,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
       setLoading(false);
     }
     load();
-  }, []);
+  }, [periodKey]);
 
   const fmtUSD = (n: number) =>
     `$${n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
