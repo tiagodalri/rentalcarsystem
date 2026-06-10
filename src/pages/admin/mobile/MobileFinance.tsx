@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { DollarSign, TrendingUp, List, Tag, Wallet } from "lucide-react";
+import { DollarSign } from "lucide-react";
 import { SegmentedControl } from "@/components/mobile/SegmentedControl";
 import { OverviewTab } from "@/components/admin/finance/OverviewTab";
 import { TransactionsTab } from "@/components/admin/finance/TransactionsTab";
