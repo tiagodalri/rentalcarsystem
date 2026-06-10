@@ -134,8 +134,8 @@ function FleetMiniStats() {
 /** Renders the gold uppercase section header with the trailing hairline rule. */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="px-3 mb-2 mt-5 flex items-center gap-3">
-      <span className="text-[10px] font-semibold tracking-[0.2em] text-sidebar-primary whitespace-nowrap">
+    <div className="px-3 mb-1.5 mt-3 flex items-center gap-3">
+      <span className="text-[9px] font-semibold tracking-[0.2em] text-sidebar-primary whitespace-nowrap">
         {children}
       </span>
       <span className="flex-1 h-px bg-sidebar-border/60" />
