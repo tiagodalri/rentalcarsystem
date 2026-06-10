@@ -174,15 +174,13 @@ export function OverviewTab() {
 
       {/* Destaques: Top 5 + Tempo médio */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="rounded-xl bg-card border border-border p-6 lg:col-span-2 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <div className="rounded-lg bg-card border border-border/70 p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-primary/10 text-primary rounded-lg">
-                <Trophy className="h-4 w-4" />
-              </div>
-              <h3 className="text-sm font-bold text-foreground">Top 5 Veículos por Receita</h3>
+              <Trophy className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.75} />
+              <h3 className="text-[11px] font-medium text-foreground uppercase tracking-[0.16em]">Top 5 Veículos por Receita</h3>
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">No Período</span>
+            <span className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground/70">No Período</span>
           </div>
           {topVehicles.length === 0 ? (
             <EmptyState icon={DollarSign} title="Sem receita no período" description="Os veículos com maior faturamento aparecerão aqui." compact />
@@ -197,24 +195,24 @@ export function OverviewTab() {
                     <div className="flex items-center justify-between text-sm gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <span
-                          className={`flex items-center justify-center w-6 h-6 rounded text-[10px] font-bold tabular-nums shrink-0 ${
-                            isTop ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
+                          className={`text-[10px] font-medium tabular-nums shrink-0 w-5 ${
+                            isTop ? "text-foreground" : "text-muted-foreground/70"
                           }`}
                         >
                           {String(idx + 1).padStart(2, "0")}
                         </span>
-                        <span className="font-semibold text-foreground truncate">{v.name}</span>
+                        <span className="text-sm font-normal text-foreground truncate">{v.name}</span>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-bold text-foreground tabular-nums">
+                        <p className="text-sm font-normal text-foreground tabular-nums tracking-[-0.01em]">
                           ${v.revenue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>
-                        <p className="text-[10px] uppercase font-medium text-muted-foreground tabular-nums">{v.bookings} reservas</p>
+                        <p className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground/70 tabular-nums">{v.bookings} reservas</p>
                       </div>
                     </div>
-                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div className="h-px w-full bg-border/60 overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${isTop ? "bg-primary" : "bg-muted-foreground/40"}`}
+                        className={`h-full transition-all ${isTop ? "bg-primary/70" : "bg-muted-foreground/30"}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -225,16 +223,14 @@ export function OverviewTab() {
           )}
         </div>
 
-        <div className="rounded-xl bg-card border border-border p-6 flex flex-col items-center justify-center text-center shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
-          <div className="p-3 bg-muted/50 rounded-full mb-5 border border-border">
-            <Clock className="h-5 w-5 text-muted-foreground" />
-          </div>
-          <h3 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-5">
+        <div className="rounded-lg bg-card border border-border/70 p-6 flex flex-col items-center justify-center text-center">
+          <Clock className="h-4 w-4 text-muted-foreground/70 mb-4" strokeWidth={1.75} />
+          <h3 className="text-[10px] font-medium text-muted-foreground/80 uppercase tracking-[0.16em] mb-5">
             Tempo Médio de Locação
           </h3>
           <RentalDaysGauge days={avgRentalDays} />
-          <p className="text-sm font-medium text-foreground mt-5">dias por reserva</p>
-          <p className="text-[11px] text-muted-foreground leading-relaxed mt-3 max-w-[200px]">
+          <p className="text-xs font-normal text-muted-foreground mt-5">dias por reserva</p>
+          <p className="text-[11px] text-muted-foreground/70 leading-relaxed mt-3 max-w-[200px]">
             Média baseada em reservas concluídas no período selecionado.
           </p>
         </div>
