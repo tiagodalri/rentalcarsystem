@@ -54,12 +54,14 @@ const STATUS_LABEL: Record<string, string> = {
   available: "Disponível",
   rented: "Alugado",
   maintenance: "Manutenção",
+  preparing: "Em Preparação",
   unavailable: "Indisponível",
 };
 const STATUS_COLOR: Record<string, string> = {
   available: "bg-green-500/10 text-green-600 dark:text-green-500 border-green-500/30",
   rented: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30",
   maintenance: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/30",
+  preparing: "bg-amber-500/10 text-amber-600 dark:text-amber-500 border-amber-500/30",
   unavailable: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
