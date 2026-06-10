@@ -38,45 +38,48 @@ const DARK_STYLE: any[] = [
  * - Tiny top-down car silhouette inside the puck
  */
 function puckSvg(color: string, selected: boolean, headingDeg: number, moving: boolean): any {
-  // Slightly larger when selected so it pops.
-  const size = selected ? 52 : 44;
+  // Display size in CSS px on the map.
+  const displaySize = selected ? 56 : 46;
+  // Render the SVG raster at 3x for retina-crisp pins (Google Marker rasterizes data: URIs).
+  const NATIVE = 132; // 44 * 3
   const h = ((headingDeg % 360) + 360) % 360;
-  const ringStroke = selected ? "#D4AF37" : "#ffffff";
-  const ringWidth = selected ? 3 : 2.2;
-  const haloOpacity = moving ? 0.22 : 0;
-  // Cone shown only when actually moving; rotates with heading.
+  const ringStroke = selected ? "#D4AF37" : "#0a0a0a";
+  const ringWidth = selected ? 3.2 : 2.4;
+  const haloOpacity = moving ? 0.28 : 0;
   const cone = moving
     ? `<g transform="rotate(${h} 22 22)">
-         <path d="M22 1 L30 12 L22 9 L14 12 Z" fill="${color}" opacity="0.95" />
+         <path d="M22 0.5 L30.5 12 L22 8.5 L13.5 12 Z" fill="${color}" stroke="#0a0a0a" stroke-width="0.6" stroke-linejoin="round" opacity="0.98" />
        </g>`
     : "";
-  // Tiny top-down car silhouette (white), also rotates with heading so it "looks where it goes"
   const carBody = `
-    <g transform="rotate(${h} 22 22)" opacity="0.95">
-      <rect x="18.5" y="16" width="7" height="12" rx="2" fill="#ffffff" />
-      <rect x="19.5" y="17.5" width="5" height="3.2" rx="0.6" fill="${color}" />
-      <rect x="19.5" y="22" width="5" height="4" rx="0.6" fill="${color}" opacity="0.6" />
+    <g transform="rotate(${h} 22 22)">
+      <rect x="18.4" y="15.8" width="7.2" height="12.4" rx="2.2" fill="#ffffff" stroke="#0a0a0a" stroke-width="0.5" opacity="0.98"/>
+      <rect x="19.4" y="17.4" width="5.2" height="3.4" rx="0.6" fill="${color}" />
+      <rect x="19.4" y="22" width="5.2" height="4.2" rx="0.6" fill="${color}" opacity="0.55" />
     </g>`;
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 44 44">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${NATIVE}" height="${NATIVE}" viewBox="0 0 44 44" shape-rendering="geometricPrecision">
       <defs>
-        <filter id="puckShadow" x="-30%" y="-30%" width="160%" height="160%">
-          <feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-color="#000" flood-opacity="0.42"/>
+        <filter id="puckShadow" x="-40%" y="-40%" width="180%" height="180%">
+          <feDropShadow dx="0" dy="1.6" stdDeviation="1.8" flood-color="#000" flood-opacity="0.5"/>
         </filter>
       </defs>
       <circle cx="22" cy="22" r="19" fill="${color}" opacity="${haloOpacity}" />
       <g filter="url(#puckShadow)">
-        <circle cx="22" cy="22" r="12.5" fill="${color}" stroke="${ringStroke}" stroke-width="${ringWidth}" />
+        <circle cx="22" cy="22" r="13.5" fill="#ffffff" stroke="${ringStroke}" stroke-width="${ringWidth}" />
+        <circle cx="22" cy="22" r="11" fill="${color}" opacity="0.95"/>
       </g>
       ${cone}
       ${carBody}
     </svg>`;
   return {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-    scaledSize: { width: size, height: size } as any,
-    anchor: { x: size / 2, y: size / 2 } as any,
+    scaledSize: { width: displaySize, height: displaySize } as any,
+    size: { width: NATIVE, height: NATIVE } as any,
+    anchor: { x: displaySize / 2, y: displaySize / 2 } as any,
   };
 }
+
 
 function carvatarSvg(imageUrl: string, color: string, selected: boolean): any {
   const size = selected ? 56 : 44;
@@ -213,13 +216,21 @@ type Props = {
   layers?: MapLayers;
 };
 
-// --- Smooth-motion buffer ---------------------------------------------------
-// Each vehicle keeps a buffer of timestamped real positions. We render the car
-// always RENDER_DELAY_MS in the past so there's always a "future" point to
-// interpolate towards — eliminates jumps, reverses and trembling.
-type BufferPoint = { lat: number; lng: number; t: number };
+// --- Smooth tween model -----------------------------------------------------
+// Each vehicle keeps the last drawn position plus a "tween" describing the
+// animation in progress towards the latest received fix. Each new webhook
+// retargets the tween smoothly from the current displayed position — no
+// teleports, no dependency on having a "future" buffered point.
+type Tween = {
+  fromLat: number;
+  fromLng: number;
+  toLat: number;
+  toLng: number;
+  startMs: number;   // performance.now() when tween started
+  durationMs: number;
+};
 type VehicleState = {
-  buffer: BufferPoint[];
+  tween: Tween | null;
   lastReportedMs: number;
   status: LiveVehicle["status"];
   speed: number;            // mph (latest)
@@ -227,23 +238,29 @@ type VehicleState = {
   drawnHeading: number;
   /** Target heading from real movement A->B */
   targetHeading: number;
-  /** Last displayed lat/lng (used to hold position when no fresh data) */
+  /** Currently displayed lat/lng */
   displayLat: number;
   displayLng: number;
   /** Icon cache key — avoid setIcon every frame */
   iconKey: string;
-  /** Marker is selected (mirrors selectedId for fast access in loop) */
   selected: boolean;
 };
 
-const RENDER_DELAY_MS = 4000;          // ~4s "in the past" — sweet spot for fluid playback
-const BUFFER_TTL_MS = 10_000;          // drop points older than this past renderTime
-const MIN_MOVE_METERS = 5;             // ignore micro-jitter while parked
+const TWEEN_MIN_MS = 1500;             // never animate faster than this
+const TWEEN_MAX_MS = 7000;             // cap so a long pause doesn't drag forever
+const TWEEN_DEFAULT_MS = 4000;         // default duration when we can't infer
+const MIN_MOVE_METERS = 4;             // ignore micro-jitter while parked
 const MAX_JUMP_METERS = 2_000;         // discard absurd GPS jumps
-const HEADING_LERP_PER_FRAME = 0.16;   // smoothness of rotation animation
-const FOLLOW_PAN_INTERVAL_MS = 1000;   // recentre at most once per second
-const FOLLOW_EDGE_PX = 110;            // recentre early if car nears viewport edge
-const PROGRAMMATIC_PAN_GUARD_MS = 350; // ignore our own panTo on dragstart
+const HEADING_LERP_PER_FRAME = 0.18;
+const FOLLOW_PAN_INTERVAL_MS = 800;
+const FOLLOW_EDGE_PX = 110;
+const PROGRAMMATIC_PAN_GUARD_MS = 350;
+
+// easeInOutCubic — soft start/end like Uber/Bouncie
+function ease(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
 
 function haversineM(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
   const R = 6371000;
@@ -544,7 +561,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       let st = states.get(v.vehicle_id);
       if (!st) {
         st = {
-          buffer: [{ lat: v.lat, lng: v.lng, t: reportedAtMs }],
+          tween: null,
           lastReportedMs: reportedAtMs,
           status: v.status,
           speed: v.speed ?? 0,
@@ -557,16 +574,40 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         };
         states.set(v.vehicle_id, st);
       } else {
-        // Same fix? skip buffer push. Different reportedAt → consider as new fix.
         const isNewFix = reportedAtMs !== st.lastReportedMs;
         if (isNewFix) {
-          const last = st.buffer[st.buffer.length - 1];
-          const d = last ? haversineM(last, { lat: v.lat, lng: v.lng }) : Infinity;
+          const from = { lat: st.displayLat, lng: st.displayLng };
+          const to = { lat: v.lat, lng: v.lng };
+          const d = haversineM(from, to);
           const speedMph = v.speed ?? 0;
           const stationary = speedMph < 1 && d < MIN_MOVE_METERS;
-          const absurdJump = last && d > MAX_JUMP_METERS && (reportedAtMs - last.t) < 10_000;
-          if (!stationary && !absurdJump) {
-            st.buffer.push({ lat: v.lat, lng: v.lng, t: reportedAtMs });
+          const absurdJump = d > MAX_JUMP_METERS && (reportedAtMs - st.lastReportedMs) < 10_000;
+          if (absurdJump) {
+            // discard
+          } else if (stationary) {
+            // snap silently — no animation
+            st.displayLat = to.lat;
+            st.displayLng = to.lng;
+            st.tween = null;
+          } else {
+            // Animate over the real interval between fixes (clamped), or use
+            // distance/speed if interval is unknown.
+            const intervalMs = reportedAtMs - st.lastReportedMs;
+            let duration = intervalMs > 0 ? intervalMs : TWEEN_DEFAULT_MS;
+            duration = Math.min(TWEEN_MAX_MS, Math.max(TWEEN_MIN_MS, duration));
+            st.tween = {
+              fromLat: from.lat,
+              fromLng: from.lng,
+              toLat: to.lat,
+              toLng: to.lng,
+              startMs: performance.now(),
+              durationMs: duration,
+            };
+            if (d >= MIN_MOVE_METERS) {
+              st.targetHeading = bearingDeg(from, to);
+            } else if (v.heading != null) {
+              st.targetHeading = v.heading;
+            }
           }
           st.lastReportedMs = reportedAtMs;
         }
@@ -574,6 +615,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         st.speed = v.speed ?? 0;
         st.selected = isSelected;
       }
+
 
       let marker = existing.get(v.vehicle_id);
       if (!marker) {
@@ -620,68 +662,38 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     }
   }, [vehicles, selectedId, ready, onSelect]);
 
-  // 2b. Single rAF loop — buffer-replay interpolation + smooth rotation + follow cam
+  // 2b. rAF loop — tween-based interpolation + smooth rotation + follow cam
   useEffect(() => {
     if (!ready) return;
     const states = statesRef.current;
     const markers = markersRef.current;
 
     const tick = () => {
-      const wallNow = Date.now();
-      const renderTime = wallNow - RENDER_DELAY_MS;
+      const now = performance.now();
 
       for (const [id, st] of states) {
         const marker = markers.get(id);
         if (!marker) continue;
 
-        const buf = st.buffer;
-        // Trim very old points (keep at least one)
-        const cutoff = renderTime - BUFFER_TTL_MS;
-        while (buf.length > 1 && buf[1].t < cutoff) buf.shift();
-
-        let display: { lat: number; lng: number };
-        let segA: BufferPoint | null = null;
-        let segB: BufferPoint | null = null;
-
-        if (buf.length === 0) {
-          display = { lat: st.displayLat, lng: st.displayLng };
-        } else if (buf.length === 1 || renderTime <= buf[0].t) {
-          display = { lat: buf[0].lat, lng: buf[0].lng };
-        } else if (renderTime >= buf[buf.length - 1].t) {
-          // No future point yet — hold the latest known so we don't extrapolate.
-          const last = buf[buf.length - 1];
-          display = { lat: last.lat, lng: last.lng };
-        } else {
-          // Find A,B bracketing renderTime
-          let lo = 0, hi = buf.length - 1;
-          while (lo < hi - 1) {
-            const mid = (lo + hi) >> 1;
-            if (buf[mid].t <= renderTime) lo = mid; else hi = mid;
-          }
-          segA = buf[lo];
-          segB = buf[hi];
-          const span = Math.max(1, segB.t - segA.t);
-          const f = Math.min(1, Math.max(0, (renderTime - segA.t) / span));
-          display = {
-            lat: segA.lat + (segB.lat - segA.lat) * f,
-            lng: segA.lng + (segB.lng - segA.lng) * f,
-          };
-        }
-
-        // Update target heading only when we have real motion segment (>= MIN_MOVE)
-        // AND vehicle is actually moving. Otherwise keep last drawn heading.
-        if (segA && segB && st.status === "moving" && st.speed > 1) {
-          const dSeg = haversineM(segA, segB);
-          if (dSeg >= MIN_MOVE_METERS) {
-            st.targetHeading = bearingDeg(segA, segB);
+        // Advance tween if one is active
+        if (st.tween) {
+          const tw = st.tween;
+          const raw = (now - tw.startMs) / tw.durationMs;
+          if (raw >= 1) {
+            st.displayLat = tw.toLat;
+            st.displayLng = tw.toLng;
+            st.tween = null;
+          } else {
+            const f = ease(Math.max(0, raw));
+            st.displayLat = tw.fromLat + (tw.toLat - tw.fromLat) * f;
+            st.displayLng = tw.fromLng + (tw.toLng - tw.fromLng) * f;
           }
         }
-        // Smooth rotation
+
+        // Smooth rotation toward target heading
         st.drawnHeading = lerpAngle(st.drawnHeading, st.targetHeading, HEADING_LERP_PER_FRAME);
 
-        st.displayLat = display.lat;
-        st.displayLng = display.lng;
-        marker.setPosition(display);
+        marker.setPosition({ lat: st.displayLat, lng: st.displayLng });
 
         // Refresh icon only when something visual changed (cheap key compare)
         const headingBucket = Math.round(st.drawnHeading / 3) * 3;
@@ -700,6 +712,8 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           );
         }
       }
+
+
 
       // --- Follow camera (selected vehicle only) ---
       const selId = selectedIdRef.current;
