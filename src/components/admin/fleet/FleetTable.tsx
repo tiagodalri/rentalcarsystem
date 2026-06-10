@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Car, Eye, EyeOff, Check, X as XIcon, Pencil, Trash2 } from "lucide-react";
+import { Car, Check, X as XIcon, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
 import { getCoverImage, hasCoverImage } from "@/data/vehicleImages";
 import { storageThumb } from "@/lib/storageThumb";
 
