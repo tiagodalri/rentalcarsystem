@@ -98,8 +98,8 @@ export default function AdminDashboard() {
       const avgCostPerCar = vehiclesWithPurchase.length > 0
         ? totalInvestment / vehiclesWithPurchase.length
         : 0;
-      const totalRevenueAll = bList.reduce((sum, b) => sum + (Number(b.total_price) || 0), 0);
-      const roiPct = totalInvestment > 0 ? (totalRevenueAll / totalInvestment) * 100 : null;
+      const totalRevenueAll = sumTotalRevenue(bList);
+      const roiPct = calcRoiPct(totalRevenueAll, 0, totalInvestment);
 
       const vehiclesWithOdo = vList.filter((v) => Number(v.current_odometer) > 0);
       const avgOdometer = vehiclesWithOdo.length > 0
