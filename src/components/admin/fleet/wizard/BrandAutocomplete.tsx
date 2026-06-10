@@ -177,11 +177,6 @@ export default function BrandAutocomplete({ value, onChange, placeholder }: Prop
           ref={listRef}
           className="absolute z-30 mt-1 w-full max-h-72 overflow-auto rounded-xl border border-border/60 bg-popover shadow-lg"
         >
-          {!isTyping && (
-            <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold bg-muted/40 sticky top-0">
-              Mais comuns na Flórida
-            </div>
-          )}
           {results.length === 0 ? (
             <div className="px-3 py-4 text-xs text-muted-foreground text-center">
               Nenhuma marca encontrada — você pode digitar manualmente.
