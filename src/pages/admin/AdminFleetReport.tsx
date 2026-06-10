@@ -16,6 +16,7 @@ import {
 import { EmptyState } from "@/components/admin/EmptyState";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { aggregateAddons, calcVehicleOccupancyPct } from "@/lib/fleetMetrics";
 
 type VehicleReport = {
   id: string;
@@ -40,7 +41,7 @@ const CHART_COLORS = [
   "hsl(45 90% 50%)",
 ];
 
-export default function AdminFleetReport() {
+export default function AdminFleetReport({ embedded = false }: { embedded?: boolean } = {}) {
   const [loading, setLoading] = useState(true);
   const [month, setMonth] = useState(startOfMonth(new Date()));
   const [vehicles, setVehicles] = useState<any[]>([]);
@@ -143,19 +144,15 @@ export default function AdminFleetReport() {
   const damageRanking = [...report].filter((r) => r.damageCount > 0).sort((a, b) => b.damageCount - a.damageCount).slice(0, 10);
 
   // Addon revenue calculations
-  const addonTotals = bookings.reduce(
-    (acc, b: any) => {
-      const addons = b.addons || {};
-      acc.planExtra += Number(addons.plan_extra) || 0;
-      acc.insurance += Number(addons.insurance_total) || 0;
-      acc.childSeat += Number(addons.child_seat_total) || 0;
-      acc.tollTag += Number(addons.toll_tag_total) || 0;
-      acc.extraDriver += Number(addons.extra_driver_total) || 0;
-      acc.returnFee += Number(addons.return_fee) || 0;
-      return acc;
-    },
-    { planExtra: 0, insurance: 0, childSeat: 0, tollTag: 0, extraDriver: 0, returnFee: 0 }
-  );
+  const _addons = aggregateAddons(bookings as any);
+  const addonTotals = {
+    planExtra: _addons.plan_extra,
+    insurance: _addons.insurance_total,
+    childSeat: _addons.child_seat_total,
+    tollTag: _addons.toll_tag_total,
+    extraDriver: _addons.extra_driver_total,
+    returnFee: _addons.return_fee,
+  };
 
   const addonChartData = [
     { name: "Upgrade de Plano", value: addonTotals.planExtra, icon: "✨" },
@@ -179,12 +176,14 @@ export default function AdminFleetReport() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Relatório Mensal de Frota</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Análise de desempenho, utilização e avarias
-          </p>
-        </div>
+        {!embedded ? (
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Relatório Mensal de Frota</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Análise de desempenho, utilização e avarias
+            </p>
+          </div>
+        ) : <div />}
         <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(subMonths(month, 1))}>
             <ChevronLeft size={16} />
