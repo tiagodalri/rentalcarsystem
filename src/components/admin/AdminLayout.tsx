@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminTabsBar } from "./AdminTabsBar";
 import { AdminTabsProvider } from "@/hooks/useAdminTabs";
@@ -65,7 +65,6 @@ export default function AdminLayout() {
               {/* Desktop: abas tipo navegador + ticker CNN-style + barra de utilitários */}
               <AdminTabsBar />
               <header className="hidden lg:flex items-stretch border-b border-border/40 bg-background/90 backdrop-blur-md sticky top-0 z-30">
-                <SidebarTrigger className="h-9 w-11 flex items-center justify-center text-muted-foreground hover:text-foreground border-r border-border/40 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <PainelHeaderWidgets />
                 </div>

@@ -25,6 +25,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
@@ -266,7 +267,13 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
       </SidebarContent>
 
       {/* ===== User footer card ===== */}
-      <SidebarFooter className="border-t border-sidebar-border/60 p-2">
+      <SidebarFooter className="border-t border-sidebar-border/60 p-2 gap-2">
+        {/* Collapse / expand sidebar */}
+        <div className={collapsed ? "flex justify-center" : "flex justify-end px-1"}>
+          <SidebarTrigger
+            className="h-7 w-7 rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
+          />
+        </div>
         {collapsed ? (
           <SidebarMenu>
             <SidebarMenuItem>
