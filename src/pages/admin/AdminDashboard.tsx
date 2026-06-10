@@ -281,10 +281,12 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">Visao geral do sistema Zeus Rental Car</p>
-      </div>
+      {!embedded && (
+        <div>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Visao geral do sistema Zeus Rental Car</p>
+        </div>
+      )}
 
       {/* Bloco 1 — Operacional */}
       <section className="space-y-3">
