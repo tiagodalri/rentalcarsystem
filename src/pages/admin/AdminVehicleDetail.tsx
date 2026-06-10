@@ -493,6 +493,7 @@ export default function AdminVehicleDetail() {
             <TabsTrigger value="incidents" className="whitespace-nowrap">Ocorrências</TabsTrigger>
             
             <TabsTrigger value="history" className="whitespace-nowrap">Locações</TabsTrigger>
+            <TabsTrigger value="pricing" className="whitespace-nowrap">Precificação</TabsTrigger>
             <TabsTrigger value="details" className="whitespace-nowrap">Ficha Técnica</TabsTrigger>
           </TabsList>
         </div>
