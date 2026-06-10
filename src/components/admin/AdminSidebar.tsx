@@ -1,4 +1,4 @@
-import { LayoutDashboard, Car, CalendarRange, Users, LogOut, Settings, Radio, BarChart3, DollarSign, UsersRound, TrendingUp, Sparkles, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Car, CalendarRange, Users, LogOut, Settings, Radio, BarChart3, DollarSign, UsersRound, Sparkles, CalendarDays } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAdminTabs } from "@/hooks/useAdminTabs";
@@ -28,8 +28,7 @@ const menuItems: MenuItem[] = [
   { title: "Clientes",      url: "/admin/customers",        icon: Users,           allowedRoles: ["admin","operations","support"] },
   { title: "Financeiro",    url: "/admin/finance",          icon: DollarSign,      allowedRoles: ["admin","finance"] },
   { title: "Equipe",        url: "/admin/team",             icon: UsersRound,      allowedRoles: ["admin"] },
-  { title: "Relatório",     url: "/admin/report",           icon: BarChart3,       allowedRoles: ["admin","finance"] },
-  { title: "Lucro Frota",   url: "/admin/report/fleet-pnl", icon: TrendingUp,      allowedRoles: ["admin","finance","operations"] },
+  { title: "Relatórios",    url: "/admin/report",           icon: BarChart3,       allowedRoles: ["admin","finance"] },
   { title: "Configurações", url: "/admin/settings",         icon: Settings,        allowedRoles: ["admin"] },
 ];
 
