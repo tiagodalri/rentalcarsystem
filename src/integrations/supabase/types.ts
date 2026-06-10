@@ -1452,6 +1452,7 @@ export type Database = {
           published: boolean
           purchase_price: number | null
           registration_expiry: string | null
+          registry_photos: string[]
           renavam: string | null
           status: string
           tire_condition: string | null
@@ -1503,6 +1504,7 @@ export type Database = {
           published?: boolean
           purchase_price?: number | null
           registration_expiry?: string | null
+          registry_photos?: string[]
           renavam?: string | null
           status?: string
           tire_condition?: string | null
@@ -1554,6 +1556,7 @@ export type Database = {
           published?: boolean
           purchase_price?: number | null
           registration_expiry?: string | null
+          registry_photos?: string[]
           renavam?: string | null
           status?: string
           tire_condition?: string | null

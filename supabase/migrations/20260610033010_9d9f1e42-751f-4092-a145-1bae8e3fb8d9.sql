@@ -1,0 +1,1 @@
+ALTER TABLE public.vehicles ADD COLUMN IF NOT EXISTS registry_photos text[] NOT NULL DEFAULT '{}'::text[];
