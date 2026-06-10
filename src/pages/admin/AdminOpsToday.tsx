@@ -281,7 +281,7 @@ export default function AdminOpsToday() {
                   Nenhuma retirada nesta categoria.
                 </p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-1.5 max-h-[calc(100vh-380px)] overflow-y-auto pr-1 -mr-1">
                   {filteredPickups.map(({ b, s }) => (
                     <BookingRowCard
                       key={b.id}
@@ -293,6 +293,7 @@ export default function AdminOpsToday() {
                     />
                   ))}
                 </div>
+
               )}
             </>
           )}
