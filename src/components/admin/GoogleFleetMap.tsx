@@ -322,10 +322,13 @@ const TWEEN_DEFAULT_MS = 4000;         // default duration when we can't infer
 const MIN_MOVE_METERS = 4;             // ignore micro-jitter while parked
 const MAX_JUMP_METERS = 2_000;         // discard absurd GPS jumps
 const HEADING_LERP_PER_FRAME = 0.18;
+const HEADING_BUCKET_DEG = 15;         // coarser bucket = fewer setIcon calls
 const FOLLOW_PAN_INTERVAL_MS = 800;
 const FOLLOW_EDGE_PX = 110;
+const FOLLOW_CHECK_EVERY_N_FRAMES = 10; // ~6x/sec instead of every frame
 const PROGRAMMATIC_PAN_GUARD_MS = 350;
 const PROGRAMMATIC_ZOOM_GUARD_MS = 450;
+const FRAME_MIN_INTERVAL_MS = 33;       // cap rAF to ~30fps to free main thread
 
 // easeInOutCubic — soft start/end like Uber/Bouncie
 function ease(t: number): number {
