@@ -703,81 +703,182 @@ function EmptyState({
   );
 }
 
-/* ─────────────── decorative backdrops (discreet) ─────────────── */
-
-function SunriseBackdrop() {
-  return <CityPalmsBackdrop tone="emerald" />;
-}
-
-function SunsetBackdrop() {
-  return <CityPalmsBackdrop tone="amber" />;
-}
+/* ─────────────── decorative backdrops (discreet, location-themed) ─────────────── */
 
 /**
- * Discreet horizon scene: faint city skyline, palms, a few birds and a small
- * car silhouette — anchored to the bottom of the card.
+ * MIAMI scene (pickups / emerald): Art Deco Ocean Drive skyline with stepped
+ * rooftops + neon spires, a row of palms, seagulls and a tiny convertible
+ * silhouette. Rendered in a single low-opacity tone.
  */
-function CityPalmsBackdrop({ tone }: { tone: "emerald" | "amber" }) {
-  const color = tone === "emerald"
-    ? "text-emerald-500/[0.09] dark:text-emerald-400/[0.09]"
-    : "text-amber-500/[0.09] dark:text-amber-400/[0.09]";
+function SunriseBackdrop() {
+  const color = "text-emerald-500/[0.09] dark:text-emerald-400/[0.09]";
   return (
     <svg
       className={`absolute left-0 right-0 bottom-0 w-full ${color} pointer-events-none`}
       viewBox="0 0 600 180" preserveAspectRatio="xMidYMax slice" fill="currentColor" aria-hidden="true"
     >
-      {/* distant skyline */}
-      <g>
-        <rect x="40" y="110" width="14" height="60" />
-        <rect x="58" y="95" width="20" height="75" />
-        <rect x="82" y="118" width="12" height="52" />
-        <rect x="98" y="88" width="22" height="82" />
-        <rect x="120" y="118" width="3" height="20" />{/* antenna */}
-        <rect x="124" y="105" width="14" height="65" />
-        <rect x="142" y="120" width="18" height="50" />
-        <rect x="164" y="100" width="16" height="70" />
-        <rect x="184" y="115" width="12" height="55" />
-        <rect x="200" y="92" width="22" height="78" />
-        <rect x="226" y="112" width="14" height="58" />
-        <rect x="244" y="122" width="18" height="48" />
+      {/* seagulls */}
+      <g fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+        <path d="M250 38 q 4 -4 8 0 q 4 -4 8 0" />
+        <path d="M275 50 q 3 -3 6 0 q 3 -3 6 0" />
+        <path d="M305 32 q 4 -4 8 0 q 4 -4 8 0" />
       </g>
-      {/* birds */}
+
+      {/* Art Deco Ocean Drive skyline — stepped/rounded rooftops, antennas */}
       <g>
-        <path d="M250 38 q 4 -4 8 0 q 4 -4 8 0" fill="none" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M275 50 q 3 -3 6 0 q 3 -3 6 0" fill="none" stroke="currentColor" strokeWidth="1.2" />
-        <path d="M305 32 q 4 -4 8 0 q 4 -4 8 0" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        {/* low rounded hotel */}
+        <path d="M30 170 L30 130 Q30 122 38 122 L70 122 Q78 122 78 130 L78 170 Z" />
+        <rect x="50" y="112" width="8" height="10" />
+        {/* stepped deco tower */}
+        <path d="M86 170 L86 110 L106 110 L106 100 L116 100 L116 88 L122 88 L122 100 L132 100 L132 110 L152 110 L152 170 Z" />
+        <rect x="118" y="76" width="2" height="14" />
+        {/* curved corner hotel (typical Miami) */}
+        <path d="M160 170 L160 118 Q160 104 174 104 L196 104 Q210 104 210 118 L210 170 Z" />
+        <rect x="180" y="94" width="10" height="10" />
+        {/* slim deco spire */}
+        <path d="M218 170 L218 100 L232 100 L232 84 L238 84 L238 70 L242 70 L242 84 L248 84 L248 100 L262 100 L262 170 Z" />
+        {/* low stepped pyramid block */}
+        <path d="M270 170 L270 128 L284 128 L284 118 L300 118 L300 128 L314 128 L314 170 Z" />
       </g>
-      {/* palms (front, varied heights) */}
+
+      {/* palms along the avenue */}
       <g>
-        {/* tall palm */}
         <rect x="335" y="80" width="3" height="90" />
         <path d="M336.5 80 q -22 -8 -34 -1 q 20 -2 32 7 z" />
         <path d="M336.5 80 q 22 -8 34 -1 q -20 -2 -32 7 z" />
         <path d="M336.5 80 q -6 -20 -2 -32 q 7 16 7 32 z" />
         <path d="M336.5 80 q 6 -20 2 -32 q -7 16 -7 32 z" />
-        {/* medium palm */}
+
         <rect x="395" y="100" width="3" height="70" />
         <path d="M396.5 100 q -18 -6 -28 -1 q 16 -2 26 6 z" />
         <path d="M396.5 100 q 18 -6 28 -1 q -16 -2 -26 6 z" />
         <path d="M396.5 100 q -5 -16 -1 -26 q 6 12 6 26 z" />
-        {/* smaller palm */}
+
         <rect x="450" y="115" width="3" height="55" />
         <path d="M451.5 115 q -14 -5 -22 -1 q 12 -1 20 5 z" />
         <path d="M451.5 115 q 14 -5 22 -1 q -12 -1 -20 5 z" />
         <path d="M451.5 115 q -4 -12 -1 -20 q 5 10 5 20 z" />
-        {/* far right palm */}
+
         <rect x="540" y="105" width="3" height="65" />
         <path d="M541.5 105 q -16 -6 -26 -1 q 14 -2 24 6 z" />
         <path d="M541.5 105 q 16 -6 26 -1 q -14 -2 -24 6 z" />
         <path d="M541.5 105 q -5 -14 -1 -24 q 5 11 5 24 z" />
       </g>
-      {/* tiny car silhouette near horizon */}
+
+      {/* tiny convertible silhouette cruising the strip */}
       <g>
-        <path d="M470 158 q 3 -8 10 -8 l 36 0 q 6 0 9 4 l 6 4 l 10 0 q 4 0 4 4 l 0 3 l -78 0 l 0 -4 q 0 -1 3 -3 z" />
+        <path d="M468 160 q 2 -6 8 -6 l 10 0 l 6 -6 q 2 -2 6 -2 l 18 0 q 4 0 6 2 l 6 6 l 8 0 q 4 0 4 4 l 0 2 l -72 0 l 0 -2 q 0 -2 0 -2 z" />
+        <circle cx="482" cy="164" r="3.5" />
+        <circle cx="522" cy="164" r="3.5" />
       </g>
     </svg>
   );
 }
+
+/**
+ * ORLANDO scene (returns / amber): theme-park castle with three spires,
+ * a small ferris wheel, palms and a tram silhouette — all rendered as a
+ * discreet low-opacity silhouette.
+ */
+function SunsetBackdrop() {
+  const color = "text-amber-500/[0.09] dark:text-amber-400/[0.09]";
+  return (
+    <svg
+      className={`absolute left-0 right-0 bottom-0 w-full ${color} pointer-events-none`}
+      viewBox="0 0 600 180" preserveAspectRatio="xMidYMax slice" fill="currentColor" aria-hidden="true"
+    >
+      {/* tiny fireworks sparks */}
+      <g fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
+        <path d="M180 28 l 0 -6 M180 40 l 0 6 M174 34 l -6 0 M186 34 l 6 0 M176 30 l -4 -4 M184 30 l 4 -4 M176 38 l -4 4 M184 38 l 4 4" />
+        <path d="M310 22 l 0 -5 M310 32 l 0 5 M305 27 l -5 0 M315 27 l 5 0" />
+      </g>
+
+      {/* ferris wheel (small, to the left) */}
+      <g fill="none" stroke="currentColor" strokeWidth="1.6">
+        <circle cx="70" cy="120" r="32" />
+        <line x1="70" y1="88" x2="70" y2="152" />
+        <line x1="38" y1="120" x2="102" y2="120" />
+        <line x1="48" y1="98" x2="92" y2="142" />
+        <line x1="92" y1="98" x2="48" y2="142" />
+      </g>
+      <g fill="currentColor">
+        <circle cx="70" cy="88" r="2.5" />
+        <circle cx="102" cy="120" r="2.5" />
+        <circle cx="70" cy="152" r="2.5" />
+        <circle cx="38" cy="120" r="2.5" />
+        <circle cx="92" cy="98" r="2.5" />
+        <circle cx="92" cy="142" r="2.5" />
+        <circle cx="48" cy="98" r="2.5" />
+        <circle cx="48" cy="142" r="2.5" />
+        {/* wheel base */}
+        <path d="M50 170 L70 130 L90 170 Z" />
+      </g>
+
+      {/* fairy-tale castle in the center */}
+      <g>
+        {/* main keep */}
+        <rect x="200" y="110" width="60" height="60" />
+        {/* battlements */}
+        <rect x="200" y="106" width="8" height="4" />
+        <rect x="216" y="106" width="8" height="4" />
+        <rect x="232" y="106" width="8" height="4" />
+        <rect x="248" y="106" width="8" height="4" />
+        {/* gate arch */}
+        <path d="M222 170 L222 148 Q222 138 230 138 Q238 138 238 148 L238 170 Z" fill="hsl(var(--background))" />
+        {/* left tower */}
+        <rect x="186" y="92" width="14" height="78" />
+        <path d="M186 92 L193 72 L200 92 Z" />
+        <rect x="192" y="64" width="2" height="10" />
+        {/* right tower */}
+        <rect x="260" y="92" width="14" height="78" />
+        <path d="M260 92 L267 72 L274 92 Z" />
+        <rect x="266" y="64" width="2" height="10" />
+        {/* central tall spire */}
+        <rect x="224" y="78" width="12" height="32" />
+        <path d="M224 78 L230 52 L236 78 Z" />
+        <rect x="229" y="42" width="2" height="12" />
+        <path d="M231 44 l 6 -3 l -6 -3 z" />
+        {/* small flanking spires */}
+        <rect x="208" y="96" width="6" height="14" />
+        <path d="M208 96 L211 86 L214 96 Z" />
+        <rect x="246" y="96" width="6" height="14" />
+        <path d="M246 96 L249 86 L252 96 Z" />
+      </g>
+
+      {/* palms on the right */}
+      <g>
+        <rect x="395" y="100" width="3" height="70" />
+        <path d="M396.5 100 q -18 -6 -28 -1 q 16 -2 26 6 z" />
+        <path d="M396.5 100 q 18 -6 28 -1 q -16 -2 -26 6 z" />
+        <path d="M396.5 100 q -5 -16 -1 -26 q 6 12 6 26 z" />
+
+        <rect x="450" y="115" width="3" height="55" />
+        <path d="M451.5 115 q -14 -5 -22 -1 q 12 -1 20 5 z" />
+        <path d="M451.5 115 q 14 -5 22 -1 q -12 -1 -20 5 z" />
+        <path d="M451.5 115 q -4 -12 -1 -20 q 5 10 5 20 z" />
+
+        <rect x="540" y="105" width="3" height="65" />
+        <path d="M541.5 105 q -16 -6 -26 -1 q 14 -2 24 6 z" />
+        <path d="M541.5 105 q 16 -6 26 -1 q -14 -2 -24 6 z" />
+        <path d="M541.5 105 q -5 -14 -1 -24 q 5 11 5 24 z" />
+      </g>
+
+      {/* park tram silhouette */}
+      <g>
+        <rect x="475" y="152" width="22" height="10" rx="2" />
+        <rect x="500" y="150" width="22" height="12" rx="2" />
+        <rect x="525" y="152" width="22" height="10" rx="2" />
+        <circle cx="482" cy="164" r="2.5" />
+        <circle cx="494" cy="164" r="2.5" />
+        <circle cx="508" cy="164" r="2.5" />
+        <circle cx="520" cy="164" r="2.5" />
+        <circle cx="532" cy="164" r="2.5" />
+        <circle cx="544" cy="164" r="2.5" />
+      </g>
+    </svg>
+  );
+}
+
 
 /** Discreet wrench mark on the right side of the prep strip */
 function GarageBackdrop() {
