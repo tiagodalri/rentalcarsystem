@@ -1,4 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+import MobileBookings from "./mobile/MobileBookings";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Trash2, LogIn, LogOut, GitCompare, CalendarDays, List, ChevronLeft, ChevronRight, Clock, SlidersHorizontal, ArrowUpDown, X, Check, Download, FileText, FileSpreadsheet, CalendarIcon, Plus, Car, Plane, MapPin } from "lucide-react";
@@ -510,7 +512,14 @@ function getPresetRange(key: PresetKey): { from?: Date; to?: Date } {
 // ─── Main Component ─────────────────────────────────────────
 export default function AdminBookings() {
   const navigate = useNavigate();
+  const { isMobile } = useIsMobileApp();
   useRegisterFab({ icon: Plus, label: "Nova reserva", onClick: () => navigate("/admin/bookings/new") });
+  if (isMobile) return <MobileBookings />;
+  return <AdminBookingsDesktop />;
+}
+
+function AdminBookingsDesktop() {
+  const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
