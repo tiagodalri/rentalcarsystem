@@ -74,6 +74,22 @@ function puckSvg(color: string, selected: boolean, headingDeg: number, moving: b
   };
 }
 
+const puckIconCache = new Map<string, any>();
+function puckIconKey(color: string, selected: boolean, headingDeg: number, moving: boolean, logoDataUri: string | null): string {
+  const headingBucket = moving ? Math.round(headingDeg / 6) * 6 : 0;
+  return `${color}|${selected ? "S" : "_"}|${moving ? "M" : "_"}|${headingBucket}|${logoDataUri ?? "no-logo"}`;
+}
+function getPuckIcon(color: string, selected: boolean, headingDeg: number, moving: boolean, logoDataUri: string | null): any {
+  const key = puckIconKey(color, selected, headingDeg, moving, logoDataUri);
+  const cached = puckIconCache.get(key);
+  if (cached) return cached;
+  const headingBucket = moving ? Math.round(headingDeg / 6) * 6 : 0;
+  const icon = puckSvg(color, selected, headingBucket, moving, logoDataUri);
+  if (puckIconCache.size > 700) puckIconCache.clear();
+  puckIconCache.set(key, icon);
+  return icon;
+}
+
 // --- Brand logo resolution (Simple Icons CDN, cached + inlined as data URI) ---
 const BRAND_SLUGS: Record<string, string> = {
   porsche: "porsche",
@@ -291,6 +307,8 @@ type VehicleState = {
   /** Currently displayed lat/lng */
   displayLat: number;
   displayLng: number;
+  /** Avoid forcing Google Maps to relayout markers every animation frame */
+  positionDirty: boolean;
   /** Icon cache key — avoid setIcon every frame */
   iconKey: string;
   selected: boolean;
