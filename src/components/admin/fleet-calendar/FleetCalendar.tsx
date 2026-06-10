@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import {
   ChevronLeft, ChevronRight, Calendar as CalendarIcon, Search,
-  Filter, X, Wrench, CarFront, Activity, Truck,
+  Filter, X, Wrench, CarFront, Activity, Truck, Lock,
 } from "lucide-react";
 import {
   addDays, format, parseISO, startOfDay, differenceInCalendarDays, isSameDay,
@@ -17,6 +17,7 @@ import {
 import { ptBR } from "date-fns/locale";
 import { BrandAvatar } from "./BrandAvatar";
 import { BookingBar, BookingLike, STATUS_TOKEN } from "./BookingBar";
+import { InformalBookingDialog } from "./InformalBookingDialog";
 
 type Vehicle = {
   id: string;
@@ -63,6 +64,9 @@ export function FleetCalendar() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [brandFilter, setBrandFilter] = useState<string>("all");
   const [showCancelled, setShowCancelled] = useState(false);
+  const [informalOpen, setInformalOpen] = useState(false);
+  const [reloadTick, setReloadTick] = useState(0);
+
 
   useEffect(() => {
     (async () => {
@@ -85,7 +89,7 @@ export function FleetCalendar() {
       setBookings((b.data as BookingLike[]) || []);
       setLoading(false);
     })();
-  }, [startDate, DAYS_WINDOW, showCancelled]);
+  }, [startDate, DAYS_WINDOW, showCancelled, reloadTick]);
 
   const days = useMemo(
     () => Array.from({ length: DAYS_WINDOW }, (_, i) => addDays(startDate, i)),
@@ -181,12 +185,19 @@ export function FleetCalendar() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-medium tracking-tight">Calendário da Frota</h1>
+          <h1 className="text-2xl font-medium tracking-tight">Agenda da Frota</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Visão de ocupação por veículo • <span className="tabular-nums">{rangeLabel}</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="default" size="sm"
+            onClick={() => setInformalOpen(true)}
+            className="h-9 gap-1.5 text-xs uppercase tracking-wider font-semibold"
+          >
+            <Lock size={12} /> Bloquear data
+          </Button>
           <Button
             variant="outline" size="sm"
             onClick={() => setStartDate(addDays(startDate, -Math.ceil(DAYS_WINDOW / 2)))}
@@ -197,7 +208,7 @@ export function FleetCalendar() {
           <Button
             variant="outline" size="sm"
             onClick={() => setStartDate(startOfDay(new Date()))}
-            className="h-9 gap-1.5 text-xs uppercase tracking-wider font-semibold"
+            className="h-9 gap-1 text-xs uppercase tracking-wider font-semibold"
           >
             <CalendarIcon size={12} /> Hoje
           </Button>
@@ -445,6 +456,14 @@ export function FleetCalendar() {
           </div>
         )}
       </Card>
+
+      <InformalBookingDialog
+        open={informalOpen}
+        onOpenChange={setInformalOpen}
+        onCreated={() => setReloadTick(t => t + 1)}
+        vehicles={vehicles.map(v => ({ id: v.id, name: v.name, license_plate: v.license_plate }))}
+        defaultStartDate={format(startDate, "yyyy-MM-dd")}
+      />
     </div>
   );
 }

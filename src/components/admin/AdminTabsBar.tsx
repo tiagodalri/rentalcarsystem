@@ -13,7 +13,7 @@ const ROUTE_OPTIONS: RouteOption[] = [
   { title: "Operação Hoje", url: "/admin/ops-today",        icon: Sparkles,        allowedRoles: ["admin","operations","support"] },
   { title: "Live",          url: "/admin/live",             icon: Radio,           allowedRoles: ["admin","operations"] },
   { title: "Reservas",      url: "/admin/bookings",         icon: CalendarRange,   allowedRoles: ["admin","operations","support"] },
-  { title: "Calendário",    url: "/admin/calendar",         icon: CalendarDays,    allowedRoles: ["admin","operations","support"] },
+  { title: "Agenda",        url: "/admin/calendar",         icon: CalendarDays,    allowedRoles: ["admin","operations","support"] },
   { title: "Frota",         url: "/admin/fleet",            icon: Car,             allowedRoles: ["admin","operations"] },
   { title: "Clientes",      url: "/admin/customers",        icon: Users,           allowedRoles: ["admin","operations","support"] },
   { title: "Financeiro",    url: "/admin/finance",          icon: DollarSign,      allowedRoles: ["admin","finance"] },
