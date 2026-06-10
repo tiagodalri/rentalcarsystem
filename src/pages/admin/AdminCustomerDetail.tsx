@@ -253,14 +253,7 @@ export default function AdminCustomerDetail() {
       {hasAny(["admin", "support", "operations"]) && (
         <div className="space-y-3">
           <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.1em]">Metricas do Cliente</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <MetricCard icon={FileText} label="Total de Locacoes" value={bookings.length} />
-            <MetricCard
-              icon={DollarSign}
-              label="Valor Total Gasto"
-              value={totalRevenue > 0 ? `$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "—"}
-              color="text-primary"
-            />
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-3">
             <MetricCard
               icon={Star}
               label="Categoria Favorita"
