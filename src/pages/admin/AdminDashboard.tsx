@@ -283,11 +283,11 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
         {renderCardGrid(fleetCards)}
       </section>
 
-      {/* Bloco 3 — Financeiro */}
+      {/* Bloco 3 — Investimento (apenas indicadores únicos da Visão Geral) */}
       {showFinancial && (
         <section className="space-y-3">
-          <h2 className="admin-section-title">Financeiro</h2>
-          {renderCardGrid(financeCards, "grid-cols-2 lg:grid-cols-3")}
+          <h2 className="admin-section-title">Investimento</h2>
+          {renderCardGrid(financeCards, "grid-cols-2 lg:grid-cols-2")}
         </section>
       )}
 
