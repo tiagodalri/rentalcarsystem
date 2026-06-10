@@ -41,6 +41,11 @@ type Booking = {
   clicksign_envelope_id?: string | null;
   booking_number?: string | null;
   payment_status?: string | null;
+  payment_method?: string | null;
+  paid_at?: string | null;
+  deposit_amount?: number | null;
+  franchise_amount?: number | null;
+  stripe_session_id?: string | null;
 };
 
 type Customer = {
