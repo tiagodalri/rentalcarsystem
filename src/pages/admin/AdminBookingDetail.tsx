@@ -468,22 +468,23 @@ export default function AdminBookingDetail() {
             </div>
           </div>
 
-          <div className="grid w-full grid-cols-[1.35fr_0.65fr_0.9fr] overflow-hidden rounded-xl border border-border/40 bg-background/60 sm:inline-grid sm:w-auto sm:min-w-[430px]">
-            <div className="min-w-0 px-3 py-2 border-r border-border/30">
+          <div className="grid w-full grid-cols-[1fr_auto_auto] gap-px overflow-hidden rounded-xl border border-border/40 bg-border/40 sm:inline-grid sm:w-auto sm:min-w-[430px] sm:grid-cols-[1.35fr_0.65fr_0.9fr] sm:gap-0 sm:bg-background/60">
+            <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent sm:border-r sm:border-border/30">
               <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Período</p>
-              <p className="truncate text-xs font-medium text-foreground tabular-nums" title={`${pickup.toLocaleDateString("pt-BR")} → ${returnD.toLocaleDateString("pt-BR")}`}>
+              <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums" title={`${pickup.toLocaleDateString("pt-BR")} → ${returnD.toLocaleDateString("pt-BR")}`}>
                 {pickup.toLocaleDateString("pt-BR")} → {returnD.toLocaleDateString("pt-BR")}
               </p>
             </div>
-            <div className="min-w-0 px-3 py-2 border-r border-border/30">
+            <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent sm:border-r sm:border-border/30">
               <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Dias</p>
-              <p className="truncate text-xs font-medium text-foreground tabular-nums">{days}</p>
+              <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{days}</p>
             </div>
-            <div className="min-w-0 px-3 py-2">
+            <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent">
               <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Total</p>
-              <p className="truncate text-xs font-bold text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
+              <p className="truncate text-[11px] sm:text-xs font-bold text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
             </div>
           </div>
+
         </div>
 
         <div className="w-full lg:w-auto lg:min-w-[360px] space-y-2">
