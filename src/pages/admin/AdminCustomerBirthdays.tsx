@@ -425,7 +425,7 @@ function BirthdayCard({
         )}
         {c.email && (
           <a
-            href={`mailto:${c.email}?subject=${encodeURIComponent("Feliz aniversário! 🎂")}&body=${encodeURIComponent(greeting)}`}
+            href={`mailto:${c.email}?subject=${encodeURIComponent("Feliz aniversário!")}&body=${encodeURIComponent(greeting)}`}
             className="h-9 w-9 rounded-lg border border-border/50 bg-background text-muted-foreground hover:text-foreground hover:border-border inline-flex items-center justify-center transition"
             title="Email"
           >
