@@ -188,7 +188,7 @@ export default function AdminCustomers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Clientes</h1>
+          <h1 className="admin-h1">Clientes</h1>
           <p className="text-sm text-muted-foreground mt-1">{customers.length} clientes cadastrados</p>
         </div>
         <div className="flex items-center gap-2">
