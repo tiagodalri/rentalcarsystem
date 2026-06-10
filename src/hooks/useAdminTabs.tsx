@@ -164,7 +164,7 @@ const TITLE_MAP: Array<{ test: (p: string) => boolean; title: string }> = [
   { test: (p) => p.startsWith("/admin/bookings/new"), title: "Nova reserva" },
   { test: (p) => /^\/admin\/bookings\/[^/]+/.test(p), title: "Reserva" },
   { test: (p) => p.startsWith("/admin/bookings"), title: "Reservas" },
-  { test: (p) => p.startsWith("/admin/calendar"), title: "Calendário" },
+  { test: (p) => p.startsWith("/admin/calendar"), title: "Agenda" },
   { test: (p) => p.startsWith("/admin/fleet/new"), title: "Novo veículo" },
   { test: (p) => /^\/admin\/fleet\/[^/]+\/history/.test(p), title: "Histórico do veículo" },
   { test: (p) => /^\/admin\/fleet\/[^/]+/.test(p), title: "Veículo" },
