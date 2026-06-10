@@ -170,11 +170,22 @@ const BookingDetails = () => {
 
   // Pricing calculations
   const basePrice = vehiclePrices[decodedName] || 99;
-  const dailyPrice = youngDriver ? Math.ceil(basePrice * (1 + YOUNG_DRIVER_SURCHARGE)) : basePrice;
   const basicDeductible = BASIC_FRANCHISE;
 
+  // Real pricing from admin rules (seasons, overrides, weekend multipliers, weekly/monthly discounts)
+  const { data: rpcPricing } = useVehiclePricing(dbVehicle?.id, pickupDate, returnDate);
+
+  // Base subtotal/avg from rules; fallback to flat basePrice while loading
+  const rulesSubtotal = rpcPricing?.subtotal_rental ?? basePrice * days;
+  const rulesAvgDaily = rpcPricing?.avg_per_day ?? basePrice;
+
+  // Young driver surcharge applied on top of the rules-based price
+  const dailyPrice = youngDriver ? Math.ceil(rulesAvgDaily * (1 + YOUNG_DRIVER_SURCHARGE)) : rulesAvgDaily;
+
   const pricing = useMemo(() => {
-    const subtotalRental = dailyPrice * days;
+    const subtotalRental = youngDriver
+      ? Math.ceil(rulesSubtotal * (1 + YOUNG_DRIVER_SURCHARGE))
+      : rulesSubtotal;
     const planExtra = currentPlan.dailyExtra * days;
 
     // Add-on costs (only for items added on top of plan)
@@ -207,8 +218,9 @@ const BookingDetails = () => {
       basicDeductible,
       deposit: hasPremiumInsurance ? 0 : BASIC_DEPOSIT,
       deductible: hasPremiumInsurance ? 0 : basicDeductible,
+      rulesDiscountPct: rpcPricing?.discount_pct ?? 0,
     };
-  }, [dailyPrice, days, currentPlan, addonInsurance, addonChildSeat, addonChildSeatQty, addonTollTag, isDifferentCity, hasPremiumInsurance]);
+  }, [dailyPrice, rulesSubtotal, youngDriver, days, currentPlan, addonInsurance, addonChildSeat, addonChildSeatQty, addonTollTag, isDifferentCity, hasPremiumInsurance, rpcPricing]);
 
   const handleCheckout = async () => {
     // Validate customer data
