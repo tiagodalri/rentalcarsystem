@@ -25,7 +25,7 @@ type BookingRow = {
   booking_number: string | null;
 };
 
-type Vehicle = { id: string; name: string; status: string };
+type Vehicle = { id: string; name: string; status: string; brand?: string | null };
 
 export default function AdminOpsToday() {
   const navigate = useNavigate();
