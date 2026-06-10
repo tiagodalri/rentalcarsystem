@@ -500,6 +500,14 @@ export default function AdminInspection() {
   };
 
   // Fuel photo
+  const captureFuelPhoto = () => {
+    if (!isTouchDevice) {
+      setWebcamTarget({ kind: "fuel" });
+      return;
+    }
+    fuelPhotoRef.current?.click();
+  };
+
   const handleFuelPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
