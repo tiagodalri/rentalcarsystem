@@ -687,11 +687,14 @@ export default function AdminInspection() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Hidden file inputs — capture="environment" opens rear camera on mobile */}
-      <input ref={fileInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileCapture} />
-      <input ref={damageFileRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleDamageFile} />
-      <input ref={odometerPhotoRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleOdometerPhoto} />
-      <input ref={fuelPhotoRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFuelPhoto} />
+      {/* File inputs — capture="environment" opens rear camera on mobile.
+          NOTE: iOS Safari (and standalone PWA) ignore programmatic .click() on
+          inputs with display:none. Use sr-only style so the input stays in the
+          layout/accessibility tree and the click reliably opens the camera. */}
+      <input ref={fileInputRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleFileCapture} />
+      <input ref={damageFileRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleDamageFile} />
+      <input ref={odometerPhotoRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleOdometerPhoto} />
+      <input ref={fuelPhotoRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleFuelPhoto} />
 
       {/* Webcam dialog — only used on desktop/notebook (no touch). Mobile uses native camera via input capture. */}
       <WebcamCaptureDialog
