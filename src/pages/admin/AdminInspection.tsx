@@ -958,13 +958,21 @@ export default function AdminInspection() {
                           <button
                             onClick={() => { !isCompleted && capturePhoto(pos.name); setActiveGuide(pos.name); }}
                             disabled={isCompleted || uploading}
-                            className="aspect-[4/3] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-1.5 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors w-full"
+                            className={`aspect-[4/3] rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1.5 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors w-full ${
+                              pos.optional ? "border-border/40 bg-muted/20" : "border-border/60"
+                            }`}
                           >
                             <PhotoIllustration position={pos.name} />
                             <Camera size={18} />
                             <span className="text-[10px] font-medium leading-tight text-center px-1">{pos.name}</span>
+                            {pos.optional && (
+                              <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70 border border-border/40 rounded px-1.5 py-0.5">
+                                Se houver
+                              </span>
+                            )}
                           </button>
                         )}
+
                         {/* Guide tooltip on hover */}
                         <button
                           onClick={() => setActiveGuide(activeGuide === pos.name ? null : pos.name)}
