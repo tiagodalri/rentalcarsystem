@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play, Database, Loader2 } from "lucide-react";
+import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play, Database, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
@@ -39,7 +39,10 @@ export default function AdminLive() {
   const { vehicles, loading } = useFleetLive();
   const [selected, setSelected] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [filter, setFilter] = useState<"all" | "moving" | "idle" | "parked">("all");
+  const [query, setQuery] = useState("");
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [highlight, setHighlight] = useState(0);
+  const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const [layers, setLayers] = useMapLayers();
   const [pickerOpen, setPickerOpen] = useState(false);
   const [replayTripId, setReplayTripId] = useState<string | null>(null);
@@ -51,10 +54,32 @@ export default function AdminLive() {
     [vehicles]
   );
 
-  const filtered = useMemo(
-    () => onMap.filter((v) => filter === "all" || v.status === filter),
-    [onMap, filter]
+  const normalizedQuery = query.trim().toLowerCase();
+  const filtered = useMemo(() => {
+    if (!normalizedQuery) return onMap;
+    return onMap.filter((v) => {
+      const name = (v.name ?? "").toLowerCase();
+      const plate = (v.plate ?? "").toLowerCase();
+      return name.includes(normalizedQuery) || plate.includes(normalizedQuery);
+    });
+  }, [onMap, normalizedQuery]);
+
+  const suggestions = useMemo(
+    () => (normalizedQuery ? filtered.slice(0, 6) : []),
+    [filtered, normalizedQuery]
   );
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    if (!suggestOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+        setSuggestOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [suggestOpen]);
 
   const selectedVehicle = vehicles.find((v) => v.vehicle_id === selected) ?? null;
 
@@ -145,20 +170,116 @@ export default function AdminLive() {
         <div className="w-full lg:w-72 lg:shrink-0 flex flex-col gap-2 lg:overflow-hidden">
           <UnlinkedBouncieDevices />
 
-          <div className="flex flex-wrap gap-1.5">
-            {(["all", "moving", "idle", "parked"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border transition-colors font-medium ${
-                  filter === f
-                    ? "bg-primary/10 text-primary border-primary/30"
-                    : "border-border/40 text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {f === "all" ? "Todos" : f === "moving" ? "Movendo" : f === "idle" ? "Parado" : "Estacionado"}
-              </button>
-            ))}
+          {/* Search with autocomplete */}
+          <div ref={searchWrapRef} className="relative">
+            <div
+              className={`relative flex items-center gap-2 rounded-lg border bg-card/60 transition-all ${
+                suggestOpen
+                  ? "border-primary/40 shadow-sm shadow-primary/10 ring-1 ring-primary/10"
+                  : "border-border/40 hover:border-border/60"
+              }`}
+            >
+              <Search size={14} className="ml-2.5 text-muted-foreground shrink-0" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setSuggestOpen(true);
+                  setHighlight(0);
+                }}
+                onFocus={() => setSuggestOpen(true)}
+                onKeyDown={(e) => {
+                  if (!suggestions.length) return;
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setHighlight((h) => (h + 1) % suggestions.length);
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setHighlight((h) => (h - 1 + suggestions.length) % suggestions.length);
+                  } else if (e.key === "Enter") {
+                    e.preventDefault();
+                    const pick = suggestions[highlight];
+                    if (pick) {
+                      setSelected(pick.vehicle_id);
+                      setQuery(pick.name);
+                      setSuggestOpen(false);
+                    }
+                  } else if (e.key === "Escape") {
+                    setSuggestOpen(false);
+                  }
+                }}
+                placeholder="Buscar veículo ou placa..."
+                className="flex-1 bg-transparent py-2 pr-2 text-[12px] text-foreground placeholder:text-muted-foreground/70 outline-none"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    setSuggestOpen(false);
+                  }}
+                  className="mr-1.5 w-5 h-5 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                  aria-label="Limpar busca"
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+
+            {/* Suggestions dropdown */}
+            {suggestOpen && normalizedQuery && (
+              <div className="absolute z-30 left-0 right-0 mt-1.5 rounded-lg border border-border/50 bg-popover/95 backdrop-blur-md shadow-lg shadow-black/10 overflow-hidden animate-in fade-in-0 slide-in-from-top-1 duration-150">
+                {suggestions.length === 0 ? (
+                  <div className="px-3 py-3 text-[11px] text-muted-foreground text-center">
+                    Nenhum veículo encontrado para "{query}"
+                  </div>
+                ) : (
+                  <ul className="max-h-72 overflow-y-auto scrollbar-thin py-1">
+                    {suggestions.map((v, i) => (
+                      <li key={v.vehicle_id}>
+                        <button
+                          type="button"
+                          onMouseEnter={() => setHighlight(i)}
+                          onClick={() => {
+                            setSelected(v.vehicle_id);
+                            setQuery(v.name);
+                            setSuggestOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-2.5 px-2 py-1.5 text-left transition-colors ${
+                            highlight === i ? "bg-muted/60" : "hover:bg-muted/40"
+                          }`}
+                        >
+                          <img
+                            src={getCoverImage(v.name)}
+                            alt=""
+                            className="w-10 h-7 rounded object-cover border border-border/30 shrink-0"
+                            loading="lazy"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[12px] font-medium text-foreground truncate leading-tight">
+                              {v.name}
+                            </div>
+                            <div className="text-[10px] text-muted-foreground font-mono leading-tight">
+                              {v.plate ?? "—"}
+                            </div>
+                          </div>
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                              v.status === "moving"
+                                ? "bg-green-500"
+                                : v.status === "idle"
+                                ? "bg-yellow-500"
+                                : "bg-muted-foreground"
+                            }`}
+                          />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="lg:flex-1 lg:overflow-y-auto space-y-1.5 lg:pr-1 scrollbar-thin">
@@ -167,11 +288,11 @@ export default function AdminLive() {
             ) : filtered.length === 0 ? (
               <EmptyState
                 icon={Activity}
-                title={noTelemetry ? "Sem telemetria ainda" : "Nenhum veículo neste filtro"}
+                title={noTelemetry ? "Sem telemetria ainda" : "Nenhum veículo encontrado"}
                 description={
                   noTelemetry
                     ? "Cadastre o IMEI Bouncie em cada veículo e aguarde os primeiros eventos do rastreador."
-                    : "Ajuste o filtro acima para ver outros veículos."
+                    : "Tente outro termo na busca."
                 }
                 compact
               />
