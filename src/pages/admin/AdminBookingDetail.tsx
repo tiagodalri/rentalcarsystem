@@ -234,7 +234,7 @@ export default function AdminBookingDetail() {
     if (!insp) {
       return (
         <Card className="bg-card/80 border-border/30 overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-3 border-b border-border/20 bg-muted/20">
+          <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-border/20 bg-muted/20">
             <div className="flex items-center gap-2">
               {type === "checkin" ? <LogIn size={14} className="text-primary" /> : <LogOut size={14} className="text-primary" />}
               <h3 className="text-sm font-semibold text-foreground">{label}</h3>
@@ -265,7 +265,7 @@ export default function AdminBookingDetail() {
 
     return (
       <Card className="bg-card/80 border-border/30 overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-3 border-b border-border/20 bg-muted/20">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-border/20 bg-muted/20">
           <div className="flex items-center gap-2">
             {type === "checkin" ? <LogIn size={14} className="text-primary" /> : <LogOut size={14} className="text-primary" />}
             <h3 className="text-sm font-semibold text-foreground">{label}</h3>
@@ -284,7 +284,7 @@ export default function AdminBookingDetail() {
           </div>
         </div>
 
-        <CardContent className="p-5 space-y-5">
+        <CardContent className="p-4 sm:p-5 space-y-5">
           {/* Metrics row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <MetricCard icon={Gauge} label="Odômetro" value={insp.odometer_reading ? `${insp.odometer_reading.toLocaleString()} mi` : "—"} />
@@ -412,10 +412,11 @@ export default function AdminBookingDetail() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-5 sm:space-y-6 max-w-6xl mx-auto w-full px-3 sm:px-4 lg:px-0">
+
       {/* Photo lightbox */}
       {expandedPhoto && (
-        <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex items-center justify-center p-8" onClick={() => setExpandedPhoto(null)}>
+        <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex items-center justify-center p-3 sm:p-8" onClick={() => setExpandedPhoto(null)}>
           <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80">
             <XIcon size={20} />
           </button>
@@ -467,22 +468,23 @@ export default function AdminBookingDetail() {
             </div>
           </div>
 
-          <div className="grid w-full grid-cols-[1.35fr_0.65fr_0.9fr] overflow-hidden rounded-xl border border-border/40 bg-background/60 sm:inline-grid sm:w-auto sm:min-w-[430px]">
-            <div className="min-w-0 px-3 py-2 border-r border-border/30">
+          <div className="grid w-full grid-cols-[1fr_auto_auto] gap-px overflow-hidden rounded-xl border border-border/40 bg-border/40 sm:inline-grid sm:w-auto sm:min-w-[430px] sm:grid-cols-[1.35fr_0.65fr_0.9fr] sm:gap-0 sm:bg-background/60">
+            <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent sm:border-r sm:border-border/30">
               <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Período</p>
-              <p className="truncate text-xs font-medium text-foreground tabular-nums" title={`${pickup.toLocaleDateString("pt-BR")} → ${returnD.toLocaleDateString("pt-BR")}`}>
+              <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums" title={`${pickup.toLocaleDateString("pt-BR")} → ${returnD.toLocaleDateString("pt-BR")}`}>
                 {pickup.toLocaleDateString("pt-BR")} → {returnD.toLocaleDateString("pt-BR")}
               </p>
             </div>
-            <div className="min-w-0 px-3 py-2 border-r border-border/30">
+            <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent sm:border-r sm:border-border/30">
               <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Dias</p>
-              <p className="truncate text-xs font-medium text-foreground tabular-nums">{days}</p>
+              <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{days}</p>
             </div>
-            <div className="min-w-0 px-3 py-2">
+            <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent">
               <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground/70">Total</p>
-              <p className="truncate text-xs font-bold text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
+              <p className="truncate text-[11px] sm:text-xs font-bold text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
             </div>
           </div>
+
         </div>
 
         <div className="w-full lg:w-auto lg:min-w-[360px] space-y-2">
@@ -593,7 +595,7 @@ export default function AdminBookingDetail() {
       />
 
       {/* Executive dossier: single-column vertical flow */}
-      <div className="max-w-3xl mx-auto w-full space-y-14 pt-4">
+      <div className="max-w-3xl mx-auto w-full space-y-10 sm:space-y-14 pt-2 sm:pt-4">
 
         {/* Itinerário */}
         <section className="relative pl-8">
@@ -670,15 +672,16 @@ export default function AdminBookingDetail() {
           <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-6">Cliente</h2>
           {customer ? (
             <>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-12">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-6 sm:gap-x-8 md:gap-x-12">
                 <div>
                   <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Nome</label>
                   <p className="text-sm font-medium text-foreground break-words">{formatPersonName(customer.full_name) || "—"}</p>
                 </div>
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">E-mail</label>
                   <p className="text-sm font-medium text-foreground break-all">{customer.email || "—"}</p>
                 </div>
+
                 <div>
                   <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Telefone</label>
                   <p className="text-sm font-medium text-foreground tabular-nums">{customer.phone || "—"}</p>
@@ -706,9 +709,10 @@ export default function AdminBookingDetail() {
         </section>
 
         {/* Veículo */}
-        <section className="bg-card border border-border/40 rounded-2xl p-8 shadow-sm">
+        <section className="bg-card border border-border/40 rounded-2xl p-5 sm:p-8 shadow-sm">
           {vehicle ? (
-            <div className="flex flex-col md:flex-row gap-8 items-stretch">
+            <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-stretch">
+
               <div className="w-full md:w-1/2 space-y-6">
                 <div>
                   <h2 className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-4">Veículo</h2>
@@ -738,13 +742,14 @@ export default function AdminBookingDetail() {
                 </div>
               </div>
 
-              <div className="w-full md:w-1/2 flex flex-col items-center justify-center md:border-l border-border/40 md:pl-8 py-4">
+              <div className="w-full md:w-1/2 flex flex-col items-center justify-center md:border-l border-t md:border-t-0 border-border/40 md:pl-8 pt-6 md:pt-0 py-2 md:py-4">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 mb-2">Valor da Diária</p>
-                <p className="text-5xl font-bold tabular-nums text-foreground">
-                  <span className="text-xl font-medium text-muted-foreground mr-1">$</span>
+                <p className="text-4xl sm:text-5xl font-bold tabular-nums text-foreground">
+                  <span className="text-lg sm:text-xl font-medium text-muted-foreground mr-1">$</span>
                   {vehicle.daily_price_usd.toFixed(2)}
                 </p>
               </div>
+
             </div>
           ) : (
             <p className="text-xs text-muted-foreground py-4 text-center">Veículo não vinculado</p>
@@ -818,7 +823,7 @@ export default function AdminBookingDetail() {
 
             return (
               <div className="mt-2 rounded-xl border border-border/40 bg-card/40 overflow-hidden">
-                <div className="px-5 py-3 border-b border-border/30 flex items-center justify-between gap-3">
+                <div className="px-4 sm:px-5 py-3 border-b border-border/30 flex items-center justify-between gap-3">
                   <h3 className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">
                     Detalhamento do pagamento
                   </h3>
@@ -829,37 +834,37 @@ export default function AdminBookingDetail() {
                 </div>
 
                 <div className="divide-y divide-border/30">
-                  <div className="flex justify-between py-2.5 px-5">
+                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Valor total</span>
                     <span className="text-sm font-semibold text-foreground tabular-nums">${total.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between py-2.5 px-5">
+                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Já pago</span>
                     <span className={`text-sm font-semibold tabular-nums ${isPaid ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
                       {isPaid ? `$${total.toFixed(2)}` : "$0.00"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2.5 px-5">
+                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Forma de pagamento</span>
                     <span className="text-sm font-semibold text-foreground">
                       {booking.payment_method ? (methodMap[booking.payment_method] || booking.payment_method) : "—"}
                     </span>
                   </div>
                   {booking.paid_at && (
-                    <div className="flex justify-between py-2.5 px-5">
+                    <div className="flex justify-between py-2.5 px-4 sm:px-5">
                       <span className="text-sm text-muted-foreground">Pago em</span>
                       <span className="text-sm font-semibold text-foreground tabular-nums">
                         {new Date(booking.paid_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between py-2.5 px-5">
+                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Caução {deposit > 0 ? "(reter na retirada)" : ""}</span>
                     <span className={`text-sm font-semibold tabular-nums ${deposit > 0 ? "text-foreground" : "text-muted-foreground"}`}>
                       {deposit > 0 ? `$${deposit.toFixed(2)}` : "Não aplicável"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2.5 px-5">
+                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Franquia (responsabilidade)</span>
                     <span className="text-sm font-semibold text-foreground tabular-nums">
                       {franchise > 0 ? `$${franchise.toFixed(2)}` : "—"}
@@ -868,7 +873,7 @@ export default function AdminBookingDetail() {
                 </div>
 
                 {/* Banner de orientação ao operador */}
-                <div className={`px-5 py-3 border-t border-border/30 ${
+                <div className={`px-4 sm:px-5 py-3 border-t border-border/30 ${
                   balanceDue > 0 || deposit > 0
                     ? "bg-amber-500/[0.06]"
                     : "bg-emerald-500/[0.06]"
@@ -926,7 +931,7 @@ export default function AdminBookingDetail() {
 
 
           {booking.notes && (
-            <div className="bg-muted/30 p-6 rounded-xl border border-border/30">
+            <div className="bg-muted/30 p-4 sm:p-6 rounded-xl border border-border/30">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">
                 Observações
               </label>
@@ -943,9 +948,10 @@ export default function AdminBookingDetail() {
       {/* Comparison bar */}
       {checkin && checkout && (
         <Card className="bg-card/80 border-border/30">
-          <CardContent className="p-5">
+          <CardContent className="p-4 sm:p-5">
             <SectionTitle>Comparativo Entrega × Devolução</SectionTitle>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+
               <MetricCard
                 icon={Gauge}
                 label="Milhas Rodadas"
