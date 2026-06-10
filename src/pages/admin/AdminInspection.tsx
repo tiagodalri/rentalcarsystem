@@ -504,6 +504,10 @@ export default function AdminInspection() {
 
   // -- Damage photo
   const captureDamagePhoto = (damageId: string) => {
+    if (!isTouchDevice) {
+      setWebcamTarget({ kind: "damage", damageId });
+      return;
+    }
     setDamagePhotoTarget(damageId);
     damageFileRef.current?.click();
   };
