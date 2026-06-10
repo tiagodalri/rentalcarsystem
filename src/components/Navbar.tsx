@@ -229,110 +229,158 @@ const Navbar = () => {
           </DropdownMenu>
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="lg:hidden text-foreground"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Mobile — só Fullscreen + hambúrguer */}
+        <div className="flex lg:hidden items-center gap-1">
+          <button
+            onClick={toggleFullscreen}
+            className="h-10 w-10 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
+            aria-label="Tela cheia"
+          >
+            {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+          </button>
+          <button
+            className="h-10 w-10 flex items-center justify-center text-foreground"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Abrir menu"
+            aria-expanded={mobileOpen}
+          >
+            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — bottom sheet style */}
       {mobileOpen && (
-        <div className="lg:hidden bg-background/95 backdrop-blur-xl border-t border-border/30 animate-fade-in">
-          <div className="flex flex-col gap-4 px-6 py-6">
-            {navLinks.map((link) =>
-              link.isRoute ? (
+        <>
+          <div
+            className="lg:hidden fixed inset-0 top-0 bg-foreground/30 backdrop-blur-sm z-40 animate-fade-in"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div
+            className="lg:hidden absolute left-0 right-0 top-full bg-background/98 backdrop-blur-xl border-t border-border/40 shadow-2xl z-50 animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto"
+            style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1.5rem)" }}
+          >
+            <div className="px-5 pt-5 pb-2 space-y-5 safe-x">
+              {/* Reservar — destaque */}
+              <a
+                href="https://wa.me/16892981754"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileOpen(false)}
+                className="gold-gradient text-primary-foreground h-14 rounded-2xl text-sm font-bold uppercase tracking-widest flex items-center justify-center shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
+              >
+                {t.nav.book}
+              </a>
+
+              {/* Navegação */}
+              <div>
+                <div className="text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-foreground/70 px-1 mb-2">
+                  Navegação
+                </div>
+                <div className="rounded-2xl bg-muted/30 overflow-hidden divide-y divide-border/30">
+                  {navLinks.map((link) =>
+                    link.isRoute ? (
+                      <button
+                        key={link.href}
+                        onClick={() => { navigate(link.href); setMobileOpen(false); }}
+                        className="w-full h-12 px-4 text-left text-sm font-medium tracking-wider uppercase text-foreground active:bg-muted/60 transition-colors"
+                      >
+                        {link.label}
+                      </button>
+                    ) : (
+                      <a
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setMobileOpen(false)}
+                        className="w-full h-12 px-4 flex items-center text-sm font-medium tracking-wider uppercase text-foreground active:bg-muted/60 transition-colors"
+                      >
+                        {link.label}
+                      </a>
+                    )
+                  )}
+                </div>
+              </div>
+
+              {/* Conta */}
+              <button
+                onClick={() => { navigate(isLoggedIn ? "/minha-conta" : "/login"); setMobileOpen(false); }}
+                className="w-full h-14 px-4 rounded-2xl bg-muted/30 active:bg-muted/60 flex items-center gap-3 text-sm font-medium tracking-wider uppercase text-foreground transition-colors"
+              >
+                {isLoggedIn && user ? (
+                  <>
+                    <span className="w-8 h-8 rounded-full gold-gradient flex items-center justify-center text-primary-foreground text-xs font-bold">
+                      {user.name.charAt(0)}
+                    </span>
+                    <span>{user.name.split(" ")[0]}</span>
+                  </>
+                ) : (
+                  <>
+                    <User size={18} />
+                    <span>{t.nav.myBookings}</span>
+                  </>
+                )}
+              </button>
+
+              {/* Preferências: Tema + Moeda lado a lado */}
+              <div className="grid grid-cols-2 gap-3">
                 <button
-                  key={link.href}
-                  onClick={() => { navigate(link.href); setMobileOpen(false); }}
-                  className="text-sm font-medium tracking-wider uppercase text-muted-foreground hover:text-primary transition-colors text-left"
+                  onClick={toggleTheme}
+                  className="h-14 rounded-2xl bg-muted/30 active:bg-muted/60 flex flex-col items-center justify-center gap-1 text-foreground transition-colors"
                 >
-                  {link.label}
-                </button>
-              ) : (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="text-sm font-medium tracking-wider uppercase text-muted-foreground hover:text-primary transition-colors"
-                >
-                  {link.label}
-                </a>
-              )
-            )}
-
-            {/* Mobile theme toggle */}
-            <button
-              onClick={toggleTheme}
-              className="flex items-center gap-2 text-sm font-medium tracking-wider uppercase text-muted-foreground hover:text-primary transition-colors duration-300 pt-2 border-t border-border/30 w-full"
-            >
-              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-              <span>{theme === "dark" ? "Modo Claro" : "Modo Escuro"}</span>
-            </button>
-
-            {/* Mobile language switcher */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 text-sm font-medium tracking-wider uppercase text-muted-foreground hover:text-primary transition-colors duration-300 outline-none pt-2 border-t border-border/30 w-full">
-                <Globe size={16} />
-                <span>Trocar idioma</span>
-                <span className="ml-auto">{languageFlags[language]}</span>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-background/95 backdrop-blur-xl border-border/40">
-                {languages.map((lang) => (
-                  <DropdownMenuItem
-                    key={lang}
-                    onClick={() => setLanguage(lang)}
-                    className={`cursor-pointer gap-2 ${language === lang ? "text-primary font-semibold" : ""}`}
-                  >
-                    <span>{languageFlags[lang]}</span>
-                    <span>{languageLabels[lang]}</span>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Mobile currency toggle */}
-            <CurrencyToggle className="pt-2 border-t border-border/30 w-full text-sm" />
-
-            <a
-              href="https://wa.me/16892981754"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="gold-gradient text-primary-foreground px-5 py-3 rounded-md text-sm font-bold uppercase tracking-wider text-center"
-            >
-              {t.nav.book}
-            </a>
-
-            <button
-              onClick={() => { navigate(isLoggedIn ? "/minha-conta" : "/login"); setMobileOpen(false); }}
-              className="flex items-center gap-2 text-sm font-medium tracking-wider uppercase text-muted-foreground hover:text-primary transition-colors duration-300 pt-2 border-t border-border/30 w-full"
-            >
-              {isLoggedIn && user ? (
-                <>
-                  <span className="w-5 h-5 rounded-full gold-gradient flex items-center justify-center text-primary-foreground text-[9px] font-bold">
-                    {user.name.charAt(0)}
+                  {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+                  <span className="text-[10px] font-semibold tracking-wider uppercase">
+                    {theme === "dark" ? "Claro" : "Escuro"}
                   </span>
-                  <span>{user.name.split(" ")[0]}</span>
-                </>
-              ) : (
-                <>
-                  <User size={16} />
-                  <span>{t.nav.myBookings}</span>
-                </>
-              )}
-            </button>
+                </button>
+                <div className="h-14 rounded-2xl bg-muted/30 grid grid-cols-2 overflow-hidden">
+                  {(["USD", "BRL"] as const).map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => { if (currency !== c) toggleCurrency(); }}
+                      className={`flex items-center justify-center text-xs font-bold uppercase tracking-wider transition-colors ${
+                        currency === c ? "bg-primary/15 text-primary" : "text-muted-foreground active:bg-muted/60"
+                      }`}
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-            <button
-              onClick={() => { navigate("/admin/login"); setMobileOpen(false); }}
-              className="flex items-center gap-2 text-sm font-medium tracking-wider uppercase text-muted-foreground/50 hover:text-primary transition-colors duration-300 pt-2 border-t border-border/30 w-full"
-            >
-              <Shield size={16} />
-              <span>Admin</span>
-            </button>
+              {/* Idioma */}
+              <div>
+                <div className="text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-foreground/70 px-1 mb-2 flex items-center gap-1.5">
+                  <Globe size={11} /> Idioma
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {languages.map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => setLanguage(lang)}
+                      className={`h-12 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                        language === lang
+                          ? "bg-primary/15 text-primary"
+                          : "bg-muted/30 text-muted-foreground active:bg-muted/60"
+                      }`}
+                    >
+                      <span className="text-base leading-none">{languageFlags[lang]}</span>
+                      <span className="text-[9px] font-semibold uppercase tracking-wider">{lang}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Admin — discreto, ao final */}
+              <button
+                onClick={() => { navigate("/admin/login"); setMobileOpen(false); }}
+                className="w-full h-11 flex items-center justify-center gap-2 text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-foreground/50 active:text-foreground transition-colors"
+              >
+                <Shield size={13} />
+                Admin
+              </button>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </nav>
   );
