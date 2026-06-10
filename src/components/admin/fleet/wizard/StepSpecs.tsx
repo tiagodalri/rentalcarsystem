@@ -18,6 +18,20 @@ export default function StepSpecs({ form, set }: Props) {
     set({ features: has ? form.features.filter((x) => x !== f) : [...form.features, f] });
   };
 
+  const [adding, setAdding] = useState(false);
+  const [newFeat, setNewFeat] = useState("");
+  const customFeatures = form.features.filter((f) => !FEATURE_OPTIONS.includes(f as any));
+
+  const commitNew = () => {
+    const v = newFeat.trim();
+    if (!v) { setAdding(false); setNewFeat(""); return; }
+    if (!form.features.some((x) => x.toLowerCase() === v.toLowerCase())) {
+      set({ features: [...form.features, v] });
+    }
+    setNewFeat("");
+    setAdding(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
