@@ -772,6 +772,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
               st.selected,
               st.drawnHeading,
               st.status === "moving",
+              st.logoDataUri,
             ),
           );
         }
