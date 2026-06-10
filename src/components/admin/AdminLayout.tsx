@@ -50,8 +50,8 @@ export default function AdminLayout() {
   return (
     <SidebarProvider
       style={{
-        ["--sidebar-width" as any]: "19rem",
-        ["--sidebar-width-mobile" as any]: "19rem",
+        ["--sidebar-width" as any]: "15.5rem",
+        ["--sidebar-width-mobile" as any]: "15.5rem",
       } as React.CSSProperties}
     >
       <AdminTabsProvider>
