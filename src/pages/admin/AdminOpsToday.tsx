@@ -253,7 +253,7 @@ export default function AdminOpsToday() {
         <SectionCard
           icon={<CalendarCheck size={18} />}
           iconBg="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-          title="Retiradas de hoje"
+          title={isToday ? "Retiradas de hoje" : "Retiradas do dia"}
           titleColor="text-emerald-600 dark:text-emerald-400"
           accentColor="bg-emerald-500"
           count={pickups.length}
@@ -264,21 +264,35 @@ export default function AdminOpsToday() {
             <EmptyState
               icon={<CalendarCheck size={26} />}
               tone="emerald"
-              title="Nenhuma retirada hoje."
+              title="Nenhuma retirada nesta data."
               subtitle="Aproveite para preparar o resto da frota."
             />
           ) : (
-            <div className="space-y-3">
-              {pickups.map(b => (
-                <BookingRowCard
-                  key={b.id}
-                  booking={b}
-                  vehicle={vehicles[b.vehicle_id]}
-                  type="pickup"
-                  onClick={() => navigate(`/admin/bookings/${b.id}`)}
-                />
-              ))}
-            </div>
+            <>
+              <StatusLegend
+                counts={pickupCounts}
+                active={pickupFilter}
+                onChange={setPickupFilter}
+              />
+              {filteredPickups.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic py-6 text-center">
+                  Nenhuma retirada nesta categoria.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {filteredPickups.map(({ b, s }) => (
+                    <BookingRowCard
+                      key={b.id}
+                      booking={b}
+                      vehicle={vehicles[b.vehicle_id]}
+                      type="pickup"
+                      opsStatus={s}
+                      onClick={() => navigate(`/admin/bookings/${b.id}`)}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </SectionCard>
 
@@ -286,7 +300,7 @@ export default function AdminOpsToday() {
         <SectionCard
           icon={<CalendarX2 size={18} />}
           iconBg="bg-amber-500/15 text-amber-600 dark:text-amber-400"
-          title="Devoluções de hoje"
+          title={isToday ? "Devoluções de hoje" : "Devoluções do dia"}
           titleColor="text-amber-600 dark:text-amber-400"
           accentColor="bg-amber-500"
           count={returns.length}
@@ -297,24 +311,39 @@ export default function AdminOpsToday() {
             <EmptyState
               icon={<CalendarX2 size={26} />}
               tone="amber"
-              title="Nenhuma devolução prevista hoje."
-              subtitle="Ótimo! Nenhuma devolução agendada."
+              title="Nenhuma devolução prevista."
+              subtitle="Nenhuma devolução agendada para esta data."
             />
           ) : (
-            <div className="space-y-3">
-              {returns.map(b => (
-                <BookingRowCard
-                  key={b.id}
-                  booking={b}
-                  vehicle={vehicles[b.vehicle_id]}
-                  type="return"
-                  onClick={() => navigate(`/admin/bookings/${b.id}`)}
-                />
-              ))}
-            </div>
+            <>
+              <StatusLegend
+                counts={returnCounts}
+                active={returnFilter}
+                onChange={setReturnFilter}
+              />
+              {filteredReturns.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic py-6 text-center">
+                  Nenhuma devolução nesta categoria.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {filteredReturns.map(({ b, s }) => (
+                    <BookingRowCard
+                      key={b.id}
+                      booking={b}
+                      vehicle={vehicles[b.vehicle_id]}
+                      type="return"
+                      opsStatus={s}
+                      onClick={() => navigate(`/admin/bookings/${b.id}`)}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </SectionCard>
       </div>
+
 
       {/* ────────── EM PREPARAÇÃO (compact bottom strip ~20%) ────────── */}
       <div className="relative rounded-2xl border border-border/40 bg-gradient-to-r from-sky-500/[0.04] via-card/60 to-card/60 overflow-hidden">
