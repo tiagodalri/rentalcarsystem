@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import {
   ChevronLeft, ChevronRight, Calendar as CalendarIcon, Search,
-  Filter, X, Wrench, CarFront, Activity, Truck,
+  Filter, X, Wrench, CarFront, Activity, Truck, Lock,
 } from "lucide-react";
 import {
   addDays, format, parseISO, startOfDay, differenceInCalendarDays, isSameDay,
@@ -17,6 +17,7 @@ import {
 import { ptBR } from "date-fns/locale";
 import { BrandAvatar } from "./BrandAvatar";
 import { BookingBar, BookingLike, STATUS_TOKEN } from "./BookingBar";
+import { InformalBookingDialog } from "./InformalBookingDialog";
 
 type Vehicle = {
   id: string;
