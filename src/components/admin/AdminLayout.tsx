@@ -12,6 +12,7 @@ import FullscreenFab from "./FullscreenFab";
 import { AdminBottomNav } from "./AdminBottomNav";
 import { AdminFab } from "./AdminFab";
 import { AdminMobileHeader } from "./AdminMobileHeader";
+import { PainelHeaderWidgets } from "./PainelHeaderWidgets";
 import { AdminFabProvider } from "@/hooks/useAdminFab";
 
 import { AdminShellSkeleton } from "@/components/skeletons/AdminShellSkeleton";
