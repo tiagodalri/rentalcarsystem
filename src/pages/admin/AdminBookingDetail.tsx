@@ -416,7 +416,7 @@ export default function AdminBookingDetail() {
 
       {/* Photo lightbox */}
       {expandedPhoto && (
-        <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex items-center justify-center p-8" onClick={() => setExpandedPhoto(null)}>
+        <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex items-center justify-center p-3 sm:p-8" onClick={() => setExpandedPhoto(null)}>
           <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80">
             <XIcon size={20} />
           </button>
