@@ -216,13 +216,21 @@ type Props = {
   layers?: MapLayers;
 };
 
-// --- Smooth-motion buffer ---------------------------------------------------
-// Each vehicle keeps a buffer of timestamped real positions. We render the car
-// always RENDER_DELAY_MS in the past so there's always a "future" point to
-// interpolate towards — eliminates jumps, reverses and trembling.
-type BufferPoint = { lat: number; lng: number; t: number };
+// --- Smooth tween model -----------------------------------------------------
+// Each vehicle keeps the last drawn position plus a "tween" describing the
+// animation in progress towards the latest received fix. Each new webhook
+// retargets the tween smoothly from the current displayed position — no
+// teleports, no dependency on having a "future" buffered point.
+type Tween = {
+  fromLat: number;
+  fromLng: number;
+  toLat: number;
+  toLng: number;
+  startMs: number;   // performance.now() when tween started
+  durationMs: number;
+};
 type VehicleState = {
-  buffer: BufferPoint[];
+  tween: Tween | null;
   lastReportedMs: number;
   status: LiveVehicle["status"];
   speed: number;            // mph (latest)
@@ -230,23 +238,29 @@ type VehicleState = {
   drawnHeading: number;
   /** Target heading from real movement A->B */
   targetHeading: number;
-  /** Last displayed lat/lng (used to hold position when no fresh data) */
+  /** Currently displayed lat/lng */
   displayLat: number;
   displayLng: number;
   /** Icon cache key — avoid setIcon every frame */
   iconKey: string;
-  /** Marker is selected (mirrors selectedId for fast access in loop) */
   selected: boolean;
 };
 
-const RENDER_DELAY_MS = 4000;          // ~4s "in the past" — sweet spot for fluid playback
-const BUFFER_TTL_MS = 10_000;          // drop points older than this past renderTime
-const MIN_MOVE_METERS = 5;             // ignore micro-jitter while parked
+const TWEEN_MIN_MS = 1500;             // never animate faster than this
+const TWEEN_MAX_MS = 7000;             // cap so a long pause doesn't drag forever
+const TWEEN_DEFAULT_MS = 4000;         // default duration when we can't infer
+const MIN_MOVE_METERS = 4;             // ignore micro-jitter while parked
 const MAX_JUMP_METERS = 2_000;         // discard absurd GPS jumps
-const HEADING_LERP_PER_FRAME = 0.16;   // smoothness of rotation animation
-const FOLLOW_PAN_INTERVAL_MS = 1000;   // recentre at most once per second
-const FOLLOW_EDGE_PX = 110;            // recentre early if car nears viewport edge
-const PROGRAMMATIC_PAN_GUARD_MS = 350; // ignore our own panTo on dragstart
+const HEADING_LERP_PER_FRAME = 0.18;
+const FOLLOW_PAN_INTERVAL_MS = 800;
+const FOLLOW_EDGE_PX = 110;
+const PROGRAMMATIC_PAN_GUARD_MS = 350;
+
+// easeInOutCubic — soft start/end like Uber/Bouncie
+function ease(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
 
 function haversineM(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
   const R = 6371000;
