@@ -412,9 +412,13 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           rotateControlOptions: { position: (window as any).google?.maps?.ControlPosition?.RIGHT_BOTTOM },
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
+          scrollwheel: true,
+          isFractionalZoomEnabled: true,
           clickableIcons: true,
           keyboardShortcuts: true,
         });
+        containerRef.current.style.touchAction = "none";
+        containerRef.current.style.overscrollBehavior = "contain";
         infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false, maxWidth: 320 });
 
         // ===== Custom "minha localização" control (discrete, next to zoom) =====
@@ -668,8 +672,9 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
             // discard
           } else if (stationary) {
             // snap silently — no animation
-            st.displayLat = to.lat;
-            st.displayLng = to.lng;
+              st.displayLat = to.lat;
+              st.displayLng = to.lng;
+              st.positionDirty = true;
             st.tween = null;
           } else {
             // Animate over the real interval between fixes (clamped), or use
@@ -714,7 +719,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           icon: initialIcon,
           title: v.name,
           zIndex: isSelected ? 999 : 1,
-          optimized: false,
+          optimized: true,
         });
         marker.addListener("click", () => {
           onSelect(v.vehicle_id);
