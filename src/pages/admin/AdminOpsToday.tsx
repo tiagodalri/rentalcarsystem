@@ -1,13 +1,14 @@
 import { formatPersonName } from "@/lib/formatName";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CalendarCheck, CalendarX2, Wrench, Car, MapPin, ChevronRight, Sun,
-  Clock, ChevronDown, KeyRound,
+  Clock, ChevronDown, Sparkles,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { BrandAvatar } from "@/components/admin/fleet-calendar/BrandAvatar";
 
 type BookingRow = {
   id: string;
