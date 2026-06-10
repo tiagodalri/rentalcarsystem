@@ -412,7 +412,8 @@ export default function AdminBookingDetail() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-5 sm:space-y-6 max-w-6xl mx-auto w-full px-3 sm:px-4 lg:px-0">
+
       {/* Photo lightbox */}
       {expandedPhoto && (
         <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex items-center justify-center p-8" onClick={() => setExpandedPhoto(null)}>
