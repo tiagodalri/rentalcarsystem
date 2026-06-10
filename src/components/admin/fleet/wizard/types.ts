@@ -7,7 +7,7 @@ export type WizardForm = {
   manufacture_year: number | null;
   model_year: number | null;
   vin: string;
-  renavam: string;
+  
   license_plate: string;
   color: string;
   bouncie_imei: string;
