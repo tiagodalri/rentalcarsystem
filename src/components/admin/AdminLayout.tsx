@@ -61,7 +61,9 @@ export default function AdminLayout() {
             >
               <SidebarTrigger className="h-11 w-11 -ml-2 flex items-center justify-center text-muted-foreground hover:text-foreground" />
               <div className="flex-1" />
-              <div className="flex items-center gap-0.5">
+              <div className="flex items-center gap-1.5">
+                <FullscreenFab />
+                <LanguageSwitcher />
                 <Button
                   variant="ghost"
                   size="icon"
@@ -72,12 +74,7 @@ export default function AdminLayout() {
                 >
                   {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </Button>
-                <FullscreenFab />
-                <LanguageSwitcher />
               </div>
-              <span className="hidden md:inline text-xs text-muted-foreground truncate max-w-[200px]">
-                {user.email}
-              </span>
             </header>
             <main
               className="flex-1 p-3 sm:p-4 md:p-6"
