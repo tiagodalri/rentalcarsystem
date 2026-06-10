@@ -1273,8 +1273,7 @@ export default function AdminBookings() {
                           className="border-b border-border/10 hover:bg-muted/20 transition-colors cursor-pointer group"
                         >
                           <td className="px-5 py-3.5">
-                            <p className="text-foreground font-medium text-[13px]">{b.customer_name}</p>
-                            <p className="text-[11px] text-muted-foreground/60 mt-0.5">{b.customer_email}</p>
+                            <p className="text-foreground font-medium text-[13px]">{formatName(b.customer_name)}</p>
                           </td>
                           <td className="px-5 py-3.5 border-l-2 border-border/60">
                             <div className="flex items-center gap-2.5 min-w-[160px]">
