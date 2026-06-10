@@ -100,7 +100,7 @@ export default function FleetToolbar({ filters, setFilters, categories, view, se
         </button>
       )}
 
-      <div className="ml-auto inline-flex rounded-lg border border-border/60 bg-background p-0.5">
+      <div className="ml-auto hidden lg:inline-flex rounded-lg border border-border/60 bg-background p-0.5">
         <button
           onClick={() => setView("grid")}
           className={`h-8 px-2.5 rounded-md inline-flex items-center gap-1.5 text-xs font-medium transition-colors ${
