@@ -219,7 +219,7 @@ export default function AdminFleetReport({
                 <DollarSign size={18} className="text-primary" />
               </div>
               <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita Total</p>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita do Mês</p>
                 <p className="text-xl font-medium text-foreground">${totalRevenue.toLocaleString()}</p>
               </div>
             </div>
