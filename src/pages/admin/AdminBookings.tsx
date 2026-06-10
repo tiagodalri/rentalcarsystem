@@ -291,7 +291,7 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
           <button onClick={prevWeek} className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
             <ChevronLeft size={16} />
           </button>
-          <h2 className="text-lg font-bold text-foreground min-w-[220px] text-center">
+          <h2 className="text-sm font-medium text-foreground min-w-[220px] text-center tracking-tight">
             {rangeLabel}
           </h2>
           <button onClick={nextWeek} className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
