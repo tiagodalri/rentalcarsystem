@@ -453,21 +453,21 @@ function SectionCard({
   children: React.ReactNode; backdrop?: React.ReactNode;
 }) {
   return (
-    <div className={`relative rounded-2xl border border-border/40 bg-card/60 p-5 overflow-hidden flex flex-col min-h-[460px] ${className}`}>
+    <div className={`relative rounded-2xl border border-border/40 bg-card/60 p-4 overflow-hidden flex flex-col min-h-[320px] ${className}`}>
       {backdrop}
-      <div className="flex items-start justify-between gap-2 mb-4 relative z-10">
-        <div className="flex items-center gap-3">
-          <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${iconBg}`}>
+      <div className="flex items-start justify-between gap-2 mb-3 relative z-10">
+        <div className="flex items-center gap-2.5">
+          <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${iconBg}`}>
             {icon}
           </div>
           <div>
-            <h2 className={`text-sm font-medium uppercase tracking-[0.1em] ${titleColor}`}>
+            <h2 className={`text-xs font-medium uppercase tracking-[0.1em] ${titleColor}`}>
               {title}
             </h2>
             <div className={`mt-1 h-0.5 w-10 rounded-full ${accentColor}`} />
           </div>
         </div>
-        <span className={`text-base font-medium tabular-nums ${countColor}`}>{count}</span>
+        <span className={`text-sm font-medium tabular-nums ${countColor}`}>{count}</span>
       </div>
       <div className="flex-1 relative z-10">{children}</div>
     </div>
