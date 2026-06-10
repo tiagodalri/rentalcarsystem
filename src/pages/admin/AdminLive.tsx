@@ -54,10 +54,32 @@ export default function AdminLive() {
     [vehicles]
   );
 
-  const filtered = useMemo(
-    () => onMap.filter((v) => filter === "all" || v.status === filter),
-    [onMap, filter]
+  const normalizedQuery = query.trim().toLowerCase();
+  const filtered = useMemo(() => {
+    if (!normalizedQuery) return onMap;
+    return onMap.filter((v) => {
+      const name = (v.name ?? "").toLowerCase();
+      const plate = (v.plate ?? "").toLowerCase();
+      return name.includes(normalizedQuery) || plate.includes(normalizedQuery);
+    });
+  }, [onMap, normalizedQuery]);
+
+  const suggestions = useMemo(
+    () => (normalizedQuery ? filtered.slice(0, 6) : []),
+    [filtered, normalizedQuery]
   );
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    if (!suggestOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+        setSuggestOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [suggestOpen]);
 
   const selectedVehicle = vehicles.find((v) => v.vehicle_id === selected) ?? null;
 
