@@ -289,17 +289,11 @@
   font-weight: 400;
   letter-spacing: -0.005em;
 }
-.admin-shell table tbody td.font-medium,
-.admin-shell table tbody td .font-medium,
-.admin-shell table tbody td .font-semibold,
-.admin-shell table tbody td .font-bold {
-  font-weight: 500;
-}
 /* Monetary / numeric columns keep the tabular rhythm */
-.admin-shell table .tabular-nums,
 .admin-shell table [class*="text-right"] {
   font-variant-numeric: tabular-nums;
 }
+
 
 
 
