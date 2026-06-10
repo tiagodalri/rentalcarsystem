@@ -134,18 +134,6 @@ export default function AdminLive() {
             <p className="text-xs text-muted-foreground">Telemetria Bouncie em tempo real • Google Maps</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <button
-            onClick={handleRunHistoricalBackfill}
-            disabled={runningBackfill}
-            className="flex items-center gap-1.5 rounded-lg border border-border/40 px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground hover:bg-muted/30 disabled:opacity-50"
-          >
-            {runningBackfill ? <Loader2 size={12} className="animate-spin" /> : <Database size={12} />}
-            Backfill histórico
-          </button>
-          <Clock size={12} />
-          {new Date().toLocaleTimeString("pt-BR")}
-        </div>
       </div>
 
       {/* Stats bar */}
