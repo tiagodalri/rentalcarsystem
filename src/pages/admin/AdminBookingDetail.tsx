@@ -677,10 +677,11 @@ export default function AdminBookingDetail() {
                   <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Nome</label>
                   <p className="text-sm font-medium text-foreground break-words">{formatPersonName(customer.full_name) || "—"}</p>
                 </div>
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">E-mail</label>
                   <p className="text-sm font-medium text-foreground break-all">{customer.email || "—"}</p>
                 </div>
+
                 <div>
                   <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Telefone</label>
                   <p className="text-sm font-medium text-foreground tabular-nums">{customer.phone || "—"}</p>
