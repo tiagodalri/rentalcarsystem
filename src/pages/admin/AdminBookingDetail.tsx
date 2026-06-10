@@ -421,14 +421,14 @@ export default function AdminBookingDetail() {
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <button onClick={() => navigate("/admin/bookings")} className="hover:text-foreground transition-colors">Reservas</button>
         <ChevronRight size={12} />
-        <span className="text-foreground font-medium">{booking.customer_name}</span>
+        <span className="text-foreground font-medium">{formatPersonName(booking.customer_name)}</span>
       </div>
 
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">{booking.customer_name}</h1>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">{formatPersonName(booking.customer_name)}</h1>
             <Badge className={`${sc.color} border text-[10px] px-2.5 py-0.5 font-semibold`}>{sc.label}</Badge>
             {(() => {
               const cs = contractStatusConfig[booking.contract_status || "not_sent"] || contractStatusConfig.not_sent;
@@ -620,7 +620,7 @@ export default function AdminBookingDetail() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-y-8 gap-x-12">
                 <div>
                   <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">Nome</label>
-                  <p className="text-sm font-medium text-foreground break-words">{customer.full_name || "—"}</p>
+                  <p className="text-sm font-medium text-foreground break-words">{formatPersonName(customer.full_name) || "—"}</p>
                 </div>
                 <div className="col-span-2">
                   <label className="block text-[10px] text-muted-foreground/70 font-bold uppercase tracking-wider mb-1.5">E-mail</label>

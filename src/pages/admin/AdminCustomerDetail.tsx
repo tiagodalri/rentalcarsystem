@@ -205,13 +205,13 @@ export default function AdminCustomerDetail() {
       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <button onClick={() => navigate("/admin/customers")} className="hover:text-foreground transition-colors">Clientes</button>
         <ChevronRight size={12} />
-        <span className="text-foreground font-medium">{customer.full_name}</span>
+        <span className="text-foreground font-medium">{formatPersonName(customer.full_name)}</span>
       </div>
 
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="space-y-2 min-w-0">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">{customer.full_name}</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">{formatPersonName(customer.full_name)}</h1>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
             {customer.email && <span className="flex items-center gap-1"><Mail size={11} /> {customer.email}</span>}
             {customer.phone && <span className="flex items-center gap-1"><Phone size={11} /> {customer.phone}</span>}
@@ -282,7 +282,7 @@ export default function AdminCustomerDetail() {
           <Card className="bg-card/80 border-border/30">
             <CardContent className="p-5">
               <SectionTitle>Dados Cadastrais</SectionTitle>
-              <DetailItem label="Nome completo" value={customer.full_name} />
+              <DetailItem label="Nome completo" value={formatPersonName(customer.full_name)} />
               <DetailItem label="E-mail" value={customer.email} />
               <DetailItem label="Telefone" value={customer.phone} />
               <DetailItem label="Data de Nascimento" value={(customer as any).date_of_birth ? new Date((customer as any).date_of_birth).toLocaleDateString("pt-BR") : null} />

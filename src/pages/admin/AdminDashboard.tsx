@@ -355,7 +355,7 @@ export default function AdminDashboard() {
                         onClick={() => navigate(`/admin/bookings/${b.id}`)}
                         className="border-b border-border/10 hover:bg-muted/30 transition-colors cursor-pointer"
                       >
-                        <td className="px-5 py-3.5 text-foreground font-medium">{b.customer_name}</td>
+                        <td className="px-5 py-3.5 text-foreground font-medium">{formatPersonName(b.customer_name)}</td>
                         <td className="px-5 py-3.5 text-muted-foreground tabular-nums">{new Date(b.pickup_date).toLocaleDateString("pt-BR")}</td>
                         <td className="px-5 py-3.5 text-muted-foreground tabular-nums">{new Date(b.return_date).toLocaleDateString("pt-BR")}</td>
                         <td className="px-5 py-3.5 text-foreground font-medium text-right tabular-nums">${b.total_price?.toFixed(2) || "—"}</td>

@@ -4,6 +4,7 @@ import { ptBR } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, Clock, MapPin, Phone, User, DollarSign, Hash } from "lucide-react";
+import { formatPersonName } from "@/lib/formatName";
 
 export type BookingLike = {
   id: string;
@@ -86,7 +87,7 @@ export function BookingBar({ booking, left, width, height }: Props) {
             {!isNarrow && (
               <div className="min-w-0 flex-1">
                 <div className="text-[11px] font-semibold text-foreground truncate leading-tight">
-                  {booking.customer_name}
+                  {formatPersonName(booking.customer_name)}
                 </div>
                 <div className="text-[9px] text-muted-foreground truncate tabular-nums leading-tight">
                   {booking.booking_number || "—"} • {days}d
@@ -105,7 +106,7 @@ export function BookingBar({ booking, left, width, height }: Props) {
                 {token.label}
               </Badge>
             </div>
-            <div className="mt-1.5 text-sm font-bold text-foreground truncate">{booking.customer_name}</div>
+            <div className="mt-1.5 text-sm font-bold text-foreground truncate">{formatPersonName(booking.customer_name)}</div>
             <div className="text-[11px] text-muted-foreground tabular-nums flex items-center gap-1 mt-0.5">
               <Hash size={10} /> {booking.booking_number || "sem número"}
             </div>

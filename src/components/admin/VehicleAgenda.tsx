@@ -191,7 +191,7 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
                                 <span className="text-primary font-semibold">${b.total_price.toLocaleString("pt-BR")}</span>
                               )}
                             </div>
-                            <p className="text-foreground font-semibold truncate">{b.customer_name}</p>
+                            <p className="text-foreground font-semibold truncate">{formatPersonName(b.customer_name)}</p>
                             <div className="flex items-center gap-1 text-muted-foreground">
                               <Clock size={8} className="shrink-0" />
                               <span>
@@ -256,7 +256,7 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
                   <div key={b.id} className="p-2.5 rounded-lg border border-border/30 bg-muted/30 hover:bg-muted/50 transition-colors">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-semibold text-foreground truncate max-w-[140px]">
-                        {b.customer_name}
+                        {formatPersonName(b.customer_name)}
                       </span>
                       <Badge variant="outline" className={`${sc.bg} ${sc.text} border-transparent text-[9px] px-1.5 py-0`}>
                         {sc.label}
