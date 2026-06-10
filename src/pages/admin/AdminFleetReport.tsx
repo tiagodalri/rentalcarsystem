@@ -40,7 +40,7 @@ const CHART_COLORS = [
   "hsl(45 90% 50%)",
 ];
 
-export default function AdminFleetReport() {
+export default function AdminFleetReport({ embedded = false }: { embedded?: boolean } = {}) {
   const [loading, setLoading] = useState(true);
   const [month, setMonth] = useState(startOfMonth(new Date()));
   const [vehicles, setVehicles] = useState<any[]>([]);
@@ -179,12 +179,14 @@ export default function AdminFleetReport() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Relatório Mensal de Frota</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Análise de desempenho, utilização e avarias
-          </p>
-        </div>
+        {!embedded ? (
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Relatório Mensal de Frota</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Análise de desempenho, utilização e avarias
+            </p>
+          </div>
+        ) : <div />}
         <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(subMonths(month, 1))}>
             <ChevronLeft size={16} />

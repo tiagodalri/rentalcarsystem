@@ -30,7 +30,7 @@ type Row = {
 const fmt = (n: number) =>
   n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
-export default function AdminFleetPnL() {
+export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean } = {}) {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
   const [search, setSearch] = useState("");
@@ -208,12 +208,14 @@ export default function AdminFleetPnL() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Relatório de Frota — Lucro por Veículo</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Compra, gastos, receitas e lucro operacional de cada carro desde a aquisição
-          </p>
-        </div>
+        {!embedded ? (
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Relatório de Frota — Lucro por Veículo</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Compra, gastos, receitas e lucro operacional de cada carro desde a aquisição
+            </p>
+          </div>
+        ) : <div />}
         <button
           onClick={() => { setCompareMode(!compareMode); if (compareMode) setCompareIds([]); }}
           className={`inline-flex items-center gap-2 h-9 px-4 rounded-lg border text-xs font-bold uppercase tracking-wider transition-colors ${
