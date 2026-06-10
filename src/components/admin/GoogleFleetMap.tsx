@@ -595,6 +595,20 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
             );
           }
         });
+        // Track active user interaction so the rAF loop can pause heavy work
+        // (setPosition/setIcon for every marker) — this is what causes the
+        // "laggy/delayed" feeling while zooming or dragging.
+        const beginInteract = () => { interactingRef.current = true; };
+        const endInteract = () => {
+          // small delay so the inertia/zoom animation finishes cleanly
+          window.setTimeout(() => { interactingRef.current = false; }, 120);
+        };
+        mapRef.current.addListener("dragstart", beginInteract);
+        mapRef.current.addListener("dragend", endInteract);
+        mapRef.current.addListener("zoom_changed", () => {
+          interactingRef.current = true;
+          endInteract();
+        });
         setReady(true);
       })
       .catch((e) => {
