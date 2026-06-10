@@ -1275,6 +1275,7 @@ export default function AdminBookings() {
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Status</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold min-w-[120px] border-l-2 border-border/60 pl-5">Progresso</th>
                       <th className="px-3 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Inspeção</th>
+                      <th className="px-3 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Laudo</th>
                       <th className="px-5 py-3 w-10"></th>
                     </tr>
                   </thead>
@@ -1456,12 +1457,16 @@ export default function AdminBookings() {
                               >
                                 <LogOut size={11} /> Devolução
                               </button>
+                            </div>
+                          </td>
+                          <td className="px-3 py-3.5 border-l-2 border-border/60" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-center">
                               <button
-                                onClick={() => navigate(`/admin/inspection/compare/${b.id}`)}
-                                className="flex items-center justify-center w-7 h-7 rounded-md bg-muted text-muted-foreground hover:text-foreground transition-colors border border-border/30"
-                                title="Comparar"
+                                onClick={() => navigate(`/admin/inspection/report/${b.id}`)}
+                                className="flex items-center gap-1 text-[10px] px-2 py-1.5 rounded-md bg-muted text-muted-foreground hover:text-foreground transition-colors font-medium border border-border/30"
+                                title="Laudo completo do serviço"
                               >
-                                <GitCompare size={11} />
+                                <FileText size={11} /> Laudo
                               </button>
                             </div>
                           </td>
