@@ -791,6 +791,15 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     const tick = () => {
       const now = performance.now();
 
+      // Throttle to ~30fps. Skip ALL work while the user is mid-gesture
+      // (drag/zoom) — Google Maps owns the main thread during gestures, and
+      // any setPosition/setIcon we issue piles up and shows up as "lag".
+      if (interactingRef.current || now - lastFrameMsRef.current < FRAME_MIN_INTERVAL_MS) {
+        rafRef.current = requestAnimationFrame(tick);
+        return;
+      }
+      lastFrameMsRef.current = now;
+
       for (const [id, st] of states) {
         const marker = markers.get(id);
         if (!marker) continue;
@@ -812,16 +821,22 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           }
         }
 
-        // Smooth rotation toward target heading
-        st.drawnHeading = lerpAngle(st.drawnHeading, st.targetHeading, HEADING_LERP_PER_FRAME);
+        // Smooth rotation toward target heading (only while moving — otherwise
+        // there's nothing to animate and lerping wastes cycles).
+        if (st.status === "moving" && Math.abs(((st.targetHeading - st.drawnHeading + 540) % 360) - 180) > 0.5) {
+          st.drawnHeading = lerpAngle(st.drawnHeading, st.targetHeading, HEADING_LERP_PER_FRAME);
+        }
 
         if (st.positionDirty) {
           st.positionDirty = false;
           marker.setPosition({ lat: st.displayLat, lng: st.displayLng });
         }
 
-        // Refresh icon only when something visual changed (cheap key compare)
-        const headingBucket = st.status === "moving" ? Math.round(st.drawnHeading / 6) * 6 : 0;
+        // Refresh icon only when something visual changed (cheap key compare).
+        // Coarser bucket = far fewer setIcon calls during turns.
+        const headingBucket = st.status === "moving"
+          ? Math.round(st.drawnHeading / HEADING_BUCKET_DEG) * HEADING_BUCKET_DEG
+          : 0;
         const movingFlag = st.status === "moving" ? "M" : st.status === "idle" ? "I" : "P";
         const selFlag = st.selected ? "S" : "_";
         const key = `${movingFlag}${selFlag}${headingBucket}${st.logoDataUri ? "L" : "_"}`;
@@ -839,15 +854,14 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         }
       }
 
-
-
       // --- Follow camera (selected vehicle only) ---
+      // Heavy projection math — only run every N frames.
+      followFrameCounterRef.current = (followFrameCounterRef.current + 1) % FOLLOW_CHECK_EVERY_N_FRAMES;
       const selId = selectedIdRef.current;
       const map = mapRef.current;
-      if (followRef.current && selId && map) {
+      if (followFrameCounterRef.current === 0 && followRef.current && selId && map) {
         const sel = states.get(selId);
         if (sel) {
-          const now = performance.now();
           const dueByTime = now - lastFollowPanRef.current >= FOLLOW_PAN_INTERVAL_MS;
           let nearEdge = false;
           try {
@@ -867,7 +881,6 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
                 if (worldOrigin && worldSw && worldCar) {
                   const px = (worldCar.x - worldSw.x) * scale;
                   const py = (worldOrigin.y - worldCar.y) * scale;
-                  // px/py in pixels from bottom-left & top-right respectively — approx edge check:
                   if (px < FOLLOW_EDGE_PX || py < FOLLOW_EDGE_PX ||
                       px > (w - FOLLOW_EDGE_PX) || py > (h - FOLLOW_EDGE_PX)) {
                     nearEdge = true;
