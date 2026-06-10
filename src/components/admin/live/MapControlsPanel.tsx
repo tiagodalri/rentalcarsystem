@@ -174,9 +174,11 @@ const previews = {
 type Props = {
   layers: MapLayers;
   onChange: (l: MapLayers) => void;
+  onRunBackfill?: () => void;
+  backfillRunning?: boolean;
 };
 
-export function MapControlsPanel({ layers, onChange }: Props) {
+export function MapControlsPanel({ layers, onChange, onRunBackfill, backfillRunning }: Props) {
   const [open, setOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
