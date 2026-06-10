@@ -41,7 +41,7 @@ const fmtUSD = (n: number) =>
   `$${Math.round(n).toLocaleString("en-US")}`;
 const fmtNum = (n: number) =>
   Math.round(n).toLocaleString("pt-BR");
-const dateOnly = (iso: string) => iso.slice(0, 10);
+
 const todayStr = () => format(new Date(), "yyyy-MM-dd");
 const inMonth = (d: Date, anchor: Date) =>
   d >= startOfMonth(anchor) && d <= endOfMonth(anchor);
