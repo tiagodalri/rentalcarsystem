@@ -207,8 +207,9 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
             src={zeusLogo}
             alt="Zeus Rental Car"
             className={`${
-              collapsed ? "h-8 max-w-[36px]" : "h-14 max-w-[120px]"
-            } w-auto object-contain brightness-125 contrast-125 drop-shadow-[0_0_14px_rgba(212,175,55,0.45)] transition-all`}
+              collapsed ? "h-8 max-w-[36px]" : "h-12 max-w-[110px]"
+            } w-auto object-contain opacity-90 transition-all`}
+
           />
           {!collapsed && (
             <>
