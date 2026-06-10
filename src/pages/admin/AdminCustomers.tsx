@@ -351,7 +351,7 @@ export default function AdminCustomers() {
             <div className="px-6 py-4 border-t border-border/20">
               <button
                 onClick={save}
-                className="w-full h-10 gold-gradient text-primary-foreground rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
+                className="w-full h-10 gold-gradient text-primary-foreground rounded-lg text-[11px] font-medium uppercase tracking-[0.16em] hover:opacity-90 transition-opacity"
               >
                 {isNew ? "Adicionar Cliente" : "Salvar Alterações"}
               </button>
