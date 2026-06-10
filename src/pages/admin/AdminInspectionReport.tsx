@@ -1,14 +1,15 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   ChevronLeft, FileText, Gauge, Fuel, Camera, AlertTriangle, ClipboardCheck,
   CheckCircle2, XCircle, Printer, FileSignature, DollarSign, ShieldAlert,
-  Calendar, MapPin, User, Car, Loader2, ExternalLink, Download
+  Calendar, MapPin, User, Car, Loader2, ExternalLink, ArrowRight,
+  TrendingUp, TrendingDown, Minus, Sparkles, Hash, Phone, Mail,
 } from "lucide-react";
 
 const FUEL_LABELS: Record<string, string> = {
@@ -35,6 +36,16 @@ const SEVERITY_COLOR: Record<string, string> = {
   heavy: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
+const CONTRACT_BADGE: Record<string, { label: string; cls: string }> = {
+  signed: { label: "Assinado", cls: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30" },
+  sent: { label: "Aguardando assinatura", cls: "bg-amber-500/10 text-amber-700 border-amber-500/30" },
+  partially_signed: { label: "Parcialmente assinado", cls: "bg-orange-500/10 text-orange-700 border-orange-500/30" },
+  not_sent: { label: "Não enviado", cls: "bg-muted text-muted-foreground border-border" },
+  generating: { label: "Gerando", cls: "bg-blue-500/10 text-blue-700 border-blue-500/30" },
+  cancelled: { label: "Cancelado", cls: "bg-muted text-muted-foreground border-border" },
+  failed: { label: "Falhou", cls: "bg-destructive/10 text-destructive border-destructive/30" },
+};
+
 const fmtName = (n?: string | null) => {
   if (!n) return "—";
   const small = new Set(["da","de","do","das","dos","e","di","du"]);
@@ -47,7 +58,7 @@ const fmtMoney = (v?: number | null) =>
 const fmtDate = (d?: string | null) =>
   d ? new Date(d).toLocaleDateString("pt-BR") : "—";
 const fmtDateTime = (d?: string | null) =>
-  d ? new Date(d).toLocaleString("pt-BR") : "—";
+  d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
 
 export default function AdminInspectionReport() {
   const { bookingId } = useParams();
@@ -103,16 +114,14 @@ export default function AdminInspectionReport() {
 
   const extraCharges = useMemo(() => {
     const items: { label: string; amount: number; reason: string }[] = [];
-    // Fuel deficit
     if (fuelDiff !== null && fuelDiff < 0) {
-      const liters = Math.ceil((Math.abs(fuelDiff) / 100) * 60); // tanque ~60L
+      const liters = Math.ceil((Math.abs(fuelDiff) / 100) * 60);
       items.push({
         label: "Reabastecimento",
         amount: liters * 1.2,
-        reason: `Devolvido com ${Math.abs(fuelDiff)}% a menos de combustível`,
+        reason: `Veículo devolvido com ${Math.abs(fuelDiff)}% a menos de combustível.`,
       });
     }
-    // New damages
     newDamages.forEach((d: any) => {
       const cost = d.severity === "heavy" ? 850 : d.severity === "medium" ? 320 : 90;
       items.push({
@@ -121,12 +130,11 @@ export default function AdminInspectionReport() {
         reason: `${SEVERITY_LABELS[d.severity] || d.severity} — ${d.description || "Reparo necessário"}`,
       });
     });
-    // Missing accessories
     missingAcc.forEach((k) => {
       items.push({
         label: `Acessório faltante: ${ACCESSORIES_LABELS[k]}`,
         amount: 75,
-        reason: "Reposição obrigatória",
+        reason: "Reposição obrigatória.",
       });
     });
     return items;
@@ -138,6 +146,35 @@ export default function AdminInspectionReport() {
     ? `LDO-${booking.booking_number.replace(/^ZRC-/, "")}`
     : "LDO-PEND";
 
+  const hasCheckin = !!checkin?.completed_at;
+  const hasCheckout = !!checkout?.completed_at;
+  const isComplete = hasCheckin && hasCheckout;
+
+  // Auto-generated "Parecer Técnico"
+  const parecer = useMemo(() => {
+    if (!isComplete) return null;
+    const parts: string[] = [];
+    parts.push(
+      `O veículo ${vehicle?.name || ""}${vehicle?.license_plate ? ` (placa ${vehicle.license_plate})` : ""} foi entregue a ${fmtName(booking?.customer_name)} em ${fmtDate(booking?.pickup_date)} e devolvido em ${fmtDate(booking?.return_date)}, totalizando ${odometerDiff != null ? `${odometerDiff.toLocaleString("pt-BR")} milhas percorridas` : "o período contratado"}.`
+    );
+    if (fuelDiff !== null) {
+      if (fuelDiff >= 0) parts.push(`O nível de combustível foi devolvido conforme entregue (${FUEL_LABELS[checkin.fuel_level]} → ${FUEL_LABELS[checkout.fuel_level]}), sem necessidade de cobrança de reabastecimento.`);
+      else parts.push(`O combustível foi devolvido ${Math.abs(fuelDiff)}% abaixo do entregue (${FUEL_LABELS[checkin.fuel_level]} → ${FUEL_LABELS[checkout.fuel_level]}), gerando cobrança de reabastecimento.`);
+    }
+    if (newDamages.length === 0) {
+      parts.push("A inspeção comparativa não identificou novas avarias no veículo — o estado externo e interno foi mantido conforme entrega.");
+    } else {
+      const sev = newDamages.reduce((acc: any, d: any) => { acc[d.severity] = (acc[d.severity] || 0) + 1; return acc; }, {});
+      const lbl = Object.entries(sev).map(([s, n]) => `${n} ${SEVERITY_LABELS[s] || s}`.toLowerCase()).join(", ");
+      parts.push(`Foram identificadas ${newDamages.length} nova(s) avaria(s) na devolução (${lbl}), todas documentadas fotograficamente e com cobrança discriminada abaixo.`);
+    }
+    if (missingAcc.length > 0) parts.push(`Os seguintes acessórios não retornaram com o veículo: ${missingAcc.map(k => ACCESSORIES_LABELS[k]).join(", ")}.`);
+    if (incidents.length > 0) parts.push(`Durante o período foram registrados ${incidents.length} evento(s) operacional(is) (sinistro/multa/ocorrência), detalhados na seção correspondente.`);
+    if (totalExtras > 0) parts.push(`Total de cobranças adicionais apuradas: ${fmtMoney(totalExtras)}, a serem deduzidos da caução de ${fmtMoney(Number(booking?.deposit_amount || 0))}.`);
+    else parts.push(`Nenhuma cobrança adicional foi apurada. A caução de ${fmtMoney(Number(booking?.deposit_amount || 0))} será integralmente devolvida em até ${booking?.deposit_refund_deadline_days || booking?.deposit_refund_days || 7} dias úteis.`);
+    return parts.join(" ");
+  }, [isComplete, vehicle, booking, odometerDiff, fuelDiff, checkin, checkout, newDamages, missingAcc, incidents, totalExtras]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -147,18 +184,119 @@ export default function AdminInspectionReport() {
   }
 
   if (!booking) {
-    return (
-      <div className="p-8 text-center text-muted-foreground">Reserva não encontrada.</div>
-    );
+    return <div className="p-8 text-center text-muted-foreground">Reserva não encontrada.</div>;
   }
 
-  const hasCheckin = !!checkin?.completed_at;
-  const hasCheckout = !!checkout?.completed_at;
-  const isComplete = hasCheckin && hasCheckout;
+  const contractBadge = CONTRACT_BADGE[booking.contract_status || "not_sent"] || CONTRACT_BADGE.not_sent;
 
+  // ============================================================
+  // Helpers
+  // ============================================================
+  const SectionHeader = ({ icon: Icon, title, kicker, action }: { icon: any; title: string; kicker?: string; action?: React.ReactNode }) => (
+    <div className="flex items-end justify-between gap-3 mb-4 pb-3 border-b border-border/40">
+      <div>
+        {kicker && <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-1">{kicker}</p>}
+        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+          <Icon size={16} className="text-primary" /> {title}
+        </h3>
+      </div>
+      {action}
+    </div>
+  );
+
+  const TrendBadge = ({ value, suffix, invertColor }: { value: number | null; suffix: string; invertColor?: boolean }) => {
+    if (value === null) return <Badge variant="outline">—</Badge>;
+    const isUp = value > 0;
+    const isDown = value < 0;
+    const good = invertColor ? !isDown : isUp;
+    const color = isUp || isDown
+      ? (good ? "text-emerald-700 border-emerald-500/40 bg-emerald-500/5" : "text-destructive border-destructive/40 bg-destructive/5")
+      : "text-muted-foreground border-border";
+    const Icon = isUp ? TrendingUp : isDown ? TrendingDown : Minus;
+    return (
+      <Badge variant="outline" className={`${color} text-sm font-bold tabular-nums px-2.5 py-1 gap-1`}>
+        <Icon size={12} />{value > 0 ? "+" : ""}{value}{suffix}
+      </Badge>
+    );
+  };
+
+  // Inspection column (Entrega / Devolução) with rich empty states
+  const InspectionColumn = ({ label, type, data, side }: { label: string; type: "checkin" | "checkout"; data: any; side: "left" | "right" }) => {
+    const done = !!data?.completed_at;
+    const expectedDate = type === "checkin" ? booking.pickup_date : booking.return_date;
+    const accent = side === "left"
+      ? "border-l-2 border-l-primary/60 bg-primary/[0.025]"
+      : "border-l-2 border-l-foreground/40 bg-muted/30";
+
+    return (
+      <div className={`rounded-xl border border-border/40 ${accent} p-5 space-y-4`}>
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-bold">{type === "checkin" ? "ENTREGA" : "DEVOLUÇÃO"}</p>
+            <h4 className="text-sm font-semibold text-foreground mt-0.5">{label}</h4>
+          </div>
+          {done ? (
+            <Badge className="bg-emerald-500/10 text-emerald-700 border-emerald-500/30 text-[10px]">
+              <CheckCircle2 size={10} className="mr-1" /> Realizada
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-[10px] bg-amber-500/5 text-amber-700 border-amber-500/30">
+              <Calendar size={10} className="mr-1" /> Prevista {fmtDate(expectedDate)}
+            </Badge>
+          )}
+        </div>
+
+        {done ? (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><Gauge size={9}/> Odômetro</p>
+                <p className="text-sm font-bold text-foreground tabular-nums">{data.odometer_reading?.toLocaleString("pt-BR") || "—"} <span className="text-[10px] font-normal text-muted-foreground">mi</span></p>
+              </div>
+              <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><Fuel size={9}/> Combustível</p>
+                <p className="text-sm font-bold text-foreground">{FUEL_LABELS[data.fuel_level] || "—"}</p>
+              </div>
+              <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><AlertTriangle size={9}/> Avarias</p>
+                <p className="text-sm font-bold text-foreground tabular-nums">{((data.damages as any[]) || []).length}</p>
+              </div>
+              <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
+                <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><Camera size={9}/> Fotos</p>
+                <p className="text-sm font-bold text-foreground tabular-nums">{((data.exterior_photos as any[]) || []).length}</p>
+              </div>
+            </div>
+            <div className="text-[11px] text-muted-foreground border-t border-border/30 pt-2 space-y-0.5">
+              <p><User size={9} className="inline mr-1" /> Agente: <span className="font-medium text-foreground">{fmtName(data.agent_name)}</span></p>
+              <p><Calendar size={9} className="inline mr-1" /> {fmtDateTime(data.completed_at)}</p>
+            </div>
+          </>
+        ) : (
+          <div className="rounded-lg border border-dashed border-border/50 p-6 text-center space-y-2">
+            <div className="w-10 h-10 mx-auto rounded-full bg-muted/60 flex items-center justify-center">
+              <ClipboardCheck size={16} className="text-muted-foreground/60" />
+            </div>
+            <p className="text-xs text-muted-foreground">Inspeção ainda não realizada.</p>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => navigate(`/admin/inspection/${booking.id}?type=${type}`)}
+              className="text-xs print:hidden"
+            >
+              Realizar inspeção <ArrowRight size={12} className="ml-1" />
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ============================================================
+  // Layout
+  // ============================================================
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12 print:p-0">
-      {/* Top bar - hidden on print */}
+    <div className="space-y-5 max-w-5xl mx-auto pb-12 print:p-0">
+      {/* Top bar */}
       <div className="flex items-center gap-3 print:hidden">
         <Button variant="ghost" size="icon" onClick={() => navigate("/admin/bookings")}>
           <ChevronLeft size={20} />
@@ -167,242 +305,237 @@ export default function AdminInspectionReport() {
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
             Laudo de Conclusão de Serviço
           </p>
-          <h1 className="text-2xl font-bold text-foreground">{reportNumber}</h1>
+          <h1 className="text-2xl font-bold text-foreground tabular-nums">{reportNumber}</h1>
         </div>
         <Button variant="outline" size="sm" onClick={() => window.print()}>
           <Printer size={14} className="mr-1.5" /> Imprimir / PDF
         </Button>
       </div>
 
-      {/* Header card */}
-      <Card className="border-border/50">
-        <CardContent className="p-6 space-y-4">
-          <div className="flex items-start justify-between">
+      {/* ===== EXECUTIVE HEADER ===== */}
+      <Card className="border-border/50 overflow-hidden">
+        <div className="bg-gradient-to-br from-primary/[0.05] via-background to-background border-b border-border/30 p-6">
+          <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Zeus Rental Car</p>
-              <h2 className="text-xl font-bold text-foreground mt-0.5">Laudo Completo de Serviço</h2>
-              <p className="text-xs text-muted-foreground mt-1">Documento Nº {reportNumber} • Reserva {booking.booking_number}</p>
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles size={12} className="text-primary" />
+                <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-bold">Zeus Rental Car</p>
+              </div>
+              <h2 className="text-2xl font-bold text-foreground">Laudo Completo de Serviço</h2>
+              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 tabular-nums">
+                <span><Hash size={10} className="inline mr-0.5" />{reportNumber}</span>
+                <span className="text-border">•</span>
+                <span>Reserva {booking.booking_number}</span>
+              </p>
             </div>
-            <Badge className={isComplete ? "bg-emerald-500/15 text-emerald-700 border-emerald-500/30" : "bg-amber-500/15 text-amber-700 border-amber-500/30"}>
-              {isComplete ? <><CheckCircle2 size={12} className="mr-1" /> Concluído</> : <><AlertTriangle size={12} className="mr-1" /> Em aberto</>}
+            <Badge className={`text-xs font-semibold px-3 py-1.5 ${isComplete ? "bg-emerald-500/15 text-emerald-700 border-emerald-500/30" : "bg-amber-500/15 text-amber-700 border-amber-500/30"}`}>
+              {isComplete ? <><CheckCircle2 size={12} className="mr-1.5" /> Serviço Concluído</> : <><AlertTriangle size={12} className="mr-1.5" /> Serviço em aberto</>}
             </Badge>
           </div>
+        </div>
 
-          <Separator />
+        {/* KPI strip */}
+        <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border/30 border-b border-border/30">
+          <div className="p-4 text-center">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Período</p>
+            <p className="text-sm font-bold text-foreground tabular-nums">{fmtDate(booking.pickup_date)}</p>
+            <p className="text-[10px] text-muted-foreground tabular-nums">até {fmtDate(booking.return_date)}</p>
+          </div>
+          <div className="p-4 text-center">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Milhas Rodadas</p>
+            <p className="text-sm font-bold text-foreground tabular-nums">{odometerDiff !== null ? `${odometerDiff.toLocaleString("pt-BR")} mi` : "—"}</p>
+            <p className="text-[10px] text-muted-foreground">no período</p>
+          </div>
+          <div className="p-4 text-center">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Novas Avarias</p>
+            <p className={`text-sm font-bold tabular-nums ${newDamages.length > 0 ? "text-destructive" : "text-emerald-700"}`}>{newDamages.length}</p>
+            <p className="text-[10px] text-muted-foreground">{newDamages.length === 0 ? "nenhuma" : "documentadas"}</p>
+          </div>
+          <div className="p-4 text-center">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Cobranças Extras</p>
+            <p className={`text-sm font-bold tabular-nums ${totalExtras > 0 ? "text-destructive" : "text-emerald-700"}`}>{fmtMoney(totalExtras)}</p>
+            <p className="text-[10px] text-muted-foreground">{totalExtras > 0 ? "a deduzir" : "caução integral"}</p>
+          </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-sm">
+        {/* Stakeholders */}
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 flex items-center gap-1.5">
-                <User size={11} /> Cliente
-              </p>
-              <p className="font-medium text-foreground">{fmtName(booking.customer_name)}</p>
-              <p className="text-xs text-muted-foreground">{booking.customer_email || "—"}</p>
-              <p className="text-xs text-muted-foreground">{booking.customer_phone || "—"}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-2 flex items-center gap-1.5"><User size={11} /> Cliente</p>
+              <p className="font-semibold text-foreground">{fmtName(booking.customer_name)}</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1"><Mail size={10} />{booking.customer_email || "—"}</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1"><Phone size={10} />{booking.customer_phone || "—"}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 flex items-center gap-1.5">
-                <Car size={11} /> Veículo
-              </p>
-              <p className="font-medium text-foreground">{vehicle?.name || `${vehicle?.brand || ""} ${vehicle?.model || ""}`.trim() || "—"}</p>
-              <p className="text-xs text-muted-foreground">Placa: {vehicle?.license_plate || "—"}</p>
-              <p className="text-xs text-muted-foreground">Ano: {vehicle?.year || "—"}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-2 flex items-center gap-1.5"><Car size={11} /> Veículo</p>
+              <p className="font-semibold text-foreground">{vehicle?.name || `${vehicle?.brand || ""} ${vehicle?.model || ""}`.trim() || "—"}</p>
+              <p className="text-xs text-muted-foreground">Placa <span className="font-mono">{vehicle?.license_plate || "—"}</span> • {vehicle?.year || "—"}</p>
+              <p className="text-xs text-muted-foreground capitalize">{vehicle?.category || ""}</p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 flex items-center gap-1.5">
-                <Calendar size={11} /> Período
-              </p>
-              <p className="font-medium text-foreground">{fmtDate(booking.pickup_date)} — {fmtDate(booking.return_date)}</p>
-              <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin size={10}/> Retirada: {booking.pickup_location || "—"}</p>
-              <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin size={10}/> Devolução: {booking.return_location || "—"}</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-2 flex items-center gap-1.5"><MapPin size={11} /> Logística</p>
+              <p className="text-xs text-foreground"><span className="text-muted-foreground">Retirada:</span> {booking.pickup_location || "—"}</p>
+              <p className="text-xs text-foreground mt-0.5"><span className="text-muted-foreground">Devolução:</span> {booking.return_location || "—"}</p>
+              <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">{booking.pickup_time || "—"} → {booking.return_time || "—"}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Contract */}
+      {/* ===== PARECER TÉCNICO (only when complete) ===== */}
+      {parecer && (
+        <Card className="border-primary/30 bg-primary/[0.025]">
+          <CardContent className="p-6">
+            <SectionHeader icon={FileText} title="Parecer Técnico" kicker="Conclusão do Serviço" />
+            <p className="text-sm leading-relaxed text-foreground/90">{parecer}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ===== CONTRATO ===== */}
       <Card className="border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <FileSignature size={16} className="text-primary" /> Contrato
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div className="space-y-1">
-              <Badge variant="outline" className={
-                booking.contract_status === "signed"
-                  ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/30"
-                  : booking.contract_status === "sent"
-                  ? "bg-amber-500/10 text-amber-700 border-amber-500/30"
-                  : "bg-muted text-muted-foreground"
-              }>
-                {booking.contract_status === "signed" ? "Assinado" :
-                 booking.contract_status === "sent" ? "Aguardando assinatura" :
-                 booking.contract_status === "not_sent" ? "Não enviado" : booking.contract_status}
-              </Badge>
-              {booking.contract_signed_at && (
-                <p className="text-xs text-muted-foreground">Assinado em {fmtDateTime(booking.contract_signed_at)}</p>
-              )}
-            </div>
-            {booking.contract_signed_pdf_url && (
+        <CardContent className="p-6">
+          <SectionHeader
+            icon={FileSignature}
+            title="Contrato de Locação"
+            kicker="Documento Jurídico"
+            action={booking.contract_signed_pdf_url ? (
               <Button variant="outline" size="sm" asChild>
                 <a href={booking.contract_signed_pdf_url} target="_blank" rel="noopener noreferrer">
-                  <ExternalLink size={14} className="mr-1.5" /> Ver contrato assinado
+                  <ExternalLink size={12} className="mr-1.5" /> Abrir PDF
                 </a>
               </Button>
-            )}
+            ) : undefined}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Status</p>
+              <Badge variant="outline" className={contractBadge.cls}>{contractBadge.label}</Badge>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Enviado em</p>
+              <p className="text-sm font-medium text-foreground tabular-nums">{fmtDateTime(booking.contract_sent_at)}</p>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Assinado em</p>
+              <p className="text-sm font-medium text-foreground tabular-nums">{fmtDateTime(booking.contract_signed_at)}</p>
+            </div>
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Envelope</p>
+              <p className="text-xs font-mono text-muted-foreground truncate" title={booking.clicksign_envelope_id || ""}>{booking.clicksign_envelope_id || "—"}</p>
+            </div>
           </div>
+          {booking.contract_error && (
+            <div className="mt-3 rounded-md border border-destructive/30 bg-destructive/5 p-2.5 text-xs text-destructive">
+              <strong>Erro:</strong> {booking.contract_error}
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Inspections side by side */}
+      {/* ===== INSPEÇÕES (lado a lado) ===== */}
       <Card className="border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <ClipboardCheck size={16} className="text-primary" /> Inspeções
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="p-6">
+          <SectionHeader icon={ClipboardCheck} title="Inspeções de Entrega e Devolução" kicker="Vistoria Comparativa" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[
-              { label: "Entrega (Check-in)", data: checkin, accent: "border-primary/30 bg-primary/[0.03]" },
-              { label: "Devolução (Check-out)", data: checkout, accent: "border-border bg-muted/30" },
-            ].map((col) => (
-              <div key={col.label} className={`rounded-lg border ${col.accent} p-4 space-y-3`}>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-semibold text-foreground uppercase tracking-wider">{col.label}</p>
-                  {col.data?.completed_at ? (
-                    <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-700 border-emerald-500/30">
-                      <CheckCircle2 size={10} className="mr-1" /> Realizada
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-[10px]">Pendente</Badge>
-                  )}
-                </div>
-                {col.data ? (
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div>
-                      <p className="text-[10px] uppercase text-muted-foreground">Odômetro</p>
-                      <p className="font-medium text-foreground tabular-nums">{col.data.odometer_reading?.toLocaleString("pt-BR") || "—"} mi</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase text-muted-foreground">Combustível</p>
-                      <p className="font-medium text-foreground">{FUEL_LABELS[col.data.fuel_level] || "—"}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase text-muted-foreground">Avarias</p>
-                      <p className="font-medium text-foreground">{((col.data.damages as any[]) || []).length}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] uppercase text-muted-foreground">Fotos</p>
-                      <p className="font-medium text-foreground">{((col.data.exterior_photos as any[]) || []).length}</p>
-                    </div>
-                    <div className="col-span-2">
-                      <p className="text-[10px] uppercase text-muted-foreground">Agente</p>
-                      <p className="font-medium text-foreground">{fmtName(col.data.agent_name)}</p>
-                      {col.data.completed_at && (
-                        <p className="text-[10px] text-muted-foreground">{fmtDateTime(col.data.completed_at)}</p>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground">Inspeção não realizada.</p>
-                )}
-              </div>
-            ))}
+            <InspectionColumn label="Check-in" type="checkin" data={checkin} side="left" />
+            <InspectionColumn label="Check-out" type="checkout" data={checkout} side="right" />
           </div>
         </CardContent>
       </Card>
 
-      {/* Diffs */}
+      {/* ===== DIFERENÇAS DO PERÍODO ===== */}
       {isComplete && (
         <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Gauge size={16} className="text-primary" /> Diferenças do Período
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3">
-            <div className="flex items-center gap-3 p-3 rounded-md border border-border/40">
-              <Gauge size={18} className="text-muted-foreground" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Milhagem percorrida</p>
-                <p className="text-xs text-muted-foreground tabular-nums">
-                  {checkin.odometer_reading?.toLocaleString("pt-BR")} → {checkout.odometer_reading?.toLocaleString("pt-BR")} mi
-                </p>
+          <CardContent className="p-6">
+            <SectionHeader icon={Gauge} title="Diferenças do Período" kicker="Métricas Comparativas" />
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 p-3.5 rounded-lg border border-border/40 bg-muted/20">
+                <div className="w-9 h-9 rounded-lg bg-background border border-border/40 flex items-center justify-center">
+                  <Gauge size={16} className="text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground">Milhagem percorrida</p>
+                  <p className="text-xs text-muted-foreground tabular-nums">
+                    {checkin.odometer_reading?.toLocaleString("pt-BR")} → {checkout.odometer_reading?.toLocaleString("pt-BR")} mi
+                  </p>
+                </div>
+                <TrendBadge value={odometerDiff} suffix=" mi" invertColor />
               </div>
-              <Badge variant="outline" className="text-base font-bold tabular-nums">
-                {odometerDiff !== null ? `+${odometerDiff.toLocaleString("pt-BR")} mi` : "—"}
-              </Badge>
-            </div>
-            <div className="flex items-center gap-3 p-3 rounded-md border border-border/40">
-              <Fuel size={18} className="text-muted-foreground" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">Combustível</p>
-                <p className="text-xs text-muted-foreground">
-                  {FUEL_LABELS[checkin.fuel_level]} → {FUEL_LABELS[checkout.fuel_level]}
-                </p>
+              <div className="flex items-center gap-3 p-3.5 rounded-lg border border-border/40 bg-muted/20">
+                <div className="w-9 h-9 rounded-lg bg-background border border-border/40 flex items-center justify-center">
+                  <Fuel size={16} className="text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground">Nível de combustível</p>
+                  <p className="text-xs text-muted-foreground">{FUEL_LABELS[checkin.fuel_level]} → {FUEL_LABELS[checkout.fuel_level]}</p>
+                </div>
+                <TrendBadge value={fuelDiff} suffix="%" />
               </div>
-              <Badge variant="outline" className={fuelDiff !== null && fuelDiff < 0 ? "text-destructive border-destructive/40" : "text-emerald-700 border-emerald-500/40"}>
-                {fuelDiff !== null ? `${fuelDiff > 0 ? "+" : ""}${fuelDiff}%` : "—"}
-              </Badge>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Damages */}
+      {/* ===== AVARIAS ===== */}
       {isComplete && (
         <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <AlertTriangle size={16} className="text-primary" /> Avarias e Danos
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-4">
+          <CardContent className="p-6 space-y-5">
+            <SectionHeader icon={AlertTriangle} title="Avarias e Danos" kicker="Comparativo Estrutural" />
+
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Pré-existentes (na entrega)</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Pré-existentes (entrega)</p>
               {checkinDamages.length === 0 ? (
-                <p className="text-xs text-emerald-700 flex items-center gap-1.5"><CheckCircle2 size={12} /> Veículo entregue sem avarias prévias</p>
+                <div className="flex items-center gap-2 p-3 rounded-md border border-emerald-500/30 bg-emerald-500/5">
+                  <CheckCircle2 size={14} className="text-emerald-700" />
+                  <p className="text-sm text-emerald-700 font-medium">Veículo entregue sem avarias prévias.</p>
+                </div>
               ) : (
                 <div className="space-y-1.5">
                   {checkinDamages.map((d: any, i: number) => (
-                    <div key={i} className="text-xs flex items-center gap-2 p-2 rounded bg-muted/40 border border-border/30">
+                    <div key={i} className="text-xs flex items-center gap-2 p-2.5 rounded-md bg-muted/40 border border-border/30">
                       <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLOR[d.severity] || ""}`}>{SEVERITY_LABELS[d.severity] || d.severity}</Badge>
-                      <span className="font-medium text-foreground">{d.position}</span>
+                      <span className="font-semibold text-foreground">{d.position}</span>
                       <span className="text-muted-foreground">— {d.description || "—"}</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
+
             <Separator />
+
             <div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Novas avarias na devolução</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Novas avarias (devolução)</p>
               {newDamages.length === 0 ? (
-                <p className="text-xs text-emerald-700 flex items-center gap-1.5"><CheckCircle2 size={12} /> Nenhuma nova avaria identificada</p>
+                <div className="flex items-center gap-2 p-3 rounded-md border border-emerald-500/30 bg-emerald-500/5">
+                  <CheckCircle2 size={14} className="text-emerald-700" />
+                  <p className="text-sm text-emerald-700 font-medium">Nenhuma nova avaria identificada.</p>
+                </div>
               ) : (
                 <div className="space-y-1.5">
                   {newDamages.map((d: any, i: number) => (
-                    <div key={i} className="text-xs flex items-center gap-2 p-2 rounded bg-destructive/5 border border-destructive/20">
+                    <div key={i} className="text-xs flex items-center gap-2 p-2.5 rounded-md bg-destructive/5 border border-destructive/20">
                       <XCircle size={12} className="text-destructive shrink-0" />
                       <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLOR[d.severity] || ""}`}>{SEVERITY_LABELS[d.severity] || d.severity}</Badge>
-                      <span className="font-medium text-foreground">{d.position}</span>
-                      <span className="text-muted-foreground">— {d.description || "—"}</span>
-                      {d.photoUrl && <img src={d.photoUrl} alt="" className="w-10 h-10 rounded object-cover ml-auto"/>}
+                      <span className="font-semibold text-foreground">{d.position}</span>
+                      <span className="text-muted-foreground flex-1 min-w-0 truncate">— {d.description || "—"}</span>
+                      {d.photoUrl && <img src={d.photoUrl} alt="" className="w-12 h-12 rounded object-cover border border-border/30 ml-auto" />}
                     </div>
                   ))}
                 </div>
               )}
             </div>
+
             {missingAcc.length > 0 && (
               <>
                 <Separator />
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Acessórios faltantes na devolução</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Acessórios faltantes</p>
                   <div className="flex flex-wrap gap-1.5">
                     {missingAcc.map((k) => (
-                      <Badge key={k} variant="outline" className="text-[10px] bg-destructive/5 text-destructive border-destructive/30">
+                      <Badge key={k} variant="outline" className="text-xs bg-destructive/5 text-destructive border-destructive/30 px-2 py-0.5">
                         {ACCESSORIES_LABELS[k]}
                       </Badge>
                     ))}
@@ -414,117 +547,108 @@ export default function AdminInspectionReport() {
         </Card>
       )}
 
-      {/* Photo comparison */}
+      {/* ===== COMPARAÇÃO FOTOGRÁFICA ===== */}
       {isComplete && (checkin?.exterior_photos as any[])?.length > 0 && (
         <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Camera size={16} className="text-primary" /> Comparação Fotográfica
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-4">
-            {(checkin.exterior_photos as any[])
-              .filter((p: any) => !p.position?.startsWith("__"))
-              .map((ciPhoto: any) => {
-                const coPhoto = (checkout?.exterior_photos as any[])?.find((p: any) => p.position === ciPhoto.position);
-                return (
-                  <div key={ciPhoto.id || ciPhoto.position} className="space-y-1.5">
-                    <p className="text-xs font-medium text-foreground">{ciPhoto.position}</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <p className="text-[10px] uppercase text-muted-foreground mb-1">Entrega</p>
-                        <img src={ciPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded border border-border/40" loading="lazy" />
+          <CardContent className="p-6">
+            <SectionHeader icon={Camera} title="Comparação Fotográfica" kicker="Registro Visual Lado a Lado" />
+            <div className="space-y-4">
+              {(checkin.exterior_photos as any[])
+                .filter((p: any) => !p.position?.startsWith("__"))
+                .map((ciPhoto: any) => {
+                  const coPhoto = (checkout?.exterior_photos as any[])?.find((p: any) => p.position === ciPhoto.position);
+                  return (
+                    <div key={ciPhoto.id || ciPhoto.position} className="rounded-lg border border-border/30 overflow-hidden">
+                      <div className="bg-muted/40 px-3 py-2 border-b border-border/30">
+                        <p className="text-xs font-semibold text-foreground">{ciPhoto.position}</p>
                       </div>
-                      <div>
-                        <p className="text-[10px] uppercase text-muted-foreground mb-1">Devolução</p>
-                        {coPhoto ? (
-                          <img src={coPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded border border-border/40" loading="lazy" />
-                        ) : (
-                          <div className="w-full aspect-[4/3] rounded border-2 border-dashed border-border/40 flex items-center justify-center text-xs text-muted-foreground">Sem foto</div>
-                        )}
+                      <div className="grid grid-cols-2 divide-x divide-border/30">
+                        <div className="p-2">
+                          <p className="text-[9px] uppercase tracking-wider text-primary font-bold mb-1.5">Entrega</p>
+                          <img src={ciPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded" loading="lazy" />
+                        </div>
+                        <div className="p-2">
+                          <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold mb-1.5">Devolução</p>
+                          {coPhoto ? (
+                            <img src={coPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded" loading="lazy" />
+                          ) : (
+                            <div className="w-full aspect-[4/3] rounded border-2 border-dashed border-border/40 flex items-center justify-center text-xs text-muted-foreground">Sem foto</div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+            </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Incidents */}
+      {/* ===== SINISTROS ===== */}
       {incidents.length > 0 && (
         <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <ShieldAlert size={16} className="text-primary" /> Sinistros e Ocorrências ({incidents.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-2">
-            {incidents.map((inc) => (
-              <div key={inc.id} className="p-3 rounded-md border border-border/40 space-y-1">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-medium text-foreground">{inc.title}</p>
-                  <Badge variant="outline" className={SEVERITY_COLOR[inc.severity] || ""}>{SEVERITY_LABELS[inc.severity] || inc.severity}</Badge>
+          <CardContent className="p-6">
+            <SectionHeader icon={ShieldAlert} title={`Sinistros e Ocorrências (${incidents.length})`} kicker="Eventos Operacionais" />
+            <div className="space-y-2">
+              {incidents.map((inc) => (
+                <div key={inc.id} className="p-3.5 rounded-lg border border-border/40 bg-muted/20 space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-foreground">{inc.title}</p>
+                    <Badge variant="outline" className={SEVERITY_COLOR[inc.severity] || ""}>{SEVERITY_LABELS[inc.severity] || inc.severity}</Badge>
+                  </div>
+                  {inc.description && <p className="text-xs text-muted-foreground">{inc.description}</p>}
+                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground tabular-nums">
+                    <Calendar size={10} />
+                    <span>{fmtDate(inc.incident_date)}</span>
+                    <span className="text-border">•</span>
+                    <span className="capitalize">{inc.type}</span>
+                    <span className="text-border">•</span>
+                    <span className="font-semibold text-foreground">{fmtMoney(Number(inc.actual_cost || inc.estimated_cost || 0))}</span>
+                  </div>
                 </div>
-                {inc.description && <p className="text-xs text-muted-foreground">{inc.description}</p>}
-                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                  <span>{fmtDate(inc.incident_date)}</span>
-                  <span>•</span>
-                  <span>{inc.type}</span>
-                  <span>•</span>
-                  <span className="tabular-nums">{fmtMoney(Number(inc.actual_cost || inc.estimated_cost || 0))}</span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Financial */}
+      {/* ===== FINANCEIRO ===== */}
       <Card className="border-border/50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <DollarSign size={16} className="text-primary" /> Resumo Financeiro
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0 space-y-3">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-            <div>
-              <p className="text-[10px] uppercase text-muted-foreground">Valor da Reserva</p>
-              <p className="font-semibold text-foreground tabular-nums">{fmtMoney(Number(booking.total_price || 0))}</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase text-muted-foreground">Caução</p>
-              <p className="font-semibold text-foreground tabular-nums">{fmtMoney(Number(booking.deposit_amount || 0))}</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase text-muted-foreground">Franquia</p>
-              <p className="font-semibold text-foreground tabular-nums">{fmtMoney(Number(booking.franchise_amount || 0))}</p>
-            </div>
-            <div>
-              <p className="text-[10px] uppercase text-muted-foreground">Pagamento</p>
-              <p className="font-semibold text-foreground capitalize">{booking.payment_status || "—"}</p>
-            </div>
+        <CardContent className="p-6 space-y-5">
+          <SectionHeader icon={DollarSign} title="Resumo Financeiro" kicker="Apuração Final" />
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: "Valor da Reserva", value: fmtMoney(Number(booking.total_price || 0)) },
+              { label: "Caução", value: fmtMoney(Number(booking.deposit_amount || 0)) },
+              { label: "Franquia", value: fmtMoney(Number(booking.franchise_amount || 0)) },
+              { label: "Pagamento", value: (booking.payment_status || "—").toUpperCase(), highlight: booking.payment_status === "paid" },
+            ].map((kpi) => (
+              <div key={kpi.label} className="rounded-lg border border-border/30 bg-muted/20 p-3">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">{kpi.label}</p>
+                <p className={`text-sm font-bold tabular-nums ${kpi.highlight ? "text-emerald-700" : "text-foreground"}`}>{kpi.value}</p>
+              </div>
+            ))}
           </div>
 
           {extraCharges.length > 0 && (
             <>
               <Separator />
               <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Cobranças Adicionais</p>
-                <div className="space-y-1.5">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Cobranças Adicionais Apuradas</p>
+                <div className="rounded-lg border border-border/30 overflow-hidden">
                   {extraCharges.map((c, i) => (
-                    <div key={i} className="flex items-center justify-between text-sm p-2 rounded bg-muted/40 border border-border/30">
+                    <div key={i} className="flex items-center justify-between text-sm p-3 bg-background border-b border-border/20 last:border-0">
                       <div>
-                        <p className="font-medium text-foreground">{c.label}</p>
-                        <p className="text-[11px] text-muted-foreground">{c.reason}</p>
+                        <p className="font-semibold text-foreground">{c.label}</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">{c.reason}</p>
                       </div>
-                      <span className="font-semibold text-foreground tabular-nums">{fmtMoney(c.amount)}</span>
+                      <span className="font-bold text-destructive tabular-nums">{fmtMoney(c.amount)}</span>
                     </div>
                   ))}
-                  <div className="flex items-center justify-between text-sm pt-2 mt-2 border-t border-border/30">
-                    <span className="font-semibold text-foreground">Total de cobranças extras</span>
-                    <span className="font-bold text-destructive tabular-nums">{fmtMoney(totalExtras)}</span>
+                  <div className="flex items-center justify-between text-sm p-3 bg-destructive/5 border-t border-destructive/20">
+                    <span className="font-bold text-foreground">Total a deduzir da caução</span>
+                    <span className="font-bold text-destructive text-base tabular-nums">{fmtMoney(totalExtras)}</span>
                   </div>
                 </div>
               </div>
@@ -535,15 +659,15 @@ export default function AdminInspectionReport() {
             <>
               <Separator />
               <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">Lançamentos Financeiros</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Lançamentos Financeiros</p>
                 <div className="space-y-1.5">
                   {transactions.map((t) => (
-                    <div key={t.id} className="flex items-center justify-between text-xs p-2 rounded border border-border/30">
+                    <div key={t.id} className="flex items-center justify-between text-xs p-2.5 rounded border border-border/30">
                       <div>
                         <p className="font-medium text-foreground">{t.description}</p>
-                        <p className="text-[10px] text-muted-foreground">{fmtDate(t.transaction_date)} • {t.type}</p>
+                        <p className="text-[10px] text-muted-foreground tabular-nums">{fmtDate(t.transaction_date)} • <span className="capitalize">{t.type}</span></p>
                       </div>
-                      <span className={`font-semibold tabular-nums ${t.type === "income" ? "text-emerald-700" : "text-destructive"}`}>
+                      <span className={`font-bold tabular-nums ${t.type === "income" ? "text-emerald-700" : "text-destructive"}`}>
                         {t.type === "income" ? "+" : "−"}{fmtMoney(Number(t.amount))}
                       </span>
                     </div>
@@ -555,50 +679,42 @@ export default function AdminInspectionReport() {
         </CardContent>
       </Card>
 
-      {/* Notes */}
+      {/* ===== OBSERVAÇÕES ===== */}
       {(checkin?.notes || checkout?.notes) && (
         <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <FileText size={16} className="text-primary" /> Observações
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3">
+          <CardContent className="p-6 space-y-4">
+            <SectionHeader icon={FileText} title="Observações do Agente" kicker="Notas de Campo" />
             {checkin?.notes && (
-              <div>
-                <p className="text-[10px] uppercase text-muted-foreground font-semibold mb-1">Entrega</p>
-                <p className="text-sm text-foreground whitespace-pre-wrap">{checkin.notes}</p>
+              <div className="rounded-lg border-l-2 border-l-primary/60 bg-primary/[0.025] border-y border-r border-border/30 p-3">
+                <p className="text-[10px] uppercase tracking-wider text-primary font-bold mb-1">Entrega</p>
+                <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">{checkin.notes}</p>
               </div>
             )}
             {checkout?.notes && (
-              <div>
-                <p className="text-[10px] uppercase text-muted-foreground font-semibold mb-1">Devolução</p>
-                <p className="text-sm text-foreground whitespace-pre-wrap">{checkout.notes}</p>
+              <div className="rounded-lg border-l-2 border-l-foreground/40 bg-muted/30 border-y border-r border-border/30 p-3">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">Devolução</p>
+                <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">{checkout.notes}</p>
               </div>
             )}
           </CardContent>
         </Card>
       )}
 
-      {/* Signatures */}
+      {/* ===== ASSINATURAS ===== */}
       {isComplete && (
         <Card className="border-border/50">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <FileSignature size={16} className="text-primary" /> Assinaturas
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="p-6">
+            <SectionHeader icon={FileSignature} title="Assinaturas das Partes" kicker="Validação Jurídica" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                { label: "Entrega", data: checkin },
-                { label: "Devolução", data: checkout },
+                { label: "Entrega", data: checkin, accent: "border-l-primary/60" },
+                { label: "Devolução", data: checkout, accent: "border-l-foreground/40" },
               ].map((s) => (
-                <div key={s.label} className="space-y-2">
-                  <p className="text-xs font-semibold text-foreground uppercase tracking-wider">{s.label}</p>
+                <div key={s.label} className={`rounded-lg border border-border/30 border-l-2 ${s.accent} p-4 space-y-2`}>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{s.label}</p>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-[10px] uppercase text-muted-foreground mb-1">Cliente</p>
+                      <p className="text-[9px] uppercase text-muted-foreground mb-1">Cliente</p>
                       {s.data?.customer_signature ? (
                         <img src={s.data.customer_signature} alt="" className="w-full h-20 object-contain bg-white rounded border border-border/40" />
                       ) : (
@@ -606,7 +722,7 @@ export default function AdminInspectionReport() {
                       )}
                     </div>
                     <div>
-                      <p className="text-[10px] uppercase text-muted-foreground mb-1">Agente Zeus</p>
+                      <p className="text-[9px] uppercase text-muted-foreground mb-1">Agente Zeus</p>
                       {s.data?.agent_signature ? (
                         <img src={s.data.agent_signature} alt="" className="w-full h-20 object-contain bg-white rounded border border-border/40" />
                       ) : (
@@ -614,7 +730,7 @@ export default function AdminInspectionReport() {
                       )}
                     </div>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">{fmtName(s.data?.agent_name)} • {fmtDateTime(s.data?.completed_at)}</p>
+                  <p className="text-[10px] text-muted-foreground tabular-nums">{fmtName(s.data?.agent_name)} • {fmtDateTime(s.data?.completed_at)}</p>
                 </div>
               ))}
             </div>
