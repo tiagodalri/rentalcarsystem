@@ -10,6 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { calcRoiPct, sumTotalRevenue } from "@/lib/fleetMetrics";
 
 interface DashboardStats {
   totalBookings: number;
