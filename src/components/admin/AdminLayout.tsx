@@ -51,7 +51,7 @@ export default function AdminLayout() {
       } as React.CSSProperties}
     >
       <AdminTabsProvider>
-        <div className="min-h-[100dvh] flex w-full bg-background">
+        <div className="admin-shell min-h-[100dvh] flex w-full bg-background">
           <AdminSidebar onSignOut={signOut} />
           <div className="flex-1 flex flex-col min-w-0">
             {/* Barra de abas no topo absoluto (estilo navegador) */}
