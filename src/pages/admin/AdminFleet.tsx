@@ -37,7 +37,7 @@ export default function AdminFleet() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"grid" | "table">(
-    (typeof localStorage !== "undefined" && (localStorage.getItem(VIEW_KEY) as any)) || "grid",
+    (typeof localStorage !== "undefined" && (localStorage.getItem(VIEW_KEY) as any)) || "table",
   );
   const [filters, setFilters] = useState<FleetFilters>({
     search: "",
