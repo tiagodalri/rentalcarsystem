@@ -88,6 +88,7 @@ export default function AdminCustomerBirthdays() {
         .from("customers")
         .select("id, full_name, email, phone, date_of_birth, preferred_language")
         .is("deleted_at", null)
+        .neq("source", "turo")
         .not("date_of_birth", "is", null);
       setRows((data as CustomerRow[]) || []);
       setLoading(false);

@@ -409,6 +409,8 @@ export type Database = {
           notes: string | null
           phone: string | null
           preferred_language: string
+          source: string
+          turo_guest_id: string | null
           updated_at: string
           user_id: string | null
           welcome_sent: boolean
@@ -435,6 +437,8 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           preferred_language?: string
+          source?: string
+          turo_guest_id?: string | null
           updated_at?: string
           user_id?: string | null
           welcome_sent?: boolean
@@ -461,6 +465,8 @@ export type Database = {
           notes?: string | null
           phone?: string | null
           preferred_language?: string
+          source?: string
+          turo_guest_id?: string | null
           updated_at?: string
           user_id?: string | null
           welcome_sent?: boolean

@@ -5,7 +5,7 @@ import MobileCustomers from "./mobile/MobileCustomers";
 import { useRegisterFab } from "@/hooks/useAdminFab";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, Pencil, Trash2, X, FileText, Upload, Camera, Loader2, ExternalLink, Copy, Check, Users, MessageCircle } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, X, FileText, Upload, Camera, Loader2, ExternalLink, Copy, Check, Users, MessageCircle, User, Car } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -16,6 +16,9 @@ import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import { formatPersonName } from "@/lib/formatName";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
+import { ensureTuroTagAssigned } from "@/lib/turoTag";
+
+type CustomerSource = "regular" | "turo";
 
 type Customer = {
   id: string;
@@ -27,6 +30,8 @@ type Customer = {
   driver_license: string | null;
   notes: string | null;
   created_at: string;
+  source: CustomerSource;
+  turo_guest_id: string | null;
   booking_count?: number;
 };
 
@@ -34,6 +39,7 @@ const emptyCustomer = {
   full_name: "", email: "", phone: "", document_number: "",
   nationality: "", driver_license: "", driver_license_expiry: "", notes: "",
   date_of_birth: "", address: "", house_number: "", complement: "", zip_code: "",
+  source: "regular" as CustomerSource, turo_guest_id: "",
 };
 
 export default function AdminCustomers() {
@@ -47,8 +53,9 @@ function AdminCustomersDesktop() {
   const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState("");
+  const [segment, setSegment] = useState<CustomerSource>("regular");
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState<Partial<Customer> | null>(null);
+  const [editing, setEditing] = useState<(Partial<Customer> & { date_of_birth?: string; address?: string; house_number?: string; complement?: string; zip_code?: string; driver_license_expiry?: string; driver_license_file_url?: string }) | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
   useRegisterFab({ icon: Plus, label: "Adicionar cliente", onClick: () => { setEditing({ ...emptyCustomer }); setIsNew(true); } });
@@ -105,7 +112,7 @@ function AdminCustomersDesktop() {
     setLoading(true);
     const { data: customersData } = await supabase
       .from("customers")
-      .select("id, full_name, email, phone, document_number, nationality, date_of_birth, address, house_number, complement, zip_code, driver_license, driver_license_expiry, driver_license_file_url, driver_license_verified_at, created_at, user_id, notes")
+      .select("id, full_name, email, phone, document_number, nationality, date_of_birth, address, house_number, complement, zip_code, driver_license, driver_license_expiry, driver_license_file_url, driver_license_verified_at, created_at, user_id, notes, source, turo_guest_id")
       .is("deleted_at", null)
       .order("full_name");
     const { data: bookingsData } = await supabase.from("bookings").select("customer_id").is("deleted_at", null);
@@ -115,25 +122,40 @@ function AdminCustomersDesktop() {
       if (b.customer_id) countMap[b.customer_id] = (countMap[b.customer_id] || 0) + 1;
     });
 
-    setCustomers((customersData || []).map(c => ({ ...c, booking_count: countMap[c.id] || 0 })));
+    setCustomers((customersData || []).map((c: any) => ({ ...c, booking_count: countMap[c.id] || 0 })) as Customer[]);
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
-  const filtered = customers.filter((c) =>
-    c.full_name.toLowerCase().includes(search.toLowerCase()) ||
-    (c.email || "").toLowerCase().includes(search.toLowerCase()) ||
-    (c.phone || "").includes(search)
-  );
+  const counts = {
+    regular: customers.filter((c) => c.source !== "turo").length,
+    turo: customers.filter((c) => c.source === "turo").length,
+  };
+
+  const filtered = customers
+    .filter((c) => (segment === "turo" ? c.source === "turo" : c.source !== "turo"))
+    .filter((c) =>
+      c.full_name.toLowerCase().includes(search.toLowerCase()) ||
+      (c.email || "").toLowerCase().includes(search.toLowerCase()) ||
+      (c.phone || "").includes(search) ||
+      (c.turo_guest_id || "").includes(search)
+    );
 
   const save = async () => {
-    if (!editing?.full_name) return toast({ title: "Nome obrigatório", variant: "destructive" });
+    if (!editing) return;
+    const isTuro = editing.source === "turo";
+
+    if (isTuro) {
+      if (!editing.full_name?.trim()) return toast({ title: "Primeiro nome obrigatório", variant: "destructive" });
+    } else {
+      if (!editing.full_name?.trim()) return toast({ title: "Nome obrigatório", variant: "destructive" });
+    }
 
     let driverLicenseFileUrl = (editing as any).driver_license_file_url || null;
 
-    // Upload file if new one selected
-    if (licenseFile) {
+    // Upload file if new one selected (apenas regular)
+    if (!isTuro && licenseFile) {
       const ext = licenseFile.name.split(".").pop();
       const path = `licenses/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: uploadErr } = await supabase.storage.from("inspections").upload(path, licenseFile);
@@ -143,30 +165,47 @@ function AdminCustomersDesktop() {
       }
     }
 
-    const payload = {
-      full_name: editing.full_name,
-      email: editing.email || null,
-      phone: editing.phone || null,
-      document_number: editing.document_number || null,
-      nationality: editing.nationality || null,
-      driver_license: editing.driver_license || null,
-      driver_license_expiry: (editing as any).driver_license_expiry || null,
-      notes: editing.notes || null,
-      date_of_birth: (editing as any).date_of_birth || null,
-      address: (editing as any).address || null,
-      house_number: (editing as any).house_number || null,
-      complement: (editing as any).complement || null,
-      zip_code: (editing as any).zip_code || null,
-      driver_license_file_url: driverLicenseFileUrl,
-    };
+    const payload: any = isTuro
+      ? {
+          full_name: editing.full_name!.trim(),
+          source: "turo",
+          turo_guest_id: (editing.turo_guest_id || "").trim() || null,
+          notes: editing.notes || null,
+        }
+      : {
+          full_name: editing.full_name,
+          email: editing.email || null,
+          phone: editing.phone || null,
+          document_number: editing.document_number || null,
+          nationality: editing.nationality || null,
+          driver_license: editing.driver_license || null,
+          driver_license_expiry: (editing as any).driver_license_expiry || null,
+          notes: editing.notes || null,
+          date_of_birth: (editing as any).date_of_birth || null,
+          address: (editing as any).address || null,
+          house_number: (editing as any).house_number || null,
+          complement: (editing as any).complement || null,
+          zip_code: (editing as any).zip_code || null,
+          driver_license_file_url: driverLicenseFileUrl,
+          source: "regular",
+        };
 
+    let customerId = editing.id;
     if (isNew) {
-      await supabase.from("customers").insert(payload);
-      toast({ title: "Cliente adicionado" });
+      const { data, error } = await supabase.from("customers").insert(payload).select("id").single();
+      if (error) return toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+      customerId = data?.id;
+      toast({ title: isTuro ? "Cliente Turo adicionado" : "Cliente adicionado" });
     } else {
-      await supabase.from("customers").update(payload).eq("id", editing.id!);
+      const { error } = await supabase.from("customers").update(payload).eq("id", editing.id!);
+      if (error) return toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
       toast({ title: "Cliente atualizado" });
     }
+
+    if (isTuro && customerId) {
+      await ensureTuroTagAssigned(customerId);
+    }
+
     setEditing(null);
     setLicenseFile(null);
     resetOcr();
@@ -203,7 +242,11 @@ function AdminCustomersDesktop() {
 
         <div className="hidden lg:block">
           <h1 className="admin-h1">Clientes</h1>
-          <p className="text-sm text-muted-foreground mt-1">{customers.length} clientes cadastrados</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {segment === "turo"
+              ? `${counts.turo} hóspedes Turo`
+              : `${counts.regular} clientes cadastrados`}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative group">
@@ -227,7 +270,7 @@ function AdminCustomersDesktop() {
             </button>
           </div>
           <button
-            onClick={() => { setEditing({ ...emptyCustomer }); setIsNew(true); }}
+            onClick={() => { setEditing({ ...emptyCustomer, source: segment }); setIsNew(true); }}
             className="gold-gradient text-primary-foreground px-3 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 hover:opacity-90 transition-opacity"
           >
             <Plus size={12} /> Adicionar
@@ -235,12 +278,40 @@ function AdminCustomersDesktop() {
         </div>
       </div>
 
+      {/* Segmento Regular / Turo */}
+      <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/40 border border-border/30 w-fit">
+        {([
+          { id: "regular" as const, label: "Regulares", icon: User, count: counts.regular },
+          { id: "turo" as const, label: "Turo", icon: Car, count: counts.turo },
+        ]).map((t) => {
+          const Icon = t.icon;
+          const active = segment === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setSegment(t.id)}
+              className={`h-8 px-3 rounded-lg text-[11.5px] font-medium inline-flex items-center gap-1.5 transition-all ${
+                active
+                  ? "bg-background text-foreground shadow-sm border border-border/40"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Icon size={13} />
+              {t.label}
+              <span className={`ml-0.5 text-[10px] tabular-nums ${active ? "text-primary" : "text-muted-foreground/60"}`}>
+                {t.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="relative">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar cliente..."
+          placeholder={segment === "turo" ? "Buscar por nome ou Guest #..." : "Buscar cliente..."}
           className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/40 bg-card/50 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
         />
       </div>
@@ -257,98 +328,169 @@ function AdminCustomersDesktop() {
             </div>
 
             <div className="p-6 space-y-4">
-              {fields.map((field) => (
-                <div key={field.key}>
-                  <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{field.label}</label>
-                  <div className="relative">
-                    {field.key === "phone" ? (
-                      <PhoneInput
-                        value={(editing as any)[field.key] ?? ""}
-                        onChange={(val) => setEditing({ ...editing, [field.key]: val })}
-                        inputClassName="h-9 px-3 text-sm"
-                      />
-                    ) : (
-                      <input
-                        type={(field as any).type || "text"}
-                        value={(editing as any)[field.key] ?? ""}
-                        onChange={(e) => {
-                          setEditing({ ...editing, [field.key]: e.target.value });
-                          if (field.key === "zip_code") lookupCep(e.target.value);
-                        }}
-                        className="w-full h-9 px-3 rounded-lg border border-border/40 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
-                      />
-                    )}
-                    {field.key === "zip_code" && cepLoading && (
-                      <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-spin" />
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {/* License file upload */}
+              {/* Tipo de cliente */}
               <div>
                 <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                  Habilitação (CNH) — Foto ou PDF
+                  Tipo de cliente
                 </label>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
-                  className="hidden"
-                />
-                <input
-                  id="cameraInput"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
-                  className="hidden"
-                />
-                <div className="flex gap-2">
-                  <label
-                    htmlFor="cameraInput"
-                    className="h-9 px-3 rounded-lg border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer"
-                  >
-                    <Camera size={13} />
-                    Câmera
-                  </label>
-                  <label className="flex-1 h-9 px-3 rounded-lg border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer">
-                    <Upload size={13} />
-                    {licenseFile ? licenseFile.name : (editing as any).driver_license_file_url ? "Arquivo já anexado" : "Anexar arquivo"}
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { id: "regular" as const, label: "Zeus (regular)", icon: User, desc: "Cliente direto Zeus" },
+                    { id: "turo" as const, label: "Turo", icon: Car, desc: "Hóspede importado" },
+                  ]).map((opt) => {
+                    const Icon = opt.icon;
+                    const active = (editing.source || "regular") === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setEditing({ ...editing, source: opt.id })}
+                        className={`flex items-start gap-2 p-3 rounded-lg border text-left transition-all ${
+                          active
+                            ? "border-primary/50 bg-primary/[0.06] ring-1 ring-primary/20"
+                            : "border-border/40 bg-background hover:border-border"
+                        }`}
+                      >
+                        <Icon size={15} className={active ? "text-primary mt-0.5" : "text-muted-foreground mt-0.5"} />
+                        <div className="min-w-0">
+                          <div className={`text-[12px] font-semibold ${active ? "text-foreground" : "text-foreground"}`}>{opt.label}</div>
+                          <div className="text-[10.5px] text-muted-foreground leading-tight mt-0.5">{opt.desc}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {editing.source === "turo" ? (
+                <>
+                  <div>
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                      Primeiro nome *
+                    </label>
                     <input
+                      type="text"
+                      value={editing.full_name ?? ""}
+                      onChange={(e) => setEditing({ ...editing, full_name: e.target.value })}
+                      placeholder="Ex.: John"
+                      className="w-full h-9 px-3 rounded-lg border border-border/40 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                      Guest # da Turo
+                    </label>
+                    <input
+                      type="text"
+                      value={editing.turo_guest_id ?? ""}
+                      onChange={(e) => setEditing({ ...editing, turo_guest_id: e.target.value })}
+                      placeholder="Ex.: 57589798"
+                      className="w-full h-9 px-3 rounded-lg border border-border/40 bg-background text-sm text-foreground font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                    />
+                    <p className="text-[10px] text-muted-foreground/70 mt-1">
+                      Identificador do hóspede na Turo. Usado para evitar duplicação.
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-purple-500/30 bg-purple-500/[0.04] p-3 text-[11px] text-muted-foreground">
+                    Hóspede importado da Turo — sem dados de contato direto. A tag <span className="font-semibold text-purple-500">Turo</span> será aplicada automaticamente.
+                  </div>
+                </>
+              ) : (
+                <>
+                  {fields.map((field) => (
+                    <div key={field.key}>
+                      <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{field.label}</label>
+                      <div className="relative">
+                        {field.key === "phone" ? (
+                          <PhoneInput
+                            value={(editing as any)[field.key] ?? ""}
+                            onChange={(val) => setEditing({ ...editing, [field.key]: val })}
+                            inputClassName="h-9 px-3 text-sm"
+                          />
+                        ) : (
+                          <input
+                            type={(field as any).type || "text"}
+                            value={(editing as any)[field.key] ?? ""}
+                            onChange={(e) => {
+                              setEditing({ ...editing, [field.key]: e.target.value });
+                              if (field.key === "zip_code") lookupCep(e.target.value);
+                            }}
+                            className="w-full h-9 px-3 rounded-lg border border-border/40 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                          />
+                        )}
+                        {field.key === "zip_code" && cepLoading && (
+                          <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-spin" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* License file upload */}
+                  <div>
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                      Habilitação (CNH) — Foto ou PDF
+                    </label>
+                    <input
+                      ref={fileRef}
                       type="file"
                       accept="image/*,.pdf"
                       onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
                       className="hidden"
                     />
-                  </label>
-                </div>
-                {ocrLoading && (
-                  <p className="text-[11px] text-primary mt-2 flex items-center gap-1.5">
-                    <Loader2 size={11} className="animate-spin" /> Lendo documento com IA...
-                  </p>
-                )}
-                {(editing as any).driver_license_file_url && !licenseFile && (
-                  <a href={(editing as any).driver_license_file_url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline mt-1 inline-block">
-                    Ver documento atual →
-                  </a>
-                )}
-              </div>
+                    <input
+                      id="cameraInput"
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
+                      className="hidden"
+                    />
+                    <div className="flex gap-2">
+                      <label
+                        htmlFor="cameraInput"
+                        className="h-9 px-3 rounded-lg border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer"
+                      >
+                        <Camera size={13} />
+                        Câmera
+                      </label>
+                      <label className="flex-1 h-9 px-3 rounded-lg border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer">
+                        <Upload size={13} />
+                        {licenseFile ? licenseFile.name : (editing as any).driver_license_file_url ? "Arquivo já anexado" : "Anexar arquivo"}
+                        <input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                    {ocrLoading && (
+                      <p className="text-[11px] text-primary mt-2 flex items-center gap-1.5">
+                        <Loader2 size={11} className="animate-spin" /> Lendo documento com IA...
+                      </p>
+                    )}
+                    {(editing as any).driver_license_file_url && !licenseFile && (
+                      <a href={(editing as any).driver_license_file_url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline mt-1 inline-block">
+                        Ver documento atual →
+                      </a>
+                    )}
+                  </div>
 
-              {ocrResult && (
-                <OcrReviewPanel
-                  extracted={ocrResult}
-                  current={{
-                    full_name: (editing as any).full_name,
-                    document_number: (editing as any).document_number,
-                    driver_license: (editing as any).driver_license,
-                    driver_license_expiry: (editing as any).driver_license_expiry,
-                    date_of_birth: (editing as any).date_of_birth,
-                  }}
-                  onApply={applyOcr}
-                  onDismiss={resetOcr}
-                />
+                  {ocrResult && (
+                    <OcrReviewPanel
+                      extracted={ocrResult}
+                      current={{
+                        full_name: (editing as any).full_name,
+                        document_number: (editing as any).document_number,
+                        driver_license: (editing as any).driver_license,
+                        driver_license_expiry: (editing as any).driver_license_expiry,
+                        date_of_birth: (editing as any).date_of_birth,
+                      }}
+                      onApply={applyOcr}
+                      onDismiss={resetOcr}
+                    />
+                  )}
+                </>
               )}
 
               <div>
@@ -385,7 +527,67 @@ function AdminCustomersDesktop() {
           ) : filtered.length === 0 && customers.length > 0 ? (
             <EmptyState icon={Search} title="Nenhum cliente encontrado" description="Nenhum cliente corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} compact />
           ) : filtered.length === 0 ? (
-            <EmptyState icon={Users} title="Nenhum cliente cadastrado" description="Os clientes aparecerão aqui após se cadastrarem ou serem adicionados manualmente." actionLabel="Adicionar Cliente" onAction={() => { setEditing({ ...emptyCustomer }); setIsNew(true); }} compact />
+            <EmptyState icon={Users} title={segment === "turo" ? "Nenhum cliente Turo" : "Nenhum cliente cadastrado"} description={segment === "turo" ? "Hóspedes importados da Turo aparecerão aqui." : "Os clientes aparecerão aqui após se cadastrarem ou serem adicionados manualmente."} actionLabel="Adicionar Cliente" onAction={() => { setEditing({ ...emptyCustomer, source: segment }); setIsNew(true); }} compact />
+          ) : segment === "turo" ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border/30 bg-muted/20">
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Cliente Turo</th>
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Guest #</th>
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Tags</th>
+                    <th className="px-4 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Reservas</th>
+                    <th className="px-3 py-3 w-16"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((c) => {
+                    const displayName = formatPersonName(c.full_name);
+                    const initials = displayName.split(" ").filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join("");
+                    return (
+                      <tr key={c.id} onClick={() => navigate(`/admin/customers/${c.id}`)} className="border-b border-border/10 hover:bg-muted/20 transition-colors group cursor-pointer">
+                        <td className="px-4 py-2.5 whitespace-nowrap">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-full bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-[10px] font-medium text-purple-500 shrink-0">
+                              {initials || "?"}
+                            </div>
+                            <span className="text-foreground font-medium text-[13px] truncate max-w-[260px]">{displayName}</span>
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider bg-purple-500/15 text-purple-500 border border-purple-500/30">
+                              <Car size={9} /> Turo
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap text-muted-foreground text-xs font-mono tabular-nums">
+                          {c.turo_guest_id || <span className="text-muted-foreground/30">—</span>}
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap">
+                          <CustomerTagsInline customerId={c.id} />
+                        </td>
+                        <td className="px-4 py-2.5 text-center whitespace-nowrap">
+                          {c.booking_count ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/8 px-2 py-0.5 rounded-md border border-primary/15 tabular-nums">
+                              <FileText size={10} /> {c.booking_count}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground/30 tabular-nums">0</span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2.5 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => { setEditing(c); setIsNew(false); }} className="w-7 h-7 rounded-md bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
+                              <Pencil size={12} />
+                            </button>
+                            <button onClick={() => deleteCustomer(c.id)} className="w-7 h-7 rounded-md bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors">
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm" style={{ tableLayout: "auto" }}>
