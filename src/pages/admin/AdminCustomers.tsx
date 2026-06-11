@@ -328,98 +328,169 @@ function AdminCustomersDesktop() {
             </div>
 
             <div className="p-6 space-y-4">
-              {fields.map((field) => (
-                <div key={field.key}>
-                  <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{field.label}</label>
-                  <div className="relative">
-                    {field.key === "phone" ? (
-                      <PhoneInput
-                        value={(editing as any)[field.key] ?? ""}
-                        onChange={(val) => setEditing({ ...editing, [field.key]: val })}
-                        inputClassName="h-9 px-3 text-sm"
-                      />
-                    ) : (
-                      <input
-                        type={(field as any).type || "text"}
-                        value={(editing as any)[field.key] ?? ""}
-                        onChange={(e) => {
-                          setEditing({ ...editing, [field.key]: e.target.value });
-                          if (field.key === "zip_code") lookupCep(e.target.value);
-                        }}
-                        className="w-full h-9 px-3 rounded-lg border border-border/40 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
-                      />
-                    )}
-                    {field.key === "zip_code" && cepLoading && (
-                      <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-spin" />
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {/* License file upload */}
+              {/* Tipo de cliente */}
               <div>
                 <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                  Habilitação (CNH) — Foto ou PDF
+                  Tipo de cliente
                 </label>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
-                  className="hidden"
-                />
-                <input
-                  id="cameraInput"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
-                  className="hidden"
-                />
-                <div className="flex gap-2">
-                  <label
-                    htmlFor="cameraInput"
-                    className="h-9 px-3 rounded-lg border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer"
-                  >
-                    <Camera size={13} />
-                    Câmera
-                  </label>
-                  <label className="flex-1 h-9 px-3 rounded-lg border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer">
-                    <Upload size={13} />
-                    {licenseFile ? licenseFile.name : (editing as any).driver_license_file_url ? "Arquivo já anexado" : "Anexar arquivo"}
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { id: "regular" as const, label: "Zeus (regular)", icon: User, desc: "Cliente direto Zeus" },
+                    { id: "turo" as const, label: "Turo", icon: Car, desc: "Hóspede importado" },
+                  ]).map((opt) => {
+                    const Icon = opt.icon;
+                    const active = (editing.source || "regular") === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setEditing({ ...editing, source: opt.id })}
+                        className={`flex items-start gap-2 p-3 rounded-lg border text-left transition-all ${
+                          active
+                            ? "border-primary/50 bg-primary/[0.06] ring-1 ring-primary/20"
+                            : "border-border/40 bg-background hover:border-border"
+                        }`}
+                      >
+                        <Icon size={15} className={active ? "text-primary mt-0.5" : "text-muted-foreground mt-0.5"} />
+                        <div className="min-w-0">
+                          <div className={`text-[12px] font-semibold ${active ? "text-foreground" : "text-foreground"}`}>{opt.label}</div>
+                          <div className="text-[10.5px] text-muted-foreground leading-tight mt-0.5">{opt.desc}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {editing.source === "turo" ? (
+                <>
+                  <div>
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                      Primeiro nome *
+                    </label>
                     <input
+                      type="text"
+                      value={editing.full_name ?? ""}
+                      onChange={(e) => setEditing({ ...editing, full_name: e.target.value })}
+                      placeholder="Ex.: John"
+                      className="w-full h-9 px-3 rounded-lg border border-border/40 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                      Guest # da Turo
+                    </label>
+                    <input
+                      type="text"
+                      value={editing.turo_guest_id ?? ""}
+                      onChange={(e) => setEditing({ ...editing, turo_guest_id: e.target.value })}
+                      placeholder="Ex.: 57589798"
+                      className="w-full h-9 px-3 rounded-lg border border-border/40 bg-background text-sm text-foreground font-mono tabular-nums focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                    />
+                    <p className="text-[10px] text-muted-foreground/70 mt-1">
+                      Identificador do hóspede na Turo. Usado para evitar duplicação.
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-purple-500/30 bg-purple-500/[0.04] p-3 text-[11px] text-muted-foreground">
+                    Hóspede importado da Turo — sem dados de contato direto. A tag <span className="font-semibold text-purple-500">Turo</span> será aplicada automaticamente.
+                  </div>
+                </>
+              ) : (
+                <>
+                  {fields.map((field) => (
+                    <div key={field.key}>
+                      <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{field.label}</label>
+                      <div className="relative">
+                        {field.key === "phone" ? (
+                          <PhoneInput
+                            value={(editing as any)[field.key] ?? ""}
+                            onChange={(val) => setEditing({ ...editing, [field.key]: val })}
+                            inputClassName="h-9 px-3 text-sm"
+                          />
+                        ) : (
+                          <input
+                            type={(field as any).type || "text"}
+                            value={(editing as any)[field.key] ?? ""}
+                            onChange={(e) => {
+                              setEditing({ ...editing, [field.key]: e.target.value });
+                              if (field.key === "zip_code") lookupCep(e.target.value);
+                            }}
+                            className="w-full h-9 px-3 rounded-lg border border-border/40 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                          />
+                        )}
+                        {field.key === "zip_code" && cepLoading && (
+                          <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-spin" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* License file upload */}
+                  <div>
+                    <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                      Habilitação (CNH) — Foto ou PDF
+                    </label>
+                    <input
+                      ref={fileRef}
                       type="file"
                       accept="image/*,.pdf"
                       onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
                       className="hidden"
                     />
-                  </label>
-                </div>
-                {ocrLoading && (
-                  <p className="text-[11px] text-primary mt-2 flex items-center gap-1.5">
-                    <Loader2 size={11} className="animate-spin" /> Lendo documento com IA...
-                  </p>
-                )}
-                {(editing as any).driver_license_file_url && !licenseFile && (
-                  <a href={(editing as any).driver_license_file_url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline mt-1 inline-block">
-                    Ver documento atual →
-                  </a>
-                )}
-              </div>
+                    <input
+                      id="cameraInput"
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
+                      className="hidden"
+                    />
+                    <div className="flex gap-2">
+                      <label
+                        htmlFor="cameraInput"
+                        className="h-9 px-3 rounded-lg border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer"
+                      >
+                        <Camera size={13} />
+                        Câmera
+                      </label>
+                      <label className="flex-1 h-9 px-3 rounded-lg border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer">
+                        <Upload size={13} />
+                        {licenseFile ? licenseFile.name : (editing as any).driver_license_file_url ? "Arquivo já anexado" : "Anexar arquivo"}
+                        <input
+                          type="file"
+                          accept="image/*,.pdf"
+                          onChange={(e) => onLicenseFile(e.target.files?.[0] || null)}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                    {ocrLoading && (
+                      <p className="text-[11px] text-primary mt-2 flex items-center gap-1.5">
+                        <Loader2 size={11} className="animate-spin" /> Lendo documento com IA...
+                      </p>
+                    )}
+                    {(editing as any).driver_license_file_url && !licenseFile && (
+                      <a href={(editing as any).driver_license_file_url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline mt-1 inline-block">
+                        Ver documento atual →
+                      </a>
+                    )}
+                  </div>
 
-              {ocrResult && (
-                <OcrReviewPanel
-                  extracted={ocrResult}
-                  current={{
-                    full_name: (editing as any).full_name,
-                    document_number: (editing as any).document_number,
-                    driver_license: (editing as any).driver_license,
-                    driver_license_expiry: (editing as any).driver_license_expiry,
-                    date_of_birth: (editing as any).date_of_birth,
-                  }}
-                  onApply={applyOcr}
-                  onDismiss={resetOcr}
-                />
+                  {ocrResult && (
+                    <OcrReviewPanel
+                      extracted={ocrResult}
+                      current={{
+                        full_name: (editing as any).full_name,
+                        document_number: (editing as any).document_number,
+                        driver_license: (editing as any).driver_license,
+                        driver_license_expiry: (editing as any).driver_license_expiry,
+                        date_of_birth: (editing as any).date_of_birth,
+                      }}
+                      onApply={applyOcr}
+                      onDismiss={resetOcr}
+                    />
+                  )}
+                </>
               )}
 
               <div>
