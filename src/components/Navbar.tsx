@@ -262,18 +262,8 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu — bottom sheet style */}
-      {mobileOpen && (
-        <>
-          <div
-            className="lg:hidden fixed inset-0 top-0 bg-foreground/30 backdrop-blur-sm z-40 animate-fade-in"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div
-            className="lg:hidden absolute left-0 right-0 top-full bg-background/98 backdrop-blur-xl border-t border-border/40 shadow-2xl z-50 animate-fade-in max-h-[calc(100vh-4rem)] overflow-y-auto"
-            style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1.5rem)" }}
-          >
-      {/* Mobile menu — full-screen solid drawer (PWA-safe) */}
+
+
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-[60] bg-background animate-fade-in flex flex-col"
