@@ -272,8 +272,10 @@ const Navbar = () => {
         <div
           className="lg:hidden fixed inset-0 z-[60] bg-background animate-fade-in flex flex-col"
           style={{
-            paddingTop: "calc(env(safe-area-inset-top) + 4rem)",
-            paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)",
+            paddingTop: "calc(env(safe-area-inset-top) + 4.5rem)",
+            paddingBottom: "calc(env(safe-area-inset-bottom) + 1.25rem)",
+            paddingLeft: "calc(env(safe-area-inset-left) + 1.25rem)",
+            paddingRight: "calc(env(safe-area-inset-right) + 1.25rem)",
           }}
           role="dialog"
           aria-modal="true"
@@ -282,13 +284,17 @@ const Navbar = () => {
           <button
             onClick={() => setMobileOpen(false)}
             aria-label="Fechar menu"
-            className="absolute right-4 h-10 w-10 flex items-center justify-center text-foreground rounded-full bg-muted active:bg-muted/70 transition-colors"
-            style={{ top: "calc(env(safe-area-inset-top) + 0.75rem)" }}
+            className="absolute h-10 w-10 flex items-center justify-center text-foreground rounded-full bg-muted active:bg-muted/70 transition-colors"
+            style={{
+              top: "calc(env(safe-area-inset-top) + 1rem)",
+              right: "calc(env(safe-area-inset-right) + 1.25rem)",
+            }}
           >
-            <X size={22} />
+            <X size={20} />
           </button>
 
-          <div className="flex-1 overflow-y-auto overscroll-contain px-5 pt-2 pb-4 space-y-5 safe-x">
+          <div className="flex-1 overflow-y-auto overscroll-contain pt-1 pb-2 space-y-4">
+
             {/* Reservar — destaque */}
             <a
               href="https://wa.me/16892981754"
