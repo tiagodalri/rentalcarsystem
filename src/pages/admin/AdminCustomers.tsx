@@ -53,8 +53,9 @@ function AdminCustomersDesktop() {
   const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState("");
+  const [segment, setSegment] = useState<CustomerSource>("regular");
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState<Partial<Customer> | null>(null);
+  const [editing, setEditing] = useState<(Partial<Customer> & { date_of_birth?: string; address?: string; house_number?: string; complement?: string; zip_code?: string; driver_license_expiry?: string; driver_license_file_url?: string }) | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
   useRegisterFab({ icon: Plus, label: "Adicionar cliente", onClick: () => { setEditing({ ...emptyCustomer }); setIsNew(true); } });
