@@ -246,22 +246,22 @@ const Navbar = () => {
           </DropdownMenu>
         </div>
 
-        {/* Mobile — só Fullscreen + hambúrguer */}
-        <div className="flex lg:hidden items-center gap-1">
+        {/* Mobile — Fullscreen + hambúrguer em pílulas suaves */}
+        <div className="flex lg:hidden items-center gap-2">
           <button
             onClick={toggleFullscreen}
-            className="h-10 w-10 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
+            className="h-10 w-10 flex items-center justify-center rounded-full bg-muted/60 backdrop-blur-md text-muted-foreground hover:text-primary transition-colors"
             aria-label="Tela cheia"
           >
-            {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+            {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
           <button
-            className="h-10 w-10 flex items-center justify-center text-foreground"
+            className="h-10 w-10 flex items-center justify-center rounded-full bg-muted/60 backdrop-blur-md text-foreground"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Abrir menu"
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
