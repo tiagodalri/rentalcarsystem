@@ -527,7 +527,67 @@ function AdminCustomersDesktop() {
           ) : filtered.length === 0 && customers.length > 0 ? (
             <EmptyState icon={Search} title="Nenhum cliente encontrado" description="Nenhum cliente corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} compact />
           ) : filtered.length === 0 ? (
-            <EmptyState icon={Users} title="Nenhum cliente cadastrado" description="Os clientes aparecerão aqui após se cadastrarem ou serem adicionados manualmente." actionLabel="Adicionar Cliente" onAction={() => { setEditing({ ...emptyCustomer }); setIsNew(true); }} compact />
+            <EmptyState icon={Users} title={segment === "turo" ? "Nenhum cliente Turo" : "Nenhum cliente cadastrado"} description={segment === "turo" ? "Hóspedes importados da Turo aparecerão aqui." : "Os clientes aparecerão aqui após se cadastrarem ou serem adicionados manualmente."} actionLabel="Adicionar Cliente" onAction={() => { setEditing({ ...emptyCustomer, source: segment }); setIsNew(true); }} compact />
+          ) : segment === "turo" ? (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border/30 bg-muted/20">
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Cliente Turo</th>
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Guest #</th>
+                    <th className="px-4 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Tags</th>
+                    <th className="px-4 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Reservas</th>
+                    <th className="px-3 py-3 w-16"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((c) => {
+                    const displayName = formatPersonName(c.full_name);
+                    const initials = displayName.split(" ").filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join("");
+                    return (
+                      <tr key={c.id} onClick={() => navigate(`/admin/customers/${c.id}`)} className="border-b border-border/10 hover:bg-muted/20 transition-colors group cursor-pointer">
+                        <td className="px-4 py-2.5 whitespace-nowrap">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-full bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-[10px] font-medium text-purple-500 shrink-0">
+                              {initials || "?"}
+                            </div>
+                            <span className="text-foreground font-medium text-[13px] truncate max-w-[260px]">{displayName}</span>
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider bg-purple-500/15 text-purple-500 border border-purple-500/30">
+                              <Car size={9} /> Turo
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap text-muted-foreground text-xs font-mono tabular-nums">
+                          {c.turo_guest_id || <span className="text-muted-foreground/30">—</span>}
+                        </td>
+                        <td className="px-4 py-2.5 whitespace-nowrap">
+                          <CustomerTagsInline customerId={c.id} />
+                        </td>
+                        <td className="px-4 py-2.5 text-center whitespace-nowrap">
+                          {c.booking_count ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/8 px-2 py-0.5 rounded-md border border-primary/15 tabular-nums">
+                              <FileText size={10} /> {c.booking_count}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground/30 tabular-nums">0</span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2.5 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => { setEditing(c); setIsNew(false); }} className="w-7 h-7 rounded-md bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
+                              <Pencil size={12} />
+                            </button>
+                            <button onClick={() => deleteCustomer(c.id)} className="w-7 h-7 rounded-md bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors">
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm" style={{ tableLayout: "auto" }}>
