@@ -112,7 +112,7 @@ function AdminCustomersDesktop() {
     setLoading(true);
     const { data: customersData } = await supabase
       .from("customers")
-      .select("id, full_name, email, phone, document_number, nationality, date_of_birth, address, house_number, complement, zip_code, driver_license, driver_license_expiry, driver_license_file_url, driver_license_verified_at, created_at, user_id, notes")
+      .select("id, full_name, email, phone, document_number, nationality, date_of_birth, address, house_number, complement, zip_code, driver_license, driver_license_expiry, driver_license_file_url, driver_license_verified_at, created_at, user_id, notes, source, turo_guest_id")
       .is("deleted_at", null)
       .order("full_name");
     const { data: bookingsData } = await supabase.from("bookings").select("customer_id").is("deleted_at", null);
@@ -122,17 +122,25 @@ function AdminCustomersDesktop() {
       if (b.customer_id) countMap[b.customer_id] = (countMap[b.customer_id] || 0) + 1;
     });
 
-    setCustomers((customersData || []).map(c => ({ ...c, booking_count: countMap[c.id] || 0 })));
+    setCustomers((customersData || []).map((c: any) => ({ ...c, booking_count: countMap[c.id] || 0 })) as Customer[]);
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
-  const filtered = customers.filter((c) =>
-    c.full_name.toLowerCase().includes(search.toLowerCase()) ||
-    (c.email || "").toLowerCase().includes(search.toLowerCase()) ||
-    (c.phone || "").includes(search)
-  );
+  const counts = {
+    regular: customers.filter((c) => c.source !== "turo").length,
+    turo: customers.filter((c) => c.source === "turo").length,
+  };
+
+  const filtered = customers
+    .filter((c) => (segment === "turo" ? c.source === "turo" : c.source !== "turo"))
+    .filter((c) =>
+      c.full_name.toLowerCase().includes(search.toLowerCase()) ||
+      (c.email || "").toLowerCase().includes(search.toLowerCase()) ||
+      (c.phone || "").includes(search) ||
+      (c.turo_guest_id || "").includes(search)
+    );
 
   const save = async () => {
     if (!editing?.full_name) return toast({ title: "Nome obrigatório", variant: "destructive" });
