@@ -372,14 +372,15 @@ const Navbar = () => {
                 </div>
               </div>
 
-              {/* Admin — discreto, ao final */}
+              {/* Admin — visível, ao final */}
               <button
                 onClick={() => { navigate("/admin/login"); setMobileOpen(false); }}
-                className="w-full h-11 flex items-center justify-center gap-2 text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-foreground/50 active:text-foreground transition-colors"
+                className="w-full h-12 flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/5 text-[11px] font-semibold tracking-[0.22em] uppercase text-primary active:bg-primary/15 transition-colors"
               >
-                <Shield size={13} />
+                <Shield size={14} />
                 Admin
               </button>
+
             </div>
           </div>
         </>
