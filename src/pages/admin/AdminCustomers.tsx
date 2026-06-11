@@ -143,12 +143,19 @@ function AdminCustomersDesktop() {
     );
 
   const save = async () => {
-    if (!editing?.full_name) return toast({ title: "Nome obrigatório", variant: "destructive" });
+    if (!editing) return;
+    const isTuro = editing.source === "turo";
+
+    if (isTuro) {
+      if (!editing.full_name?.trim()) return toast({ title: "Primeiro nome obrigatório", variant: "destructive" });
+    } else {
+      if (!editing.full_name?.trim()) return toast({ title: "Nome obrigatório", variant: "destructive" });
+    }
 
     let driverLicenseFileUrl = (editing as any).driver_license_file_url || null;
 
-    // Upload file if new one selected
-    if (licenseFile) {
+    // Upload file if new one selected (apenas regular)
+    if (!isTuro && licenseFile) {
       const ext = licenseFile.name.split(".").pop();
       const path = `licenses/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: uploadErr } = await supabase.storage.from("inspections").upload(path, licenseFile);
@@ -158,30 +165,47 @@ function AdminCustomersDesktop() {
       }
     }
 
-    const payload = {
-      full_name: editing.full_name,
-      email: editing.email || null,
-      phone: editing.phone || null,
-      document_number: editing.document_number || null,
-      nationality: editing.nationality || null,
-      driver_license: editing.driver_license || null,
-      driver_license_expiry: (editing as any).driver_license_expiry || null,
-      notes: editing.notes || null,
-      date_of_birth: (editing as any).date_of_birth || null,
-      address: (editing as any).address || null,
-      house_number: (editing as any).house_number || null,
-      complement: (editing as any).complement || null,
-      zip_code: (editing as any).zip_code || null,
-      driver_license_file_url: driverLicenseFileUrl,
-    };
+    const payload: any = isTuro
+      ? {
+          full_name: editing.full_name!.trim(),
+          source: "turo",
+          turo_guest_id: (editing.turo_guest_id || "").trim() || null,
+          notes: editing.notes || null,
+        }
+      : {
+          full_name: editing.full_name,
+          email: editing.email || null,
+          phone: editing.phone || null,
+          document_number: editing.document_number || null,
+          nationality: editing.nationality || null,
+          driver_license: editing.driver_license || null,
+          driver_license_expiry: (editing as any).driver_license_expiry || null,
+          notes: editing.notes || null,
+          date_of_birth: (editing as any).date_of_birth || null,
+          address: (editing as any).address || null,
+          house_number: (editing as any).house_number || null,
+          complement: (editing as any).complement || null,
+          zip_code: (editing as any).zip_code || null,
+          driver_license_file_url: driverLicenseFileUrl,
+          source: "regular",
+        };
 
+    let customerId = editing.id;
     if (isNew) {
-      await supabase.from("customers").insert(payload);
-      toast({ title: "Cliente adicionado" });
+      const { data, error } = await supabase.from("customers").insert(payload).select("id").single();
+      if (error) return toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+      customerId = data?.id;
+      toast({ title: isTuro ? "Cliente Turo adicionado" : "Cliente adicionado" });
     } else {
-      await supabase.from("customers").update(payload).eq("id", editing.id!);
+      const { error } = await supabase.from("customers").update(payload).eq("id", editing.id!);
+      if (error) return toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
       toast({ title: "Cliente atualizado" });
     }
+
+    if (isTuro && customerId) {
+      await ensureTuroTagAssigned(customerId);
+    }
+
     setEditing(null);
     setLicenseFile(null);
     resetOcr();
