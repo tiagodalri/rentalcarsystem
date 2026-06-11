@@ -5,6 +5,7 @@ import { Search, Plus, Phone, MessageCircle, X } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
+import { useRegisterFab } from "@/hooks/useAdminFab";
 
 /* ============================================================
    CLIENTES — Mobile-first
@@ -28,6 +29,7 @@ export default function MobileCustomers() {
   const navigate = useNavigate();
   const [items, setItems] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
+  useRegisterFab({ icon: Plus, label: "Novo cliente", onClick: () => navigate("/admin/customers?new=1") });
   const [search, setSearch] = useState("");
 
   const load = async () => {
