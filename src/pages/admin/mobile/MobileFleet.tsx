@@ -141,14 +141,6 @@ export default function MobileFleet() {
           })}
         </div>
 
-        <button
-          onClick={() => navigate("/admin/fleet/new")}
-          className="fixed right-4 bottom-24 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-2xl flex items-center justify-center z-30 active:scale-95 transition-transform"
-          aria-label="Adicionar veículo"
-          style={{ marginBottom: "env(safe-area-inset-bottom)" }}
-        >
-          <Plus size={22} />
-        </button>
       </div>
     </PullToRefresh>
   );
