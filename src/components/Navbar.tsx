@@ -85,10 +85,14 @@ const Navbar = () => {
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto relative flex items-center justify-between py-3 sm:py-4 px-5 sm:px-6 lg:px-8 safe-x">
+      <div className="container mx-auto relative flex items-center justify-between pt-3 pb-3 sm:py-4 px-5 sm:px-6 lg:px-8 safe-x">
 
-        <a href="/#" className="text-muted-foreground hover:text-primary transition-colors duration-300 relative z-10">
-          <Home size={20} />
+        <a
+          href="/#"
+          aria-label="Início"
+          className="h-10 w-10 lg:h-auto lg:w-auto flex items-center justify-center rounded-full bg-muted/60 lg:bg-transparent backdrop-blur-md text-muted-foreground hover:text-primary transition-colors duration-300 relative z-10"
+        >
+          <Home size={18} />
         </a>
 
         {/* Desktop links — centralizados absolutamente no meio da tela */}
