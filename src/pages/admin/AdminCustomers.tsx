@@ -242,7 +242,11 @@ function AdminCustomersDesktop() {
 
         <div className="hidden lg:block">
           <h1 className="admin-h1">Clientes</h1>
-          <p className="text-sm text-muted-foreground mt-1">{customers.length} clientes cadastrados</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            {segment === "turo"
+              ? `${counts.turo} hóspedes Turo`
+              : `${counts.regular} clientes cadastrados`}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <div className="relative group">
@@ -266,7 +270,7 @@ function AdminCustomersDesktop() {
             </button>
           </div>
           <button
-            onClick={() => { setEditing({ ...emptyCustomer }); setIsNew(true); }}
+            onClick={() => { setEditing({ ...emptyCustomer, source: segment }); setIsNew(true); }}
             className="gold-gradient text-primary-foreground px-3 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 hover:opacity-90 transition-opacity"
           >
             <Plus size={12} /> Adicionar
@@ -274,12 +278,40 @@ function AdminCustomersDesktop() {
         </div>
       </div>
 
+      {/* Segmento Regular / Turo */}
+      <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/40 border border-border/30 w-fit">
+        {([
+          { id: "regular" as const, label: "Regulares", icon: User, count: counts.regular },
+          { id: "turo" as const, label: "Turo", icon: Car, count: counts.turo },
+        ]).map((t) => {
+          const Icon = t.icon;
+          const active = segment === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setSegment(t.id)}
+              className={`h-8 px-3 rounded-lg text-[11.5px] font-medium inline-flex items-center gap-1.5 transition-all ${
+                active
+                  ? "bg-background text-foreground shadow-sm border border-border/40"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Icon size={13} />
+              {t.label}
+              <span className={`ml-0.5 text-[10px] tabular-nums ${active ? "text-primary" : "text-muted-foreground/60"}`}>
+                {t.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="relative">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar cliente..."
+          placeholder={segment === "turo" ? "Buscar por nome ou Guest #..." : "Buscar cliente..."}
           className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/40 bg-card/50 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
         />
       </div>
