@@ -85,10 +85,14 @@ const Navbar = () => {
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto relative flex items-center justify-between py-3 sm:py-4 px-5 sm:px-6 lg:px-8 safe-x">
+      <div className="container mx-auto relative flex items-center justify-between pt-3 pb-3 sm:py-4 px-5 sm:px-6 lg:px-8 safe-x">
 
-        <a href="/#" className="text-muted-foreground hover:text-primary transition-colors duration-300 relative z-10">
-          <Home size={20} />
+        <a
+          href="/#"
+          aria-label="Início"
+          className="h-10 w-10 lg:h-auto lg:w-auto flex items-center justify-center rounded-full bg-muted/60 lg:bg-transparent backdrop-blur-md text-muted-foreground hover:text-primary transition-colors duration-300 relative z-10"
+        >
+          <Home size={18} />
         </a>
 
         {/* Desktop links — centralizados absolutamente no meio da tela */}
@@ -242,22 +246,22 @@ const Navbar = () => {
           </DropdownMenu>
         </div>
 
-        {/* Mobile — só Fullscreen + hambúrguer */}
-        <div className="flex lg:hidden items-center gap-1">
+        {/* Mobile — Fullscreen + hambúrguer em pílulas suaves */}
+        <div className="flex lg:hidden items-center gap-2">
           <button
             onClick={toggleFullscreen}
-            className="h-10 w-10 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors"
+            className="h-10 w-10 flex items-center justify-center rounded-full bg-muted/60 backdrop-blur-md text-muted-foreground hover:text-primary transition-colors"
             aria-label="Tela cheia"
           >
-            {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+            {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
           <button
-            className="h-10 w-10 flex items-center justify-center text-foreground"
+            className="h-10 w-10 flex items-center justify-center rounded-full bg-muted/60 backdrop-blur-md text-foreground"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Abrir menu"
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
@@ -268,8 +272,10 @@ const Navbar = () => {
         <div
           className="lg:hidden fixed inset-0 z-[60] bg-background animate-fade-in flex flex-col"
           style={{
-            paddingTop: "calc(env(safe-area-inset-top) + 4rem)",
-            paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)",
+            paddingTop: "calc(env(safe-area-inset-top) + 4.5rem)",
+            paddingBottom: "calc(env(safe-area-inset-bottom) + 1.25rem)",
+            paddingLeft: "calc(env(safe-area-inset-left) + 1.25rem)",
+            paddingRight: "calc(env(safe-area-inset-right) + 1.25rem)",
           }}
           role="dialog"
           aria-modal="true"
@@ -278,13 +284,17 @@ const Navbar = () => {
           <button
             onClick={() => setMobileOpen(false)}
             aria-label="Fechar menu"
-            className="absolute right-4 h-10 w-10 flex items-center justify-center text-foreground rounded-full bg-muted active:bg-muted/70 transition-colors"
-            style={{ top: "calc(env(safe-area-inset-top) + 0.75rem)" }}
+            className="absolute h-10 w-10 flex items-center justify-center text-foreground rounded-full bg-muted active:bg-muted/70 transition-colors"
+            style={{
+              top: "calc(env(safe-area-inset-top) + 1rem)",
+              right: "calc(env(safe-area-inset-right) + 1.25rem)",
+            }}
           >
-            <X size={22} />
+            <X size={20} />
           </button>
 
-          <div className="flex-1 overflow-y-auto overscroll-contain px-5 pt-2 pb-4 space-y-5 safe-x">
+          <div className="flex-1 overflow-y-auto overscroll-contain pt-1 pb-2 space-y-4">
+
             {/* Reservar — destaque */}
             <a
               href="https://wa.me/16892981754"
