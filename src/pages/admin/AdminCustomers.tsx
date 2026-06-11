@@ -5,7 +5,7 @@ import MobileCustomers from "./mobile/MobileCustomers";
 import { useRegisterFab } from "@/hooks/useAdminFab";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, Plus, Pencil, Trash2, X, FileText, Upload, Camera, Loader2, ExternalLink, Copy, Check, Users, MessageCircle } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, X, FileText, Upload, Camera, Loader2, ExternalLink, Copy, Check, Users, MessageCircle, User, Car } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { TableSkeleton } from "@/components/skeletons/TableSkeleton";
@@ -16,6 +16,9 @@ import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import { formatPersonName } from "@/lib/formatName";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
+import { ensureTuroTagAssigned } from "@/lib/turoTag";
+
+type CustomerSource = "regular" | "turo";
 
 type Customer = {
   id: string;
@@ -27,6 +30,8 @@ type Customer = {
   driver_license: string | null;
   notes: string | null;
   created_at: string;
+  source: CustomerSource;
+  turo_guest_id: string | null;
   booking_count?: number;
 };
 
@@ -34,6 +39,7 @@ const emptyCustomer = {
   full_name: "", email: "", phone: "", document_number: "",
   nationality: "", driver_license: "", driver_license_expiry: "", notes: "",
   date_of_birth: "", address: "", house_number: "", complement: "", zip_code: "",
+  source: "regular" as CustomerSource, turo_guest_id: "",
 };
 
 export default function AdminCustomers() {
