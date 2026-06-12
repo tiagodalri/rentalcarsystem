@@ -138,9 +138,10 @@ const Checkout = () => {
   useEffect(() => {
     if (step !== "pay") return;
     const pm: "pix" | "boleto" | "card" = method;
-    // Skip if already loaded successfully and not forced
+    // Skip if already loaded successfully (recalcQuote clears it to force refetch)
     const existing = quotes[pm];
-    if (existing && !existing.fallback && existing.result != null && quoteTick === 0) return;
+    if (existing && !existing.fallback && existing.result != null) return;
+    if (quoteLoading[pm]) return;
 
     let cancelled = false;
     setQuoteLoading((s) => ({ ...s, [pm]: true }));
@@ -169,7 +170,9 @@ const Checkout = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [step, method, state.amount_usd, quoteTick, quotes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, method, state.amount_usd, quoteTick]);
+
 
   function recalcQuote() {
     setQuotes((s) => { const c = { ...s }; delete c[method]; return c; });
