@@ -391,6 +391,7 @@ const SearchResults = () => {
               const avgDaily = pricing?.avg_per_day ?? basePrice;
               const dailyDisplay = youngDriver ? Math.ceil(avgDaily * (1 + YOUNG_DRIVER_SURCHARGE)) : avgDaily;
               const totalPrice = youngDriver ? Math.ceil(ruleSubtotal * (1 + YOUNG_DRIVER_SURCHARGE)) : ruleSubtotal;
+              const unavailable = isUnavailable(v.id);
 
               const detailUrl = `/veiculo/${encodeURIComponent(v.name)}?${searchParams.toString()}`;
 
@@ -400,8 +401,12 @@ const SearchResults = () => {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.35, delay: i * 0.04 }}
-                  onClick={() => (window.location.href = detailUrl)}
-                  className="group relative overflow-hidden rounded-lg border border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/50 hover:shadow-[0_6px_24px_-12px_hsl(var(--primary)/0.25)] transition-all duration-300 cursor-pointer"
+                  onClick={() => { if (!unavailable) window.location.href = detailUrl; }}
+                  className={`group relative overflow-hidden rounded-lg border bg-card/60 backdrop-blur-sm transition-all duration-300 ${
+                    unavailable
+                      ? "border-border/40 cursor-not-allowed"
+                      : "border-border/50 hover:border-primary/50 hover:shadow-[0_6px_24px_-12px_hsl(var(--primary)/0.25)] cursor-pointer"
+                  }`}
                 >
                   <div className="flex flex-col sm:flex-row">
                     {/* Image */}
