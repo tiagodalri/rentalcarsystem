@@ -37,7 +37,10 @@ const categoryLabels: Record<string, string> = {
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, exchangeRate } = useCurrency();
+  const toBRL = (usd: number) =>
+    exchangeRate ? `R$ ${Math.ceil(usd * exchangeRate).toLocaleString("pt-BR")}` : `R$ ${Math.ceil(usd * 6.27).toLocaleString("pt-BR")}`;
+  const toUSD = (usd: number) => `US$ ${Math.round(usd).toLocaleString("en-US")}`;
   const { vehicles: dbVehicles } = useVehiclesDB();
   const { customer, loading: authLoading } = useAuth();
   const vehiclePrices = buildPriceMap(dbVehicles);
