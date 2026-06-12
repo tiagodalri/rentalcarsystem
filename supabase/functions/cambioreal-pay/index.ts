@@ -254,7 +254,7 @@ serve(async (req) => {
       status: "AGUARDANDO_CLIENTE",
       payment_method,
       checkout_url: tx?.ticket_url ?? null,
-      raw: crJson,
+      raw: { ...crJson, _zeus_alias_used: aliasUsed, _zeus_real_email: client.email },
     });
     if (prErr) console.error("[CR-V2] payment_requests insert FAILED:", prErr);
 
