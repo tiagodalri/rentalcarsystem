@@ -53,9 +53,15 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
       supabase.from("vehicle_expenses").select("*"),
     ]);
 
-    const vehs = vRes.data || [];
-    const bks = bRes.data || [];
-    const exps = eRes.data || [];
+    const isTest = (v: any) => {
+      const n = (v?.name || "").toLowerCase();
+      const s = (v?.status || "").toLowerCase();
+      return s === "test" || s === "archived" || s === "sold" || /\bteste?\b/.test(n);
+    };
+    const vehs = (vRes.data || []).filter((v: any) => !isTest(v));
+    const validIds = new Set(vehs.map((v: any) => v.id));
+    const bks = (bRes.data || []).filter((b: any) => !b.vehicle_id || validIds.has(b.vehicle_id));
+    const exps = (eRes.data || []).filter((e: any) => !e.vehicle_id || validIds.has(e.vehicle_id));
 
     const today = new Date();
 
