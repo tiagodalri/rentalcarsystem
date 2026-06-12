@@ -406,7 +406,6 @@ const BookingDetails = () => {
       ``,
       `🏷️ *Plano: ${currentPlan.name}*`,
       ...planBenefits.map(b => `✅ ${b}`),
-      `Cancelamento: ${currentPlan.cancellationLabel}`,
       `Remarcação: ${currentPlan.rescheduleLabel}`,
       ``,
       `💰 *Resumo:*`,
