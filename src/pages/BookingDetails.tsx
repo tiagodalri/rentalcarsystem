@@ -359,6 +359,15 @@ const BookingDetails = () => {
             phone: customerData.phone.trim(),
             cpf: customerData.document_number?.trim() || "",
             birth_date: customerData.date_of_birth || "",
+            address: {
+              zip_code: customerData.zip_code.replace(/\D/g, ""),
+              street: customerData.address.trim(),
+              number: customerData.house_number.trim(),
+              complement: customerData.complement.trim(),
+              district: customerData.district.trim(),
+              city: customerData.city.trim(),
+              state: customerData.state.trim().toUpperCase().slice(0, 2),
+            },
           },
           // pre-collected ops data (license, addons) for future booking-meta sync
           addons: addonsData,
