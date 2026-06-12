@@ -159,8 +159,8 @@ const VehicleDetail = () => {
       <Navbar />
 
       <main className="flex-1 pt-24 sm:pt-28 w-full max-w-full overflow-x-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full min-w-0">
-          <div className="flex items-center justify-between gap-3 mb-5 min-w-0">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full min-w-0">
+          <div className="flex items-center justify-between gap-3 mb-6 min-w-0">
             <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -175,198 +175,195 @@ const VehicleDetail = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 min-w-0">
-            {/* Gallery */}
-            <div className="min-w-0 max-w-full">
-              <div
-                className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted max-w-full touch-pan-y"
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-              >
-                <img
-                  key={currentImage}
-                  src={images[currentImage]}
-                  alt={`${decodedName} - ${currentImage + 1}`}
-                  className="w-full h-full object-contain cursor-zoom-in animate-fade-in"
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                  onClick={() => setIsFullscreen(true)}
-                />
+          {/* Título centralizado acima das fotos */}
+          <div className="text-center mb-6 sm:mb-8 min-w-0 max-w-full">
+            <h1 className="max-w-full break-words text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-wide sm:tracking-wider leading-tight">
+              {decodedName}
+            </h1>
+            {vehicleT?.subtitle && (
+              <p className="text-muted-foreground italic font-light mt-2 text-base sm:text-lg">{vehicleT.subtitle}</p>
+            )}
+          </div>
 
-                {images.length > 1 && (
-                  <>
-                    <button
-                      onClick={prevImage}
-                      aria-label="Imagem anterior"
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                    >
-                      <ChevronLeft size={22} />
-                    </button>
-                    <button
-                      onClick={nextImage}
-                      aria-label="Próxima imagem"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                    >
-                      <ChevronRight size={22} />
-                    </button>
-
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                      {images.map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setCurrentImage(i)}
-                          className={`w-2.5 h-2.5 rounded-full transition-all ${
-                            i === currentImage ? "bg-primary scale-125" : "bg-white/50 hover:bg-white/80"
-                          }`}
-                          aria-label={`Imagem ${i + 1}`}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
+          {/* Galeria centralizada */}
+          <div className="min-w-0 max-w-full mx-auto mb-8 sm:mb-10">
+            <div
+              className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted max-w-full touch-pan-y"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
+              <img
+                key={currentImage}
+                src={images[currentImage]}
+                alt={`${decodedName} - ${currentImage + 1}`}
+                className="w-full h-full object-contain cursor-zoom-in animate-fade-in"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
+                onClick={() => setIsFullscreen(true)}
+              />
 
               {images.length > 1 && (
-                <div className="flex gap-2 mt-3 max-w-full overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {images.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentImage(i)}
-                      className={`flex-shrink-0 w-20 h-14 sm:w-24 sm:h-16 rounded-md overflow-hidden border-2 transition-all ${
-                        i === currentImage ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
-                      }`}
-                    >
-                      <img
-                        src={thumbnails[i] ?? img}
-                        alt=""
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        decoding="async"
+                <>
+                  <button
+                    onClick={prevImage}
+                    aria-label="Imagem anterior"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  >
+                    <ChevronLeft size={22} />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    aria-label="Próxima imagem"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  >
+                    <ChevronRight size={22} />
+                  </button>
+
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                    {images.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentImage(i)}
+                        className={`w-2.5 h-2.5 rounded-full transition-all ${
+                          i === currentImage ? "bg-primary scale-125" : "bg-white/50 hover:bg-white/80"
+                        }`}
+                        aria-label={`Imagem ${i + 1}`}
                       />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Info */}
-              <div className="space-y-6 min-w-0 max-w-full overflow-hidden">
-              <div className="min-w-0 max-w-full">
-                <h1 className="max-w-full break-words text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-wide sm:tracking-wider leading-tight">{decodedName}</h1>
-                {vehicleT?.subtitle && (
-                  <p className="text-muted-foreground italic font-light mt-2 text-lg">{vehicleT.subtitle}</p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-4 sm:gap-6 text-sm text-muted-foreground max-w-full">
-                <span className="flex min-w-0 items-center gap-2">
-                  <Users size={16} className="text-primary" /> {dbv.passengers} {dbv.passengers === 1 ? "passageiro" : "passageiros"}
-                </span>
-                {dbv.bags > 0 && (
-                  <span className="flex min-w-0 items-center gap-2">
-                    <Briefcase size={16} className="text-primary" /> {dbv.bags} {dbv.bags === 1 ? "mala" : "malas"}
-                  </span>
-                )}
-                <span className="flex min-w-0 items-center gap-2">
-                  <Settings size={16} className="text-primary" /> Auto
-                </span>
-                <span className="flex min-w-0 items-center gap-2">
-                  <Smartphone size={16} className="text-primary" /> CarPlay
-                </span>
-              </div>
-
-              {vehicleT?.features && vehicleT.features.length > 0 && (
-                <div className="rounded-xl border border-border/60 bg-muted/30 px-4 sm:px-5 py-2">
-                  <div className="divide-y divide-border/50">
-                    {vehicleT.features.map((feat) => (
-                      <div key={feat} className="flex items-center justify-between gap-3 py-3.5 sm:py-3">
-                        <span className="text-sm sm:text-base font-medium tracking-wide text-foreground">{feat}</span>
-                        <Check size={16} className="text-primary flex-shrink-0" />
-                      </div>
                     ))}
                   </div>
-                </div>
+                </>
               )}
-
-              {/* Pricing card for the selected period */}
-              {hasDates ? (
-                <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 sm:p-6 space-y-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-primary font-semibold">
-                      <Calendar size={12} /> Preço para o período
-                    </div>
-                    <span className="text-[10px] text-muted-foreground tabular-nums">
-                      {days} {days === 1 ? "diária" : "diárias"}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-                    <span>{format(pickupDate!, "dd MMM yyyy", { locale: pt })} → {format(returnDate!, "dd MMM yyyy", { locale: pt })}</span>
-                    {pickupLocation && <span className="inline-flex items-center gap-1"><MapPin size={11} className="text-primary/70" /> {pickupLocation}</span>}
-                  </div>
-
-                  {/* TOTAL em destaque — BRL grande, USD pequeno */}
-                  <div className="pt-3 border-t border-border/40">
-                    <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-1">Total do período</p>
-                    {exchangeRate && subtotalRental > 0 ? (
-                      <>
-                        <p className="text-3xl sm:text-4xl font-black gold-text tabular-nums leading-none">
-                          R$ {Math.ceil(subtotalRental * exchangeRate).toLocaleString("pt-BR")}
-                        </p>
-                        <p className="text-[11px] text-muted-foreground mt-1.5 tabular-nums">
-                          equivalente a <span className="text-foreground/80 font-medium">US$ {subtotalRental.toLocaleString("en-US")}</span>
-                          <span className="ml-1 text-muted-foreground/70">· cotação aproximada</span>
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-3xl sm:text-4xl font-black gold-text tabular-nums leading-none">
-                        {formatPrice(subtotalRental)}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Diária/Caução/Franquia em letras miúdas */}
-                  <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/30">
-                    <div>
-                      <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Diária média</p>
-                      <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(avgDaily)}</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Caução</p>
-                      <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(deposit)}</p>
-                    </div>
-                    <div>
-                      <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Franquia</p>
-                      <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(franchise)}</p>
-                    </div>
-                  </div>
-
-                  <p className="text-[10px] text-muted-foreground leading-relaxed pt-1">
-                    Inclui milhagem ilimitada na Flórida e seguro básico. Opcionais (cadeirinha, toll-tag, seguro premium) na próxima etapa.
-                  </p>
-                </div>
-              ) : (
-                <div className="rounded-xl border border-border/40 bg-muted/30 p-4 text-sm text-muted-foreground">
-                  Escolha as datas no buscador para ver o preço exato deste veículo.
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => {
-                  if (!hasDates) {
-                    navigate("/");
-                    return;
-                  }
-                  navigate(`/reserva/${encodeURIComponent(decodedName)}?${forwardQuery}`);
-                }}
-                className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
-              >
-                <Calendar className="w-5 h-5" />
-                {hasDates ? "Reservar" : "Escolher datas"}
-              </button>
             </div>
+
+            {images.length > 1 && (
+              <div className="flex gap-2 mt-3 max-w-full overflow-x-auto overscroll-x-contain pb-1 justify-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentImage(i)}
+                    className={`flex-shrink-0 w-20 h-14 sm:w-24 sm:h-16 rounded-md overflow-hidden border-2 transition-all ${
+                      i === currentImage ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <img
+                      src={thumbnails[i] ?? img}
+                      alt=""
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Detalhes centralizados abaixo */}
+          <div className="max-w-2xl mx-auto space-y-6 min-w-0">
+            {/* Specs */}
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
+              <span className="flex items-center gap-2">
+                <Users size={16} className="text-primary" /> {dbv.passengers} {dbv.passengers === 1 ? "passageiro" : "passageiros"}
+              </span>
+              {dbv.bags > 0 && (
+                <span className="flex items-center gap-2">
+                  <Briefcase size={16} className="text-primary" /> {dbv.bags} {dbv.bags === 1 ? "mala" : "malas"}
+                </span>
+              )}
+              <span className="flex items-center gap-2">
+                <Settings size={16} className="text-primary" /> Auto
+              </span>
+              <span className="flex items-center gap-2">
+                <Smartphone size={16} className="text-primary" /> CarPlay
+              </span>
+            </div>
+
+            {vehicleT?.features && vehicleT.features.length > 0 && (
+              <div className="rounded-xl border border-border/60 bg-muted/30 px-5 py-2">
+                <div className="divide-y divide-border/50">
+                  {vehicleT.features.map((feat) => (
+                    <div key={feat} className="flex items-center justify-between gap-3 py-3.5">
+                      <span className="text-sm sm:text-base font-medium tracking-wide text-foreground">{feat}</span>
+                      <Check size={16} className="text-primary flex-shrink-0" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Pricing card */}
+            {hasDates ? (
+              <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 sm:p-6 space-y-4 text-center">
+                <div className="flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.18em] text-primary font-semibold">
+                  <Calendar size={12} /> Preço para o período · {days} {days === 1 ? "diária" : "diárias"}
+                </div>
+
+                <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                  <span>{format(pickupDate!, "dd MMM yyyy", { locale: pt })} → {format(returnDate!, "dd MMM yyyy", { locale: pt })}</span>
+                  {pickupLocation && <span className="inline-flex items-center gap-1"><MapPin size={11} className="text-primary/70" /> {pickupLocation}</span>}
+                </div>
+
+                <div className="pt-3 border-t border-border/40">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-1">Total do período</p>
+                  {exchangeRate && subtotalRental > 0 ? (
+                    <>
+                      <p className="text-4xl sm:text-5xl font-black gold-text tabular-nums leading-none">
+                        R$ {Math.ceil(subtotalRental * exchangeRate).toLocaleString("pt-BR")}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-1.5 tabular-nums">
+                        equivalente a <span className="text-foreground/80 font-medium">US$ {subtotalRental.toLocaleString("en-US")}</span>
+                        <span className="ml-1 text-muted-foreground/70">· cotação aproximada</span>
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-4xl sm:text-5xl font-black gold-text tabular-nums leading-none">
+                      {formatPrice(subtotalRental)}
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/30">
+                  <div>
+                    <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Diária média</p>
+                    <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(avgDaily)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Caução</p>
+                    <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(deposit)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Franquia</p>
+                    <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(franchise)}</p>
+                  </div>
+                </div>
+
+                <p className="text-[10px] text-muted-foreground leading-relaxed pt-1">
+                  Inclui milhagem ilimitada na Flórida e seguro básico. Opcionais (cadeirinha, toll-tag, seguro premium) na próxima etapa.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-border/40 bg-muted/30 p-4 text-sm text-muted-foreground text-center">
+                Escolha as datas no buscador para ver o preço exato deste veículo.
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!hasDates) {
+                  navigate("/");
+                  return;
+                }
+                navigate(`/reserva/${encodeURIComponent(decodedName)}?${forwardQuery}`);
+              }}
+              className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
+            >
+              <Calendar className="w-5 h-5" />
+              {hasDates ? "Reservar" : "Escolher datas"}
+            </button>
+          </div>
+
           </div>
         </div>
       </main>
