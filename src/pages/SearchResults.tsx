@@ -477,7 +477,7 @@ const SearchResults = () => {
                           </span>
                           {v.fuel && (
                             <span className="flex items-center gap-1.5">
-                              <Fuel size={13} className="text-muted-foreground shrink-0" /> {v.fuel}
+                              <Fuel size={13} className="text-muted-foreground shrink-0" /> {v.fuel === "Gasoline" ? "Gasolina" : v.fuel === "Electric" ? "Elétrico" : v.fuel === "Hybrid" ? "Híbrido" : v.fuel === "Diesel" ? "Diesel" : v.fuel}
                             </span>
                           )}
                           {v.doors != null && (
