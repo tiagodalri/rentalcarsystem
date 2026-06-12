@@ -66,6 +66,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
     const validIds = new Set(vehs.map((v: any) => v.id));
     const bks = (bRes.data || []).filter((b: any) => !b.vehicle_id || validIds.has(b.vehicle_id));
     const exps = (eRes.data || []).filter((e: any) => !e.vehicle_id || validIds.has(e.vehicle_id));
+    const insps = (iRes.data || []);
 
     const today = new Date();
 
