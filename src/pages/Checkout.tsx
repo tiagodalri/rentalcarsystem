@@ -662,14 +662,26 @@ const Checkout = () => {
 
               <div className="border-t border-border pt-3 space-y-1.5 text-xs">
                 <div className="flex justify-between"><span className="text-muted-foreground">Total USD</span><span className="font-semibold text-foreground tabular-nums">{formatUSD(state.amount_usd)}</span></div>
-                {(method === "card" ? quoteCard : quotePix)?.rate != null && (
-                  <div className="flex justify-between"><span className="text-muted-foreground">Cotação</span><span className="text-foreground tabular-nums">{(method === "card" ? quoteCard : quotePix)?.rate?.toFixed(4)}</span></div>
+                {activeQuote?.rate != null && (
+                  <div className="flex justify-between"><span className="text-muted-foreground">Câmbio</span><span className="text-foreground tabular-nums">R$ {activeQuote.rate.toFixed(4)}</span></div>
+                )}
+                {activeQuote?.iof != null && activeQuote.iof > 0 && (
+                  <div className="flex justify-between"><span className="text-muted-foreground">IOF / taxas</span><span className="text-foreground tabular-nums">{formatBRL(activeQuote.iof)}</span></div>
                 )}
                 <div className="flex justify-between text-sm pt-1.5 border-t border-border/50 mt-1.5">
                   <span className="text-foreground font-semibold">Total BRL</span>
                   <span className="text-foreground font-bold tabular-nums">{totalLine}</span>
                 </div>
+                {activeFailed && (
+                  <button onClick={recalcQuote} className="w-full mt-2 text-[11px] py-2 rounded-md border border-border text-foreground hover:bg-secondary transition">
+                    Recalcular câmbio
+                  </button>
+                )}
+                {activeQuote?.result != null && (
+                  <p className="text-[10px] text-muted-foreground pt-1">Inclui IOF e taxas do Câmbio Real.</p>
+                )}
               </div>
+
 
               <div className="flex items-center gap-2 text-[10px] text-muted-foreground border-t border-border pt-3">
                 <ShieldCheck size={12} /> Cartão tokenizado · <Lock size={10} /> Câmbio Real
