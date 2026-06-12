@@ -403,7 +403,7 @@ const SearchResults = () => {
                       <img
                         src={v.coverImage}
                         alt={v.name}
-                        className="w-full h-full object-cover object-[center_40%] transition-transform duration-700 group-hover:scale-105"
+                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
                         width={640}
                         height={360}
