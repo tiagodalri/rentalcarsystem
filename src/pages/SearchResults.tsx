@@ -83,13 +83,14 @@ const SearchResults = () => {
     ? Math.max(1, Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)))
     : 1;
 
-  // Real availability — filter out vehicles with overlapping bookings (Turo + future paid)
+  // Real availability — keep all vehicles, but mark unavailable ones so they appear at the bottom
   const { unavailableIds, loading: availabilityLoading } = useVehicleAvailability(pickupDate, returnDate);
-  const availableVehicles = baseVehicles.filter((v) => !unavailableIds.has(v.id));
+  const isUnavailable = (id: string) => unavailableIds.has(id);
+  const availableVehicles = baseVehicles; // alias kept for minimal downstream churn
 
-  // Fetch real pricing (seasons, overrides, weekend multipliers, duration discounts)
+  // Fetch real pricing (seasons, overrides, weekend multipliers, duration discounts) — for all vehicles
   const { map: pricingMap } = useVehiclesPricingMap(
-    availableVehicles.map((v) => v.id),
+    baseVehicles.map((v) => v.id),
     pickupDate,
     returnDate,
   );
@@ -123,7 +124,7 @@ const SearchResults = () => {
     return Array.from(set);
   }, [availableVehicles]);
 
-  // Apply filters + sort
+  // Apply filters + sort. Unavailable cars ALWAYS go to the bottom of the list.
   const vehicles = useMemo(() => {
     let list = availableVehicles.filter((v) => {
       if (selectedCategories.length && !selectedCategories.includes(v.categoryKey)) return false;
@@ -135,8 +136,13 @@ const SearchResults = () => {
     if (sortBy === "price_asc") list = [...list].sort((a, b) => getTotalPrice(a) - getTotalPrice(b));
     else if (sortBy === "price_desc") list = [...list].sort((a, b) => getTotalPrice(b) - getTotalPrice(a));
     else if (sortBy === "passengers_desc") list = [...list].sort((a, b) => b.passengers - a.passengers);
+    // Stable: keep ordering above but push unavailable to the end
+    list = [...list].sort((a, b) => Number(isUnavailable(a.id)) - Number(isUnavailable(b.id)));
     return list;
-  }, [availableVehicles, selectedCategories, minPassengers, minLuggage, selectedTransmissions, sortBy, pricingMap, youngDriver, days]);
+  }, [availableVehicles, selectedCategories, minPassengers, minLuggage, selectedTransmissions, sortBy, pricingMap, youngDriver, days, unavailableIds]);
+
+  const availableCount = vehicles.filter((v) => !isUnavailable(v.id)).length;
+  const unavailableCount = vehicles.length - availableCount;
 
   const activeFiltersCount =
     selectedCategories.length + selectedTransmissions.length + (minPassengers ? 1 : 0) + (minLuggage ? 1 : 0);
@@ -220,7 +226,7 @@ const SearchResults = () => {
             <p className="text-sm text-muted-foreground mb-4">
               {availabilityLoading
                 ? "Checando disponibilidade…"
-                : `${vehicles.length} ${vehicles.length === 1 ? "carro disponível" : "carros disponíveis"} para o período`}
+                : `${availableCount} ${availableCount === 1 ? "carro disponível" : "carros disponíveis"} para o período${unavailableCount > 0 ? ` · ${unavailableCount} indisponíve${unavailableCount === 1 ? "l" : "is"} nestas datas` : ""}`}
             </p>
 
             {/* Search criteria summary */}
@@ -385,6 +391,7 @@ const SearchResults = () => {
               const avgDaily = pricing?.avg_per_day ?? basePrice;
               const dailyDisplay = youngDriver ? Math.ceil(avgDaily * (1 + YOUNG_DRIVER_SURCHARGE)) : avgDaily;
               const totalPrice = youngDriver ? Math.ceil(ruleSubtotal * (1 + YOUNG_DRIVER_SURCHARGE)) : ruleSubtotal;
+              const unavailable = isUnavailable(v.id);
 
               const detailUrl = `/veiculo/${encodeURIComponent(v.name)}?${searchParams.toString()}`;
 
@@ -394,27 +401,38 @@ const SearchResults = () => {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.35, delay: i * 0.04 }}
-                  onClick={() => (window.location.href = detailUrl)}
-                  className="group relative overflow-hidden rounded-lg border border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/50 hover:shadow-[0_6px_24px_-12px_hsl(var(--primary)/0.25)] transition-all duration-300 cursor-pointer"
+                  onClick={() => { if (!unavailable) window.location.href = detailUrl; }}
+                  className={`group relative overflow-hidden rounded-lg border bg-card/60 backdrop-blur-sm transition-all duration-300 ${
+                    unavailable
+                      ? "border-border/40 cursor-not-allowed"
+                      : "border-border/50 hover:border-primary/50 hover:shadow-[0_6px_24px_-12px_hsl(var(--primary)/0.25)] cursor-pointer"
+                  }`}
                 >
                   <div className="flex flex-col sm:flex-row">
                     {/* Image */}
-                    <div className="relative sm:w-[210px] md:w-[230px] shrink-0 h-40 sm:h-auto sm:self-stretch overflow-hidden bg-muted/20">
+                    <div className={`relative sm:w-[210px] md:w-[230px] shrink-0 h-40 sm:h-auto sm:self-stretch overflow-hidden bg-muted/20 ${unavailable ? "opacity-60" : ""}`}>
                       <img
                         src={v.coverImage}
                         alt={v.name}
-                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                        className={`w-full h-full object-contain transition-transform duration-700 ${unavailable ? "grayscale" : "group-hover:scale-105"}`}
                         loading="lazy"
                         width={640}
                         height={360}
                       />
                       <div className="absolute top-2 left-2">
-                        <span className="flex items-center gap-1 bg-emerald-500/95 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-md">
-                          <Check size={9} strokeWidth={3} />
-                          Disponível
-                        </span>
+                        {unavailable ? (
+                          <span className="flex items-center gap-1 bg-muted-foreground/90 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-md">
+                            <AlertTriangle size={9} strokeWidth={3} />
+                            Indisponível
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 bg-emerald-500/95 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-md">
+                            <Check size={9} strokeWidth={3} />
+                            Disponível
+                          </span>
+                        )}
                       </div>
-                      {v.preparing && (
+                      {v.preparing && !unavailable && (
                         <div className="absolute top-2 right-2">
                           <span className="bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-md">
                             Em preparação
@@ -490,32 +508,57 @@ const SearchResults = () => {
                     </div>
 
                     {/* Right: price + CTA */}
-                    <div className="sm:w-[190px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 bg-muted/10 px-3 py-2.5 sm:px-4 sm:py-3 flex sm:flex-col items-end sm:items-stretch justify-between gap-2">
-                      <div className="text-right sm:text-right">
-                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
-                          Preço por {days} {days === 1 ? "dia" : "dias"}
-                        </p>
-                        <p className="text-xl md:text-2xl font-black gold-text leading-none mt-1">
-                          {toBRL(totalPrice)}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          equivalente a {toUSD(totalPrice)}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground/80 mt-1.5 pt-1.5 border-t border-border/30">
-                          {toBRL(dailyDisplay)} <span className="opacity-70">/dia</span>
-                        </p>
-                        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
-                          Em até 10x sem juros
-                        </p>
-                      </div>
-
-                      <Link
-                        to={detailUrl}
-                        onClick={(e) => e.stopPropagation()}
-                        className="gold-gradient text-primary-foreground px-3 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center sm:w-full"
-                      >
-                        Ver oferta
-                      </Link>
+                    <div className={`sm:w-[190px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 px-3 py-2.5 sm:px-4 sm:py-3 flex sm:flex-col items-end sm:items-stretch justify-between gap-2 ${unavailable ? "bg-muted/30" : "bg-muted/10"}`}>
+                      {unavailable ? (
+                        <>
+                          <div className="text-right sm:text-right">
+                            <p className="flex items-center justify-end gap-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                              <AlertTriangle size={11} strokeWidth={3} />
+                              Indisponível
+                            </p>
+                            <p className="text-[11px] text-muted-foreground mt-1.5 leading-snug">
+                              Este veículo já está reservado para as datas selecionadas.
+                            </p>
+                            <p className="text-[10px] text-muted-foreground/80 mt-2">
+                              Diária a partir de <span className="font-semibold text-foreground/80">{toBRL(dailyDisplay)}</span>
+                            </p>
+                          </div>
+                          <Link
+                            to="/"
+                            onClick={(e) => e.stopPropagation()}
+                            className="border border-border/60 text-foreground/80 px-3 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-widest hover:bg-muted/40 transition-colors whitespace-nowrap text-center sm:w-full"
+                          >
+                            Mudar datas
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-right sm:text-right">
+                            <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
+                              Preço por {days} {days === 1 ? "dia" : "dias"}
+                            </p>
+                            <p className="text-xl md:text-2xl font-black gold-text leading-none mt-1">
+                              {toBRL(totalPrice)}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-1">
+                              equivalente a {toUSD(totalPrice)}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground/80 mt-1.5 pt-1.5 border-t border-border/30">
+                              {toBRL(dailyDisplay)} <span className="opacity-70">/dia</span>
+                            </p>
+                            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+                              Em até 10x sem juros
+                            </p>
+                          </div>
+                          <Link
+                            to={detailUrl}
+                            onClick={(e) => e.stopPropagation()}
+                            className="gold-gradient text-primary-foreground px-3 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center sm:w-full"
+                          >
+                            Ver oferta
+                          </Link>
+                        </>
+                      )}
                     </div>
                   </div>
                 </motion.div>
