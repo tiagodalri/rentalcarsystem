@@ -595,9 +595,21 @@ const Checkout = () => {
                           )}
 
                           {payError && <ErrorBox msg={payError} />}
-                          <button onClick={handlePix} disabled={payLoading === "pix"} className="cr-cta">
-                            {payLoading === "pix" ? <><Loader2 size={16} className="animate-spin" /> Gerando Pix...</> : <>Pagar com Pix</>}
+                          <button onClick={handlePix} disabled={payLoading === "pix"} className="cr-cta flex-col gap-0.5 py-3">
+                            {payLoading === "pix" ? (
+                              <><Loader2 size={16} className="animate-spin" /> Gerando Pix...</>
+                            ) : (
+                              <>
+                                <span className="text-base font-bold leading-tight">
+                                  Pagar com Pix · {activeQuote?.result != null ? formatBRL(activeQuote.result) : "—"}
+                                </span>
+                                <span className="text-[10px] font-normal opacity-80 leading-tight">
+                                  equivalente a {formatUSD(state.amount_usd)}
+                                </span>
+                              </>
+                            )}
                           </button>
+
                         </>
                       ) : (
                         <div className="space-y-4">
@@ -659,9 +671,21 @@ const Checkout = () => {
                           )}
 
                           {payError && <ErrorBox msg={payError} />}
-                          <button onClick={handleBoleto} disabled={payLoading === "boleto"} className="cr-cta">
-                            {payLoading === "boleto" ? <><Loader2 size={16} className="animate-spin" /> Gerando boleto...</> : <>Gerar Boleto</>}
+                          <button onClick={handleBoleto} disabled={payLoading === "boleto"} className="cr-cta flex-col gap-0.5 py-3">
+                            {payLoading === "boleto" ? (
+                              <><Loader2 size={16} className="animate-spin" /> Gerando boleto...</>
+                            ) : (
+                              <>
+                                <span className="text-base font-bold leading-tight">
+                                  Gerar Boleto · {activeQuote?.result != null ? formatBRL(activeQuote.result) : "—"}
+                                </span>
+                                <span className="text-[10px] font-normal opacity-80 leading-tight">
+                                  equivalente a {formatUSD(state.amount_usd)}
+                                </span>
+                              </>
+                            )}
                           </button>
+
                         </>
                       ) : (
                         <div className="space-y-4">
@@ -793,16 +817,26 @@ const Checkout = () => {
                         <button onClick={recalcQuote} className="text-[11px] underline text-primary text-left">Recalcular câmbio</button>
                       )}
 
-                      <button onClick={handleCard} disabled={payLoading === "card" || !cardScriptLoaded} className="cr-cta">
+                      <button onClick={handleCard} disabled={payLoading === "card" || !cardScriptLoaded} className="cr-cta flex-col gap-0.5 py-3">
                         {payLoading === "card"
                           ? <><Loader2 size={16} className="animate-spin" /> Processando...</>
                           : !cardScriptLoaded ? <><Loader2 size={16} className="animate-spin" /> Preparando módulo seguro...</>
                           : (() => {
                               const sel = installmentsArr.find(i => i.n === installments);
-                              if (!sel) return <>Pagar com cartão</>;
-                              return <>Pagar {sel.n === 1 ? `à vista ${formatBRL(sel.value || sel.total)}` : `${sel.n}x de ${formatBRL(sel.value)}`}</>;
+                              const brlMain = sel
+                                ? (sel.n === 1 ? `Pagar à vista ${formatBRL(sel.value || sel.total)}` : `Pagar ${sel.n}x de ${formatBRL(sel.value)}`)
+                                : "Pagar com cartão";
+                              return (
+                                <>
+                                  <span className="text-base font-bold leading-tight">{brlMain}</span>
+                                  <span className="text-[10px] font-normal opacity-80 leading-tight">
+                                    equivalente a {formatUSD(state.amount_usd)}
+                                  </span>
+                                </>
+                              );
                             })()}
                       </button>
+
 
                     </TabsContent>
                   </Tabs>
