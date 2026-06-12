@@ -255,7 +255,7 @@ const SearchResults = () => {
           </div>
 
           {/* Layout: Sidebar filters + Results */}
-          <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6 max-w-7xl mx-auto">
             {/* Sidebar filters */}
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <div className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 lg:p-5">
