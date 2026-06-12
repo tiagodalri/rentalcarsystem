@@ -874,12 +874,32 @@ const Checkout = () => {
                     <Loader2 size={10} className="animate-spin" /> atualizando cotação…
                   </p>
                 )}
+                {!isEstimated && quotes[method]?.locked_until && quotes[method]!.locked_until! > Date.now() && (
+                  <div className="mt-2 rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5 text-[10px] font-semibold text-primary uppercase tracking-wider">
+                      <Lock size={10} /> Cotação travada
+                    </span>
+                    <span className="text-[10px] tabular-nums text-foreground/80">
+                      {(() => {
+                        const ms = Math.max(0, (quotes[method]!.locked_until! - Date.now()));
+                        const m = Math.floor(ms / 60000);
+                        const s = Math.floor((ms % 60000) / 1000);
+                        return `${m}:${String(s).padStart(2, "0")}`;
+                      })()}
+                    </span>
+                  </div>
+                )}
                 {activeFailed && !isEstimated && (
                   <button onClick={recalcQuote} className="w-full mt-2 text-[11px] py-2 rounded-md border border-border text-foreground hover:bg-secondary transition">
                     Recalcular câmbio
                   </button>
                 )}
-                <p className="text-[10px] text-muted-foreground pt-1">Valor final pelo Câmbio Real no momento do pagamento.</p>
+                <p className="text-[10px] text-muted-foreground pt-1">
+                  {!isEstimated && quotes[method]?.locked_until && quotes[method]!.locked_until! > Date.now()
+                    ? "Este valor está garantido até o fim do contador. Finalize a reserva antes."
+                    : "Valor final pelo Câmbio Real no momento do pagamento."}
+                </p>
+
 
               </div>
 
