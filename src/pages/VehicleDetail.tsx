@@ -517,7 +517,7 @@ const VehicleDetail = () => {
 
               <div className="rounded-xl border border-border/40 bg-muted/15 p-4 space-y-2.5">
                 <div className="flex items-center gap-2 text-xs text-foreground/80">
-                  <BadgeCheck size={14} className="text-primary" /> Cancelamento gratuito até 48h
+                  <Plane size={14} className="text-primary" /> Entrega no aeroporto incluída
                 </div>
                 <div className="flex items-center gap-2 text-xs text-foreground/80">
                   <Plane size={14} className="text-primary" /> Entrega no aeroporto incluída
