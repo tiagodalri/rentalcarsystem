@@ -363,10 +363,9 @@ const VehicleDetail = () => {
               {hasDates ? "Reservar" : "Escolher datas"}
             </button>
           </div>
-
-          </div>
         </div>
       </main>
+
 
       <Footer />
 
