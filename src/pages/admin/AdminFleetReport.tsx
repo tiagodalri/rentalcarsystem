@@ -287,6 +287,13 @@ export default function AdminFleetReport({
             {occupancyChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={occupancyChartData.length * 40 + 40}>
                 <BarChart data={occupancyChartData} layout="vertical" margin={{ left: 10, right: 30, top: 5, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="emeraldShineOcc" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%"   stopColor="hsl(160 84% 22%)" />
+                      <stop offset="50%"  stopColor="hsl(160 84% 32%)" />
+                      <stop offset="100%" stopColor="hsl(170 70% 42%)" />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
                   <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `${v}%`} />
                   <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
@@ -294,7 +301,7 @@ export default function AdminFleetReport({
                     {...darkTooltipProps}
                     formatter={(v: number) => [`${v}%`, "Ocupação"]}
                   />
-                  <Bar dataKey="occupancy" fill={GREEN_SECONDARY} radius={[0, 4, 4, 0]} barSize={22} />
+                  <Bar dataKey="occupancy" fill="url(#emeraldShineOcc)" radius={[2, 4, 4, 2]} barSize={18} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
@@ -391,6 +398,13 @@ export default function AdminFleetReport({
           {addonChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={addonChartData.length * 44 + 40}>
               <BarChart data={addonChartData} layout="vertical" margin={{ left: 10, right: 30, top: 5, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="emeraldShineAddon" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%"   stopColor="hsl(160 84% 22%)" />
+                    <stop offset="50%"  stopColor="hsl(160 84% 32%)" />
+                    <stop offset="100%" stopColor="hsl(170 70% 42%)" />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
                 <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
                 <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
@@ -398,11 +412,7 @@ export default function AdminFleetReport({
                   {...darkTooltipProps}
                   formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
                 />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24}>
-                  {addonChartData.map((_, i) => (
-                    <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                  ))}
-                </Bar>
+                <Bar dataKey="value" fill="url(#emeraldShineAddon)" radius={[2, 4, 4, 2]} barSize={18} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
