@@ -20,7 +20,7 @@ import {
  */
 
 const RATE_CACHE_KEY = "painel_widget_rate";
-const RATE_TTL = 30 * 60 * 1000;
+const RATE_TTL = 5 * 60 * 1000; // 5 min — AwesomeAPI atualiza em quase tempo real
 const WEATHER_CACHE_KEY = "painel_widget_weather";
 const WEATHER_TTL = 15 * 60 * 1000;
 
@@ -55,6 +55,25 @@ function useUsdBrl() {
     if (rate !== null) return;
     let cancelled = false;
     (async () => {
+      // Fonte primária: AwesomeAPI (PTAX-like, atualizada em segundos, padrão no Brasil)
+      try {
+        const res = await fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL");
+        const data = await res.json();
+        const bid = parseFloat(data?.USDBRL?.bid);
+        if (!cancelled && Number.isFinite(bid) && bid > 0) {
+          setRate(bid);
+          try {
+            sessionStorage.setItem(
+              RATE_CACHE_KEY,
+              JSON.stringify({ rate: bid, timestamp: Date.now() }),
+            );
+          } catch {}
+          return;
+        }
+      } catch {
+        /* fallback abaixo */
+      }
+      // Fallback: open.er-api.com (caso a AwesomeAPI esteja fora do ar)
       try {
         const res = await fetch("https://open.er-api.com/v6/latest/USD");
         const data = await res.json();
