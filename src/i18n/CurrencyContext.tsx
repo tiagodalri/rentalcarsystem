@@ -8,6 +8,7 @@ interface CurrencyContextType {
   toggleCurrency: () => void;
   formatPrice: (usdAmount: number) => string;
   formatPriceValue: (usdAmount: number) => number;
+  formatPriceIn: (usdAmount: number, c: Currency) => string;
   currencySymbol: string;
   exchangeRate: number | null;
   loading: boolean;
