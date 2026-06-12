@@ -665,7 +665,7 @@ const BookingDetails = () => {
               >
                 <h2 className="text-sm font-semibold uppercase tracking-wider mb-5 flex items-center gap-2 text-foreground">
                   <Shield size={15} className="text-primary" />
-                  Escolha seu <span className="gold-text">Plano</span>
+                  O que está <span className="gold-text">incluso</span>
                 </h2>
 
                 <PlanSelector dailyPrice={dailyPrice} />
