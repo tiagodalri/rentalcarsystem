@@ -57,6 +57,9 @@ const SearchResults = () => {
       categoryKey: categoryToKey(dbv.category),
       passengers: dbv.passengers,
       luggage: dbv.bags,
+      transmission: dbv.transmission,
+      fuel: dbv.fuel,
+      doors: dbv.doors,
       coverImage: getCoverImage(dbv.name),
       preparing: dbv.status === "preparing",
     }));
