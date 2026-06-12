@@ -558,7 +558,7 @@ const SearchResults = () => {
                             onClick={(e) => e.stopPropagation()}
                             className="gold-gradient text-primary-foreground px-3 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center sm:w-full"
                           >
-                            Ver oferta
+                            Efetuar Reserva
                           </Link>
                         </>
                       )}
