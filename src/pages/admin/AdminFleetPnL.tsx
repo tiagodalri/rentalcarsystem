@@ -50,10 +50,11 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
 
   const load = async () => {
     setLoading(true);
-    const [vRes, bRes, eRes] = await Promise.all([
+    const [vRes, bRes, eRes, iRes] = await Promise.all([
       supabase.from("vehicles").select("*"),
       supabase.from("bookings").select("*"),
       supabase.from("vehicle_expenses").select("*"),
+      supabase.from("vehicle_inspections").select("*"),
     ]);
 
     const isTest = (v: any) => {
