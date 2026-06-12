@@ -258,7 +258,7 @@ serve(async (req) => {
       payment_method: "credit_card",
       checkout_url: tx?.ticket_url ?? null,
       paid_at: approved ? new Date().toISOString() : null,
-      raw: crJson,
+      raw: { ...crJson, _zeus_alias_used: aliasUsed, _zeus_real_email: client.email },
     });
 
     // NÃO confirmamos a booking aqui — o webhook é a fonte da verdade.
