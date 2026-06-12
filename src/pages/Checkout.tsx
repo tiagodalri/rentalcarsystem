@@ -400,7 +400,7 @@ const Checkout = () => {
         },
       });
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      if (data?.error) { setPayError(mapPayError(data.error, data)); return; }
 
       if (data?.approved || data?.status === "approved" || data?.paid) {
         setCardSuccess(data);
