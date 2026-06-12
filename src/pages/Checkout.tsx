@@ -76,20 +76,113 @@ const Checkout = () => {
   const [step, setStep] = useState<"client" | "pay" | "success">("client");
   const [method, setMethod] = useState<"pix" | "boleto" | "card">("pix");
 
-  // Quote (cached per payment_method so we never recall on render/keystroke)
+  // Quote (cached per payment_method)
   type Quote = {
     rate: number | null;
     result: number | null;
     iof?: number | null;
     installments?: any;
     fallback?: boolean;
+    estimated?: boolean; // true while showing public estimate (no official yet)
     error?: string;
   };
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
   const [quoteLoading, setQuoteLoading] = useState<Record<string, boolean>>({});
-  const [quoteTick, setQuoteTick] = useState(0); // bump to force recalc
-  const quoteForMethod = (m: "pix" | "boleto" | "card"): Quote | undefined => quotes[m];
 
+  // Public BRL estimate (fast, never blocks UI)
+  const [publicRate, setPublicRate] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const FALLBACK_RATE = 5.45;
+    (async () => {
+      try {
+        const ctrl = new AbortController();
+        const to = setTimeout(() => ctrl.abort(), 2500);
+        const r = await fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL", { signal: ctrl.signal });
+        clearTimeout(to);
+        const j = await r.json();
+        const ask = Number(j?.USDBRL?.ask ?? j?.USDBRL?.bid);
+        if (!cancelled && ask > 0) setPublicRate(ask);
+        else if (!cancelled) setPublicRate(FALLBACK_RATE);
+      } catch {
+        if (!cancelled) setPublicRate(FALLBACK_RATE);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Build an estimated quote from the public rate (used while official is loading/failing)
+  function buildEstimate(pm: "pix" | "boleto" | "card"): Quote | null {
+    if (!publicRate) return null;
+    // Approximate IOF: ~1.1% Pix/Boleto, ~3.5% Card (Brazilian remittance order of magnitude)
+    const iofRate = pm === "card" ? 0.035 : 0.011;
+    const spread = 1.02; // small spread on top of public quote, conservative
+    const effective = publicRate * spread;
+    const result = state.amount_usd * effective * (1 + iofRate);
+    const iof = state.amount_usd * effective * iofRate;
+    let installments: any = null;
+    if (pm === "card") {
+      // 1..12x with light interest from 4x onwards (3% a.m. simple, just for display)
+      installments = Array.from({ length: 12 }, (_, i) => {
+        const n = i + 1;
+        const monthly = n >= 4 ? 0.03 : 0;
+        const total = result * (1 + monthly * (n - 1));
+        return { installment: n, installment_amount: total / n, total, fee: total - result };
+      });
+    }
+    return { rate: effective, result, iof, installments, estimated: true };
+  }
+
+  function quoteForMethod(m: "pix" | "boleto" | "card"): Quote | undefined {
+    const real = quotes[m];
+    if (real && real.result != null && !real.fallback) return real;
+    return buildEstimate(m) ?? real;
+  }
+
+  // Fetch official quote for a given method (no-op if already cached & valid)
+  async function fetchQuote(pm: "pix" | "boleto" | "card", force = false) {
+    if (!force) {
+      const existing = quotes[pm];
+      if (existing && !existing.fallback && existing.result != null) return;
+      if (quoteLoading[pm]) return;
+    }
+    setQuoteLoading((s) => ({ ...s, [pm]: true }));
+    try {
+      const { data, error } = await supabase.functions.invoke("cambioreal-simulator", {
+        body: { amount: state.amount_usd, payment_method: pm },
+      });
+      if (error) {
+        setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: error.message } }));
+      } else if (data?.fallback || data?.error) {
+        setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: data?.message || data?.error } }));
+      } else {
+        setQuotes((s) => ({ ...s, [pm]: {
+          rate: data?.rate ?? null,
+          result: data?.result ?? null,
+          iof: data?.iof ?? null,
+          installments: data?.installments ?? null,
+        }}));
+      }
+    } catch (e: any) {
+      setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: e?.message } }));
+    } finally {
+      setQuoteLoading((s) => ({ ...s, [pm]: false }));
+    }
+  }
+
+  // Preload all 3 methods in parallel when entering pay step
+  const preloadedRef = useRef(false);
+  useEffect(() => {
+    if (step !== "pay" || preloadedRef.current) return;
+    preloadedRef.current = true;
+    Promise.allSettled([fetchQuote("pix"), fetchQuote("boleto"), fetchQuote("card")]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  function recalcQuote() {
+    setQuotes((s) => { const c = { ...s }; delete c[method]; return c; });
+    fetchQuote(method, true);
+  }
 
   // Pix / Boleto state
   const [payLoading, setPayLoading] = useState<null | "pix" | "boleto" | "card">(null);
@@ -133,51 +226,6 @@ const Checkout = () => {
     s.onerror = () => toast.error("Não foi possível carregar o módulo de cartão.");
     document.head.appendChild(s);
   }, [method, cardScriptLoaded]);
-
-  // Quote on entering payment step (cached per payment_method, with retry/fallback handling)
-  useEffect(() => {
-    if (step !== "pay") return;
-    const pm: "pix" | "boleto" | "card" = method;
-    // Skip if already loaded successfully (recalcQuote clears it to force refetch)
-    const existing = quotes[pm];
-    if (existing && !existing.fallback && existing.result != null) return;
-    if (quoteLoading[pm]) return;
-
-    let cancelled = false;
-    setQuoteLoading((s) => ({ ...s, [pm]: true }));
-    (async () => {
-      try {
-        const { data, error } = await supabase.functions.invoke("cambioreal-simulator", {
-          body: { amount: state.amount_usd, payment_method: pm },
-        });
-        if (cancelled) return;
-        if (error) {
-          setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: error.message } }));
-        } else if (data?.fallback || data?.error) {
-          setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: data?.message || data?.error } }));
-        } else {
-          setQuotes((s) => ({ ...s, [pm]: {
-            rate: data?.rate ?? null,
-            result: data?.result ?? null,
-            iof: data?.iof ?? null,
-            installments: data?.installments ?? null,
-          }}));
-        }
-      } catch (e: any) {
-        if (!cancelled) setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: e?.message } }));
-      } finally {
-        if (!cancelled) setQuoteLoading((s) => ({ ...s, [pm]: false }));
-      }
-    })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, method, state.amount_usd, quoteTick]);
-
-
-  function recalcQuote() {
-    setQuotes((s) => { const c = { ...s }; delete c[method]; return c; });
-    setQuoteTick((t) => t + 1);
-  }
 
 
   // Polling for pix
@@ -336,10 +384,11 @@ const Checkout = () => {
 
   const activeQuote = quoteForMethod(method);
   const activeLoading = !!quoteLoading[method];
-  const activeFailed = activeQuote?.fallback === true;
+  const activeFailed = quotes[method]?.fallback === true && !activeQuote?.estimated;
+  const isEstimated = activeQuote?.estimated === true;
   const totalLine = activeQuote?.result != null
     ? formatBRL(activeQuote.result)
-    : (activeLoading ? "Calculando câmbio…" : (activeFailed ? formatUSD(state.amount_usd) + " (USD)" : "—"));
+    : (activeLoading ? "Calculando câmbio…" : "—");
 
   const installmentsArr: Array<{ n: number; value: number; total: number; fee: number }> = useMemo(() => {
     const raw = quoteForMethod("card")?.installments;
@@ -356,7 +405,9 @@ const Checkout = () => {
       n: Number(k) || norm(v, i).n,
     }));
     return [];
-  }, [quotes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quotes, publicRate]);
+
 
 
   const days = state.vehicleDisplay?.days ?? 1;
@@ -608,16 +659,20 @@ const Checkout = () => {
                         <Field label="Parcelas *" full>
                           <select className="cr-input" value={installments} onChange={(e) => setInstallments(Number(e.target.value))} disabled={installmentsArr.length === 0}>
                             {installmentsArr.length === 0 ? (
-                              <option>{quoteLoading.card ? "Calculando parcelas…" : "Indisponível — recalcule o câmbio"}</option>
+                              <option>Calculando parcelas…</option>
                             ) : installmentsArr.map((it) => (
                               <option key={it.n} value={it.n}>
                                 {it.n === 1
-                                  ? `à vista ${formatBRL(it.value || it.total)}`
-                                  : `${it.n}x de ${formatBRL(it.value)} · total ${formatBRL(it.total)}`}
+                                  ? `${isEstimated ? "≈ " : ""}à vista ${formatBRL(it.value || it.total)}`
+                                  : `${isEstimated ? "≈ " : ""}${it.n}x de ${formatBRL(it.value)} · total ${formatBRL(it.total)}`}
                               </option>
                             ))}
                           </select>
+                          {isEstimated && installmentsArr.length > 0 && (
+                            <p className="text-[10px] text-muted-foreground mt-1">Valores finais confirmados ao pagar.</p>
+                          )}
                         </Field>
+
                       </div>
 
                       {(() => {
@@ -712,17 +767,25 @@ const Checkout = () => {
                   <div className="flex justify-between"><span className="text-muted-foreground">IOF / taxas</span><span className="text-foreground tabular-nums">{formatBRL(activeQuote.iof)}</span></div>
                 )}
                 <div className="flex justify-between text-sm pt-1.5 border-t border-border/50 mt-1.5">
-                  <span className="text-foreground font-semibold">Total BRL</span>
-                  <span className="text-foreground font-bold tabular-nums">{totalLine}</span>
+                  <span className="text-foreground font-semibold">
+                    Total BRL {isEstimated && <span className="text-[10px] font-normal text-muted-foreground">(estimado)</span>}
+                  </span>
+                  <span className="text-foreground font-bold tabular-nums">
+                    {isEstimated && activeQuote?.result != null ? "≈ " : ""}{totalLine}
+                  </span>
                 </div>
-                {activeFailed && (
+                {isEstimated && (
+                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <Loader2 size={10} className="animate-spin" /> atualizando cotação…
+                  </p>
+                )}
+                {activeFailed && !isEstimated && (
                   <button onClick={recalcQuote} className="w-full mt-2 text-[11px] py-2 rounded-md border border-border text-foreground hover:bg-secondary transition">
                     Recalcular câmbio
                   </button>
                 )}
-                {activeQuote?.result != null && (
-                  <p className="text-[10px] text-muted-foreground pt-1">Inclui IOF e taxas do Câmbio Real.</p>
-                )}
+                <p className="text-[10px] text-muted-foreground pt-1">Valor final pelo Câmbio Real no momento do pagamento.</p>
+
               </div>
 
 
