@@ -53,6 +53,8 @@ export default function AdminFleetReport({
 }: { embedded?: boolean; monthOverride?: Date } = {}) {
   const [loading, setLoading] = useState(true);
   const [month, setMonth] = useState(startOfMonth(monthOverride ?? new Date()));
+  const [customRange, setCustomRange] = useState<DateRange | undefined>(undefined);
+  const [rangeOpen, setRangeOpen] = useState(false);
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [inspections, setInspections] = useState<any[]>([]);
@@ -60,16 +62,22 @@ export default function AdminFleetReport({
 
   // Sync with external override (global period filter)
   useEffect(() => {
-    if (monthOverride) setMonth(startOfMonth(monthOverride));
+    if (monthOverride) {
+      setMonth(startOfMonth(monthOverride));
+      setCustomRange(undefined);
+    }
   }, [monthOverride?.getTime()]);
 
-  const monthStart = startOfMonth(month);
-  const monthEnd = endOfMonth(month);
-  const daysInMonth = differenceInDays(monthEnd, monthStart) + 1;
+  const usingCustom = !!(customRange?.from && customRange?.to);
+  const periodStart = usingCustom ? startOfDay(customRange!.from!) : startOfMonth(month);
+  const periodEnd = usingCustom ? endOfDay(customRange!.to!) : endOfMonth(month);
+  const monthStart = periodStart;
+  const monthEnd = periodEnd;
+  const daysInMonth = Math.max(1, differenceInDays(monthEnd, monthStart) + 1);
 
   useEffect(() => {
     loadData();
-  }, [month]);
+  }, [month, customRange?.from?.getTime(), customRange?.to?.getTime()]);
 
   const loadData = async () => {
     setLoading(true);
