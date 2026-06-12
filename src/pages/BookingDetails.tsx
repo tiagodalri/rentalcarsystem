@@ -81,7 +81,7 @@ const BookingDetails = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { formatPrice, currencySymbol } = useCurrency();
+  const { formatPrice, formatPriceIn, currency, currencySymbol } = useCurrency();
   const { vehicles: dbVehicles, loading: vehiclesLoading } = useVehiclesDB();
   const vehiclePrices = buildPriceMap(dbVehicles);
   const vehicleTrims = buildTrimMap(dbVehicles);
