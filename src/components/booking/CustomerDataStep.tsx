@@ -25,19 +25,19 @@ interface Props {
 }
 
 const fields = [
-  { key: "full_name", label: "Nome Completo *", icon: User, type: "text", placeholder: "Seu nome completo", colSpan: 1 },
-  { key: "email", label: "E-mail *", icon: Mail, type: "email", placeholder: "seu@email.com", colSpan: 1 },
-  { key: "phone", label: "Celular (WhatsApp) *", icon: Phone, type: "tel", placeholder: "+55 11 99999-0000", colSpan: 1 },
-  { key: "date_of_birth", label: "Data de Nascimento", icon: Calendar, type: "date", placeholder: "", colSpan: 1 },
-  { key: "nationality", label: "Nacionalidade", icon: Globe, type: "text", placeholder: "Brasileira", colSpan: 1 },
-  { key: "document_number", label: "Documento (CPF / Passport / ID) *", icon: FileText, type: "text", placeholder: "CPF, Passport ou ID/SSN", colSpan: 1 },
-  { key: "zip_code", label: "CEP / Zip Code", icon: MapPin, type: "text", placeholder: "00000-000", colSpan: 1 },
-  { key: "address", label: "Rua / Logradouro", icon: MapPin, type: "text", placeholder: "Avenida Paulista", colSpan: 2 },
-  { key: "house_number", label: "Número", icon: MapPin, type: "text", placeholder: "123", colSpan: 1 },
-  { key: "complement", label: "Complemento", icon: MapPin, type: "text", placeholder: "Apto, bloco, sala...", colSpan: 1 },
-  { key: "district", label: "Bairro", icon: Building2, type: "text", placeholder: "Centro", colSpan: 1 },
-  { key: "city", label: "Cidade", icon: Building2, type: "text", placeholder: "São Paulo", colSpan: 1 },
-  { key: "state", label: "Estado (UF)", icon: Building2, type: "text", placeholder: "SP", colSpan: 1 },
+  { key: "full_name", label: "Nome Completo *", icon: User, type: "text", placeholder: "Como está no documento", colSpan: 2 },
+  { key: "email", label: "E-mail *", icon: Mail, type: "email", placeholder: "voce@email.com", colSpan: 2 },
+  { key: "phone", label: "Celular (WhatsApp) *", icon: Phone, type: "tel", placeholder: "+55 11 99999-0000", colSpan: 2 },
+  { key: "date_of_birth", label: "Data de Nascimento *", icon: Calendar, type: "date", placeholder: "", colSpan: 2 },
+  { key: "nationality", label: "Nacionalidade", icon: Globe, type: "text", placeholder: "Brasileira", colSpan: 2 },
+  { key: "document_number", label: "Documento (CPF / Passport / ID) *", icon: FileText, type: "text", placeholder: "Apenas números", colSpan: 2 },
+  { key: "zip_code", label: "CEP / Zip Code *", icon: MapPin, type: "text", placeholder: "00000-000", colSpan: 2 },
+  { key: "address", label: "Rua / Logradouro *", icon: MapPin, type: "text", placeholder: "Avenida Paulista", colSpan: 2 },
+  { key: "house_number", label: "Número *", icon: MapPin, type: "text", placeholder: "123", colSpan: 2 },
+  { key: "complement", label: "Complemento", icon: MapPin, type: "text", placeholder: "Apto, bloco, sala (opcional)", colSpan: 2 },
+  { key: "district", label: "Bairro", icon: Building2, type: "text", placeholder: "Centro", colSpan: 2 },
+  { key: "city", label: "Cidade *", icon: Building2, type: "text", placeholder: "São Paulo", colSpan: 2 },
+  { key: "state", label: "Estado (UF) *", icon: Building2, type: "text", placeholder: "SP", colSpan: 2 },
 ] as const;
 
 export default function CustomerDataStep({ data, onChange }: Props) {
