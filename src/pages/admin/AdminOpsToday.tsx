@@ -106,12 +106,12 @@ export default function AdminOpsToday() {
         supabase.from("bookings")
           .select("id, customer_name, customer_phone, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, vehicle_id, status, booking_number")
           .eq("pickup_date", dayStr)
-          .in("status", ["pending", "confirmed", "active", "in_progress", "completed", "cancelled"])
+          .in("status", ["pending", "confirmed", "active", "in_progress", "completed"])
           .order("pickup_time"),
         supabase.from("bookings")
           .select("id, customer_name, customer_phone, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, vehicle_id, status, booking_number")
           .eq("return_date", dayStr)
-          .in("status", ["confirmed", "active", "in_progress", "completed", "cancelled"])
+          .in("status", ["confirmed", "active", "in_progress", "completed"])
           .order("return_time"),
         supabase.from("vehicles").select("id, name, status"),
       ]);
