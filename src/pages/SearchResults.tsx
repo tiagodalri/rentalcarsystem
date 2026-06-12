@@ -1,13 +1,15 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle, Settings2, Fuel, Gauge, Snowflake, DoorOpen, Shield, SlidersHorizontal, ArrowUpDown } from "lucide-react";
+import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle, Settings2, Fuel, Gauge, Snowflake, DoorOpen, Shield, SlidersHorizontal, ArrowUpDown, Pencil } from "lucide-react";
 import { SearchResultsSkeleton } from "@/components/skeletons/PublicSkeletons";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppBubble from "@/components/WhatsAppBubble";
+import SearchBar from "@/components/SearchBar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { useVehiclesDB, categoryToKey, buildPriceMap } from "@/hooks/useVehiclesDB";
 import { useVehicleAvailability } from "@/hooks/useVehicleAvailability";
