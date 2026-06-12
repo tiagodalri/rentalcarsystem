@@ -41,7 +41,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold uppercase tracking-tight leading-[1.2] max-w-3xl px-2"
+          className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold uppercase tracking-tight leading-[1.2] max-w-4xl px-2 whitespace-normal lg:whitespace-nowrap"
         >
           {t.hero.title}
           <span className="gold-text">{t.hero.titleHighlight}</span>
