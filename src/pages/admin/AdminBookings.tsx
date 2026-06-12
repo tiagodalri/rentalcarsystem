@@ -1280,7 +1280,7 @@ function AdminBookingsDesktop() {
                             </span>
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
-                            {b.pickup_time || "—"}
+                            {b.pickup_time ? b.pickup_time.slice(0, 5) : "—"}
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
                             <span className="inline-flex items-center gap-1.5">
