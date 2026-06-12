@@ -424,7 +424,7 @@ const SearchResults = () => {
                     </div>
 
                     {/* Middle: info */}
-                    <div className="flex-1 p-3 sm:p-4 flex flex-col justify-between min-w-0">
+                    <div className="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 flex flex-col justify-between min-w-0">
                       <div>
                         <p className="text-[9px] text-primary font-semibold uppercase tracking-[0.18em] mb-0.5">
                           {categoryLabels[v.categoryKey] || v.categoryKey}
