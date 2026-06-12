@@ -226,7 +226,7 @@ const SearchResults = () => {
             <p className="text-sm text-muted-foreground mb-4">
               {availabilityLoading
                 ? "Checando disponibilidade…"
-                : `${vehicles.length} ${vehicles.length === 1 ? "carro disponível" : "carros disponíveis"} para o período`}
+                : `${availableCount} ${availableCount === 1 ? "carro disponível" : "carros disponíveis"} para o período${unavailableCount > 0 ? ` · ${unavailableCount} indisponíve${unavailableCount === 1 ? "l" : "is"} nestas datas` : ""}`}
             </p>
 
             {/* Search criteria summary */}
