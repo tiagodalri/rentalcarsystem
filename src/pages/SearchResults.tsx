@@ -255,37 +255,68 @@ const SearchResults = () => {
                         <h3 className="text-base md:text-lg font-black uppercase tracking-wider text-foreground leading-tight">
                           {v.name}
                         </h3>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          ou similar da categoria
+                        </p>
 
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px] text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Users size={12} className="text-primary" /> {v.passengers} passageiros
+                        {/* Specs grid — Booking/Rentcars style */}
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2.5 text-[11px] text-foreground/80">
+                          <span className="flex items-center gap-1.5">
+                            <Users size={13} className="text-muted-foreground shrink-0" /> {v.passengers} passageiros
                           </span>
-                          {v.luggage && (
-                            <span className="flex items-center gap-1">
-                              <Briefcase size={12} className="text-primary" /> {v.luggage} malas
+                          {v.luggage != null && (
+                            <span className="flex items-center gap-1.5">
+                              <Briefcase size={13} className="text-muted-foreground shrink-0" /> {v.luggage} {v.luggage === 1 ? "mala" : "malas"}
                             </span>
                           )}
+                          {v.transmission && (
+                            <span className="flex items-center gap-1.5">
+                              <Settings2 size={13} className="text-muted-foreground shrink-0" /> {v.transmission}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1.5">
+                            <Gauge size={13} className="text-muted-foreground shrink-0" /> Quilometragem livre
+                          </span>
+                          {v.fuel && (
+                            <span className="flex items-center gap-1.5">
+                              <Fuel size={13} className="text-muted-foreground shrink-0" /> {v.fuel}
+                            </span>
+                          )}
+                          {v.doors != null && (
+                            <span className="flex items-center gap-1.5">
+                              <DoorOpen size={13} className="text-muted-foreground shrink-0" /> {v.doors} portas
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1.5">
+                            <Snowflake size={13} className="text-muted-foreground shrink-0" /> Ar-condicionado
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Shield size={13} className="text-muted-foreground shrink-0" /> Seguro básico incluso
+                          </span>
                         </div>
                       </div>
 
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
-                          Quilometragem livre
-                        </span>
-                        <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted/40 text-muted-foreground border border-border/40">
-                          Cancelamento grátis
-                        </span>
-                        <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted/40 text-muted-foreground border border-border/40">
-                          Suporte PT
-                        </span>
+                      {/* Benefits row (green checks) */}
+                      <div className="mt-3 pt-2.5 border-t border-border/40 space-y-1">
+                        <p className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                          <Check size={12} strokeWidth={3} /> Cancelamento grátis
+                        </p>
+                        <p className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                          <Check size={12} strokeWidth={3} /> Suporte em português 24/7
+                        </p>
+                        {pickupLocation && (
+                          <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                            <MapPin size={12} className="text-primary shrink-0" /> {pickupLocation}
+                          </p>
+                        )}
                       </div>
                     </div>
 
                     {/* Right: price + CTA */}
-                    <div className="sm:w-[180px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 bg-muted/10 p-3 sm:p-4 flex sm:flex-col items-end sm:items-stretch justify-between gap-2">
-                      <div className="text-right">
+                    <div className="sm:w-[200px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 bg-muted/10 p-3 sm:p-4 flex sm:flex-col items-end sm:items-stretch justify-between gap-2">
+                      <div className="text-right sm:text-right">
                         <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
-                          {days} {days === 1 ? "diária" : "diárias"} · total
+                          Preço por {days} {days === 1 ? "dia" : "dias"}
                         </p>
                         <p className="text-xl md:text-2xl font-black gold-text leading-none mt-1">
                           {toBRL(totalPrice)}
@@ -293,17 +324,20 @@ const SearchResults = () => {
                         <p className="text-[10px] text-muted-foreground mt-1">
                           equivalente a {toUSD(totalPrice)}
                         </p>
-                        <p className="text-[10px] text-muted-foreground/80 mt-0.5">
+                        <p className="text-[10px] text-muted-foreground/80 mt-1.5 pt-1.5 border-t border-border/30">
                           {toBRL(dailyDisplay)} <span className="opacity-70">/dia</span>
+                        </p>
+                        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+                          Em até 10x sem juros
                         </p>
                       </div>
 
                       <Link
                         to={detailUrl}
                         onClick={(e) => e.stopPropagation()}
-                        className="gold-gradient text-primary-foreground px-3 py-2 rounded-md text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center sm:w-full"
+                        className="gold-gradient text-primary-foreground px-3 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center sm:w-full"
                       >
-                        Ver detalhes
+                        Ver oferta
                       </Link>
                     </div>
                   </div>
