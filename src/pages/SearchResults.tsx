@@ -473,7 +473,7 @@ const SearchResults = () => {
                           )}
                           {v.transmission && (
                             <span className="flex items-center gap-1.5">
-                              <Settings2 size={13} className="text-muted-foreground shrink-0" /> {v.transmission}
+                              <Settings2 size={13} className="text-muted-foreground shrink-0" /> {v.transmission === "Automatic" ? "Automático" : v.transmission === "Manual" ? "Manual" : v.transmission}
                             </span>
                           )}
                           <span className="flex items-center gap-1.5">
