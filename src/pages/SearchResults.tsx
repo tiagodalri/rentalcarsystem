@@ -150,9 +150,14 @@ const SearchResults = () => {
               Voltar à página inicial
             </Link>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-wider mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-wider mb-2">
               Veículos <span className="gold-text">Disponíveis</span>
             </h1>
+            <p className="text-sm text-muted-foreground mb-4">
+              {availabilityLoading
+                ? "Checando disponibilidade…"
+                : `${vehicles.length} ${vehicles.length === 1 ? "carro disponível" : "carros disponíveis"} para o período`}
+            </p>
 
             {/* Search criteria summary */}
             {(pickupDate || pickupLocation) && (
