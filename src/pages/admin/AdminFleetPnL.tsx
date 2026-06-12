@@ -498,13 +498,10 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                       {r.name}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-xs text-muted-foreground">{r.category}</td>
-                    <td className="px-3 py-3 whitespace-nowrap text-xs text-muted-foreground">
+                    <td className="px-3 py-3 whitespace-nowrap text-xs text-muted-foreground tabular-nums">
                       {r.acquired_date
-                        ? format(parseISO(r.acquired_date), "dd MMM yyyy", { locale: ptBR })
+                        ? format(parseISO(r.acquired_date), "dd/MM/yy")
                         : "—"}
-                    </td>
-                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-xs text-muted-foreground">
-                      {r.daysOwned > 0 ? r.daysOwned : "—"}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">
                       {r.purchase_price > 0 ? `$${fmt(r.purchase_price)}` : "—"}
