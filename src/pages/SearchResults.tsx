@@ -200,7 +200,7 @@ const SearchResults = () => {
               const dailyDisplay = youngDriver ? Math.ceil(avgDaily * (1 + YOUNG_DRIVER_SURCHARGE)) : avgDaily;
               const totalPrice = youngDriver ? Math.ceil(ruleSubtotal * (1 + YOUNG_DRIVER_SURCHARGE)) : ruleSubtotal;
 
-              const bookingUrl = `/reserva/${encodeURIComponent(v.name)}?${searchParams.toString()}`;
+              const detailUrl = `/veiculo/${encodeURIComponent(v.name)}?${searchParams.toString()}`;
 
               return (
                 <motion.div
@@ -208,7 +208,7 @@ const SearchResults = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
-                  onClick={() => window.location.href = bookingUrl}
+                  onClick={() => window.location.href = detailUrl}
                   className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm hover:border-primary/30 transition-all duration-300 cursor-pointer"
                 >
                   {/* Image */}
