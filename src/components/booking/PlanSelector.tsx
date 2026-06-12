@@ -14,7 +14,6 @@ const PlanSelector = ({ dailyPrice }: PlanSelectorProps) => {
   const included = [
     "Milhagem ilimitada na Flórida",
     "Seguro básico com assistência 24h",
-    "Cancelamento gratuito conforme política",
     "Atendimento em português",
   ];
 
