@@ -413,27 +413,16 @@ const SearchResults = () => {
                 >
                   <div className="flex flex-col sm:flex-row">
                     {/* Image */}
-                    <div className={`relative sm:w-[210px] md:w-[230px] shrink-0 h-40 sm:h-auto sm:self-stretch overflow-hidden ${unavailable ? "opacity-60" : ""}`}>
-                      {/* Blurred backdrop fill — same image, blurred + scaled to cover */}
-                      <div
-                        aria-hidden
-                        className="absolute inset-0 bg-center bg-cover scale-110 blur-2xl opacity-60"
-                        style={{ backgroundImage: `url(${v.coverImage})` }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-br from-background/40 via-background/10 to-background/40" />
+                    <div className={`relative sm:w-[210px] md:w-[230px] shrink-0 h-40 sm:h-auto sm:self-stretch overflow-hidden bg-muted/20 ${unavailable ? "opacity-60" : ""}`}>
                       <img
                         src={v.coverImage}
                         alt={v.name}
-                        className={`relative w-full h-full object-contain transition-transform duration-700 ${unavailable ? "grayscale" : "group-hover:scale-105"}`}
+                        className={`w-full h-full object-contain transition-transform duration-700 ${unavailable ? "grayscale" : "group-hover:scale-105"}`}
                         loading="lazy"
                         width={640}
                         height={360}
                       />
-                      {/* Soft fades that dissolve the photo into the card on all edges */}
-                      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-card via-card/60 to-transparent" />
-                      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card via-card/60 to-transparent" />
-                      <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-card/70 to-transparent" />
-                      <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-card/70 to-transparent" />
+
 
 
 
