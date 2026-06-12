@@ -289,13 +289,49 @@ const VehicleDetail = () => {
                 </div>
               )}
 
+              {/* Pricing card for the selected period */}
+              {hasDates ? (
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 sm:p-5 space-y-3">
+                  <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-primary font-semibold">
+                    <Calendar size={14} /> Preço para o período
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <span>{format(pickupDate!, "dd MMM yyyy", { locale: pt })} → {format(returnDate!, "dd MMM yyyy", { locale: pt })}</span>
+                    {pickupLocation && <span className="inline-flex items-center gap-1"><MapPin size={12} className="text-primary" /> {pickupLocation}</span>}
+                  </div>
+                  <div className="text-sm space-y-1.5 pt-2 border-t border-border/40">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Diária média</span><span className="font-semibold tabular-nums">{formatPrice(avgDaily)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Nº de diárias</span><span className="font-semibold tabular-nums">{days}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Caução</span><span className="font-semibold tabular-nums">{formatPrice(deposit)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Franquia</span><span className="font-semibold tabular-nums">{formatPrice(franchise)}</span></div>
+                    <div className="flex justify-between text-base pt-2 border-t border-border/40 mt-2">
+                      <span className="font-bold">Total do período</span>
+                      <span className="font-black gold-text tabular-nums">{formatPrice(subtotalRental)}</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Inclui milhagem ilimitada na Flórida e seguro básico. Add-ons (cadeirinha, toll-tag, seguro premium) podem ser escolhidos na próxima etapa.
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-border/40 bg-muted/30 p-4 text-sm text-muted-foreground">
+                  Escolha as datas no buscador para ver o preço exato deste veículo.
+                </div>
+              )}
+
               <button
                 type="button"
-                onClick={() => navigate(`/reserva/${encodeURIComponent(decodedName)}`)}
+                onClick={() => {
+                  if (!hasDates) {
+                    navigate("/");
+                    return;
+                  }
+                  navigate(`/reserva/${encodeURIComponent(decodedName)}?${forwardQuery}`);
+                }}
                 className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 <Calendar className="w-5 h-5" />
-                Reservar
+                {hasDates ? "Reservar" : "Escolher datas"}
               </button>
             </div>
           </div>
