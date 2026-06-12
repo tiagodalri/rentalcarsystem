@@ -218,9 +218,9 @@ export default function AdminFleetReport({
           { Icon: Percent, label: "Ocupação Média", value: `${avgOccupancy}%`, tone: "primary" as const },
           { Icon: AlertTriangle, label: "Avarias", value: String(totalDamages), tone: "destructive" as const },
         ].map(({ Icon, label, value, tone }) => (
-          <Card key={label} className="border-border/40">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
+          <Card key={label} className="border-border/40 h-full">
+            <CardContent className="p-4 h-full flex items-center">
+              <div className="flex items-center gap-3 w-full">
                 <div
                   className={`shrink-0 h-10 w-10 rounded-lg flex items-center justify-center ${
                     tone === "destructive" ? "bg-destructive/10" : "bg-primary/10"
@@ -228,9 +228,9 @@ export default function AdminFleetReport({
                 >
                   <Icon size={18} className={tone === "destructive" ? "text-destructive" : "text-primary"} />
                 </div>
-                <div className="min-w-0 flex flex-col justify-center leading-none">
-                  <p className="text-[11px] text-muted-foreground uppercase tracking-wider mb-1.5 truncate">{label}</p>
-                  <p className="text-xl font-medium text-foreground tabular-nums leading-none">{value}</p>
+                <div className="min-w-0 flex flex-col justify-center">
+                  <p className="text-[11px] text-muted-foreground uppercase tracking-wider truncate">{label}</p>
+                  <p className="text-xl font-medium text-foreground tabular-nums leading-tight mt-1">{value}</p>
                 </div>
               </div>
             </CardContent>
