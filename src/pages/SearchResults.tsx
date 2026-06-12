@@ -1,13 +1,15 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle, Settings2, Fuel, Gauge, Snowflake, DoorOpen, Shield, SlidersHorizontal, ArrowUpDown } from "lucide-react";
+import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle, Settings2, Fuel, Gauge, Snowflake, DoorOpen, Shield, SlidersHorizontal, ArrowUpDown, Pencil } from "lucide-react";
 import { SearchResultsSkeleton } from "@/components/skeletons/PublicSkeletons";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppBubble from "@/components/WhatsAppBubble";
+import SearchBar from "@/components/SearchBar";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { useVehiclesDB, categoryToKey, buildPriceMap } from "@/hooks/useVehiclesDB";
 import { useVehicleAvailability } from "@/hooks/useVehicleAvailability";
@@ -265,6 +267,28 @@ const SearchResults = () => {
                   )}
                 </motion.div>
               )}
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="mt-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary hover:bg-primary/10 hover:border-primary transition-colors"
+                  >
+                    <Pencil size={14} />
+                    Alterar busca
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden bg-background">
+                  <DialogHeader className="px-6 pt-6 pb-2">
+                    <DialogTitle className="text-lg font-bold uppercase tracking-wider">
+                      Alterar <span className="gold-text">busca</span>
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="p-4 sm:p-6 max-h-[80vh] overflow-y-auto">
+                    <SearchBar />
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 
