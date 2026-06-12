@@ -26,6 +26,9 @@ type Row = {
   roiPct: number | null;
   paidOff: boolean;
   daysOwned: number;
+  totalDays: number;
+  occupancyPct: number;
+  damageCount: number;
 };
 
 const fmt = (n: number) =>
