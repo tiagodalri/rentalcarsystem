@@ -79,7 +79,15 @@ const Checkout = () => {
   const [phone, setPhone] = useState(maskPhone(state.customer?.phone || ""));
   const [cpf, setCpf] = useState(maskCPF(state.customer?.cpf || ""));
   const [birth, setBirth] = useState(state.customer?.birth_date || "");
-  const [step, setStep] = useState<"client" | "pay" | "success">("client");
+  const addr: AddressPayload = state.customer?.address || {};
+
+  // If we already have all required data from /reserva, skip the redundant step.
+  const prefilled =
+    !!(state.customer?.full_name && state.customer?.email && state.customer?.cpf &&
+       state.customer?.birth_date && state.customer?.phone &&
+       addr.zip_code && addr.street && addr.number && addr.city && addr.state);
+
+  const [step, setStep] = useState<"client" | "pay" | "success">(prefilled ? "pay" : "client");
   const [method, setMethod] = useState<"pix" | "boleto" | "card">("pix");
 
   // Quote (cached per payment_method)
