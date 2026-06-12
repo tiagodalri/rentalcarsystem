@@ -4,6 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import type { DateRange } from "react-day-picker";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line, Area, AreaChart
@@ -11,10 +14,10 @@ import {
 import { darkTooltipProps } from "@/components/admin/ChartTooltip";
 import {
   Loader2, TrendingUp, DollarSign, AlertTriangle, Car, CalendarDays,
-  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart
+  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart, CalendarRange, X
 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
-import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays } from "date-fns";
+import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { aggregateAddons, calcVehicleOccupancyPct } from "@/lib/fleetMetrics";
 
@@ -50,6 +53,8 @@ export default function AdminFleetReport({
 }: { embedded?: boolean; monthOverride?: Date } = {}) {
   const [loading, setLoading] = useState(true);
   const [month, setMonth] = useState(startOfMonth(monthOverride ?? new Date()));
+  const [customRange, setCustomRange] = useState<DateRange | undefined>(undefined);
+  const [rangeOpen, setRangeOpen] = useState(false);
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [inspections, setInspections] = useState<any[]>([]);
@@ -57,16 +62,22 @@ export default function AdminFleetReport({
 
   // Sync with external override (global period filter)
   useEffect(() => {
-    if (monthOverride) setMonth(startOfMonth(monthOverride));
+    if (monthOverride) {
+      setMonth(startOfMonth(monthOverride));
+      setCustomRange(undefined);
+    }
   }, [monthOverride?.getTime()]);
 
-  const monthStart = startOfMonth(month);
-  const monthEnd = endOfMonth(month);
-  const daysInMonth = differenceInDays(monthEnd, monthStart) + 1;
+  const usingCustom = !!(customRange?.from && customRange?.to);
+  const periodStart = usingCustom ? startOfDay(customRange!.from!) : startOfMonth(month);
+  const periodEnd = usingCustom ? endOfDay(customRange!.to!) : endOfMonth(month);
+  const monthStart = periodStart;
+  const monthEnd = periodEnd;
+  const daysInMonth = Math.max(1, differenceInDays(monthEnd, monthStart) + 1);
 
   useEffect(() => {
     loadData();
-  }, [month]);
+  }, [month, customRange?.from?.getTime(), customRange?.to?.getTime()]);
 
   const loadData = async () => {
     setLoading(true);
@@ -196,16 +207,65 @@ export default function AdminFleetReport({
           </div>
         ) : <div />}
         {!monthOverride && (
-          <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(subMonths(month, 1))}>
-              <ChevronLeft size={16} />
-            </Button>
-            <span className="text-sm font-medium text-foreground px-3 min-w-[140px] text-center capitalize">
-              {format(month, "MMMM yyyy", { locale: ptBR })}
-            </span>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(addMonths(month, 1))}>
-              <ChevronRight size={16} />
-            </Button>
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            {!usingCustom && (
+              <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(subMonths(month, 1))}>
+                  <ChevronLeft size={16} />
+                </Button>
+                <span className="text-sm font-medium text-foreground px-3 min-w-[140px] text-center capitalize">
+                  {format(month, "MMMM yyyy", { locale: ptBR })}
+                </span>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(addMonths(month, 1))}>
+                  <ChevronRight size={16} />
+                </Button>
+              </div>
+            )}
+            <Popover open={rangeOpen} onOpenChange={setRangeOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={usingCustom ? "default" : "outline"}
+                  size="sm"
+                  className="h-10 gap-2"
+                >
+                  <CalendarRange size={16} />
+                  {usingCustom
+                    ? `${format(customRange!.from!, "dd/MM/yy")} – ${format(customRange!.to!, "dd/MM/yy")}`
+                    : "Período personalizado"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  selected={customRange}
+                  onSelect={(r) => {
+                    setCustomRange(r);
+                    if (r?.from && r?.to) setRangeOpen(false);
+                  }}
+                  numberOfMonths={2}
+                  locale={ptBR}
+                  initialFocus
+                />
+                <div className="flex items-center justify-between gap-2 p-2 border-t border-border">
+                  <span className="text-xs text-muted-foreground px-2">
+                    Selecione um intervalo
+                  </span>
+                  {usingCustom && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 gap-1"
+                      onClick={() => {
+                        setCustomRange(undefined);
+                        setRangeOpen(false);
+                      }}
+                    >
+                      <X size={14} /> Limpar
+                    </Button>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
       </div>
@@ -213,7 +273,7 @@ export default function AdminFleetReport({
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { Icon: DollarSign, label: "Receita do Mês", value: `$${totalRevenue.toLocaleString()}`, tone: "primary" as const },
+          { Icon: DollarSign, label: usingCustom ? "Receita do Período" : "Receita do Mês", value: `$${totalRevenue.toLocaleString()}`, tone: "primary" as const },
           { Icon: CalendarDays, label: "Reservas", value: String(totalBookings), tone: "primary" as const },
           { Icon: Percent, label: "Ocupação Média", value: `${avgOccupancy}%`, tone: "primary" as const },
           { Icon: AlertTriangle, label: "Avarias", value: String(totalDamages), tone: "destructive" as const },
