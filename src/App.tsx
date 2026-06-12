@@ -20,6 +20,7 @@ import Contato from "./pages/Contato.tsx";
 import VehicleDetail from "./pages/VehicleDetail.tsx";
 import Frota from "./pages/Frota.tsx";
 import PublicTrack from "./pages/PublicTrack.tsx";
+import Checkout from "./pages/Checkout.tsx";
 
 import RequireAuth from "./components/RequireAuth.tsx";
 import { RequireRole } from "./components/admin/RequireRole.tsx";
@@ -130,6 +131,7 @@ const App = () => (
               <Route path="/buscar" element={<SearchResults />} />
               <Route path="/veiculo/:vehicleName" element={<VehicleDetail />} />
               <Route path="/reserva/:vehicleName" element={<BookingDetails />} />
+              <Route path="/checkout" element={<Checkout />} />
               <Route path="/reserva/confirmada" element={<BookingConfirmed />} />
               <Route path="/cadastro" element={<CustomerRegistration />} />
               <Route path="/login" element={<Login />} />
