@@ -331,23 +331,30 @@ const Checkout = () => {
     });
   }
 
-  const totalLine = method === "card"
-    ? (quoteCard?.result ? formatBRL(quoteCard.result) : "...")
-    : (quotePix?.result ? formatBRL(quotePix.result) : "...");
+  const activeQuote = quoteForMethod(method);
+  const activeLoading = !!quoteLoading[method];
+  const activeFailed = activeQuote?.fallback === true;
+  const totalLine = activeQuote?.result != null
+    ? formatBRL(activeQuote.result)
+    : (activeLoading ? "Calculando câmbio…" : (activeFailed ? formatUSD(state.amount_usd) + " (USD)" : "—"));
 
-  const installmentsArr: Array<{ n: number; value: number; total: number }> = useMemo(() => {
-    const raw = quoteCard?.installments;
+  const installmentsArr: Array<{ n: number; value: number; total: number; fee: number }> = useMemo(() => {
+    const raw = quoteForMethod("card")?.installments;
     if (!raw) return [];
-    if (Array.isArray(raw)) return raw.map((it: any, i: number) => ({
-      n: it.installment ?? it.n ?? i + 1,
-      value: Number(it.installment_amount ?? it.value ?? it.amount ?? 0),
-      total: Number(it.amount ?? it.total ?? 0),
-    }));
-    if (typeof raw === "object") return Object.entries(raw).map(([k, v]: any) => ({
-      n: Number(k), value: Number(v?.installment_amount ?? v?.value ?? 0), total: Number(v?.amount ?? v?.total ?? 0),
+    const norm = (it: any, i: number) => ({
+      n: Number(it.installment ?? it.installments ?? it.n ?? i + 1),
+      value: Number(it.installment_amount ?? it.amount ?? it.value ?? 0),
+      total: Number(it.total ?? it.amount_total ?? it.amount ?? 0),
+      fee: Number(it.fee ?? it.interest ?? 0),
+    });
+    if (Array.isArray(raw)) return raw.map(norm);
+    if (typeof raw === "object") return Object.entries(raw).map(([k, v]: any, i) => ({
+      ...norm(v, i),
+      n: Number(k) || norm(v, i).n,
     }));
     return [];
-  }, [quoteCard]);
+  }, [quotes]);
+
 
   const days = state.vehicleDisplay?.days ?? 1;
 
