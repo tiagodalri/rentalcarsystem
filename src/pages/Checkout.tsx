@@ -76,9 +76,20 @@ const Checkout = () => {
   const [step, setStep] = useState<"client" | "pay" | "success">("client");
   const [method, setMethod] = useState<"pix" | "boleto" | "card">("pix");
 
-  // Quote
-  const [quotePix, setQuotePix] = useState<{ rate: number | null; result: number | null } | null>(null);
-  const [quoteCard, setQuoteCard] = useState<{ rate: number | null; result: number | null; installments?: any } | null>(null);
+  // Quote (cached per payment_method so we never recall on render/keystroke)
+  type Quote = {
+    rate: number | null;
+    result: number | null;
+    iof?: number | null;
+    installments?: any;
+    fallback?: boolean;
+    error?: string;
+  };
+  const [quotes, setQuotes] = useState<Record<string, Quote>>({});
+  const [quoteLoading, setQuoteLoading] = useState<Record<string, boolean>>({});
+  const [quoteTick, setQuoteTick] = useState(0); // bump to force recalc
+  const quoteForMethod = (m: "pix" | "boleto" | "card"): Quote | undefined => quotes[m];
+
 
   // Pix / Boleto state
   const [payLoading, setPayLoading] = useState<null | "pix" | "boleto" | "card">(null);
@@ -123,24 +134,51 @@ const Checkout = () => {
     document.head.appendChild(s);
   }, [method, cardScriptLoaded]);
 
-  // Quote on entering payment step (and whenever method changes between pix/boleto/card)
+  // Quote on entering payment step (cached per payment_method, with retry/fallback handling)
   useEffect(() => {
     if (step !== "pay") return;
+    const pm: "pix" | "boleto" | "card" = method;
+    // Skip if already loaded successfully (recalcQuote clears it to force refetch)
+    const existing = quotes[pm];
+    if (existing && !existing.fallback && existing.result != null) return;
+    if (quoteLoading[pm]) return;
+
     let cancelled = false;
+    setQuoteLoading((s) => ({ ...s, [pm]: true }));
     (async () => {
       try {
-        const wantCard = method === "card";
-        const pm = wantCard ? "card" : (method === "boleto" ? "boleto" : "pix");
         const { data, error } = await supabase.functions.invoke("cambioreal-simulator", {
           body: { amount: state.amount_usd, payment_method: pm },
         });
         if (cancelled) return;
-        if (error || data?.error) { console.warn("simulator error", error, data); return; }
-        if (wantCard) setQuoteCard(data); else setQuotePix(data);
-      } catch (e) { console.warn(e); }
+        if (error) {
+          setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: error.message } }));
+        } else if (data?.fallback || data?.error) {
+          setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: data?.message || data?.error } }));
+        } else {
+          setQuotes((s) => ({ ...s, [pm]: {
+            rate: data?.rate ?? null,
+            result: data?.result ?? null,
+            iof: data?.iof ?? null,
+            installments: data?.installments ?? null,
+          }}));
+        }
+      } catch (e: any) {
+        if (!cancelled) setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: e?.message } }));
+      } finally {
+        if (!cancelled) setQuoteLoading((s) => ({ ...s, [pm]: false }));
+      }
     })();
     return () => { cancelled = true; };
-  }, [step, method, state.amount_usd]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, method, state.amount_usd, quoteTick]);
+
+
+  function recalcQuote() {
+    setQuotes((s) => { const c = { ...s }; delete c[method]; return c; });
+    setQuoteTick((t) => t + 1);
+  }
+
 
   // Polling for pix
   useEffect(() => {
@@ -296,23 +334,30 @@ const Checkout = () => {
     });
   }
 
-  const totalLine = method === "card"
-    ? (quoteCard?.result ? formatBRL(quoteCard.result) : "...")
-    : (quotePix?.result ? formatBRL(quotePix.result) : "...");
+  const activeQuote = quoteForMethod(method);
+  const activeLoading = !!quoteLoading[method];
+  const activeFailed = activeQuote?.fallback === true;
+  const totalLine = activeQuote?.result != null
+    ? formatBRL(activeQuote.result)
+    : (activeLoading ? "Calculando câmbio…" : (activeFailed ? formatUSD(state.amount_usd) + " (USD)" : "—"));
 
-  const installmentsArr: Array<{ n: number; value: number; total: number }> = useMemo(() => {
-    const raw = quoteCard?.installments;
+  const installmentsArr: Array<{ n: number; value: number; total: number; fee: number }> = useMemo(() => {
+    const raw = quoteForMethod("card")?.installments;
     if (!raw) return [];
-    if (Array.isArray(raw)) return raw.map((it: any, i: number) => ({
-      n: it.installment ?? it.n ?? i + 1,
-      value: Number(it.installment_amount ?? it.value ?? it.amount ?? 0),
-      total: Number(it.amount ?? it.total ?? 0),
-    }));
-    if (typeof raw === "object") return Object.entries(raw).map(([k, v]: any) => ({
-      n: Number(k), value: Number(v?.installment_amount ?? v?.value ?? 0), total: Number(v?.amount ?? v?.total ?? 0),
+    const norm = (it: any, i: number) => ({
+      n: Number(it.installment ?? it.installments ?? it.n ?? i + 1),
+      value: Number(it.installment_amount ?? it.amount ?? it.value ?? 0),
+      total: Number(it.total ?? it.amount_total ?? it.amount ?? 0),
+      fee: Number(it.fee ?? it.interest ?? 0),
+    });
+    if (Array.isArray(raw)) return raw.map(norm);
+    if (typeof raw === "object") return Object.entries(raw).map(([k, v]: any, i) => ({
+      ...norm(v, i),
+      n: Number(k) || norm(v, i).n,
     }));
     return [];
-  }, [quoteCard]);
+  }, [quotes]);
+
 
   const days = state.vehicleDisplay?.days ?? 1;
 
@@ -395,7 +440,14 @@ const Checkout = () => {
                           <p className="text-sm text-foreground/80">
                             Pagamento instantâneo. Sua reserva é confirmada em poucos segundos após o pagamento.
                           </p>
-                          <p className="text-xs text-muted-foreground">Total a pagar: <strong className="text-foreground">{totalLine}</strong></p>
+                          <p className="text-xs text-muted-foreground">
+                            Você vai pagar <strong className="text-foreground">{totalLine}</strong>
+                            {activeQuote?.rate != null && <> via Pix (câmbio R$ {activeQuote.rate.toFixed(4)})</>}.
+                          </p>
+                          {activeFailed && (
+                            <button onClick={recalcQuote} className="text-[11px] underline text-primary">Recalcular câmbio</button>
+                          )}
+
                           {payError && <ErrorBox msg={payError} />}
                           <button onClick={handlePix} disabled={payLoading === "pix"} className="cr-cta">
                             {payLoading === "pix" ? <><Loader2 size={16} className="animate-spin" /> Gerando Pix...</> : <>Pagar com Pix</>}
@@ -452,7 +504,14 @@ const Checkout = () => {
                           <p className="text-sm text-foreground/80">
                             Compensação em até 3 dias úteis. A reserva é confirmada após o pagamento.
                           </p>
-                          <p className="text-xs text-muted-foreground">Total a pagar: <strong className="text-foreground">{totalLine}</strong></p>
+                          <p className="text-xs text-muted-foreground">
+                            Você vai pagar <strong className="text-foreground">{totalLine}</strong>
+                            {activeQuote?.rate != null && <> via boleto (câmbio R$ {activeQuote.rate.toFixed(4)})</>}.
+                          </p>
+                          {activeFailed && (
+                            <button onClick={recalcQuote} className="text-[11px] underline text-primary">Recalcular câmbio</button>
+                          )}
+
                           {payError && <ErrorBox msg={payError} />}
                           <button onClick={handleBoleto} disabled={payLoading === "boleto"} className="cr-cta">
                             {payLoading === "boleto" ? <><Loader2 size={16} className="animate-spin" /> Gerando boleto...</> : <>Gerar Boleto</>}
@@ -547,28 +606,54 @@ const Checkout = () => {
                           <input inputMode="numeric" autoComplete="cc-csc" maxLength={4} className="cr-input" value={cardCvv} onChange={(e) => setCardCvv(onlyDigits(e.target.value))} placeholder="000" />
                         </Field>
                         <Field label="Parcelas *" full>
-                          <select className="cr-input" value={installments} onChange={(e) => setInstallments(Number(e.target.value))}>
-                            {(installmentsArr.length > 0 ? installmentsArr : Array.from({ length: 12 }, (_, i) => ({ n: i + 1, value: 0, total: 0 }))).map((it) => (
+                          <select className="cr-input" value={installments} onChange={(e) => setInstallments(Number(e.target.value))} disabled={installmentsArr.length === 0}>
+                            {installmentsArr.length === 0 ? (
+                              <option>{quoteLoading.card ? "Calculando parcelas…" : "Indisponível — recalcule o câmbio"}</option>
+                            ) : installmentsArr.map((it) => (
                               <option key={it.n} value={it.n}>
-                                {it.n}x{it.value ? ` de ${formatBRL(it.value)}${it.total ? ` (total ${formatBRL(it.total)})` : ""}` : ""}
+                                {it.n === 1
+                                  ? `à vista ${formatBRL(it.value || it.total)}`
+                                  : `${it.n}x de ${formatBRL(it.value)} · total ${formatBRL(it.total)}`}
                               </option>
                             ))}
                           </select>
                         </Field>
                       </div>
 
+                      {(() => {
+                        const sel = installmentsArr.find(i => i.n === installments);
+                        if (!sel) return null;
+                        return (
+                          <div className="rounded-lg border border-border bg-secondary/30 p-3 text-xs space-y-1">
+                            <div className="flex justify-between"><span className="text-muted-foreground">Parcela</span><span className="text-foreground tabular-nums">{sel.n === 1 ? `1x à vista` : `${sel.n}x de ${formatBRL(sel.value)}`}</span></div>
+                            <div className="flex justify-between"><span className="text-muted-foreground">Total BRL</span><span className="text-foreground tabular-nums">{formatBRL(sel.total)}</span></div>
+                            {sel.fee > 0 && (
+                              <div className="flex justify-between"><span className="text-muted-foreground">Juros do parcelamento</span><span className="text-foreground tabular-nums">{formatBRL(sel.fee)}</span></div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
                       <p className="text-[11px] text-muted-foreground">
                         O cliente assume os juros do parcelamento.
                       </p>
 
                       {payError && <ErrorBox msg={payError} />}
+                      {activeFailed && (
+                        <button onClick={recalcQuote} className="text-[11px] underline text-primary text-left">Recalcular câmbio</button>
+                      )}
 
                       <button onClick={handleCard} disabled={payLoading === "card" || !cardScriptLoaded} className="cr-cta">
                         {payLoading === "card"
                           ? <><Loader2 size={16} className="animate-spin" /> Processando...</>
                           : !cardScriptLoaded ? <><Loader2 size={16} className="animate-spin" /> Preparando módulo seguro...</>
-                          : <>Pagar com cartão</>}
+                          : (() => {
+                              const sel = installmentsArr.find(i => i.n === installments);
+                              if (!sel) return <>Pagar com cartão</>;
+                              return <>Pagar {sel.n === 1 ? `à vista ${formatBRL(sel.value || sel.total)}` : `${sel.n}x de ${formatBRL(sel.value)}`}</>;
+                            })()}
                       </button>
+
                     </TabsContent>
                   </Tabs>
                 </section>
@@ -620,14 +705,26 @@ const Checkout = () => {
 
               <div className="border-t border-border pt-3 space-y-1.5 text-xs">
                 <div className="flex justify-between"><span className="text-muted-foreground">Total USD</span><span className="font-semibold text-foreground tabular-nums">{formatUSD(state.amount_usd)}</span></div>
-                {(method === "card" ? quoteCard : quotePix)?.rate != null && (
-                  <div className="flex justify-between"><span className="text-muted-foreground">Cotação</span><span className="text-foreground tabular-nums">{(method === "card" ? quoteCard : quotePix)?.rate?.toFixed(4)}</span></div>
+                {activeQuote?.rate != null && (
+                  <div className="flex justify-between"><span className="text-muted-foreground">Câmbio</span><span className="text-foreground tabular-nums">R$ {activeQuote.rate.toFixed(4)}</span></div>
+                )}
+                {activeQuote?.iof != null && activeQuote.iof > 0 && (
+                  <div className="flex justify-between"><span className="text-muted-foreground">IOF / taxas</span><span className="text-foreground tabular-nums">{formatBRL(activeQuote.iof)}</span></div>
                 )}
                 <div className="flex justify-between text-sm pt-1.5 border-t border-border/50 mt-1.5">
                   <span className="text-foreground font-semibold">Total BRL</span>
                   <span className="text-foreground font-bold tabular-nums">{totalLine}</span>
                 </div>
+                {activeFailed && (
+                  <button onClick={recalcQuote} className="w-full mt-2 text-[11px] py-2 rounded-md border border-border text-foreground hover:bg-secondary transition">
+                    Recalcular câmbio
+                  </button>
+                )}
+                {activeQuote?.result != null && (
+                  <p className="text-[10px] text-muted-foreground pt-1">Inclui IOF e taxas do Câmbio Real.</p>
+                )}
               </div>
+
 
               <div className="flex items-center gap-2 text-[10px] text-muted-foreground border-t border-border pt-3">
                 <ShieldCheck size={12} /> Cartão tokenizado · <Lock size={10} /> Câmbio Real
