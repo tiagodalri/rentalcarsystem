@@ -1,0 +1,1 @@
+UPDATE public.vehicles SET status = 'available' WHERE status = 'preparing';
