@@ -83,13 +83,14 @@ const SearchResults = () => {
     ? Math.max(1, Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)))
     : 1;
 
-  // Real availability — filter out vehicles with overlapping bookings (Turo + future paid)
+  // Real availability — keep all vehicles, but mark unavailable ones so they appear at the bottom
   const { unavailableIds, loading: availabilityLoading } = useVehicleAvailability(pickupDate, returnDate);
-  const availableVehicles = baseVehicles.filter((v) => !unavailableIds.has(v.id));
+  const isUnavailable = (id: string) => unavailableIds.has(id);
+  const availableVehicles = baseVehicles; // alias kept for minimal downstream churn
 
-  // Fetch real pricing (seasons, overrides, weekend multipliers, duration discounts)
+  // Fetch real pricing (seasons, overrides, weekend multipliers, duration discounts) — for all vehicles
   const { map: pricingMap } = useVehiclesPricingMap(
-    availableVehicles.map((v) => v.id),
+    baseVehicles.map((v) => v.id),
     pickupDate,
     returnDate,
   );
