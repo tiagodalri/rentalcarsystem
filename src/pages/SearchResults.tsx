@@ -547,11 +547,8 @@ const SearchResults = () => {
                             <p className="text-xl md:text-2xl font-black gold-text leading-none mt-1">
                               {toBRL(totalPrice)}
                             </p>
-                            <p className="text-[9px] text-muted-foreground/70 mt-0.5 italic">
-                              à vista
-                            </p>
-                            <p className="text-[10px] text-muted-foreground mt-1">
-                              equivalente a {toUSD(totalPrice)}
+                            <p className="text-[10px] text-muted-foreground/80 mt-0.5 italic">
+                              à vista com desconto
                             </p>
                             <p className="text-[10px] text-muted-foreground/80 mt-1.5 pt-1.5 border-t border-border/30">
                               {toBRL(dailyDisplay)} <span className="opacity-70">/dia</span>
