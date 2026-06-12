@@ -429,6 +429,10 @@ const SearchResults = () => {
                         width={640}
                         height={360}
                       />
+                      {/* Soft fade at bottom (mobile) and right (desktop) to dissolve into the card */}
+                      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-card sm:hidden" />
+                      <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-r from-transparent to-card hidden sm:block" />
+
 
                       <div className="absolute top-2 left-2">
                         {unavailable ? (
