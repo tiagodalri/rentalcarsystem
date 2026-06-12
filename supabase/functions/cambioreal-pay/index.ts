@@ -190,6 +190,9 @@ serve(async (req) => {
     let crJson: any = null;
     try { crJson = JSON.parse(crText); } catch { /* keep null */ }
 
+    // TEMP DEBUG — inspect v2 response shape
+    console.log("[CR-V2 RAW]", payment_method, crRes.status, crText);
+
     if (!crRes.ok || crJson?.status === "error") {
       await supabase.from("bookings").delete().eq("id", booking.id);
       return json(
@@ -205,18 +208,25 @@ serve(async (req) => {
     const data = crJson?.data ?? crJson;
     const tx = data?.transaction ?? {};
 
-    await supabase.from("payment_requests").insert({
+    // v2 may put id/token/code at any of these locations
+    const cr_id = data?.id ?? tx?.id ?? null;
+    const cr_token = data?.token ?? tx?.token ?? (typeof cr_id === "string" ? cr_id : null);
+    const cr_code = tx?.code ?? data?.code ?? null;
+
+    const { error: prErr } = await supabase.from("payment_requests").insert({
       booking_id: booking.id,
       order_id: orderId,
-      cr_id: data?.id ?? null,
-      cr_token: data?.token ?? null,
-      cr_code: tx?.code ?? data?.code ?? null,
+      cr_id: typeof cr_id === "number" ? cr_id : null,
+      cr_token,
+      cr_code,
       amount_usd,
       status: "AGUARDANDO_CLIENTE",
       payment_method,
       checkout_url: tx?.ticket_url ?? null,
       raw: crJson,
     });
+    if (prErr) console.error("[CR-V2] payment_requests insert FAILED:", prErr);
+
 
     return json({
       booking_id: booking.id,
