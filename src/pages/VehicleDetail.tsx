@@ -70,10 +70,24 @@ const VehicleDetail = () => {
 
   const decodedName = vehicleName ? decodeURIComponent(vehicleName) : "";
   const dbv = dbVehicles.find((v) => v.name === decodedName);
-  const cover = coverImageMap[decodedName] || "/placeholder.svg";
-  const gallery = galleryMap[decodedName] || { images: [], thumbs: [] };
-  const images = useMemo(() => [cover, ...gallery.images.filter((img) => img !== cover)], [cover, gallery.images]);
-  const thumbnails = useMemo(() => [cover, ...gallery.thumbs], [cover, gallery.thumbs]);
+  const dbPhotos = useMemo(() => {
+    const raw = dbv?.photos;
+    if (Array.isArray(raw)) return raw.filter((p): p is string => typeof p === "string" && p.length > 0);
+    return [];
+  }, [dbv?.photos]);
+  const fallbackGallery = galleryMap[decodedName] || { images: [], thumbs: [] };
+  const fallbackCover = coverImageMap[decodedName] || "/placeholder.svg";
+  const cover = dbPhotos.length > 0 ? (dbv?.image_url || dbPhotos[0]) : fallbackCover;
+  const images = useMemo(() => {
+    if (dbPhotos.length > 0) {
+      return [cover, ...dbPhotos.filter((img) => img !== cover)];
+    }
+    return [cover, ...fallbackGallery.images.filter((img) => img !== cover)];
+  }, [cover, dbPhotos, fallbackGallery.images]);
+  const thumbnails = useMemo(() => {
+    if (dbPhotos.length > 0) return images;
+    return [cover, ...fallbackGallery.thumbs];
+  }, [cover, dbPhotos, images, fallbackGallery.thumbs]);
   const vehicleT = t.vehicles[decodedName];
 
   // Real pricing for the selected period (seasons, weekend, discounts)
