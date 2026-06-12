@@ -207,16 +207,65 @@ export default function AdminFleetReport({
           </div>
         ) : <div />}
         {!monthOverride && (
-          <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(subMonths(month, 1))}>
-              <ChevronLeft size={16} />
-            </Button>
-            <span className="text-sm font-medium text-foreground px-3 min-w-[140px] text-center capitalize">
-              {format(month, "MMMM yyyy", { locale: ptBR })}
-            </span>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(addMonths(month, 1))}>
-              <ChevronRight size={16} />
-            </Button>
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            {!usingCustom && (
+              <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(subMonths(month, 1))}>
+                  <ChevronLeft size={16} />
+                </Button>
+                <span className="text-sm font-medium text-foreground px-3 min-w-[140px] text-center capitalize">
+                  {format(month, "MMMM yyyy", { locale: ptBR })}
+                </span>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(addMonths(month, 1))}>
+                  <ChevronRight size={16} />
+                </Button>
+              </div>
+            )}
+            <Popover open={rangeOpen} onOpenChange={setRangeOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={usingCustom ? "default" : "outline"}
+                  size="sm"
+                  className="h-10 gap-2"
+                >
+                  <CalendarRange size={16} />
+                  {usingCustom
+                    ? `${format(customRange!.from!, "dd/MM/yy")} – ${format(customRange!.to!, "dd/MM/yy")}`
+                    : "Período personalizado"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="range"
+                  selected={customRange}
+                  onSelect={(r) => {
+                    setCustomRange(r);
+                    if (r?.from && r?.to) setRangeOpen(false);
+                  }}
+                  numberOfMonths={2}
+                  locale={ptBR}
+                  initialFocus
+                />
+                <div className="flex items-center justify-between gap-2 p-2 border-t border-border">
+                  <span className="text-xs text-muted-foreground px-2">
+                    Selecione um intervalo
+                  </span>
+                  {usingCustom && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 gap-1"
+                      onClick={() => {
+                        setCustomRange(undefined);
+                        setRangeOpen(false);
+                      }}
+                    >
+                      <X size={14} /> Limpar
+                    </Button>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
       </div>
