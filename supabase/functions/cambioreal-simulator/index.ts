@@ -9,9 +9,9 @@ const corsHeaders = {
 const APP_ID = Deno.env.get("CAMBIOREAL_APP_ID") || "1781587732";
 const BASE_URL = Deno.env.get("CAMBIOREAL_BASE_URL") || "https://www.cambioreal.com";
 
-const MAX_RETRIES = 3;
-const TIMEOUT_MS = 10_000;
-const BACKOFF_MS = [400, 1000, 2000];
+const MAX_RETRIES = 2; // 1 retry (worst-case ~12s)
+const TIMEOUT_MS = 6_000;
+const BACKOFF_MS = [500, 1500];
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
