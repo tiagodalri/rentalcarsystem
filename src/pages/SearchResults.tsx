@@ -353,7 +353,7 @@ const SearchResults = () => {
                             onChange={() => toggleArr(selectedTransmissions, tx, setSelectedTransmissions)}
                             className="accent-primary w-3.5 h-3.5"
                           />
-                          {tx}
+                          {tx === "Automatic" ? "Automático" : tx}
                         </label>
                       ))}
                     </div>
