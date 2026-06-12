@@ -254,8 +254,130 @@ const SearchResults = () => {
             )}
           </div>
 
-          {/* Results List (Booking/Decolar style) */}
-          <div className="flex flex-col gap-4 max-w-5xl mx-auto">
+          {/* Layout: Sidebar filters + Results */}
+          <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 max-w-6xl mx-auto">
+            {/* Sidebar filters */}
+            <aside className="lg:sticky lg:top-24 lg:self-start">
+              <div className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 lg:p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                    <SlidersHorizontal size={14} className="text-primary" /> Filtros
+                  </h2>
+                  {activeFiltersCount > 0 && (
+                    <button
+                      onClick={clearFilters}
+                      className="text-[11px] text-primary hover:underline"
+                    >
+                      Limpar ({activeFiltersCount})
+                    </button>
+                  )}
+                </div>
+
+                {/* Category */}
+                <div className="mb-5">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Categoria</p>
+                  <div className="space-y-1.5">
+                    {availableCategories.map((cat) => (
+                      <label key={cat} className="flex items-center gap-2 text-xs cursor-pointer hover:text-primary transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(cat)}
+                          onChange={() => toggleArr(selectedCategories, cat, setSelectedCategories)}
+                          className="accent-primary w-3.5 h-3.5"
+                        />
+                        {categoryLabels[cat] || cat}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Passengers */}
+                <div className="mb-5">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Passageiros (mín.)</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[0, 2, 4, 5, 7].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setMinPassengers(n)}
+                        className={`text-[11px] px-2.5 py-1 rounded-md border transition-colors ${
+                          minPassengers === n
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "border-border/50 hover:border-primary/50"
+                        }`}
+                      >
+                        {n === 0 ? "Todos" : `${n}+`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Luggage */}
+                <div className="mb-5">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Malas (mín.)</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[0, 1, 2, 3, 4].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setMinLuggage(n)}
+                        className={`text-[11px] px-2.5 py-1 rounded-md border transition-colors ${
+                          minLuggage === n
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "border-border/50 hover:border-primary/50"
+                        }`}
+                      >
+                        {n === 0 ? "Todos" : `${n}+`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Transmission */}
+                {availableTransmissions.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Câmbio</p>
+                    <div className="space-y-1.5">
+                      {availableTransmissions.map((tx) => (
+                        <label key={tx} className="flex items-center gap-2 text-xs cursor-pointer hover:text-primary transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={selectedTransmissions.includes(tx)}
+                            onChange={() => toggleArr(selectedTransmissions, tx, setSelectedTransmissions)}
+                            className="accent-primary w-3.5 h-3.5"
+                          />
+                          {tx}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </aside>
+
+            {/* Main column: sort bar + results */}
+            <div>
+              {/* Sort bar */}
+              <div className="flex items-center justify-between gap-3 mb-4 rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm px-4 py-2.5">
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-foreground font-semibold">{vehicles.length}</span> {vehicles.length === 1 ? "resultado" : "resultados"}
+                </p>
+                <label className="flex items-center gap-2 text-xs">
+                  <ArrowUpDown size={13} className="text-primary" />
+                  <span className="text-muted-foreground hidden sm:inline">Ordenar por</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                    className="bg-background border border-border/50 rounded-md px-2 py-1 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="recommended">Recomendado</option>
+                    <option value="price_asc">Menor preço</option>
+                    <option value="price_desc">Maior preço</option>
+                    <option value="passengers_desc">Mais passageiros</option>
+                  </select>
+                </label>
+              </div>
+
+              {/* Results List */}
+              <div className="flex flex-col gap-4">
             {vehicles.map((v, i) => {
               const basePrice = vehiclePrices[v.name] || 99;
               const pricing = pricingMap[v.id];
