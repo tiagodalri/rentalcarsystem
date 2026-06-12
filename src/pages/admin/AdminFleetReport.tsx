@@ -273,7 +273,7 @@ export default function AdminFleetReport({
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { Icon: DollarSign, label: "Receita do Mês", value: `$${totalRevenue.toLocaleString()}`, tone: "primary" as const },
+          { Icon: DollarSign, label: usingCustom ? "Receita do Período" : "Receita do Mês", value: `$${totalRevenue.toLocaleString()}`, tone: "primary" as const },
           { Icon: CalendarDays, label: "Reservas", value: String(totalBookings), tone: "primary" as const },
           { Icon: Percent, label: "Ocupação Média", value: `${avgOccupancy}%`, tone: "primary" as const },
           { Icon: AlertTriangle, label: "Avarias", value: String(totalDamages), tone: "destructive" as const },
