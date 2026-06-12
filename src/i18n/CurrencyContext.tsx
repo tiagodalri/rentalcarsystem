@@ -110,9 +110,20 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     [currency, formatPriceValue]
   );
 
+  const formatPriceIn = useCallback(
+    (usdAmount: number, c: Currency): string => {
+      if (c === "BRL") {
+        const v = exchangeRate ? Math.ceil(usdAmount * exchangeRate) : usdAmount;
+        return `R$ ${v.toLocaleString("pt-BR")}`;
+      }
+      return `US$ ${usdAmount.toLocaleString("en-US")}`;
+    },
+    [exchangeRate]
+  );
+
   return (
     <CurrencyContext.Provider
-      value={{ currency, setCurrency, toggleCurrency, formatPrice, formatPriceValue, currencySymbol, exchangeRate, loading }}
+      value={{ currency, setCurrency, toggleCurrency, formatPrice, formatPriceValue, formatPriceIn, currencySymbol, exchangeRate, loading }}
     >
       {children}
     </CurrencyContext.Provider>
