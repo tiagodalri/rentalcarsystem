@@ -18,7 +18,7 @@ const VehicleDetail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency, exchangeRate } = useCurrency();
   const { vehicles: dbVehicles, loading } = useVehiclesDB();
   const { toast } = useToast();
   const [currentImage, setCurrentImage] = useState(0);
@@ -308,6 +308,18 @@ const VehicleDetail = () => {
                       <span className="font-bold">Total do período</span>
                       <span className="font-black gold-text tabular-nums">{formatPrice(subtotalRental)}</span>
                     </div>
+                    {currency === "USD" && exchangeRate && subtotalRental > 0 && (
+                      <div className="flex justify-between text-[11px] pt-1 text-muted-foreground">
+                        <span>≈ em Reais (cotação aproximada)</span>
+                        <span className="tabular-nums">R$ {Math.ceil(subtotalRental * exchangeRate).toLocaleString("pt-BR")}</span>
+                      </div>
+                    )}
+                    {currency === "BRL" && subtotalRental > 0 && (
+                      <div className="flex justify-between text-[11px] pt-1 text-muted-foreground">
+                        <span>Equivalente em dólares</span>
+                        <span className="tabular-nums">US$ {subtotalRental.toLocaleString("en-US")}</span>
+                      </div>
+                    )}
                   </div>
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
                     Inclui milhagem ilimitada na Flórida e seguro básico. Add-ons (cadeirinha, toll-tag, seguro premium) podem ser escolhidos na próxima etapa.

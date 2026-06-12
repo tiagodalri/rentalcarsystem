@@ -90,7 +90,7 @@ const Checkout = () => {
   const [step, setStep] = useState<"client" | "pay" | "success">(prefilled ? "pay" : "client");
   const [method, setMethod] = useState<"pix" | "boleto" | "card">("pix");
 
-  // Quote (cached per payment_method)
+  // Quote (cached per payment_method) — LOCKED for 15 minutes once obtained.
   type Quote = {
     rate: number | null;
     result: number | null;
@@ -98,10 +98,43 @@ const Checkout = () => {
     installments?: any;
     fallback?: boolean;
     estimated?: boolean; // true while showing public estimate (no official yet)
+    locked_until?: number; // ms timestamp; while in the future the quote is frozen
     error?: string;
   };
-  const [quotes, setQuotes] = useState<Record<string, Quote>>({});
+
+  // Persist locked quotes in localStorage so the same value survives reloads.
+  const QUOTE_TTL_MS = 15 * 60 * 1000;
+  function quoteCacheKey(pm: string) {
+    return `zeus_cr_quote_${pm}_${Math.round(state.amount_usd * 100)}`;
+  }
+  function readCachedQuote(pm: string): Quote | null {
+    try {
+      const raw = localStorage.getItem(quoteCacheKey(pm));
+      if (!raw) return null;
+      const q: Quote = JSON.parse(raw);
+      if (q.locked_until && q.locked_until > Date.now() && q.result != null) return q;
+    } catch { /* noop */ }
+    return null;
+  }
+  function writeCachedQuote(pm: string, q: Quote) {
+    try { localStorage.setItem(quoteCacheKey(pm), JSON.stringify(q)); } catch { /* noop */ }
+  }
+
+  const [quotes, setQuotes] = useState<Record<string, Quote>>(() => {
+    const out: Record<string, Quote> = {};
+    (["pix", "boleto", "card"] as const).forEach((pm) => {
+      const cached = readCachedQuote(pm);
+      if (cached) out[pm] = cached;
+    });
+    return out;
+  });
   const [quoteLoading, setQuoteLoading] = useState<Record<string, boolean>>({});
+  // Tick used to re-render the countdown.
+  const [, setNowTick] = useState(0);
+  useEffect(() => {
+    const i = setInterval(() => setNowTick((n) => n + 1), 1000);
+    return () => clearInterval(i);
+  }, []);
 
   // Public BRL estimate (fast, never blocks UI)
   const [publicRate, setPublicRate] = useState<number | null>(null);
@@ -128,15 +161,13 @@ const Checkout = () => {
   // Build an estimated quote from the public rate (used while official is loading/failing)
   function buildEstimate(pm: "pix" | "boleto" | "card"): Quote | null {
     if (!publicRate) return null;
-    // Approximate IOF: ~1.1% Pix/Boleto, ~3.5% Card (Brazilian remittance order of magnitude)
     const iofRate = pm === "card" ? 0.035 : 0.011;
-    const spread = 1.02; // small spread on top of public quote, conservative
+    const spread = 1.02;
     const effective = publicRate * spread;
     const result = state.amount_usd * effective * (1 + iofRate);
     const iof = state.amount_usd * effective * iofRate;
     let installments: any = null;
     if (pm === "card") {
-      // 1..12x with light interest from 4x onwards (3% a.m. simple, just for display)
       installments = Array.from({ length: 12 }, (_, i) => {
         const n = i + 1;
         const monthly = n >= 4 ? 0.03 : 0;
@@ -149,14 +180,17 @@ const Checkout = () => {
 
   function quoteForMethod(m: "pix" | "boleto" | "card"): Quote | undefined {
     const real = quotes[m];
+    // If we have a real (non-fallback) result, use it — locked or not.
     if (real && real.result != null && !real.fallback) return real;
     return buildEstimate(m) ?? real;
   }
 
-  // Fetch official quote for a given method (no-op if already cached & valid)
+  // Fetch official quote for a given method (no-op if cached & still locked)
   async function fetchQuote(pm: "pix" | "boleto" | "card", force = false) {
     if (!force) {
       const existing = quotes[pm];
+      // Don't refetch a locked quote until it expires
+      if (existing?.locked_until && existing.locked_until > Date.now() && existing.result != null) return;
       if (existing && !existing.fallback && existing.result != null) return;
       if (quoteLoading[pm]) return;
     }
@@ -170,12 +204,15 @@ const Checkout = () => {
       } else if (data?.fallback || data?.error) {
         setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: data?.message || data?.error } }));
       } else {
-        setQuotes((s) => ({ ...s, [pm]: {
+        const q: Quote = {
           rate: data?.rate ?? null,
           result: data?.result ?? null,
           iof: data?.iof ?? null,
           installments: data?.installments ?? null,
-        }}));
+          locked_until: Date.now() + QUOTE_TTL_MS,
+        };
+        setQuotes((s) => ({ ...s, [pm]: q }));
+        writeCachedQuote(pm, q);
       }
     } catch (e: any) {
       setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: e?.message } }));
@@ -184,7 +221,7 @@ const Checkout = () => {
     }
   }
 
-  // Preload all 3 methods in parallel when entering pay step
+  // Preload all 3 methods in parallel when entering pay step (only if not locked)
   const preloadedRef = useRef(false);
   useEffect(() => {
     if (step !== "pay" || preloadedRef.current) return;
@@ -194,6 +231,7 @@ const Checkout = () => {
   }, [step]);
 
   function recalcQuote() {
+    try { localStorage.removeItem(quoteCacheKey(method)); } catch { /* noop */ }
     setQuotes((s) => { const c = { ...s }; delete c[method]; return c; });
     fetchQuote(method, true);
   }
@@ -315,7 +353,6 @@ const Checkout = () => {
   }
 
   function mapPayError(msg: string, cr?: any): string {
-    // Try Câmbio Real's structured errors first
     const errsArr = cr?.cr_response?.errors || cr?.errors;
     if (Array.isArray(errsArr) && errsArr.length > 0) {
       const first = errsArr[0];
@@ -324,7 +361,7 @@ const Checkout = () => {
     }
     const m = (msg || "").toLowerCase();
     if (m.includes("e-mail") || (m.includes("email") && (m.includes("uso") || m.includes("já") || m.includes("exists") || m.includes("registered")))) {
-      return "E-mail já cadastrado no Câmbio Real para outra pessoa. Use outro e-mail.";
+      return "Não foi possível processar o pagamento neste momento. Tente novamente em alguns segundos.";
     }
     if (m.includes("cpf") && (m.includes("nome") || m.includes("name"))) {
       return "CPF e nome não conferem na Receita Federal. Confira os dados.";
@@ -837,12 +874,32 @@ const Checkout = () => {
                     <Loader2 size={10} className="animate-spin" /> atualizando cotação…
                   </p>
                 )}
+                {!isEstimated && quotes[method]?.locked_until && quotes[method]!.locked_until! > Date.now() && (
+                  <div className="mt-2 rounded-md border border-primary/30 bg-primary/5 px-2.5 py-1.5 flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5 text-[10px] font-semibold text-primary uppercase tracking-wider">
+                      <Lock size={10} /> Cotação travada
+                    </span>
+                    <span className="text-[10px] tabular-nums text-foreground/80">
+                      {(() => {
+                        const ms = Math.max(0, (quotes[method]!.locked_until! - Date.now()));
+                        const m = Math.floor(ms / 60000);
+                        const s = Math.floor((ms % 60000) / 1000);
+                        return `${m}:${String(s).padStart(2, "0")}`;
+                      })()}
+                    </span>
+                  </div>
+                )}
                 {activeFailed && !isEstimated && (
                   <button onClick={recalcQuote} className="w-full mt-2 text-[11px] py-2 rounded-md border border-border text-foreground hover:bg-secondary transition">
                     Recalcular câmbio
                   </button>
                 )}
-                <p className="text-[10px] text-muted-foreground pt-1">Valor final pelo Câmbio Real no momento do pagamento.</p>
+                <p className="text-[10px] text-muted-foreground pt-1">
+                  {!isEstimated && quotes[method]?.locked_until && quotes[method]!.locked_until! > Date.now()
+                    ? "Este valor está garantido até o fim do contador. Finalize a reserva antes."
+                    : "Valor final pelo Câmbio Real no momento do pagamento."}
+                </p>
+
 
               </div>
 
