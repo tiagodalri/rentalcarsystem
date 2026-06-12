@@ -212,28 +212,28 @@ const SearchResults = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.35, delay: i * 0.04 }}
                   onClick={() => (window.location.href = detailUrl)}
-                  className="group relative overflow-hidden rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/50 hover:shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.25)] transition-all duration-300 cursor-pointer"
+                  className="group relative overflow-hidden rounded-lg border border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/50 hover:shadow-[0_6px_24px_-12px_hsl(var(--primary)/0.25)] transition-all duration-300 cursor-pointer"
                 >
-                  <div className="flex flex-col md:flex-row">
+                  <div className="flex flex-col sm:flex-row">
                     {/* Image */}
-                    <div className="relative md:w-[300px] lg:w-[340px] shrink-0 h-52 md:h-auto overflow-hidden">
+                    <div className="relative sm:w-[200px] md:w-[220px] shrink-0 h-36 sm:h-[150px] overflow-hidden">
                       <img
                         src={v.coverImage}
                         alt={v.name}
                         className="w-full h-full object-cover object-[center_40%] transition-transform duration-700 group-hover:scale-105"
                         loading="lazy"
-                        width={1280}
-                        height={720}
+                        width={640}
+                        height={360}
                       />
-                      <div className="absolute top-3 left-3">
-                        <span className="flex items-center gap-1.5 bg-emerald-500/95 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shadow-md">
-                          <Check size={11} strokeWidth={3} />
+                      <div className="absolute top-2 left-2">
+                        <span className="flex items-center gap-1 bg-emerald-500/95 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-md">
+                          <Check size={9} strokeWidth={3} />
                           Disponível
                         </span>
                       </div>
                       {v.preparing && (
-                        <div className="absolute top-3 right-3">
-                          <span className="bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shadow-md">
+                        <div className="absolute top-2 right-2">
+                          <span className="bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-md">
                             Em preparação
                           </span>
                         </div>
@@ -241,63 +241,61 @@ const SearchResults = () => {
                     </div>
 
                     {/* Middle: info */}
-                    <div className="flex-1 p-5 md:p-6 flex flex-col justify-between min-w-0">
+                    <div className="flex-1 p-3 sm:p-4 flex flex-col justify-between min-w-0">
                       <div>
-                        <p className="text-[10px] text-primary font-semibold uppercase tracking-[0.2em] mb-1">
+                        <p className="text-[9px] text-primary font-semibold uppercase tracking-[0.18em] mb-0.5">
                           {categoryLabels[v.categoryKey] || v.categoryKey}
                         </p>
-                        <h3 className="text-xl md:text-2xl font-black uppercase tracking-wider text-foreground leading-tight">
+                        <h3 className="text-base md:text-lg font-black uppercase tracking-wider text-foreground leading-tight">
                           {v.name}
                         </h3>
 
-                        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1.5">
-                            <Users size={14} className="text-primary" /> {v.passengers} passageiros
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px] text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Users size={12} className="text-primary" /> {v.passengers} passageiros
                           </span>
                           {v.luggage && (
-                            <span className="flex items-center gap-1.5">
-                              <Briefcase size={14} className="text-primary" /> {v.luggage} malas
+                            <span className="flex items-center gap-1">
+                              <Briefcase size={12} className="text-primary" /> {v.luggage} malas
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <div className="mt-5 flex flex-wrap gap-2">
-                        <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
                           Quilometragem livre
                         </span>
-                        <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded-md bg-muted/40 text-muted-foreground border border-border/40">
+                        <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted/40 text-muted-foreground border border-border/40">
                           Cancelamento grátis
                         </span>
-                        <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded-md bg-muted/40 text-muted-foreground border border-border/40">
-                          Suporte em português
+                        <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-muted/40 text-muted-foreground border border-border/40">
+                          Suporte PT
                         </span>
                       </div>
                     </div>
 
                     {/* Right: price + CTA */}
-                    <div className="md:w-[230px] shrink-0 border-t md:border-t-0 md:border-l border-border/50 bg-muted/10 p-5 md:p-6 flex md:flex-col items-end md:items-stretch justify-between gap-3">
-                      <div className="text-right md:text-right">
-                        {days > 1 && (
-                          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                            {days} diárias
-                          </p>
-                        )}
-                        <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">
-                          Total
+                    <div className="sm:w-[180px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 bg-muted/10 p-3 sm:p-4 flex sm:flex-col items-end sm:items-stretch justify-between gap-2">
+                      <div className="text-right">
+                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
+                          {days} {days === 1 ? "diária" : "diárias"} · total
                         </p>
-                        <p className="text-2xl md:text-3xl font-black gold-text leading-none mt-0.5">
-                          {formatPrice(totalPrice)}
+                        <p className="text-xl md:text-2xl font-black gold-text leading-none mt-1">
+                          {toBRL(totalPrice)}
                         </p>
-                        <p className="text-[11px] text-muted-foreground mt-1.5">
-                          {formatPrice(dailyDisplay)} <span className="opacity-70">/dia</span>
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          equivalente a {toUSD(totalPrice)}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground/80 mt-0.5">
+                          {toBRL(dailyDisplay)} <span className="opacity-70">/dia</span>
                         </p>
                       </div>
 
                       <Link
                         to={detailUrl}
                         onClick={(e) => e.stopPropagation()}
-                        className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center md:w-full"
+                        className="gold-gradient text-primary-foreground px-3 py-2 rounded-md text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center sm:w-full"
                       >
                         Ver detalhes
                       </Link>
