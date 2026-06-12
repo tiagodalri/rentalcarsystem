@@ -235,17 +235,21 @@ serve(async (req) => {
       payment_method,
       code: tx?.code ?? null,
       expires_at: tx?.expires_at ?? null,
-      qrcode_base64: tx?.barcode ?? null, // QR (pix) ou cód. barras (boleto), base64
-      copia_cola: tx?.number ?? null,     // pix copia-e-cola / linha digitável
+      qrcode_base64: tx?.barcode ?? null,
+      copia_cola: tx?.number ?? null,
       ticket_url: tx?.ticket_url ?? null,
       terms: tx?.terms ?? null,
       cr_token,
       cr_id,
       amount_brl: tx?.amount ?? null,
       currency_brl: tx?.currency ?? null,
+      __debug_pr_err: prErr ? prErr.message : null,
+      __debug_raw_keys: { top: Object.keys(crJson || {}), data: Object.keys(data || {}), transaction: Object.keys(tx || {}) },
+      __debug_data: data,
     });
   } catch (e) {
     console.error("cambioreal-pay error", e);
     return json({ error: (e as Error).message }, 500);
   }
 });
+
