@@ -15,13 +15,24 @@ import { useToast } from "@/hooks/use-toast";
 
 const VehicleDetail = () => {
   const { vehicleName } = useParams<{ vehicleName: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { formatPrice } = useCurrency();
   const { vehicles: dbVehicles, loading } = useVehiclesDB();
   const { toast } = useToast();
   const [currentImage, setCurrentImage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const touchStartX = useState({ x: 0 })[0];
+
+  const pickupDateStr = searchParams.get("pickupDate");
+  const returnDateStr = searchParams.get("returnDate");
+  const pickupLocation = searchParams.get("pickupLocation") || "";
+  const pickupDate = pickupDateStr ? new Date(pickupDateStr) : null;
+  const returnDate = returnDateStr ? new Date(returnDateStr) : null;
+  const days = pickupDate && returnDate
+    ? Math.max(1, Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)))
+    : 0;
 
   useLayoutEffect(() => {
     const root = document.documentElement;
