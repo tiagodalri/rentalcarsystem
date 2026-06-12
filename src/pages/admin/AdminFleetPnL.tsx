@@ -99,6 +99,27 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         ? Math.max(differenceInDays(today, parseISO(v.acquired_date)), 1)
         : 0;
 
+      // Total rented days (lifetime)
+      const totalDays = vBookings.reduce((s: number, b: any) => {
+        try {
+          const d = differenceInDays(parseISO(b.return_date), parseISO(b.pickup_date));
+          return s + Math.max(d, 1);
+        } catch {
+          return s;
+        }
+      }, 0);
+      const occupancyPct = daysOwned > 0
+        ? Math.min(100, Math.round((totalDays / daysOwned) * 100))
+        : 0;
+
+      // Damages from inspections (lifetime)
+      const bookingIds = new Set(vBookings.map((b: any) => b.id));
+      const vInsps = insps.filter((i: any) => bookingIds.has(i.booking_id));
+      const damageCount = vInsps.reduce((s: number, i: any) => {
+        const dmgs = Array.isArray(i.damages) ? i.damages : [];
+        return s + dmgs.length;
+      }, 0);
+
       return {
         id: v.id,
         name: v.name,
@@ -115,6 +136,9 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         roiPct,
         paidOff,
         daysOwned,
+        totalDays,
+        occupancyPct,
+        damageCount,
       };
     });
 
