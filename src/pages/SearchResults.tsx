@@ -429,9 +429,12 @@ const SearchResults = () => {
                         width={640}
                         height={360}
                       />
-                      {/* Soft fade at bottom (mobile) and right (desktop) to dissolve into the card */}
-                      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-b from-transparent to-card sm:hidden" />
-                      <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-r from-transparent to-card hidden sm:block" />
+                      {/* Soft fades that dissolve the photo into the card on all edges */}
+                      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-card via-card/60 to-transparent" />
+                      <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card via-card/60 to-transparent" />
+                      <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-card/70 to-transparent" />
+                      <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-card/70 to-transparent" />
+
 
 
                       <div className="absolute top-2 left-2">
