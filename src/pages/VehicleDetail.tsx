@@ -417,17 +417,6 @@ const VehicleDetail = () => {
                     </div>
                   </div>
 
-                  <div className="rounded-lg border border-border/50 bg-muted/15 p-4">
-                    <div className="flex items-start gap-3">
-                      <AlertCircle size={16} className="text-primary mt-0.5 flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium">Política de cancelamento</p>
-                        <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                          Cancelamento gratuito até 48 horas antes da retirada. Entre 48h e 24h, retenção de 30% do valor. Menos de 24h ou no-show, retenção de 100% do valor da primeira diária.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </section>
             </div>
@@ -516,9 +505,6 @@ const VehicleDetail = () => {
               )}
 
               <div className="rounded-xl border border-border/40 bg-muted/15 p-4 space-y-2.5">
-                <div className="flex items-center gap-2 text-xs text-foreground/80">
-                  <BadgeCheck size={14} className="text-primary" /> Cancelamento gratuito até 48h
-                </div>
                 <div className="flex items-center gap-2 text-xs text-foreground/80">
                   <Plane size={14} className="text-primary" /> Entrega no aeroporto incluída
                 </div>
