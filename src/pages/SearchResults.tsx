@@ -42,16 +42,18 @@ const SearchResults = () => {
   const { customer, loading: authLoading } = useAuth();
   const vehiclePrices = buildPriceMap(dbVehicles);
 
-  // Build vehicles list from DB
-  const vehicles: SearchVehicle[] = dbVehicles.map((dbv) => ({
-    id: dbv.id,
-    name: dbv.name,
-    categoryKey: categoryToKey(dbv.category),
-    passengers: dbv.passengers,
-    luggage: dbv.bags,
-    coverImage: getCoverImage(dbv.name),
-    preparing: dbv.status === "preparing",
-  }));
+  // Build vehicles list from DB (exclude archived/sold/preparing-for-sale states)
+  const baseVehicles: SearchVehicle[] = dbVehicles
+    .filter((v) => !["archived", "sold", "test"].includes((v.status || "").toLowerCase()))
+    .map((dbv) => ({
+      id: dbv.id,
+      name: dbv.name,
+      categoryKey: categoryToKey(dbv.category),
+      passengers: dbv.passengers,
+      luggage: dbv.bags,
+      coverImage: getCoverImage(dbv.name),
+      preparing: dbv.status === "preparing",
+    }));
 
   const pickupDateStr = searchParams.get("pickupDate");
   const returnDateStr = searchParams.get("returnDate");
