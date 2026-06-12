@@ -37,17 +37,23 @@ const FleetSection = () => {
   const { t } = useLanguage();
   const { vehicles: dbVehicles } = useVehiclesDB();
 
-  // Merge DB data with local image assets
-  const vehicles: Vehicle[] = dbVehicles.map((dbv) => {
+  // Merge DB data with local image assets (DB photos win when present)
+  const vehicles: Vehicle[] = dbVehicles.map((dbv: any) => {
     const gallery = galleryMap[dbv.name] || { images: [], thumbs: [] };
+    const dbPhotos: string[] = Array.isArray(dbv?.photos)
+      ? dbv.photos.map((p: any) => (typeof p === "string" ? p : p?.url)).filter((u: any) => typeof u === "string" && u)
+      : [];
+    const cover = (typeof dbv?.image_url === "string" && dbv.image_url) || dbPhotos[0] || coverImageMap[dbv.name] || "/placeholder.svg";
+    const images = dbPhotos.length ? dbPhotos : gallery.images;
+    const thumbs = dbPhotos.length ? dbPhotos : gallery.thumbs;
     return {
       name: dbv.name,
       categoryKey: categoryToKey(dbv.category),
       passengers: dbv.passengers,
       luggage: dbv.bags,
-      coverImage: coverImageMap[dbv.name] || "/placeholder.svg",
-      galleryImages: gallery.images,
-      galleryThumbs: gallery.thumbs,
+      coverImage: cover,
+      galleryImages: images,
+      galleryThumbs: thumbs,
       preparing: dbv.status === "preparing",
     };
   });
