@@ -18,7 +18,7 @@ const VehicleDetail = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { formatPrice } = useCurrency();
+  const { formatPrice, currency, exchangeRate } = useCurrency();
   const { vehicles: dbVehicles, loading } = useVehiclesDB();
   const { toast } = useToast();
   const [currentImage, setCurrentImage] = useState(0);
