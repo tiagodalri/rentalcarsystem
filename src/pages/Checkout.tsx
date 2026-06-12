@@ -16,6 +16,11 @@ const CR_APP_ID = "1781587732";
 const CR_APP_PUBLIC = "pk_production_3db3d2837eb1416e00d9880aae287e6e";
 const CR_HASH_SCRIPT = "https://www.cambioreal.com/js/card-hash.js";
 
+type AddressPayload = {
+  zip_code?: string; street?: string; number?: string; complement?: string;
+  district?: string; city?: string; state?: string;
+};
+
 type CheckoutState = {
   vehicle_id: string;
   start_at: string; // ISO local
@@ -25,6 +30,7 @@ type CheckoutState = {
   customer?: {
     full_name?: string; email?: string; phone?: string;
     cpf?: string; birth_date?: string;
+    address?: AddressPayload;
   };
 };
 
