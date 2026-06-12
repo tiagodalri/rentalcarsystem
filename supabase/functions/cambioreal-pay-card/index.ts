@@ -203,11 +203,12 @@ serve(async (req) => {
       await supabase.from("bookings").delete().eq("id", booking.id);
       return json(
         {
-          error: "Câmbio Real recusou o cartão",
+          error: crJson?.message || crJson?.errors?.[0]?.message || "Câmbio Real recusou o cartão",
+          errors: crJson?.errors ?? null,
           http_status: crRes.status,
           cr_response: crJson ?? crText,
         },
-        502,
+        200,
       );
     }
 

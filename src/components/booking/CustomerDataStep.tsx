@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { User, Mail, Phone, Calendar, Globe, FileText, MapPin, Upload, Camera, Loader2 } from "lucide-react";
+import { User, Mail, Phone, Calendar, Globe, FileText, MapPin, Upload, Camera, Loader2, Building2 } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
 
 export interface CustomerData {
@@ -9,10 +9,13 @@ export interface CustomerData {
   date_of_birth: string;
   nationality: string;
   document_number: string;
-  address: string;
+  address: string;       // street / logradouro
   house_number: string;
   complement: string;
   zip_code: string;
+  district: string;      // bairro
+  city: string;          // cidade
+  state: string;         // UF (2 letras)
   licenseFile: File | null;
 }
 
@@ -22,17 +25,20 @@ interface Props {
 }
 
 const fields = [
-  { key: "full_name", label: "Nome Completo *", icon: User, type: "text", placeholder: "Seu nome completo" },
-  { key: "email", label: "E-mail *", icon: Mail, type: "email", placeholder: "seu@email.com" },
-  { key: "phone", label: "Celular (WhatsApp) *", icon: Phone, type: "tel", placeholder: "+55 11 99999-0000" },
-  { key: "date_of_birth", label: "Data de Nascimento", icon: Calendar, type: "date", placeholder: "" },
-  { key: "nationality", label: "Nacionalidade", icon: Globe, type: "text", placeholder: "Brasileira" },
-  { key: "document_number", label: "Documento (CPF / Passport / ID) *", icon: FileText, type: "text", placeholder: "CPF, Passport ou ID/SSN" },
-  { key: "zip_code", label: "CEP / Zip Code", icon: MapPin, type: "text", placeholder: "00000-000" },
-  { key: "address", label: "Rua / Logradouro", icon: MapPin, type: "text", placeholder: "Rua, bairro, cidade" },
-  { key: "house_number", label: "Número", icon: MapPin, type: "text", placeholder: "123" },
-  { key: "complement", label: "Complemento", icon: MapPin, type: "text", placeholder: "Apto, bloco, sala..." },
-];
+  { key: "full_name", label: "Nome Completo *", icon: User, type: "text", placeholder: "Seu nome completo", colSpan: 1 },
+  { key: "email", label: "E-mail *", icon: Mail, type: "email", placeholder: "seu@email.com", colSpan: 1 },
+  { key: "phone", label: "Celular (WhatsApp) *", icon: Phone, type: "tel", placeholder: "+55 11 99999-0000", colSpan: 1 },
+  { key: "date_of_birth", label: "Data de Nascimento", icon: Calendar, type: "date", placeholder: "", colSpan: 1 },
+  { key: "nationality", label: "Nacionalidade", icon: Globe, type: "text", placeholder: "Brasileira", colSpan: 1 },
+  { key: "document_number", label: "Documento (CPF / Passport / ID) *", icon: FileText, type: "text", placeholder: "CPF, Passport ou ID/SSN", colSpan: 1 },
+  { key: "zip_code", label: "CEP / Zip Code", icon: MapPin, type: "text", placeholder: "00000-000", colSpan: 1 },
+  { key: "address", label: "Rua / Logradouro", icon: MapPin, type: "text", placeholder: "Avenida Paulista", colSpan: 2 },
+  { key: "house_number", label: "Número", icon: MapPin, type: "text", placeholder: "123", colSpan: 1 },
+  { key: "complement", label: "Complemento", icon: MapPin, type: "text", placeholder: "Apto, bloco, sala...", colSpan: 1 },
+  { key: "district", label: "Bairro", icon: Building2, type: "text", placeholder: "Centro", colSpan: 1 },
+  { key: "city", label: "Cidade", icon: Building2, type: "text", placeholder: "São Paulo", colSpan: 1 },
+  { key: "state", label: "Estado (UF)", icon: Building2, type: "text", placeholder: "SP", colSpan: 1 },
+] as const;
 
 export default function CustomerDataStep({ data, onChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -50,10 +56,16 @@ export default function CustomerDataStep({ data, onChange }: Props) {
       const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
       const result = await res.json();
       if (!result.erro) {
-        const addr = [result.logradouro, result.bairro, result.localidade, result.uf].filter(Boolean).join(", ");
-        onChange({ ...data, zip_code: cep, address: addr });
+        onChange({
+          ...data,
+          zip_code: cep,
+          address: result.logradouro || data.address,
+          district: result.bairro || data.district,
+          city: result.localidade || data.city,
+          state: (result.uf || data.state || "").toUpperCase(),
+        });
       }
-    } catch {}
+    } catch { /* noop */ }
     setCepLoading(false);
   };
 
@@ -64,12 +76,12 @@ export default function CustomerDataStep({ data, onChange }: Props) {
         <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-foreground">Dados do Condutor</h3>
       </div>
       <p className="text-[10px] text-muted-foreground -mt-2 mb-2">
-        Preencha para finalizar sua reserva. Os dados serão salvos para agilizar futuras locações.
+        Preencha para finalizar sua reserva. Digite o CEP que rua, bairro, cidade e estado são preenchidos sozinhos.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {fields.map(({ key, label, icon: Icon, type, placeholder }) => (
-          <div key={key} className={key === "address" ? "sm:col-span-2" : ""}>
+        {fields.map(({ key, label, icon: Icon, type, placeholder, colSpan }) => (
+          <div key={key} className={colSpan === 2 ? "sm:col-span-2" : ""}>
             <label className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
               <Icon size={9} className="text-primary/50" />
               {label}
@@ -84,9 +96,11 @@ export default function CustomerDataStep({ data, onChange }: Props) {
               ) : (
                 <input
                   type={type}
-                  value={(data as any)[key]}
+                  value={(data as any)[key] ?? ""}
+                  maxLength={key === "state" ? 2 : undefined}
                   onChange={(e) => {
-                    update(key, e.target.value);
+                    const val = key === "state" ? e.target.value.toUpperCase() : e.target.value;
+                    update(key, val);
                     if (key === "zip_code") lookupCep(e.target.value);
                   }}
                   placeholder={placeholder}

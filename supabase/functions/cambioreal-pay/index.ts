@@ -192,13 +192,16 @@ serve(async (req) => {
 
     if (!crRes.ok || crJson?.status === "error") {
       await supabase.from("bookings").delete().eq("id", booking.id);
+      // Return 200 so the UI receives the structured body (functions.invoke
+      // discards bodies on non-2xx). The presence of `error` signals failure.
       return json(
         {
-          error: "Câmbio Real recusou a cobrança",
+          error: crJson?.message || crJson?.errors?.[0]?.message || "Câmbio Real recusou a cobrança",
+          errors: crJson?.errors ?? null,
           http_status: crRes.status,
           cr_response: crJson ?? crText,
         },
-        502,
+        200,
       );
     }
 

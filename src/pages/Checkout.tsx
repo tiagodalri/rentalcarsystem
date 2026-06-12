@@ -16,6 +16,11 @@ const CR_APP_ID = "1781587732";
 const CR_APP_PUBLIC = "pk_production_3db3d2837eb1416e00d9880aae287e6e";
 const CR_HASH_SCRIPT = "https://www.cambioreal.com/js/card-hash.js";
 
+type AddressPayload = {
+  zip_code?: string; street?: string; number?: string; complement?: string;
+  district?: string; city?: string; state?: string;
+};
+
 type CheckoutState = {
   vehicle_id: string;
   start_at: string; // ISO local
@@ -25,6 +30,7 @@ type CheckoutState = {
   customer?: {
     full_name?: string; email?: string; phone?: string;
     cpf?: string; birth_date?: string;
+    address?: AddressPayload;
   };
 };
 
@@ -73,7 +79,15 @@ const Checkout = () => {
   const [phone, setPhone] = useState(maskPhone(state.customer?.phone || ""));
   const [cpf, setCpf] = useState(maskCPF(state.customer?.cpf || ""));
   const [birth, setBirth] = useState(state.customer?.birth_date || "");
-  const [step, setStep] = useState<"client" | "pay" | "success">("client");
+  const addr: AddressPayload = state.customer?.address || {};
+
+  // If we already have all required data from /reserva, skip the redundant step.
+  const prefilled =
+    !!(state.customer?.full_name && state.customer?.email && state.customer?.cpf &&
+       state.customer?.birth_date && state.customer?.phone &&
+       addr.zip_code && addr.street && addr.number && addr.city && addr.state);
+
+  const [step, setStep] = useState<"client" | "pay" | "success">(prefilled ? "pay" : "client");
   const [method, setMethod] = useState<"pix" | "boleto" | "card">("pix");
 
   // Quote (cached per payment_method)
@@ -266,7 +280,16 @@ const Checkout = () => {
     cpf: onlyDigits(cpf),
     birth_date: birth,
     phone: onlyDigits(phone).startsWith("55") ? "+" + onlyDigits(phone) : "+55" + onlyDigits(phone),
-  }), [name, email, cpf, birth, phone]);
+    address: {
+      zip_code: onlyDigits(addr.zip_code || ""),
+      street: (addr.street || "").trim(),
+      number: (addr.number || "").trim(),
+      complement: (addr.complement || "").trim(),
+      district: (addr.district || "").trim(),
+      city: (addr.city || "").trim(),
+      state: (addr.state || "").trim().toUpperCase().slice(0, 2),
+    },
+  }), [name, email, cpf, birth, phone, addr]);
 
   function validateClient(): string | null {
     if (!clientPayload.name || clientPayload.name.split(" ").length < 2) return "Informe nome e sobrenome.";
@@ -274,6 +297,9 @@ const Checkout = () => {
     if (clientPayload.cpf.length !== 11) return "CPF inválido (11 dígitos).";
     if (!/^\d{4}-\d{2}-\d{2}$/.test(clientPayload.birth_date)) return "Data de nascimento inválida.";
     if (onlyDigits(phone).length < 10) return "Telefone inválido.";
+    const a = clientPayload.address;
+    if (!a.zip_code || a.zip_code.length !== 8) return "CEP incompleto. Edite seus dados e refaça a busca por CEP.";
+    if (!a.street || !a.number || !a.city || !a.state) return "Endereço incompleto (rua, número, cidade e UF).";
     return null;
   }
 
@@ -288,13 +314,25 @@ const Checkout = () => {
     };
   }
 
-  function mapPayError(msg: string): string {
+  function mapPayError(msg: string, cr?: any): string {
+    // Try Câmbio Real's structured errors first
+    const errsArr = cr?.cr_response?.errors || cr?.errors;
+    if (Array.isArray(errsArr) && errsArr.length > 0) {
+      const first = errsArr[0];
+      const txt = (first?.message || first?.error || first?.detail || JSON.stringify(first)).toString();
+      return mapPayError(txt);
+    }
     const m = (msg || "").toLowerCase();
+    if (m.includes("e-mail") || (m.includes("email") && (m.includes("uso") || m.includes("já") || m.includes("exists") || m.includes("registered")))) {
+      return "E-mail já cadastrado no Câmbio Real para outra pessoa. Use outro e-mail.";
+    }
     if (m.includes("cpf") && (m.includes("nome") || m.includes("name"))) {
       return "CPF e nome não conferem na Receita Federal. Confira os dados.";
     }
     if (m.includes("cpf")) return "CPF inválido ou não encontrado na Receita Federal.";
     if (m.includes("birth") || m.includes("nascimento")) return "Data de nascimento não confere.";
+    if (m.includes("address") || m.includes("endere")) return "Endereço incompleto ou inválido. Edite seus dados.";
+    if (m.includes("zip") || m.includes("cep")) return "CEP inválido. Edite seus dados.";
     return msg || "Erro ao processar pagamento.";
   }
 
@@ -305,7 +343,7 @@ const Checkout = () => {
     try {
       const { data, error } = await supabase.functions.invoke("cambioreal-pay", { body: basePayBody("pix") });
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      if (data?.error) { setPayError(mapPayError(data.error, data)); return; }
       setPixResult(data);
     } catch (e: any) {
       setPayError(mapPayError(e?.message || String(e)));
@@ -319,7 +357,7 @@ const Checkout = () => {
     try {
       const { data, error } = await supabase.functions.invoke("cambioreal-pay", { body: basePayBody("boleto") });
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      if (data?.error) { setPayError(mapPayError(data.error, data)); return; }
       setBoletoResult(data);
     } catch (e: any) {
       setPayError(mapPayError(e?.message || String(e)));
@@ -362,7 +400,7 @@ const Checkout = () => {
         },
       });
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      if (data?.error) { setPayError(mapPayError(data.error, data)); return; }
 
       if (data?.approved || data?.status === "approved" || data?.paid) {
         setCardSuccess(data);
@@ -477,6 +515,26 @@ const Checkout = () => {
 
               {step === "pay" && (
                 <section className="rounded-xl border border-border bg-card p-5 sm:p-6">
+                  {prefilled && (
+                    <div className="mb-4 p-3 rounded-lg border border-border/60 bg-secondary/30 flex items-start justify-between gap-3">
+                      <div className="text-[11px] leading-relaxed">
+                        <p className="font-semibold text-foreground">{clientPayload.name} · CPF {maskCPF(clientPayload.cpf)}</p>
+                        <p className="text-muted-foreground">{clientPayload.email} · {clientPayload.phone}</p>
+                        <p className="text-muted-foreground">
+                          {clientPayload.address.street}, {clientPayload.address.number}
+                          {clientPayload.address.complement ? ` — ${clientPayload.address.complement}` : ""}
+                          {clientPayload.address.district ? ` · ${clientPayload.address.district}` : ""}
+                          {" · "}{clientPayload.address.city}/{clientPayload.address.state} · CEP {clientPayload.address.zip_code}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => navigate(-1)}
+                        className="text-[11px] text-primary underline shrink-0"
+                      >
+                        editar
+                      </button>
+                    </div>
+                  )}
                   <Tabs value={method} onValueChange={(v) => setMethod(v as any)}>
                     <TabsList className="grid grid-cols-3 w-full mb-4">
                       <TabsTrigger value="pix"><QrCode size={14} className="mr-1.5" />Pix</TabsTrigger>

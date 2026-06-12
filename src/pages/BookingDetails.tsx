@@ -143,6 +143,7 @@ const BookingDetails = () => {
   const [customerData, setCustomerData] = useState<CustomerData>({
     full_name: "", email: "", phone: "", date_of_birth: "",
     nationality: "", document_number: "", address: "", house_number: "", complement: "", zip_code: "",
+    district: "", city: "", state: "",
     licenseFile: null,
   });
 
@@ -257,13 +258,19 @@ const BookingDetails = () => {
         .from("customers").select("id").eq("email", email).maybeSingle();
 
       let customerId: string;
+      const composedAddress = [
+        customerData.address.trim(),
+        customerData.district.trim() ? `Bairro ${customerData.district.trim()}` : "",
+        [customerData.city.trim(), customerData.state.trim().toUpperCase()].filter(Boolean).join(" - "),
+      ].filter(Boolean).join(", ");
+
       const customerPayload = {
         full_name: customerData.full_name.trim(),
         phone: customerData.phone.trim(),
         document_number: customerData.document_number.trim() || null,
         nationality: customerData.nationality.trim() || null,
         date_of_birth: customerData.date_of_birth || null,
-        address: customerData.address.trim() || null,
+        address: composedAddress || null,
         house_number: customerData.house_number.trim() || null,
         complement: customerData.complement.trim() || null,
         zip_code: customerData.zip_code.trim() || null,
@@ -352,6 +359,15 @@ const BookingDetails = () => {
             phone: customerData.phone.trim(),
             cpf: customerData.document_number?.trim() || "",
             birth_date: customerData.date_of_birth || "",
+            address: {
+              zip_code: customerData.zip_code.replace(/\D/g, ""),
+              street: customerData.address.trim(),
+              number: customerData.house_number.trim(),
+              complement: customerData.complement.trim(),
+              district: customerData.district.trim(),
+              city: customerData.city.trim(),
+              state: customerData.state.trim().toUpperCase().slice(0, 2),
+            },
           },
           // pre-collected ops data (license, addons) for future booking-meta sync
           addons: addonsData,
@@ -984,7 +1000,7 @@ const BookingDetails = () => {
                   <div className="flex items-center justify-center gap-2 mt-2">
                     <Lock size={10} className="text-muted-foreground" />
                     <p className="text-[9px] text-muted-foreground">
-                      Pagamento seguro · Powered by Stripe
+                      Pagamento seguro · Câmbio Real
                     </p>
                   </div>
 
