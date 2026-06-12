@@ -511,6 +511,14 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                       {r.purchase_price > 0 ? `$${fmt(r.purchase_price)}` : "—"}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">{r.bookings}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">
+                      {r.totalDays > 0 ? r.totalDays : <span className="text-muted-foreground">—</span>}
+                    </td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums">
+                      <span className={r.occupancyPct >= 70 ? "text-emerald-700 font-medium" : r.occupancyPct >= 40 ? "text-foreground" : "text-muted-foreground"}>
+                        {r.occupancyPct}%
+                      </span>
+                    </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">${fmt(r.rentalRevenue)}</td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-muted-foreground">${fmt(r.addonRevenue)}</td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium text-foreground">${fmt(r.totalRevenue)}</td>
@@ -522,6 +530,13 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                     </td>
                     <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.roiPct === null ? "text-muted-foreground" : (r.roiPct >= 0 ? "text-emerald-700" : "text-destructive")}`}>
                       {r.roiPct === null ? "—" : `${r.roiPct.toFixed(1)}%`}
+                    </td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right">
+                      {r.damageCount > 0 ? (
+                        <Badge variant="outline" className="border-destructive/30 text-destructive text-[10px]">{r.damageCount}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-center">
                       {r.purchase_price === 0 ? (
