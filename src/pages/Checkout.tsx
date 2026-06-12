@@ -763,17 +763,25 @@ const Checkout = () => {
                   <div className="flex justify-between"><span className="text-muted-foreground">IOF / taxas</span><span className="text-foreground tabular-nums">{formatBRL(activeQuote.iof)}</span></div>
                 )}
                 <div className="flex justify-between text-sm pt-1.5 border-t border-border/50 mt-1.5">
-                  <span className="text-foreground font-semibold">Total BRL</span>
-                  <span className="text-foreground font-bold tabular-nums">{totalLine}</span>
+                  <span className="text-foreground font-semibold">
+                    Total BRL {isEstimated && <span className="text-[10px] font-normal text-muted-foreground">(estimado)</span>}
+                  </span>
+                  <span className="text-foreground font-bold tabular-nums">
+                    {isEstimated && activeQuote?.result != null ? "≈ " : ""}{totalLine}
+                  </span>
                 </div>
-                {activeFailed && (
+                {isEstimated && (
+                  <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    <Loader2 size={10} className="animate-spin" /> atualizando cotação…
+                  </p>
+                )}
+                {activeFailed && !isEstimated && (
                   <button onClick={recalcQuote} className="w-full mt-2 text-[11px] py-2 rounded-md border border-border text-foreground hover:bg-secondary transition">
                     Recalcular câmbio
                   </button>
                 )}
-                {activeQuote?.result != null && (
-                  <p className="text-[10px] text-muted-foreground pt-1">Inclui IOF e taxas do Câmbio Real.</p>
-                )}
+                <p className="text-[10px] text-muted-foreground pt-1">Valor final pelo Câmbio Real no momento do pagamento.</p>
+
               </div>
 
 
