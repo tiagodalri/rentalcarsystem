@@ -239,7 +239,8 @@ serve(async (req) => {
       copia_cola: tx?.number ?? null,     // pix copia-e-cola / linha digitável
       ticket_url: tx?.ticket_url ?? null,
       terms: tx?.terms ?? null,
-      cr_token: data?.token ?? null,
+      cr_token,
+      cr_id,
       amount_brl: tx?.amount ?? null,
       currency_brl: tx?.currency ?? null,
     });
