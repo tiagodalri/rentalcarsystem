@@ -222,7 +222,7 @@ const SearchResults = () => {
                 >
                   <div className="flex flex-col sm:flex-row">
                     {/* Image */}
-                    <div className="relative sm:w-[200px] md:w-[220px] shrink-0 h-36 sm:h-[150px] overflow-hidden">
+                    <div className="relative sm:w-[240px] md:w-[260px] shrink-0 h-44 sm:h-auto sm:self-stretch overflow-hidden bg-muted/20">
                       <img
                         src={v.coverImage}
                         alt={v.name}
