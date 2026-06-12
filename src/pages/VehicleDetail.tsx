@@ -520,9 +520,6 @@ const VehicleDetail = () => {
                   <Plane size={14} className="text-primary" /> Entrega no aeroporto incluída
                 </div>
                 <div className="flex items-center gap-2 text-xs text-foreground/80">
-                  <Plane size={14} className="text-primary" /> Entrega no aeroporto incluída
-                </div>
-                <div className="flex items-center gap-2 text-xs text-foreground/80">
                   <Shield size={14} className="text-primary" /> Seguro básico já incluso
                 </div>
                 <div className="flex items-center gap-2 text-xs text-foreground/80">
