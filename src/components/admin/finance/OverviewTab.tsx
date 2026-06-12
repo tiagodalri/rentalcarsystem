@@ -301,6 +301,13 @@ export function OverviewTab() {
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={monthlyData}>
+                <defs>
+                  <linearGradient id="emeraldShineFin2" x1="0" y1="1" x2="0" y2="0">
+                    <stop offset="0%"   stopColor="hsl(160 84% 22%)" />
+                    <stop offset="50%"  stopColor="hsl(160 84% 32%)" />
+                    <stop offset="100%" stopColor="hsl(170 70% 42%)" />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="month" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
                 <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
@@ -308,7 +315,7 @@ export function OverviewTab() {
                   {...darkTooltipProps}
                   formatter={(value: number) => [`$${value.toLocaleString("en-US", { minimumFractionDigits: 2 })}`, "Lucro"]}
                 />
-                <Bar dataKey="profit" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="profit" fill="url(#emeraldShineFin2)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           )}
