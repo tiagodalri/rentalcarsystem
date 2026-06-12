@@ -240,9 +240,6 @@ serve(async (req) => {
       cr_id,
       amount_brl: tx?.amount ?? null,
       currency_brl: tx?.currency ?? null,
-      __debug_pr_err: prErr ? prErr.message : null,
-      __debug_raw_keys: { top: Object.keys(crJson || {}), data: Object.keys(data || {}), transaction: Object.keys(tx || {}) },
-      __debug_data: data,
     });
   } catch (e) {
     console.error("cambioreal-pay error", e);
