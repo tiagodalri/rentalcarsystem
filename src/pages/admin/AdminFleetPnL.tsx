@@ -462,7 +462,6 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                   <TH k="name" align="left">Veículo</TH>
                   <TH k="category" align="left">Categoria</TH>
                   <TH k="acquired_date" align="left">Comprado</TH>
-                  <TH k="daysOwned">Dias</TH>
                   <TH k="purchase_price">Valor Pago</TH>
                   <TH k="bookings">Locações</TH>
                   <TH k="totalDays">Dias Locados</TH>
