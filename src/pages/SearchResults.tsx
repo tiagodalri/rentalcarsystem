@@ -267,6 +267,28 @@ const SearchResults = () => {
                   )}
                 </motion.div>
               )}
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="mt-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary hover:bg-primary/10 hover:border-primary transition-colors"
+                  >
+                    <Pencil size={14} />
+                    Alterar busca
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden bg-background">
+                  <DialogHeader className="px-6 pt-6 pb-2">
+                    <DialogTitle className="text-lg font-bold uppercase tracking-wider">
+                      Alterar <span className="gold-text">busca</span>
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="p-4 sm:p-6 max-h-[80vh] overflow-y-auto">
+                    <SearchBar />
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 
