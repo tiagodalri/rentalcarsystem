@@ -547,14 +547,17 @@ const SearchResults = () => {
                             <p className="text-xl md:text-2xl font-black gold-text leading-none mt-1">
                               {toBRL(totalPrice)}
                             </p>
+                            <p className="text-[9px] text-muted-foreground/70 mt-0.5 italic">
+                              à vista
+                            </p>
                             <p className="text-[10px] text-muted-foreground mt-1">
                               equivalente a {toUSD(totalPrice)}
                             </p>
                             <p className="text-[10px] text-muted-foreground/80 mt-1.5 pt-1.5 border-t border-border/30">
                               {toBRL(dailyDisplay)} <span className="opacity-70">/dia</span>
                             </p>
-                            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
-                              Em até 10x sem juros
+                            <p className="text-[9px] text-muted-foreground/70 leading-snug mt-1.5">
+                              Parcele sua reserva em até 12x. Consulte condições nas próximas etapas.
                             </p>
                           </div>
                           <Link
