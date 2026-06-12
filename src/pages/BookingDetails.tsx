@@ -1,4 +1,4 @@
-import { useSearchParams, Link, useParams, useLocation } from "react-router-dom";
+import { useSearchParams, Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -80,6 +80,7 @@ const BookingDetails = () => {
   const { vehicleName } = useParams<{ vehicleName: string }>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { formatPrice, currencySymbol } = useCurrency();
   const { vehicles: dbVehicles, loading: vehiclesLoading } = useVehiclesDB();
   const vehiclePrices = buildPriceMap(dbVehicles);
@@ -307,31 +308,15 @@ const BookingDetails = () => {
         throw new Error("Local de retirada e devolução são obrigatórios. Volte à busca e selecione.");
       }
 
-      // Create booking record
-      const bookingPayload = {
-        customer_name: customerData.full_name.trim(),
-        customer_email: email,
-        customer_phone: customerData.phone.trim(),
-        customer_id: customerId || null,
-        vehicle_id: dbVehicle.id,
-        pickup_date: pickupDate ? format(pickupDate, "yyyy-MM-dd") : "",
-        return_date: returnDate ? format(returnDate, "yyyy-MM-dd") : "",
-        pickup_location: pickupLocation,
-        return_location: returnLocation,
-        total_price: pricing.total,
-        status: "pending",
-        plan_id: "unico",
-        addons: addonsData,
-        extra_driver: hasExtraDriver,
-        notes: `Plano: ${currentPlan.name}`,
-      };
-
-      // Availability check
+      // Availability check (booking row itself is created by cambioreal-pay
+      // after the user picks Pix/Boleto/Card on /checkout).
+      const pickupISO = pickupDate ? format(pickupDate, "yyyy-MM-dd") : "";
+      const returnISO = returnDate ? format(returnDate, "yyyy-MM-dd") : "";
       try {
         const { data: available, error: availErr } = await supabase.rpc("check_vehicle_availability", {
           p_vehicle_id: dbVehicle.id,
-          p_pickup: bookingPayload.pickup_date,
-          p_return: bookingPayload.return_date,
+          p_pickup: pickupISO,
+          p_return: returnISO,
           p_exclude_id: null,
         });
         if (!availErr && available === false) {
@@ -342,65 +327,38 @@ const BookingDetails = () => {
         console.warn("availability check failed, prosseguindo:", e);
       }
 
-      // Insert booking and get back id + booking_number
-      const { data: insertedBooking, error: insertError } = await supabase
-        .from("bookings")
-        .insert(bookingPayload as any)
-        .select("id, booking_number")
-        .single();
 
-      if (insertError) {
-        console.error("Booking insert error:", insertError);
-        const msg = insertError.message?.includes("bookings_no_overlap")
-          ? "Veículo já reservado nesse período. Escolha outras datas ou outro veículo."
-          : "Não foi possível criar a reserva. Tente novamente.";
-        throw new Error(msg);
-      }
+      // Build ISO datetimes for Câmbio Real checkout
+      const startAt = `${format(pickupDate!, "yyyy-MM-dd")}T${pickupTime}:00`;
+      const endAt = `${format(returnDate!, "yyyy-MM-dd")}T${returnTime}:00`;
 
-      // Proceed to checkout
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: {
-          bookingId: insertedBooking.id,
-          vehicleName: decodedName,
-          vehicleCategory: categoryLabels[vehicle?.categoryKey || ""],
-          dailyRate: dailyPrice,
-          rentalDays: days,
-          pickupDate: pickupDate ? format(pickupDate, "yyyy-MM-dd") : "",
-          dropoffDate: returnDate ? format(returnDate, "yyyy-MM-dd") : "",
-          pickupTime,
-          dropoffTime: returnTime,
-          pickupLocation,
-          dropoffLocation: returnLocation,
-          premiumInsurance: hasPremiumInsurance,
-          childSeat: hasChildSeat,
-          childSeatQty: addonChildSeatQty,
-          tollTag: hasTollTag,
-          extraDriver: hasExtraDriver,
-          isDifferentCity,
-          selectedPlan: "unico",
-          customerEmail: email,
-          customerId,
-          pricing: {
-            subtotalRental: pricing.subtotalRental,
-            planExtra: pricing.planExtra,
-            insuranceTotal: pricing.addonInsuranceTotal,
-            extraDriverTotal: 0,
-            childSeatTotal: pricing.addonChildSeatTotal,
-            tollTagTotal: pricing.addonTollTagTotal,
-            returnFee: isDifferentCity ? currentPlan.returnFee : 0,
-            discountAmount: pricing.discountAmount,
-            total: pricing.total,
+      // Navigate to embedded checkout (Pix / Boleto / Card). The booking row
+      // is created inside cambioreal-pay with status pending_payment.
+      navigate("/checkout", {
+        state: {
+          vehicle_id: dbVehicle.id,
+          start_at: startAt,
+          end_at: endAt,
+          amount_usd: pricing.total,
+          vehicleDisplay: {
+            name: decodedName,
+            image: vehicle?.coverImage,
+            days,
+            pickupLocation,
           },
+          customer: {
+            full_name: customerData.full_name.trim(),
+            email,
+            phone: customerData.phone.trim(),
+            cpf: customerData.document_number?.trim() || "",
+            birth_date: customerData.date_of_birth || "",
+          },
+          // pre-collected ops data (license, addons) for future booking-meta sync
+          addons: addonsData,
+          customerId,
         },
       });
-
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-        setIsProcessing(false);
-      } else {
-        throw new Error("Não foi possível criar a sessão de pagamento");
-      }
+      setIsProcessing(false);
     } catch (err: any) {
       setCheckoutError(err.message || "Erro ao processar pagamento. Tente novamente.");
       setIsProcessing(false);
