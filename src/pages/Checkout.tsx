@@ -353,7 +353,6 @@ const Checkout = () => {
   }
 
   function mapPayError(msg: string, cr?: any): string {
-    // Try Câmbio Real's structured errors first
     const errsArr = cr?.cr_response?.errors || cr?.errors;
     if (Array.isArray(errsArr) && errsArr.length > 0) {
       const first = errsArr[0];
@@ -362,7 +361,7 @@ const Checkout = () => {
     }
     const m = (msg || "").toLowerCase();
     if (m.includes("e-mail") || (m.includes("email") && (m.includes("uso") || m.includes("já") || m.includes("exists") || m.includes("registered")))) {
-      return "E-mail já cadastrado no Câmbio Real para outra pessoa. Use outro e-mail.";
+      return "Não foi possível processar o pagamento neste momento. Tente novamente em alguns segundos.";
     }
     if (m.includes("cpf") && (m.includes("nome") || m.includes("name"))) {
       return "CPF e nome não conferem na Receita Federal. Confira os dados.";
