@@ -124,7 +124,7 @@ const SearchResults = () => {
     return Array.from(set);
   }, [availableVehicles]);
 
-  // Apply filters + sort
+  // Apply filters + sort. Unavailable cars ALWAYS go to the bottom of the list.
   const vehicles = useMemo(() => {
     let list = availableVehicles.filter((v) => {
       if (selectedCategories.length && !selectedCategories.includes(v.categoryKey)) return false;
@@ -136,8 +136,13 @@ const SearchResults = () => {
     if (sortBy === "price_asc") list = [...list].sort((a, b) => getTotalPrice(a) - getTotalPrice(b));
     else if (sortBy === "price_desc") list = [...list].sort((a, b) => getTotalPrice(b) - getTotalPrice(a));
     else if (sortBy === "passengers_desc") list = [...list].sort((a, b) => b.passengers - a.passengers);
+    // Stable: keep ordering above but push unavailable to the end
+    list = [...list].sort((a, b) => Number(isUnavailable(a.id)) - Number(isUnavailable(b.id)));
     return list;
-  }, [availableVehicles, selectedCategories, minPassengers, minLuggage, selectedTransmissions, sortBy, pricingMap, youngDriver, days]);
+  }, [availableVehicles, selectedCategories, minPassengers, minLuggage, selectedTransmissions, sortBy, pricingMap, youngDriver, days, unavailableIds]);
+
+  const availableCount = vehicles.filter((v) => !isUnavailable(v.id)).length;
+  const unavailableCount = vehicles.length - availableCount;
 
   const activeFiltersCount =
     selectedCategories.length + selectedTransmissions.length + (minPassengers ? 1 : 0) + (minLuggage ? 1 : 0);
