@@ -278,7 +278,7 @@ const SearchResults = () => {
                       </div>
 
                       <Link
-                        to={bookingUrl}
+                        to={detailUrl}
                         onClick={(e) => e.stopPropagation()}
                         className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center"
                       >
