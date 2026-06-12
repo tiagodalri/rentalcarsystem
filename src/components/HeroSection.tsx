@@ -22,7 +22,7 @@ const HeroSection = () => {
         </defs>
       </svg>
 
-      <div className="relative z-10 container mx-auto px-4 text-center flex flex-col items-center gap-4 md:gap-6 lg:gap-8">
+      <div className="relative z-10 container mx-auto px-4 text-center flex flex-col items-center gap-3 md:gap-5">
         {/* Logo */}
         <motion.img
           src={zeusLogo}
@@ -33,7 +33,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="h-20 sm:h-28 md:h-32 lg:h-44 w-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)] dark:brightness-100 brightness-95 contrast-110"
+          className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)] dark:brightness-100 brightness-95 contrast-110"
         />
 
         {/* Title */}
@@ -41,7 +41,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-black uppercase tracking-tight leading-[1.15] max-w-5xl px-2"
+          className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold uppercase tracking-tight leading-[1.2] max-w-3xl px-2"
         >
           {t.hero.title}
           <span className="gold-text">{t.hero.titleHighlight}</span>
@@ -52,7 +52,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="text-xs sm:text-base md:text-lg lg:text-xl text-muted-foreground font-light tracking-wide max-w-2xl italic px-3 leading-relaxed"
+          className="text-xs sm:text-sm md:text-base text-muted-foreground font-light tracking-wide max-w-xl italic px-3 leading-relaxed"
         >
           {t.hero.subtitle}
         </motion.p>
@@ -62,11 +62,11 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-center w-full max-w-sm sm:max-w-none px-4 sm:px-0"
+          className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center w-full max-w-sm sm:max-w-none px-4 sm:px-0 mt-1"
         >
           <a
             href="#frota"
-            className="gold-gradient text-primary-foreground px-6 py-3 md:px-9 md:py-4 rounded-xl text-xs md:text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-lg shadow-primary/15 text-center"
+            className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-md shadow-primary/10 text-center"
           >
             {t.hero.exploreFleet}
           </a>
@@ -74,7 +74,7 @@ const HeroSection = () => {
             href={`https://wa.me/16892981754?text=${encodeURIComponent("Olá, venho do site da Zeus e gostaria de realizar uma reserva!")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="border-2 border-primary/60 text-primary px-6 py-3 md:px-9 md:py-4 rounded-xl text-xs md:text-sm font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300 backdrop-blur-sm text-center"
+            className="border border-primary/50 text-primary px-5 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300 backdrop-blur-sm text-center"
           >
             {t.hero.contactUs}
           </a>
