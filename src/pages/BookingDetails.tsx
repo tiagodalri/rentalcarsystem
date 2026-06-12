@@ -308,31 +308,15 @@ const BookingDetails = () => {
         throw new Error("Local de retirada e devolução são obrigatórios. Volte à busca e selecione.");
       }
 
-      // Create booking record
-      const bookingPayload = {
-        customer_name: customerData.full_name.trim(),
-        customer_email: email,
-        customer_phone: customerData.phone.trim(),
-        customer_id: customerId || null,
-        vehicle_id: dbVehicle.id,
-        pickup_date: pickupDate ? format(pickupDate, "yyyy-MM-dd") : "",
-        return_date: returnDate ? format(returnDate, "yyyy-MM-dd") : "",
-        pickup_location: pickupLocation,
-        return_location: returnLocation,
-        total_price: pricing.total,
-        status: "pending",
-        plan_id: "unico",
-        addons: addonsData,
-        extra_driver: hasExtraDriver,
-        notes: `Plano: ${currentPlan.name}`,
-      };
-
-      // Availability check
+      // Availability check (booking row itself is created by cambioreal-pay
+      // after the user picks Pix/Boleto/Card on /checkout).
+      const pickupISO = pickupDate ? format(pickupDate, "yyyy-MM-dd") : "";
+      const returnISO = returnDate ? format(returnDate, "yyyy-MM-dd") : "";
       try {
         const { data: available, error: availErr } = await supabase.rpc("check_vehicle_availability", {
           p_vehicle_id: dbVehicle.id,
-          p_pickup: bookingPayload.pickup_date,
-          p_return: bookingPayload.return_date,
+          p_pickup: pickupISO,
+          p_return: returnISO,
           p_exclude_id: null,
         });
         if (!availErr && available === false) {
@@ -343,20 +327,6 @@ const BookingDetails = () => {
         console.warn("availability check failed, prosseguindo:", e);
       }
 
-      // Insert booking and get back id + booking_number
-      const { data: insertedBooking, error: insertError } = await supabase
-        .from("bookings")
-        .insert(bookingPayload as any)
-        .select("id, booking_number")
-        .single();
-
-      if (insertError) {
-        console.error("Booking insert error:", insertError);
-        const msg = insertError.message?.includes("bookings_no_overlap")
-          ? "Veículo já reservado nesse período. Escolha outras datas ou outro veículo."
-          : "Não foi possível criar a reserva. Tente novamente.";
-        throw new Error(msg);
-      }
 
       // Build ISO datetimes for Câmbio Real checkout
       const startAt = `${format(pickupDate!, "yyyy-MM-dd")}T${pickupTime}:00`;
