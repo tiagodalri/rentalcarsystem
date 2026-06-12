@@ -465,12 +465,15 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                   <TH k="daysOwned">Dias</TH>
                   <TH k="purchase_price">Valor Pago</TH>
                   <TH k="bookings">Locações</TH>
+                  <TH k="totalDays">Dias Locados</TH>
+                  <TH k="occupancyPct">Ocupação</TH>
                   <TH k="rentalRevenue">Rec. Locação</TH>
                   <TH k="addonRevenue">Rec. Taxas</TH>
                   <TH k="totalRevenue">Receita Total</TH>
                   <TH k="expenses">Gastos</TH>
                   <TH k="operatingProfit">Lucro Oper.</TH>
                   <TH k="roiPct">ROI %</TH>
+                  <TH k="damageCount">Avarias</TH>
                   <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-center whitespace-nowrap">Status</th>
                 </tr>
               </thead>
