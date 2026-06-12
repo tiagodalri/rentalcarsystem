@@ -384,10 +384,11 @@ const Checkout = () => {
 
   const activeQuote = quoteForMethod(method);
   const activeLoading = !!quoteLoading[method];
-  const activeFailed = activeQuote?.fallback === true;
+  const activeFailed = quotes[method]?.fallback === true && !activeQuote?.estimated;
+  const isEstimated = activeQuote?.estimated === true;
   const totalLine = activeQuote?.result != null
     ? formatBRL(activeQuote.result)
-    : (activeLoading ? "Calculando câmbio…" : (activeFailed ? formatUSD(state.amount_usd) + " (USD)" : "—"));
+    : (activeLoading ? "Calculando câmbio…" : "—");
 
   const installmentsArr: Array<{ n: number; value: number; total: number; fee: number }> = useMemo(() => {
     const raw = quoteForMethod("card")?.installments;
@@ -404,7 +405,9 @@ const Checkout = () => {
       n: Number(k) || norm(v, i).n,
     }));
     return [];
-  }, [quotes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quotes, publicRate]);
+
 
 
   const days = state.vehicleDisplay?.days ?? 1;
