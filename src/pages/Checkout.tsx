@@ -280,7 +280,16 @@ const Checkout = () => {
     cpf: onlyDigits(cpf),
     birth_date: birth,
     phone: onlyDigits(phone).startsWith("55") ? "+" + onlyDigits(phone) : "+55" + onlyDigits(phone),
-  }), [name, email, cpf, birth, phone]);
+    address: {
+      zip_code: onlyDigits(addr.zip_code || ""),
+      street: (addr.street || "").trim(),
+      number: (addr.number || "").trim(),
+      complement: (addr.complement || "").trim(),
+      district: (addr.district || "").trim(),
+      city: (addr.city || "").trim(),
+      state: (addr.state || "").trim().toUpperCase().slice(0, 2),
+    },
+  }), [name, email, cpf, birth, phone, addr]);
 
   function validateClient(): string | null {
     if (!clientPayload.name || clientPayload.name.split(" ").length < 2) return "Informe nome e sobrenome.";
