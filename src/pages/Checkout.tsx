@@ -437,7 +437,14 @@ const Checkout = () => {
                           <p className="text-sm text-foreground/80">
                             Pagamento instantâneo. Sua reserva é confirmada em poucos segundos após o pagamento.
                           </p>
-                          <p className="text-xs text-muted-foreground">Total a pagar: <strong className="text-foreground">{totalLine}</strong></p>
+                          <p className="text-xs text-muted-foreground">
+                            Você vai pagar <strong className="text-foreground">{totalLine}</strong>
+                            {activeQuote?.rate != null && <> via Pix (câmbio R$ {activeQuote.rate.toFixed(4)})</>}.
+                          </p>
+                          {activeFailed && (
+                            <button onClick={recalcQuote} className="text-[11px] underline text-primary">Recalcular câmbio</button>
+                          )}
+
                           {payError && <ErrorBox msg={payError} />}
                           <button onClick={handlePix} disabled={payLoading === "pix"} className="cr-cta">
                             {payLoading === "pix" ? <><Loader2 size={16} className="animate-spin" /> Gerando Pix...</> : <>Pagar com Pix</>}
