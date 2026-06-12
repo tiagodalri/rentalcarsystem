@@ -494,17 +494,20 @@ const SearchResults = () => {
                         </div>
                       </div>
 
-                      {/* Benefits row (green checks) */}
-                      <div className="mt-2.5 pt-2 border-t border-border/40 space-y-0.5">
-                        <p className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-                          <Check size={12} strokeWidth={3} /> Suporte em português 24/7
-                        </p>
-                        {pickupLocation && (
-                          <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                            <MapPin size={12} className="text-primary shrink-0" /> {pickupLocation}
+                      {/* Benefits row (location + support) */}
+                      <div className="mt-2.5 pt-2 border-t border-border/40 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+                        {pickupLocation ? (
+                          <p className="flex items-center gap-1.5 text-muted-foreground min-w-0">
+                            <MapPin size={12} className="text-primary shrink-0" />
+                            <span className="truncate">{pickupLocation}</span>
                           </p>
-                        )}
+                        ) : <span />}
+                        <p className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium min-w-0">
+                          <Check size={12} strokeWidth={3} className="shrink-0" />
+                          <span className="truncate">Suporte em português 24/7</span>
+                        </p>
                       </div>
+
                     </div>
 
                     {/* Right: price + CTA */}
