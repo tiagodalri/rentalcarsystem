@@ -190,9 +190,6 @@ serve(async (req) => {
     let crJson: any = null;
     try { crJson = JSON.parse(crText); } catch { /* keep null */ }
 
-    // TEMP DEBUG — inspect v2 response shape
-    console.log("[CR-V2 RAW]", payment_method, crRes.status, crText);
-
     if (!crRes.ok || crJson?.status === "error") {
       await supabase.from("bookings").delete().eq("id", booking.id);
       return json(
@@ -243,9 +240,6 @@ serve(async (req) => {
       cr_id,
       amount_brl: tx?.amount ?? null,
       currency_brl: tx?.currency ?? null,
-      __debug_pr_err: prErr ? prErr.message : null,
-      __debug_raw_keys: { top: Object.keys(crJson || {}), data: Object.keys(data || {}), transaction: Object.keys(tx || {}) },
-      __debug_data: data,
     });
   } catch (e) {
     console.error("cambioreal-pay error", e);
