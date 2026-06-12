@@ -508,32 +508,57 @@ const SearchResults = () => {
                     </div>
 
                     {/* Right: price + CTA */}
-                    <div className="sm:w-[190px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 bg-muted/10 px-3 py-2.5 sm:px-4 sm:py-3 flex sm:flex-col items-end sm:items-stretch justify-between gap-2">
-                      <div className="text-right sm:text-right">
-                        <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
-                          Preço por {days} {days === 1 ? "dia" : "dias"}
-                        </p>
-                        <p className="text-xl md:text-2xl font-black gold-text leading-none mt-1">
-                          {toBRL(totalPrice)}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground mt-1">
-                          equivalente a {toUSD(totalPrice)}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground/80 mt-1.5 pt-1.5 border-t border-border/30">
-                          {toBRL(dailyDisplay)} <span className="opacity-70">/dia</span>
-                        </p>
-                        <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
-                          Em até 10x sem juros
-                        </p>
-                      </div>
-
-                      <Link
-                        to={detailUrl}
-                        onClick={(e) => e.stopPropagation()}
-                        className="gold-gradient text-primary-foreground px-3 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center sm:w-full"
-                      >
-                        Ver oferta
-                      </Link>
+                    <div className={`sm:w-[190px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 px-3 py-2.5 sm:px-4 sm:py-3 flex sm:flex-col items-end sm:items-stretch justify-between gap-2 ${unavailable ? "bg-muted/30" : "bg-muted/10"}`}>
+                      {unavailable ? (
+                        <>
+                          <div className="text-right sm:text-right">
+                            <p className="flex items-center justify-end gap-1.5 text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                              <AlertTriangle size={11} strokeWidth={3} />
+                              Indisponível
+                            </p>
+                            <p className="text-[11px] text-muted-foreground mt-1.5 leading-snug">
+                              Este veículo já está reservado para as datas selecionadas.
+                            </p>
+                            <p className="text-[10px] text-muted-foreground/80 mt-2">
+                              Diária a partir de <span className="font-semibold text-foreground/80">{toBRL(dailyDisplay)}</span>
+                            </p>
+                          </div>
+                          <Link
+                            to="/"
+                            onClick={(e) => e.stopPropagation()}
+                            className="border border-border/60 text-foreground/80 px-3 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-widest hover:bg-muted/40 transition-colors whitespace-nowrap text-center sm:w-full"
+                          >
+                            Mudar datas
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <div className="text-right sm:text-right">
+                            <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
+                              Preço por {days} {days === 1 ? "dia" : "dias"}
+                            </p>
+                            <p className="text-xl md:text-2xl font-black gold-text leading-none mt-1">
+                              {toBRL(totalPrice)}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-1">
+                              equivalente a {toUSD(totalPrice)}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground/80 mt-1.5 pt-1.5 border-t border-border/30">
+                              {toBRL(dailyDisplay)} <span className="opacity-70">/dia</span>
+                            </p>
+                            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+                              Em até 10x sem juros
+                            </p>
+                          </div>
+                          <Link
+                            to={detailUrl}
+                            onClick={(e) => e.stopPropagation()}
+                            className="gold-gradient text-primary-foreground px-3 py-2.5 rounded-md text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center sm:w-full"
+                          >
+                            Ver oferta
+                          </Link>
+                        </>
+                      )}
                     </div>
                   </div>
                 </motion.div>
