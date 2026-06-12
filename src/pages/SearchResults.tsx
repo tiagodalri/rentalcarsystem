@@ -474,7 +474,7 @@ const SearchResults = () => {
                       </div>
 
                       {/* Benefits row (green checks) */}
-                      <div className="mt-3 pt-2.5 border-t border-border/40 space-y-1">
+                      <div className="mt-2.5 pt-2 border-t border-border/40 space-y-0.5">
                         <p className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
                           <Check size={12} strokeWidth={3} /> Cancelamento grátis
                         </p>
