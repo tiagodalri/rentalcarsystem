@@ -76,6 +76,17 @@ const VehicleDetail = () => {
   const thumbnails = useMemo(() => [cover, ...gallery.thumbs], [cover, gallery.thumbs]);
   const vehicleT = t.vehicles[decodedName];
 
+  // Real pricing for the selected period (seasons, weekend, discounts)
+  const { data: rpcPricing } = useVehiclePricing(dbv?.id, pickupDate, returnDate);
+  const basePrice = dbv?.daily_price_usd || 0;
+  const subtotalRental = days > 0 ? (rpcPricing?.subtotal_rental ?? basePrice * days) : 0;
+  const avgDaily = rpcPricing?.avg_per_day ?? basePrice;
+  const deposit = dbv?.default_deposit_amount ?? 300;
+  const franchise = dbv?.default_franchise_amount ?? 1200;
+
+  const hasDates = !!(pickupDate && returnDate);
+  const forwardQuery = searchParams.toString();
+
   const nextImage = useCallback(() => setCurrentImage((p) => (p + 1) % images.length), [images.length]);
   const prevImage = useCallback(() => setCurrentImage((p) => (p - 1 + images.length) % images.length), [images.length]);
 
