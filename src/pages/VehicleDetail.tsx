@@ -159,8 +159,8 @@ const VehicleDetail = () => {
       <Navbar />
 
       <main className="flex-1 pt-24 sm:pt-28 w-full max-w-full overflow-x-hidden">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full min-w-0">
-          <div className="flex items-center justify-between gap-3 mb-6 min-w-0">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full min-w-0">
+          <div className="flex items-center justify-between gap-3 mb-5 min-w-0">
             <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -175,193 +175,361 @@ const VehicleDetail = () => {
             </button>
           </div>
 
-          {/* Título centralizado acima das fotos */}
-          <div className="text-center mb-6 sm:mb-8 min-w-0 max-w-full">
-            <h1 className="max-w-full break-words text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-wide sm:tracking-wider leading-tight">
+          {/* Header */}
+          <header className="mb-6 sm:mb-8 min-w-0 max-w-full">
+            {dbv.category && (
+              <p className="text-[10px] sm:text-[11px] uppercase tracking-[0.22em] text-primary/80 font-semibold mb-2">
+                {dbv.category}
+              </p>
+            )}
+            <h1 className="max-w-full break-words text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight leading-tight">
               {decodedName}
             </h1>
             {vehicleT?.subtitle && (
-              <p className="text-muted-foreground italic font-light mt-2 text-base sm:text-lg">{vehicleT.subtitle}</p>
+              <p className="text-muted-foreground mt-1.5 text-sm sm:text-base">{vehicleT.subtitle}</p>
             )}
-          </div>
+          </header>
 
-          {/* Galeria centralizada */}
-          <div className="min-w-0 max-w-full mx-auto mb-8 sm:mb-10">
-            <div
-              className="relative aspect-[16/10] sm:aspect-[16/9] overflow-hidden rounded-xl border border-border/40 bg-muted max-w-full touch-pan-y"
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-            >
-              <img
-                key={currentImage}
-                src={images[currentImage]}
-                alt={`${decodedName} - ${currentImage + 1}`}
-                className="w-full h-full object-contain cursor-zoom-in animate-fade-in"
-                loading="eager"
-                decoding="async"
-                fetchPriority="high"
-                onClick={() => setIsFullscreen(true)}
-              />
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 lg:gap-10 min-w-0">
+            {/* Coluna principal */}
+            <div className="min-w-0 max-w-full space-y-8">
+              {/* Galeria */}
+              <section className="min-w-0 max-w-full">
+                <div
+                  className="relative aspect-[16/10] overflow-hidden rounded-lg border border-border/40 bg-muted max-w-full touch-pan-y"
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                >
+                  <img
+                    key={currentImage}
+                    src={images[currentImage]}
+                    alt={`${decodedName} - ${currentImage + 1}`}
+                    className="w-full h-full object-contain cursor-zoom-in animate-fade-in"
+                    loading="eager"
+                    decoding="async"
+                    fetchPriority="high"
+                    onClick={() => setIsFullscreen(true)}
+                  />
 
-              {images.length > 1 && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    aria-label="Imagem anterior"
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  >
-                    <ChevronLeft size={22} />
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    aria-label="Próxima imagem"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
-                  >
-                    <ChevronRight size={22} />
-                  </button>
-
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                    {images.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setCurrentImage(i)}
-                        className={`w-2.5 h-2.5 rounded-full transition-all ${
-                          i === currentImage ? "bg-primary scale-125" : "bg-white/50 hover:bg-white/80"
-                        }`}
-                        aria-label={`Imagem ${i + 1}`}
-                      />
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {images.length > 1 && (
-              <div className="flex gap-2 mt-3 max-w-full overflow-x-auto overscroll-x-contain pb-1 justify-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setCurrentImage(i)}
-                    className={`flex-shrink-0 w-20 h-14 sm:w-24 sm:h-16 rounded-md overflow-hidden border-2 transition-all ${
-                      i === currentImage ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
-                    }`}
-                  >
-                    <img
-                      src={thumbnails[i] ?? img}
-                      alt=""
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Detalhes centralizados abaixo */}
-          <div className="max-w-2xl mx-auto space-y-6 min-w-0">
-            {/* Specs */}
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
-              <span className="flex items-center gap-2">
-                <Users size={16} className="text-primary" /> {dbv.passengers} {dbv.passengers === 1 ? "passageiro" : "passageiros"}
-              </span>
-              {dbv.bags > 0 && (
-                <span className="flex items-center gap-2">
-                  <Briefcase size={16} className="text-primary" /> {dbv.bags} {dbv.bags === 1 ? "mala" : "malas"}
-                </span>
-              )}
-              <span className="flex items-center gap-2">
-                <Settings size={16} className="text-primary" /> Auto
-              </span>
-              <span className="flex items-center gap-2">
-                <Smartphone size={16} className="text-primary" /> CarPlay
-              </span>
-            </div>
-
-            {vehicleT?.features && vehicleT.features.length > 0 && (
-              <div className="rounded-xl border border-border/60 bg-muted/30 px-5 py-2">
-                <div className="divide-y divide-border/50">
-                  {vehicleT.features.map((feat) => (
-                    <div key={feat} className="flex items-center justify-between gap-3 py-3.5">
-                      <span className="text-sm sm:text-base font-medium tracking-wide text-foreground">{feat}</span>
-                      <Check size={16} className="text-primary flex-shrink-0" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Pricing card */}
-            {hasDates ? (
-              <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 sm:p-6 space-y-4 text-center">
-                <div className="flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.18em] text-primary font-semibold">
-                  <Calendar size={12} /> Preço para o período · {days} {days === 1 ? "diária" : "diárias"}
-                </div>
-
-                <div className="flex flex-wrap justify-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-                  <span>{format(pickupDate!, "dd MMM yyyy", { locale: pt })} → {format(returnDate!, "dd MMM yyyy", { locale: pt })}</span>
-                  {pickupLocation && <span className="inline-flex items-center gap-1"><MapPin size={11} className="text-primary/70" /> {pickupLocation}</span>}
-                </div>
-
-                <div className="pt-3 border-t border-border/40">
-                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-1">Total do período</p>
-                  {exchangeRate && subtotalRental > 0 ? (
+                  {images.length > 1 && (
                     <>
-                      <p className="text-4xl sm:text-5xl font-black gold-text tabular-nums leading-none">
-                        R$ {Math.ceil(subtotalRental * exchangeRate).toLocaleString("pt-BR")}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground mt-1.5 tabular-nums">
-                        equivalente a <span className="text-foreground/80 font-medium">US$ {subtotalRental.toLocaleString("en-US")}</span>
-                        <span className="ml-1 text-muted-foreground/70">· cotação aproximada</span>
-                      </p>
+                      <button
+                        onClick={prevImage}
+                        aria-label="Imagem anterior"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                      >
+                        <ChevronLeft size={20} />
+                      </button>
+                      <button
+                        onClick={nextImage}
+                        aria-label="Próxima imagem"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                      >
+                        <ChevronRight size={20} />
+                      </button>
+                      <div className="absolute bottom-2.5 right-3 text-[10px] uppercase tracking-wider text-white/90 bg-black/50 backdrop-blur-sm px-2 py-1 rounded">
+                        {currentImage + 1} / {images.length}
+                      </div>
                     </>
-                  ) : (
-                    <p className="text-4xl sm:text-5xl font-black gold-text tabular-nums leading-none">
-                      {formatPrice(subtotalRental)}
-                    </p>
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/30">
-                  <div>
-                    <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Diária média</p>
-                    <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(avgDaily)}</p>
+                {images.length > 1 && (
+                  <div className="flex gap-1.5 mt-2.5 max-w-full overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    {images.map((img, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentImage(i)}
+                        className={`flex-shrink-0 w-16 h-12 sm:w-[72px] sm:h-[52px] rounded-md overflow-hidden border-2 transition-all ${
+                          i === currentImage ? "border-primary" : "border-transparent opacity-50 hover:opacity-100"
+                        }`}
+                      >
+                        <img
+                          src={thumbnails[i] ?? img}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </button>
+                    ))}
                   </div>
-                  <div>
-                    <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Caução</p>
-                    <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(deposit)}</p>
+                )}
+              </section>
+
+              {/* Specs */}
+              <section>
+                <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-3">Especificações</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <div className="rounded-lg border border-border/50 bg-muted/20 px-3 py-3 flex items-center gap-2.5">
+                    <Users size={16} className="text-primary flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground leading-none">Passageiros</p>
+                      <p className="text-sm font-medium mt-1 leading-none">{dbv.passengers}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Franquia</p>
-                    <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(franchise)}</p>
+                  {dbv.bags > 0 && (
+                    <div className="rounded-lg border border-border/50 bg-muted/20 px-3 py-3 flex items-center gap-2.5">
+                      <Briefcase size={16} className="text-primary flex-shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground leading-none">Bagagem</p>
+                        <p className="text-sm font-medium mt-1 leading-none">{dbv.bags} {dbv.bags === 1 ? "mala" : "malas"}</p>
+                      </div>
+                    </div>
+                  )}
+                  <div className="rounded-lg border border-border/50 bg-muted/20 px-3 py-3 flex items-center gap-2.5">
+                    <Settings size={16} className="text-primary flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground leading-none">Câmbio</p>
+                      <p className="text-sm font-medium mt-1 leading-none">Automático</p>
+                    </div>
+                  </div>
+                  <div className="rounded-lg border border-border/50 bg-muted/20 px-3 py-3 flex items-center gap-2.5">
+                    <Smartphone size={16} className="text-primary flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground leading-none">Conectividade</p>
+                      <p className="text-sm font-medium mt-1 leading-none">CarPlay</p>
+                    </div>
                   </div>
                 </div>
+              </section>
 
-                <p className="text-[10px] text-muted-foreground leading-relaxed pt-1">
-                  Inclui milhagem ilimitada na Flórida e seguro básico. Opcionais (cadeirinha, toll-tag, seguro premium) na próxima etapa.
-                </p>
-              </div>
-            ) : (
-              <div className="rounded-xl border border-border/40 bg-muted/30 p-4 text-sm text-muted-foreground text-center">
-                Escolha as datas no buscador para ver o preço exato deste veículo.
-              </div>
-            )}
+              {/* Features */}
+              {vehicleT?.features && vehicleT.features.length > 0 && (
+                <section>
+                  <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-3">Equipamentos & conforto</h2>
+                  <div className="rounded-lg border border-border/50 bg-muted/20 px-4 sm:px-5">
+                    <div className="divide-y divide-border/40">
+                      {vehicleT.features.map((feat) => (
+                        <div key={feat} className="flex items-center justify-between gap-3 py-3">
+                          <span className="text-sm text-foreground">{feat}</span>
+                          <Check size={15} className="text-primary flex-shrink-0" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              )}
 
-            <button
-              type="button"
-              onClick={() => {
-                if (!hasDates) {
-                  navigate("/");
-                  return;
-                }
-                navigate(`/reserva/${encodeURIComponent(decodedName)}?${forwardQuery}`);
-              }}
-              className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
-            >
-              <Calendar className="w-5 h-5" />
-              {hasDates ? "Reservar" : "Escolher datas"}
-            </button>
+              {/* O que está incluído */}
+              <section>
+                <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-3">O que está incluído</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {[
+                    { icon: Check, label: "Milhagem ilimitada em toda a Flórida" },
+                    { icon: Shield, label: "Seguro básico (LDW) e responsabilidade civil" },
+                    { icon: Plane, label: "Entrega e devolução no Aeroporto de Orlando (MCO)" },
+                    { icon: BadgeCheck, label: "Atendimento bilíngue 24/7 em português" },
+                    { icon: FileCheck, label: "Assistência mecânica e guincho durante a locação" },
+                    { icon: Fuel, label: "Tanque cheio na retirada, devolver com tanque cheio" },
+                  ].map(({ icon: Icon, label }) => (
+                    <div key={label} className="flex items-start gap-2.5 rounded-lg border border-border/50 bg-muted/15 px-3 py-2.5">
+                      <Icon size={15} className="text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm text-foreground/90 leading-snug">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              {/* Como funciona a entrega */}
+              <section>
+                <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-3">Como funciona a entrega</h2>
+                <div className="rounded-lg border border-border/50 bg-muted/15 divide-y divide-border/40">
+                  <div className="flex gap-3 p-4">
+                    <div className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-xs font-semibold tabular-nums">1</div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">Veículo pronto no horário marcado</p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Higienizado, abastecido e revisado, aguardando você no ponto de encontro do Aeroporto de Orlando (MCO) ou no endereço escolhido.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-4">
+                    <div className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-xs font-semibold tabular-nums">2</div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">Recepção em português</p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Um concierge da Zeus recebe você, faz a vistoria de entrega em conjunto e explica todos os detalhes do veículo, dos seguros e dos opcionais contratados.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 p-4">
+                    <div className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-xs font-semibold tabular-nums">3</div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">Devolução simples e flexível</p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">No dia da devolução, basta nos avisar pelo WhatsApp ao chegar. Toleramos até 59 minutos de atraso sem cobrança de diária adicional.</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Caução, franquia e políticas */}
+              <section>
+                <h2 className="text-xs uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-3">Caução, franquia e políticas</h2>
+                <div className="space-y-2.5">
+                  <div className="rounded-lg border border-border/50 bg-muted/15 p-4">
+                    <div className="flex items-start gap-3">
+                      <CreditCard size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                          <p className="text-sm font-medium">Depósito caução (pré-autorização)</p>
+                          <span className="text-sm font-semibold tabular-nums">{formatPrice(deposit)}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                          Valor bloqueado (não cobrado) no cartão de crédito internacional do condutor principal na retirada. É liberado pelo banco em até 30 dias após a devolução, desde que o veículo seja entregue nas mesmas condições. Não aceitamos cartão de débito ou pré-pago.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-border/50 bg-muted/15 p-4">
+                    <div className="flex items-start gap-3">
+                      <Shield size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                          <p className="text-sm font-medium">Franquia em caso de sinistro</p>
+                          <span className="text-sm font-semibold tabular-nums">até {formatPrice(franchise)}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                          Valor máximo de participação do locatário em caso de avaria ou roubo coberto pelo seguro básico. Você pode reduzir ou zerar essa franquia contratando o seguro Premium na próxima etapa da reserva.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-border/50 bg-muted/15 p-4">
+                    <div className="flex items-start gap-3">
+                      <Clock size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium">Prazo de devolução</p>
+                        <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                          A diária é contada de 24 em 24 horas a partir do horário de retirada. Tolerância de 59 minutos. Após esse prazo, é cobrada uma diária adicional proporcional. Devoluções antecipadas não geram reembolso parcial.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-border/50 bg-muted/15 p-4">
+                    <div className="flex items-start gap-3">
+                      <FileCheck size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium">Documentos do condutor</p>
+                        <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                          Idade mínima de 21 anos, passaporte válido, CNH (brasileira ou internacional) emitida há pelo menos 1 ano e cartão de crédito internacional em nome do condutor principal.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-border/50 bg-muted/15 p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle size={16} className="text-primary mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium">Política de cancelamento</p>
+                        <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                          Cancelamento gratuito até 48 horas antes da retirada. Entre 48h e 24h, retenção de 30% do valor. Menos de 24h ou no-show, retenção de 100% do valor da primeira diária.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            {/* Sidebar de preço */}
+            <aside className="min-w-0 lg:sticky lg:top-28 lg:self-start space-y-4">
+              {hasDates ? (
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 space-y-4">
+                  <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-primary font-semibold">
+                    <Calendar size={12} /> Preço para o período
+                  </div>
+
+                  <div className="text-[11px] text-muted-foreground space-y-1">
+                    <p className="flex items-center gap-1.5">
+                      <Calendar size={11} className="text-primary/70" />
+                      {format(pickupDate!, "dd MMM yyyy", { locale: pt })} → {format(returnDate!, "dd MMM yyyy", { locale: pt })}
+                    </p>
+                    <p>{days} {days === 1 ? "diária" : "diárias"}</p>
+                    {pickupLocation && (
+                      <p className="flex items-center gap-1.5">
+                        <MapPin size={11} className="text-primary/70" /> {pickupLocation}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="pt-3 border-t border-border/40">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-1">Total do período</p>
+                    {exchangeRate && subtotalRental > 0 ? (
+                      <>
+                        <p className="text-3xl sm:text-4xl font-black gold-text tabular-nums leading-none">
+                          R$ {Math.ceil(subtotalRental * exchangeRate).toLocaleString("pt-BR")}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground mt-1.5 tabular-nums">
+                          equivalente a <span className="text-foreground/80 font-medium">US$ {subtotalRental.toLocaleString("en-US")}</span>
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-3xl sm:text-4xl font-black gold-text tabular-nums leading-none">
+                        {formatPrice(subtotalRental)}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/30">
+                    <div>
+                      <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Diária média</p>
+                      <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(avgDaily)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Caução</p>
+                      <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(deposit)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Franquia</p>
+                      <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(franchise)}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/reserva/${encodeURIComponent(decodedName)}?${forwardQuery}`)}
+                    className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-3.5 rounded-md text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Efetuar Reserva
+                  </button>
+
+                  <p className="text-[10px] text-muted-foreground leading-relaxed text-center">
+                    Sem cobrança agora. Você revisa todos os opcionais e seguros na próxima etapa.
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-border/40 bg-muted/30 p-5 space-y-4 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Escolha as datas no buscador para ver o preço exato deste veículo.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/")}
+                    className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-3.5 rounded-md text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Escolher datas
+                  </button>
+                </div>
+              )}
+
+              <div className="rounded-xl border border-border/40 bg-muted/15 p-4 space-y-2.5">
+                <div className="flex items-center gap-2 text-xs text-foreground/80">
+                  <BadgeCheck size={14} className="text-primary" /> Cancelamento gratuito até 48h
+                </div>
+                <div className="flex items-center gap-2 text-xs text-foreground/80">
+                  <Plane size={14} className="text-primary" /> Entrega no aeroporto incluída
+                </div>
+                <div className="flex items-center gap-2 text-xs text-foreground/80">
+                  <Shield size={14} className="text-primary" /> Seguro básico já incluso
+                </div>
+                <div className="flex items-center gap-2 text-xs text-foreground/80">
+                  <Smartphone size={14} className="text-primary" /> Suporte 24/7 em português
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
       </main>
