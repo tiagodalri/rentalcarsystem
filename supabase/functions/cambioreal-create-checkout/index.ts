@@ -97,8 +97,9 @@ serve(async (req) => {
             full_name: client.name,
             email: client.email,
             phone: client.phone ?? null,
-            cpf: client.cpf ?? null,
-            birth_date: client.birth ?? null,
+            document_number: client.cpf ?? null,
+            date_of_birth: client.birth ?? null,
+            source: "site",
           })
           .select("id")
           .single();
