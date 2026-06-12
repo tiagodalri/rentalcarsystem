@@ -134,24 +134,48 @@ const Checkout = () => {
     document.head.appendChild(s);
   }, [method, cardScriptLoaded]);
 
-  // Quote on entering payment step (and whenever method changes between pix/boleto/card)
+  // Quote on entering payment step (cached per payment_method, with retry/fallback handling)
   useEffect(() => {
     if (step !== "pay") return;
+    const pm: "pix" | "boleto" | "card" = method;
+    // Skip if already loaded successfully and not forced
+    const existing = quotes[pm];
+    if (existing && !existing.fallback && existing.result != null && quoteTick === 0) return;
+
     let cancelled = false;
+    setQuoteLoading((s) => ({ ...s, [pm]: true }));
     (async () => {
       try {
-        const wantCard = method === "card";
-        const pm = wantCard ? "card" : (method === "boleto" ? "boleto" : "pix");
         const { data, error } = await supabase.functions.invoke("cambioreal-simulator", {
           body: { amount: state.amount_usd, payment_method: pm },
         });
         if (cancelled) return;
-        if (error || data?.error) { console.warn("simulator error", error, data); return; }
-        if (wantCard) setQuoteCard(data); else setQuotePix(data);
-      } catch (e) { console.warn(e); }
+        if (error) {
+          setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: error.message } }));
+        } else if (data?.fallback || data?.error) {
+          setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: data?.message || data?.error } }));
+        } else {
+          setQuotes((s) => ({ ...s, [pm]: {
+            rate: data?.rate ?? null,
+            result: data?.result ?? null,
+            iof: data?.iof ?? null,
+            installments: data?.installments ?? null,
+          }}));
+        }
+      } catch (e: any) {
+        if (!cancelled) setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: e?.message } }));
+      } finally {
+        if (!cancelled) setQuoteLoading((s) => ({ ...s, [pm]: false }));
+      }
     })();
     return () => { cancelled = true; };
-  }, [step, method, state.amount_usd]);
+  }, [step, method, state.amount_usd, quoteTick, quotes]);
+
+  function recalcQuote() {
+    setQuotes((s) => { const c = { ...s }; delete c[method]; return c; });
+    setQuoteTick((t) => t + 1);
+  }
+
 
   // Polling for pix
   useEffect(() => {
