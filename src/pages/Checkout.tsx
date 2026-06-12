@@ -343,7 +343,7 @@ const Checkout = () => {
     try {
       const { data, error } = await supabase.functions.invoke("cambioreal-pay", { body: basePayBody("pix") });
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      if (data?.error) { setPayError(mapPayError(data.error, data)); return; }
       setPixResult(data);
     } catch (e: any) {
       setPayError(mapPayError(e?.message || String(e)));
@@ -357,7 +357,7 @@ const Checkout = () => {
     try {
       const { data, error } = await supabase.functions.invoke("cambioreal-pay", { body: basePayBody("boleto") });
       if (error) throw error;
-      if (data?.error) throw new Error(data.error);
+      if (data?.error) { setPayError(mapPayError(data.error, data)); return; }
       setBoletoResult(data);
     } catch (e: any) {
       setPayError(mapPayError(e?.message || String(e)));
