@@ -1,6 +1,7 @@
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle, Settings2, Fuel, Gauge, Snowflake, DoorOpen, Shield } from "lucide-react";
+import { Users, Briefcase, CalendarIcon, MapPin, Clock, ArrowLeft, Check, AlertTriangle, Settings2, Fuel, Gauge, Snowflake, DoorOpen, Shield, SlidersHorizontal, ArrowUpDown } from "lucide-react";
 import { SearchResultsSkeleton } from "@/components/skeletons/PublicSkeletons";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
@@ -84,14 +85,68 @@ const SearchResults = () => {
 
   // Real availability — filter out vehicles with overlapping bookings (Turo + future paid)
   const { unavailableIds, loading: availabilityLoading } = useVehicleAvailability(pickupDate, returnDate);
-  const vehicles = baseVehicles.filter((v) => !unavailableIds.has(v.id));
+  const availableVehicles = baseVehicles.filter((v) => !unavailableIds.has(v.id));
 
   // Fetch real pricing (seasons, overrides, weekend multipliers, duration discounts)
   const { map: pricingMap } = useVehiclesPricingMap(
-    vehicles.map((v) => v.id),
+    availableVehicles.map((v) => v.id),
     pickupDate,
     returnDate,
   );
+
+  // ---- Filters + Sort state ----
+  const [sortBy, setSortBy] = useState<"recommended" | "price_asc" | "price_desc" | "passengers_desc">("recommended");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [minPassengers, setMinPassengers] = useState<number>(0);
+  const [minLuggage, setMinLuggage] = useState<number>(0);
+  const [selectedTransmissions, setSelectedTransmissions] = useState<string[]>([]);
+
+  const toggleArr = (arr: string[], v: string, setter: (a: string[]) => void) => {
+    setter(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+  };
+
+  // Helper to get total price for a vehicle (used for sort/display)
+  const getTotalPrice = (v: SearchVehicle) => {
+    const basePrice = vehiclePrices[v.name] || 99;
+    const pricing = pricingMap[v.id];
+    const ruleSubtotal = pricing?.subtotal_rental ?? basePrice * days;
+    return youngDriver ? Math.ceil(ruleSubtotal * (1 + YOUNG_DRIVER_SURCHARGE)) : ruleSubtotal;
+  };
+
+  // Available filter options derived from data
+  const availableCategories = useMemo(() => {
+    const set = new Set(availableVehicles.map((v) => v.categoryKey));
+    return Array.from(set);
+  }, [availableVehicles]);
+  const availableTransmissions = useMemo(() => {
+    const set = new Set(availableVehicles.map((v) => v.transmission).filter(Boolean) as string[]);
+    return Array.from(set);
+  }, [availableVehicles]);
+
+  // Apply filters + sort
+  const vehicles = useMemo(() => {
+    let list = availableVehicles.filter((v) => {
+      if (selectedCategories.length && !selectedCategories.includes(v.categoryKey)) return false;
+      if (minPassengers && v.passengers < minPassengers) return false;
+      if (minLuggage && (v.luggage ?? 0) < minLuggage) return false;
+      if (selectedTransmissions.length && (!v.transmission || !selectedTransmissions.includes(v.transmission))) return false;
+      return true;
+    });
+    if (sortBy === "price_asc") list = [...list].sort((a, b) => getTotalPrice(a) - getTotalPrice(b));
+    else if (sortBy === "price_desc") list = [...list].sort((a, b) => getTotalPrice(b) - getTotalPrice(a));
+    else if (sortBy === "passengers_desc") list = [...list].sort((a, b) => b.passengers - a.passengers);
+    return list;
+  }, [availableVehicles, selectedCategories, minPassengers, minLuggage, selectedTransmissions, sortBy, pricingMap, youngDriver, days]);
+
+  const activeFiltersCount =
+    selectedCategories.length + selectedTransmissions.length + (minPassengers ? 1 : 0) + (minLuggage ? 1 : 0);
+
+  const clearFilters = () => {
+    setSelectedCategories([]);
+    setMinPassengers(0);
+    setMinLuggage(0);
+    setSelectedTransmissions([]);
+  };
 
   const whatsappMsg = (name: string) => {
     const dateInfo = pickupDate
@@ -199,8 +254,130 @@ const SearchResults = () => {
             )}
           </div>
 
-          {/* Results List (Booking/Decolar style) */}
-          <div className="flex flex-col gap-4 max-w-5xl mx-auto">
+          {/* Layout: Sidebar filters + Results */}
+          <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 max-w-6xl mx-auto">
+            {/* Sidebar filters */}
+            <aside className="lg:sticky lg:top-24 lg:self-start">
+              <div className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 lg:p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                    <SlidersHorizontal size={14} className="text-primary" /> Filtros
+                  </h2>
+                  {activeFiltersCount > 0 && (
+                    <button
+                      onClick={clearFilters}
+                      className="text-[11px] text-primary hover:underline"
+                    >
+                      Limpar ({activeFiltersCount})
+                    </button>
+                  )}
+                </div>
+
+                {/* Category */}
+                <div className="mb-5">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Categoria</p>
+                  <div className="space-y-1.5">
+                    {availableCategories.map((cat) => (
+                      <label key={cat} className="flex items-center gap-2 text-xs cursor-pointer hover:text-primary transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(cat)}
+                          onChange={() => toggleArr(selectedCategories, cat, setSelectedCategories)}
+                          className="accent-primary w-3.5 h-3.5"
+                        />
+                        {categoryLabels[cat] || cat}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Passengers */}
+                <div className="mb-5">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Passageiros (mín.)</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[0, 2, 4, 5, 7].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setMinPassengers(n)}
+                        className={`text-[11px] px-2.5 py-1 rounded-md border transition-colors ${
+                          minPassengers === n
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "border-border/50 hover:border-primary/50"
+                        }`}
+                      >
+                        {n === 0 ? "Todos" : `${n}+`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Luggage */}
+                <div className="mb-5">
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Malas (mín.)</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[0, 1, 2, 3, 4].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setMinLuggage(n)}
+                        className={`text-[11px] px-2.5 py-1 rounded-md border transition-colors ${
+                          minLuggage === n
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "border-border/50 hover:border-primary/50"
+                        }`}
+                      >
+                        {n === 0 ? "Todos" : `${n}+`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Transmission */}
+                {availableTransmissions.length > 0 && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold mb-2">Câmbio</p>
+                    <div className="space-y-1.5">
+                      {availableTransmissions.map((tx) => (
+                        <label key={tx} className="flex items-center gap-2 text-xs cursor-pointer hover:text-primary transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={selectedTransmissions.includes(tx)}
+                            onChange={() => toggleArr(selectedTransmissions, tx, setSelectedTransmissions)}
+                            className="accent-primary w-3.5 h-3.5"
+                          />
+                          {tx}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </aside>
+
+            {/* Main column: sort bar + results */}
+            <div>
+              {/* Sort bar */}
+              <div className="flex items-center justify-between gap-3 mb-4 rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm px-4 py-2.5">
+                <p className="text-xs text-muted-foreground">
+                  <span className="text-foreground font-semibold">{vehicles.length}</span> {vehicles.length === 1 ? "resultado" : "resultados"}
+                </p>
+                <label className="flex items-center gap-2 text-xs">
+                  <ArrowUpDown size={13} className="text-primary" />
+                  <span className="text-muted-foreground hidden sm:inline">Ordenar por</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                    className="bg-background border border-border/50 rounded-md px-2 py-1 text-xs font-medium focus:outline-none focus:ring-1 focus:ring-primary"
+                  >
+                    <option value="recommended">Recomendado</option>
+                    <option value="price_asc">Menor preço</option>
+                    <option value="price_desc">Maior preço</option>
+                    <option value="passengers_desc">Mais passageiros</option>
+                  </select>
+                </label>
+              </div>
+
+              {/* Results List */}
+              <div className="flex flex-col gap-4">
             {vehicles.map((v, i) => {
               const basePrice = vehiclePrices[v.name] || 99;
               const pricing = pricingMap[v.id];
@@ -344,21 +521,32 @@ const SearchResults = () => {
                 </motion.div>
               );
             })}
-          </div>
+              </div>
 
-          {!availabilityLoading && vehicles.length === 0 && (
-            <div className="rounded-xl border border-border/40 bg-card/40 p-8 sm:p-12 text-center">
-              <AlertTriangle size={28} className="text-primary mx-auto mb-3" />
-              <h3 className="text-lg font-bold mb-2">Nenhum carro disponível para essas datas</h3>
-              <p className="text-sm text-muted-foreground mb-5">
-                Todos os veículos têm reservas sobrepondo o período escolhido. Tente outras datas.
-              </p>
-              <Link to="/" className="inline-block gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity">
-                Mudar datas
-              </Link>
+              {!availabilityLoading && vehicles.length === 0 && (
+                <div className="rounded-xl border border-border/40 bg-card/40 p-8 sm:p-12 text-center">
+                  <AlertTriangle size={28} className="text-primary mx-auto mb-3" />
+                  <h3 className="text-lg font-bold mb-2">Nenhum carro disponível</h3>
+                  <p className="text-sm text-muted-foreground mb-5">
+                    {activeFiltersCount > 0
+                      ? "Nenhum veículo corresponde aos filtros. Tente ajustá-los ou limpá-los."
+                      : "Todos os veículos têm reservas sobrepondo o período escolhido. Tente outras datas."}
+                  </p>
+                  {activeFiltersCount > 0 ? (
+                    <button onClick={clearFilters} className="inline-block gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity">
+                      Limpar filtros
+                    </button>
+                  ) : (
+                    <Link to="/" className="inline-block gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity">
+                      Mudar datas
+                    </Link>
+                  )}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
+
       </section>
 
       <Footer />
