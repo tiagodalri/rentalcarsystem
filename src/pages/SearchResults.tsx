@@ -255,7 +255,7 @@ const SearchResults = () => {
           </div>
 
           {/* Layout: Sidebar filters + Results */}
-          <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6 max-w-7xl mx-auto">
             {/* Sidebar filters */}
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <div className="rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm p-4 lg:p-5">
@@ -399,7 +399,7 @@ const SearchResults = () => {
                 >
                   <div className="flex flex-col sm:flex-row">
                     {/* Image */}
-                    <div className="relative sm:w-[240px] md:w-[260px] shrink-0 h-44 sm:h-auto sm:self-stretch overflow-hidden bg-muted/20">
+                    <div className="relative sm:w-[210px] md:w-[230px] shrink-0 h-40 sm:h-auto sm:self-stretch overflow-hidden bg-muted/20">
                       <img
                         src={v.coverImage}
                         alt={v.name}
@@ -424,7 +424,7 @@ const SearchResults = () => {
                     </div>
 
                     {/* Middle: info */}
-                    <div className="flex-1 p-3 sm:p-4 flex flex-col justify-between min-w-0">
+                    <div className="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 flex flex-col justify-between min-w-0">
                       <div>
                         <p className="text-[9px] text-primary font-semibold uppercase tracking-[0.18em] mb-0.5">
                           {categoryLabels[v.categoryKey] || v.categoryKey}
@@ -437,7 +437,7 @@ const SearchResults = () => {
                         </p>
 
                         {/* Specs grid — Booking/Rentcars style */}
-                        <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2.5 text-[11px] text-foreground/80">
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-2 text-[11px] text-foreground/80">
                           <span className="flex items-center gap-1.5">
                             <Users size={13} className="text-muted-foreground shrink-0" /> {v.passengers} passageiros
                           </span>
@@ -474,7 +474,7 @@ const SearchResults = () => {
                       </div>
 
                       {/* Benefits row (green checks) */}
-                      <div className="mt-3 pt-2.5 border-t border-border/40 space-y-1">
+                      <div className="mt-2.5 pt-2 border-t border-border/40 space-y-0.5">
                         <p className="flex items-center gap-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
                           <Check size={12} strokeWidth={3} /> Cancelamento grátis
                         </p>
@@ -490,7 +490,7 @@ const SearchResults = () => {
                     </div>
 
                     {/* Right: price + CTA */}
-                    <div className="sm:w-[200px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 bg-muted/10 p-3 sm:p-4 flex sm:flex-col items-end sm:items-stretch justify-between gap-2">
+                    <div className="sm:w-[190px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 bg-muted/10 px-3 py-2.5 sm:px-4 sm:py-3 flex sm:flex-col items-end sm:items-stretch justify-between gap-2">
                       <div className="text-right sm:text-right">
                         <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
                           Preço por {days} {days === 1 ? "dia" : "dias"}
