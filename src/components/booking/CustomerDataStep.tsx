@@ -117,8 +117,8 @@ export default function CustomerDataStep({ data, onChange }: Props) {
 
       {/* License upload */}
       <div>
-        <label className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
-          <FileText size={9} className="text-primary/50" />
+        <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+          <FileText size={11} className="text-primary/60" />
           Habilitação (CNH) — Foto ou PDF
         </label>
         <input
@@ -145,14 +145,14 @@ export default function CustomerDataStep({ data, onChange }: Props) {
         <div className="flex gap-2">
           <label
             htmlFor="cameraInputBooking"
-            className="h-8 px-2.5 rounded-md border border-dashed border-border/50 bg-background/50 text-[11px] text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-1.5 cursor-pointer"
+            className="h-11 px-3 rounded-md border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer"
           >
-            <Camera size={11} />
+            <Camera size={13} />
             Câmera
           </label>
-          <label className="flex-1 h-8 px-2.5 rounded-md border border-dashed border-border/50 bg-background/50 text-[11px] text-muted-foreground hover:border-primary/30 hover:text-foreground transition-all flex items-center gap-1.5 cursor-pointer">
-            <Upload size={11} />
-            {data.licenseFile ? data.licenseFile.name : "Anexar arquivo"}
+          <label className="flex-1 h-11 px-3 rounded-md border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer truncate">
+            <Upload size={13} />
+            <span className="truncate">{data.licenseFile ? data.licenseFile.name : "Anexar arquivo"}</span>
             <input
               type="file"
               accept="image/*,.pdf"
