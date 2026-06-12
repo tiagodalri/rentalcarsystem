@@ -291,38 +291,59 @@ const VehicleDetail = () => {
 
               {/* Pricing card for the selected period */}
               {hasDates ? (
-                <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 sm:p-5 space-y-3">
-                  <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-primary font-semibold">
-                    <Calendar size={14} /> Preço para o período
-                  </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    <span>{format(pickupDate!, "dd MMM yyyy", { locale: pt })} → {format(returnDate!, "dd MMM yyyy", { locale: pt })}</span>
-                    {pickupLocation && <span className="inline-flex items-center gap-1"><MapPin size={12} className="text-primary" /> {pickupLocation}</span>}
-                  </div>
-                  <div className="text-sm space-y-1.5 pt-2 border-t border-border/40">
-                    <div className="flex justify-between"><span className="text-muted-foreground">Diária média</span><span className="font-semibold tabular-nums">{formatPrice(avgDaily)}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Nº de diárias</span><span className="font-semibold tabular-nums">{days}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Caução</span><span className="font-semibold tabular-nums">{formatPrice(deposit)}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Franquia</span><span className="font-semibold tabular-nums">{formatPrice(franchise)}</span></div>
-                    <div className="flex justify-between text-base pt-2 border-t border-border/40 mt-2">
-                      <span className="font-bold">Total do período</span>
-                      <span className="font-black gold-text tabular-nums">{formatPrice(subtotalRental)}</span>
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 sm:p-6 space-y-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-primary font-semibold">
+                      <Calendar size={12} /> Preço para o período
                     </div>
-                    {currency === "USD" && exchangeRate && subtotalRental > 0 && (
-                      <div className="flex justify-between text-[11px] pt-1 text-muted-foreground">
-                        <span>≈ em Reais (cotação aproximada)</span>
-                        <span className="tabular-nums">R$ {Math.ceil(subtotalRental * exchangeRate).toLocaleString("pt-BR")}</span>
-                      </div>
-                    )}
-                    {currency === "BRL" && subtotalRental > 0 && (
-                      <div className="flex justify-between text-[11px] pt-1 text-muted-foreground">
-                        <span>Equivalente em dólares</span>
-                        <span className="tabular-nums">US$ {subtotalRental.toLocaleString("en-US")}</span>
-                      </div>
+                    <span className="text-[10px] text-muted-foreground tabular-nums">
+                      {days} {days === 1 ? "diária" : "diárias"}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                    <span>{format(pickupDate!, "dd MMM yyyy", { locale: pt })} → {format(returnDate!, "dd MMM yyyy", { locale: pt })}</span>
+                    {pickupLocation && <span className="inline-flex items-center gap-1"><MapPin size={11} className="text-primary/70" /> {pickupLocation}</span>}
+                  </div>
+
+                  {/* TOTAL em destaque — BRL grande, USD pequeno */}
+                  <div className="pt-3 border-t border-border/40">
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-1">Total do período</p>
+                    {exchangeRate && subtotalRental > 0 ? (
+                      <>
+                        <p className="text-3xl sm:text-4xl font-black gold-text tabular-nums leading-none">
+                          R$ {Math.ceil(subtotalRental * exchangeRate).toLocaleString("pt-BR")}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground mt-1.5 tabular-nums">
+                          equivalente a <span className="text-foreground/80 font-medium">US$ {subtotalRental.toLocaleString("en-US")}</span>
+                          <span className="ml-1 text-muted-foreground/70">· cotação aproximada</span>
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-3xl sm:text-4xl font-black gold-text tabular-nums leading-none">
+                        {formatPrice(subtotalRental)}
+                      </p>
                     )}
                   </div>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Inclui milhagem ilimitada na Flórida e seguro básico. Add-ons (cadeirinha, toll-tag, seguro premium) podem ser escolhidos na próxima etapa.
+
+                  {/* Diária/Caução/Franquia em letras miúdas */}
+                  <div className="grid grid-cols-3 gap-2 pt-3 border-t border-border/30">
+                    <div>
+                      <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Diária média</p>
+                      <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(avgDaily)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Caução</p>
+                      <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(deposit)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase tracking-[0.14em] text-muted-foreground">Franquia</p>
+                      <p className="text-[11px] text-foreground/85 font-medium tabular-nums mt-0.5">{formatPrice(franchise)}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] text-muted-foreground leading-relaxed pt-1">
+                    Inclui milhagem ilimitada na Flórida e seguro básico. Opcionais (cadeirinha, toll-tag, seguro premium) na próxima etapa.
                   </p>
                 </div>
               ) : (
