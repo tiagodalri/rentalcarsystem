@@ -515,6 +515,26 @@ const Checkout = () => {
 
               {step === "pay" && (
                 <section className="rounded-xl border border-border bg-card p-5 sm:p-6">
+                  {prefilled && (
+                    <div className="mb-4 p-3 rounded-lg border border-border/60 bg-secondary/30 flex items-start justify-between gap-3">
+                      <div className="text-[11px] leading-relaxed">
+                        <p className="font-semibold text-foreground">{clientPayload.name} · CPF {maskCPF(clientPayload.cpf)}</p>
+                        <p className="text-muted-foreground">{clientPayload.email} · {clientPayload.phone}</p>
+                        <p className="text-muted-foreground">
+                          {clientPayload.address.street}, {clientPayload.address.number}
+                          {clientPayload.address.complement ? ` — ${clientPayload.address.complement}` : ""}
+                          {clientPayload.address.district ? ` · ${clientPayload.address.district}` : ""}
+                          {" · "}{clientPayload.address.city}/{clientPayload.address.state} · CEP {clientPayload.address.zip_code}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => navigate(-1)}
+                        className="text-[11px] text-primary underline shrink-0"
+                      >
+                        editar
+                      </button>
+                    </div>
+                  )}
                   <Tabs value={method} onValueChange={(v) => setMethod(v as any)}>
                     <TabsList className="grid grid-cols-3 w-full mb-4">
                       <TabsTrigger value="pix"><QrCode size={14} className="mr-1.5" />Pix</TabsTrigger>
