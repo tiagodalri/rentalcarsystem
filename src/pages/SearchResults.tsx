@@ -490,7 +490,7 @@ const SearchResults = () => {
                     </div>
 
                     {/* Right: price + CTA */}
-                    <div className="sm:w-[200px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 bg-muted/10 p-3 sm:p-4 flex sm:flex-col items-end sm:items-stretch justify-between gap-2">
+                    <div className="sm:w-[190px] shrink-0 border-t sm:border-t-0 sm:border-l border-border/50 bg-muted/10 px-3 py-2.5 sm:px-4 sm:py-3 flex sm:flex-col items-end sm:items-stretch justify-between gap-2">
                       <div className="text-right sm:text-right">
                         <p className="text-[9px] uppercase tracking-widest text-muted-foreground">
                           Preço por {days} {days === 1 ? "dia" : "dias"}
