@@ -85,14 +85,68 @@ const SearchResults = () => {
 
   // Real availability — filter out vehicles with overlapping bookings (Turo + future paid)
   const { unavailableIds, loading: availabilityLoading } = useVehicleAvailability(pickupDate, returnDate);
-  const vehicles = baseVehicles.filter((v) => !unavailableIds.has(v.id));
+  const availableVehicles = baseVehicles.filter((v) => !unavailableIds.has(v.id));
 
   // Fetch real pricing (seasons, overrides, weekend multipliers, duration discounts)
   const { map: pricingMap } = useVehiclesPricingMap(
-    vehicles.map((v) => v.id),
+    availableVehicles.map((v) => v.id),
     pickupDate,
     returnDate,
   );
+
+  // ---- Filters + Sort state ----
+  const [sortBy, setSortBy] = useState<"recommended" | "price_asc" | "price_desc" | "passengers_desc">("recommended");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [minPassengers, setMinPassengers] = useState<number>(0);
+  const [minLuggage, setMinLuggage] = useState<number>(0);
+  const [selectedTransmissions, setSelectedTransmissions] = useState<string[]>([]);
+
+  const toggleArr = (arr: string[], v: string, setter: (a: string[]) => void) => {
+    setter(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+  };
+
+  // Helper to get total price for a vehicle (used for sort/display)
+  const getTotalPrice = (v: SearchVehicle) => {
+    const basePrice = vehiclePrices[v.name] || 99;
+    const pricing = pricingMap[v.id];
+    const ruleSubtotal = pricing?.subtotal_rental ?? basePrice * days;
+    return youngDriver ? Math.ceil(ruleSubtotal * (1 + YOUNG_DRIVER_SURCHARGE)) : ruleSubtotal;
+  };
+
+  // Available filter options derived from data
+  const availableCategories = useMemo(() => {
+    const set = new Set(availableVehicles.map((v) => v.categoryKey));
+    return Array.from(set);
+  }, [availableVehicles]);
+  const availableTransmissions = useMemo(() => {
+    const set = new Set(availableVehicles.map((v) => v.transmission).filter(Boolean) as string[]);
+    return Array.from(set);
+  }, [availableVehicles]);
+
+  // Apply filters + sort
+  const vehicles = useMemo(() => {
+    let list = availableVehicles.filter((v) => {
+      if (selectedCategories.length && !selectedCategories.includes(v.categoryKey)) return false;
+      if (minPassengers && v.passengers < minPassengers) return false;
+      if (minLuggage && (v.luggage ?? 0) < minLuggage) return false;
+      if (selectedTransmissions.length && (!v.transmission || !selectedTransmissions.includes(v.transmission))) return false;
+      return true;
+    });
+    if (sortBy === "price_asc") list = [...list].sort((a, b) => getTotalPrice(a) - getTotalPrice(b));
+    else if (sortBy === "price_desc") list = [...list].sort((a, b) => getTotalPrice(b) - getTotalPrice(a));
+    else if (sortBy === "passengers_desc") list = [...list].sort((a, b) => b.passengers - a.passengers);
+    return list;
+  }, [availableVehicles, selectedCategories, minPassengers, minLuggage, selectedTransmissions, sortBy, pricingMap, youngDriver, days]);
+
+  const activeFiltersCount =
+    selectedCategories.length + selectedTransmissions.length + (minPassengers ? 1 : 0) + (minLuggage ? 1 : 0);
+
+  const clearFilters = () => {
+    setSelectedCategories([]);
+    setMinPassengers(0);
+    setMinLuggage(0);
+    setSelectedTransmissions([]);
+  };
 
   const whatsappMsg = (name: string) => {
     const dateInfo = pickupDate
