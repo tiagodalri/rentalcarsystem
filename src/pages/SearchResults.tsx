@@ -190,8 +190,8 @@ const SearchResults = () => {
             )}
           </div>
 
-          {/* Results Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Results List (Booking/Decolar style) */}
+          <div className="flex flex-col gap-4 max-w-5xl mx-auto">
             {vehicles.map((v, i) => {
               const basePrice = vehiclePrices[v.name] || 99;
               const pricing = pricingMap[v.id];
@@ -205,82 +205,96 @@ const SearchResults = () => {
               return (
                 <motion.div
                   key={v.name}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: i * 0.05 }}
-                  onClick={() => window.location.href = detailUrl}
-                  className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm hover:border-primary/30 transition-all duration-300 cursor-pointer"
+                  transition={{ duration: 0.35, delay: i * 0.04 }}
+                  onClick={() => (window.location.href = detailUrl)}
+                  className="group relative overflow-hidden rounded-xl border border-border/50 bg-card/60 backdrop-blur-sm hover:border-primary/50 hover:shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.25)] transition-all duration-300 cursor-pointer"
                 >
-                  {/* Image */}
-                  <div className="relative h-48 sm:h-64 overflow-hidden">
-                    <img
-                      src={v.coverImage}
-                      alt={v.name}
-                      className="w-full h-full object-cover object-[center_40%] transition-transform duration-700 group-hover:scale-110"
-                      loading="lazy"
-                      width={1280}
-                      height={720}
-                    />
-                    {/* no fade overlay */}
-
-                    {/* Availability badge */}
-                    <div className="absolute top-3 left-3">
-                      <span className="flex items-center gap-1.5 bg-emerald-500/90 text-white text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg shadow-lg backdrop-blur-sm">
-                        <Check size={12} strokeWidth={3} />
-                        Disponível
-                      </span>
-                    </div>
-
-                    {v.preparing && (
-                      <div className="absolute top-3 right-3">
-                        <span className="bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg shadow-lg backdrop-blur-sm">
-                          Em preparação
+                  <div className="flex flex-col md:flex-row">
+                    {/* Image */}
+                    <div className="relative md:w-[300px] lg:w-[340px] shrink-0 h-52 md:h-auto overflow-hidden">
+                      <img
+                        src={v.coverImage}
+                        alt={v.name}
+                        className="w-full h-full object-cover object-[center_40%] transition-transform duration-700 group-hover:scale-105"
+                        loading="lazy"
+                        width={1280}
+                        height={720}
+                      />
+                      <div className="absolute top-3 left-3">
+                        <span className="flex items-center gap-1.5 bg-emerald-500/95 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shadow-md">
+                          <Check size={11} strokeWidth={3} />
+                          Disponível
                         </span>
                       </div>
-                    )}
-                  </div>
-
-                  {/* Info */}
-                  <div className="p-5">
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div>
-                        <h3 className="text-lg font-black uppercase tracking-wider text-foreground">{v.name}</h3>
-                        <p className="text-xs text-primary font-medium uppercase tracking-widest">
-                          {categoryLabels[v.categoryKey] || v.categoryKey}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-                      <span className="flex items-center gap-1">
-                        <Users size={13} className="text-primary" /> {v.passengers} pass.
-                      </span>
-                      {v.luggage && (
-                        <span className="flex items-center gap-1">
-                          <Briefcase size={13} className="text-primary" /> {v.luggage} malas
-                        </span>
+                      {v.preparing && (
+                        <div className="absolute top-3 right-3">
+                          <span className="bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shadow-md">
+                            Em preparação
+                          </span>
+                        </div>
                       )}
                     </div>
 
-                    {/* Price */}
-                    <div className="border-t border-border/40 pt-4 flex flex-col xs:flex-row items-stretch xs:items-end justify-between gap-3">
+                    {/* Middle: info */}
+                    <div className="flex-1 p-5 md:p-6 flex flex-col justify-between min-w-0">
                       <div>
-                        <p className="text-[10px] uppercase tracking-widest text-muted-foreground">A partir de</p>
-                        <p className="text-2xl font-black text-foreground">
-                          {formatPrice(dailyDisplay)}
-                          <span className="text-sm font-medium text-muted-foreground"> /dia</span>
+                        <p className="text-[10px] text-primary font-semibold uppercase tracking-[0.2em] mb-1">
+                          {categoryLabels[v.categoryKey] || v.categoryKey}
                         </p>
+                        <h3 className="text-xl md:text-2xl font-black uppercase tracking-wider text-foreground leading-tight">
+                          {v.name}
+                        </h3>
+
+                        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1.5">
+                            <Users size={14} className="text-primary" /> {v.passengers} passageiros
+                          </span>
+                          {v.luggage && (
+                            <span className="flex items-center gap-1.5">
+                              <Briefcase size={14} className="text-primary" /> {v.luggage} malas
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+                          Quilometragem livre
+                        </span>
+                        <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded-md bg-muted/40 text-muted-foreground border border-border/40">
+                          Cancelamento grátis
+                        </span>
+                        <span className="text-[10px] uppercase tracking-wider px-2 py-1 rounded-md bg-muted/40 text-muted-foreground border border-border/40">
+                          Suporte em português
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Right: price + CTA */}
+                    <div className="md:w-[230px] shrink-0 border-t md:border-t-0 md:border-l border-border/50 bg-muted/10 p-5 md:p-6 flex md:flex-col items-end md:items-stretch justify-between gap-3">
+                      <div className="text-right md:text-right">
                         {days > 1 && (
-                          <p className="text-xs text-primary font-semibold mt-0.5">
-                            Total: {formatPrice(totalPrice)} ({days} dias)
+                          <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                            {days} diárias
                           </p>
                         )}
+                        <p className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">
+                          Total
+                        </p>
+                        <p className="text-2xl md:text-3xl font-black gold-text leading-none mt-0.5">
+                          {formatPrice(totalPrice)}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground mt-1.5">
+                          {formatPrice(dailyDisplay)} <span className="opacity-70">/dia</span>
+                        </p>
                       </div>
 
                       <Link
                         to={detailUrl}
                         onClick={(e) => e.stopPropagation()}
-                        className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center"
+                        className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center md:w-full"
                       >
                         Ver detalhes
                       </Link>
