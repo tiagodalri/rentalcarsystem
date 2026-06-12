@@ -70,20 +70,20 @@ export default function CustomerDataStep({ data, onChange }: Props) {
   };
 
   return (
-    <div className="rounded-xl border border-border/40 bg-card p-5 space-y-4">
-      <div className="flex items-center gap-2 mb-1">
-        <User size={14} className="text-primary" />
-        <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-foreground">Dados do Condutor</h3>
+    <div className="rounded-xl border border-border/40 bg-card p-5 sm:p-6 space-y-5">
+      <div className="flex items-center gap-2">
+        <User size={16} className="text-primary" />
+        <h3 className="text-sm font-bold uppercase tracking-[0.1em] text-foreground">Dados do Condutor</h3>
       </div>
-      <p className="text-[10px] text-muted-foreground -mt-2 mb-2">
+      <p className="text-xs text-muted-foreground -mt-2">
         Preencha para finalizar sua reserva. Digite o CEP que rua, bairro, cidade e estado são preenchidos sozinhos.
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
         {fields.map(({ key, label, icon: Icon, type, placeholder, colSpan }) => (
           <div key={key} className={colSpan === 2 ? "sm:col-span-2" : ""}>
-            <label className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
-              <Icon size={9} className="text-primary/50" />
+            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <Icon size={11} className="text-primary/60" />
               {label}
             </label>
             <div className="relative">
@@ -91,7 +91,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
                 <PhoneInput
                   value={(data as any)[key]}
                   onChange={(val) => update(key, val)}
-                  inputClassName="h-8 px-2.5 text-xs"
+                  inputClassName="h-11 px-3 text-sm"
                 />
               ) : (
                 <input
@@ -104,11 +104,11 @@ export default function CustomerDataStep({ data, onChange }: Props) {
                     if (key === "zip_code") lookupCep(e.target.value);
                   }}
                   placeholder={placeholder}
-                  className="w-full h-8 px-2.5 rounded-md border border-border/40 bg-background text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/20 focus:border-primary/30 transition-all"
+                  className="w-full h-11 px-3 rounded-md border border-border/50 bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition-all"
                 />
               )}
               {key === "zip_code" && cepLoading && (
-                <Loader2 size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-primary animate-spin" />
+                <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-spin" />
               )}
             </div>
           </div>
