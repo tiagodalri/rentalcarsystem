@@ -1,4 +1,4 @@
-import { useSearchParams, Link, useParams, useLocation } from "react-router-dom";
+import { useSearchParams, Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -80,6 +80,7 @@ const BookingDetails = () => {
   const { vehicleName } = useParams<{ vehicleName: string }>();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { formatPrice, currencySymbol } = useCurrency();
   const { vehicles: dbVehicles, loading: vehiclesLoading } = useVehiclesDB();
   const vehiclePrices = buildPriceMap(dbVehicles);
@@ -357,50 +358,37 @@ const BookingDetails = () => {
         throw new Error(msg);
       }
 
-      // Proceed to checkout
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: {
-          bookingId: insertedBooking.id,
-          vehicleName: decodedName,
-          vehicleCategory: categoryLabels[vehicle?.categoryKey || ""],
-          dailyRate: dailyPrice,
-          rentalDays: days,
-          pickupDate: pickupDate ? format(pickupDate, "yyyy-MM-dd") : "",
-          dropoffDate: returnDate ? format(returnDate, "yyyy-MM-dd") : "",
-          pickupTime,
-          dropoffTime: returnTime,
-          pickupLocation,
-          dropoffLocation: returnLocation,
-          premiumInsurance: hasPremiumInsurance,
-          childSeat: hasChildSeat,
-          childSeatQty: addonChildSeatQty,
-          tollTag: hasTollTag,
-          extraDriver: hasExtraDriver,
-          isDifferentCity,
-          selectedPlan: "unico",
-          customerEmail: email,
-          customerId,
-          pricing: {
-            subtotalRental: pricing.subtotalRental,
-            planExtra: pricing.planExtra,
-            insuranceTotal: pricing.addonInsuranceTotal,
-            extraDriverTotal: 0,
-            childSeatTotal: pricing.addonChildSeatTotal,
-            tollTagTotal: pricing.addonTollTagTotal,
-            returnFee: isDifferentCity ? currentPlan.returnFee : 0,
-            discountAmount: pricing.discountAmount,
-            total: pricing.total,
+      // Build ISO datetimes for Câmbio Real checkout
+      const startAt = `${format(pickupDate!, "yyyy-MM-dd")}T${pickupTime}:00`;
+      const endAt = `${format(returnDate!, "yyyy-MM-dd")}T${returnTime}:00`;
+
+      // Navigate to embedded checkout (Pix / Boleto / Card). The booking row
+      // is created inside cambioreal-pay with status pending_payment.
+      navigate("/checkout", {
+        state: {
+          vehicle_id: dbVehicle.id,
+          start_at: startAt,
+          end_at: endAt,
+          amount_usd: pricing.total,
+          vehicleDisplay: {
+            name: decodedName,
+            image: vehicle?.coverImage,
+            days,
+            pickupLocation,
           },
+          customer: {
+            full_name: customerData.full_name.trim(),
+            email,
+            phone: customerData.phone.trim(),
+            cpf: customerData.document_number?.trim() || "",
+            birth_date: customerData.date_of_birth || "",
+          },
+          // pre-collected ops data (license, addons) for future booking-meta sync
+          addons: addonsData,
+          customerId,
         },
       });
-
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-        setIsProcessing(false);
-      } else {
-        throw new Error("Não foi possível criar a sessão de pagamento");
-      }
+      setIsProcessing(false);
     } catch (err: any) {
       setCheckoutError(err.message || "Erro ao processar pagamento. Tente novamente.");
       setIsProcessing(false);
