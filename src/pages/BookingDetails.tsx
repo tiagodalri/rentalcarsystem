@@ -1000,7 +1000,7 @@ const BookingDetails = () => {
                   <div className="flex items-center justify-center gap-2 mt-2">
                     <Lock size={10} className="text-muted-foreground" />
                     <p className="text-[9px] text-muted-foreground">
-                      Pagamento seguro · Powered by Stripe
+                      Pagamento seguro · Câmbio Real
                     </p>
                   </div>
 
