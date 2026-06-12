@@ -297,6 +297,9 @@ const Checkout = () => {
     if (clientPayload.cpf.length !== 11) return "CPF inválido (11 dígitos).";
     if (!/^\d{4}-\d{2}-\d{2}$/.test(clientPayload.birth_date)) return "Data de nascimento inválida.";
     if (onlyDigits(phone).length < 10) return "Telefone inválido.";
+    const a = clientPayload.address;
+    if (!a.zip_code || a.zip_code.length !== 8) return "CEP incompleto. Edite seus dados e refaça a busca por CEP.";
+    if (!a.street || !a.number || !a.city || !a.state) return "Endereço incompleto (rua, número, cidade e UF).";
     return null;
   }
 
@@ -311,13 +314,25 @@ const Checkout = () => {
     };
   }
 
-  function mapPayError(msg: string): string {
+  function mapPayError(msg: string, cr?: any): string {
+    // Try Câmbio Real's structured errors first
+    const errsArr = cr?.cr_response?.errors || cr?.errors;
+    if (Array.isArray(errsArr) && errsArr.length > 0) {
+      const first = errsArr[0];
+      const txt = (first?.message || first?.error || first?.detail || JSON.stringify(first)).toString();
+      return mapPayError(txt);
+    }
     const m = (msg || "").toLowerCase();
+    if (m.includes("e-mail") || (m.includes("email") && (m.includes("uso") || m.includes("já") || m.includes("exists") || m.includes("registered")))) {
+      return "E-mail já cadastrado no Câmbio Real para outra pessoa. Use outro e-mail.";
+    }
     if (m.includes("cpf") && (m.includes("nome") || m.includes("name"))) {
       return "CPF e nome não conferem na Receita Federal. Confira os dados.";
     }
     if (m.includes("cpf")) return "CPF inválido ou não encontrado na Receita Federal.";
     if (m.includes("birth") || m.includes("nascimento")) return "Data de nascimento não confere.";
+    if (m.includes("address") || m.includes("endere")) return "Endereço incompleto ou inválido. Edite seus dados.";
+    if (m.includes("zip") || m.includes("cep")) return "CEP inválido. Edite seus dados.";
     return msg || "Erro ao processar pagamento.";
   }
 
