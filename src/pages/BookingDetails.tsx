@@ -258,13 +258,19 @@ const BookingDetails = () => {
         .from("customers").select("id").eq("email", email).maybeSingle();
 
       let customerId: string;
+      const composedAddress = [
+        customerData.address.trim(),
+        customerData.district.trim() ? `Bairro ${customerData.district.trim()}` : "",
+        [customerData.city.trim(), customerData.state.trim().toUpperCase()].filter(Boolean).join(" - "),
+      ].filter(Boolean).join(", ");
+
       const customerPayload = {
         full_name: customerData.full_name.trim(),
         phone: customerData.phone.trim(),
         document_number: customerData.document_number.trim() || null,
         nationality: customerData.nationality.trim() || null,
         date_of_birth: customerData.date_of_birth || null,
-        address: customerData.address.trim() || null,
+        address: composedAddress || null,
         house_number: customerData.house_number.trim() || null,
         complement: customerData.complement.trim() || null,
         zip_code: customerData.zip_code.trim() || null,
