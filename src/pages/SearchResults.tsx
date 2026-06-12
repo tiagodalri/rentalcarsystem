@@ -21,6 +21,9 @@ interface SearchVehicle {
   categoryKey: string;
   passengers: number;
   luggage?: number;
+  transmission?: string;
+  fuel?: string;
+  doors?: number | null;
   coverImage: string;
   preparing?: boolean;
 }
