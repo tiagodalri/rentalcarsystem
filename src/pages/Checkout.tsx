@@ -659,16 +659,20 @@ const Checkout = () => {
                         <Field label="Parcelas *" full>
                           <select className="cr-input" value={installments} onChange={(e) => setInstallments(Number(e.target.value))} disabled={installmentsArr.length === 0}>
                             {installmentsArr.length === 0 ? (
-                              <option>{quoteLoading.card ? "Calculando parcelas…" : "Indisponível — recalcule o câmbio"}</option>
+                              <option>Calculando parcelas…</option>
                             ) : installmentsArr.map((it) => (
                               <option key={it.n} value={it.n}>
                                 {it.n === 1
-                                  ? `à vista ${formatBRL(it.value || it.total)}`
-                                  : `${it.n}x de ${formatBRL(it.value)} · total ${formatBRL(it.total)}`}
+                                  ? `${isEstimated ? "≈ " : ""}à vista ${formatBRL(it.value || it.total)}`
+                                  : `${isEstimated ? "≈ " : ""}${it.n}x de ${formatBRL(it.value)} · total ${formatBRL(it.total)}`}
                               </option>
                             ))}
                           </select>
+                          {isEstimated && installmentsArr.length > 0 && (
+                            <p className="text-[10px] text-muted-foreground mt-1">Valores finais confirmados ao pagar.</p>
+                          )}
                         </Field>
+
                       </div>
 
                       {(() => {
