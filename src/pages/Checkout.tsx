@@ -76,108 +76,114 @@ const Checkout = () => {
   const [step, setStep] = useState<"client" | "pay" | "success">("client");
   const [method, setMethod] = useState<"pix" | "boleto" | "card">("pix");
 
-  // Quote (cached per payment_method so we never recall on render/keystroke)
+  // Quote (cached per payment_method)
   type Quote = {
     rate: number | null;
     result: number | null;
     iof?: number | null;
     installments?: any;
     fallback?: boolean;
+    estimated?: boolean; // true while showing public estimate (no official yet)
     error?: string;
   };
   const [quotes, setQuotes] = useState<Record<string, Quote>>({});
   const [quoteLoading, setQuoteLoading] = useState<Record<string, boolean>>({});
-  const [quoteTick, setQuoteTick] = useState(0); // bump to force recalc
-  const quoteForMethod = (m: "pix" | "boleto" | "card"): Quote | undefined => quotes[m];
 
-
-  // Pix / Boleto state
-  const [payLoading, setPayLoading] = useState<null | "pix" | "boleto" | "card">(null);
-  const [payError, setPayError] = useState<string | null>(null);
-
-  const [pixResult, setPixResult] = useState<any>(null);
-  const [pixCopied, setPixCopied] = useState(false);
-  const [pixSeconds, setPixSeconds] = useState<number | null>(null);
-  const [pixPaid, setPixPaid] = useState(false);
-
-  const [boletoResult, setBoletoResult] = useState<any>(null);
-  const [boletoCopied, setBoletoCopied] = useState(false);
-
-  // Card state
-  const [cardScriptLoaded, setCardScriptLoaded] = useState(false);
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardHolder, setCardHolder] = useState("");
-  const [cardExp, setCardExp] = useState("");
-  const [cardCvv, setCardCvv] = useState("");
-  const [installments, setInstallments] = useState(1);
-  const dfpIdRef = useRef<string>("");
-  const [cardSuccess, setCardSuccess] = useState<any>(null);
-
-  // bootstrap dfpId once
+  // Public BRL estimate (fast, never blocks UI)
+  const [publicRate, setPublicRate] = useState<number | null>(null);
   useEffect(() => {
-    if (!dfpIdRef.current) {
-      dfpIdRef.current =
-        "dfp_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
-    }
-  }, []);
-
-  // Load card-hash.js once when card tab opened
-  useEffect(() => {
-    if (method !== "card" || cardScriptLoaded) return;
-    const existing = document.querySelector(`script[src="${CR_HASH_SCRIPT}"]`);
-    if (existing && window.CardHash) { setCardScriptLoaded(true); return; }
-    const s = document.createElement("script");
-    s.src = CR_HASH_SCRIPT;
-    s.async = true;
-    s.onload = () => setCardScriptLoaded(true);
-    s.onerror = () => toast.error("Não foi possível carregar o módulo de cartão.");
-    document.head.appendChild(s);
-  }, [method, cardScriptLoaded]);
-
-  // Quote on entering payment step (cached per payment_method, with retry/fallback handling)
-  useEffect(() => {
-    if (step !== "pay") return;
-    const pm: "pix" | "boleto" | "card" = method;
-    // Skip if already loaded successfully (recalcQuote clears it to force refetch)
-    const existing = quotes[pm];
-    if (existing && !existing.fallback && existing.result != null) return;
-    if (quoteLoading[pm]) return;
-
     let cancelled = false;
-    setQuoteLoading((s) => ({ ...s, [pm]: true }));
+    const FALLBACK_RATE = 5.45;
     (async () => {
       try {
-        const { data, error } = await supabase.functions.invoke("cambioreal-simulator", {
-          body: { amount: state.amount_usd, payment_method: pm },
-        });
-        if (cancelled) return;
-        if (error) {
-          setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: error.message } }));
-        } else if (data?.fallback || data?.error) {
-          setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: data?.message || data?.error } }));
-        } else {
-          setQuotes((s) => ({ ...s, [pm]: {
-            rate: data?.rate ?? null,
-            result: data?.result ?? null,
-            iof: data?.iof ?? null,
-            installments: data?.installments ?? null,
-          }}));
-        }
-      } catch (e: any) {
-        if (!cancelled) setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: e?.message } }));
-      } finally {
-        if (!cancelled) setQuoteLoading((s) => ({ ...s, [pm]: false }));
+        const ctrl = new AbortController();
+        const to = setTimeout(() => ctrl.abort(), 2500);
+        const r = await fetch("https://economia.awesomeapi.com.br/json/last/USD-BRL", { signal: ctrl.signal });
+        clearTimeout(to);
+        const j = await r.json();
+        const ask = Number(j?.USDBRL?.ask ?? j?.USDBRL?.bid);
+        if (!cancelled && ask > 0) setPublicRate(ask);
+        else if (!cancelled) setPublicRate(FALLBACK_RATE);
+      } catch {
+        if (!cancelled) setPublicRate(FALLBACK_RATE);
       }
     })();
     return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, method, state.amount_usd, quoteTick]);
+  }, []);
 
+  // Build an estimated quote from the public rate (used while official is loading/failing)
+  function buildEstimate(pm: "pix" | "boleto" | "card"): Quote | null {
+    if (!publicRate) return null;
+    // Approximate IOF: ~1.1% Pix/Boleto, ~3.5% Card (Brazilian remittance order of magnitude)
+    const iofRate = pm === "card" ? 0.035 : 0.011;
+    const spread = 1.02; // small spread on top of public quote, conservative
+    const effective = publicRate * spread;
+    const result = state.amount_usd * effective * (1 + iofRate);
+    const iof = state.amount_usd * effective * iofRate;
+    let installments: any = null;
+    if (pm === "card") {
+      // 1..12x with light interest from 4x onwards (3% a.m. simple, just for display)
+      installments = Array.from({ length: 12 }, (_, i) => {
+        const n = i + 1;
+        const monthly = n >= 4 ? 0.03 : 0;
+        const total = result * (1 + monthly * (n - 1));
+        return { installment: n, installment_amount: total / n, total, fee: total - result };
+      });
+    }
+    return { rate: effective, result, iof, installments, estimated: true };
+  }
+
+  function quoteForMethod(m: "pix" | "boleto" | "card"): Quote | undefined {
+    const real = quotes[m];
+    if (real && real.result != null && !real.fallback) return real;
+    return buildEstimate(m) ?? real;
+  }
+
+  // Fetch official quote for a given method (no-op if already cached & valid)
+  async function fetchQuote(pm: "pix" | "boleto" | "card", force = false) {
+    if (!force) {
+      const existing = quotes[pm];
+      if (existing && !existing.fallback && existing.result != null) return;
+      if (quoteLoading[pm]) return;
+    }
+    setQuoteLoading((s) => ({ ...s, [pm]: true }));
+    try {
+      const { data, error } = await supabase.functions.invoke("cambioreal-simulator", {
+        body: { amount: state.amount_usd, payment_method: pm },
+      });
+      if (error) {
+        setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: error.message } }));
+      } else if (data?.fallback || data?.error) {
+        setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: data?.message || data?.error } }));
+      } else {
+        setQuotes((s) => ({ ...s, [pm]: {
+          rate: data?.rate ?? null,
+          result: data?.result ?? null,
+          iof: data?.iof ?? null,
+          installments: data?.installments ?? null,
+        }}));
+      }
+    } catch (e: any) {
+      setQuotes((s) => ({ ...s, [pm]: { rate: null, result: null, fallback: true, error: e?.message } }));
+    } finally {
+      setQuoteLoading((s) => ({ ...s, [pm]: false }));
+    }
+  }
+
+  // Preload all 3 methods in parallel when entering pay step
+  const preloadedRef = useRef(false);
+  useEffect(() => {
+    if (step !== "pay" || preloadedRef.current) return;
+    preloadedRef.current = true;
+    Promise.allSettled([fetchQuote("pix"), fetchQuote("boleto"), fetchQuote("card")]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
 
   function recalcQuote() {
     setQuotes((s) => { const c = { ...s }; delete c[method]; return c; });
-    setQuoteTick((t) => t + 1);
+    fetchQuote(method, true);
   }
+
 
 
   // Polling for pix
