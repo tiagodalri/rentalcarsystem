@@ -4,6 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import type { DateRange } from "react-day-picker";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line, Area, AreaChart
@@ -11,10 +14,10 @@ import {
 import { darkTooltipProps } from "@/components/admin/ChartTooltip";
 import {
   Loader2, TrendingUp, DollarSign, AlertTriangle, Car, CalendarDays,
-  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart
+  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart, CalendarRange, X
 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
-import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays } from "date-fns";
+import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { aggregateAddons, calcVehicleOccupancyPct } from "@/lib/fleetMetrics";
 
