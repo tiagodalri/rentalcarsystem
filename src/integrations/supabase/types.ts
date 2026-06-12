@@ -74,6 +74,7 @@ export type Database = {
           driver_age: number | null
           extra_driver: boolean | null
           franchise_amount: number | null
+          hold_expires_at: string | null
           id: string
           notes: string | null
           paid_at: string | null
@@ -118,6 +119,7 @@ export type Database = {
           driver_age?: number | null
           extra_driver?: boolean | null
           franchise_amount?: number | null
+          hold_expires_at?: string | null
           id?: string
           notes?: string | null
           paid_at?: string | null
@@ -162,6 +164,7 @@ export type Database = {
           driver_age?: number | null
           extra_driver?: boolean | null
           franchise_amount?: number | null
+          hold_expires_at?: string | null
           id?: string
           notes?: string | null
           paid_at?: string | null
@@ -700,6 +703,65 @@ export type Database = {
           sort_order?: number
         }
         Relationships: []
+      }
+      payment_requests: {
+        Row: {
+          amount_usd: number | null
+          booking_id: string | null
+          checkout_url: string | null
+          cr_code: string | null
+          cr_id: number | null
+          cr_token: string | null
+          created_at: string
+          id: string
+          order_id: string | null
+          paid_at: string | null
+          payment_method: string | null
+          raw: Json | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_usd?: number | null
+          booking_id?: string | null
+          checkout_url?: string | null
+          cr_code?: string | null
+          cr_id?: number | null
+          cr_token?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          raw?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_usd?: number | null
+          booking_id?: string | null
+          checkout_url?: string | null
+          cr_code?: string | null
+          cr_id?: number | null
+          cr_token?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          raw?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_requests_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
