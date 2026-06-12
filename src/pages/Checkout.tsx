@@ -184,6 +184,48 @@ const Checkout = () => {
     fetchQuote(method, true);
   }
 
+  // Pix / Boleto state
+  const [payLoading, setPayLoading] = useState<null | "pix" | "boleto" | "card">(null);
+  const [payError, setPayError] = useState<string | null>(null);
+
+  const [pixResult, setPixResult] = useState<any>(null);
+  const [pixCopied, setPixCopied] = useState(false);
+  const [pixSeconds, setPixSeconds] = useState<number | null>(null);
+  const [pixPaid, setPixPaid] = useState(false);
+
+  const [boletoResult, setBoletoResult] = useState<any>(null);
+  const [boletoCopied, setBoletoCopied] = useState(false);
+
+  // Card state
+  const [cardScriptLoaded, setCardScriptLoaded] = useState(false);
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardHolder, setCardHolder] = useState("");
+  const [cardExp, setCardExp] = useState("");
+  const [cardCvv, setCardCvv] = useState("");
+  const [installments, setInstallments] = useState(1);
+  const dfpIdRef = useRef<string>("");
+  const [cardSuccess, setCardSuccess] = useState<any>(null);
+
+  // bootstrap dfpId once
+  useEffect(() => {
+    if (!dfpIdRef.current) {
+      dfpIdRef.current =
+        "dfp_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+    }
+  }, []);
+
+  // Load card-hash.js once when card tab opened
+  useEffect(() => {
+    if (method !== "card" || cardScriptLoaded) return;
+    const existing = document.querySelector(`script[src="${CR_HASH_SCRIPT}"]`);
+    if (existing && window.CardHash) { setCardScriptLoaded(true); return; }
+    const s = document.createElement("script");
+    s.src = CR_HASH_SCRIPT;
+    s.async = true;
+    s.onload = () => setCardScriptLoaded(true);
+    s.onerror = () => toast.error("Não foi possível carregar o módulo de cartão.");
+    document.head.appendChild(s);
+  }, [method, cardScriptLoaded]);
 
 
   // Polling for pix
