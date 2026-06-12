@@ -76,9 +76,20 @@ const Checkout = () => {
   const [step, setStep] = useState<"client" | "pay" | "success">("client");
   const [method, setMethod] = useState<"pix" | "boleto" | "card">("pix");
 
-  // Quote
-  const [quotePix, setQuotePix] = useState<{ rate: number | null; result: number | null } | null>(null);
-  const [quoteCard, setQuoteCard] = useState<{ rate: number | null; result: number | null; installments?: any } | null>(null);
+  // Quote (cached per payment_method so we never recall on render/keystroke)
+  type Quote = {
+    rate: number | null;
+    result: number | null;
+    iof?: number | null;
+    installments?: any;
+    fallback?: boolean;
+    error?: string;
+  };
+  const [quotes, setQuotes] = useState<Record<string, Quote>>({});
+  const [quoteLoading, setQuoteLoading] = useState<Record<string, boolean>>({});
+  const [quoteTick, setQuoteTick] = useState(0); // bump to force recalc
+  const quoteForMethod = (m: "pix" | "boleto" | "card"): Quote | undefined => quotes[m];
+
 
   // Pix / Boleto state
   const [payLoading, setPayLoading] = useState<null | "pix" | "boleto" | "card">(null);
