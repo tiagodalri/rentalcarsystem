@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useCallback } from "react";
 import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, X, Share2, Check, Calendar, MapPin } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, X, Share2, Check, Calendar, MapPin, Shield, CreditCard, Plane, Clock, FileCheck, Fuel, BadgeCheck, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
