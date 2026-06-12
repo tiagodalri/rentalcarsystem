@@ -1,11 +1,15 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useCallback } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, X, Share2, Check, Calendar } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, X, Share2, Check, Calendar, MapPin } from "lucide-react";
+import { format } from "date-fns";
+import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useVehiclesDB, categoryToKey } from "@/hooks/useVehiclesDB";
+import { useVehiclePricing } from "@/hooks/useVehiclePricing";
+import { useCurrency } from "@/i18n/CurrencyContext";
 import { coverImageMap, galleryMap } from "@/data/fleetAssets";
 import { useToast } from "@/hooks/use-toast";
 
