@@ -42,7 +42,9 @@ const fields = [
 
 export default function CustomerDataStep({ data, onChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [cepLoading, setCepLoading] = useState(false);
+
 
   const update = (key: string, value: string) => {
     onChange({ ...data, [key]: value });
@@ -121,6 +123,8 @@ export default function CustomerDataStep({ data, onChange }: Props) {
           <FileText size={11} className="text-primary/60" />
           Habilitação (CNH) — Foto ou PDF
         </label>
+        {/* sr-only inputs — iOS/Safari ignora .click() em input com display:none.
+            Use sr-only para manter no fluxo de acessibilidade e abrir a câmera nativa. */}
         <input
           ref={fileRef}
           type="file"
@@ -129,10 +133,10 @@ export default function CustomerDataStep({ data, onChange }: Props) {
             const file = e.target.files?.[0] || null;
             onChange({ ...data, licenseFile: file });
           }}
-          className="hidden"
+          className="sr-only"
         />
         <input
-          id="cameraInputBooking"
+          ref={cameraRef}
           type="file"
           accept="image/*"
           capture="environment"
@@ -140,30 +144,27 @@ export default function CustomerDataStep({ data, onChange }: Props) {
             const file = e.target.files?.[0] || null;
             onChange({ ...data, licenseFile: file });
           }}
-          className="hidden"
+          className="sr-only"
         />
         <div className="flex gap-2">
-          <label
-            htmlFor="cameraInputBooking"
-            className="h-11 px-3 rounded-md border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer"
+          <button
+            type="button"
+            onClick={() => cameraRef.current?.click()}
+            className="h-11 px-3 rounded-md border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all flex items-center gap-2"
           >
             <Camera size={13} />
             Câmera
-          </label>
-          <label className="flex-1 h-11 px-3 rounded-md border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all flex items-center gap-2 cursor-pointer truncate">
+          </button>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="flex-1 h-11 px-3 rounded-md border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all flex items-center gap-2 truncate"
+          >
             <Upload size={13} />
             <span className="truncate">{data.licenseFile ? data.licenseFile.name : "Anexar arquivo"}</span>
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => {
-                const file = e.target.files?.[0] || null;
-                onChange({ ...data, licenseFile: file });
-              }}
-              className="hidden"
-            />
-          </label>
+          </button>
         </div>
+
       </div>
     </div>
   );
