@@ -603,28 +603,54 @@ const Checkout = () => {
                           <input inputMode="numeric" autoComplete="cc-csc" maxLength={4} className="cr-input" value={cardCvv} onChange={(e) => setCardCvv(onlyDigits(e.target.value))} placeholder="000" />
                         </Field>
                         <Field label="Parcelas *" full>
-                          <select className="cr-input" value={installments} onChange={(e) => setInstallments(Number(e.target.value))}>
-                            {(installmentsArr.length > 0 ? installmentsArr : Array.from({ length: 12 }, (_, i) => ({ n: i + 1, value: 0, total: 0 }))).map((it) => (
+                          <select className="cr-input" value={installments} onChange={(e) => setInstallments(Number(e.target.value))} disabled={installmentsArr.length === 0}>
+                            {installmentsArr.length === 0 ? (
+                              <option>{quoteLoading.card ? "Calculando parcelas…" : "Indisponível — recalcule o câmbio"}</option>
+                            ) : installmentsArr.map((it) => (
                               <option key={it.n} value={it.n}>
-                                {it.n}x{it.value ? ` de ${formatBRL(it.value)}${it.total ? ` (total ${formatBRL(it.total)})` : ""}` : ""}
+                                {it.n === 1
+                                  ? `à vista ${formatBRL(it.value || it.total)}`
+                                  : `${it.n}x de ${formatBRL(it.value)} · total ${formatBRL(it.total)}`}
                               </option>
                             ))}
                           </select>
                         </Field>
                       </div>
 
+                      {(() => {
+                        const sel = installmentsArr.find(i => i.n === installments);
+                        if (!sel) return null;
+                        return (
+                          <div className="rounded-lg border border-border bg-secondary/30 p-3 text-xs space-y-1">
+                            <div className="flex justify-between"><span className="text-muted-foreground">Parcela</span><span className="text-foreground tabular-nums">{sel.n === 1 ? `1x à vista` : `${sel.n}x de ${formatBRL(sel.value)}`}</span></div>
+                            <div className="flex justify-between"><span className="text-muted-foreground">Total BRL</span><span className="text-foreground tabular-nums">{formatBRL(sel.total)}</span></div>
+                            {sel.fee > 0 && (
+                              <div className="flex justify-between"><span className="text-muted-foreground">Juros do parcelamento</span><span className="text-foreground tabular-nums">{formatBRL(sel.fee)}</span></div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
                       <p className="text-[11px] text-muted-foreground">
                         O cliente assume os juros do parcelamento.
                       </p>
 
                       {payError && <ErrorBox msg={payError} />}
+                      {activeFailed && (
+                        <button onClick={recalcQuote} className="text-[11px] underline text-primary text-left">Recalcular câmbio</button>
+                      )}
 
                       <button onClick={handleCard} disabled={payLoading === "card" || !cardScriptLoaded} className="cr-cta">
                         {payLoading === "card"
                           ? <><Loader2 size={16} className="animate-spin" /> Processando...</>
                           : !cardScriptLoaded ? <><Loader2 size={16} className="animate-spin" /> Preparando módulo seguro...</>
-                          : <>Pagar com cartão</>}
+                          : (() => {
+                              const sel = installmentsArr.find(i => i.n === installments);
+                              if (!sel) return <>Pagar com cartão</>;
+                              return <>Pagar {sel.n === 1 ? `à vista ${formatBRL(sel.value || sel.total)}` : `${sel.n}x de ${formatBRL(sel.value)}`}</>;
+                            })()}
                       </button>
+
                     </TabsContent>
                   </Tabs>
                 </section>
