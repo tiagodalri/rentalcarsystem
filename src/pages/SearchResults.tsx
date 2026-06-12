@@ -220,45 +220,48 @@ const SearchResults = () => {
               Voltar à página inicial
             </Link>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-wider mb-2">
-              Veículos <span className="gold-text">Disponíveis</span>
-            </h1>
-            <p className="text-sm text-muted-foreground mb-4">
-              {availabilityLoading
-                ? "Checando disponibilidade…"
-                : `${availableCount} ${availableCount === 1 ? "carro disponível" : "carros disponíveis"} para o período${unavailableCount > 0 ? ` · ${unavailableCount} indisponíve${unavailableCount === 1 ? "l" : "is"} nestas datas` : ""}`}
-            </p>
+            <div className="flex flex-col items-center text-center">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-wider mb-2">
+                Veículos <span className="gold-text">Disponíveis</span>
+              </h1>
+              <p className="text-sm text-muted-foreground mb-4">
+                {availabilityLoading
+                  ? "Checando disponibilidade…"
+                  : `${availableCount} ${availableCount === 1 ? "carro disponível" : "carros disponíveis"} para o período${unavailableCount > 0 ? ` · ${unavailableCount} indisponíve${unavailableCount === 1 ? "l" : "is"} nestas datas` : ""}`}
+              </p>
 
-            {/* Search criteria summary */}
-            {(pickupDate || pickupLocation) && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="glass-card p-4 rounded-xl inline-flex flex-wrap gap-4 text-sm"
-              >
-                {pickupDate && (
-                  <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <CalendarIcon size={14} className="text-primary" />
-                    {format(pickupDate, "dd MMM yyyy", { locale: pt })}
-                    {returnDate && ` → ${format(returnDate, "dd MMM yyyy", { locale: pt })}`}
-                    <span className="text-primary font-semibold ml-1">({days} {days === 1 ? "dia" : "dias"})</span>
-                  </span>
-                )}
-                {pickupTime && (
-                  <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <Clock size={14} className="text-primary" />
-                    {pickupTime}
-                  </span>
-                )}
-                {pickupLocation && (
-                  <span className="flex items-center gap-1.5 text-muted-foreground">
-                    <MapPin size={14} className="text-primary" />
-                    {pickupLocation}
-                  </span>
-                )}
-              </motion.div>
-            )}
+              {/* Search criteria summary */}
+              {(pickupDate || pickupLocation) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="glass-card p-4 rounded-xl inline-flex flex-wrap justify-center gap-4 text-sm"
+                >
+                  {pickupDate && (
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <CalendarIcon size={14} className="text-primary" />
+                      {format(pickupDate, "dd MMM yyyy", { locale: pt })}
+                      {returnDate && ` → ${format(returnDate, "dd MMM yyyy", { locale: pt })}`}
+                      <span className="text-primary font-semibold ml-1">({days} {days === 1 ? "dia" : "dias"})</span>
+                    </span>
+                  )}
+                  {pickupTime && (
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <Clock size={14} className="text-primary" />
+                      {pickupTime}
+                    </span>
+                  )}
+                  {pickupLocation && (
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
+                      <MapPin size={14} className="text-primary" />
+                      {pickupLocation}
+                    </span>
+                  )}
+                </motion.div>
+              )}
+            </div>
           </div>
+
 
           {/* Layout: Sidebar filters + Results */}
           <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-6 max-w-7xl mx-auto">
