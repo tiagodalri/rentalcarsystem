@@ -146,58 +146,88 @@ serve(async (req) => {
 
     const orderId = `ZEUS-${booking.id}`;
 
-    const payload = {
-      order_id: orderId,
-      amount: amount_usd,
-      currency: "USD",
-      take_rates: 0,
-      payment_method: "credit_card",
-      client: {
-        name: client.name,
-        email: client.email,
-        document: client.cpf,
-        birth_date: client.birth_date ?? "",
-        phone: client.phone ?? "",
-        ip: client.ip ?? (req.headers.get("x-forwarded-for") || "").split(",")[0].trim(),
-        address: client.address ?? undefined,
-      },
-      products: [
-        {
-          descricao: `Aluguel ${vehicleName} ${pickupDate} a ${returnDate}`,
-          base_value: amount_usd,
-          valor: amount_usd,
-          qty: 1,
-          ref: orderId,
-          category: "Car Rental",
-          brand: "Zeus Rental Car",
-          sku: vehicle_id,
+    function isEmailConflict(j: any, status: number): boolean {
+      const errs = j?.errors ?? [];
+      const blob = JSON.stringify(j || "").toLowerCase();
+      if (status === 409) return true;
+      if (Array.isArray(errs) && errs.some((e: any) =>
+        /email|e-?mail/i.test(JSON.stringify(e)) &&
+        /(exist|already|cadastrad|uso|duplic|registered)/i.test(JSON.stringify(e))
+      )) return true;
+      return /email[^a-z]*(j[áa]|already|exist|duplic|cadastrad|in use|registered)/i.test(blob);
+    }
+
+    function buildPayload(emailOverride?: string) {
+      return {
+        order_id: orderId,
+        amount: amount_usd,
+        currency: "USD",
+        take_rates: 0,
+        payment_method: "credit_card",
+        client: {
+          name: client.name,
+          email: emailOverride ?? client.email,
+          document: client.cpf,
+          birth_date: client.birth_date ?? "",
+          phone: client.phone ?? "",
+          ip: client.ip ?? (req.headers.get("x-forwarded-for") || "").split(",")[0].trim(),
+          address: client.address ?? undefined,
         },
-      ],
-      card: {
-        bin: card.bin,
-        brand: card.brand,
-        country: "BR",
-        dfp_id: card.dfp_id,
-        holder: card.holder,
-        installments: instN,
-        token: card.token,
-        type: "credit",
-      },
-    };
+        products: [
+          {
+            descricao: `Aluguel ${vehicleName} ${pickupDate} a ${returnDate}`,
+            base_value: amount_usd,
+            valor: amount_usd,
+            qty: 1,
+            ref: orderId,
+            category: "Car Rental",
+            brand: "Zeus Rental Car",
+            sku: vehicle_id,
+          },
+        ],
+        card: {
+          bin: card.bin,
+          brand: card.brand,
+          country: "BR",
+          dfp_id: card.dfp_id,
+          holder: card.holder,
+          installments: instN,
+          token: card.token,
+          type: "credit",
+        },
+      };
+    }
 
     const basic = btoa(`${APP_ID}:${secret}`);
-    const crRes = await fetch(`${BASE_URL}/service/v2/checkout/request`, {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${basic}`,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const crText = await crRes.text();
-    let crJson: any = null;
-    try { crJson = JSON.parse(crText); } catch { /* keep null */ }
+
+    async function callCr(payload: any) {
+      const r = await fetch(`${BASE_URL}/service/v2/checkout/request`, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${basic}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const text = await r.text();
+      let parsed: any = null;
+      try { parsed = JSON.parse(text); } catch { /* keep null */ }
+      return { res: r, json: parsed, text };
+    }
+
+    let { res: crRes, json: crJson, text: crText } = await callCr(buildPayload());
+    let aliasUsed: string | null = null;
+
+    if ((!crRes.ok || crJson?.status === "error") && isEmailConflict(crJson, crRes.status)) {
+      const [local, domain] = String(client.email).split("@");
+      if (local && domain) {
+        const alias = `${local}+zeus${booking.id.replace(/-/g, "").slice(0, 8)}@${domain}`;
+        aliasUsed = alias;
+        const retry = await callCr(buildPayload(alias));
+        crRes = retry.res; crJson = retry.json; crText = retry.text;
+      }
+    }
 
     if (!crRes.ok || crJson?.status === "error") {
       await supabase.from("bookings").delete().eq("id", booking.id);
