@@ -26,6 +26,9 @@ type Row = {
   roiPct: number | null;
   paidOff: boolean;
   daysOwned: number;
+  totalDays: number;
+  occupancyPct: number;
+  damageCount: number;
 };
 
 const fmt = (n: number) =>
@@ -47,10 +50,11 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
 
   const load = async () => {
     setLoading(true);
-    const [vRes, bRes, eRes] = await Promise.all([
+    const [vRes, bRes, eRes, iRes] = await Promise.all([
       supabase.from("vehicles").select("*"),
       supabase.from("bookings").select("*"),
       supabase.from("vehicle_expenses").select("*"),
+      supabase.from("vehicle_inspections").select("*"),
     ]);
 
     const isTest = (v: any) => {
@@ -62,6 +66,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
     const validIds = new Set(vehs.map((v: any) => v.id));
     const bks = (bRes.data || []).filter((b: any) => !b.vehicle_id || validIds.has(b.vehicle_id));
     const exps = (eRes.data || []).filter((e: any) => !e.vehicle_id || validIds.has(e.vehicle_id));
+    const insps = (iRes.data || []);
 
     const today = new Date();
 
@@ -94,6 +99,27 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         ? Math.max(differenceInDays(today, parseISO(v.acquired_date)), 1)
         : 0;
 
+      // Total rented days (lifetime)
+      const totalDays = vBookings.reduce((s: number, b: any) => {
+        try {
+          const d = differenceInDays(parseISO(b.return_date), parseISO(b.pickup_date));
+          return s + Math.max(d, 1);
+        } catch {
+          return s;
+        }
+      }, 0);
+      const occupancyPct = daysOwned > 0
+        ? Math.min(100, Math.round((totalDays / daysOwned) * 100))
+        : 0;
+
+      // Damages from inspections (lifetime)
+      const bookingIds = new Set(vBookings.map((b: any) => b.id));
+      const vInsps = insps.filter((i: any) => bookingIds.has(i.booking_id));
+      const damageCount = vInsps.reduce((s: number, i: any) => {
+        const dmgs = Array.isArray(i.damages) ? i.damages : [];
+        return s + dmgs.length;
+      }, 0);
+
       return {
         id: v.id,
         name: v.name,
@@ -110,6 +136,9 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         roiPct,
         paidOff,
         daysOwned,
+        totalDays,
+        occupancyPct,
+        damageCount,
       };
     });
 
@@ -436,12 +465,15 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                   <TH k="daysOwned">Dias</TH>
                   <TH k="purchase_price">Valor Pago</TH>
                   <TH k="bookings">Locações</TH>
+                  <TH k="totalDays">Dias Locados</TH>
+                  <TH k="occupancyPct">Ocupação</TH>
                   <TH k="rentalRevenue">Rec. Locação</TH>
                   <TH k="addonRevenue">Rec. Taxas</TH>
                   <TH k="totalRevenue">Receita Total</TH>
                   <TH k="expenses">Gastos</TH>
                   <TH k="operatingProfit">Lucro Oper.</TH>
                   <TH k="roiPct">ROI %</TH>
+                  <TH k="damageCount">Avarias</TH>
                   <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-center whitespace-nowrap">Status</th>
                 </tr>
               </thead>
@@ -479,6 +511,14 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                       {r.purchase_price > 0 ? `$${fmt(r.purchase_price)}` : "—"}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">{r.bookings}</td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">
+                      {r.totalDays > 0 ? r.totalDays : <span className="text-muted-foreground">—</span>}
+                    </td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums">
+                      <span className={r.occupancyPct >= 70 ? "text-emerald-700 font-medium" : r.occupancyPct >= 40 ? "text-foreground" : "text-muted-foreground"}>
+                        {r.occupancyPct}%
+                      </span>
+                    </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">${fmt(r.rentalRevenue)}</td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-muted-foreground">${fmt(r.addonRevenue)}</td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium text-foreground">${fmt(r.totalRevenue)}</td>
@@ -490,6 +530,13 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                     </td>
                     <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.roiPct === null ? "text-muted-foreground" : (r.roiPct >= 0 ? "text-emerald-700" : "text-destructive")}`}>
                       {r.roiPct === null ? "—" : `${r.roiPct.toFixed(1)}%`}
+                    </td>
+                    <td className="px-3 py-3 whitespace-nowrap text-right">
+                      {r.damageCount > 0 ? (
+                        <Badge variant="outline" className="border-destructive/30 text-destructive text-[10px]">{r.damageCount}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-center">
                       {r.purchase_price === 0 ? (

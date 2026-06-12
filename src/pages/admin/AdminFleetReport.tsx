@@ -481,53 +481,6 @@ export default function AdminFleetReport({
         </CardContent>
       </Card>
 
-
-      {/* Full vehicle table */}
-      <Card className="border-border/40">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Desempenho Completo da Frota</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-border/40 text-muted-foreground">
-                  <th className="text-left py-2 pr-4">Veículo</th>
-                  <th className="text-left py-2 pr-4">Categoria</th>
-                  <th className="text-right py-2 pr-4">Reservas</th>
-                  <th className="text-right py-2 pr-4">Dias Locados</th>
-                  <th className="text-right py-2 pr-4">Ocupação</th>
-                  <th className="text-right py-2 pr-4">Receita</th>
-                  <th className="text-right py-2">Avarias</th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.map((r) => (
-                  <tr key={r.id} className="border-b border-border/20 hover:bg-muted/20 transition-colors">
-                    <td className="py-2 pr-4 font-medium text-foreground">{r.name}</td>
-                    <td className="py-2 pr-4 text-muted-foreground">{r.category}</td>
-                    <td className="py-2 pr-4 text-right text-foreground">{r.totalBookings}</td>
-                    <td className="py-2 pr-4 text-right text-foreground">{r.totalDays}</td>
-                    <td className="py-2 pr-4 text-right">
-                      <span className={r.occupancyPct >= 70 ? "text-emerald-600 font-medium" : r.occupancyPct >= 40 ? "text-foreground" : "text-muted-foreground"}>
-                        {r.occupancyPct}%
-                      </span>
-                    </td>
-                    <td className="py-2 pr-4 text-right font-medium text-foreground">${r.totalRevenue.toLocaleString()}</td>
-                    <td className="py-2 text-right">
-                      {r.damageCount > 0 ? (
-                        <Badge variant="outline" className="border-destructive/30 text-destructive text-[10px]">{r.damageCount}</Badge>
-                      ) : (
-                        <span className="text-muted-foreground">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
