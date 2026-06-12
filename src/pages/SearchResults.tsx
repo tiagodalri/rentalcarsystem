@@ -50,6 +50,12 @@ const SearchResults = () => {
   const vehiclePrices = buildPriceMap(dbVehicles);
 
   // Build vehicles list from DB (exclude archived/sold/preparing-for-sale states)
+  const pickDbPhoto = (dbv: any): string | null => {
+    const arr = Array.isArray(dbv?.photos) ? dbv.photos : [];
+    const first = arr.find((p: any) => typeof p === "string" && p)
+      || (typeof arr[0]?.url === "string" ? arr[0].url : null);
+    return (typeof dbv?.image_url === "string" && dbv.image_url) ? dbv.image_url : first;
+  };
   const baseVehicles: SearchVehicle[] = dbVehicles
     .filter((v) => !["archived", "sold", "test"].includes((v.status || "").toLowerCase()))
     .map((dbv) => ({
@@ -61,7 +67,7 @@ const SearchResults = () => {
       transmission: dbv.transmission,
       fuel: dbv.fuel,
       doors: dbv.doors,
-      coverImage: getCoverImage(dbv.name),
+      coverImage: pickDbPhoto(dbv) || getCoverImage(dbv.name),
       preparing: dbv.status === "preparing",
     }));
 
