@@ -190,9 +190,6 @@ serve(async (req) => {
     let crJson: any = null;
     try { crJson = JSON.parse(crText); } catch { /* keep null */ }
 
-    // TEMP DEBUG — inspect v2 response shape
-    console.log("[CR-V2 RAW]", payment_method, crRes.status, crText);
-
     if (!crRes.ok || crJson?.status === "error") {
       await supabase.from("bookings").delete().eq("id", booking.id);
       return json(
