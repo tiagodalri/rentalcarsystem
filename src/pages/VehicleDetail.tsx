@@ -1,23 +1,38 @@
 import { useEffect, useLayoutEffect, useMemo, useState, useCallback } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, X, Share2, Check, Calendar } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Users, Briefcase, Settings, Smartphone, X, Share2, Check, Calendar, MapPin } from "lucide-react";
+import { format } from "date-fns";
+import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useVehiclesDB, categoryToKey } from "@/hooks/useVehiclesDB";
+import { useVehiclePricing } from "@/hooks/useVehiclePricing";
+import { useCurrency } from "@/i18n/CurrencyContext";
 import { coverImageMap, galleryMap } from "@/data/fleetAssets";
 import { useToast } from "@/hooks/use-toast";
 
 const VehicleDetail = () => {
   const { vehicleName } = useParams<{ vehicleName: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { formatPrice } = useCurrency();
   const { vehicles: dbVehicles, loading } = useVehiclesDB();
   const { toast } = useToast();
   const [currentImage, setCurrentImage] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const touchStartX = useState({ x: 0 })[0];
+
+  const pickupDateStr = searchParams.get("pickupDate");
+  const returnDateStr = searchParams.get("returnDate");
+  const pickupLocation = searchParams.get("pickupLocation") || "";
+  const pickupDate = pickupDateStr ? new Date(pickupDateStr) : null;
+  const returnDate = returnDateStr ? new Date(returnDateStr) : null;
+  const days = pickupDate && returnDate
+    ? Math.max(1, Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)))
+    : 0;
 
   useLayoutEffect(() => {
     const root = document.documentElement;
@@ -60,6 +75,17 @@ const VehicleDetail = () => {
   const images = useMemo(() => [cover, ...gallery.images.filter((img) => img !== cover)], [cover, gallery.images]);
   const thumbnails = useMemo(() => [cover, ...gallery.thumbs], [cover, gallery.thumbs]);
   const vehicleT = t.vehicles[decodedName];
+
+  // Real pricing for the selected period (seasons, weekend, discounts)
+  const { data: rpcPricing } = useVehiclePricing(dbv?.id, pickupDate, returnDate);
+  const basePrice = dbv?.daily_price_usd || 0;
+  const subtotalRental = days > 0 ? (rpcPricing?.subtotal_rental ?? basePrice * days) : 0;
+  const avgDaily = rpcPricing?.avg_per_day ?? basePrice;
+  const deposit = dbv?.default_deposit_amount ?? 300;
+  const franchise = dbv?.default_franchise_amount ?? 1200;
+
+  const hasDates = !!(pickupDate && returnDate);
+  const forwardQuery = searchParams.toString();
 
   const nextImage = useCallback(() => setCurrentImage((p) => (p + 1) % images.length), [images.length]);
   const prevImage = useCallback(() => setCurrentImage((p) => (p - 1 + images.length) % images.length), [images.length]);
@@ -263,13 +289,49 @@ const VehicleDetail = () => {
                 </div>
               )}
 
+              {/* Pricing card for the selected period */}
+              {hasDates ? (
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 sm:p-5 space-y-3">
+                  <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-primary font-semibold">
+                    <Calendar size={14} /> Preço para o período
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <span>{format(pickupDate!, "dd MMM yyyy", { locale: pt })} → {format(returnDate!, "dd MMM yyyy", { locale: pt })}</span>
+                    {pickupLocation && <span className="inline-flex items-center gap-1"><MapPin size={12} className="text-primary" /> {pickupLocation}</span>}
+                  </div>
+                  <div className="text-sm space-y-1.5 pt-2 border-t border-border/40">
+                    <div className="flex justify-between"><span className="text-muted-foreground">Diária média</span><span className="font-semibold tabular-nums">{formatPrice(avgDaily)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Nº de diárias</span><span className="font-semibold tabular-nums">{days}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Caução</span><span className="font-semibold tabular-nums">{formatPrice(deposit)}</span></div>
+                    <div className="flex justify-between"><span className="text-muted-foreground">Franquia</span><span className="font-semibold tabular-nums">{formatPrice(franchise)}</span></div>
+                    <div className="flex justify-between text-base pt-2 border-t border-border/40 mt-2">
+                      <span className="font-bold">Total do período</span>
+                      <span className="font-black gold-text tabular-nums">{formatPrice(subtotalRental)}</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    Inclui milhagem ilimitada na Flórida e seguro básico. Add-ons (cadeirinha, toll-tag, seguro premium) podem ser escolhidos na próxima etapa.
+                  </p>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-border/40 bg-muted/30 p-4 text-sm text-muted-foreground">
+                  Escolha as datas no buscador para ver o preço exato deste veículo.
+                </div>
+              )}
+
               <button
                 type="button"
-                onClick={() => navigate(`/reserva/${encodeURIComponent(decodedName)}`)}
+                onClick={() => {
+                  if (!hasDates) {
+                    navigate("/");
+                    return;
+                  }
+                  navigate(`/reserva/${encodeURIComponent(decodedName)}?${forwardQuery}`);
+                }}
                 className="flex items-center justify-center gap-2 w-full gold-gradient text-primary-foreground py-4 sm:py-5 rounded-md text-sm sm:text-base font-bold uppercase tracking-widest hover:opacity-90 transition-opacity"
               >
                 <Calendar className="w-5 h-5" />
-                Reservar
+                {hasDates ? "Reservar" : "Escolher datas"}
               </button>
             </div>
           </div>

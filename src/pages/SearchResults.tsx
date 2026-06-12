@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import WhatsAppBubble from "@/components/WhatsAppBubble";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { useVehiclesDB, categoryToKey, buildPriceMap } from "@/hooks/useVehiclesDB";
+import { useVehicleAvailability } from "@/hooks/useVehicleAvailability";
 import { useVehiclesPricingMap } from "@/hooks/useVehiclePricing";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useAuth } from "@/hooks/useAuth";
@@ -41,16 +42,18 @@ const SearchResults = () => {
   const { customer, loading: authLoading } = useAuth();
   const vehiclePrices = buildPriceMap(dbVehicles);
 
-  // Build vehicles list from DB
-  const vehicles: SearchVehicle[] = dbVehicles.map((dbv) => ({
-    id: dbv.id,
-    name: dbv.name,
-    categoryKey: categoryToKey(dbv.category),
-    passengers: dbv.passengers,
-    luggage: dbv.bags,
-    coverImage: getCoverImage(dbv.name),
-    preparing: dbv.status === "preparing",
-  }));
+  // Build vehicles list from DB (exclude archived/sold/preparing-for-sale states)
+  const baseVehicles: SearchVehicle[] = dbVehicles
+    .filter((v) => !["archived", "sold", "test"].includes((v.status || "").toLowerCase()))
+    .map((dbv) => ({
+      id: dbv.id,
+      name: dbv.name,
+      categoryKey: categoryToKey(dbv.category),
+      passengers: dbv.passengers,
+      luggage: dbv.bags,
+      coverImage: getCoverImage(dbv.name),
+      preparing: dbv.status === "preparing",
+    }));
 
   const pickupDateStr = searchParams.get("pickupDate");
   const returnDateStr = searchParams.get("returnDate");
@@ -69,6 +72,10 @@ const SearchResults = () => {
   const days = pickupDate && returnDate
     ? Math.max(1, Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24)))
     : 1;
+
+  // Real availability — filter out vehicles with overlapping bookings (Turo + future paid)
+  const { unavailableIds, loading: availabilityLoading } = useVehicleAvailability(pickupDate, returnDate);
+  const vehicles = baseVehicles.filter((v) => !unavailableIds.has(v.id));
 
   // Fetch real pricing (seasons, overrides, weekend multipliers, duration discounts)
   const { map: pricingMap } = useVehiclesPricingMap(
@@ -143,9 +150,14 @@ const SearchResults = () => {
               Voltar à página inicial
             </Link>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-wider mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-wider mb-2">
               Veículos <span className="gold-text">Disponíveis</span>
             </h1>
+            <p className="text-sm text-muted-foreground mb-4">
+              {availabilityLoading
+                ? "Checando disponibilidade…"
+                : `${vehicles.length} ${vehicles.length === 1 ? "carro disponível" : "carros disponíveis"} para o período`}
+            </p>
 
             {/* Search criteria summary */}
             {(pickupDate || pickupLocation) && (
@@ -188,7 +200,7 @@ const SearchResults = () => {
               const dailyDisplay = youngDriver ? Math.ceil(avgDaily * (1 + YOUNG_DRIVER_SURCHARGE)) : avgDaily;
               const totalPrice = youngDriver ? Math.ceil(ruleSubtotal * (1 + YOUNG_DRIVER_SURCHARGE)) : ruleSubtotal;
 
-              const bookingUrl = `/reserva/${encodeURIComponent(v.name)}?${searchParams.toString()}`;
+              const detailUrl = `/veiculo/${encodeURIComponent(v.name)}?${searchParams.toString()}`;
 
               return (
                 <motion.div
@@ -196,7 +208,7 @@ const SearchResults = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
-                  onClick={() => window.location.href = bookingUrl}
+                  onClick={() => window.location.href = detailUrl}
                   className="group relative overflow-hidden rounded-xl border border-border/40 bg-card/40 backdrop-blur-sm hover:border-primary/30 transition-all duration-300 cursor-pointer"
                 >
                   {/* Image */}
@@ -266,7 +278,7 @@ const SearchResults = () => {
                       </div>
 
                       <Link
-                        to={bookingUrl}
+                        to={detailUrl}
                         onClick={(e) => e.stopPropagation()}
                         className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity whitespace-nowrap text-center"
                       >
@@ -278,6 +290,19 @@ const SearchResults = () => {
               );
             })}
           </div>
+
+          {!availabilityLoading && vehicles.length === 0 && (
+            <div className="rounded-xl border border-border/40 bg-card/40 p-8 sm:p-12 text-center">
+              <AlertTriangle size={28} className="text-primary mx-auto mb-3" />
+              <h3 className="text-lg font-bold mb-2">Nenhum carro disponível para essas datas</h3>
+              <p className="text-sm text-muted-foreground mb-5">
+                Todos os veículos têm reservas sobrepondo o período escolhido. Tente outras datas.
+              </p>
+              <Link to="/" className="inline-block gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity">
+                Mudar datas
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 
