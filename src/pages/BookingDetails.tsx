@@ -143,6 +143,7 @@ const BookingDetails = () => {
   const [customerData, setCustomerData] = useState<CustomerData>({
     full_name: "", email: "", phone: "", date_of_birth: "",
     nationality: "", document_number: "", address: "", house_number: "", complement: "", zip_code: "",
+    district: "", city: "", state: "",
     licenseFile: null,
   });
 
