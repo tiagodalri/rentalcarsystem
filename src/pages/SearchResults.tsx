@@ -410,22 +410,29 @@ const SearchResults = () => {
                 >
                   <div className="flex flex-col sm:flex-row">
                     {/* Image */}
-                    <div className="relative sm:w-[210px] md:w-[230px] shrink-0 h-40 sm:h-auto sm:self-stretch overflow-hidden bg-muted/20">
+                    <div className={`relative sm:w-[210px] md:w-[230px] shrink-0 h-40 sm:h-auto sm:self-stretch overflow-hidden bg-muted/20 ${unavailable ? "opacity-60" : ""}`}>
                       <img
                         src={v.coverImage}
                         alt={v.name}
-                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                        className={`w-full h-full object-contain transition-transform duration-700 ${unavailable ? "grayscale" : "group-hover:scale-105"}`}
                         loading="lazy"
                         width={640}
                         height={360}
                       />
                       <div className="absolute top-2 left-2">
-                        <span className="flex items-center gap-1 bg-emerald-500/95 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-md">
-                          <Check size={9} strokeWidth={3} />
-                          Disponível
-                        </span>
+                        {unavailable ? (
+                          <span className="flex items-center gap-1 bg-muted-foreground/90 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-md">
+                            <AlertTriangle size={9} strokeWidth={3} />
+                            Indisponível
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 bg-emerald-500/95 text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-md">
+                            <Check size={9} strokeWidth={3} />
+                            Disponível
+                          </span>
+                        )}
                       </div>
-                      {v.preparing && (
+                      {v.preparing && !unavailable && (
                         <div className="absolute top-2 right-2">
                           <span className="bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow-md">
                             Em preparação
