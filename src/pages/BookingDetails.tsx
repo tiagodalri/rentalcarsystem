@@ -81,7 +81,7 @@ const BookingDetails = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { formatPrice, currencySymbol } = useCurrency();
+  const { formatPrice, formatPriceIn, currency, currencySymbol } = useCurrency();
   const { vehicles: dbVehicles, loading: vehiclesLoading } = useVehiclesDB();
   const vehiclePrices = buildPriceMap(dbVehicles);
   const vehicleTrims = buildTrimMap(dbVehicles);
@@ -925,10 +925,23 @@ const BookingDetails = () => {
                           >
                             {formatPrice(pricing.total)}
                           </motion.p>
+                          {currency === "USD" && (
+                            <p className="text-[11px] font-semibold text-primary mt-0.5">
+                              ≈ {formatPriceIn(pricing.total, "BRL")}
+                            </p>
+                          )}
+                          {currency === "BRL" && (
+                            <p className="text-[11px] font-semibold text-primary mt-0.5">
+                              ≈ {formatPriceIn(pricing.total, "USD")}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <p className="text-[9px] text-muted-foreground text-right mt-0.5">
                         ≈ {formatPrice(Math.round(pricing.total / days))} /dia (média)
+                        {currency === "USD" && (
+                          <span className="ml-1 text-primary/80">· {formatPriceIn(Math.round(pricing.total / days), "BRL")}/dia</span>
+                        )}
                       </p>
                     </div>
                   </div>
