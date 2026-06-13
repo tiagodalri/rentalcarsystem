@@ -52,6 +52,7 @@ export default function AdminFleetReport({
   monthOverride,
 }: { embedded?: boolean; monthOverride?: Date } = {}) {
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [month, setMonth] = useState(startOfMonth(monthOverride ?? new Date()));
   const [customRange, setCustomRange] = useState<DateRange | undefined>(undefined);
   const [rangeOpen, setRangeOpen] = useState(false);
