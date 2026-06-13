@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CalendarIcon, Clock, MapPin, Search, UserCheck, ChevronRight } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarIcon, Clock, MapPin, Search, UserCheck, ChevronRight, ArrowRight, Check } from "lucide-react";
+import { format, differenceInCalendarDays } from "date-fns";
 import { pt } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { isBlockedAge, isYoungDriver } from "@/lib/age";
+import type { DateRange } from "react-day-picker";
 
 const locations = [
   "Aeroporto de Orlando (MCO)",
