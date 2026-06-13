@@ -471,7 +471,7 @@ export default function MobileSearchResults(p: Props) {
 }
 
 /* ───── Building blocks ───── */
-function Spec({ icon: Icon, label }: { icon: React.ComponentType<{ size?: number; className?: string }>; label: string }) {
+function Spec({ icon: Icon, label }: { icon: LucideIcon; label: string }) {
   return (
     <span className="flex items-center gap-1.5 min-w-0">
       <Icon size={13} className="text-muted-foreground shrink-0" />
