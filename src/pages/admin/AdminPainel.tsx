@@ -71,7 +71,7 @@ export default function AdminPainel() {
         .select("id, status, pickup_date, return_date, pickup_time, return_time, total_price, created_at, vehicle_id, customer_name")
         .order("created_at", { ascending: false })
         .limit(800),
-      supabase.from("vehicles").select("id, name, status"),
+      supabase.from("vehicles").select("id, name, status, color"),
     ]);
     setBookings((b.data as BookingRow[]) || []);
     setVehicles((v.data as VehicleRow[]) || []);
