@@ -503,3 +503,150 @@
   backface-visibility: hidden;
 }
 
+/* ============================================================
+   ZEUS DESIGN SYSTEM TOKENS
+   Arquivo central de tokens semanticos para uso em TODO o app.
+   NAO adicione tokens novos direto em componentes — use estes.
+   ============================================================ */
+
+@layer components {
+  /* --- TIPOGRAFIA PUBLICA (agressivo/automotivo) --- */
+  .text-display {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-wider;
+  }
+  .text-h1 {
+    @apply text-2xl sm:text-3xl lg:text-4xl font-black uppercase tracking-wider;
+  }
+  .text-h2 {
+    @apply text-xl sm:text-2xl lg:text-3xl font-bold uppercase tracking-wide;
+  }
+  .text-h3 {
+    @apply text-lg sm:text-xl lg:text-2xl font-bold uppercase tracking-wide;
+  }
+  .text-body {
+    @apply text-sm sm:text-base font-normal leading-relaxed tracking-normal;
+  }
+  .text-caption {
+    @apply text-xs font-medium text-muted-foreground tracking-normal;
+  }
+  .text-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground;
+  }
+
+  /* --- CARDS — 2 variantes padronizadas (glass-card ja existe) --- */
+  .card-base {
+    @apply rounded-xl bg-card border border-border/60;
+  }
+  .card-elevated {
+    @apply rounded-xl bg-card border border-border/60 shadow-lg shadow-foreground/[0.03];
+  }
+
+  /* --- BOTOES — 4 variantes semanticas --- */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl h-11 px-6 text-[13px] font-semibold uppercase tracking-[0.14em] text-white transition-all;
+    background: linear-gradient(135deg, hsl(38, 72%, 42%), hsl(42, 80%, 52%));
+  }
+  .btn-primary:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-xl h-11 px-6 text-[13px] font-semibold uppercase tracking-[0.14em] border border-border/60 bg-transparent text-foreground transition-all;
+  }
+  .btn-secondary:hover {
+    @apply bg-accent;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-lg h-9 px-4 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors;
+  }
+  .btn-chip {
+    @apply inline-flex items-center justify-center rounded-full h-9 px-4 text-[12.5px] font-medium border border-border/50 bg-background transition-all;
+  }
+  .btn-chip.active {
+    @apply bg-primary text-primary-foreground border-primary;
+  }
+
+  /* --- BADGES — 4 estados semanticos --- */
+  .badge-success {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.14em];
+    background: hsl(142, 76%, 36%, 0.12);
+    color: hsl(142, 76%, 36%);
+  }
+  .badge-warning {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.14em];
+    background: hsl(38, 92%, 50%, 0.12);
+    color: hsl(38, 92%, 50%);
+  }
+  .badge-danger {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.14em];
+    background: hsl(0, 84%, 60%, 0.12);
+    color: hsl(0, 84%, 60%);
+  }
+  .badge-neutral {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.14em];
+    background: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* --- MIDIA — aspect-ratios padronizados --- */
+  .aspect-vehicle { aspect-ratio: 16 / 10; }
+  .aspect-hero    { aspect-ratio: 21 / 9; }
+  .aspect-avatar  { aspect-ratio: 1 / 1; }
+  .aspect-card    { aspect-ratio: 4 / 5; }
+
+  /* --- NUMEROS / MONETARIO — tabular-nums obrigatorio --- */
+  .tabular-price {
+    @apply font-normal tabular-nums tracking-[-0.01em];
+  }
+  .tabular-kpi {
+    @apply font-light tabular-nums tracking-[-0.01em];
+  }
+  .tabular-body {
+    @apply font-normal tabular-nums tracking-[-0.005em];
+  }
+
+  /* --- ICONES — 5 tamanhos padronizados (Lucide) --- */
+  .icon-xs  { @apply h-3 w-3; }
+  .icon-sm  { @apply h-4 w-4; }
+  .icon-md  { @apply h-5 w-5; }
+  .icon-lg  { @apply h-6 w-6; }
+  .icon-xl  { @apply h-8 w-8; }
+
+  /* --- TABELAS — admin unificada --- */
+  .table-admin {
+    @apply w-full text-[13px] leading-[1.45];
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.005em;
+  }
+  .table-admin thead th {
+    @apply text-[10px] font-medium uppercase text-muted-foreground/70 py-3 px-4;
+    letter-spacing: 0.14em;
+  }
+  .table-admin tbody td {
+    @apply py-3 px-4 border-b border-border/30;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+  }
+  .table-admin tbody tr:last-child td {
+    @apply border-b-0;
+  }
+}
+
+@layer utilities {
+  /* --- SOMBRAS E LEVITACAO --- */
+  .shadow-elevated {
+    box-shadow: 0 8px 30px hsl(0 0% 0% / 0.08), 0 2px 8px hsl(0 0% 0% / 0.04);
+  }
+  .shadow-gold {
+    box-shadow: 0 0 24px hsl(38 72% 42% / 0.12), 0 0 60px hsl(38 72% 42% / 0.04);
+  }
+
+  /* --- CORES SEMANTICAS DE STATUS --- */
+  .text-status-success  { color: hsl(142, 76%, 36%); }
+  .text-status-warning  { color: hsl(38, 92%, 50%); }
+  .text-status-danger   { color: hsl(0, 84%, 60%); }
+  .bg-status-success    { background-color: hsl(142, 76%, 36%, 0.12); }
+  .bg-status-warning    { background-color: hsl(38, 92%, 50%, 0.12); }
+  .bg-status-danger     { background-color: hsl(0, 84%, 60%, 0.12); }
+}
+
