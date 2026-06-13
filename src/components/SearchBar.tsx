@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { CalendarIcon, Clock, MapPin, Search, UserCheck, ChevronRight } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarIcon, Clock, MapPin, Search, UserCheck, ChevronRight, ArrowRight, Check } from "lucide-react";
+import { format, differenceInCalendarDays } from "date-fns";
 import { pt } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { isBlockedAge, isYoungDriver } from "@/lib/age";
+import type { DateRange } from "react-day-picker";
+import MobileSearch from "@/components/search/MobileSearch";
 
 const locations = [
   "Aeroporto de Orlando (MCO)",
@@ -178,220 +180,35 @@ const SearchBar = () => {
       className="mt-6 md:mt-10 w-full max-w-5xl mx-auto"
     >
       <div className="glass-card p-3 sm:p-5 md:p-7 rounded-2xl border border-border/15">
-        {/* ============ MOBILE LAYOUT (full-width stacked, sheets) ============ */}
-        <div className="md:hidden space-y-2.5">
-          <FieldButton
-            icon={<MapPin size={18} />}
-            label="Local de retirada"
-            value={pickupLocation}
-            active={!!pickupLocation}
-            onClick={() => openSheet("pickupLoc")}
-          />
-          {locationErrors.pickup && (
-            <p className="text-xs text-destructive px-1">{locationErrors.pickup}</p>
-          )}
+        {/* ============ MOBILE LAYOUT — Booking/Kayak inspired ============ */}
+        <MobileSearch
+          pickupLocation={pickupLocation}
+          returnLocation={returnLocation}
+          differentReturnLocation={differentReturnLocation}
+          setDifferentReturnLocation={(v) => {
+            setDifferentReturnLocation(v);
+            if (!v) setReturnLocation("");
+          }}
+          setPickupLocation={(l) => { setPickupLocation(l); setLocationErrors((e) => ({ ...e, pickup: undefined })); }}
+          setReturnLocation={(l) => { setReturnLocation(l); setLocationErrors((e) => ({ ...e, return: undefined })); }}
+          pickupDate={pickupDate}
+          returnDate={returnDate}
+          setPickupDate={setPickupDate}
+          setReturnDate={setReturnDate}
+          pickupTime={pickupTime}
+          returnTime={returnTime}
+          setPickupTime={setPickupTime}
+          setReturnTime={setReturnTime}
+          driverOver25={driverOver25}
+          setDriverOver25={(v) => { setDriverOver25(v); if (v) setDriverAge(""); }}
+          driverAge={driverAge}
+          setDriverAge={setDriverAge}
+          isUnderageBlocked={isUnderageBlocked}
+          isYoungDriverFee={isYoungDriverFee}
+          onSearch={handleSearch}
+          errors={locationErrors}
+        />
 
-          <div className="grid grid-cols-2 gap-2.5">
-            <FieldButton
-              icon={<CalendarIcon size={18} />}
-              label="Retirada"
-              value={pickupDate ? format(pickupDate, "dd MMM", { locale: pt }) : undefined}
-              active={!!pickupDate}
-              onClick={() => openSheet("pickupDate")}
-            />
-            <FieldButton
-              icon={<Clock size={18} />}
-              label="Horário"
-              value={pickupTime}
-              active
-              onClick={() => openSheet("pickupTime")}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-2.5">
-            <FieldButton
-              icon={<CalendarIcon size={18} />}
-              label="Devolução"
-              value={returnDate ? format(returnDate, "dd MMM", { locale: pt }) : undefined}
-              active={!!returnDate}
-              onClick={() => openSheet("returnDate")}
-            />
-            <FieldButton
-              icon={<Clock size={18} />}
-              label="Horário"
-              value={returnTime}
-              active
-              onClick={() => openSheet("returnTime")}
-            />
-          </div>
-
-          {/* Different return location */}
-          <div className="flex items-center gap-3 pt-1 px-1">
-            <Switch
-              checked={differentReturnLocation}
-              onCheckedChange={(checked) => {
-                setDifferentReturnLocation(checked);
-                if (!checked) setReturnLocation("");
-              }}
-              className="data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-muted"
-            />
-            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">
-              Devolver em outro local?
-            </span>
-          </div>
-
-          <AnimatePresence>
-            {differentReturnLocation && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="overflow-hidden"
-              >
-                <FieldButton
-                  icon={<MapPin size={18} />}
-                  label="Local de devolução"
-                  value={returnLocation}
-                  active={!!returnLocation}
-                  onClick={() => openSheet("returnLoc")}
-                />
-                {locationErrors.return && (
-                  <p className="text-xs text-destructive mt-1 px-1">{locationErrors.return}</p>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Driver age toggle */}
-          <div className="flex items-center gap-3 pt-1 px-1">
-            <Switch
-              checked={driverOver25}
-              onCheckedChange={(checked) => {
-                setDriverOver25(checked);
-                if (checked) setDriverAge("");
-              }}
-              className="data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-muted"
-            />
-            <UserCheck size={14} className="text-primary" />
-            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">
-              Condutor 21+
-            </span>
-          </div>
-
-          <AnimatePresence>
-            {!driverOver25 && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25 }}
-                className="overflow-hidden space-y-2"
-              >
-                <div className={cn(
-                  "flex items-center gap-2 px-4 py-3 rounded-xl border bg-background/50",
-                  isUnderageBlocked ? "border-destructive/60" : isYoungDriverFee ? "border-amber-500/50" : "border-primary/40"
-                )}>
-                  <UserCheck size={16} className={cn("shrink-0", isUnderageBlocked ? "text-destructive" : "text-primary")} />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Idade do condutor</p>
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      min="18"
-                      max="99"
-                      value={driverAge}
-                      onChange={(e) => setDriverAge(e.target.value)}
-                      placeholder="Ex: 22"
-                      className="text-base text-foreground bg-transparent outline-none w-full placeholder:text-muted-foreground/50"
-                    />
-                  </div>
-                  {isYoungDriverFee && (
-                    <span className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold whitespace-nowrap">+8% diária</span>
-                  )}
-                </div>
-                {isUnderageBlocked && (
-                  <div className="px-4 py-2 rounded-lg bg-destructive/10 border border-destructive/20">
-                    <span className="text-xs text-destructive font-medium">
-                      Não atendemos condutores menores de 21 anos
-                    </span>
-                  </div>
-                )}
-                {isYoungDriverFee && (
-                  <div className="px-4 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <span className="text-xs text-amber-700 dark:text-amber-400 font-medium">
-                      Young driver fee de +8% na diária
-                    </span>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <Button
-            onClick={handleSearch}
-            disabled={isUnderageBlocked}
-            className="gold-gradient text-primary-foreground font-bold uppercase tracking-widest h-14 w-full mt-2 rounded-xl hover:opacity-90 transition-opacity text-sm gap-2 disabled:opacity-40"
-          >
-            <Search size={18} />
-            Buscar
-          </Button>
-
-          {/* Mobile sheets */}
-          <Sheet open={sheetOpen === "pickupLoc"} onOpenChange={(o) => !o && closeSheet()}>
-            <SheetContent side="bottom" className="rounded-t-2xl max-h-[85vh] overflow-y-auto">
-              <SheetHeader className="text-left mb-3">
-                <SheetTitle>Local de retirada</SheetTitle>
-              </SheetHeader>
-              {renderLocationList(pickupLocation, (l) => { setPickupLocation(l); setLocationErrors((e) => ({ ...e, pickup: undefined })); })}
-            </SheetContent>
-          </Sheet>
-
-          <Sheet open={sheetOpen === "returnLoc"} onOpenChange={(o) => !o && closeSheet()}>
-            <SheetContent side="bottom" className="rounded-t-2xl max-h-[85vh] overflow-y-auto">
-              <SheetHeader className="text-left mb-3">
-                <SheetTitle>Local de devolução</SheetTitle>
-              </SheetHeader>
-              {renderLocationList(returnLocation, (l) => { setReturnLocation(l); setLocationErrors((e) => ({ ...e, return: undefined })); })}
-            </SheetContent>
-          </Sheet>
-
-          <Sheet open={sheetOpen === "pickupDate"} onOpenChange={(o) => !o && closeSheet()}>
-            <SheetContent side="bottom" className="rounded-t-2xl max-h-[85vh] overflow-y-auto">
-              <SheetHeader className="text-left mb-1">
-                <SheetTitle>Data de retirada</SheetTitle>
-              </SheetHeader>
-              {renderDateSheetContent(pickupDate, setPickupDate, new Date())}
-            </SheetContent>
-          </Sheet>
-
-          <Sheet open={sheetOpen === "returnDate"} onOpenChange={(o) => !o && closeSheet()}>
-            <SheetContent side="bottom" className="rounded-t-2xl max-h-[85vh] overflow-y-auto">
-              <SheetHeader className="text-left mb-1">
-                <SheetTitle>Data de devolução</SheetTitle>
-              </SheetHeader>
-              {renderDateSheetContent(returnDate, setReturnDate, pickupDate || new Date())}
-            </SheetContent>
-          </Sheet>
-
-          <Sheet open={sheetOpen === "pickupTime"} onOpenChange={(o) => !o && closeSheet()}>
-            <SheetContent side="bottom" className="rounded-t-2xl max-h-[70vh] overflow-y-auto">
-              <SheetHeader className="text-left mb-3">
-                <SheetTitle>Horário de retirada</SheetTitle>
-              </SheetHeader>
-              {renderTimeList(pickupTime, setPickupTime)}
-            </SheetContent>
-          </Sheet>
-
-          <Sheet open={sheetOpen === "returnTime"} onOpenChange={(o) => !o && closeSheet()}>
-            <SheetContent side="bottom" className="rounded-t-2xl max-h-[70vh] overflow-y-auto">
-              <SheetHeader className="text-left mb-3">
-                <SheetTitle>Horário de devolução</SheetTitle>
-              </SheetHeader>
-              {renderTimeList(returnTime, setReturnTime)}
-            </SheetContent>
-          </Sheet>
-        </div>
 
         {/* ============ DESKTOP LAYOUT (popovers, unchanged) ============ */}
         <div className="hidden md:block">
