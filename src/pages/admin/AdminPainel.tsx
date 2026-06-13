@@ -36,7 +36,7 @@ type BookingRow = {
   vehicle_id: string | null;
   customer_name: string | null;
 };
-type VehicleRow = { id: string; name: string | null; status: string | null };
+type VehicleRow = { id: string; name: string | null; status: string | null; color: string | null };
 
 const ACTIVE_STATUSES = new Set(["confirmed", "active", "in_progress"]);
 const PREP_STATUSES   = new Set(["maintenance", "preparing", "cleaning", "in_preparation"]);
