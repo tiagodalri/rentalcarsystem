@@ -87,6 +87,15 @@ export default function AdminPainel() {
   const prevMonthAnchor = useMemo(() => startOfMonth(subMonths(now, 1)), [now]);
   const monthLabel = format(monthAnchor, "MMMM 'de' yyyy", { locale: ptBR });
 
+  // Vehicle lookup: "Nome (Cor)" or just name
+  const vehicleLabel = useCallback((vehicleId: string | null) => {
+    if (!vehicleId) return "Veículo não atribuído";
+    const v = vehicles.find(x => x.id === vehicleId);
+    if (!v) return "Veículo não atribuído";
+    const name = v.name || "Veículo";
+    return v.color ? `${name} · ${v.color}` : name;
+  }, [vehicles]);
+
   /* ─────────── AGORA ─────────── */
   const rodando = bookings.filter(b =>
     ACTIVE_STATUSES.has(b.status) &&
@@ -111,9 +120,12 @@ export default function AdminPainel() {
     .filter(x => x.t)
     .sort((a, b) => (a.t || "").localeCompare(b.t || ""))[0];
 
-  /* ─────────── MÊS ─────────── */
-  const monthBookings = bookings.filter(b => inMonth(new Date(b.created_at), monthAnchor));
-  const prevBookings  = bookings.filter(b => inMonth(new Date(b.created_at), prevMonthAnchor));
+  /* ─────────── MÊS ───────────
+     Considera reservas com pickup dentro do mês e exclui canceladas
+     (a métrica reflete operação efetiva, não data de criação). */
+  const isRealBooking = (b: BookingRow) => b.status !== "cancelled";
+  const monthBookings = bookings.filter(b => isRealBooking(b) && inMonth(new Date(b.pickup_date), monthAnchor));
+  const prevBookings  = bookings.filter(b => isRealBooking(b) && inMonth(new Date(b.pickup_date), prevMonthAnchor));
   const monthRevenue  = monthBookings.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
   const prevRevenue   = prevBookings.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
   const monthCount    = monthBookings.length;
