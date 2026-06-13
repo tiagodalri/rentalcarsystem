@@ -218,6 +218,8 @@ export default function AdminPainel() {
                 <p className="text-[11px] text-muted-foreground/70 truncate">
                   {formatPersonName(proximaAcao.b.customer_name || "—")}
                 </p>
+              </div>
+            ) : (
               <p className="text-[13px] text-muted-foreground">Nenhuma operação programada para hoje.</p>
             )}
           </button>
