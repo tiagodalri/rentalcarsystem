@@ -12,6 +12,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Switch } from "@/components/ui/switch";
 import { isBlockedAge, isYoungDriver } from "@/lib/age";
 import type { DateRange } from "react-day-picker";
+import MobileSearch from "@/components/search/MobileSearch";
 
 const locations = [
   "Aeroporto de Orlando (MCO)",
