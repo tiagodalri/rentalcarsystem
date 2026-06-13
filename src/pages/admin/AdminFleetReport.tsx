@@ -136,6 +136,7 @@ export default function AdminFleetReport({
     rpt.sort((a, b) => b.totalRevenue - a.totalRevenue);
     setReport(rpt);
     setLoading(false);
+    setInitialLoad(false);
   };
 
   // Aggregated metrics
