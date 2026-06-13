@@ -321,7 +321,7 @@ function FieldRow({
   empty,
   onClick,
 }: {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: LucideIcon;
   label: string;
   value: string;
   empty?: boolean;
