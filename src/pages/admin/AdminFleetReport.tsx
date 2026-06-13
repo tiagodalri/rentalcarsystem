@@ -52,6 +52,7 @@ export default function AdminFleetReport({
   monthOverride,
 }: { embedded?: boolean; monthOverride?: Date } = {}) {
   const [loading, setLoading] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
   const [month, setMonth] = useState(startOfMonth(monthOverride ?? new Date()));
   const [customRange, setCustomRange] = useState<DateRange | undefined>(undefined);
   const [rangeOpen, setRangeOpen] = useState(false);
@@ -135,6 +136,7 @@ export default function AdminFleetReport({
     rpt.sort((a, b) => b.totalRevenue - a.totalRevenue);
     setReport(rpt);
     setLoading(false);
+    setInitialLoad(false);
   };
 
   // Aggregated metrics
@@ -190,7 +192,7 @@ export default function AdminFleetReport({
   // Plan distribution (single plan)
   const totalBookingsWithPlan = bookings.length;
 
-  if (loading) {
+  if (loading && initialLoad) {
     return <FleetReportSkeleton />;
   }
 
