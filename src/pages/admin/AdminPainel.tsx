@@ -233,7 +233,8 @@ export default function AdminPainel() {
             items={checkinsHoje.slice(0, 3).map(b => ({
               id: b.id,
               left: b.pickup_time?.slice(0, 5) || "—",
-              right: formatPersonName(b.customer_name || "—"),
+              right: vehicleLabel(b.vehicle_id),
+              sub: formatPersonName(b.customer_name || ""),
             }))}
             onAll={() => navigate("/admin/ops-today")}
           />
@@ -247,7 +248,8 @@ export default function AdminPainel() {
             items={checkoutsHoje.slice(0, 3).map(b => ({
               id: b.id,
               left: b.return_time?.slice(0, 5) || "—",
-              right: formatPersonName(b.customer_name || "—"),
+              right: vehicleLabel(b.vehicle_id),
+              sub: formatPersonName(b.customer_name || ""),
             }))}
             onAll={() => navigate("/admin/ops-today")}
           />
