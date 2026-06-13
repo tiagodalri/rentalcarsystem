@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft, CalendarIcon, MapPin, Clock, Users, Briefcase,
   Settings2, Fuel, Snowflake, DoorOpen, Shield, Gauge, Check,
-  AlertTriangle, SlidersHorizontal, ArrowUpDown, Pencil, X,
+  AlertTriangle, SlidersHorizontal, ArrowUpDown, Pencil,
+  type LucideIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
