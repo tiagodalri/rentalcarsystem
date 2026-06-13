@@ -247,7 +247,7 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
                         <MobileListItem
                           meta={e.kind === "in" ? "Check-in" : "Check-out"}
                           title={e.name}
-                          subtitle={`Programado para ${e.t.slice(0, 5)}`}
+                          subtitle={e.customer ? `${e.customer} · ${e.t.slice(0, 5)}` : `Programado para ${e.t.slice(0, 5)}`}
                           leading={
                             <EventBadge
                               kind={e.kind}
