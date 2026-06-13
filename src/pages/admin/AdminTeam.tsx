@@ -285,7 +285,7 @@ function AdminTeamDesktop() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-medium text-foreground tracking-tight flex items-center gap-2">
+          <h1 className="admin-h1 text-2xl flex items-center gap-2">
             <UsersRound className="h-6 w-6 text-primary" /> Equipe
           </h1>
           <p className="text-sm text-muted-foreground mt-1">{stats.total} membros • {stats.active} ativos</p>
@@ -322,7 +322,7 @@ function AdminTeamDesktop() {
                 <s.icon className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="text-xl font-medium text-foreground tabular-nums">{s.value}</p>
+                <p className="admin-h1 text-xl tabular-nums">{s.value}</p>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
               </div>
             </CardContent>

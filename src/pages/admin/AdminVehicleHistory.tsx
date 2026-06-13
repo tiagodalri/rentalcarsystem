@@ -130,7 +130,7 @@ export default function AdminVehicleHistory() {
             <img src={vehicle.image_url} alt={vehicle.name} className="w-20 h-14 object-cover rounded-lg border border-border/40" loading="lazy" width={80} height={56} />
           )}
           <div>
-            <h1 className="text-2xl font-medium text-foreground">{vehicle.name}</h1>
+            <h1 className="admin-h1 text-2xl">{vehicle.name}</h1>
             <p className="text-sm text-muted-foreground">
               {vehicle.category} • {vehicle.year} • {vehicle.transmission === "Automatic" ? "Automático" : "Manual"} • {vehicle.fuel}
             </p>

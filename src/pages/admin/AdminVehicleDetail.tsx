@@ -413,7 +413,7 @@ export default function AdminVehicleDetail() {
         <Button variant="ghost" size="icon" onClick={() => navigate("/admin/fleet")} className="mt-1"><ChevronLeft size={20} /></Button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-medium text-foreground">{vehicle.name}</h1>
+            <h1 className="admin-h1 text-2xl">{vehicle.name}</h1>
             <Badge variant="outline" className={vs.color}>{vs.label}</Badge>
             {openIncidents > 0 && (
               <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30 flex items-center gap-1">

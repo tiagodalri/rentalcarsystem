@@ -435,7 +435,7 @@ export default function AdminBookingDetail() {
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 rounded-2xl border border-border/40 bg-card/50 p-4 shadow-sm sm:p-5 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
         <div className="min-w-0 space-y-3">
           <div className="space-y-2">
-            <h1 className="text-[22px] sm:text-2xl font-medium text-foreground tracking-tight leading-tight break-words">
+            <h1 className="text-[22px] sm:admin-h1 text-2xl leading-tight break-words">
               {formatPersonName(booking.customer_name)}
             </h1>
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -716,7 +716,7 @@ export default function AdminBookingDetail() {
               <div className="w-full md:w-1/2 space-y-6">
                 <div>
                   <h2 className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">Veículo</h2>
-                  <h3 className="text-2xl font-medium text-foreground">{vehicle.name}</h3>
+                  <h3 className="admin-h1 text-2xl">{vehicle.name}</h3>
                   <p className="text-primary font-medium mt-1 uppercase tracking-widest text-[11px]">
                     {vehicle.year ? `${vehicle.year} • ` : ""}{vehicle.category}
                   </p>

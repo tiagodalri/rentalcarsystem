@@ -455,7 +455,7 @@ export default function AdminInspectionReport() {
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-semibold">
             Laudo de Conclusão de Serviço
           </p>
-          <h1 className="text-2xl font-medium text-foreground tabular-nums">{reportNumber}</h1>
+          <h1 className="admin-h1 text-2xl tabular-nums">{reportNumber}</h1>
         </div>
         <Button variant="outline" size="sm" onClick={() => window.print()}>
           <Printer size={14} className="mr-1.5" /> Imprimir / PDF
@@ -474,7 +474,7 @@ export default function AdminInspectionReport() {
                 <Sparkles size={12} className="text-primary" />
                 <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-medium">Zeus Rental Car</p>
               </div>
-              <h2 className="text-2xl font-medium text-foreground">Laudo Completo de Serviço</h2>
+              <h2 className="admin-h1 text-2xl">Laudo Completo de Serviço</h2>
               <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 tabular-nums">
                 <span><Hash size={10} className="inline mr-0.5" />{reportNumber}</span>
                 <span className="text-border">•</span>

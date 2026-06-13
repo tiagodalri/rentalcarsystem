@@ -185,7 +185,7 @@ export function FleetCalendar() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-medium tracking-tight">Agenda da Frota</h1>
+          <h1 className="admin-h1 text-2xl">Agenda da Frota</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Visão de ocupação por veículo • <span className="tabular-nums">{rangeLabel}</span>
           </p>
@@ -474,7 +474,7 @@ function Kpi({ icon, label, value, tone }: { icon: React.ReactNode; label: strin
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
         {icon} {label}
       </div>
-      <div className="mt-1 text-2xl font-medium tabular-nums text-foreground">{value}</div>
+      <div className="mt-1 admin-kpi text-2xl">{value}</div>
     </Card>
   );
 }
