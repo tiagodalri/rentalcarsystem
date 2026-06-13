@@ -258,7 +258,7 @@ const SearchResults = () => {
 
       {/* ───────── DESKTOP / TABLET ───────── */}
       <section className="hidden lg:block pt-24 pb-16">
-        <div className="container mx-auto px-4
+        <div className="container mx-auto px-4">
           {/* Back + Search Summary */}
           <div className="mb-10">
             <Link
