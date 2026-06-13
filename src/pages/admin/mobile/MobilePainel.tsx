@@ -35,7 +35,7 @@ type BookingRow = {
 
 interface MobilePainelProps {
   bookings: BookingRow[];
-  vehicles: { id: string; name: string | null; status: string | null }[];
+  vehicles: { id: string; name: string | null; status: string | null; color: string | null }[];
   onRefresh: () => Promise<void>;
 }
 
