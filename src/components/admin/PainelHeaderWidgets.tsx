@@ -218,7 +218,7 @@ export function PainelHeaderWidgets() {
           <span className="absolute inline-flex h-full w-full rounded-full bg-primary-foreground opacity-75 animate-ping" />
           <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-foreground" />
         </span>
-        <span className="text-[10px] font-bold tracking-[0.22em] uppercase text-primary-foreground">
+        <span className="text-[10px] font-semibold tracking-[0.22em] uppercase text-primary-foreground">
           Ao vivo
         </span>
       </div>
