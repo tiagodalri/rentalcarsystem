@@ -192,7 +192,7 @@ export default function AdminFleetReport({
   // Plan distribution (single plan)
   const totalBookingsWithPlan = bookings.length;
 
-  if (loading) {
+  if (loading && initialLoad) {
     return <FleetReportSkeleton />;
   }
 
