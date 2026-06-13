@@ -87,7 +87,7 @@ export function AiCapturePanel({ onExtracted, onSkip }: Props) {
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
           Auxiliar de IA
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight">Vamos começar</h2>
+        <h2 className="admin-h1 text-2xl">Vamos começar</h2>
         <p className="text-sm text-muted-foreground">
           A IA interpreta seus prints, fotos, PDF's, áudio, etc. Você preenche apenas confirma os dados e preenche/altera o que faltou.
         </p>

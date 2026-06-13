@@ -202,7 +202,7 @@ export default function AdminFleetReport({
       <div className="flex items-center justify-between">
         {!embedded ? (
           <div>
-            <h1 className="text-2xl font-medium text-foreground">Relatório Mensal de Frota</h1>
+            <h1 className="admin-h1 text-2xl">Relatório Mensal de Frota</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Análise de desempenho, utilização e avarias
             </p>
@@ -292,7 +292,7 @@ export default function AdminFleetReport({
                 </div>
                 <div className="min-w-0 flex h-10 flex-col justify-center">
                   <p className="text-[11px] text-muted-foreground uppercase tracking-wider truncate leading-none">{label}</p>
-                  <p className="text-xl font-medium text-foreground tabular-nums leading-none mt-2">{value}</p>
+                  <p className="admin-h1 text-xl tabular-nums leading-none mt-2">{value}</p>
                 </div>
               </div>
             </CardContent>

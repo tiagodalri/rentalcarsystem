@@ -23,7 +23,7 @@ export default function AdminFinance() {
   return (
     <div className="space-y-6">
       <div className="hidden lg:block">
-        <h1 className="text-2xl font-medium text-foreground tracking-tight flex items-center gap-2">
+        <h1 className="admin-h1 text-2xl flex items-center gap-2">
           <DollarSign className="h-6 w-6 text-primary" /> Financeiro
         </h1>
         <p className="text-sm text-muted-foreground mt-1">Visão geral da operação</p>

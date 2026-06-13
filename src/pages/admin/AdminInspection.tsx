@@ -711,7 +711,7 @@ export default function AdminInspection() {
         </Button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-medium text-foreground">
+            <h1 className="admin-h1 text-2xl">
               {type === "checkin" ? "Entrega do Veículo" : "Devolução do Veículo"}
             </h1>
             {isCompleted && (

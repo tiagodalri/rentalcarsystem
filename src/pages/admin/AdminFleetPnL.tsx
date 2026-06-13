@@ -223,7 +223,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         {!embedded ? (
           <div>
-            <h1 className="text-2xl font-medium text-foreground">Relatório de Frota — Lucro por Veículo</h1>
+            <h1 className="admin-h1 text-2xl">Relatório de Frota — Lucro por Veículo</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Compra, gastos, receitas e lucro operacional de cada carro desde a aquisição
             </p>
@@ -338,7 +338,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Investimento</p>
-                <p className="text-xl font-medium text-foreground tabular-nums">${fmt(totals.purchase)}</p>
+                <p className="admin-h1 text-xl tabular-nums">${fmt(totals.purchase)}</p>
               </div>
             </div>
           </CardContent>
@@ -353,7 +353,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita Acumulada</p>
-                <p className="text-xl font-medium text-foreground tabular-nums">${fmt(totals.revenue)}</p>
+                <p className="admin-h1 text-xl tabular-nums">${fmt(totals.revenue)}</p>
               </div>
             </div>
           </CardContent>
@@ -368,7 +368,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
               </div>
               <div>
                 <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Gastos Totais</p>
-                <p className="text-xl font-medium text-foreground tabular-nums">${fmt(totals.expenses)}</p>
+                <p className="admin-h1 text-xl tabular-nums">${fmt(totals.expenses)}</p>
               </div>
             </div>
           </CardContent>

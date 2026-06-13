@@ -150,7 +150,7 @@ export default function AdminInspectionCompare() {
           <ChevronLeft size={20} />
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-medium text-foreground">Comparar Inspeções</h1>
+          <h1 className="admin-h1 text-2xl">Comparar Inspeções</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {booking?.customer_name} • {vehicle?.name || "—"} •{" "}
             {booking && new Date(booking.pickup_date).toLocaleDateString("pt-BR")} →{" "}
