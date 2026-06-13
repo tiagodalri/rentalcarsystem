@@ -368,7 +368,7 @@ function MiniListCard({
   label, count, icon: Icon, accent, items, onAll,
 }: {
   label: string; count: number; icon: typeof Activity; accent: Accent;
-  items: { id: string; left: string; right: string }[];
+  items: { id: string; left: string; right: string; sub?: string }[];
   onAll: () => void;
 }) {
   return (
@@ -385,11 +385,16 @@ function MiniListCard({
           Nada programado.
         </p>
       ) : (
-        <ul className="flex-1 space-y-1.5">
+        <ul className="flex-1 space-y-2">
           {items.map(it => (
-            <li key={it.id} className="flex items-baseline gap-2 text-[12.5px]">
-              <span className="tabular-nums text-muted-foreground/80 w-10 shrink-0">{it.left}</span>
-              <span className="text-foreground truncate">{it.right}</span>
+            <li key={it.id} className="flex items-start gap-2 text-[12.5px] leading-tight">
+              <span className="tabular-nums text-muted-foreground/80 w-10 shrink-0 pt-[1px]">{it.left}</span>
+              <div className="min-w-0 flex-1">
+                <div className="text-foreground truncate">{it.right}</div>
+                {it.sub && (
+                  <div className="text-[11px] text-muted-foreground/70 truncate">{it.sub}</div>
+                )}
+              </div>
             </li>
           ))}
         </ul>
