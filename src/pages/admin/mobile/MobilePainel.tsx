@@ -150,6 +150,11 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
               <div className="mt-2 text-[16px] font-medium text-foreground truncate">
                 {proxima.name}
               </div>
+              {proxima.customer && (
+                <div className="text-[12px] text-muted-foreground truncate">
+                  {proxima.customer}
+                </div>
+              )}
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-[12px] text-muted-foreground">
                   Toque para abrir a reserva
