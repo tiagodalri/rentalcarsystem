@@ -36,7 +36,7 @@ type BookingRow = {
   vehicle_id: string | null;
   customer_name: string | null;
 };
-type VehicleRow = { id: string; name: string | null; status: string | null };
+type VehicleRow = { id: string; name: string | null; status: string | null; color: string | null };
 
 const ACTIVE_STATUSES = new Set(["confirmed", "active", "in_progress"]);
 const PREP_STATUSES   = new Set(["maintenance", "preparing", "cleaning", "in_preparation"]);
@@ -71,7 +71,7 @@ export default function AdminPainel() {
         .select("id, status, pickup_date, return_date, pickup_time, return_time, total_price, created_at, vehicle_id, customer_name")
         .order("created_at", { ascending: false })
         .limit(800),
-      supabase.from("vehicles").select("id, name, status"),
+      supabase.from("vehicles").select("id, name, status, color"),
     ]);
     setBookings((b.data as BookingRow[]) || []);
     setVehicles((v.data as VehicleRow[]) || []);
@@ -86,6 +86,15 @@ export default function AdminPainel() {
   const monthAnchor = useMemo(() => startOfMonth(now), [now]);
   const prevMonthAnchor = useMemo(() => startOfMonth(subMonths(now, 1)), [now]);
   const monthLabel = format(monthAnchor, "MMMM 'de' yyyy", { locale: ptBR });
+
+  // Vehicle lookup: "Nome (Cor)" or just name
+  const vehicleLabel = useCallback((vehicleId: string | null) => {
+    if (!vehicleId) return "Veículo não atribuído";
+    const v = vehicles.find(x => x.id === vehicleId);
+    if (!v) return "Veículo não atribuído";
+    const name = v.name || "Veículo";
+    return v.color ? `${name} · ${v.color}` : name;
+  }, [vehicles]);
 
   /* ─────────── AGORA ─────────── */
   const rodando = bookings.filter(b =>
@@ -111,9 +120,12 @@ export default function AdminPainel() {
     .filter(x => x.t)
     .sort((a, b) => (a.t || "").localeCompare(b.t || ""))[0];
 
-  /* ─────────── MÊS ─────────── */
-  const monthBookings = bookings.filter(b => inMonth(new Date(b.created_at), monthAnchor));
-  const prevBookings  = bookings.filter(b => inMonth(new Date(b.created_at), prevMonthAnchor));
+  /* ─────────── MÊS ───────────
+     Considera reservas com pickup dentro do mês e exclui canceladas
+     (a métrica reflete operação efetiva, não data de criação). */
+  const isRealBooking = (b: BookingRow) => b.status !== "cancelled";
+  const monthBookings = bookings.filter(b => isRealBooking(b) && inMonth(new Date(b.pickup_date), monthAnchor));
+  const prevBookings  = bookings.filter(b => isRealBooking(b) && inMonth(new Date(b.pickup_date), prevMonthAnchor));
   const monthRevenue  = monthBookings.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
   const prevRevenue   = prevBookings.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
   const monthCount    = monthBookings.length;
@@ -201,6 +213,9 @@ export default function AdminPainel() {
                   </span>
                 </div>
                 <p className="text-[13px] text-foreground truncate">
+                  {vehicleLabel(proximaAcao.b.vehicle_id)}
+                </p>
+                <p className="text-[11px] text-muted-foreground/70 truncate">
                   {formatPersonName(proximaAcao.b.customer_name || "—")}
                 </p>
               </div>
@@ -218,7 +233,8 @@ export default function AdminPainel() {
             items={checkinsHoje.slice(0, 3).map(b => ({
               id: b.id,
               left: b.pickup_time?.slice(0, 5) || "—",
-              right: formatPersonName(b.customer_name || "—"),
+              right: vehicleLabel(b.vehicle_id),
+              sub: formatPersonName(b.customer_name || ""),
             }))}
             onAll={() => navigate("/admin/ops-today")}
           />
@@ -232,7 +248,8 @@ export default function AdminPainel() {
             items={checkoutsHoje.slice(0, 3).map(b => ({
               id: b.id,
               left: b.return_time?.slice(0, 5) || "—",
-              right: formatPersonName(b.customer_name || "—"),
+              right: vehicleLabel(b.vehicle_id),
+              sub: formatPersonName(b.customer_name || ""),
             }))}
             onAll={() => navigate("/admin/ops-today")}
           />
@@ -351,7 +368,7 @@ function MiniListCard({
   label, count, icon: Icon, accent, items, onAll,
 }: {
   label: string; count: number; icon: typeof Activity; accent: Accent;
-  items: { id: string; left: string; right: string }[];
+  items: { id: string; left: string; right: string; sub?: string }[];
   onAll: () => void;
 }) {
   return (
@@ -368,11 +385,16 @@ function MiniListCard({
           Nada programado.
         </p>
       ) : (
-        <ul className="flex-1 space-y-1.5">
+        <ul className="flex-1 space-y-2">
           {items.map(it => (
-            <li key={it.id} className="flex items-baseline gap-2 text-[12.5px]">
-              <span className="tabular-nums text-muted-foreground/80 w-10 shrink-0">{it.left}</span>
-              <span className="text-foreground truncate">{it.right}</span>
+            <li key={it.id} className="flex items-start gap-2 text-[12.5px] leading-tight">
+              <span className="tabular-nums text-muted-foreground/80 w-10 shrink-0 pt-[1px]">{it.left}</span>
+              <div className="min-w-0 flex-1">
+                <div className="text-foreground truncate">{it.right}</div>
+                {it.sub && (
+                  <div className="text-[11px] text-muted-foreground/70 truncate">{it.sub}</div>
+                )}
+              </div>
             </li>
           ))}
         </ul>

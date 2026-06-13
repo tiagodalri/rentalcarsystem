@@ -35,7 +35,7 @@ type BookingRow = {
 
 interface MobilePainelProps {
   bookings: BookingRow[];
-  vehicles: { id: string; name: string | null; status: string | null }[];
+  vehicles: { id: string; name: string | null; status: string | null; color: string | null }[];
   onRefresh: () => Promise<void>;
 }
 
@@ -76,8 +76,16 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
   const totalFrota = vehicles.length;
   const ocupacao = totalFrota ? Math.round((rodando / totalFrota) * 100) : 0;
 
+  const vehicleLabel = (vehicleId: string | null) => {
+    if (!vehicleId) return "Veículo não atribuído";
+    const v = vehicles.find((x) => x.id === vehicleId);
+    if (!v) return "Veículo não atribuído";
+    const name = v.name || "Veículo";
+    return v.color ? `${name} · ${v.color}` : name;
+  };
+
   // ───── Today's events ─────
-  type Evt = { id: string; t: string; kind: "in" | "out"; name: string; bookingId: string };
+  type Evt = { id: string; t: string; kind: "in" | "out"; name: string; customer: string; bookingId: string };
   const events: Evt[] = useMemo(() => {
     const ins = bookings
       .filter((b) => b.pickup_date === today && b.status !== "cancelled" && b.pickup_time)
@@ -85,7 +93,8 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
         id: `in-${b.id}`,
         t: b.pickup_time!,
         kind: "in",
-        name: formatPersonName(b.customer_name || "—"),
+        name: vehicleLabel(b.vehicle_id),
+        customer: formatPersonName(b.customer_name || ""),
         bookingId: b.id,
       }));
     const outs = bookings
@@ -94,11 +103,12 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
         id: `out-${b.id}`,
         t: b.return_time!,
         kind: "out",
-        name: formatPersonName(b.customer_name || "—"),
+        name: vehicleLabel(b.vehicle_id),
+        customer: formatPersonName(b.customer_name || ""),
         bookingId: b.id,
       }));
     return [...ins, ...outs].sort((a, b) => a.t.localeCompare(b.t));
-  }, [bookings, today]);
+  }, [bookings, today, vehicles]);
 
   const nowHHmm = format(now, "HH:mm");
   const proxima = events.find((e) => e.t >= nowHHmm) || events[0];
@@ -140,6 +150,11 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
               <div className="mt-2 text-[16px] font-medium text-foreground truncate">
                 {proxima.name}
               </div>
+              {proxima.customer && (
+                <div className="text-[12px] text-muted-foreground truncate">
+                  {proxima.customer}
+                </div>
+              )}
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-[12px] text-muted-foreground">
                   Toque para abrir a reserva
@@ -232,7 +247,7 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
                         <MobileListItem
                           meta={e.kind === "in" ? "Check-in" : "Check-out"}
                           title={e.name}
-                          subtitle={`Programado para ${e.t.slice(0, 5)}`}
+                          subtitle={e.customer ? `${e.customer} · ${e.t.slice(0, 5)}` : `Programado para ${e.t.slice(0, 5)}`}
                           leading={
                             <EventBadge
                               kind={e.kind}
