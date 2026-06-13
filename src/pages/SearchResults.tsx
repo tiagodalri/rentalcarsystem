@@ -17,6 +17,7 @@ import { useVehiclesPricingMap } from "@/hooks/useVehiclePricing";
 import { getCoverImage } from "@/data/vehicleImages";
 import { useAuth } from "@/hooks/useAuth";
 import { calculateAge, isBlockedAge, isYoungDriver, YOUNG_DRIVER_SURCHARGE } from "@/lib/age";
+import MobileSearchResults from "@/components/search/MobileSearchResults";
 
 interface SearchVehicle {
   id: string;
