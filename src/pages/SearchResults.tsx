@@ -217,8 +217,48 @@ const SearchResults = () => {
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <Navbar />
 
-      <section className="pt-24 pb-16">
-        <div className="container mx-auto px-4">
+      {/* ───────── MOBILE ───────── */}
+      <MobileSearchResults
+        vehicles={vehicles}
+        categoryLabels={categoryLabels}
+        availableCategories={availableCategories}
+        availableTransmissions={availableTransmissions}
+        selectedCategories={selectedCategories}
+        setSelectedCategories={setSelectedCategories}
+        selectedTransmissions={selectedTransmissions}
+        setSelectedTransmissions={setSelectedTransmissions}
+        minPassengers={minPassengers}
+        setMinPassengers={setMinPassengers}
+        minLuggage={minLuggage}
+        setMinLuggage={setMinLuggage}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        activeFiltersCount={activeFiltersCount}
+        clearFilters={clearFilters}
+        availableCount={availableCount}
+        availabilityLoading={availabilityLoading}
+        pickupDate={pickupDate}
+        returnDate={returnDate}
+        pickupTime={pickupTime}
+        pickupLocation={pickupLocation}
+        days={days}
+        isUnavailable={isUnavailable}
+        getPricing={(v) => {
+          const basePrice = vehiclePrices[v.name] || 99;
+          const pricing = pricingMap[v.id];
+          const ruleSubtotal = pricing?.subtotal_rental ?? basePrice * days;
+          const avgDaily = pricing?.avg_per_day ?? basePrice;
+          const dailyDisplay = youngDriver ? Math.ceil(avgDaily * (1 + YOUNG_DRIVER_SURCHARGE)) : avgDaily;
+          const totalPrice = youngDriver ? Math.ceil(ruleSubtotal * (1 + YOUNG_DRIVER_SURCHARGE)) : ruleSubtotal;
+          return { totalPrice, dailyDisplay };
+        }}
+        toBRL={toBRL}
+        detailUrlFor={(name) => `/veiculo/${encodeURIComponent(name)}?${searchParams.toString()}`}
+      />
+
+      {/* ───────── DESKTOP / TABLET ───────── */}
+      <section className="hidden lg:block pt-24 pb-16">
+        <div className="container mx-auto px-4
           {/* Back + Search Summary */}
           <div className="mb-10">
             <Link
