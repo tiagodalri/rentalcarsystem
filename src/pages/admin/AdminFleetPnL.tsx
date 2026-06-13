@@ -99,11 +99,20 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         ? Math.max(differenceInDays(today, parseISO(v.acquired_date)), 1)
         : 0;
 
-      // Total rented days (lifetime)
+      // Total rented days (lifetime): only the overlap between booking period
+      // and the ownership window [acquired_date, today]. Skip cancelled bookings.
+      const acquired = v.acquired_date ? parseISO(v.acquired_date) : null;
       const totalDays = vBookings.reduce((s: number, b: any) => {
+        if ((b.status || "").toLowerCase() === "cancelled") return s;
         try {
-          const d = differenceInDays(parseISO(b.return_date), parseISO(b.pickup_date));
-          return s + Math.max(d, 1);
+          const pickup = parseISO(b.pickup_date);
+          const ret = parseISO(b.return_date);
+          // Clip to ownership window
+          const start = acquired && pickup < acquired ? acquired : pickup;
+          const end = ret > today ? today : ret;
+          const d = differenceInDays(end, start);
+          if (d <= 0) return s;
+          return s + d;
         } catch {
           return s;
         }
