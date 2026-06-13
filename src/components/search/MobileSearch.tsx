@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarIcon, Clock, MapPin, Search, UserCheck, ChevronRight,
   ArrowRight, Check, X, Plane, Hotel, Building2,
+  type LucideIcon,
 } from "lucide-react";
 import { format, differenceInCalendarDays } from "date-fns";
 import { pt } from "date-fns/locale";
