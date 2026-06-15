@@ -19,6 +19,7 @@ import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
 import { storageThumb } from "@/lib/storageThumb";
 import { coverImageMap } from "@/data/fleetAssets";
+import { deleteBookingSafe } from "@/lib/deleteBookingSafe";
 
 
 type Booking = {
