@@ -86,7 +86,7 @@ export default function AdminFleetReport({
     const endStr = format(monthEnd, "yyyy-MM-dd");
 
     const [vRes, bRes, iRes] = await Promise.all([
-      supabase.from("vehicles").select("*"),
+      supabase.from("vehicles").select("*").is("deleted_at", null),
       supabase.from("bookings").select("*")
         .gte("pickup_date", startStr)
         .lte("pickup_date", endStr),
