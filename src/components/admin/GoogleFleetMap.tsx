@@ -328,7 +328,7 @@ const FOLLOW_EDGE_PX = 110;
 const FOLLOW_CHECK_EVERY_N_FRAMES = 10; // ~6x/sec instead of every frame
 const PROGRAMMATIC_PAN_GUARD_MS = 350;
 const PROGRAMMATIC_ZOOM_GUARD_MS = 450;
-const FRAME_MIN_INTERVAL_MS = 33;       // cap rAF to ~30fps to free main thread
+const FRAME_MIN_INTERVAL_MS = 16;       // ~60fps for buttery marker motion
 
 // Linear interpolation keeps the puck at a constant perceived speed. The old
 // ease-in/out made it visibly slow down at every fix, which looked like a bug.
