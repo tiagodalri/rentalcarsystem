@@ -409,7 +409,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       for (const p of polylineRef.current) p.setMap(map);
       for (const s of nwsShapesRef.current) s.setMap(map);
       for (const m of eventMarkersRef.current) m.setMap(map);
-      if (trafficHiddenForZoomRef.current && layersRef.current.traffic && trafficLayerRef.current) {
+      if (layersRef.current.traffic && trafficLayerRef.current) {
         trafficLayerRef.current.setMap(map);
       }
     }
@@ -687,7 +687,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     const google = (window as any).google;
     if (layers.traffic) {
       if (!trafficLayerRef.current) trafficLayerRef.current = new google.maps.TrafficLayer();
-      trafficLayerRef.current.setMap(mapRef.current);
+      trafficLayerRef.current.setMap(zoomHiddenOverlaysRef.current ? null : mapRef.current);
     } else if (trafficLayerRef.current) {
       trafficLayerRef.current.setMap(null);
     }
@@ -1040,7 +1040,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         strokeOpacity: 0.9,
         strokeWeight: 4,
         clickable: false,
-        map,
+        map: zoomHiddenOverlaysRef.current ? null : map,
       });
       polylineRef.current.push(poly);
     };
