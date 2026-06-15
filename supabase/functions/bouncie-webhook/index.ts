@@ -97,11 +97,12 @@ Deno.serve(async (req) => {
       : Array.isArray(payload?.gpsData) ? payload.gpsData
       : [];
     const lastSample: any = dataArr.length ? dataArr[dataArr.length - 1] : null;
+    const lastSampleGps: any = lastSample?.gps ?? lastSample?.location ?? null;
 
     const loc = payload?.location ?? payload?.gps ?? payload?.stats?.location ?? null;
-    const lat = pickNumber(payload?.lat, payload?.latitude, loc?.lat, loc?.latitude, lastSample?.lat, lastSample?.latitude);
-    const lng = pickNumber(payload?.lon, payload?.lng, payload?.longitude, loc?.lon, loc?.lng, loc?.longitude, lastSample?.lon, lastSample?.lng, lastSample?.longitude);
-    const heading = pickNumber(payload?.heading, loc?.heading, payload?.bearing, lastSample?.heading, lastSample?.bearing);
+    const lat = pickNumber(payload?.lat, payload?.latitude, loc?.lat, loc?.latitude, lastSample?.lat, lastSample?.latitude, lastSampleGps?.lat, lastSampleGps?.latitude);
+    const lng = pickNumber(payload?.lon, payload?.lng, payload?.longitude, loc?.lon, loc?.lng, loc?.longitude, lastSample?.lon, lastSample?.lng, lastSample?.longitude, lastSampleGps?.lon, lastSampleGps?.lng, lastSampleGps?.longitude);
+    const heading = pickNumber(payload?.heading, loc?.heading, payload?.bearing, lastSample?.heading, lastSample?.bearing, lastSampleGps?.heading, lastSampleGps?.bearing);
     const speed = pickNumber(payload?.speed, loc?.speed, payload?.stats?.speed, lastSample?.speed);
     const isRunningRaw = pickBool(payload?.isRunning, payload?.stats?.isRunning, payload?.running);
     // tripData implies the vehicle is moving / engine on
@@ -143,8 +144,9 @@ Deno.serve(async (req) => {
       if (dataArr.length > 0) {
         const rows = dataArr
           .map((s: any) => {
-            const sLat = pickNumber(s?.lat, s?.latitude);
-            const sLng = pickNumber(s?.lon, s?.lng, s?.longitude);
+            const gps = s?.gps ?? s?.location ?? null;
+            const sLat = pickNumber(s?.lat, s?.latitude, gps?.lat, gps?.latitude);
+            const sLng = pickNumber(s?.lon, s?.lng, s?.longitude, gps?.lon, gps?.lng, gps?.longitude);
             if (sLat === null || sLng === null) return null;
             const sTs = pickString(s?.timestamp, s?.time);
             return {
@@ -152,7 +154,7 @@ Deno.serve(async (req) => {
               lat: sLat,
               lng: sLng,
               speed: pickNumber(s?.speed),
-              heading: pickNumber(s?.heading, s?.bearing),
+              heading: pickNumber(s?.heading, s?.bearing, gps?.heading, gps?.bearing),
               event_type: eventType,
               reported_at: sTs ? new Date(sTs).toISOString() : reportedAt,
               raw: s,
