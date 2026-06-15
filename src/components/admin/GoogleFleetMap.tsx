@@ -1024,14 +1024,18 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     if (!ready || !mapRef.current) return;
     for (const p of polylineRef.current) p.setMap(null);
     polylineRef.current = [];
+    if (tipPolyRef.current) { tipPolyRef.current.setMap(null); tipPolyRef.current = null; }
+    tipAnchorRef.current = null;
     if (!selectedId || trail.length < 2) return;
 
     const google = (window as any).google;
     const map = mapRef.current;
 
-    // PERF: agrupa pontos consecutivos de mesma cor em UMA única Polyline.
-    // Antes: 1 Polyline por segmento (até ~2000 overlays) → pan/zoom travado.
-    // Agora: ~10-50 overlays no máximo, mesmo com 24h de histórico.
+    // Static polylines cover everything EXCEPT the last vertex (the live tip).
+    // The last segment is drawn dynamically by the rAF loop so its endpoint
+    // tracks the marker's animated position — otherwise the rastro visually
+    // runs ahead of the icon while the tween catches up.
+    const staticEnd = trail.length - 1; // exclusive index for last raw point
     let runStart = 0;
     let runColor = speedBandColor(trail[1].speed);
     const flushRun = (endIdx: number, color: string) => {
@@ -1049,7 +1053,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       });
       polylineRef.current.push(poly);
     };
-    for (let i = 1; i < trail.length; i++) {
+    for (let i = 1; i < staticEnd; i++) {
       const c = speedBandColor(trail[i].speed);
       if (c !== runColor) {
         flushRun(i, runColor); // include junction point so colors meet
@@ -1057,13 +1061,29 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         runColor = c;
       }
     }
-    flushRun(trail.length - 1, runColor);
+    if (staticEnd > runStart) flushRun(staticEnd, runColor);
+
+    // Anchor for the dynamic tip = last static (snapped) vertex.
+    const anchor = trail[staticEnd - 1] ?? trail[staticEnd];
+    tipAnchorRef.current = {
+      lat: anchor.lat,
+      lng: anchor.lng,
+      color: speedBandColor(trail[staticEnd].speed),
+    };
+    tipPolyRef.current = new google.maps.Polyline({
+      path: [
+        { lat: anchor.lat, lng: anchor.lng },
+        { lat: trail[staticEnd].lat, lng: trail[staticEnd].lng },
+      ],
+      geodesic: false,
+      strokeColor: tipAnchorRef.current.color,
+      strokeOpacity: 0.9,
+      strokeWeight: 4,
+      clickable: false,
+      map: zoomHiddenOverlaysRef.current ? null : map,
+    });
   }, [trail, selectedId, ready]);
 
-  // (4b removed: previously glued the polyline tip to the marker's animated
-  // position, but that drew a straight diagonal across grass whenever the
-  // car parked off-road. Trail now ends at the last snapped road point and
-  // grows naturally as new fixes are snapped to the road network.)
 
 
 
