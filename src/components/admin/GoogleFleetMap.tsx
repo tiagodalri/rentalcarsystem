@@ -640,9 +640,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
             );
           }
         });
-        // Track active user interaction so the rAF loop can pause heavy work
-        // (setPosition/setIcon for every marker) — this is what causes the
-        // "laggy/delayed" feeling while zooming or dragging.
+        // Track active user interaction so the rAF loop can pause heavy marker
+        // work. During zoom we also hide heavy overlays temporarily; Google
+        // Maps can animate tiles much smoother when it is not reprojecting
+        // trails/polygons/event markers at every zoom step.
         const beginInteract = () => { interactingRef.current = true; };
         const endInteract = () => {
           // small delay so the inertia/zoom animation finishes cleanly
@@ -650,10 +651,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         };
         mapRef.current.addListener("dragstart", beginInteract);
         mapRef.current.addListener("dragend", endInteract);
-        mapRef.current.addListener("zoom_changed", () => {
-          interactingRef.current = true;
-          endInteract();
-        });
+        mapRef.current.addListener("zoom_changed", beginZoomPerformanceMode);
         setReady(true);
       })
       .catch((e) => {
@@ -662,6 +660,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       });
     return () => {
       cancelled = true;
+      if (zoomResumeTimerRef.current != null) window.clearTimeout(zoomResumeTimerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
