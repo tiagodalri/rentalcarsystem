@@ -39,7 +39,6 @@ const DARK_STYLE: any[] = [
  */
 function puckSvg(color: string, selected: boolean, headingDeg: number, moving: boolean, logoDataUri: string | null): any {
   const displaySize = selected ? 60 : 50;
-  const NATIVE = 132;
   const h = ((headingDeg % 360) + 360) % 360;
   const ringStroke = selected ? "#D4AF37" : color;
   const ringWidth = selected ? 3.4 : 2.8;
@@ -49,28 +48,16 @@ function puckSvg(color: string, selected: boolean, headingDeg: number, moving: b
          <path d="M22 1.2 L29.8 11 L22 8.2 L14.2 11 Z" fill="${color}" stroke="#0a0a0a" stroke-width="0.5" stroke-linejoin="round" opacity="0.98" />
        </g>`
     : "";
-  const inner = logoDataUri
-    ? `<image href="${logoDataUri}" x="11" y="11" width="22" height="22" preserveAspectRatio="xMidYMid meet" />`
-    : `<circle cx="22" cy="22" r="3.4" fill="${color}"/>`;
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${NATIVE}" height="${NATIVE}" viewBox="0 0 44 44" shape-rendering="geometricPrecision">
-      <defs>
-        <filter id="puckShadow" x="-40%" y="-40%" width="180%" height="180%">
-          <feDropShadow dx="0" dy="1.8" stdDeviation="2" flood-color="#000" flood-opacity="0.55"/>
-        </filter>
-      </defs>
-      <circle cx="22" cy="22" r="19" fill="${color}" opacity="${haloOpacity}" />
-      ${cone}
-      <g filter="url(#puckShadow)">
-        <circle cx="22" cy="22" r="14" fill="#ffffff" stroke="${ringStroke}" stroke-width="${ringWidth}" />
-      </g>
-      ${inner}
-    </svg>`;
+  // NOTE: embedding a brand-logo data URI inside another encoded SVG causes
+  // double-encoding glitches in some browsers, which silently breaks the
+  // whole marker. Stick to a solid dot — reliable across every browser.
+  const inner = `<circle cx="22" cy="22" r="3.6" fill="${color}"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${displaySize}" height="${displaySize}" viewBox="0 0 44 44" shape-rendering="geometricPrecision"><defs><filter id="puckShadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="1.8" stdDeviation="2" flood-color="#000" flood-opacity="0.55"/></filter></defs><circle cx="22" cy="22" r="19" fill="${color}" opacity="${haloOpacity}" />${cone}<g filter="url(#puckShadow)"><circle cx="22" cy="22" r="14" fill="#ffffff" stroke="${ringStroke}" stroke-width="${ringWidth}" /></g>${inner}</svg>`;
+  const g = (window as any).google;
   return {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-    scaledSize: { width: displaySize, height: displaySize } as any,
-    size: { width: NATIVE, height: NATIVE } as any,
-    anchor: { x: displaySize / 2, y: displaySize / 2 } as any,
+    scaledSize: g?.maps?.Size ? new g.maps.Size(displaySize, displaySize) : ({ width: displaySize, height: displaySize } as any),
+    anchor: g?.maps?.Point ? new g.maps.Point(displaySize / 2, displaySize / 2) : ({ x: displaySize / 2, y: displaySize / 2 } as any),
   };
 }
 
