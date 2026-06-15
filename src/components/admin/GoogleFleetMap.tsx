@@ -317,8 +317,9 @@ type VehicleState = {
 };
 
 const TWEEN_MIN_MS = 1500;             // never animate faster than this
-const TWEEN_MAX_MS = 7000;             // cap so a long pause doesn't drag forever
-const TWEEN_DEFAULT_MS = 4000;         // default duration when we can't infer
+const TWEEN_MAX_MS = 25_000;           // permite cobrir intervalos longos sem "travar"
+const TWEEN_DEFAULT_MS = 16_000;       // default ~ intervalo típico da Bouncie (tripData ~15s)
+const TWEEN_OVERSHOOT = 1.15;          // anima 15% além do intervalo: nunca para entre fixes
 const MIN_MOVE_METERS = 4;             // ignore micro-jitter while parked
 const MAX_JUMP_METERS = 2_000;         // discard absurd GPS jumps
 const HEADING_LERP_PER_FRAME = 0.18;
@@ -712,7 +713,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
             // Animate over the real interval between fixes (clamped), or use
             // distance/speed if interval is unknown.
             const intervalMs = reportedAtMs - st.lastReportedMs;
-            let duration = intervalMs > 0 ? intervalMs : TWEEN_DEFAULT_MS;
+            let duration = intervalMs > 0 ? intervalMs * TWEEN_OVERSHOOT : TWEEN_DEFAULT_MS;
             duration = Math.min(TWEEN_MAX_MS, Math.max(TWEEN_MIN_MS, duration));
             st.tween = {
               fromLat: from.lat,
