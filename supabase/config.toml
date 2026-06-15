@@ -20,3 +20,7 @@ verify_jwt = false
 
 [functions.place-details]
 verify_jwt = false
+
+[functions.snap-to-roads]
+verify_jwt = false
+
