@@ -329,6 +329,7 @@ const FOLLOW_CHECK_EVERY_N_FRAMES = 10; // ~6x/sec instead of every frame
 const PROGRAMMATIC_PAN_GUARD_MS = 350;
 const PROGRAMMATIC_ZOOM_GUARD_MS = 450;
 const FRAME_MIN_INTERVAL_MS = 16;       // ~60fps for buttery marker motion
+const ZOOM_OVERLAY_RESTORE_DELAY_MS = 360;
 
 // Linear interpolation keeps the puck at a constant perceived speed. The old
 // ease-in/out made it visibly slow down at every fix, which looked like a bug.
@@ -372,6 +373,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const trafficLayerRef = useRef<any>(null);
   const nwsShapesRef = useRef<any[]>([]);
   const eventMarkersRef = useRef<any[]>([]);
+  const layersRef = useRef<MapLayers>(layers);
   const fittedRef = useRef(false);
   const selectedIdRef = useRef<string | null>(null);
   const followRef = useRef<boolean>(false);
@@ -380,6 +382,9 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const programmaticZoomAtRef = useRef<number>(0);
   /** True while user is actively dragging/zooming — we skip marker work to keep gestures buttery. */
   const interactingRef = useRef<boolean>(false);
+  const zoomResumeTimerRef = useRef<number | null>(null);
+  const zoomHiddenOverlaysRef = useRef<boolean>(false);
+  const trafficHiddenForZoomRef = useRef<boolean>(false);
   const lastFrameMsRef = useRef<number>(0);
   const followFrameCounterRef = useRef<number>(0);
   const [ready, setReady] = useState(false);
@@ -388,10 +393,47 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
   useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
   useEffect(() => { followRef.current = following; }, [following]);
+  useEffect(() => { layersRef.current = layers; }, [layers]);
 
   const { points: trail } = useTripTrail(selectedId, 24);
   const { data: nwsAlerts = [] } = useNwsAlerts("FL", layers.nwsAlerts);
   const { data: events = [] } = useVehicleEvents(selectedId, 7, layers.tripEvents && !!selectedId);
+
+  const restoreZoomPerformanceMode = useCallback(() => {
+    if (zoomResumeTimerRef.current != null) {
+      window.clearTimeout(zoomResumeTimerRef.current);
+      zoomResumeTimerRef.current = null;
+    }
+    const map = mapRef.current;
+    if (map && zoomHiddenOverlaysRef.current) {
+      for (const p of polylineRef.current) p.setMap(map);
+      for (const s of nwsShapesRef.current) s.setMap(map);
+      for (const m of eventMarkersRef.current) m.setMap(map);
+      if (layersRef.current.traffic && trafficLayerRef.current) {
+        trafficLayerRef.current.setMap(map);
+      }
+    }
+    trafficHiddenForZoomRef.current = false;
+    zoomHiddenOverlaysRef.current = false;
+    interactingRef.current = false;
+  }, []);
+
+  const beginZoomPerformanceMode = useCallback(() => {
+    interactingRef.current = true;
+    if (zoomResumeTimerRef.current != null) window.clearTimeout(zoomResumeTimerRef.current);
+    const map = mapRef.current;
+    if (map && !zoomHiddenOverlaysRef.current) {
+      for (const p of polylineRef.current) p.setMap(null);
+      for (const s of nwsShapesRef.current) s.setMap(null);
+      for (const m of eventMarkersRef.current) m.setMap(null);
+      if (layersRef.current.traffic && trafficLayerRef.current) {
+        trafficLayerRef.current.setMap(null);
+        trafficHiddenForZoomRef.current = true;
+      }
+      zoomHiddenOverlaysRef.current = true;
+    }
+    zoomResumeTimerRef.current = window.setTimeout(restoreZoomPerformanceMode, ZOOM_OVERLAY_RESTORE_DELAY_MS);
+  }, [restoreZoomPerformanceMode]);
 
   // 1. Load Google Maps and create map instance
   useEffect(() => {
@@ -423,10 +465,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
           scrollwheel: true,
-          // Fractional zoom forces continuous tile re-render and is the #1
-          // cause of "laggy" wheel-zoom on weaker GPUs. Integer zoom is what
-          // Google Maps uses by default and feels snappier.
-          isFractionalZoomEnabled: false,
+          // Smooth wheel/pinch zoom. Heavy Zeus overlays are paused during the
+          // gesture below, so the map can animate continuously instead of
+          // snapping between integer zoom levels.
+          isFractionalZoomEnabled: true,
           clickableIcons: true,
           keyboardShortcuts: true,
           draggableCursor: "grab",
@@ -598,9 +640,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
             );
           }
         });
-        // Track active user interaction so the rAF loop can pause heavy work
-        // (setPosition/setIcon for every marker) — this is what causes the
-        // "laggy/delayed" feeling while zooming or dragging.
+        // Track active user interaction so the rAF loop can pause heavy marker
+        // work. During zoom we also hide heavy overlays temporarily; Google
+        // Maps can animate tiles much smoother when it is not reprojecting
+        // trails/polygons/event markers at every zoom step.
         const beginInteract = () => { interactingRef.current = true; };
         const endInteract = () => {
           // small delay so the inertia/zoom animation finishes cleanly
@@ -608,10 +651,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         };
         mapRef.current.addListener("dragstart", beginInteract);
         mapRef.current.addListener("dragend", endInteract);
-        mapRef.current.addListener("zoom_changed", () => {
-          interactingRef.current = true;
-          endInteract();
-        });
+        mapRef.current.addListener("zoom_changed", beginZoomPerformanceMode);
         setReady(true);
       })
       .catch((e) => {
@@ -620,6 +660,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       });
     return () => {
       cancelled = true;
+      if (zoomResumeTimerRef.current != null) window.clearTimeout(zoomResumeTimerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -646,7 +687,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     const google = (window as any).google;
     if (layers.traffic) {
       if (!trafficLayerRef.current) trafficLayerRef.current = new google.maps.TrafficLayer();
-      trafficLayerRef.current.setMap(mapRef.current);
+      trafficLayerRef.current.setMap(zoomHiddenOverlaysRef.current ? null : mapRef.current);
     } else if (trafficLayerRef.current) {
       trafficLayerRef.current.setMap(null);
     }
@@ -999,7 +1040,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         strokeOpacity: 0.9,
         strokeWeight: 4,
         clickable: false,
-        map,
+        map: zoomHiddenOverlaysRef.current ? null : map,
       });
       polylineRef.current.push(poly);
     };
@@ -1037,7 +1078,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         const drawRing = (ring: any[]) => {
           const path = ring.map((p) => ({ lat: p[1], lng: p[0] }));
           const poly = new google.maps.Polygon({
-            map,
+            map: zoomHiddenOverlaysRef.current ? null : map,
             paths: path,
             strokeColor: color,
             strokeOpacity: 0.9,
@@ -1084,7 +1125,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       if (ev.lat == null || ev.lng == null) continue;
       const { color, label } = eventEmoji(ev.event_type);
       const m = new google.maps.Marker({
-        map,
+        map: zoomHiddenOverlaysRef.current ? null : map,
         position: { lat: ev.lat, lng: ev.lng },
         icon: eventMarkerSvg(color, label),
         zIndex: 500,
