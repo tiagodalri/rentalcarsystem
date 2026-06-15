@@ -23,7 +23,7 @@ function pickString(...vals: any[]): string | null {
   for (const v of vals) {
     if (v === null || v === undefined) continue;
     const s = String(v).trim();
-    if (s) return s;
+    if (s && s.toLowerCase() !== "null" && s.toLowerCase() !== "undefined") return s;
   }
   return null;
 }
