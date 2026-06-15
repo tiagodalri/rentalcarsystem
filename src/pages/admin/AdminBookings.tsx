@@ -680,7 +680,7 @@ function AdminBookingsDesktop() {
       alert: (m) => window.alert(m),
     });
 
-    if (!result.ok) {
+    if (result.ok === false) {
       if (result.reason === "error") {
         toast({ title: "Erro ao excluir", description: result.message, variant: "destructive" });
       }
