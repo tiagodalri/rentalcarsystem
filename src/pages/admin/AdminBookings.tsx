@@ -675,72 +675,21 @@ function AdminBookingsDesktop() {
   };
 
   const deleteBooking = async (id: string) => {
-    // 1) Inspeciona estado de pagamento da reserva
-    const { data: booking } = await supabase
-      .from("bookings")
-      .select("payment_status, status, booking_number")
-      .eq("id", id)
-      .maybeSingle();
+    const result = await deleteBookingSafe(id, {
+      confirm: (m) => window.confirm(m),
+      alert: (m) => window.alert(m),
+    });
 
-    // 2) Busca a última cobrança Câmbio Real associada
-    const { data: pr } = await supabase
-      .from("payment_requests")
-      .select("id, cr_token, status, payment_method")
-      .eq("booking_id", id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const isPaid =
-      booking?.payment_status === "paid" ||
-      pr?.status === "SOLICITACAO_PAGO";
-
-    // 3) Reserva paga → bloqueia exclusão direta (exige fluxo de estorno)
-    if (isPaid) {
-      alert(
-        "Esta reserva está PAGA e não pode ser apenas excluída.\n\n" +
-        "Para cancelar, abra a reserva, use \"Cancelar reserva\" e processe o estorno " +
-        "diretamente no Câmbio Real ou Stripe. Só então a exclusão fica liberada."
-      );
+    if (!result.ok) {
+      if (result.reason === "error") {
+        toast({ title: "Erro ao excluir", description: result.message, variant: "destructive" });
+      }
       return;
     }
 
-    const hasOpenCharge =
-      pr && !["SOLICITACAO_CANCELADA", "SOLICITACAO_EXPIRADA", "BOLETO_EXPIRADO", "CANCELADO", "EXPIRADO"].includes(pr.status || "");
-
-    const msg = hasOpenCharge
-      ? `Esta reserva tem uma cobrança ABERTA no Câmbio Real (${pr!.status}).\n\n` +
-        "Ao excluir, a cobrança será CANCELADA automaticamente no Câmbio Real e a reserva irá para a lixeira. Deseja continuar?"
-      : "Tem certeza que deseja excluir esta reserva? (Pode ser restaurada por um administrador)";
-
-    if (!confirm(msg)) return;
-
-    // 4) Cancela cobrança no gateway antes do soft delete
-    if (hasOpenCharge && pr?.cr_token) {
-      try {
-        const { error: cancelErr } = await supabase.functions.invoke("cambioreal-cancel", {
-          body: { token: pr.cr_token, booking_id: id },
-        });
-        if (cancelErr) throw cancelErr;
-      } catch (e: any) {
-        const proceed = confirm(
-          `Falha ao cancelar a cobrança no Câmbio Real: ${e?.message || e}.\n\n` +
-          "Deseja excluir a reserva mesmo assim? (a cobrança permanecerá aberta no gateway)"
-        );
-        if (!proceed) return;
-      }
-    }
-
-    // 5) Soft delete
-    const { data: { user } } = await supabase.auth.getUser();
-    await supabase
-      .from("bookings")
-      .update({ deleted_at: new Date().toISOString(), deleted_by: user?.id ?? null, status: "cancelled" })
-      .eq("id", id);
-
     toast({
       title: "Reserva excluída",
-      description: hasOpenCharge
+      description: result.cancelledCharge
         ? "Cobrança cancelada no Câmbio Real e reserva movida para a lixeira."
         : "Movida para a lixeira. Pode ser restaurada nos logs de auditoria.",
     });
