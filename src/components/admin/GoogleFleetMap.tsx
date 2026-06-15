@@ -904,7 +904,22 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
               st.logoDataUri,
             ),
           );
+      }
+
+      // Glue the dynamic rastro tip to the selected vehicle's animated position
+      // so the polyline never visually runs ahead of the icon.
+      const selIdTip = selectedIdRef.current;
+      if (selIdTip && tipPolyRef.current && tipAnchorRef.current) {
+        const sel = states.get(selIdTip);
+        if (sel) {
+          try {
+            tipPolyRef.current.setPath([
+              { lat: tipAnchorRef.current.lat, lng: tipAnchorRef.current.lng },
+              { lat: sel.displayLat, lng: sel.displayLng },
+            ]);
+          } catch { /* map not ready */ }
         }
+      }
       }
 
       // --- Follow camera (selected vehicle only) ---
