@@ -48,10 +48,12 @@ function puckSvg(color: string, selected: boolean, headingDeg: number, moving: b
          <path d="M22 1.2 L29.8 11 L22 8.2 L14.2 11 Z" fill="${color}" stroke="#0a0a0a" stroke-width="0.5" stroke-linejoin="round" opacity="0.98" />
        </g>`
     : "";
-  // NOTE: embedding a brand-logo data URI inside another encoded SVG causes
-  // double-encoding glitches in some browsers, which silently breaks the
-  // whole marker. Stick to a solid dot — reliable across every browser.
-  const inner = `<circle cx="22" cy="22" r="3.6" fill="${color}"/>`;
+  // Brand logo inside the white puck. logoDataUri is BASE64-encoded (no %
+  // characters) so it survives the outer encodeURIComponent below without
+  // double-encoding corruption that would silently break the marker.
+  const inner = logoDataUri
+    ? `<image href="${logoDataUri}" x="10" y="10" width="24" height="24" preserveAspectRatio="xMidYMid meet" />`
+    : `<circle cx="22" cy="22" r="3.6" fill="${color}"/>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${displaySize}" height="${displaySize}" viewBox="0 0 44 44" shape-rendering="geometricPrecision"><defs><filter id="puckShadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="1.8" stdDeviation="2" flood-color="#000" flood-opacity="0.55"/></filter></defs><circle cx="22" cy="22" r="19" fill="${color}" opacity="${haloOpacity}" />${cone}<g filter="url(#puckShadow)"><circle cx="22" cy="22" r="14" fill="#ffffff" stroke="${ringStroke}" stroke-width="${ringWidth}" /></g>${inner}</svg>`;
   const g = (window as any).google;
   return {
@@ -126,7 +128,13 @@ function loadBrandLogo(slug: string): Promise<string | null> {
     .then(async (r) => {
       if (!r.ok) return null;
       const text = await r.text();
-      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(text);
+      // Base64 (no % chars) so it embeds safely inside another
+      // encodeURIComponent'd SVG without double-encoding corruption.
+      const b64 = typeof window !== "undefined" && window.btoa
+        ? window.btoa(unescape(encodeURIComponent(text)))
+        : "";
+      if (!b64) return null;
+      return "data:image/svg+xml;base64," + b64;
     })
     .catch(() => null);
   brandLogoCache.set(slug, p);
