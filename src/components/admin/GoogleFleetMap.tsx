@@ -1078,7 +1078,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         const drawRing = (ring: any[]) => {
           const path = ring.map((p) => ({ lat: p[1], lng: p[0] }));
           const poly = new google.maps.Polygon({
-            map,
+            map: zoomHiddenOverlaysRef.current ? null : map,
             paths: path,
             strokeColor: color,
             strokeOpacity: 0.9,
@@ -1125,7 +1125,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       if (ev.lat == null || ev.lng == null) continue;
       const { color, label } = eventEmoji(ev.event_type);
       const m = new google.maps.Marker({
-        map,
+        map: zoomHiddenOverlaysRef.current ? null : map,
         position: { lat: ev.lat, lng: ev.lng },
         icon: eventMarkerSvg(color, label),
         zIndex: 500,
