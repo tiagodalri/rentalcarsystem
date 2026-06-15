@@ -315,10 +315,10 @@ type VehicleState = {
   logoDataUri: string | null;
 };
 
-const TWEEN_MIN_MS = 1500;             // never animate faster than this
-const TWEEN_MAX_MS = 25_000;           // permite cobrir intervalos longos sem "travar"
-const TWEEN_DEFAULT_MS = 16_000;       // default ~ intervalo típico da Bouncie (tripData ~15s)
-const TWEEN_OVERSHOOT = 1.15;          // anima 15% além do intervalo: nunca para entre fixes
+const TWEEN_MIN_MS = 2500;             // never animate faster than this
+const TWEEN_MAX_MS = 40_000;           // cobre gaps longos de webhook sem congelar no meio da rota
+const TWEEN_DEFAULT_MS = 22_000;       // default ~ intervalo típico da Bouncie + atraso de entrega
+const TWEEN_OVERSHOOT = 1.45;          // mantém o carro em movimento até o próximo fix chegar
 const MIN_MOVE_METERS = 4;             // ignore micro-jitter while parked
 const MAX_JUMP_METERS = 2_000;         // discard absurd GPS jumps
 const HEADING_LERP_PER_FRAME = 0.18;
@@ -330,9 +330,10 @@ const PROGRAMMATIC_PAN_GUARD_MS = 350;
 const PROGRAMMATIC_ZOOM_GUARD_MS = 450;
 const FRAME_MIN_INTERVAL_MS = 33;       // cap rAF to ~30fps to free main thread
 
-// easeInOutCubic — soft start/end like Uber/Bouncie
+// Linear interpolation keeps the puck at a constant perceived speed. The old
+// ease-in/out made it visibly slow down at every fix, which looked like a bug.
 function ease(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  return Math.max(0, Math.min(1, t));
 }
 
 
