@@ -147,6 +147,15 @@ Deno.serve(async (req) => {
       if (staleLiveFix) {
         console.log("[bouncie-webhook] stale live fix ignored", imei, reportedAt, "current=", currentLive?.reported_at);
       } else {
+        // Reverse-geocode when bouncie didn't ship an address
+        if (!update.address && lat !== null && lng !== null) {
+          try {
+            const geo = await reverseGeocode(lat, lng);
+            if (geo) update.address = geo;
+          } catch (e) {
+            console.warn("[bouncie-webhook] reverse geocode failed:", (e as Error).message);
+          }
+        }
         const { error: upErr } = await admin
           .from("vehicle_telemetry")
           .upsert(update, { onConflict: "vehicle_id" });
