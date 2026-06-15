@@ -95,27 +95,25 @@ export function useTripTrail(vehicleId: string | null, hours = 24) {
         if (lastTs) query = query.gt("reported_at", lastTs);
         const { data, error } = await query;
         if (cancelled) return;
-        if (!error && data && data.length > 0) {
-          setPoints((prev) => {
-            const next = [...prev, ...(data as TrailPoint[])];
-            lastTsRef.current = next[next.length - 1].reported_at;
-            return next;
-          });
-        }
-        // Always also try to extend with live tip
-        setPoints(async (prev) => {
-          // setState doesn't accept async — handle outside
+
+        let snapshot: TrailPoint[] = [];
+        setPoints((prev) => {
+          if (!error && data && data.length > 0) {
+            snapshot = [...prev, ...(data as TrailPoint[])];
+            lastTsRef.current = snapshot[snapshot.length - 1].reported_at;
+            return snapshot;
+          }
+          snapshot = prev;
           return prev;
         });
-        const tipMerged = await mergeTip(await new Promise<TrailPoint[]>((res) => {
-          setPoints((p) => { res(p); return p; });
-        }));
+
+        // Extend with live tip (covers cases where history hasn't flushed yet)
+        const merged = await mergeTip(snapshot);
         if (cancelled) return;
-        setPoints((prev) => {
-          if (tipMerged.length === prev.length) return prev;
-          lastTsRef.current = tipMerged[tipMerged.length - 1].reported_at;
-          return tipMerged;
-        });
+        if (merged.length !== snapshot.length) {
+          lastTsRef.current = merged[merged.length - 1].reported_at;
+          setPoints(merged);
+        }
       } catch (e) {
         console.warn("[useTripTrail] poll error", (e as Error).message);
       } finally {
