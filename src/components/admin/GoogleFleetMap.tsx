@@ -144,9 +144,6 @@ function loadBrandLogo(slug: string): Promise<string | null> {
   brandLogoCache.set(slug, p);
   return p;
 }
-  brandLogoCache.set(slug, p);
-  return p;
-}
 
 
 function carvatarSvg(imageUrl: string, color: string, selected: boolean): any {
