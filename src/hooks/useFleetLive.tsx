@@ -103,6 +103,8 @@ export function useFleetLive() {
     }
 
     load();
+    // Fallback polling de 10s para garantir frescor mesmo se um pacote realtime cair.
+    const pollId = window.setInterval(() => { void load(); }, 10_000);
 
     // PATCH INCREMENTAL: aplicar payload.new direto no state sem re-SELECT.
     // Elimina o gargalo de rede/render que causava o efeito "travado".
@@ -199,6 +201,7 @@ export function useFleetLive() {
 
     return () => {
       cancelled = true;
+      window.clearInterval(pollId);
       supabase.removeChannel(channel);
     };
   }, []);
