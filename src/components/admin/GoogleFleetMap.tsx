@@ -981,23 +981,36 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
     const google = (window as any).google;
     const map = mapRef.current;
-    for (let i = 1; i < trail.length; i++) {
-      const a = trail[i - 1];
-      const b = trail[i];
-      const color = speedBandColor(b.speed);
+
+    // PERF: agrupa pontos consecutivos de mesma cor em UMA única Polyline.
+    // Antes: 1 Polyline por segmento (até ~2000 overlays) → pan/zoom travado.
+    // Agora: ~10-50 overlays no máximo, mesmo com 24h de histórico.
+    let runStart = 0;
+    let runColor = speedBandColor(trail[1].speed);
+    const flushRun = (endIdx: number, color: string) => {
+      const path: { lat: number; lng: number }[] = [];
+      for (let k = runStart; k <= endIdx; k++) path.push({ lat: trail[k].lat, lng: trail[k].lng });
+      if (path.length < 2) return;
       const poly = new google.maps.Polyline({
-        path: [
-          { lat: a.lat, lng: a.lng },
-          { lat: b.lat, lng: b.lng },
-        ],
-        geodesic: false, // city-scale: straight Mercator looks correct
+        path,
+        geodesic: false,
         strokeColor: color,
         strokeOpacity: 0.9,
         strokeWeight: 4,
+        clickable: false,
         map,
       });
       polylineRef.current.push(poly);
+    };
+    for (let i = 1; i < trail.length; i++) {
+      const c = speedBandColor(trail[i].speed);
+      if (c !== runColor) {
+        flushRun(i, runColor); // include junction point so colors meet
+        runStart = i;
+        runColor = c;
+      }
     }
+    flushRun(trail.length - 1, runColor);
   }, [trail, selectedId, ready]);
 
   // (4b removed: previously glued the polyline tip to the marker's animated
