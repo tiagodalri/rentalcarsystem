@@ -299,7 +299,7 @@ function AdminLiveDesktop() {
                 compact
               />
             ) : (
-              filtered.map((v) => (
+              sortedFiltered.map((v) => (
                 <button
                   key={v.vehicle_id}
                   onClick={() => setSelected(v.vehicle_id)}
