@@ -370,6 +370,11 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const rafRef = useRef<number | null>(null);
   const infoWindowRef = useRef<any>(null);
   const polylineRef = useRef<any[]>([]);
+  /** Dynamic 2-vertex polyline that connects the last static trail point to
+   *  the marker's animated position. Keeps the rastro tip glued to the icon. */
+  const tipPolyRef = useRef<any>(null);
+  /** Anchor (last static trail vertex) and color for the dynamic tip segment. */
+  const tipAnchorRef = useRef<{ lat: number; lng: number; color: string } | null>(null);
   const trafficLayerRef = useRef<any>(null);
   const nwsShapesRef = useRef<any[]>([]);
   const eventMarkersRef = useRef<any[]>([]);
