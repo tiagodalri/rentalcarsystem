@@ -128,7 +128,13 @@ function loadBrandLogo(slug: string): Promise<string | null> {
     .then(async (r) => {
       if (!r.ok) return null;
       const text = await r.text();
-      return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(text);
+      // Base64 (no % chars) so it embeds safely inside another
+      // encodeURIComponent'd SVG without double-encoding corruption.
+      const b64 = typeof window !== "undefined" && window.btoa
+        ? window.btoa(unescape(encodeURIComponent(text)))
+        : "";
+      if (!b64) return null;
+      return "data:image/svg+xml;base64," + b64;
     })
     .catch(() => null);
   brandLogoCache.set(slug, p);
