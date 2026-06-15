@@ -434,7 +434,9 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
         });
         containerRef.current.style.touchAction = "none";
         containerRef.current.style.overscrollBehavior = "contain";
-        containerRef.current.style.contain = "layout paint size";
+        // NOTE: NÃO usar `contain: size` — limita o compositor do Google Maps
+        // e causa stutter no zoom/pan. `layout paint` é suficiente.
+        containerRef.current.style.contain = "layout paint";
         infoWindowRef.current = new google.maps.InfoWindow({ disableAutoPan: false, maxWidth: 320 });
 
         // ===== Custom "minha localização" control (discrete, next to zoom) =====
