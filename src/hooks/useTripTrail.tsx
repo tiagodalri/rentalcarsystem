@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type TrailPoint = {
@@ -8,45 +8,128 @@ export type TrailPoint = {
   reported_at: string;
 };
 
+const POLL_MS = 6000;
+
 /**
- * Returns the most recent trail (last `hours` hours) for a vehicle from
- * vehicle_telemetry_history, ordered oldest -> newest.
+ * Returns the most recent trail (last `hours` hours) for a vehicle.
+ * Polls `vehicle_telemetry_history` AND the live `vehicle_telemetry` row
+ * every few seconds so the breadcrumb keeps growing in real time as the
+ * car moves — same behavior as the Bouncie portal.
  */
 export function useTripTrail(vehicleId: string | null, hours = 24) {
   const [points, setPoints] = useState<TrailPoint[]>([]);
   const [loading, setLoading] = useState(false);
+  const lastTsRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!vehicleId) {
-      setPoints([]);
-      return;
-    }
-    let cancelled = false;
-    setLoading(true);
-    const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
+    lastTsRef.current = null;
+    setPoints([]);
+    if (!vehicleId) return;
 
-    supabase
-      .from("vehicle_telemetry_history")
-      .select("lat, lng, speed, reported_at")
-      .eq("vehicle_id", vehicleId)
-      .gte("reported_at", since)
-      .not("lat", "is", null)
-      .not("lng", "is", null)
-      .order("reported_at", { ascending: true })
-      .limit(500)
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        if (error) {
-          console.error("[useTripTrail]", error.message);
-          setPoints([]);
-        } else {
-          setPoints((data ?? []) as TrailPoint[]);
-        }
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const mergeTip = async (base: TrailPoint[]): Promise<TrailPoint[]> => {
+      // Append current live telemetry as the "tip" if it's newer than the
+      // last history row, so the line always reaches the moving car icon.
+      const { data: live } = await supabase
+        .from("vehicle_telemetry")
+        .select("lat, lng, speed, reported_at")
+        .eq("vehicle_id", vehicleId)
+        .maybeSingle();
+      if (!live || live.lat == null || live.lng == null || !live.reported_at) return base;
+      const last = base[base.length - 1];
+      if (!last || new Date(live.reported_at).getTime() > new Date(last.reported_at).getTime()) {
+        return [
+          ...base,
+          {
+            lat: Number(live.lat),
+            lng: Number(live.lng),
+            speed: live.speed != null ? Number(live.speed) : null,
+            reported_at: String(live.reported_at),
+          },
+        ];
+      }
+      return base;
+    };
+
+    const initial = async () => {
+      setLoading(true);
+      const since = new Date(Date.now() - hours * 3600 * 1000).toISOString();
+      const { data, error } = await supabase
+        .from("vehicle_telemetry_history")
+        .select("lat, lng, speed, reported_at")
+        .eq("vehicle_id", vehicleId)
+        .gte("reported_at", since)
+        .not("lat", "is", null)
+        .not("lng", "is", null)
+        .order("reported_at", { ascending: true })
+        .limit(2000);
+      if (cancelled) return;
+      if (error) {
+        console.error("[useTripTrail]", error.message);
+        setPoints([]);
         setLoading(false);
-      });
+        return;
+      }
+      const base = (data ?? []) as TrailPoint[];
+      const merged = await mergeTip(base);
+      if (cancelled) return;
+      lastTsRef.current = merged.length ? merged[merged.length - 1].reported_at : null;
+      setPoints(merged);
+      setLoading(false);
+    };
+
+    const poll = async () => {
+      if (cancelled) return;
+      try {
+        const lastTs = lastTsRef.current;
+        let query = supabase
+          .from("vehicle_telemetry_history")
+          .select("lat, lng, speed, reported_at")
+          .eq("vehicle_id", vehicleId)
+          .not("lat", "is", null)
+          .not("lng", "is", null)
+          .order("reported_at", { ascending: true })
+          .limit(500);
+        if (lastTs) query = query.gt("reported_at", lastTs);
+        const { data, error } = await query;
+        if (cancelled) return;
+        if (!error && data && data.length > 0) {
+          setPoints((prev) => {
+            const next = [...prev, ...(data as TrailPoint[])];
+            lastTsRef.current = next[next.length - 1].reported_at;
+            return next;
+          });
+        }
+        // Always also try to extend with live tip
+        setPoints(async (prev) => {
+          // setState doesn't accept async — handle outside
+          return prev;
+        });
+        const tipMerged = await mergeTip(await new Promise<TrailPoint[]>((res) => {
+          setPoints((p) => { res(p); return p; });
+        }));
+        if (cancelled) return;
+        setPoints((prev) => {
+          if (tipMerged.length === prev.length) return prev;
+          lastTsRef.current = tipMerged[tipMerged.length - 1].reported_at;
+          return tipMerged;
+        });
+      } catch (e) {
+        console.warn("[useTripTrail] poll error", (e as Error).message);
+      } finally {
+        if (!cancelled) timer = setTimeout(poll, POLL_MS);
+      }
+    };
+
+    initial().then(() => {
+      if (!cancelled) timer = setTimeout(poll, POLL_MS);
+    });
 
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
     };
   }, [vehicleId, hours]);
 
