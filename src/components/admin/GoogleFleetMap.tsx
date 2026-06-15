@@ -79,14 +79,15 @@ function getPuckIcon(color: string, selected: boolean, headingDeg: number, movin
   return icon;
 }
 
-// --- Brand logo resolution (Simple Icons CDN, cached + inlined as data URI) ---
+// --- Brand logo resolution (car-logos-dataset on GitHub raw, CORS-enabled).
+// Returns a base64 PNG data URI safe to embed inside another encoded SVG.
 const BRAND_SLUGS: Record<string, string> = {
   porsche: "porsche",
   chevrolet: "chevrolet",
   corvette: "chevrolet",
   audi: "audi",
-  mercedes: "mercedes",
-  "mercedes-benz": "mercedes",
+  mercedes: "mercedes-benz",
+  "mercedes-benz": "mercedes-benz",
   ford: "ford",
   mustang: "ford",
   volkswagen: "volkswagen",
@@ -100,7 +101,7 @@ const BRAND_SLUGS: Record<string, string> = {
   nissan: "nissan",
   cadillac: "cadillac",
   dodge: "dodge",
-  mitsubishi: "mitsubishimotors",
+  mitsubishi: "mitsubishi",
   volvo: "volvo",
   toyota: "toyota",
   honda: "honda",
@@ -124,19 +125,25 @@ const brandLogoCache = new Map<string, Promise<string | null>>();
 function loadBrandLogo(slug: string): Promise<string | null> {
   const cached = brandLogoCache.get(slug);
   if (cached) return cached;
-  const p = fetch(`https://cdn.simpleicons.org/${slug}/0a0a0a`)
+  const url = `https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/optimized/${slug}.png`;
+  const p = fetch(url)
     .then(async (r) => {
       if (!r.ok) return null;
-      const text = await r.text();
-      // Base64 (no % chars) so it embeds safely inside another
-      // encodeURIComponent'd SVG without double-encoding corruption.
-      const b64 = typeof window !== "undefined" && window.btoa
-        ? window.btoa(unescape(encodeURIComponent(text)))
-        : "";
-      if (!b64) return null;
-      return "data:image/svg+xml;base64," + b64;
+      const blob = await r.blob();
+      return await new Promise<string | null>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const result = reader.result;
+          resolve(typeof result === "string" ? result : null);
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
     })
     .catch(() => null);
+  brandLogoCache.set(slug, p);
+  return p;
+}
   brandLogoCache.set(slug, p);
   return p;
 }
