@@ -294,6 +294,7 @@ const Navbar = () => {
         <div
           className="lg:hidden fixed inset-0 z-[60] bg-background animate-fade-in flex flex-col"
           style={{
+            height: "100dvh",
             paddingTop: "calc(env(safe-area-inset-top) + 4.5rem)",
             paddingBottom: "calc(env(safe-area-inset-bottom) + 1.25rem)",
             paddingLeft: "calc(env(safe-area-inset-left) + 1.25rem)",
