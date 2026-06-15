@@ -465,10 +465,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
           scrollwheel: true,
-          // Fractional zoom forces continuous tile re-render and is the #1
-          // cause of "laggy" wheel-zoom on weaker GPUs. Integer zoom is what
-          // Google Maps uses by default and feels snappier.
-          isFractionalZoomEnabled: false,
+          // Smooth wheel/pinch zoom. Heavy Zeus overlays are paused during the
+          // gesture below, so the map can animate continuously instead of
+          // snapping between integer zoom levels.
+          isFractionalZoomEnabled: true,
           clickableIcons: true,
           keyboardShortcuts: true,
           draggableCursor: "grab",
