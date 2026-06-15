@@ -174,7 +174,7 @@ export function useFinanceOverview(): OverviewData {
         supabase.from("vehicle_expenses").select("id, amount, type, expense_date, vehicle_id"),
         supabase.from("vehicle_incidents").select("id, actual_cost, status, incident_date"),
         supabase.from("financial_transactions").select("type, amount, transaction_date").eq("source", "manual").eq("is_cancelled", false),
-        supabase.from("vehicles").select("id, name, status"),
+        supabase.from("vehicles").select("id, name, status").is("deleted_at", null),
       ]);
       if (cancelled) return;
       setBookings((bRes.data as Booking[]) || []);
