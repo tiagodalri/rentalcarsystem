@@ -33,9 +33,11 @@ export default function MobileLive() {
   const onMap = useMemo(() => vehicles.filter((v) => v.lat != null && v.lng != null), [vehicles]);
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return !q ? onMap : onMap.filter((v) =>
+    const list = !q ? onMap : onMap.filter((v) =>
       `${v.name || ""} ${v.plate || ""}`.toLowerCase().includes(q),
     );
+    const order = { moving: 0, idle: 1, parked: 2 };
+    return [...list].sort((a, b) => order[a.status] - order[b.status]);
   }, [onMap, search]);
 
   return (
