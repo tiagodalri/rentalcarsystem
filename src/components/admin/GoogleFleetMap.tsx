@@ -412,6 +412,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     const map = mapRef.current;
     if (map && zoomHiddenOverlaysRef.current) {
       for (const p of polylineRef.current) p.setMap(map);
+      if (tipPolyRef.current) tipPolyRef.current.setMap(map);
       for (const s of nwsShapesRef.current) s.setMap(map);
       for (const m of eventMarkersRef.current) m.setMap(map);
       if (layersRef.current.traffic && trafficLayerRef.current) {
