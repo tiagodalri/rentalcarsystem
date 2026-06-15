@@ -135,10 +135,23 @@ Deno.serve(async (req) => {
       if (odometer !== null) update.odometer = odometer;
       if (fuelLevel !== null) update.fuel_level = fuelLevel;
 
-      const { error: upErr } = await admin
+      const { data: currentLive } = await admin
         .from("vehicle_telemetry")
-        .upsert(update, { onConflict: "vehicle_id" });
-      if (upErr) console.error("[bouncie-webhook] telemetry upsert error:", upErr.message);
+        .select("reported_at")
+        .eq("vehicle_id", vehicleId)
+        .maybeSingle();
+      const currentReportedMs = currentLive?.reported_at ? new Date(currentLive.reported_at).getTime() : 0;
+      const incomingReportedMs = new Date(reportedAt).getTime();
+      const staleLiveFix = currentReportedMs > incomingReportedMs;
+
+      if (staleLiveFix) {
+        console.log("[bouncie-webhook] stale live fix ignored", imei, reportedAt, "current=", currentLive?.reported_at);
+      } else {
+        const { error: upErr } = await admin
+          .from("vehicle_telemetry")
+          .upsert(update, { onConflict: "vehicle_id" });
+        if (upErr) console.error("[bouncie-webhook] telemetry upsert error:", upErr.message);
+      }
 
       // 2) Raw history — expand tripData `data[]` into one row per GPS sample
       if (dataArr.length > 0) {
