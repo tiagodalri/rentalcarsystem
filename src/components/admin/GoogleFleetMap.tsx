@@ -1000,29 +1000,12 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     }
   }, [trail, selectedId, ready]);
 
-  // 4b. Glue the trail tip to the marker's animated position so the
-  // polyline never "runs ahead" of the moving car icon.
-  useEffect(() => {
-    if (!ready) return;
-    let raf = 0;
-    const loop = () => {
-      const selId = selectedIdRef.current;
-      const segments = polylineRef.current;
-      if (selId && segments.length > 0) {
-        const st = statesRef.current.get(selId);
-        const tail = segments[segments.length - 1];
-        if (st && tail) {
-          const path = tail.getPath();
-          if (path && path.getLength() >= 2) {
-            path.setAt(1, new (window as any).google.maps.LatLng(st.displayLat, st.displayLng));
-          }
-        }
-      }
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, [ready]);
+  // (4b removed: previously glued the polyline tip to the marker's animated
+  // position, but that drew a straight diagonal across grass whenever the
+  // car parked off-road. Trail now ends at the last snapped road point and
+  // grows naturally as new fixes are snapped to the road network.)
+
+
 
 
   // 6. NWS Alerts polygons
