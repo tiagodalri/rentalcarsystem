@@ -739,7 +739,12 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           icon: initialIcon,
           title: v.name,
           zIndex: isSelected ? 999 : 1,
-          optimized: true,
+          // optimized:true renders markers into a single <canvas>. When the
+          // SVG icon changes every frame (heading/tween/selection) the
+          // canvas renderer can drop the sprite entirely — the marker just
+          // vanishes from the map. DOM markers are slightly heavier but
+          // 100% reliable, which is what live tracking needs.
+          optimized: false,
         });
         marker.addListener("click", () => {
           onSelect(v.vehicle_id);
