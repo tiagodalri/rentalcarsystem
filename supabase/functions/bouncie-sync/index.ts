@@ -102,7 +102,9 @@ Deno.serve(async (req) => {
       if (loc.lat !== undefined) update.lat = Number(loc.lat);
       if (loc.lon !== undefined) update.lng = Number(loc.lon);
       if (loc.heading !== undefined) update.heading = Number(loc.heading);
-      if (loc.address !== undefined) update.address = String(loc.address);
+      if (loc.address !== undefined && loc.address !== null && String(loc.address).trim() !== "" && String(loc.address).toLowerCase() !== "null") {
+        update.address = String(loc.address);
+      }
       if (stats.speed !== undefined) update.speed = Number(stats.speed);
       if (stats.isRunning !== undefined) update.is_running = Boolean(stats.isRunning);
       if (stats.odometer !== undefined) update.odometer = Number(stats.odometer);

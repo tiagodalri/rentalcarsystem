@@ -1,0 +1,1 @@
+UPDATE public.vehicle_telemetry SET address = NULL WHERE address ILIKE 'null' OR address ILIKE 'undefined' OR btrim(address) = '';

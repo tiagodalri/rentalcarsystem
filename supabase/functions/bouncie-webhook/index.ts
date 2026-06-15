@@ -4,6 +4,30 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const BOUNCIE_WEBHOOK_SECRET = Deno.env.get("BOUNCIE_WEBHOOK_SECRET") ?? "";
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY") ?? "";
+const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY") ?? "";
+const GEOCODE_GATEWAY = "https://connector-gateway.lovable.dev/google_maps";
+
+const geocodeCache = new Map<string, { addr: string; t: number }>();
+async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+  if (!LOVABLE_API_KEY || !GOOGLE_MAPS_API_KEY) return null;
+  const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+  const now = Date.now();
+  const cached = geocodeCache.get(key);
+  if (cached && now - cached.t < 10 * 60 * 1000) return cached.addr;
+  const url = `${GEOCODE_GATEWAY}/maps/api/geocode/json?latlng=${lat},${lng}&result_type=street_address|route|premise|point_of_interest`;
+  const r = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
+    },
+  });
+  if (!r.ok) return null;
+  const j = await r.json();
+  const addr: string | null = j?.results?.[0]?.formatted_address ?? null;
+  if (addr) geocodeCache.set(key, { addr, t: now });
+  return addr;
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,7 +47,7 @@ function pickString(...vals: any[]): string | null {
   for (const v of vals) {
     if (v === null || v === undefined) continue;
     const s = String(v).trim();
-    if (s) return s;
+    if (s && s.toLowerCase() !== "null" && s.toLowerCase() !== "undefined") return s;
   }
   return null;
 }
@@ -147,6 +171,15 @@ Deno.serve(async (req) => {
       if (staleLiveFix) {
         console.log("[bouncie-webhook] stale live fix ignored", imei, reportedAt, "current=", currentLive?.reported_at);
       } else {
+        // Reverse-geocode when bouncie didn't ship an address
+        if (!update.address && lat !== null && lng !== null) {
+          try {
+            const geo = await reverseGeocode(lat, lng);
+            if (geo) update.address = geo;
+          } catch (e) {
+            console.warn("[bouncie-webhook] reverse geocode failed:", (e as Error).message);
+          }
+        }
         const { error: upErr } = await admin
           .from("vehicle_telemetry")
           .upsert(update, { onConflict: "vehicle_id" });
