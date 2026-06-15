@@ -1,17 +1,16 @@
 // Zeus Rental Car — Service Worker
-// Strategy:
-//  - HTML navigations: StaleWhileRevalidate (cached HTML served INSTANTLY;
-//    fresh version fetched in background and stored for next visit).
-//    The update only "lands" when the user navigates (see useSwUpdateOnNavigate),
-//    so the in-progress task is never interrupted, AND every page load feels
-//    instant because we never block on the network for HTML.
+// Strategy (v7 — fix lentidão e "recarregamento do nada"):
+//  - HTML navigations: NetworkFirst com timeout de 2s. Online = sempre fresco.
+//    Offline ou rede travada = cai pro cache imediatamente. Sem race condition.
 //  - Static assets (JS/CSS/fonts/images): StaleWhileRevalidate.
-//  - Everything else: pass-through.
+//  - Tudo o mais: pass-through.
+//  - Atualização: SKIP_WAITING via mensagem; SEM auto-reload (vide useSwUpdateOnNavigate).
 
-const VERSION = "v6";
+const VERSION = "v7";
 const HTML_CACHE = `zeus-html-${VERSION}`;
 const ASSET_CACHE = `zeus-assets-${VERSION}`;
 const OFFLINE_URL = "/";
+const HTML_NETWORK_TIMEOUT_MS = 2000;
 
 const PRECACHE_ASSETS = [
   "/",
@@ -26,8 +25,8 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(HTML_CACHE).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
-  // Do NOT skipWaiting automatically — wait until all tabs are closed so
-  // we never interrupt an in-progress form with a forced reload.
+  // Não chamamos skipWaiting() automático — a ativação é coordenada pelo app
+  // (useSwUpdateOnNavigate) numa troca de rota, sem interromper o usuário.
 });
 
 self.addEventListener("activate", (event) => {
@@ -39,8 +38,7 @@ self.addEventListener("activate", (event) => {
           .filter((n) => n !== HTML_CACHE && n !== ASSET_CACHE)
           .map((n) => caches.delete(n))
       );
-      // No clients.claim() — existing tabs keep their current SW until
-      // the user fully navigates/closes the tab.
+      // sem clients.claim() — tabs existentes seguem com o SW atual até navegação completa.
     })()
   );
 });
@@ -56,36 +54,61 @@ const isAsset = (request) => {
   );
 };
 
+// Helper: NetworkFirst com timeout — se rede não responder em N ms, usa cache.
+async function networkFirstWithTimeout(request, cache) {
+  return new Promise((resolve) => {
+    let settled = false;
+
+    const timeoutId = setTimeout(async () => {
+      if (settled) return;
+      settled = true;
+      const cached = (await cache.match(request)) || (await cache.match(OFFLINE_URL));
+      if (cached) resolve(cached);
+      // se não há cache, deixa a rede continuar (não resolve aqui).
+    }, HTML_NETWORK_TIMEOUT_MS);
+
+    fetch(request)
+      .then(async (res) => {
+        if (settled) {
+          // resposta chegou tarde — atualiza cache em background
+          if (res && res.ok) cache.put(OFFLINE_URL, res.clone());
+          return;
+        }
+        settled = true;
+        clearTimeout(timeoutId);
+        if (res && res.ok) cache.put(OFFLINE_URL, res.clone());
+        resolve(res);
+      })
+      .catch(async () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timeoutId);
+        const cached = (await cache.match(request)) || (await cache.match(OFFLINE_URL));
+        resolve(cached || Response.error());
+      });
+  });
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
-
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
-
-  // Skip cross-origin (Supabase, fonts.googleapis, etc.)
   if (url.origin !== self.location.origin) return;
 
-  // 1) HTML navigations -> StaleWhileRevalidate. Cache wins for instant load;
-  //    network refresh runs in background and updates cache for next visit.
+  // 1) HTML navigations -> NetworkFirst com fallback rápido para cache.
+  //    Resolve "carregamento do nada" porque online sempre serve a versão fresca.
   if (request.mode === "navigate") {
     event.respondWith(
       (async () => {
         const cache = await caches.open(HTML_CACHE);
-        const cached = (await cache.match(request)) || (await cache.match(OFFLINE_URL));
-        const networkPromise = fetch(request)
-          .then((res) => {
-            if (res && res.ok) cache.put(OFFLINE_URL, res.clone());
-            return res;
-          })
-          .catch(() => null);
-        return cached || (await networkPromise) || (await cache.match(OFFLINE_URL));
+        return networkFirstWithTimeout(request, cache);
       })()
     );
     return;
   }
 
-  // 2) Static assets -> StaleWhileRevalidate.
+  // 2) Static assets -> StaleWhileRevalidate (hashes garantem invalidação).
   if (isAsset(request)) {
     event.respondWith(
       (async () => {
@@ -102,10 +125,9 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
-  // 3) Everything else: default network.
+  // 3) Resto: network default.
 });
 
-// Allow page to trigger immediate activation of a waiting SW.
 self.addEventListener("message", (event) => {
   if (event.data === "SKIP_WAITING") self.skipWaiting();
 });

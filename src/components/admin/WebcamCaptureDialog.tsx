@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Camera, RefreshCcw, X, Check } from "lucide-react";
+import { Camera, RefreshCcw, X, Check, Play } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface WebcamCaptureDialogProps {
@@ -12,9 +12,16 @@ interface WebcamCaptureDialogProps {
 }
 
 /**
- * Desktop/notebook webcam capture dialog.
- * Uses getUserMedia to stream the device webcam, then converts a still frame
- * into a JPEG File that mirrors what the mobile native camera produces.
+ * Webcam capture dialog (desktop + mobile PWA).
+ *
+ * iOS Safari/PWA requires getUserMedia to be called within a user gesture.
+ * Quando o diálogo abre via state, o useEffect roda DEPOIS do paint e o iOS
+ * pode invalidar o gesto. Por isso:
+ *
+ * 1) Tentamos iniciar a câmera automaticamente ao abrir (funciona desktop +
+ *    Android + iOS Safari fora do PWA).
+ * 2) Se a auto-inicialização falhar (NotAllowedError / gesto perdido),
+ *    mostramos um botão "Iniciar câmera" que roda dentro do gesto do clique.
  */
 export function WebcamCaptureDialog({
   open,
@@ -26,48 +33,69 @@ export function WebcamCaptureDialog({
   const streamRef = useRef<MediaStream | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [needsTapToStart, setNeedsTapToStart] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
 
-  // Start/stop camera with dialog
+  const stopStream = useCallback(() => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+  }, []);
+
+  const startStream = useCallback(
+    async (mode: "user" | "environment", silent = false) => {
+      try {
+        // Para qualquer stream anterior antes de pedir um novo (evita conflito).
+        stopStream();
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: mode }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+          audio: false,
+        });
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play().catch(() => {});
+          setReady(true);
+          setNeedsTapToStart(false);
+        }
+      } catch (err: any) {
+        const name = err?.name || "";
+        // Erros de gesto/permissão: oferecer botão "Iniciar câmera" em vez de fechar.
+        if (name === "NotAllowedError" || name === "SecurityError" || name === "AbortError") {
+          setNeedsTapToStart(true);
+          setReady(false);
+          if (!silent) {
+            toast({
+              title: "Toque em Iniciar câmera",
+              description: "O navegador precisa de uma confirmação para ligar a câmera.",
+            });
+          }
+          return;
+        }
+        // Hardware ausente, em uso, etc. → fechar.
+        toast({
+          title: "Não foi possível acessar a câmera",
+          description: err?.message || name || "Verifique as permissões do navegador.",
+          variant: "destructive",
+        });
+        onClose();
+      }
+    },
+    [onClose, stopStream]
+  );
+
+  // Tenta iniciar ao abrir; se falhar, mostra tap-to-start.
   useEffect(() => {
     if (!open) {
       stopStream();
       setPreview(null);
       setReady(false);
+      setNeedsTapToStart(false);
       return;
     }
-    startStream(facingMode);
+    startStream(facingMode, true);
     return () => stopStream();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, facingMode]);
-
-  const startStream = async (mode: "user" | "environment") => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: mode }, width: { ideal: 1920 }, height: { ideal: 1080 } },
-        audio: false,
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play().catch(() => {});
-        setReady(true);
-      }
-    } catch (err: any) {
-      toast({
-        title: "Não foi possível acessar a câmera",
-        description: err?.message || "Verifique as permissões do navegador.",
-        variant: "destructive",
-      });
-      onClose();
-    }
-  };
-
-  const stopStream = () => {
-    streamRef.current?.getTracks().forEach((t) => t.stop());
-    streamRef.current = null;
-    if (videoRef.current) videoRef.current.srcObject = null;
-  };
+  }, [open, facingMode, startStream, stopStream]);
 
   const snapshot = () => {
     const video = videoRef.current;
@@ -91,7 +119,6 @@ export function WebcamCaptureDialog({
   };
 
   const retake = () => setPreview(null);
-
   const toggleCamera = () => setFacingMode((m) => (m === "user" ? "environment" : "user"));
 
   return (
@@ -104,11 +131,22 @@ export function WebcamCaptureDialog({
         <div className="relative bg-black aspect-video flex items-center justify-center">
           {preview ? (
             <img src={preview} alt="Pré-visualização" className="w-full h-full object-contain" />
+          ) : needsTapToStart ? (
+            <button
+              type="button"
+              onClick={() => startStream(facingMode, false)}
+              className="flex flex-col items-center gap-3 text-white/90 hover:text-white px-6 py-4 rounded-lg border border-white/20 hover:bg-white/5 transition-colors min-h-[44px]"
+            >
+              <Play className="h-10 w-10" strokeWidth={1.5} />
+              <span className="text-sm font-medium">Iniciar câmera</span>
+              <span className="text-xs text-white/60">Toque para permitir o acesso</span>
+            </button>
           ) : (
             <video
               ref={videoRef}
               playsInline
               muted
+              autoPlay
               className="w-full h-full object-contain"
             />
           )}
@@ -131,7 +169,7 @@ export function WebcamCaptureDialog({
               </>
             ) : (
               <>
-                <Button variant="outline" size="sm" onClick={toggleCamera} title="Alternar câmera">
+                <Button variant="outline" size="sm" onClick={toggleCamera} title="Alternar câmera" disabled={needsTapToStart}>
                   <RefreshCcw className="h-4 w-4" />
                 </Button>
                 <Button size="sm" onClick={snapshot} disabled={!ready}>
