@@ -36,7 +36,6 @@ function formatDtcDescription(code: string): string {
     "P0455": "Grande vazamento no sistema de evaporação",
     "P0456": "Vazamento mínimo no sistema de evaporação",
     "P0401": "Fluxo de recirculação de gases de escape insuficiente",
-    "P0420": "Conversor catalítico com eficiência reduzida",
     "P0500": "Sensor de velocidade do veículo com falha",
     "P0562": "Tensão da bateria baixa",
     "P0603": "Falha na memória interna do módulo de controle",
