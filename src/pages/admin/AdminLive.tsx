@@ -72,6 +72,12 @@ function AdminLiveDesktop() {
     });
   }, [onMap, normalizedQuery]);
 
+  const statusOrder = { moving: 0, idle: 1, parked: 2 };
+  const sortedFiltered = useMemo(
+    () => [...filtered].sort((a, b) => statusOrder[a.status] - statusOrder[b.status]),
+    [filtered]
+  );
+
   const suggestions = useMemo(
     () => (normalizedQuery ? filtered.slice(0, 6) : []),
     [filtered, normalizedQuery]
@@ -293,7 +299,7 @@ function AdminLiveDesktop() {
                 compact
               />
             ) : (
-              filtered.map((v) => (
+              sortedFiltered.map((v) => (
                 <button
                   key={v.vehicle_id}
                   onClick={() => setSelected(v.vehicle_id)}
