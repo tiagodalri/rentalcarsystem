@@ -990,7 +990,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           { lat: a.lat, lng: a.lng },
           { lat: b.lat, lng: b.lng },
         ],
-        geodesic: true,
+        geodesic: false, // city-scale: straight Mercator looks correct
         strokeColor: color,
         strokeOpacity: 0.9,
         strokeWeight: 4,
@@ -999,6 +999,30 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       polylineRef.current.push(poly);
     }
   }, [trail, selectedId, ready]);
+
+  // 4b. Glue the trail tip to the marker's animated position so the
+  // polyline never "runs ahead" of the moving car icon.
+  useEffect(() => {
+    if (!ready) return;
+    let raf = 0;
+    const loop = () => {
+      const selId = selectedIdRef.current;
+      const segments = polylineRef.current;
+      if (selId && segments.length > 0) {
+        const st = statesRef.current.get(selId);
+        const tail = segments[segments.length - 1];
+        if (st && tail) {
+          const path = tail.getPath();
+          if (path && path.getLength() >= 2) {
+            path.setAt(1, new (window as any).google.maps.LatLng(st.displayLat, st.displayLng));
+          }
+        }
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [ready]);
 
 
   // 6. NWS Alerts polygons
