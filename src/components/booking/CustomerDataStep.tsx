@@ -120,7 +120,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
                   autoComplete={key === "email" ? "email" : undefined}
                   value={(data as any)[key] ?? ""}
                   maxLength={key === "state" ? 2 : key === "zip_code" ? 9 : undefined}
-                  onBlur={() => { if (key === "email") setEmailTouched(true); }}
+                  onBlur={() => { if (key === "email") setEmailTouched(true); if (key === "full_name") setNameTouched(true); }}
                   onChange={(e) => {
                     let val: string = e.target.value;
                     if (key === "state") val = val.toUpperCase();
