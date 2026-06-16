@@ -102,8 +102,9 @@ export function PhoneInput({ value, onChange, className = "", inputClassName = "
     : COUNTRIES;
 
   return (
-    <div className={className}>
-      <div className="relative flex" ref={ref}>
+    <div className={`relative ${className}`}>
+      <div className="flex" ref={ref}>
+
       {/* Country selector */}
       <button
         type="button"
