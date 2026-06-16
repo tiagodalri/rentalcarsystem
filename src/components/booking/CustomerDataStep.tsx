@@ -47,9 +47,14 @@ export default function CustomerDataStep({ data, onChange }: Props) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const [cepLoading, setCepLoading] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
+  const [nameTouched, setNameTouched] = useState(false);
   const emailSuggestion = suggestEmail(data.email || "");
   const emailValid = isValidEmail(data.email || "");
   const showEmailError = emailTouched && (data.email || "").length > 0 && !emailValid;
+  const nameParts = (data.full_name || "").trim().split(/\s+/).filter(p => p.length >= 2);
+  const nameValid = nameParts.length >= 2;
+  const showNameError = nameTouched && (data.full_name || "").trim().length > 0 && !nameValid;
+
 
 
   const update = (key: string, value: string) => {
