@@ -253,7 +253,7 @@ export default function MobileLive() {
         </div>
       </MobileSheet>
 
-      {/* ===== Bottom-sheet: detalhe do veículo + rastreador ===== */}
+      {/* ===== Bottom-sheet: detalhe completo do veículo (tabs) ===== */}
       <MobileSheet
         open={detailOpen && !!selected}
         onOpenChange={(o) => {
@@ -261,22 +261,25 @@ export default function MobileLive() {
           if (!o) setSelectedId(null);
         }}
         showHandle
+        className="h-[92dvh]"
+        contentClassName="px-0"
       >
-        {selected && <VehicleDetailSheetContent
-          vehicle={selected}
-          onShare={() => setShareOpen(true)}
-          onOpenFicha={() => {
-            setDetailOpen(false);
-            navigate(`/admin/fleet/${selected.vehicle_id}`);
-          }}
-          onCenter={() => {
-            // Re-select forces map to fly-to in GoogleFleetMap (controlado por selectedId).
-            haptic.tick();
-            setDetailOpen(false);
-            setSelectedId(null);
-            requestAnimationFrame(() => setSelectedId(selected.vehicle_id));
-          }}
-        />}
+        {selected && (
+          <VehicleDetailSheetContent
+            vehicle={selected}
+            onShare={() => setShareOpen(true)}
+            onOpenFicha={() => {
+              setDetailOpen(false);
+              navigate(`/admin/fleet/${selected.vehicle_id}`);
+            }}
+            onCenter={() => {
+              haptic.tick();
+              setDetailOpen(false);
+              setSelectedId(null);
+              requestAnimationFrame(() => setSelectedId(selected.vehicle_id));
+            }}
+          />
+        )}
       </MobileSheet>
 
       {/* Share/tracking dialog (link público) */}
@@ -293,7 +296,9 @@ export default function MobileLive() {
 }
 
 /* ============================================================
-   Conteúdo do bottom-sheet de detalhe (extraído pra clareza)
+   Conteúdo do bottom-sheet de detalhe — mesma riqueza do desktop:
+   hero + ações + tabs (Viagens/Estatísticas/Notificações/Detalhes)
+   + health footer fixo no fim.
    ============================================================ */
 function VehicleDetailSheetContent({
   vehicle,
@@ -307,10 +312,12 @@ function VehicleDetailSheetContent({
   onCenter: () => void;
 }) {
   const m = statusMeta(vehicle.status);
+  const [tab, setTab] = useState<DetailTab>("trips");
+
   return (
-    <div className="-mx-5">
+    <div className="flex flex-col h-full">
       {/* Hero com imagem do veículo */}
-      <div className="relative h-32 bg-muted">
+      <div className="relative h-32 bg-muted shrink-0">
         <img
           src={getCoverImage(vehicle.name)}
           alt={vehicle.name}
@@ -326,74 +333,102 @@ function VehicleDetailSheetContent({
         </span>
       </div>
 
-      {/* Title + plate */}
-      <div className="px-5 pt-3">
-        <h2 className="text-[17px] font-semibold tracking-tight">{vehicle.name}</h2>
-        <p className="text-[12px] font-mono text-muted-foreground mt-0.5">{vehicle.plate ?? "—"}</p>
+      {/* Title + plate + endereço + ações compactas */}
+      <div className="px-5 pt-3 pb-3 shrink-0 border-b border-border/30">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-[17px] font-semibold tracking-tight truncate">{vehicle.name}</h2>
+            <p className="text-[12px] font-mono text-muted-foreground mt-0.5">{vehicle.plate ?? "—"}</p>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => { haptic.tick(); onShare(); }}
+              aria-label="Compartilhar rastreador"
+              className="w-9 h-9 rounded-full bg-primary text-primary-foreground inline-flex items-center justify-center active:scale-95 transition-transform"
+            >
+              <Share2 size={15} />
+            </button>
+            <button
+              onClick={onCenter}
+              aria-label="Centralizar no mapa"
+              className="w-9 h-9 rounded-full border border-border bg-background inline-flex items-center justify-center active:bg-muted/40"
+            >
+              <Crosshair size={15} />
+            </button>
+            <button
+              onClick={() => { haptic.tick(); onOpenFicha(); }}
+              aria-label="Abrir ficha"
+              className="w-9 h-9 rounded-full border border-border bg-background inline-flex items-center justify-center active:bg-muted/40"
+            >
+              <ExternalLink size={15} />
+            </button>
+          </div>
+        </div>
 
         {vehicle.address && (
           <p className="text-[12px] text-muted-foreground flex items-start gap-1.5 leading-snug mt-2">
             <MapPin size={12} className="text-primary mt-0.5 shrink-0" />
-            <span>{vehicle.address}</span>
+            <span className="min-w-0">{vehicle.address}</span>
           </p>
         )}
-      </div>
 
-      {/* KPIs */}
-      <div className="px-5 mt-4 grid grid-cols-3 gap-2">
-        <div className="rounded-xl bg-muted/40 px-3 py-2.5">
-          <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Velocidade</div>
-          <div className="text-base font-semibold tabular-nums leading-none mt-1">
-            {Math.round(vehicle.speed ?? 0)}
-            <span className="text-[10px] text-muted-foreground ml-1 font-normal">mph</span>
+        {/* KPI rápidos */}
+        <div className="grid grid-cols-3 gap-2 mt-3">
+          <div className="rounded-lg bg-muted/40 px-2.5 py-2">
+            <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Velocidade</div>
+            <div className="text-sm font-semibold tabular-nums leading-none mt-1 inline-flex items-baseline gap-1">
+              <Gauge size={11} className="text-muted-foreground" />
+              {Math.round(vehicle.speed ?? 0)}
+              <span className="text-[10px] text-muted-foreground font-normal">mph</span>
+            </div>
           </div>
-        </div>
-        <div className="rounded-xl bg-muted/40 px-3 py-2.5">
-          <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Combustível</div>
-          <div className="text-base font-semibold tabular-nums leading-none mt-1 inline-flex items-center gap-1">
-            <Fuel size={12} className="text-muted-foreground" />
-            {vehicle.fuel_level != null ? `${Math.round(vehicle.fuel_level)}%` : "—"}
+          <div className="rounded-lg bg-muted/40 px-2.5 py-2">
+            <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Combustível</div>
+            <div className="text-sm font-semibold tabular-nums leading-none mt-1">
+              {vehicle.fuel_level != null ? `${Math.round(vehicle.fuel_level)}%` : "—"}
+            </div>
           </div>
-        </div>
-        <div className="rounded-xl bg-muted/40 px-3 py-2.5">
-          <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Visto</div>
-          <div className="text-base font-semibold tabular-nums leading-none mt-1">
-            {formatRelative(vehicle.reported_at)}
+          <div className="rounded-lg bg-muted/40 px-2.5 py-2">
+            <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Visto</div>
+            <div className="text-sm font-semibold tabular-nums leading-none mt-1 inline-flex items-baseline gap-1">
+              <Clock size={11} className="text-muted-foreground" />
+              {formatRelative(vehicle.reported_at)}
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Ações */}
-      <div className="px-5 mt-4 pb-2 space-y-2">
-        <button
-          onClick={() => {
-            haptic.tick();
-            onShare();
-          }}
-          className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
-        >
-          <Share2 size={16} /> Compartilhar rastreador
-        </button>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={onCenter}
-            className="h-11 rounded-xl border border-border bg-background text-foreground text-[13px] font-semibold inline-flex items-center justify-center gap-1.5 active:bg-muted/40"
-          >
-            <Crosshair size={14} /> Centralizar
-          </button>
-          <button
-            onClick={() => {
-              haptic.tick();
-              onOpenFicha();
-            }}
-            className="h-11 rounded-xl border border-border bg-background text-foreground text-[13px] font-semibold inline-flex items-center justify-center gap-1.5 active:bg-muted/40"
-          >
-            <ExternalLink size={14} /> Abrir ficha
-          </button>
         </div>
       </div>
 
-      <div style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }} />
+      {/* Tabs */}
+      <div className="flex shrink-0 border-b border-border/30 overflow-x-auto scrollbar-thin">
+        {DETAIL_TABS.map((t) => {
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => { haptic.tick(); setTab(t.id); }}
+              className={`flex-1 min-w-[88px] text-[11px] uppercase tracking-wider font-semibold py-3 transition-colors relative ${
+                active ? "text-primary" : "text-muted-foreground"
+              }`}
+            >
+              {t.label}
+              {active && <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full" />}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Conteúdo da tab — único scroller */}
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+        {tab === "trips" && <TripsTab vehicleId={vehicle.vehicle_id} />}
+        {tab === "stats" && <StatsTab vehicleId={vehicle.vehicle_id} />}
+        {tab === "notifications" && <NotificationsTab vehicleId={vehicle.vehicle_id} />}
+        {tab === "details" && <DetailsTab vehicle={vehicle} vehicleId={vehicle.vehicle_id} />}
+      </div>
+
+      {/* Health footer fixo */}
+      <div className="shrink-0 border-t border-border/30" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        <VehicleHealthFooter vehicle={vehicle} />
+      </div>
     </div>
   );
 }
