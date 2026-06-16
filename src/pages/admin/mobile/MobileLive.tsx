@@ -11,14 +11,26 @@ import {
   ExternalLink,
   Crosshair,
   Clock,
-  Fuel,
 } from "lucide-react";
 import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
 import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 import { MobileSheet } from "@/components/mobile/MobileSheet";
 import { ShareTrackingDialog } from "@/components/admin/live/ShareTrackingDialog";
+import { TripsTab } from "@/components/admin/live/tabs/TripsTab";
+import { StatsTab } from "@/components/admin/live/tabs/StatsTab";
+import { NotificationsTab } from "@/components/admin/live/tabs/NotificationsTab";
+import { DetailsTab } from "@/components/admin/live/tabs/DetailsTab";
+import { VehicleHealthFooter } from "@/components/admin/live/VehicleHealthFooter";
 import { getCoverImage } from "@/data/vehicleImages";
 import { haptic } from "@/lib/haptic";
+
+type DetailTab = "trips" | "stats" | "notifications" | "details";
+const DETAIL_TABS: { id: DetailTab; label: string }[] = [
+  { id: "trips", label: "Viagens" },
+  { id: "stats", label: "Estatísticas" },
+  { id: "notifications", label: "Notificações" },
+  { id: "details", label: "Detalhes" },
+];
 
 /* ============================================================
    LIVE — Mobile-first (native app feel)
