@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, AlertCircle, CheckCircle2 } from "lucide-react";
+import { formatPhone, getPhoneRule, isValidPhone } from "@/lib/formValidators";
+
 
 const COUNTRIES = [
   { code: "+55", flag: "🇧🇷", name: "Brasil", iso: "BR" },
