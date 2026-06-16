@@ -1,106 +1,81 @@
+# Fluxo de assinatura de contrato — plano
 
-# Redesign Mobile/PWA — Experiência Nativa
+## Diagnóstico do que já existe
 
-Objetivo: cada tela do admin no celular vira uma versão própria, pensada de baixo pra cima pro polegar — não uma redução do desktop. Trabalho em **fases sequenciais**, cada uma entregue completa e testável antes da próxima.
+Boa parte da infra já está pronta neste projeto, então não vamos recriar nada — só fechar o ciclo.
 
-## Fundação compartilhada (Fase 0 — faço antes de tudo)
+**Já implementado hoje:**
+- Integração **Clicksign v3** em `supabase/functions/send-contract/index.ts` (gera PDF com pdf-lib, cria envelope, sobe documento, adiciona signers Zeus + cliente, ativa envelope).
+- Webhook `supabase/functions/clicksign-webhook/index.ts` com validação HMAC, mapeia eventos para `contract_status`: `partially_signed`, `signed`, `cancelled`.
+- Tabela `bookings` já tem: `contract_status` (default `not_sent`), `clicksign_envelope_id`, `clicksign_document_key`, `contract_sent_at`, `contract_signed_at`, `contract_signed_pdf_url`, `contract_error`.
+- Secrets já configurados: `CLICKSIGN_API_TOKEN`, `CLICKSIGN_WEBHOOK_SECRET`.
+- Webhook de pagamento `cambioreal-webhook` já marca a reserva como `confirmed` + `payment_status=paid`.
+- Botão manual "Enviar contrato" no admin (`AdminBookingDetail.tsx`).
 
-Vou criar primitivos que todas as próximas fases vão usar. Sem isso, cada tela vira improviso de novo.
+## O que está faltando (escopo deste trabalho)
 
-- **MobileSheet** — bottom sheet com handle, snap points, swipe-to-dismiss, safe-area. Substitui Dialog em mobile.
-- **MobileListItem** — linha 56pt+ com avatar/ícone, título, subtítulo, badge, chevron, área de toque inteira clicável.
-- **SwipeAction** — swipe-left/right em itens de lista pra ações rápidas (arquivar, confirmar, ligar).
-- **PullToRefresh** — gesto nativo em listas que dependem de dados frescos.
-- **SegmentedControl** — substitui Tabs em mobile (iOS-style).
-- **MobileFormField** — input com label flutuante, alvo 48pt, teclado correto (`inputMode`, `enterKeyHint`), scroll-into-view quando focado.
-- **StickyActionBar** — barra inferior fixa pra ação primária (acima do bottom nav, respeita safe-area).
-- **Hook `useIsMobileApp`** — `useIsMobile()` + detecção de standalone PWA pra decidir layouts.
+1. **Disparo automático pós-pagamento** — hoje o envio é manual pelo admin.
+2. **Auto-assinatura da Zeus (locadora)** — hoje a Zeus também recebe e-mail e precisa clicar para assinar. Precisa ser automática.
+3. **CTA de assinatura no painel do cliente** + status visível.
+4. **Painel admin de contratos** consolidado (hoje só aparece dentro de cada reserva).
+5. **Download do PDF assinado** quando concluído (puxar do Clicksign e guardar em Storage).
 
-Tudo isolado em `src/components/mobile/*` e `src/hooks/`, sem mexer no desktop.
+## Mudanças
 
----
+### 1. Banco — migration
+- Bucket privado `signed-contracts` já existe; só garantir policies para `authenticated` leem só os próprios e admins leem tudo.
+- Sem novas tabelas. Acrescentar índice em `bookings(contract_status)` para o painel admin.
 
-## Fase 1 — Painel (`/admin`)
+### 2. Edge functions
+**`supabase/functions/cambioreal-webhook/index.ts`** (editar)
+- Após marcar booking como `confirmed`/`paid`, disparar `supabase.functions.invoke("send-contract", { booking_id })` (fire-and-forget, dentro do bloco background já existente). Idempotente: só envia se `contract_status in ('not_sent','failed')`.
 
-Hoje é uma versão comprimida do desktop. Vira:
+**`supabase/functions/send-contract/index.ts`** (editar)
+- Após criar o envelope e antes do `status=running`, chamar Clicksign para **auto-assinar como Zeus** usando token de API (endpoint `POST /api/v3/envelopes/{id}/signers/{signerZeusId}/sign` com o token da conta dona — fluxo "assinatura automática por API key" da Clicksign). Se a Clicksign exigir requirement `provide_evidence=api`, ajustar o requirement do signer Zeus para `auth: "api"` em vez de `email`.
+- Resultado: só o cliente recebe o e-mail de assinatura.
 
-- **Hero "agora"**: card grande no topo com a próxima ação (check-in/out das próximas 2h), nome do cliente, horário, botão primário "Iniciar inspeção" full-width.
-- **KPIs em scroll horizontal** (chips): Frota rodando · Disponíveis · Em preparo · Pendências. Tap abre sheet com lista.
-- **Timeline do dia**: lista vertical de check-ins/check-outs, agrupada por período (Manhã/Tarde/Noite), com swipe-action pra abrir reserva ou ligar pro cliente.
-- **Atalhos rápidos**: 4 botões grandes (Nova reserva · Nova inspeção · Live · Frota).
-- Remove KPIs duplicados e textos longos do desktop.
+**`supabase/functions/clicksign-webhook/index.ts`** (editar)
+- No evento `auto_close`/`close`, baixar o PDF final via `GET /api/v3/envelopes/{id}/documents` (campo `download_url`), salvar em `storage/signed-contracts/{booking_id}.pdf` e gravar `contract_signed_pdf_url` (signed URL de longa duração ou path para gerar sob demanda).
 
-## Fase 2 — Operação / Hoje (`/admin/ops-today`)
+### 3. Frontend
 
-- Header com data + navegação dia-anterior/próximo em swipe horizontal (gesto, não só botões).
-- Segmented control: **Retiradas · Devoluções · Em preparo**.
-- Lista de cards grandes com foto do veículo, cliente, horário, status (atrasada em vermelho), botão "Inspeção" primário.
-- Swipe-right no card = abrir reserva. Swipe-left = ligar cliente / WhatsApp.
-- FAB contextual já existe — passa a "Nova inspeção rápida".
+**`src/pages/BookingDetailClient.tsx`** (editar — painel do cliente)
+- Bloco "Contrato": mostra status (`Aguardando envio`, `Aguardando sua assinatura`, `Assinado em ...`).
+- Quando `contract_status='sent'` ou `'partially_signed'` e o cliente ainda não assinou: botão **"Assinar contrato"** que busca a URL de assinatura do signer cliente (nova função leve `get-contract-sign-url` que consulta `/api/v3/envelopes/{id}/signers/{customerSignerId}` e retorna `sign_url`).
+- Quando `signed`: botão **"Baixar contrato assinado"**.
 
-## Fase 3 — Reservas (`/admin/bookings` + detalhe + nova)
+**`src/pages/admin/AdminBookings.tsx`** (editar) ou nova aba `AdminContracts.tsx`
+- Decisão: adicionar **nova rota `/admin/contratos`** com lista filtrável por status (`Pendente`, `Aguardando cliente`, `Parcialmente assinado`, `Assinado`, `Cancelado`, `Falhou`), com link para a reserva e ações: reenviar, cancelar envelope, baixar PDF.
+- Adicionar item no menu admin (`AdminSidebar` + `AdminBottomNav`).
 
-- Lista vira cards (não tabela). Cada card: cliente, veículo, datas compactas (10-13 jun), valor, status badge.
-- Filtros viram bottom sheet com chips selecionáveis (status, período, plano) — não dropdowns.
-- Busca colapsada vira ícone que expande full-width.
-- **Detalhe da reserva** em mobile: layout em seções colapsáveis (Cliente · Veículo · Pagamento · Contrato · Timeline), action bar fixa embaixo com ação primária por status (Confirmar / Iniciar check-in / Finalizar).
-- **Nova reserva mobile**: wizard step-by-step (1 campo grande por vez quando faz sentido), barra de progresso, teclado certo por campo.
+**`src/pages/admin/AdminBookingDetail.tsx`** (manter)
+- Botão atual vira "Reenviar contrato" quando já foi enviado uma vez.
 
-## Fase 4 — Frota + Inspeção
+### 4. Nova edge function: `get-contract-sign-url`
+- Recebe `booking_id`, valida sessão do cliente (dono da reserva) ou admin, consulta Clicksign e retorna `sign_url` do signer cliente. Evita expor o token Clicksign no front.
 
-- **Frota**: cards grid 2 colunas com foto do carro, modelo, placa, status colorido. Filtros em sheet.
-- **Detalhe do veículo**: hero image full-width, abas em segmented control (Visão · Agenda · Histórico · Documentos).
-- **Inspeção** (já parcialmente ok): wizard em tela cheia, um passo por vez, action bar fixa, foto via câmera nativa (já feito), preview grande, swipe pra reordenar fotos.
+## Arquivos a criar/alterar
 
-## Fase 5 — Clientes + Detalhe
+**Criar**
+- `supabase/migrations/<timestamp>_contracts_index_and_storage.sql`
+- `supabase/functions/get-contract-sign-url/index.ts`
+- `src/pages/admin/AdminContracts.tsx`
+- `src/hooks/useContractStatus.ts` (helper compartilhado)
 
-- Lista estilo "contatos do iPhone": avatar + nome, agrupada por inicial, busca sticky no topo, swipe pra ligar/WhatsApp.
-- Detalhe: hero com avatar grande, ações inline (ligar, WhatsApp, email), seções colapsáveis (Documentos, Reservas, Notas, Tags).
+**Editar**
+- `supabase/functions/cambioreal-webhook/index.ts` — disparo automático
+- `supabase/functions/send-contract/index.ts` — auto-sign Zeus via API
+- `supabase/functions/clicksign-webhook/index.ts` — baixar PDF assinado
+- `supabase/config.toml` — registrar `get-contract-sign-url` (verify_jwt true)
+- `src/pages/BookingDetailClient.tsx` — bloco contrato + CTA
+- `src/components/admin/AdminSidebar.tsx` + `AdminBottomNav.tsx` — item "Contratos"
+- `src/App.tsx` — rota nova
 
-## Fase 6 — Financeiro + Relatórios + Equipe + Configurações
+## Pontos abertos para você confirmar
 
-- Financeiro: KPIs em scroll horizontal, transações como lista de extratos bancários (data agrupada, valor à direita, swipe pra editar/excluir).
-- Relatórios: gráficos full-width, tap pra zoom, sem tabelas largas.
-- Equipe/Configurações: lista no estilo iOS Settings (linhas com label + valor à direita + chevron).
+1. **Provedor**: mantenho **Clicksign** (já 100% integrado). OK?
+2. **Auto-assinatura da Zeus**: a Clicksign aceita auto-assinatura via API quando o requirement do signer é `auth: "api"`. Vou ajustar essa parte. Se a sua conta Clicksign não permitir esse modo (depende do plano), o fallback é manter a Zeus assinando por e-mail — me avisa o plano da conta se souber.
+3. **PDF final**: salvar em Storage privado `signed-contracts` e servir via signed URL de 7 dias quando o cliente/admin pedir. OK?
+4. **Disparo**: só pelo `cambioreal-webhook` (forma atual de pagamento) — confirmo que não tem outro caminho de pagamento ativo?
 
-## Fase 7 — Live (`/admin/live`)
-
-- Mapa full-screen como base. Lista de veículos vira bottom sheet com snap points (peek/half/full).
-- KPIs no topo viram chips compactos em scroll horizontal.
-- Tap em veículo abre detail sheet por cima do mapa.
-
----
-
-## Princípios aplicados em todas as fases
-
-- Nada de tabelas em mobile — sempre cards/listas.
-- Alvos de toque mínimo 44pt, primários 56pt+.
-- Ação primária sempre visível (action bar fixa ou FAB), nunca escondida em menu.
-- Modais → bottom sheets.
-- Tabs → segmented control.
-- Dropdowns → bottom sheet com opções.
-- Forms longos → wizards / seções colapsáveis.
-- Toda lista que depende de dados frescos → pull-to-refresh.
-- Sem texto duplicado entre header e conteúdo.
-- Safe-area respeitada em topo e base sempre.
-
-## Como vou trabalhar
-
-1. Faço a Fase 0 (fundação) e te aviso.
-2. Faço a Fase 1 (Painel), te mostro pra testar no PWA do celular.
-3. Você aprova ou pede ajuste pontual.
-4. Sigo automaticamente Fase 2 → 7, sempre te mostrando ao final de cada uma.
-
-Desktop **não é tocado** em nenhuma fase. Tudo é condicionado a `useIsMobile()` / breakpoint `lg`.
-
-## Riscos / pontos cegos
-
-- **Tamanho**: são ~25 telas mobile sendo reescritas. Vai durar várias rodadas. Se quiser ritmo mais rápido em troca de menos polimento, me avisa.
-- **Componentes compartilhados**: alguns componentes (ex: `BookingCard`, `FleetGrid`) hoje são usados em desktop e mobile. Vou criar variantes mobile-only quando o desktop sofrer; em alguns casos, refatoro o componente pra ter dois modos.
-- **Gestos (swipe-action, pull-to-refresh)**: implemento com touch events nativos + Framer Motion (já tá no projeto). Sem libs novas.
-- **Performance**: listas grandes (reservas, clientes) vou virtualizar com `react-window` se passarem de ~50 itens — adiciona dep pequena.
-- **Não vou mexer em**: regras de negócio, schema do banco, autenticação, edge functions. Só camada de apresentação mobile.
-
-## Confirmação
-
-Se ok com esse plano, começo agora pela **Fase 0 + Fase 1** numa mesma entrega. Quer ajustar prioridade de alguma fase ou pular alguma?
+Aprova que eu já implemento?
