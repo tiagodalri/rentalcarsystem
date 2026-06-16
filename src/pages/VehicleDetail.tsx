@@ -218,7 +218,7 @@ const VehicleDetail = () => {
                     key={currentImage}
                     src={images[currentImage]}
                     alt={`${decodedName} - ${currentImage + 1}`}
-                    className="w-full h-full object-contain cursor-zoom-in animate-fade-in"
+                    className="w-full h-full object-cover cursor-zoom-in animate-fade-in"
                     loading="eager"
                     decoding="async"
                     fetchPriority="high"
