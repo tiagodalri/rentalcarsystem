@@ -12,7 +12,9 @@ import {
   Sparkles,
   CalendarDays,
   ChevronDown,
+  FileSignature,
 } from "lucide-react";
+
 import zeusLogo from "@/assets/zeus-logo-mark.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAdminTabs } from "@/hooks/useAdminTabs";
