@@ -881,6 +881,17 @@ Deno.serve(async (req) => {
         }
       }
 
+      // 8) Dispara e-mail de assinatura para todos os signatários
+      // Sem isso, a Clicksign não envia o e-mail automaticamente após o envelope entrar em "running".
+      // Doc: https://developers.clicksign.com/reference/api-notificar-envelope
+      try {
+        const notifyRes = await cs(`/api/v3/envelopes/${envelopeId}/notifications`, "POST", {});
+        console.log("[send-contract] notifications enviadas:", JSON.stringify(notifyRes));
+      } catch (notifyErr) {
+        const m = notifyErr instanceof Error ? notifyErr.message : String(notifyErr);
+        console.warn("[send-contract] notify failed (envelope segue ativo, possível reenvio manual):", m);
+      }
+
       await admin.from("bookings").update({
         contract_status: "sent",
         clicksign_envelope_id: envelopeId,
