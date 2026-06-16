@@ -845,7 +845,7 @@ Deno.serve(async (req) => {
         { signer: signerCustomerId, action: "agree" },
         { signer: signerCustomerId, action: "provide_evidence", auth: "email" },
         { signer: signerZeusId, action: "agree" },
-        { signer: signerZeusId, action: "provide_evidence", auth: "api" },
+        { signer: signerZeusId, action: "provide_evidence", auth: ZEUS_AUTO_SIGN ? "api" : "email" },
       ];
       for (const r of reqBodies) {
         const attrs: any = { action: r.action, role: "sign" };
