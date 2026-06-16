@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
-import { User, Mail, Phone, Calendar, Globe, FileText, MapPin, Upload, Camera, Loader2, Building2 } from "lucide-react";
+import { User, Mail, Phone, Calendar, Globe, FileText, MapPin, Upload, Camera, Loader2, Building2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { isValidEmail, suggestEmail } from "@/lib/formValidators";
+
 
 export interface CustomerData {
   full_name: string;
@@ -44,6 +46,10 @@ export default function CustomerDataStep({ data, onChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [cepLoading, setCepLoading] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const emailSuggestion = suggestEmail(data.email || "");
+  const emailValid = isValidEmail(data.email || "");
+  const showEmailError = emailTouched && (data.email || "").length > 0 && !emailValid;
 
 
   const update = (key: string, value: string) => {
@@ -98,24 +104,50 @@ export default function CustomerDataStep({ data, onChange }: Props) {
               ) : (
                 <input
                   type={type}
+                  inputMode={key === "email" ? "email" : key === "zip_code" || key === "document_number" || key === "house_number" ? "numeric" : undefined}
+                  autoComplete={key === "email" ? "email" : undefined}
                   value={(data as any)[key] ?? ""}
                   maxLength={key === "state" ? 2 : undefined}
+                  onBlur={() => { if (key === "email") setEmailTouched(true); }}
                   onChange={(e) => {
                     const val = key === "state" ? e.target.value.toUpperCase() : e.target.value;
                     update(key, val);
                     if (key === "zip_code") lookupCep(e.target.value);
                   }}
                   placeholder={placeholder}
-                  className="w-full h-11 px-3 rounded-md border border-border/50 bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition-all"
+                  className={`w-full h-11 px-3 pr-9 rounded-md border bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
+                    key === "email" && showEmailError
+                      ? "border-destructive/60 focus:ring-destructive/25 focus:border-destructive/60"
+                      : "border-border/50 focus:ring-primary/25 focus:border-primary/40"
+                  }`}
                 />
               )}
               {key === "zip_code" && cepLoading && (
                 <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-spin" />
               )}
+              {key === "email" && emailValid && (
+                <CheckCircle2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none" />
+              )}
             </div>
+            {key === "email" && showEmailError && (
+              <p className="mt-1 text-[11px] text-destructive flex items-center gap-1">
+                <AlertCircle size={11} />
+                E-mail inválido. Use o formato nome@dominio.com
+              </p>
+            )}
+            {key === "email" && emailSuggestion && !emailValid && (
+              <button
+                type="button"
+                onClick={() => { update("email", emailSuggestion); setEmailTouched(true); }}
+                className="mt-1 text-[11px] text-primary hover:underline text-left"
+              >
+                Você quis dizer <span className="font-medium">{emailSuggestion}</span>?
+              </button>
+            )}
           </div>
         ))}
       </div>
+
 
       {/* License upload */}
       <div>

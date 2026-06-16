@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, AlertCircle, CheckCircle2 } from "lucide-react";
+import { formatPhone, getPhoneRule, isValidPhone } from "@/lib/formValidators";
+
 
 const COUNTRIES = [
   { code: "+55", flag: "🇧🇷", name: "Brasil", iso: "BR" },
@@ -42,7 +44,7 @@ interface PhoneInputProps {
   placeholder?: string;
 }
 
-export function PhoneInput({ value, onChange, className = "", inputClassName = "", placeholder = "11 99999-0000" }: PhoneInputProps) {
+export function PhoneInput({ value, onChange, className = "", inputClassName = "", placeholder }: PhoneInputProps) {
   // Parse existing value to extract country code
   const detectCountry = () => {
     for (const c of COUNTRIES) {
@@ -54,12 +56,20 @@ export function PhoneInput({ value, onChange, className = "", inputClassName = "
   const [selected, setSelected] = useState(detectCountry);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [touched, setTouched] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  // Strip country code from display value
-  const phoneNumber = value.startsWith(selected.code)
+  const rule = getPhoneRule(selected.iso);
+
+  // Strip country code from raw stored value and re-format for display
+  const rawNational = value.startsWith(selected.code)
     ? value.slice(selected.code.length).trim()
     : value.replace(/^\+\d{1,4}\s?/, "");
+  const displayValue = formatPhone(selected.iso, rawNational);
+  const digitsCount = rawNational.replace(/\D/g, "").length;
+  const valid = isValidPhone(selected.iso, rawNational);
+  const showError = touched && digitsCount > 0 && !valid;
+  const showSuccess = valid;
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -73,11 +83,13 @@ export function PhoneInput({ value, onChange, className = "", inputClassName = "
     setSelected(country);
     setOpen(false);
     setSearch("");
-    onChange(`${country.code} ${phoneNumber}`);
+    const digits = rawNational.replace(/\D/g, "");
+    onChange(`${country.code} ${formatPhone(country.iso, digits)}`);
   };
 
   const handlePhoneChange = (num: string) => {
-    onChange(`${selected.code} ${num}`);
+    const formatted = formatPhone(selected.iso, num);
+    onChange(`${selected.code} ${formatted}`);
   };
 
   const filtered = search
@@ -90,7 +102,9 @@ export function PhoneInput({ value, onChange, className = "", inputClassName = "
     : COUNTRIES;
 
   return (
-    <div className={`relative flex ${className}`} ref={ref}>
+    <div className={`relative ${className}`}>
+      <div className="relative flex" ref={ref}>
+
       {/* Country selector */}
       <button
         type="button"
@@ -105,11 +119,31 @@ export function PhoneInput({ value, onChange, className = "", inputClassName = "
       {/* Phone number input */}
       <input
         type="tel"
-        value={phoneNumber}
+        inputMode="numeric"
+        value={displayValue}
         onChange={(e) => handlePhoneChange(e.target.value)}
-        placeholder={placeholder}
-        className={`flex-1 min-w-0 rounded-r-lg border border-border/40 bg-card text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all ${inputClassName}`}
+        onBlur={() => setTouched(true)}
+        placeholder={placeholder ?? rule.example}
+        maxLength={rule.mask.length}
+        className={`flex-1 min-w-0 rounded-r-lg border bg-card text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 transition-all ${
+          showError
+            ? "border-destructive/60 focus:ring-destructive/25 focus:border-destructive/60"
+            : "border-border/40 focus:ring-primary/20 focus:border-primary/30"
+        } ${inputClassName}`}
       />
+      {showSuccess && (
+        <CheckCircle2 size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none" />
+      )}
+      </div>
+      {showError ? (
+        <p className="mt-1 text-[11px] text-destructive flex items-center gap-1">
+          <AlertCircle size={11} />
+          Número incompleto. Esperado {rule.digits} dígitos (ex.: {rule.example}).
+        </p>
+      ) : !valid && digitsCount === 0 ? (
+        <p className="mt-1 text-[11px] text-muted-foreground/70">Formato: {rule.example}</p>
+      ) : null}
+
 
       {/* Dropdown */}
       {open && (
