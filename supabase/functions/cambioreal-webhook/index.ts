@@ -92,7 +92,7 @@ serve(async (req) => {
           // Confirm booking (idempotent)
           const { data: b } = await supabase
             .from("bookings")
-            .select("status")
+            .select("status, contract_status")
             .eq("id", pr.booking_id)
             .maybeSingle();
           if (b && b.status !== "confirmed" && b.status !== "active" && b.status !== "in_progress" && b.status !== "completed") {
@@ -107,6 +107,23 @@ serve(async (req) => {
               })
               .eq("id", pr.booking_id);
           }
+
+          // Auto-trigger contract generation if not yet sent
+          const currentContractStatus = b?.contract_status ?? "not_sent";
+          if (["not_sent", "failed"].includes(currentContractStatus)) {
+            try {
+              const { error: invokeErr } = await supabase.functions.invoke("send-contract", {
+                body: { booking_id: pr.booking_id },
+              });
+              if (invokeErr) {
+                console.error("[cambioreal-webhook] send-contract invoke error:", invokeErr.message);
+              } else {
+                console.log("[cambioreal-webhook] contract dispatch ok for booking", pr.booking_id);
+              }
+            } catch (e) {
+              console.error("[cambioreal-webhook] send-contract failure:", e);
+            }
+          }
         } else if (["BOLETO_EXPIRADO", "SOLICITACAO_CANCELADA", "SOLICITACAO_EXPIRADA", "CANCELADO", "EXPIRADO"].includes(status)) {
           await supabase
             .from("bookings")
@@ -114,6 +131,7 @@ serve(async (req) => {
             .eq("id", pr.booking_id);
         }
       }
+
     } catch (e) {
       console.error("webhook background error", e);
     }
