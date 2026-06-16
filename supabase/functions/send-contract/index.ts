@@ -840,10 +840,16 @@ Deno.serve(async (req) => {
       });
       const signerZeusId = signerZeusRes?.data?.id;
 
-      // 5) requirements (sign + auth) for each signer
+      // 5) requirements: cada signer precisa de AUTENTICAÇÃO (provide_evidence)
+      // + QUALIFICAÇÃO/ASSINATURA (agree). Sem o "agree" a Clicksign não ativa
+      // o envelope (422 "signatário(s) sem os requisitos necessários").
       const reqBodies = [
+        // cliente
         { signer: signerCustomerId, action: "provide_evidence", auth: "email" },
+        { signer: signerCustomerId, action: "agree" },
+        // Zeus (locadora)
         { signer: signerZeusId, action: "provide_evidence", auth: ZEUS_AUTO_SIGN ? "api" : "email" },
+        { signer: signerZeusId, action: "agree" },
       ];
       for (const r of reqBodies) {
         const attrs: any = { action: r.action };
