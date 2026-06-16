@@ -342,7 +342,7 @@ function KpiChip({
   return (
     <button
       onClick={onClick}
-      className="snap-start shrink-0 min-w-[150px] text-left rounded-2xl border border-border/40 bg-card/70 active:bg-card transition-colors p-3.5"
+      className="w-full text-left rounded-2xl border border-border/40 bg-card/70 active:bg-card transition-colors p-3.5"
     >
       <div className="flex items-center gap-1.5 mb-1.5">
         <span className={`h-1.5 w-1.5 rounded-full ${TONE_DOT[tone]}`} />
