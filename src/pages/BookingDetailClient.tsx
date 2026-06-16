@@ -47,6 +47,8 @@ import InsuranceCard from "@/components/client/InsuranceCard";
 import FuelGauge from "@/components/client/FuelGauge";
 import ExtraChargesTable from "@/components/client/ExtraChargesTable";
 import ContractButton from "@/components/client/ContractButton";
+import ClientContractPanel from "@/components/client/ClientContractPanel";
+
 
 const BookingDetailClient = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
