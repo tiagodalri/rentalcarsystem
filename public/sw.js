@@ -38,7 +38,11 @@ self.addEventListener("activate", (event) => {
           .filter((n) => n !== HTML_CACHE && n !== ASSET_CACHE)
           .map((n) => caches.delete(n))
       );
-      // sem clients.claim() — tabs existentes seguem com o SW atual até navegação completa.
+      // v7: claim immediately so the new SW handles fetches right away.
+      // Without claim(), an open tab can keep serving deleted chunks from
+      // the OLD SW's cache after a deploy, causing the "white screen until
+      // I close and reopen the app" symptom.
+      try { await self.clients.claim(); } catch (_) {}
     })()
   );
 });
