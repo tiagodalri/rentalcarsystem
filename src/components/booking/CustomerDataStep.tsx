@@ -114,13 +114,16 @@ export default function CustomerDataStep({ data, onChange }: Props) {
                   inputMode={key === "email" ? "email" : key === "zip_code" || key === "document_number" || key === "house_number" ? "numeric" : undefined}
                   autoComplete={key === "email" ? "email" : undefined}
                   value={(data as any)[key] ?? ""}
-                  maxLength={key === "state" ? 2 : undefined}
+                  maxLength={key === "state" ? 2 : key === "zip_code" ? 9 : undefined}
                   onBlur={() => { if (key === "email") setEmailTouched(true); }}
                   onChange={(e) => {
-                    const val = key === "state" ? e.target.value.toUpperCase() : e.target.value;
+                    let val: string = e.target.value;
+                    if (key === "state") val = val.toUpperCase();
+                    if (key === "zip_code") val = formatCep(val);
                     update(key, val);
-                    if (key === "zip_code") lookupCep(e.target.value);
+                    if (key === "zip_code") lookupCep(val);
                   }}
+
                   placeholder={placeholder}
                   className={`w-full h-11 px-3 pr-9 rounded-md border bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
                     key === "email" && showEmailError
