@@ -163,8 +163,8 @@ const AdminContracts = () => {
       <AdminPageHeader
         title="Contratos"
         subtitle="Acompanhe o status de assinatura de todos os contratos de locação."
-        icon={FileText}
       />
+
 
       <div className="admin-card p-4 space-y-4">
         <div className="flex flex-wrap items-center gap-2">
