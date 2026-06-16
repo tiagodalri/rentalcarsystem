@@ -722,30 +722,41 @@ Deno.serve(async (req) => {
       .from("bookings").select("*").eq("id", bookingId).maybeSingle();
     if (bErr || !booking) return json(404, { error: "Reserva nao encontrada" });
 
-    if (!booking.customer_id) return json(400, { error: "Reserva sem cliente vinculado" });
-
-    const [{ data: customer }, { data: vehicle }] = await Promise.all([
-      admin.from("customers").select("*").eq("id", booking.customer_id).maybeSingle(),
+    // Cliente vinculado é opcional — se não houver, monta a partir dos campos do próprio booking
+    const [{ data: linkedCustomer }, { data: vehicle }] = await Promise.all([
+      booking.customer_id
+        ? admin.from("customers").select("*").eq("id", booking.customer_id).maybeSingle()
+        : Promise.resolve({ data: null }),
       admin.from("vehicles").select("*").eq("id", booking.vehicle_id).maybeSingle(),
     ]);
-    if (!customer) return json(400, { error: "Cliente nao encontrado" });
     if (!vehicle) return json(400, { error: "Veiculo nao encontrado" });
 
+    const customer: any = linkedCustomer ?? {
+      full_name: booking.customer_name ?? "",
+      email: booking.customer_email ?? "",
+      phone: booking.customer_phone ?? "",
+      document_number: "",
+      driver_license: "",
+      date_of_birth: null,
+      nationality: "",
+      address: "",
+      house_number: "",
+      complement: "",
+      zip_code: "",
+    };
+
+    // Mínimo exigido pela Clicksign para criar signatário: nome + e-mail
     const FIELD_LABELS: Record<string, string> = {
-      full_name: "Nome completo",
-      email: "E-mail",
-      driver_license: "Número da CNH",
-      document_number: "Documento (CPF/Passport/ID)",
+      full_name: "Nome do cliente",
+      email: "E-mail do cliente",
     };
     const missing: string[] = [];
     if (!customer.full_name || !String(customer.full_name).trim()) missing.push("full_name");
     if (!customer.email || !String(customer.email).trim()) missing.push("email");
-    if (!customer.driver_license || !String(customer.driver_license).trim()) missing.push("driver_license");
-    if (!customer.document_number || !String(customer.document_number).trim()) missing.push("document_number");
     if (missing.length) {
       const labels = missing.map((f) => FIELD_LABELS[f] || f).join(", ");
       return json(400, {
-        error: `Não é possível enviar o contrato. Campos obrigatórios faltando no cadastro do cliente: ${labels}.`,
+        error: `Não é possível enviar o contrato. Campos obrigatórios faltando na reserva: ${labels}.`,
         missing_fields: missing,
         missing_labels: missing.map((f) => FIELD_LABELS[f] || f),
       });
