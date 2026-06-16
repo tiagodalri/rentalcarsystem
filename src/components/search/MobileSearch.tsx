@@ -504,25 +504,16 @@ function DateRangeSheet({
         className="rounded-t-2xl h-[92vh] max-h-[92vh] p-0 flex flex-col"
       >
         {/* Header */}
-        <div className="px-5 pt-5 pb-3 border-b border-border/40">
-          <div className="flex items-center justify-between">
-            <div>
-              <SheetTitle className="text-[17px] font-bold">Quando?</SheetTitle>
-              <p className="text-[12.5px] text-muted-foreground mt-0.5">
-                {!range?.from
-                  ? "Selecione a data de retirada"
-                  : !range?.to
-                    ? "Agora selecione a data de devolução"
-                    : `${days} ${days === 1 ? "diária" : "diárias"} reservadas`}
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="h-9 w-9 rounded-full bg-muted/50 flex items-center justify-center active:bg-muted"
-              aria-label="Fechar"
-            >
-              <X size={16} />
-            </button>
+        <div className="px-5 pt-10 pb-3 border-b border-border/40">
+          <div>
+            <SheetTitle className="text-[17px] font-bold">Quando?</SheetTitle>
+            <p className="text-[12.5px] text-muted-foreground mt-0.5">
+              {!range?.from
+                ? "Selecione a data de retirada"
+                : !range?.to
+                  ? "Agora selecione a data de devolução"
+                  : `${days} ${days === 1 ? "diária" : "diárias"} reservadas`}
+            </p>
           </div>
 
           {/* Date summary chips */}
