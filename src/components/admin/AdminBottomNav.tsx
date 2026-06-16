@@ -3,6 +3,8 @@ import { Sparkles, CalendarRange, Car, Users, Menu } from "lucide-react";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptic";
+
 
 type Tab = {
   label: string;
