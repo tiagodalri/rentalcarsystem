@@ -176,7 +176,7 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
         {/* ═══════════ KPIs horizontais ═══════════ */}
         <section>
           <SectionLabel>Frota agora</SectionLabel>
-          <div className="-mx-4 px-4 flex gap-2.5 overflow-x-auto scrollbar-thin scroll-smooth snap-x snap-mandatory">
+          <div className="grid grid-cols-2 gap-2.5">
             <KpiChip
               label="Rodando"
               value={`${rodando}/${totalFrota}`}
@@ -206,6 +206,7 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
               onClick={() => navigate("/admin/bookings?status=pending")}
             />
           </div>
+
         </section>
 
         {/* ═══════════ Timeline do dia ═══════════ */}
@@ -341,7 +342,7 @@ function KpiChip({
   return (
     <button
       onClick={onClick}
-      className="snap-start shrink-0 min-w-[150px] text-left rounded-2xl border border-border/40 bg-card/70 active:bg-card transition-colors p-3.5"
+      className="w-full text-left rounded-2xl border border-border/40 bg-card/70 active:bg-card transition-colors p-3.5"
     >
       <div className="flex items-center gap-1.5 mb-1.5">
         <span className={`h-1.5 w-1.5 rounded-full ${TONE_DOT[tone]}`} />
