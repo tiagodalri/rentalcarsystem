@@ -1,4 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+/* Fonts foram movidas para <link> no index.html (Wave 1 perf): @import em CSS
+   bloqueia o First Paint serialmente. Plus Jakarta Sans foi removido (não era
+   usado em lugar nenhum — confirmado por busca global). */
+
 
 @tailwind base;
 @tailwind components;

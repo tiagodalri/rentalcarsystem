@@ -19,4 +19,32 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
   },
+  build: {
+    // Wave 1 perf: split de vendor pra mobile não baixar 1 bundle gigante.
+    // Cada chunk é cacheado independente — mudança em supabase não invalida
+    // o react, etc. Ganho real no primeiro load mobile e nas navegações.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "supabase": ["@supabase/supabase-js"],
+          "motion": ["framer-motion"],
+          "query": ["@tanstack/react-query"],
+          "charts": ["recharts"],
+          // shadcn/radix pesa bastante somado — fica num chunk só.
+          "radix": [
+            "@radix-ui/react-dialog",
+            "@radix-ui/react-dropdown-menu",
+            "@radix-ui/react-popover",
+            "@radix-ui/react-select",
+            "@radix-ui/react-tabs",
+            "@radix-ui/react-tooltip",
+            "@radix-ui/react-toast",
+          ],
+        },
+      },
+    },
+    // Mensagens de chunk grande não param o build, mas avisam.
+    chunkSizeWarningLimit: 900,
+  },
 }));

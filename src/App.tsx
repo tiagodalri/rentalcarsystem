@@ -30,6 +30,7 @@ import { AdminShellSkeleton } from "./components/skeletons/AdminShellSkeleton.ts
 import { AccountSkeleton } from "./components/skeletons/AccountSkeleton.tsx";
 import InstallPrompt from "./components/InstallPrompt.tsx";
 import { useSwUpdateOnNavigate } from "./hooks/useSwUpdateOnNavigate.ts";
+import { useDynamicThemeColor } from "./hooks/useDynamicThemeColor.ts";
 
 // Lazy-loaded: client authenticated pages
 const MyAccount = lazy(() => import("./pages/MyAccount.tsx"));
@@ -67,6 +68,12 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
       refetchOnWindowFocus: false,
+      // Wave 2: PWA fica horas em background. Quando volta a ter rede, refaz
+      // queries para o usuário não ficar olhando dado de ontem sem aviso.
+      refetchOnReconnect: true,
+      // Mantém o backoff humano (não martela API em problema de rede móvel).
+      retry: 1,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 8000),
     },
   },
 });
@@ -109,6 +116,7 @@ const ScrollToTop = () => {
 
 const SwUpdateOnNavigate = () => {
   useSwUpdateOnNavigate();
+  useDynamicThemeColor();
   return null;
 };
 
