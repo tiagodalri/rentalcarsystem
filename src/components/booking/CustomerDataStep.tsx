@@ -142,8 +142,16 @@ export default function CustomerDataStep({ data, onChange }: Props) {
               )}
               {key === "email" && emailValid && (
                 <CheckCircle2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none" />
+              {key === "full_name" && nameValid && (
+                <CheckCircle2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none" />
               )}
             </div>
+            {key === "full_name" && showNameError && (
+              <p className="mt-1 text-[11px] text-destructive flex items-center gap-1">
+                <AlertCircle size={11} />
+                Informe nome e sobrenome completos (ex.: Miqueias Santos).
+              </p>
+            )}
             {key === "email" && showEmailError && (
               <p className="mt-1 text-[11px] text-destructive flex items-center gap-1">
                 <AlertCircle size={11} />
