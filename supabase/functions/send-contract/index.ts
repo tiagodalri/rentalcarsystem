@@ -21,6 +21,7 @@ const CLICKSIGN_AUTH_TOKEN = CLICKSIGN_API_TOKEN.replace(/^Bearer\s+/i, "").trim
 const CLICKSIGN_BASE_URL = (Deno.env.get("CLICKSIGN_BASE_URL") ?? "https://app.clicksign.com").replace(/\/$/, "");
 const ZEUS_SIGNER_EMAIL = Deno.env.get("ZEUS_SIGNER_EMAIL") ?? "zeusrentalcarorlando@gmail.com";
 const ZEUS_SIGNER_NAME = Deno.env.get("ZEUS_SIGNER_NAME") ?? "Zeus Rental Car";
+const ZEUS_AUTO_SIGN = (Deno.env.get("ZEUS_AUTO_SIGN") ?? "false").toLowerCase() === "true";
 
 const fmtDate = (d?: string | null) =>
   d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : "—";
@@ -822,7 +823,7 @@ Deno.serve(async (req) => {
       });
       const signerCustomerId = signerCustomerRes?.data?.id;
 
-      // 4) signer Zeus (locadora) — assina automaticamente via API
+      // 4) signer Zeus (locadora)
       const signerZeusRes = await cs(`/api/v3/envelopes/${envelopeId}/signers`, "POST", {
         data: {
           type: "signers",
@@ -831,12 +832,9 @@ Deno.serve(async (req) => {
             email: ZEUS_SIGNER_EMAIL,
             has_documentation: false,
             refusable: false,
-            // Zeus não recebe e-mail — assinatura é aplicada automaticamente
-            communicate_events: {
-              document_signed: "none",
-              signature_request: "none",
-              signature_reminder: "none",
-            },
+            communicate_events: ZEUS_AUTO_SIGN
+              ? { document_signed: "none", signature_request: "none", signature_reminder: "none" }
+              : { document_signed: "email", signature_request: "email", signature_reminder: "email" },
           },
         },
       });
@@ -844,13 +842,11 @@ Deno.serve(async (req) => {
 
       // 5) requirements (sign + auth) for each signer
       const reqBodies = [
-        { signer: signerCustomerId, action: "agree" },
         { signer: signerCustomerId, action: "provide_evidence", auth: "email" },
-        { signer: signerZeusId, action: "agree" },
-        { signer: signerZeusId, action: "provide_evidence", auth: "api" },
+        { signer: signerZeusId, action: "provide_evidence", auth: ZEUS_AUTO_SIGN ? "api" : "email" },
       ];
       for (const r of reqBodies) {
-        const attrs: any = { action: r.action, role: "sign" };
+        const attrs: any = { action: r.action };
         if (r.auth) attrs.auth = r.auth;
         await cs(`/api/v3/envelopes/${envelopeId}/requirements`, "POST", {
           data: {
@@ -869,11 +865,13 @@ Deno.serve(async (req) => {
         data: { id: envelopeId, type: "envelopes", attributes: { status: "running" } },
       });
 
-      // 7) Auto-assina como Zeus (locadora)
-      try {
-        await cs(`/api/v3/envelopes/${envelopeId}/signers/${signerZeusId}/sign`, "POST", undefined);
-      } catch (signErr) {
-        console.warn("[send-contract] auto-sign Zeus falhou (envelope segue válido para cliente):", signErr instanceof Error ? signErr.message : signErr);
+      // 7) Auto-assina como Zeus (locadora) — desligado por padrão; ligar via ZEUS_AUTO_SIGN=true
+      if (ZEUS_AUTO_SIGN) {
+        try {
+          await cs(`/api/v3/envelopes/${envelopeId}/signers/${signerZeusId}/sign`, "POST", undefined);
+        } catch (signErr) {
+          console.warn("[send-contract] auto-sign Zeus falhou (envelope segue válido para cliente):", signErr instanceof Error ? signErr.message : signErr);
+        }
       }
 
       await admin.from("bookings").update({
