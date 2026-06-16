@@ -46,6 +46,10 @@ export default function CustomerDataStep({ data, onChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [cepLoading, setCepLoading] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+  const emailSuggestion = suggestEmail(data.email || "");
+  const emailValid = isValidEmail(data.email || "");
+  const showEmailError = emailTouched && (data.email || "").length > 0 && !emailValid;
 
 
   const update = (key: string, value: string) => {
