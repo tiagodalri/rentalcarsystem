@@ -21,6 +21,7 @@ const CLICKSIGN_AUTH_TOKEN = CLICKSIGN_API_TOKEN.replace(/^Bearer\s+/i, "").trim
 const CLICKSIGN_BASE_URL = (Deno.env.get("CLICKSIGN_BASE_URL") ?? "https://app.clicksign.com").replace(/\/$/, "");
 const ZEUS_SIGNER_EMAIL = Deno.env.get("ZEUS_SIGNER_EMAIL") ?? "zeusrentalcarorlando@gmail.com";
 const ZEUS_SIGNER_NAME = Deno.env.get("ZEUS_SIGNER_NAME") ?? "Zeus Rental Car";
+const ZEUS_AUTO_SIGN = (Deno.env.get("ZEUS_AUTO_SIGN") ?? "false").toLowerCase() === "true";
 
 const fmtDate = (d?: string | null) =>
   d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : "—";
