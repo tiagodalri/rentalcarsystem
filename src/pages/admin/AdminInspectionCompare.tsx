@@ -146,7 +146,7 @@ export default function AdminInspectionCompare() {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/admin/bookings")}>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/admin/bookings")} aria-label="Voltar para reservas">
           <ChevronLeft size={20} />
         </Button>
         <div className="flex-1">
