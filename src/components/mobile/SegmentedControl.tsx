@@ -49,17 +49,17 @@ export function SegmentedControl<T extends string>({
             aria-selected={active}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "relative flex-1 inline-flex items-center justify-center gap-1.5 rounded-full px-3 text-[13.5px] font-medium transition-all duration-150 active:scale-[0.98]",
+              "relative flex-1 min-w-0 inline-flex items-center justify-center gap-1 overflow-hidden rounded-full px-2 text-[13px] font-medium transition-all duration-150 active:scale-[0.98]",
               active
                 ? "bg-background text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.06),0_4px_10px_-4px_rgba(0,0,0,0.18)]"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <span className="truncate">{opt.label}</span>
+            <span className="min-w-0 truncate">{opt.label}</span>
             {opt.badge != null && (
               <span
                 className={cn(
-                  "min-w-[18px] px-1.5 py-px rounded-full text-[10.5px] tabular-nums leading-tight",
+                  "shrink-0 min-w-[18px] px-1.5 py-px rounded-full text-[10.5px] tabular-nums leading-tight",
                   active
                     ? "bg-foreground/10 text-foreground"
                     : "bg-foreground/8 text-muted-foreground",
@@ -69,6 +69,7 @@ export function SegmentedControl<T extends string>({
               </span>
             )}
           </button>
+
         );
       })}
     </div>
