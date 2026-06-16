@@ -27,7 +27,7 @@ interface Props {
 }
 
 const fields = [
-  { key: "full_name", label: "Nome Completo *", icon: User, type: "text", placeholder: "Como está no documento", colSpan: 2 },
+  { key: "full_name", label: "Nome Completo *", icon: User, type: "text", placeholder: "Nome e sobrenome (como no documento)", colSpan: 2 },
   { key: "email", label: "E-mail *", icon: Mail, type: "email", placeholder: "voce@email.com", colSpan: 2 },
   { key: "phone", label: "Celular (WhatsApp) *", icon: Phone, type: "tel", placeholder: "+55 11 99999-0000", colSpan: 2 },
   { key: "date_of_birth", label: "Data de Nascimento *", icon: Calendar, type: "date", placeholder: "", colSpan: 2 },
@@ -47,9 +47,14 @@ export default function CustomerDataStep({ data, onChange }: Props) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const [cepLoading, setCepLoading] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
+  const [nameTouched, setNameTouched] = useState(false);
   const emailSuggestion = suggestEmail(data.email || "");
   const emailValid = isValidEmail(data.email || "");
   const showEmailError = emailTouched && (data.email || "").length > 0 && !emailValid;
+  const nameParts = (data.full_name || "").trim().split(/\s+/).filter(p => p.length >= 2);
+  const nameValid = nameParts.length >= 2;
+  const showNameError = nameTouched && (data.full_name || "").trim().length > 0 && !nameValid;
+
 
 
   const update = (key: string, value: string) => {
@@ -115,7 +120,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
                   autoComplete={key === "email" ? "email" : undefined}
                   value={(data as any)[key] ?? ""}
                   maxLength={key === "state" ? 2 : key === "zip_code" ? 9 : undefined}
-                  onBlur={() => { if (key === "email") setEmailTouched(true); }}
+                  onBlur={() => { if (key === "email") setEmailTouched(true); if (key === "full_name") setNameTouched(true); }}
                   onChange={(e) => {
                     let val: string = e.target.value;
                     if (key === "state") val = val.toUpperCase();
@@ -126,7 +131,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
 
                   placeholder={placeholder}
                   className={`w-full h-11 px-3 pr-9 rounded-md border bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
-                    key === "email" && showEmailError
+                    (key === "email" && showEmailError) || (key === "full_name" && showNameError)
                       ? "border-destructive/60 focus:ring-destructive/25 focus:border-destructive/60"
                       : "border-border/50 focus:ring-primary/25 focus:border-primary/40"
                   }`}
@@ -138,7 +143,16 @@ export default function CustomerDataStep({ data, onChange }: Props) {
               {key === "email" && emailValid && (
                 <CheckCircle2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none" />
               )}
+              {key === "full_name" && nameValid && (
+                <CheckCircle2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none" />
+              )}
             </div>
+            {key === "full_name" && showNameError && (
+              <p className="mt-1 text-[11px] text-destructive flex items-center gap-1">
+                <AlertCircle size={11} />
+                Informe nome e sobrenome completos (ex.: Miqueias Santos).
+              </p>
+            )}
             {key === "email" && showEmailError && (
               <p className="mt-1 text-[11px] text-destructive flex items-center gap-1">
                 <AlertCircle size={11} />
