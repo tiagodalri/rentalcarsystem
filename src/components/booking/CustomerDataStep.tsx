@@ -27,7 +27,7 @@ interface Props {
 }
 
 const fields = [
-  { key: "full_name", label: "Nome Completo *", icon: User, type: "text", placeholder: "Como está no documento", colSpan: 2 },
+  { key: "full_name", label: "Nome Completo *", icon: User, type: "text", placeholder: "Nome e sobrenome (como no documento)", colSpan: 2 },
   { key: "email", label: "E-mail *", icon: Mail, type: "email", placeholder: "voce@email.com", colSpan: 2 },
   { key: "phone", label: "Celular (WhatsApp) *", icon: Phone, type: "tel", placeholder: "+55 11 99999-0000", colSpan: 2 },
   { key: "date_of_birth", label: "Data de Nascimento *", icon: Calendar, type: "date", placeholder: "", colSpan: 2 },
