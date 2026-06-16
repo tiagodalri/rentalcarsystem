@@ -811,7 +811,7 @@ Deno.serve(async (req) => {
       });
       const signerCustomerId = signerCustomerRes?.data?.id;
 
-      // 4) signer Zeus
+      // 4) signer Zeus (locadora) — assina automaticamente via API
       const signerZeusRes = await cs(`/api/v3/envelopes/${envelopeId}/signers`, "POST", {
         data: {
           type: "signers",
@@ -819,13 +819,13 @@ Deno.serve(async (req) => {
             name: ZEUS_SIGNER_NAME,
             email: ZEUS_SIGNER_EMAIL,
             has_documentation: false,
-            refusable: true,
+            refusable: false,
+            // Zeus não recebe e-mail — assinatura é aplicada automaticamente
             communicate_events: {
-              document_signed: "email",
-              signature_request: "email",
-              signature_reminder: "email",
+              document_signed: "none",
+              signature_request: "none",
+              signature_reminder: "none",
             },
-            
           },
         },
       });
@@ -836,7 +836,7 @@ Deno.serve(async (req) => {
         { signer: signerCustomerId, action: "agree" },
         { signer: signerCustomerId, action: "provide_evidence", auth: "email" },
         { signer: signerZeusId, action: "agree" },
-        { signer: signerZeusId, action: "provide_evidence", auth: "email" },
+        { signer: signerZeusId, action: "provide_evidence", auth: "api" },
       ];
       for (const r of reqBodies) {
         const attrs: any = { action: r.action, role: "sign" };
@@ -858,6 +858,13 @@ Deno.serve(async (req) => {
         data: { id: envelopeId, type: "envelopes", attributes: { status: "running" } },
       });
 
+      // 7) Auto-assina como Zeus (locadora)
+      try {
+        await cs(`/api/v3/envelopes/${envelopeId}/signers/${signerZeusId}/sign`, "POST", undefined);
+      } catch (signErr) {
+        console.warn("[send-contract] auto-sign Zeus falhou (envelope segue válido para cliente):", signErr instanceof Error ? signErr.message : signErr);
+      }
+
       await admin.from("bookings").update({
         contract_status: "sent",
         clicksign_envelope_id: envelopeId,
@@ -867,6 +874,7 @@ Deno.serve(async (req) => {
       }).eq("id", bookingId);
 
       return json(200, { ok: true, envelope_id: envelopeId, document_key: documentKey });
+
     } catch (innerErr) {
       const msg = innerErr instanceof Error ? innerErr.message : String(innerErr);
       console.error("[send-contract] error:", msg);
