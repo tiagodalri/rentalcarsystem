@@ -842,13 +842,11 @@ Deno.serve(async (req) => {
 
       // 5) requirements (sign + auth) for each signer
       const reqBodies = [
-        { signer: signerCustomerId, action: "agree" },
         { signer: signerCustomerId, action: "provide_evidence", auth: "email" },
-        { signer: signerZeusId, action: "agree" },
         { signer: signerZeusId, action: "provide_evidence", auth: ZEUS_AUTO_SIGN ? "api" : "email" },
       ];
       for (const r of reqBodies) {
-        const attrs: any = { action: r.action, role: "sign" };
+        const attrs: any = { action: r.action };
         if (r.auth) attrs.auth = r.auth;
         await cs(`/api/v3/envelopes/${envelopeId}/requirements`, "POST", {
           data: {
