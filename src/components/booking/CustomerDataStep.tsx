@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
-import { User, Mail, Phone, Calendar, Globe, FileText, MapPin, Upload, Camera, Loader2, Building2 } from "lucide-react";
+import { User, Mail, Phone, Calendar, Globe, FileText, MapPin, Upload, Camera, Loader2, Building2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { isValidEmail, suggestEmail } from "@/lib/formValidators";
+
 
 export interface CustomerData {
   full_name: string;
