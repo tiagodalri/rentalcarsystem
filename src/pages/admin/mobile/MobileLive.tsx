@@ -44,7 +44,13 @@ export default function MobileLive() {
     <div className="fixed inset-0 top-14 bottom-16 z-10">
       {/* Map fills entire mobile viewport (under header & nav) */}
       <div className="absolute inset-0">
-        <GoogleFleetMap vehicles={onMap} selectedId={null} onSelect={() => {}} onOpen={(id) => navigate(`/admin/fleet/${id}`)} />
+        {/* No mobile, um único tap no marker já abre o veículo (não há hover/click duplo). */}
+        <GoogleFleetMap
+          vehicles={onMap}
+          selectedId={null}
+          onSelect={(id) => navigate(`/admin/fleet/${id}`)}
+          onOpen={(id) => navigate(`/admin/fleet/${id}`)}
+        />
       </div>
 
       {/* Floating KPI strip */}
