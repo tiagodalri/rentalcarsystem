@@ -189,6 +189,7 @@ export default function MobileSearchResults(p: Props) {
                   src={v.coverImage}
                   alt={v.name}
                   loading="lazy"
+                  decoding="async"
                   className={`absolute inset-0 w-full h-full object-cover ${
                     unavailable ? "grayscale opacity-70" : ""
                   }`}
