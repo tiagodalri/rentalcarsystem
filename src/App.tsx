@@ -30,6 +30,7 @@ import { AdminShellSkeleton } from "./components/skeletons/AdminShellSkeleton.ts
 import { AccountSkeleton } from "./components/skeletons/AccountSkeleton.tsx";
 import InstallPrompt from "./components/InstallPrompt.tsx";
 import { useSwUpdateOnNavigate } from "./hooks/useSwUpdateOnNavigate.ts";
+import { useDynamicThemeColor } from "./hooks/useDynamicThemeColor.ts";
 
 // Lazy-loaded: client authenticated pages
 const MyAccount = lazy(() => import("./pages/MyAccount.tsx"));
@@ -115,6 +116,7 @@ const ScrollToTop = () => {
 
 const SwUpdateOnNavigate = () => {
   useSwUpdateOnNavigate();
+  useDynamicThemeColor();
   return null;
 };
 
