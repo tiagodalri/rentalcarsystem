@@ -6,7 +6,7 @@ import {
   RotateCcw, Fuel, Activity, Trophy, Download,
 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, ReferenceLine, Tooltip } from "recharts";
-import { loadGoogleMaps } from "@/lib/googleMapsLoader";
+import { getGoogleMapsBrowserKey, loadGoogleMaps } from "@/lib/googleMapsLoader";
 import { useTripReplay, speedBand, type ReplayEvent, type ReplayPoint } from "@/hooks/useTripReplay";
 
 const GOLD = "#D4AF37";
@@ -475,7 +475,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
       });
 
       // ===== Static map URL =====
-      const apiKey = (import.meta as any).env?.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
+      const apiKey = getGoogleMapsBrowserKey();
       if (!apiKey) throw new Error("Google Maps key não configurada");
       const mapUrl =
         `https://maps.googleapis.com/maps/api/staticmap` +
