@@ -56,6 +56,12 @@ export default function CustomerDataStep({ data, onChange }: Props) {
     onChange({ ...data, [key]: value });
   };
 
+  const formatCep = (raw: string) => {
+    const d = raw.replace(/\D/g, "").slice(0, 8);
+    if (d.length <= 5) return d;
+    return `${d.slice(0, 5)}-${d.slice(5)}`;
+  };
+
   const lookupCep = async (cep: string) => {
     const clean = cep.replace(/\D/g, "");
     if (clean.length !== 8) return;
@@ -66,7 +72,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
       if (!result.erro) {
         onChange({
           ...data,
-          zip_code: cep,
+          zip_code: formatCep(cep),
           address: result.logradouro || data.address,
           district: result.bairro || data.district,
           city: result.localidade || data.city,
@@ -76,6 +82,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
     } catch { /* noop */ }
     setCepLoading(false);
   };
+
 
   return (
     <div className="rounded-xl border border-border/40 bg-card p-5 sm:p-6 space-y-5">
@@ -107,13 +114,16 @@ export default function CustomerDataStep({ data, onChange }: Props) {
                   inputMode={key === "email" ? "email" : key === "zip_code" || key === "document_number" || key === "house_number" ? "numeric" : undefined}
                   autoComplete={key === "email" ? "email" : undefined}
                   value={(data as any)[key] ?? ""}
-                  maxLength={key === "state" ? 2 : undefined}
+                  maxLength={key === "state" ? 2 : key === "zip_code" ? 9 : undefined}
                   onBlur={() => { if (key === "email") setEmailTouched(true); }}
                   onChange={(e) => {
-                    const val = key === "state" ? e.target.value.toUpperCase() : e.target.value;
+                    let val: string = e.target.value;
+                    if (key === "state") val = val.toUpperCase();
+                    if (key === "zip_code") val = formatCep(val);
                     update(key, val);
-                    if (key === "zip_code") lookupCep(e.target.value);
+                    if (key === "zip_code") lookupCep(val);
                   }}
+
                   placeholder={placeholder}
                   className={`w-full h-11 px-3 pr-9 rounded-md border bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
                     key === "email" && showEmailError
