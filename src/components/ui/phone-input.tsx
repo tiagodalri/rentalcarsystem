@@ -103,7 +103,7 @@ export function PhoneInput({ value, onChange, className = "", inputClassName = "
 
   return (
     <div className={`relative ${className}`}>
-      <div className="flex" ref={ref}>
+      <div className="relative flex" ref={ref}>
 
       {/* Country selector */}
       <button
