@@ -59,6 +59,8 @@ const AdminOpsToday = lazy(() => import("./pages/admin/AdminOpsToday.tsx"));
 const AdminFleetGantt = lazy(() => import("./pages/admin/AdminFleetGantt.tsx"));
 const AdminVehicleNew = lazy(() => import("./pages/admin/AdminVehicleNew.tsx"));
 const AdminBookingNew = lazy(() => import("./pages/admin/AdminBookingNew.tsx"));
+const AdminContracts = lazy(() => import("./pages/admin/AdminContracts.tsx"));
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -168,7 +170,9 @@ const App = () => (
                 <Route path="team" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminTeam /></AdminSuspense></RequireRole>} />
                 <Route path="ops-today" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminOpsToday /></AdminSuspense></RequireRole>} />
                 <Route path="calendar" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminFleetGantt /></AdminSuspense></RequireRole>} />
+                <Route path="contracts" element={<RequireRole roles={["admin","operations","support","finance"]}><AdminSuspense><AdminContracts /></AdminSuspense></RequireRole>} />
               </Route>
+
 
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

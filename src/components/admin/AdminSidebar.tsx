@@ -12,7 +12,9 @@ import {
   Sparkles,
   CalendarDays,
   ChevronDown,
+  FileSignature,
 } from "lucide-react";
+
 import zeusLogo from "@/assets/zeus-logo-mark.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAdminTabs } from "@/hooks/useAdminTabs";
@@ -62,9 +64,11 @@ const menuSections: MenuSection[] = [
     label: "Gestão",
     items: [
       { title: "Reservas",   url: "/admin/bookings",  icon: CalendarRange, allowedRoles: ["admin","operations","support"] },
+      { title: "Contratos",  url: "/admin/contracts", icon: FileSignature, allowedRoles: ["admin","operations","support","finance"] },
       { title: "Agenda", url: "/admin/calendar",  icon: CalendarDays,  allowedRoles: ["admin","operations","support"] },
       { title: "Frota",      url: "/admin/fleet",     icon: Car,           allowedRoles: ["admin","operations"] },
       { title: "Clientes",   url: "/admin/customers", icon: Users,         allowedRoles: ["admin","operations","support"] },
+
     ],
   },
   {
