@@ -176,7 +176,7 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
         {/* ═══════════ KPIs horizontais ═══════════ */}
         <section>
           <SectionLabel>Frota agora</SectionLabel>
-          <div className="-mx-4 px-4 flex gap-2.5 overflow-x-auto scrollbar-thin scroll-smooth snap-x snap-mandatory">
+          <div className="grid grid-cols-2 gap-2.5">
             <KpiChip
               label="Rodando"
               value={`${rodando}/${totalFrota}`}
@@ -206,6 +206,7 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
               onClick={() => navigate("/admin/bookings?status=pending")}
             />
           </div>
+
         </section>
 
         {/* ═══════════ Timeline do dia ═══════════ */}
