@@ -93,12 +93,14 @@ Deno.serve(async (req) => {
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     const update: Record<string, any> = {};
+    let isSignedEvent = false;
     switch (eventName) {
       case "auto_close":
       case "envelope_closed":
       case "close":
         update.contract_status = "signed";
         update.contract_signed_at = new Date().toISOString();
+        isSignedEvent = true;
         break;
       case "sign":
       case "signer_signed":
@@ -116,15 +118,59 @@ Deno.serve(async (req) => {
     }
 
     // Idempotency: if already signed, do not reprocess "signed" updates
-    if (update.contract_status === "signed") {
+    if (isSignedEvent) {
       const { data: existing } = await admin
         .from("bookings")
-        .select("contract_status")
+        .select("id, contract_status, contract_signed_pdf_url")
         .eq("clicksign_envelope_id", envelopeId)
         .maybeSingle();
-      if (existing?.contract_status === "signed") {
-        console.log("[clicksign-webhook] already signed, skipping");
+      if (existing?.contract_status === "signed" && existing?.contract_signed_pdf_url) {
+        console.log("[clicksign-webhook] already signed and archived, skipping");
         return new Response(JSON.stringify({ ok: true, idempotent: true }), { status: 200, headers: corsHeaders });
+      }
+
+      // Fetch signed PDF from Clicksign and store privately
+      if (existing?.id) {
+        try {
+          const CLICKSIGN_API_TOKEN = Deno.env.get("CLICKSIGN_API_TOKEN") ?? "";
+          const CLICKSIGN_BASE_URL = (Deno.env.get("CLICKSIGN_BASE_URL") ?? "https://app.clicksign.com").replace(/\/$/, "");
+          const authToken = CLICKSIGN_API_TOKEN.replace(/^Bearer\s+/i, "").trim();
+
+          const docsRes = await fetch(`${CLICKSIGN_BASE_URL}/api/v3/envelopes/${envelopeId}/documents`, {
+            headers: {
+              Authorization: authToken,
+              Accept: "application/vnd.api+json",
+            },
+          });
+          const docsJson = await docsRes.json();
+          const docs = Array.isArray(docsJson?.data) ? docsJson.data : [];
+          const signedDoc = docs.find((d: any) => d?.attributes?.signed_file_url || d?.attributes?.download_url) ?? docs[0];
+          const fileUrl =
+            signedDoc?.attributes?.signed_file_url ??
+            signedDoc?.attributes?.download_url ??
+            signedDoc?.attributes?.url;
+
+          if (fileUrl) {
+            const fileRes = await fetch(fileUrl);
+            const fileBytes = new Uint8Array(await fileRes.arrayBuffer());
+            const storagePath = `${existing.id}/contrato-assinado.pdf`;
+            const { error: upErr } = await admin.storage
+              .from("signed-contracts")
+              .upload(storagePath, fileBytes, {
+                contentType: "application/pdf",
+                upsert: true,
+              });
+            if (upErr) {
+              console.error("[clicksign-webhook] storage upload error:", upErr.message);
+            } else {
+              update.contract_signed_pdf_url = storagePath;
+            }
+          } else {
+            console.warn("[clicksign-webhook] signed file URL not found in Clicksign response");
+          }
+        } catch (e) {
+          console.error("[clicksign-webhook] failed to archive signed PDF:", e);
+        }
       }
     }
 
@@ -136,6 +182,7 @@ Deno.serve(async (req) => {
     if (error) console.error("[clicksign-webhook] update error:", error.message);
 
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders });
+
   } catch (e) {
     console.error("[clicksign-webhook] error:", e);
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders });
