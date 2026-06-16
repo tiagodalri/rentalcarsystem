@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
-  FileText,
   Loader2,
   RefreshCcw,
   Download,
@@ -14,6 +13,7 @@ import {
   XCircle,
   Search,
 } from "lucide-react";
+
 import { Input } from "@/components/ui/input";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { formatPersonName } from "@/lib/formatName";
