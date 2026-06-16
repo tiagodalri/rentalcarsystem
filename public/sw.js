@@ -113,6 +113,11 @@ self.addEventListener("fetch", (event) => {
   }
 
   // 2) Static assets -> StaleWhileRevalidate (hashes garantem invalidação).
+  //    IMPORTANTE: nunca cachear respostas !ok. Se o chunk sumiu do servidor
+  //    (404 pós-deploy), deixamos o erro propagar para o app — que dispara
+  //    location.reload() via o handler global de ChunkLoadError (main.tsx).
+  //    Antes, caches.match silenciosamente devolvia uma versão "boa" velha
+  //    enquanto o resto do bundle já estava em outro hash → tela branca.
   if (isAsset(request)) {
     event.respondWith(
       (async () => {
@@ -123,7 +128,7 @@ self.addEventListener("fetch", (event) => {
             if (res && res.ok) cache.put(request, res.clone());
             return res;
           })
-          .catch(() => cached);
+          .catch(() => cached || Response.error());
         return cached || network;
       })()
     );
