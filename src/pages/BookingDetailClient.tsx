@@ -398,15 +398,24 @@ const BookingDetailClient = () => {
                 )}
               </div>
 
-              {/* Contract — only show when reserva confirmada */}
-              {hasContractUrl && (
+              {/* Contract — sign / download */}
+              <ClientContractPanel
+                bookingId={dbBooking.id}
+                contractStatus={(dbBooking as any).contract_status ?? null}
+                signedAt={(dbBooking as any).contract_signed_at ?? null}
+                signedPdfPath={(dbBooking as any).contract_signed_pdf_url ?? null}
+              />
+
+              {/* Legacy: simple PDF preview button (rascunho não assinado) */}
+              {hasContractUrl && (dbBooking as any).contract_status !== "signed" && (
                 <div className="space-y-1.5">
                   <ContractButton bookingId={dbBooking.id} />
                   <p className="text-[10px] text-muted-foreground/70 text-center uppercase tracking-wider">
-                    Disponível após confirmação da reserva
+                    Pré-visualização (rascunho)
                   </p>
                 </div>
               )}
+
 
               {/* Actions for future */}
               {isFuture && (
