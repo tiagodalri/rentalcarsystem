@@ -448,7 +448,7 @@ export default function AdminInspectionReport() {
       <div className="laudo-print space-y-5 max-w-5xl mx-auto pb-12 print:max-w-full print:mx-0">
       {/* Top bar */}
       <div className="flex items-center gap-3 print:hidden">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/admin/bookings")}>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/admin/bookings")} aria-label="Voltar para reservas">
           <ChevronLeft size={20} />
         </Button>
         <div className="flex-1">

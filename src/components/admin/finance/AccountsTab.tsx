@@ -74,7 +74,7 @@ export function AccountsTab() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Switch checked={a.is_active} onCheckedChange={() => toggleActive(a)} />
-                      <Button variant="ghost" size="icon" onClick={() => { setEditing(a); setDialogOpen(true); }} className="h-7 w-7">
+                      <Button variant="ghost" size="icon" onClick={() => { setEditing(a); setDialogOpen(true); }} className="h-7 w-7" aria-label="Editar conta">
                         <Pencil size={12} />
                       </Button>
                     </div>

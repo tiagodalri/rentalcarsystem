@@ -102,13 +102,13 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
           {/* Nav */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={prevMonth}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={prevMonth} aria-label="Mês anterior">
                 <ChevronLeft size={16} />
               </Button>
               <h3 className="text-base sm:text-lg font-medium text-foreground min-w-[160px] text-center">
                 {MONTHS[month]} {year}
               </h3>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={nextMonth}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={nextMonth} aria-label="Próximo mês">
                 <ChevronRight size={16} />
               </Button>
             </div>

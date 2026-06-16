@@ -142,6 +142,33 @@
     touch-action: manipulation;
   }
 
+  /* A11y: visible keyboard focus ring on all interactive elements.
+     Mouse/touch users don't see it (focus-visible). */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  /* shadcn Buttons já têm ring próprio — não duplicar. */
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  a:focus-visible {
+    outline-offset: 3px;
+  }
+
+  /* A11y: respeitar preferência de movimento reduzido.
+     Desliga animações pesadas (Framer Motion, transitions longas). */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   img, video, svg {
     image-rendering: auto;
   }

@@ -1,6 +1,8 @@
 import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { DollarSign } from "lucide-react";
 import { SegmentedControl } from "@/components/mobile/SegmentedControl";
+import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { OverviewTab } from "@/components/admin/finance/OverviewTab";
 import { TransactionsTab } from "@/components/admin/finance/TransactionsTab";
 import { CategoriesTab } from "@/components/admin/finance/CategoriesTab";
@@ -9,6 +11,7 @@ import { AccountsTab } from "@/components/admin/finance/AccountsTab";
 /* ============================================================
    FINANCEIRO — Mobile-first
    Header compacto + segmented horizontal scrollable.
+   Pull-to-refresh invalida todas as queries ativas da rota.
    ============================================================ */
 
 const TABS = [
@@ -20,6 +23,7 @@ const TABS = [
 
 export default function MobileFinance() {
   const [params, setParams] = useSearchParams();
+  const qc = useQueryClient();
   const active = params.get("tab") || "overview";
   const setActive = (v: string) => {
     const next = new URLSearchParams(params);
@@ -28,25 +32,31 @@ export default function MobileFinance() {
     setParams(next, { replace: true });
   };
 
-  return (
-    <div className="pb-24">
-      <div className="px-4 pt-2">
-        <h1 className="admin-h1 text-2xl flex items-center gap-2">
-          <DollarSign className="h-5 w-5 text-primary" /> Financeiro
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">Visão geral da operação</p>
+  const handleRefresh = async () => {
+    await qc.invalidateQueries({ type: "active" });
+  };
 
-        <div className="mt-3">
-          <SegmentedControl value={active} onChange={setActive} options={TABS} />
+  return (
+    <PullToRefresh onRefresh={handleRefresh} className="h-full">
+      <div className="pb-24">
+        <div className="px-4 pt-2">
+          <h1 className="admin-h1 text-2xl flex items-center gap-2">
+            <DollarSign className="h-5 w-5 text-primary" /> Financeiro
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">Visão geral da operação</p>
+
+          <div className="mt-3">
+            <SegmentedControl value={active} onChange={setActive} options={TABS} />
+          </div>
+        </div>
+
+        <div className="mt-4 px-2">
+          {active === "overview" && <OverviewTab />}
+          {active === "transactions" && <TransactionsTab />}
+          {active === "categories" && <CategoriesTab />}
+          {active === "accounts" && <AccountsTab />}
         </div>
       </div>
-
-      <div className="mt-4 px-2">
-        {active === "overview" && <OverviewTab />}
-        {active === "transactions" && <TransactionsTab />}
-        {active === "categories" && <CategoriesTab />}
-        {active === "accounts" && <AccountsTab />}
-      </div>
-    </div>
+    </PullToRefresh>
   );
 }

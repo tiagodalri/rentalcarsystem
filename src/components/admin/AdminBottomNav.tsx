@@ -3,6 +3,8 @@ import { Sparkles, CalendarRange, Car, Users, Menu } from "lucide-react";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
 import { useSidebar } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptic";
+
 
 type Tab = {
   label: string;
@@ -56,7 +58,13 @@ export function AdminBottomNav() {
           if (tab.action === "open-sidebar") {
             return (
               <li key={tab.label}>
-                <button type="button" onClick={() => setOpenMobile(true)} className={baseClass} aria-label={tab.label}>
+                <button
+                  type="button"
+                  onClick={() => { haptic.tick(); setOpenMobile(true); }}
+                  className={baseClass}
+                  aria-label={tab.label}
+                  aria-current={isActive ? "page" : undefined}
+                >
                   {indicator}
                   <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2 : 1.6} />
                   <span className={cn("leading-none", isActive && "font-medium")}>{tab.label}</span>
@@ -67,7 +75,13 @@ export function AdminBottomNav() {
 
           return (
             <li key={tab.label}>
-              <NavLink to={tab.url!} className={baseClass} aria-label={tab.label}>
+              <NavLink
+                to={tab.url!}
+                onClick={() => haptic.tick()}
+                className={baseClass}
+                aria-label={tab.label}
+                aria-current={isActive ? "page" : undefined}
+              >
                 {indicator}
                 <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2 : 1.6} />
                 <span className={cn("leading-none", isActive && "font-medium")}>{tab.label}</span>

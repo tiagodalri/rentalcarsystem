@@ -122,7 +122,7 @@ export default function AdminVehicleHistory() {
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/admin/fleet")}>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/admin/fleet")} aria-label="Voltar para frota">
           <ChevronLeft size={20} />
         </Button>
         <div className="flex items-center gap-4 flex-1">

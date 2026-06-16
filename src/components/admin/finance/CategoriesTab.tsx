@@ -84,7 +84,7 @@ export function CategoriesTab() {
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <Switch checked={c.is_active} onCheckedChange={() => toggleActive(c)} />
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(c)} className="h-7 w-7">
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(c)} className="h-7 w-7" aria-label="Editar categoria">
                     <Pencil size={12} />
                   </Button>
                 </div>

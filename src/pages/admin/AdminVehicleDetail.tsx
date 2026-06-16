@@ -410,7 +410,7 @@ export default function AdminVehicleDetail() {
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/admin/fleet")} className="mt-1"><ChevronLeft size={20} /></Button>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/admin/fleet")} aria-label="Voltar para frota" className="mt-1"><ChevronLeft size={20} /></Button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="admin-h1 text-2xl">{vehicle.name}</h1>
