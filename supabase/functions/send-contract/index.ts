@@ -867,11 +867,13 @@ Deno.serve(async (req) => {
         data: { id: envelopeId, type: "envelopes", attributes: { status: "running" } },
       });
 
-      // 7) Auto-assina como Zeus (locadora)
-      try {
-        await cs(`/api/v3/envelopes/${envelopeId}/signers/${signerZeusId}/sign`, "POST", undefined);
-      } catch (signErr) {
-        console.warn("[send-contract] auto-sign Zeus falhou (envelope segue válido para cliente):", signErr instanceof Error ? signErr.message : signErr);
+      // 7) Auto-assina como Zeus (locadora) — desligado por padrão; ligar via ZEUS_AUTO_SIGN=true
+      if (ZEUS_AUTO_SIGN) {
+        try {
+          await cs(`/api/v3/envelopes/${envelopeId}/signers/${signerZeusId}/sign`, "POST", undefined);
+        } catch (signErr) {
+          console.warn("[send-contract] auto-sign Zeus falhou (envelope segue válido para cliente):", signErr instanceof Error ? signErr.message : signErr);
+        }
       }
 
       await admin.from("bookings").update({
