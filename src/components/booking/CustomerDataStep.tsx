@@ -131,7 +131,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
 
                   placeholder={placeholder}
                   className={`w-full h-11 px-3 pr-9 rounded-md border bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
-                    key === "email" && showEmailError
+                    (key === "email" && showEmailError) || (key === "full_name" && showNameError)
                       ? "border-destructive/60 focus:ring-destructive/25 focus:border-destructive/60"
                       : "border-border/50 focus:ring-primary/25 focus:border-primary/40"
                   }`}
