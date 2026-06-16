@@ -320,10 +320,10 @@ export function TransactionsTab() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => openEdit(t)} className="h-7 w-7">
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(t)} className="h-7 w-7" aria-label="Editar lançamento">
                             <Pencil size={12} />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => cancelTx(t)} className="h-7 w-7 text-red-500">
+                          <Button variant="ghost" size="icon" onClick={() => cancelTx(t)} className="h-7 w-7 text-red-500" aria-label="Cancelar lançamento">
                             <Ban size={12} />
                           </Button>
                         </div>

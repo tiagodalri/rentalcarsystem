@@ -212,13 +212,13 @@ export default function AdminFleetReport({
           <div className="flex items-center gap-2 flex-wrap justify-end">
             {!usingCustom && (
               <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(subMonths(month, 1))}>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(subMonths(month, 1))} aria-label="Mês anterior">
                   <ChevronLeft size={16} />
                 </Button>
                 <span className="text-sm font-medium text-foreground px-3 min-w-[140px] text-center capitalize">
                   {format(month, "MMMM yyyy", { locale: ptBR })}
                 </span>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(addMonths(month, 1))}>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMonth(addMonths(month, 1))} aria-label="Próximo mês">
                   <ChevronRight size={16} />
                 </Button>
               </div>
