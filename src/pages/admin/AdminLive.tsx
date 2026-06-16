@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 import MobileLive from "./mobile/MobileLive";
@@ -13,7 +13,12 @@ import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 import { VehicleDetailDrawer } from "@/components/admin/live/VehicleDetailDrawer";
 import { MapControlsPanel, useMapLayers } from "@/components/admin/live/MapControlsPanel";
 import { TripPickerDialog } from "@/components/admin/live/TripPickerDialog";
-import { TripReplayOverlay } from "@/components/admin/live/TripReplayOverlay";
+// Wave 3 perf: TripReplayOverlay tem ~1580 linhas e só carrega quando o
+// usuário escolhe uma viagem para reproduzir. Lazy split tira esse peso
+// do bundle inicial de /admin/live.
+const TripReplayOverlay = lazy(() =>
+  import("@/components/admin/live/TripReplayOverlay").then((m) => ({ default: m.TripReplayOverlay })),
+);
 import zeusZMark from "@/assets/zeus-z-mark.png";
 
 function formatRelative(iso: string | null): string {
@@ -490,12 +495,14 @@ function AdminLiveDesktop() {
         />
       )}
       {selectedVehicle && replayTripId && (
-        <TripReplayOverlay
-          vehicleId={selectedVehicle.vehicle_id}
-          vehicleName={selectedVehicle.name}
-          tripId={replayTripId}
-          onClose={() => setReplayTripId(null)}
-        />
+        <Suspense fallback={null}>
+          <TripReplayOverlay
+            vehicleId={selectedVehicle.vehicle_id}
+            vehicleName={selectedVehicle.name}
+            tripId={replayTripId}
+            onClose={() => setReplayTripId(null)}
+          />
+        </Suspense>
       )}
     </div>
   );
