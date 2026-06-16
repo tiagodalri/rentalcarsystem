@@ -50,7 +50,7 @@ const ClientContractPanel = ({ bookingId, contractStatus, signedAt, signedPdfPat
   };
 
   let header: { icon: typeof Clock; label: string; tone: string };
-  let body: React.ReactNode;
+  let body: ReactNode;
 
   switch (status) {
     case "signed":
