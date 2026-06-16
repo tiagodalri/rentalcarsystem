@@ -823,7 +823,7 @@ Deno.serve(async (req) => {
       });
       const signerCustomerId = signerCustomerRes?.data?.id;
 
-      // 4) signer Zeus (locadora) — assina automaticamente via API
+      // 4) signer Zeus (locadora)
       const signerZeusRes = await cs(`/api/v3/envelopes/${envelopeId}/signers`, "POST", {
         data: {
           type: "signers",
@@ -832,12 +832,9 @@ Deno.serve(async (req) => {
             email: ZEUS_SIGNER_EMAIL,
             has_documentation: false,
             refusable: false,
-            // Zeus não recebe e-mail — assinatura é aplicada automaticamente
-            communicate_events: {
-              document_signed: "none",
-              signature_request: "none",
-              signature_reminder: "none",
-            },
+            communicate_events: ZEUS_AUTO_SIGN
+              ? { document_signed: "none", signature_request: "none", signature_reminder: "none" }
+              : { document_signed: "email", signature_request: "email", signature_reminder: "email" },
           },
         },
       });
