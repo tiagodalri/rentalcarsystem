@@ -14,6 +14,7 @@ import { AdminFab } from "./AdminFab";
 import { AdminMobileHeader } from "./AdminMobileHeader";
 import { PainelHeaderWidgets } from "./PainelHeaderWidgets";
 import { AdminFabProvider } from "@/hooks/useAdminFab";
+import { usePrefetchAdminRoutes } from "@/hooks/usePrefetchAdminRoutes";
 
 import { AdminShellSkeleton } from "@/components/skeletons/AdminShellSkeleton";
 import { useThemeMode } from "@/i18n/ThemeContext";
@@ -25,6 +26,12 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const restrictedToastShown = useRef(false);
   const { theme, toggleTheme } = useThemeMode();
+
+  // Wave 2: depois que o admin está autenticado, baixa os chunks pesados
+  // em idle. Próxima navegação fica instantânea.
+  usePrefetchAdminRoutes(Boolean(user) && !loading);
+
+
 
   useEffect(() => {
     if (loading) return;
