@@ -1,4 +1,4 @@
-import { MoreVertical, Sun, Moon, Maximize2, Minimize2, Globe } from "lucide-react";
+import { MoreVertical, Sun, Moon, Maximize2, Minimize2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -7,26 +7,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { useThemeMode } from "@/i18n/ThemeContext";
-import { useLanguage } from "@/i18n/LanguageContext";
 import { useAdminPageTitle } from "@/hooks/useAdminPageTitle";
-
-const LANG_OPTIONS: Array<{ code: "pt" | "en" | "es" | "fr" | "de" | "it"; label: string }> = [
-  { code: "pt", label: "Português" },
-  { code: "en", label: "English" },
-  { code: "es", label: "Español" },
-  { code: "fr", label: "Français" },
-  { code: "de", label: "Deutsch" },
-  { code: "it", label: "Italiano" },
-];
 
 export function AdminMobileHeader() {
   const title = useAdminPageTitle();
   const { theme, toggleTheme } = useThemeMode();
-  const { language, setLanguage } = useLanguage() as any;
   const [isFs, setIsFs] = useState(false);
   const [fsSupported, setFsSupported] = useState(true);
 
@@ -83,19 +70,6 @@ export function AdminMobileHeader() {
               {isFs ? "Sair da tela cheia" : "Tela cheia"}
             </DropdownMenuItem>
           )}
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Globe className="h-3 w-3" /> Idioma
-          </DropdownMenuLabel>
-          {LANG_OPTIONS.map((l) => (
-            <DropdownMenuItem
-              key={l.code}
-              onClick={() => setLanguage?.(l.code)}
-              className={language === l.code ? "font-semibold" : undefined}
-            >
-              {l.label}
-            </DropdownMenuItem>
-          ))}
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
