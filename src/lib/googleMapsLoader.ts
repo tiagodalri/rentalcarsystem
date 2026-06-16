@@ -1,48 +1,107 @@
 // Singleton loader for Google Maps JavaScript API.
-// Loads once, returns the same promise on subsequent calls.
+// - Tries available keys in order for the current host.
+// - Suppresses Google's default `gm_authFailure` full-page overlay and
+//   automatically retries with the next candidate key (eliminates the
+//   intermittent "Ops! Algo deu errado / Esta página não carregou o
+//   Google Maps corretamente" screen).
+// - Remembers which key worked in sessionStorage for stability across navigations.
+
+const KEY_CACHE_STORAGE = "zeus:gmaps:working-key";
 
 let loaderPromise: Promise<any> | null = null;
+let resolvedKey: string | undefined;
+
+function readEnvKeys(): { preview?: string; custom?: string; connector?: string } {
+  return {
+    preview: import.meta.env.VITE_ZEUS_GOOGLE_MAPS_PREVIEW_BROWSER_KEY as string | undefined,
+    custom: import.meta.env.VITE_ZEUS_GOOGLE_MAPS_CUSTOM_BROWSER_KEY as string | undefined,
+    connector: import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined,
+  };
+}
+
+function getCandidateKeys(): string[] {
+  if (typeof window === "undefined") return [];
+  const hostname = window.location.hostname;
+  const isLovableHost =
+    hostname.endsWith(".lovableproject.com") ||
+    hostname.endsWith(".lovable.app") ||
+    hostname === "localhost";
+
+  const { preview, custom, connector } = readEnvKeys();
+  const ordered = isLovableHost
+    ? [preview, connector, custom]
+    : [custom, connector, preview];
+
+  // Deduplicate, drop empty, prepend the cached working key if still valid.
+  const seen = new Set<string>();
+  const out: string[] = [];
+
+  try {
+    const cached = window.sessionStorage?.getItem(KEY_CACHE_STORAGE) || undefined;
+    if (cached && ordered.includes(cached)) {
+      out.push(cached);
+      seen.add(cached);
+    }
+  } catch (_) { /* ignore */ }
+
+  for (const k of ordered) {
+    if (!k || seen.has(k)) continue;
+    seen.add(k);
+    out.push(k);
+  }
+  return out;
+}
 
 export function getGoogleMapsBrowserKey(): string | undefined {
-  const hostname = typeof window !== "undefined" ? window.location.hostname : "";
-  const isLovableHost = hostname.endsWith(".lovableproject.com") || hostname.endsWith(".lovable.app") || hostname === "localhost";
-
-  const previewKey = import.meta.env.VITE_ZEUS_GOOGLE_MAPS_PREVIEW_BROWSER_KEY as string | undefined;
-  const customDomainKey = import.meta.env.VITE_ZEUS_GOOGLE_MAPS_CUSTOM_BROWSER_KEY as string | undefined;
-  const connectorKey = import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined;
-
-  return isLovableHost
-    ? previewKey || customDomainKey || connectorKey
-    : customDomainKey || connectorKey || previewKey;
+  if (resolvedKey) return resolvedKey;
+  return getCandidateKeys()[0];
 }
 
 export function getGoogleMapsTrackingId(): string | undefined {
-  return (import.meta.env.VITE_ZEUS_GOOGLE_MAPS_TRACKING_ID || import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID) as string | undefined;
+  return (import.meta.env.VITE_ZEUS_GOOGLE_MAPS_TRACKING_ID ||
+    import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_TRACKING_ID) as string | undefined;
 }
 
-export function loadGoogleMaps(): Promise<any> {
-  if (typeof window === "undefined") {
-    return Promise.reject(new Error("Google Maps requires a browser environment"));
-  }
+function loadWithKey(apiKey: string, channel: string | undefined): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const cbName = `__zeusInitGmaps_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    let settled = false;
+    let authFailed = false;
 
-  if ((window as any).google?.maps) {
-    return Promise.resolve((window as any).google);
-  }
+    const cleanup = () => {
+      try { delete (window as any)[cbName]; } catch (_) { /* ignore */ }
+    };
 
-  if (loaderPromise) return loaderPromise;
+    // Intercept Google's auth failure callback. Google calls this AFTER the script
+    // loads successfully but the key is rejected for this referrer. By defining it
+    // ourselves we suppress the default full-page overlay.
+    const prevAuthFailure = (window as any).gm_authFailure;
+    (window as any).gm_authFailure = () => {
+      authFailed = true;
+      // Tear down the broken google object so the next key attempt can re-init.
+      try {
+        delete (window as any).google;
+      } catch (_) {
+        (window as any).google = undefined;
+      }
+      // Remove any maps script tags so a retry can re-inject cleanly.
+      document
+        .querySelectorAll<HTMLScriptElement>('script[src*="maps.googleapis.com/maps/api/js"]')
+        .forEach((s) => s.parentElement?.removeChild(s));
+      if (!settled) {
+        settled = true;
+        cleanup();
+        reject(new Error("gm_authFailure"));
+      }
+      // Restore any pre-existing handler so we don't leak our shim long-term.
+      (window as any).gm_authFailure = prevAuthFailure;
+    };
 
-  const apiKey = getGoogleMapsBrowserKey();
-  const channel = getGoogleMapsTrackingId();
-
-  if (!apiKey) {
-    return Promise.reject(new Error("Google Maps browser key não configurada"));
-  }
-
-  loaderPromise = new Promise((resolve, reject) => {
-    const cbName = `__zeusInitGmaps_${Date.now()}`;
     (window as any)[cbName] = () => {
+      if (settled || authFailed) return;
+      settled = true;
+      cleanup();
       resolve((window as any).google);
-      delete (window as any)[cbName];
     };
 
     const params = new URLSearchParams({
@@ -59,11 +118,56 @@ export function loadGoogleMaps(): Promise<any> {
     script.async = true;
     script.defer = true;
     script.onerror = () => {
-      loaderPromise = null;
-      reject(new Error("Falha ao carregar Google Maps"));
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error("Falha ao carregar Google Maps (network)"));
     };
     document.head.appendChild(script);
   });
+}
+
+export function loadGoogleMaps(): Promise<any> {
+  if (typeof window === "undefined") {
+    return Promise.reject(new Error("Google Maps requires a browser environment"));
+  }
+
+  if ((window as any).google?.maps) {
+    return Promise.resolve((window as any).google);
+  }
+
+  if (loaderPromise) return loaderPromise;
+
+  const candidates = getCandidateKeys();
+  const channel = getGoogleMapsTrackingId();
+
+  if (candidates.length === 0) {
+    return Promise.reject(new Error("Google Maps browser key não configurada"));
+  }
+
+  loaderPromise = (async () => {
+    let lastErr: unknown = null;
+    for (const key of candidates) {
+      try {
+        const google = await loadWithKey(key, channel);
+        resolvedKey = key;
+        try { window.sessionStorage?.setItem(KEY_CACHE_STORAGE, key); } catch (_) { /* ignore */ }
+        return google;
+      } catch (e) {
+        lastErr = e;
+        // Invalidate the cached key if it just failed.
+        try {
+          if (window.sessionStorage?.getItem(KEY_CACHE_STORAGE) === key) {
+            window.sessionStorage.removeItem(KEY_CACHE_STORAGE);
+          }
+        } catch (_) { /* ignore */ }
+        // Try next candidate on next loop iteration.
+      }
+    }
+    // All candidates failed — clear singleton so next call can retry from scratch.
+    loaderPromise = null;
+    throw (lastErr instanceof Error ? lastErr : new Error("Falha ao carregar Google Maps"));
+  })();
 
   return loaderPromise;
 }
