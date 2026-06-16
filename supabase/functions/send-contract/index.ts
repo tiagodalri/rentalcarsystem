@@ -687,22 +687,28 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) return json(401, { error: "Unauthorized" });
 
-    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(token);
-    if (claimsErr || !claimsData?.claims) return json(401, { error: "Unauthorized" });
-    const userId = claimsData.claims.sub;
-
+    const bearer = authHeader.replace("Bearer ", "").trim();
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    const { data: roleRows } = await admin
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userId);
-    const roles = (roleRows ?? []).map((r: any) => r.role);
-    if (!roles.some((r) => r === "admin" || r === "operations")) {
-      return json(403, { error: "Forbidden" });
+
+    // Allow internal service-role calls (e.g. cambioreal-webhook trigger)
+    const isServiceCall = bearer === SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!isServiceCall) {
+      const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(bearer);
+      if (claimsErr || !claimsData?.claims) return json(401, { error: "Unauthorized" });
+      const userId = claimsData.claims.sub;
+
+      const { data: roleRows } = await admin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+      const roles = (roleRows ?? []).map((r: any) => r.role);
+      if (!roles.some((r) => r === "admin" || r === "operations")) {
+        return json(403, { error: "Forbidden" });
+      }
     }
 
     const body = await req.json().catch(() => ({}));
@@ -710,6 +716,7 @@ Deno.serve(async (req) => {
     if (!bookingId || typeof bookingId !== "string") {
       return json(400, { error: "booking_id obrigatorio" });
     }
+
 
     const { data: booking, error: bErr } = await admin
       .from("bookings").select("*").eq("id", bookingId).maybeSingle();
