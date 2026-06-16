@@ -56,6 +56,12 @@ export default function CustomerDataStep({ data, onChange }: Props) {
     onChange({ ...data, [key]: value });
   };
 
+  const formatCep = (raw: string) => {
+    const d = raw.replace(/\D/g, "").slice(0, 8);
+    if (d.length <= 5) return d;
+    return `${d.slice(0, 5)}-${d.slice(5)}`;
+  };
+
   const lookupCep = async (cep: string) => {
     const clean = cep.replace(/\D/g, "");
     if (clean.length !== 8) return;
@@ -66,7 +72,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
       if (!result.erro) {
         onChange({
           ...data,
-          zip_code: cep,
+          zip_code: formatCep(cep),
           address: result.logradouro || data.address,
           district: result.bairro || data.district,
           city: result.localidade || data.city,
@@ -76,6 +82,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
     } catch { /* noop */ }
     setCepLoading(false);
   };
+
 
   return (
     <div className="rounded-xl border border-border/40 bg-card p-5 sm:p-6 space-y-5">
