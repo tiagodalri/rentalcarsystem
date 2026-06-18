@@ -45,7 +45,7 @@ type Booking = {
   paid_at?: string | null;
   deposit_amount?: number | null;
   franchise_amount?: number | null;
-  stripe_session_id?: string | null;
+  
 };
 
 type Customer = {
@@ -818,7 +818,7 @@ export default function AdminBookingDetail() {
               pix: "PIX",
               cash: "Dinheiro",
               bank_transfer: "Transferência",
-              stripe: "Stripe",
+              cambioreal: "Câmbio Real",
             };
 
             return (

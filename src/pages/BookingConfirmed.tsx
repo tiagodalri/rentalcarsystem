@@ -24,90 +24,41 @@ interface BookingData {
 
 const BookingConfirmed = () => {
   const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get("session_id");
+  const bookingNumberParam = searchParams.get("booking");
 
   const [booking, setBooking] = useState<BookingData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
-    if (!sessionId) {
+    if (!bookingNumberParam) {
       setLoading(false);
       return;
     }
 
-    const fetchBookingAndSendEmail = async () => {
+    const fetchBooking = async () => {
       try {
         const { data, error } = await supabase
           .from("bookings")
           .select("id, booking_number, customer_email, customer_name, vehicle_id, pickup_date, pickup_time, pickup_location, return_date, return_time, total_price, vehicles(name)")
-          .eq("stripe_session_id", sessionId)
+          .eq("booking_number", bookingNumberParam)
           .single();
 
         if (error || !data) {
-          console.warn("Could not fetch booking by stripe_session_id:", error?.message);
+          console.warn("Could not fetch booking:", error?.message);
           setLoading(false);
           return;
         }
 
-        const bookingData = data as unknown as BookingData;
-        setBooking(bookingData);
-        setLoading(false);
-
-        // Fire-and-forget: send booking-confirmation email
-        if (!emailSent) {
-          setEmailSent(true);
-
-          // Get customer preferred language
-          let lang: "pt" | "en" = "pt";
-          try {
-            const { data: custData } = await supabase
-              .from("customers")
-              .select("preferred_language")
-              .eq("email", bookingData.customer_email)
-              .maybeSingle();
-            if (custData?.preferred_language === "en") lang = "en";
-          } catch {
-            // default pt
-          }
-
-          const firstName = (bookingData.customer_name || "").split(" ")[0];
-          const vehicleName = bookingData.vehicles?.name || "";
-          const totalFormatted = bookingData.total_price
-            ? `$ ${bookingData.total_price.toFixed(2)}`
-            : "—";
-
-          supabase.functions
-            .invoke("send-email", {
-              body: {
-                templateName: "booking-confirmation",
-                recipientEmail: bookingData.customer_email,
-                idempotencyKey: `booking-confirmation-${bookingData.id}`,
-                language: lang,
-                templateData: {
-                  firstName,
-                  bookingNumber: bookingData.booking_number,
-                  vehicleName,
-                  pickupDate: bookingData.pickup_date,
-                  pickupTime: bookingData.pickup_time || "",
-                  returnDate: bookingData.return_date,
-                  returnTime: bookingData.return_time || "",
-                  pickupLocation: bookingData.pickup_location || "Orlando, FL",
-                  totalPrice: totalFormatted,
-                  bookingDetailsUrl: `${window.location.origin}/minha-conta`,
-                },
-              },
-            })
-            .catch((err) => console.warn("Booking confirmation email failed:", err));
-        }
+        setBooking(data as unknown as BookingData);
       } catch (err) {
         console.error("Error fetching booking:", err);
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchBookingAndSendEmail();
-  }, [sessionId]);
+    fetchBooking();
+  }, [bookingNumberParam]);
 
   const bookingNumber = booking?.booking_number || "—";
 
@@ -191,12 +142,6 @@ const BookingConfirmed = () => {
                   <div className="flex justify-between items-center pt-2 border-t border-border/30">
                     <span className="text-xs text-muted-foreground uppercase tracking-wider">Total</span>
                     <span className="text-sm font-bold">$ {booking.total_price.toFixed(2)}</span>
-                  </div>
-                )}
-                {sessionId && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">ID do Pagamento</span>
-                    <span className="text-[10px] font-mono text-muted-foreground truncate max-w-[180px]">{sessionId}</span>
                   </div>
                 )}
               </div>

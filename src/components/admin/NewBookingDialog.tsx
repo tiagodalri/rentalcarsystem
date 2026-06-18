@@ -41,9 +41,9 @@ const STATUS_OPTIONS = [
 ];
 
 const PAYMENT_METHODS = [
+  "Câmbio Real",
   "Cartão de Crédito",
   "Cartão de Débito",
-  "Stripe",
   "PayPal",
   "PIX",
   "Dinheiro",
