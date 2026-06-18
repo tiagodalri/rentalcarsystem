@@ -117,6 +117,7 @@ const ScrollToTop = () => {
 const SwUpdateOnNavigate = () => {
   useSwUpdateOnNavigate();
   useDynamicThemeColor();
+  useNativeFeel();
   return null;
 };
 
