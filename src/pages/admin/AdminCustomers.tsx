@@ -154,15 +154,14 @@ function AdminCustomersDesktop() {
 
     let driverLicenseFileUrl = (editing as any).driver_license_file_url || null;
 
-    // Upload file if new one selected (apenas regular)
+    // Upload file if new one selected (apenas regular) → private customer-licenses bucket.
     if (!isTuro && licenseFile) {
-      const ext = licenseFile.name.split(".").pop();
-      const path = `licenses/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("inspections").upload(path, licenseFile);
-      if (!uploadErr) {
-        const { data: urlData } = supabase.storage.from("inspections").getPublicUrl(path);
-        driverLicenseFileUrl = urlData.publicUrl;
-      }
+      const path = await uploadCnhAsStaff(
+        licenseFile,
+        (editing as any).user_id ?? null,
+        editing.id || "new",
+      );
+      if (path) driverLicenseFileUrl = path;
     }
 
     const payload: any = isTuro
