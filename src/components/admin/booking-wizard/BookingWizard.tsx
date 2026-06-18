@@ -39,9 +39,9 @@ interface Props {
 const DRAFT_KEY = "booking-wizard-v1";
 
 const PAYMENT_METHODS = [
+  "Câmbio Real",
   "Cartão de Crédito",
   "Cartão de Débito",
-  "Stripe",
   "PIX",
   "Dinheiro",
   "Transferência Bancária",
