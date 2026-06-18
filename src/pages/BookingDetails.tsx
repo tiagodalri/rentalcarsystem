@@ -18,6 +18,7 @@ import { useVehiclesDB, buildPriceMap, buildTrimMap, categoryToKey } from "@/hoo
 import { useVehiclePricing } from "@/hooks/useVehiclePricing";
 import { getCoverImage } from "@/data/vehicleImages";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadCnh } from "@/lib/cnhStorage";
 import { useToast } from "@/hooks/use-toast";
 import PlanSelector from "@/components/booking/PlanSelector";
 import CustomerDataStep, { type CustomerData } from "@/components/booking/CustomerDataStep";

@@ -17,6 +17,7 @@ import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import { formatPersonName } from "@/lib/formatName";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
 import { ensureTuroTagAssigned } from "@/lib/turoTag";
+import { uploadCnhAsStaff, getCnhViewUrl } from "@/lib/cnhStorage";
 
 type CustomerSource = "regular" | "turo";
 
@@ -469,9 +470,17 @@ function AdminCustomersDesktop() {
                       </p>
                     )}
                     {(editing as any).driver_license_file_url && !licenseFile && (
-                      <a href={(editing as any).driver_license_file_url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline mt-1 inline-block">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const url = await getCnhViewUrl((editing as any).driver_license_file_url);
+                          if (url) window.open(url, "_blank", "noopener,noreferrer");
+                          else toast({ title: "Não foi possível abrir o documento", variant: "destructive" });
+                        }}
+                        className="text-[10px] text-primary hover:underline mt-1 inline-block"
+                      >
                         Ver documento atual →
-                      </a>
+                      </button>
                     )}
                   </div>
 
