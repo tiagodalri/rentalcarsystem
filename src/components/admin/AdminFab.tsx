@@ -9,7 +9,7 @@ export function AdminFab() {
   return (
     <button
       type="button"
-      onClick={(e) => { haptic.tap(); fab.onClick(e as any); }}
+      onClick={() => { haptic.tap(); fab.onClick(); }}
       aria-label={fab.label}
       className="lg:hidden fixed right-4 z-40 h-14 w-14 rounded-full bg-foreground text-background flex items-center justify-center active:scale-95 transition-all duration-150 ring-1 ring-foreground/10"
       style={{
