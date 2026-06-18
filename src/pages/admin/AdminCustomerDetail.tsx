@@ -341,9 +341,17 @@ export default function AdminCustomerDetail() {
               {(customer as any).driver_license_file_url && (
                 <div className="mt-3 pt-3 border-t border-border/20">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium mb-1">CNH Anexada</p>
-                  <a href={(customer as any).driver_license_file_url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const { getCnhViewUrl } = await import("@/lib/cnhStorage");
+                      const url = await getCnhViewUrl((customer as any).driver_license_file_url);
+                      if (url) window.open(url, "_blank", "noopener,noreferrer");
+                    }}
+                    className="text-xs text-primary hover:underline"
+                  >
                     Ver documento →
-                  </a>
+                  </button>
                 </div>
               )}
               {customer.notes && (

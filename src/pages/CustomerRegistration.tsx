@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
+import { uploadCnh } from "@/lib/cnhStorage";
 
 const passwordSchema = z
   .string()
@@ -120,23 +121,16 @@ const CustomerRegistration = () => {
       });
 
       // 2. Upload CNH AFTER signup so RLS sees an authenticated user.
-      // If upload fails, don't fail the whole signup — just warn the user.
+      // Stored privately in customer-licenses; we save the storage path, not a public URL.
       if (licenseFile) {
         try {
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) throw new Error("Sessão não encontrada após cadastro.");
-
-          const ext = licenseFile.name.split(".").pop();
-          const path = `licenses/${user.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-          const { error: uploadError } = await supabase.storage
-            .from("inspections")
-            .upload(path, licenseFile);
-          if (uploadError) throw uploadError;
-
-          const { data: urlData } = supabase.storage.from("inspections").getPublicUrl(path);
+          const path = await uploadCnh(licenseFile);
+          if (!path) throw new Error("upload retornou vazio");
           await supabase
             .from("customers")
-            .update({ driver_license_file_url: urlData.publicUrl })
+            .update({ driver_license_file_url: path })
             .eq("user_id", user.id);
         } catch (uploadErr: any) {
           console.error("CNH upload failed:", uploadErr);

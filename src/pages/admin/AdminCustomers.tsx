@@ -17,6 +17,7 @@ import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import { formatPersonName } from "@/lib/formatName";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
 import { ensureTuroTagAssigned } from "@/lib/turoTag";
+import { uploadCnhAsStaff, getCnhViewUrl } from "@/lib/cnhStorage";
 
 type CustomerSource = "regular" | "turo";
 
@@ -154,15 +155,14 @@ function AdminCustomersDesktop() {
 
     let driverLicenseFileUrl = (editing as any).driver_license_file_url || null;
 
-    // Upload file if new one selected (apenas regular)
+    // Upload file if new one selected (apenas regular) → private customer-licenses bucket.
     if (!isTuro && licenseFile) {
-      const ext = licenseFile.name.split(".").pop();
-      const path = `licenses/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("inspections").upload(path, licenseFile);
-      if (!uploadErr) {
-        const { data: urlData } = supabase.storage.from("inspections").getPublicUrl(path);
-        driverLicenseFileUrl = urlData.publicUrl;
-      }
+      const path = await uploadCnhAsStaff(
+        licenseFile,
+        (editing as any).user_id ?? null,
+        editing.id || "new",
+      );
+      if (path) driverLicenseFileUrl = path;
     }
 
     const payload: any = isTuro
@@ -470,9 +470,17 @@ function AdminCustomersDesktop() {
                       </p>
                     )}
                     {(editing as any).driver_license_file_url && !licenseFile && (
-                      <a href={(editing as any).driver_license_file_url} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline mt-1 inline-block">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const url = await getCnhViewUrl((editing as any).driver_license_file_url);
+                          if (url) window.open(url, "_blank", "noopener,noreferrer");
+                          else toast({ title: "Não foi possível abrir o documento", variant: "destructive" });
+                        }}
+                        className="text-[10px] text-primary hover:underline mt-1 inline-block"
+                      >
                         Ver documento atual →
-                      </a>
+                      </button>
                     )}
                   </div>
 

@@ -18,6 +18,7 @@ import { useVehiclesDB, buildPriceMap, buildTrimMap, categoryToKey } from "@/hoo
 import { useVehiclePricing } from "@/hooks/useVehiclePricing";
 import { getCoverImage } from "@/data/vehicleImages";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadCnh } from "@/lib/cnhStorage";
 import { useToast } from "@/hooks/use-toast";
 import PlanSelector from "@/components/booking/PlanSelector";
 import CustomerDataStep, { type CustomerData } from "@/components/booking/CustomerDataStep";
@@ -240,16 +241,13 @@ const BookingDetails = () => {
     setCheckoutError(null);
 
     try {
-      // Upload license file if provided
+      // Upload license file if provided. Requires an authenticated session
+      // (private customer-licenses bucket). For anonymous guest checkout we
+      // skip the upload — the customer can attach it later from Minha Conta.
       let driverLicenseUrl: string | null = null;
       if (customerData.licenseFile) {
-        const ext = customerData.licenseFile.name.split(".").pop();
-        const path = `licenses/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("inspections").upload(path, customerData.licenseFile);
-        if (!uploadError) {
-          const { data: urlData } = supabase.storage.from("inspections").getPublicUrl(path);
-          driverLicenseUrl = urlData.publicUrl;
-        }
+        const path = await uploadCnh(customerData.licenseFile);
+        if (path) driverLicenseUrl = path;
       }
 
       // Create or link customer
