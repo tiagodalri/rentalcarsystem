@@ -160,6 +160,26 @@
     touch-action: manipulation;
   }
 
+  /* Mobile: garante area de toque minima (44x44 — Apple HIG / WCAG 2.5.5).
+     Aplicado apenas em <=lg para nao mexer no layout denso de desktop/admin. */
+  @media (max-width: 1023px) {
+    button:not(.no-min-tap),
+    a[role="button"]:not(.no-min-tap),
+    [role="button"]:not(.no-min-tap) {
+      min-height: 44px;
+    }
+  }
+
+  /* Defesa extra contra overflow horizontal: imagens/midias largas nao podem
+     estourar o viewport, e textos longos (URLs, emails) precisam quebrar. */
+  img, video, canvas, svg, iframe {
+    max-width: 100%;
+  }
+  p, span, h1, h2, h3, h4, h5, h6, li, a, td, th {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
   /* A11y: visible keyboard focus ring on all interactive elements.
      Mouse/touch users don't see it (focus-visible). */
   :focus-visible {
