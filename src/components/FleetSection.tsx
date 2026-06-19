@@ -238,8 +238,9 @@ const FleetSection = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           <AnimatePresence mode="popLayout">
-            {filtered.map((v) => {
+            {filtered.map((v, idx) => {
               const vehicleT = t.vehicles[v.name];
+              const eager = idx < 3;
               return (
                 <motion.div
                   key={v.name}
@@ -248,18 +249,28 @@ const FleetSection = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
-                  className="group relative overflow-hidden rounded-2xl cursor-pointer hover-lift border border-border/10 hover:border-primary/20"
+                  className="group relative overflow-hidden rounded-2xl cursor-pointer hover-lift border border-border/10 hover:border-primary/20 bg-card"
                   onClick={() => navigate(`/veiculo/${encodeURIComponent(v.name)}`)}
                 >
-                  <div className="relative h-64 overflow-hidden">
+                  <div className="relative h-64 overflow-hidden bg-muted/40">
+                    {/* shimmer skeleton enquanto carrega — evita "card vazio" */}
+                    <div
+                      aria-hidden
+                      className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted/60 via-muted/30 to-muted/60"
+                    />
                     <img
                       src={v.coverImage}
                       alt={v.name}
-                      className="w-full h-full object-cover object-[center_40%] transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
+                      className="relative w-full h-full object-cover object-[center_40%] transition-transform duration-700 group-hover:scale-105"
+                      loading={eager ? "eager" : "lazy"}
                       decoding="async"
+                      fetchPriority={eager ? "high" : "auto"}
                       width={1280}
                       height={720}
+                      onLoad={(e) => {
+                        const prev = (e.currentTarget.previousElementSibling as HTMLElement | null);
+                        if (prev) prev.style.display = "none";
+                      }}
                     />
 
                     {v.preparing && (
@@ -287,7 +298,7 @@ const FleetSection = () => {
               );
             })}
 
-            {/* "Coming Soon" surprise cards */}
+            {/* "Coming Soon" surprise cards — mesma estrutura/altura dos cards reais */}
             {[1, 2].map((i) => (
               <motion.div
                 key={`surprise-${i}`}
@@ -295,22 +306,27 @@ const FleetSection = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: 0.1 * i }}
-                className="relative overflow-hidden rounded-xl border-2 border-dashed border-primary/20 hover:border-primary/40 transition-all duration-300"
+                className="relative overflow-hidden rounded-2xl border border-dashed border-primary/25 bg-card"
               >
-                <div className="relative h-[22rem] flex flex-col items-center justify-center bg-card/40 backdrop-blur-sm">
-                  {/* Glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-transparent to-primary/[0.06]" />
-
-                  <div className="relative z-10 text-center px-6">
-                    <Diamond size={40} className="text-primary mx-auto mb-4" strokeWidth={1} />
+                <div className="relative h-64 flex items-center justify-center bg-gradient-to-br from-primary/[0.04] via-transparent to-primary/[0.08]">
+                  <div className="text-center px-6">
+                    <Diamond size={36} className="text-primary mx-auto mb-3" strokeWidth={1} />
                     <p className="text-sm text-muted-foreground italic font-light">
-                      Novidade exclusiva chegando à frota Zeus
+                      Novidade chegando à frota Zeus
                     </p>
-                    <div className="mt-4 inline-block px-4 py-1.5 rounded-full border border-primary/30 bg-primary/[0.06]">
-                      <span className="text-[11px] text-primary font-semibold uppercase tracking-widest">
-                        ✦ Surpresa
-                      </span>
-                    </div>
+                  </div>
+                </div>
+                <div className="bg-card px-5 py-4 border-t border-border/40">
+                  <h3 className="text-lg font-black uppercase tracking-wider text-foreground/70">
+                    Em breve
+                  </h3>
+                  <p className="text-xs text-primary font-medium italic mt-1">
+                    Surpresa exclusiva
+                  </p>
+                  <div className="flex items-center gap-5 mt-3 text-xs text-muted-foreground/60">
+                    <span className="flex items-center gap-1.5">
+                      <Diamond size={12} className="text-primary" /> aguarde
+                    </span>
                   </div>
                 </div>
               </motion.div>
