@@ -37,26 +37,37 @@ const FleetSection = () => {
   const { t } = useLanguage();
   const { vehicles: dbVehicles } = useVehiclesDB();
 
-  // Merge DB data with local image assets (DB photos win when present)
-  const vehicles: Vehicle[] = dbVehicles.map((dbv: any) => {
-    const gallery = galleryMap[dbv.name] || { images: [], thumbs: [] };
-    const dbPhotos: string[] = Array.isArray(dbv?.photos)
-      ? dbv.photos.map((p: any) => (typeof p === "string" ? p : p?.url)).filter((u: any) => typeof u === "string" && u)
-      : [];
-    const cover = (typeof dbv?.image_url === "string" && dbv.image_url) || dbPhotos[0] || coverImageMap[dbv.name] || "/placeholder.svg";
-    const images = dbPhotos.length ? dbPhotos : gallery.images;
-    const thumbs = dbPhotos.length ? dbPhotos : gallery.thumbs;
-    return {
-      name: dbv.name,
-      categoryKey: categoryToKey(dbv.category),
-      passengers: dbv.passengers,
-      luggage: dbv.bags,
-      coverImage: cover,
-      galleryImages: images,
-      galleryThumbs: thumbs,
-      preparing: dbv.status === "preparing",
-    };
-  });
+  // Merge DB data with local image assets (DB photos win when present).
+  // Dedup by name so duplicate fleet entries (ex: 2 "Chrysler Pacifica") nao
+  // estouram a chave do React/AnimatePresence (bug que causava tela em branco).
+  const seenNames = new Set<string>();
+  const vehicles: Vehicle[] = dbVehicles
+    .filter((dbv: any) => {
+      const name = (dbv?.name || "").trim();
+      if (!name || seenNames.has(name)) return false;
+      seenNames.add(name);
+      return true;
+    })
+    .map((dbv: any) => {
+      const name = (dbv.name || "").trim();
+      const gallery = galleryMap[name] || { images: [], thumbs: [] };
+      const dbPhotos: string[] = Array.isArray(dbv?.photos)
+        ? dbv.photos.map((p: any) => (typeof p === "string" ? p : p?.url)).filter((u: any) => typeof u === "string" && u)
+        : [];
+      const cover = (typeof dbv?.image_url === "string" && dbv.image_url) || dbPhotos[0] || coverImageMap[name] || "/placeholder.svg";
+      const images = dbPhotos.length ? dbPhotos : gallery.images;
+      const thumbs = dbPhotos.length ? dbPhotos : gallery.thumbs;
+      return {
+        name,
+        categoryKey: categoryToKey(dbv.category),
+        passengers: dbv.passengers,
+        luggage: dbv.bags,
+        coverImage: cover,
+        galleryImages: images,
+        galleryThumbs: thumbs,
+        preparing: dbv.status === "preparing",
+      };
+    });
 
   const categoryLabels: Record<string, string> = {
     all: t.fleet.all,
