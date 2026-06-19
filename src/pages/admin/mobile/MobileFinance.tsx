@@ -39,11 +39,9 @@ export default function MobileFinance() {
   return (
     <PullToRefresh onRefresh={handleRefresh} className="h-full">
       <div className="pb-24">
-        <div className="px-4 pt-2">
-          <h1 className="admin-h1 text-2xl flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-primary" /> Financeiro
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">Visão geral da operação</p>
+        <div className="px-4 pt-1">
+          <p className="text-xs text-muted-foreground">Visão geral da operação</p>
+
 
           <div className="mt-3">
             <SegmentedControl value={active} onChange={setActive} options={TABS} />

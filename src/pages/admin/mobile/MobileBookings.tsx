@@ -89,9 +89,9 @@ export default function MobileBookings() {
     <PullToRefresh onRefresh={load}>
       <div className="pb-28">
         {/* Header */}
-        <div className="px-4 pt-2">
-          <h1 className="admin-h1 text-2xl">Reservas</h1>
-          <p className="text-xs text-muted-foreground mt-1">{filtered.length} de {items.length}</p>
+        <div className="px-4 pt-1">
+          <p className="text-xs text-muted-foreground">{filtered.length} de {items.length}</p>
+
 
           {/* Search */}
           <div className="mt-3 relative">
@@ -135,7 +135,17 @@ export default function MobileBookings() {
         {/* List */}
         <div className="mt-4 space-y-2 px-4">
           {loading ? (
-            <div className="py-12 text-center text-sm text-muted-foreground">Carregando…</div>
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="h-[88px] rounded-xl bg-card border border-border/40 overflow-hidden flex">
+                <div className="w-1 bg-muted" />
+                <div className="flex-1 p-3.5 space-y-2">
+                  <div className="h-3 w-1/2 rounded bg-muted animate-pulse" />
+                  <div className="h-2.5 w-2/3 rounded bg-muted/70 animate-pulse" />
+                  <div className="h-2.5 w-1/3 rounded bg-muted/60 animate-pulse" />
+                </div>
+              </div>
+            ))
+
           ) : filtered.length === 0 ? (
             <div className="py-12 text-center text-sm text-muted-foreground">Nenhuma reserva encontrada.</div>
           ) : filtered.map((b) => {

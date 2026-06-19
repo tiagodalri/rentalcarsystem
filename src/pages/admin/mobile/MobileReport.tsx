@@ -23,9 +23,9 @@ export default function MobileReport() {
   return (
     <PullToRefresh onRefresh={handleRefresh} className="h-full">
       <div className="pb-24">
-        <div className="px-4 pt-2">
-          <h1 className="admin-h1 text-2xl">Relatório</h1>
-          <p className="text-xs text-muted-foreground mt-1">Desempenho e rentabilidade</p>
+        <div className="px-4 pt-1">
+          <p className="text-xs text-muted-foreground">Desempenho e rentabilidade</p>
+
           <div className="mt-3">
             <SegmentedControl
               value={tab}

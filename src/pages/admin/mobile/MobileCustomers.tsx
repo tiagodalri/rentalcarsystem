@@ -69,8 +69,8 @@ export default function MobileCustomers() {
           <CustomersSubNav />
         </div>
         <div className="px-4">
-          <h1 className="admin-h1 text-2xl">Clientes</h1>
-          <p className="text-xs text-muted-foreground mt-1">{filtered.length} cadastrados</p>
+          <p className="text-xs text-muted-foreground">{filtered.length} cadastrados</p>
+
 
           <div className="mt-3 relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -90,7 +90,18 @@ export default function MobileCustomers() {
 
         <div className="mt-4">
           {loading ? (
-            <div className="px-4 py-12 text-center text-sm text-muted-foreground">Carregando…</div>
+            <div className="px-4 space-y-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-14 rounded-xl bg-card border border-border/40 flex items-center px-4 gap-3">
+                  <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-2.5 w-1/2 rounded bg-muted animate-pulse" />
+                    <div className="h-2 w-1/3 rounded bg-muted/60 animate-pulse" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
           ) : grouped.length === 0 ? (
             <div className="px-4 py-12 text-center text-sm text-muted-foreground">Nenhum cliente.</div>
           ) : grouped.map(([letter, list]) => (
