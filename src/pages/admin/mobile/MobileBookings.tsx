@@ -89,9 +89,9 @@ export default function MobileBookings() {
     <PullToRefresh onRefresh={load}>
       <div className="pb-28">
         {/* Header */}
-        <div className="px-4 pt-2">
-          <h1 className="admin-h1 text-2xl">Reservas</h1>
-          <p className="text-xs text-muted-foreground mt-1">{filtered.length} de {items.length}</p>
+        <div className="px-4 pt-1">
+          <p className="text-xs text-muted-foreground">{filtered.length} de {items.length}</p>
+
 
           {/* Search */}
           <div className="mt-3 relative">
