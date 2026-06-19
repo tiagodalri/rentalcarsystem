@@ -47,11 +47,9 @@ export default function MobileTeam() {
   return (
     <PullToRefresh onRefresh={load}>
       <div className="pb-24">
-        <div className="px-4 pt-2">
-          <h1 className="admin-h1 text-2xl flex items-center gap-2">
-            <UsersRound className="h-5 w-5 text-primary" /> Equipe
-          </h1>
-          <p className="text-xs text-muted-foreground mt-1">{filtered.length} membros</p>
+        <div className="px-4 pt-1">
+          <p className="text-xs text-muted-foreground">{filtered.length} membros</p>
+
 
           <div className="mt-3 relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
