@@ -69,8 +69,8 @@ export default function MobileCustomers() {
           <CustomersSubNav />
         </div>
         <div className="px-4">
-          <h1 className="admin-h1 text-2xl">Clientes</h1>
-          <p className="text-xs text-muted-foreground mt-1">{filtered.length} cadastrados</p>
+          <p className="text-xs text-muted-foreground">{filtered.length} cadastrados</p>
+
 
           <div className="mt-3 relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
