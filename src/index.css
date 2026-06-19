@@ -161,12 +161,11 @@
   }
 
   /* Mobile: garante area de toque minima (44x44 — Apple HIG / WCAG 2.5.5).
-     Aplicado apenas em <=lg para nao mexer no layout denso de desktop/admin. */
+     Opt-in via .tap-44 para nao quebrar grids densos do admin/header. */
   @media (max-width: 1023px) {
-    button:not(.no-min-tap),
-    a[role="button"]:not(.no-min-tap),
-    [role="button"]:not(.no-min-tap) {
+    .tap-44 {
       min-height: 44px;
+      min-width: 44px;
     }
   }
 
