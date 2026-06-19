@@ -62,11 +62,11 @@ export default function MobileFleet() {
   return (
     <PullToRefresh onRefresh={load}>
       <div className="pb-28">
-        <div className="px-4 pt-2">
-          <h1 className="admin-h1 text-2xl">Frota</h1>
-          <p className="text-xs text-muted-foreground mt-1">
+        <div className="px-4 pt-1">
+          <p className="text-xs text-muted-foreground">
             {items.length} veículos · {items.filter((v) => v.published).length} publicados
           </p>
+
 
           <div className="mt-3 relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
