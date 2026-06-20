@@ -371,9 +371,9 @@ const HowItWorksSection = () => {
 
           <h2 className="section-heading mt-1">
             Experiência{" "}
-            <span className="gold-text italic font-black normal-case">concierge</span>
+            <span className="gold-text italic font-black">concierge</span>
             <br className="hidden sm:block" />{" "}
-            <span className="text-muted-foreground font-light normal-case">do início ao fim</span>
+            <span className="text-muted-foreground font-light">do início ao fim</span>
           </h2>
 
           <p className="section-subtitle">
