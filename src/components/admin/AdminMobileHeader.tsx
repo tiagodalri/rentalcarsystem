@@ -11,6 +11,7 @@ import {
 import { useThemeMode } from "@/i18n/ThemeContext";
 import { useAdminPageTitle } from "@/hooks/useAdminPageTitle";
 import { useAdminFab } from "@/hooks/useAdminFab";
+import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 import { haptic } from "@/lib/haptic";
 
 export function AdminMobileHeader() {
@@ -20,6 +21,7 @@ export function AdminMobileHeader() {
   const FabIcon = fab?.icon;
   const [isFs, setIsFs] = useState(false);
   const [fsSupported, setFsSupported] = useState(true);
+  const hidden = useHideOnScroll({ topOffset: 60, threshold: 10 });
 
   useEffect(() => {
     const doc: any = document;
@@ -41,11 +43,12 @@ export function AdminMobileHeader() {
 
   return (
     <header
-      className="lg:hidden sticky top-0 z-30 flex items-center gap-1 px-2 bg-background/95 backdrop-blur-md"
+      className="lg:hidden sticky top-0 z-30 flex items-center gap-1 px-2 bg-background/95 backdrop-blur-md transition-transform duration-300 ease-out will-change-transform"
       style={{
         paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)",
         paddingBottom: "10px",
         boxShadow: "inset 0 -1px 0 hsl(var(--border) / 0.6)",
+        transform: hidden ? "translateY(-110%)" : "translateY(0)",
       }}
     >
       <SidebarTrigger className="admin-icon-btn" aria-label="Abrir menu" />

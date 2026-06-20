@@ -13,10 +13,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const hidden = useHideOnScroll({ topOffset: 120, threshold: 12 });
+  // Never hide when the mobile drawer is open.
+  const shouldHide = hidden && !mobileOpen;
 
   // Lock body scroll while mobile menu is open.
   // iOS Safari fix: use position:fixed + top:-scrollY so the drawer (position:fixed)
@@ -101,11 +105,14 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 safe-top ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 safe-top will-change-transform ${
         scrolled
           ? "bg-background/85 backdrop-blur-xl border-b border-border/30 shadow-lg shadow-foreground/10"
           : "bg-background/40 backdrop-blur-md lg:bg-transparent lg:backdrop-blur-0"
-      }`}
+      } lg:!translate-y-0`}
+      style={{
+        transform: shouldHide ? "translateY(-110%)" : "translateY(0)",
+      }}
     >
       <div className="container mx-auto relative flex items-center justify-between pt-3 pb-3 sm:py-4 px-5 sm:px-6 lg:px-8 safe-x">
 
