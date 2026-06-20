@@ -1,45 +1,17 @@
-import { useEffect, useLayoutEffect, useRef } from "react";
-import { useLocation, useNavigationType } from "react-router-dom";
+import { useEffect } from "react";
 
 /**
- * Camada "sente como nativo" — duas melhorias globais:
+ * Camada "sente como nativo" — focado em UX do teclado virtual.
  *
- *  1) Transições suaves entre rotas via View Transitions API (Chrome/Edge/Safari 18+).
- *     Fallback silencioso onde não há suporte: troca instantânea, sem flash.
- *     Honra prefers-reduced-motion via CSS (não anima quando o usuário pediu).
- *
- *  2) Auto-scroll do input focado para o centro da viewport quando o teclado
- *     virtual abre no mobile. Combinado com `interactive-widget=resizes-content`
- *     no viewport, elimina o bug clássico de "o teclado tampa o campo".
+ * As transições entre rotas via View Transitions API foram REMOVIDAS:
+ * o callback de startViewTransition captura o snapshot da página antiga,
+ * mas o React Router atualiza fora dele — durante a animação o navegador
+ * pintava o background (preto no dark) por alguns frames, causando o
+ * "flash preto" relatado ao navegar/voltar no PWA. Vamos preferir troca
+ * instantânea e estável a transição vistosa porém bugada.
  */
 export function useNativeFeel() {
-  const { pathname } = useLocation();
-  const navType = useNavigationType();
-  const prevPath = useRef(pathname);
 
-  // 1) View Transitions: slide direcional quando a rota muda.
-  //    PUSH => entra pela direita (forward). POP => entra pela esquerda (back),
-  //    imitando o push/pop nativo de iOS/Android.
-  useLayoutEffect(() => {
-    if (prevPath.current === pathname) return;
-    prevPath.current = pathname;
-
-    const doc: any = document;
-    const root = document.documentElement;
-    const direction = navType === "POP" ? "back" : "forward";
-    root.dataset.navDirection = direction;
-
-    if (typeof doc.startViewTransition !== "function") return;
-    try {
-      const transition = doc.startViewTransition(() => {});
-      const cleanup = () => {
-        if (root.dataset.navDirection === direction) {
-          delete root.dataset.navDirection;
-        }
-      };
-      transition?.finished?.then?.(cleanup, cleanup);
-    } catch { /* no-op */ }
-  }, [pathname, navType]);
 
   // 2) Centralizar input focado quando teclado virtual abre.
   useEffect(() => {
