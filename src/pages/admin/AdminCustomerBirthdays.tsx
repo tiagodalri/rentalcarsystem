@@ -252,7 +252,7 @@ export default function AdminCustomerBirthdays() {
 
       {/* Content */}
       {loading ? (
-        <div className="py-16 text-center text-sm text-muted-foreground">Carregando aniversariantes…</div>
+        <LoadingRows count={5} rowHeight={64} className="px-0" />
       ) : currentList.length === 0 ? (
         <EmptyState
           icon={Cake}
