@@ -53,17 +53,17 @@ const DealsSection = () => {
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2 leading-none">
-                  <span className="text-4xl sm:text-5xl font-black gold-text tabular-nums tracking-tight">
+                  <span className="text-[40px] sm:text-[48px] font-black gold-text tabular-nums tracking-tight">
                     10%
                   </span>
-                  <span className="text-base sm:text-lg font-bold uppercase tracking-[0.18em] text-foreground/80">
+                  <span className="text-[14px] sm:text-[15px] font-bold uppercase tracking-[0.18em] text-foreground/80">
                     OFF
                   </span>
                 </div>
-                <p className="text-[13px] sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+                <p className="card-body mt-2">
                   {t.deals.discount10}
                 </p>
-                <div className="mt-3 inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.16em] text-primary/90 border-t border-primary/15 pt-2.5">
+                <div className="mt-3 inline-flex items-center gap-1.5 card-eyebrow border-t border-primary/15 pt-2.5">
                   <span className="w-1 h-1 rounded-full bg-primary" /> Aplicado automaticamente no checkout
                 </div>
               </div>
