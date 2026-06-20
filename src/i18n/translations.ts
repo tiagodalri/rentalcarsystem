@@ -315,9 +315,9 @@ export const translations: Record<Language, TranslationKeys> = {
     deals: {
       title: "Special ",
       titleHighlight: "Deals",
-      subtitle: "Special conditions for your reservation. The more days, the bigger the discount.",
+      subtitle: "The longer you stay with Zeus, the more you save.",
       discount5: "2 to 5 rental days",
-      discount10: "7+ rental days",
+      discount10: "Bookings over 10 days",
     },
     whyZeus: {
       title: "Why choose ",
