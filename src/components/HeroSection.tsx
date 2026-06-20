@@ -27,16 +27,13 @@ const HeroSection = () => {
 
       <div className="relative z-10 container mx-auto px-4 text-center flex flex-col items-center gap-3 md:gap-5">
         {/* Logo */}
-        <motion.img
+        <img
           src={zeusLogo}
           alt="Zeus Rental Car"
           loading="eager"
-          width={1269}
-          height={607}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)]"
+          width={800}
+          height={383}
+          className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)] animate-fade-in"
           style={{ imageRendering: "-webkit-optimize-contrast" }}
         />
 
