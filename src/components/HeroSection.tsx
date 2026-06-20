@@ -31,8 +31,8 @@ const HeroSection = () => {
           src={zeusLogo}
           alt="Zeus Rental Car"
           loading="eager"
-          width={176}
-          height={176}
+          width={1584}
+          height={672}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
