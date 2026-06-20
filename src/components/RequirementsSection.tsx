@@ -80,7 +80,7 @@ const RequirementsSection = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="mt-10 sm:mt-12 text-sm text-muted-foreground font-light text-center leading-relaxed max-w-xl mx-auto"
+          className="mt-10 sm:mt-12 card-body text-center max-w-xl mx-auto"
         >
           {t.requirements.footer}
         </motion.p>
