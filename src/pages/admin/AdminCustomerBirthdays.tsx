@@ -8,6 +8,7 @@ import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 
 /* ============================================================
    ANIVERSARIANTES — Visão estratégica para marketing
