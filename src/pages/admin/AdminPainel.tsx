@@ -268,7 +268,8 @@ export default function AdminPainel() {
           {showFinancial && (
             <DeltaCard
               label="Receita do mês"
-              value={fmtUSD(monthRevenue)}
+              value={monthRevenue}
+              format={fmtUSD}
               delta={pct(monthRevenue, prevRevenue)}
               prev={`Anterior: ${fmtUSD(prevRevenue)}`}
               icon={DollarSign}
@@ -276,7 +277,8 @@ export default function AdminPainel() {
           )}
           <DeltaCard
             label="Reservas no mês"
-            value={fmtNum(monthCount)}
+            value={monthCount}
+            format={fmtNum}
             delta={pct(monthCount, prevCount)}
             prev={`Anterior: ${fmtNum(prevCount)}`}
             icon={CalendarRange}
@@ -284,7 +286,8 @@ export default function AdminPainel() {
           {showFinancial && (
             <DeltaCard
               label="Ticket médio"
-              value={fmtUSD(ticketAvg)}
+              value={ticketAvg}
+              format={fmtUSD}
               delta={pct(ticketAvg, prevTicket)}
               prev={`Anterior: ${fmtUSD(prevTicket)}`}
               icon={TrendingUp}
