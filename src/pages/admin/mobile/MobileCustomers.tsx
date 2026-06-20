@@ -149,34 +149,50 @@ export default function MobileCustomers() {
               <div className="px-4 py-1.5 text-[10px] uppercase tracking-[0.18em] font-semibold text-muted-foreground bg-muted/40 sticky top-0 backdrop-blur z-10">
                 {letter}
               </div>
-              {list.map((c) => (
-                <div key={c.id} className="flex items-center px-4 py-3 border-b border-border/30 bg-card">
-                  <button
-                    onClick={() => navigate(`/admin/customers/${c.id}`)}
-                    className="flex items-center gap-3 flex-1 min-w-0 text-left"
-                  >
-                    <div className="h-10 w-10 rounded-full bg-primary/15 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                      {initials(c.full_name) || "?"}
+              {list.map((c) => {
+                const isTuro = c.source === "turo";
+                return (
+                  <div key={c.id} className="flex items-center px-4 py-3 border-b border-border/30 bg-card">
+                    <button
+                      onClick={() => navigate(`/admin/customers/${c.id}`)}
+                      className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                    >
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${
+                        isTuro ? "bg-purple-500/15 text-purple-600" : "bg-primary/15 text-primary"
+                      }`}>
+                        {isTuro ? <Car size={16} /> : (initials(c.full_name) || "?")}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <div className="text-sm font-medium truncate">{formatPersonName(c.full_name)}</div>
+                          {isTuro && (
+                            <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-[1px] rounded-full bg-purple-500/12 text-purple-600 text-[9px] font-semibold uppercase tracking-wider">
+                              <Car size={8} /> Turo
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {isTuro
+                            ? (c.turo_guest_id ? `Guest #${c.turo_guest_id}` : "Hóspede Turo")
+                            : (c.phone || c.email || "—")}
+                        </div>
+                      </div>
+                    </button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {!isTuro && c.phone && (
+                        <>
+                          <a href={`tel:${onlyDigits(c.phone)}`} className="h-9 w-9 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center active:bg-emerald-500/20">
+                            <Phone size={15} />
+                          </a>
+                          <a href={`https://wa.me/${onlyDigits(c.phone)}`} target="_blank" rel="noreferrer" className="h-9 w-9 rounded-full bg-[#25D366]/15 text-[#1ea152] flex items-center justify-center active:bg-[#25D366]/25">
+                            <MessageCircle size={15} />
+                          </a>
+                        </>
+                      )}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium truncate">{formatPersonName(c.full_name)}</div>
-                      <div className="text-xs text-muted-foreground truncate">{c.phone || c.email || "—"}</div>
-                    </div>
-                  </button>
-                  <div className="flex items-center gap-1 shrink-0">
-                    {c.phone && (
-                      <>
-                        <a href={`tel:${onlyDigits(c.phone)}`} className="h-9 w-9 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center active:bg-emerald-500/20">
-                          <Phone size={15} />
-                        </a>
-                        <a href={`https://wa.me/${onlyDigits(c.phone)}`} target="_blank" rel="noreferrer" className="h-9 w-9 rounded-full bg-[#25D366]/15 text-[#1ea152] flex items-center justify-center active:bg-[#25D366]/25">
-                          <MessageCircle size={15} />
-                        </a>
-                      </>
-                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ))}
         </div>
