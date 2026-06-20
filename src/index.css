@@ -129,20 +129,46 @@
   }
 
   /* Native-feel page transitions via View Transitions API.
-     Falls back to nothing in browsers without support (Safari <18, Firefox). */
+     Forward (PUSH): nova entra pela direita, antiga sai pela esquerda.
+     Back (POP):     nova entra pela esquerda, antiga sai pela direita.
+     Fallback: sem suporte => troca instantânea. Respeita reduced-motion. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0ms;
+    /* Evita mistura de opacidade durante o slide => parece troca de cartão sólido */
+    mix-blend-mode: normal;
+  }
   @media (prefers-reduced-motion: no-preference) {
-    ::view-transition-old(root) {
-      animation: zeus-fade-out 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    /* Forward (default e PUSH) */
+    html[data-nav-direction="forward"] ::view-transition-old(root) {
+      animation: zeus-slide-out-left 280ms cubic-bezier(0.32, 0.72, 0, 1) both;
     }
-    ::view-transition-new(root) {
-      animation: zeus-fade-in 220ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    html[data-nav-direction="forward"] ::view-transition-new(root) {
+      animation: zeus-slide-in-right 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+    /* Back (POP / botão voltar) */
+    html[data-nav-direction="back"] ::view-transition-old(root) {
+      animation: zeus-slide-out-right 280ms cubic-bezier(0.32, 0.72, 0, 1) both;
+    }
+    html[data-nav-direction="back"] ::view-transition-new(root) {
+      animation: zeus-slide-in-left 320ms cubic-bezier(0.32, 0.72, 0, 1) both;
     }
   }
-  @keyframes zeus-fade-out {
-    to { opacity: 0; transform: translateY(-4px); }
+  @keyframes zeus-slide-in-right {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
   }
-  @keyframes zeus-fade-in {
-    from { opacity: 0; transform: translateY(6px); }
+  @keyframes zeus-slide-out-left {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-22%); opacity: 0.6; }
+  }
+  @keyframes zeus-slide-in-left {
+    from { transform: translateX(-22%); opacity: 0.6; }
+    to   { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes zeus-slide-out-right {
+    from { transform: translateX(0); }
+    to   { transform: translateX(100%); }
   }
 
   /* iOS: prevent focus-zoom on form fields (anything <16px triggers it).
