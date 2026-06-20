@@ -15,14 +15,14 @@ const DealsSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-10 sm:mb-14"
         >
-          <p className="inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.28em] text-primary mb-3">
+          <p className="section-eyebrow">
             <Sparkles size={12} strokeWidth={2.2} /> Vantagem Zeus
           </p>
           <h2 className="section-heading">
             {t.deals.title}
             <span className="gold-text">{t.deals.titleHighlight}</span>
           </h2>
-          <p className="text-muted-foreground font-light mt-3 text-sm sm:text-base max-w-md mx-auto">
+          <p className="section-subtitle">
             {t.deals.subtitle}
           </p>
         </motion.div>
