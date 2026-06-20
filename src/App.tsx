@@ -120,6 +120,7 @@ const SwUpdateOnNavigate = () => {
   useSwUpdateOnNavigate();
   useDynamicThemeColor();
   useNativeFeel();
+  useSwipeBack();
   return null;
 };
 
