@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Plus, Phone, MessageCircle, X } from "lucide-react";
+import { Search, Plus, Phone, MessageCircle, X, Users, Car } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
@@ -11,6 +11,7 @@ import { useRegisterFab } from "@/hooks/useAdminFab";
    CLIENTES — Mobile-first
    Lista estilo agenda do iPhone: avatares com inicial,
    agrupado por letra, swipe→ligar/whatsapp.
+   Segmento Regular (Zeus) / Turo igual ao desktop.
    ============================================================ */
 
 type Customer = {
@@ -18,6 +19,8 @@ type Customer = {
   full_name: string;
   email: string | null;
   phone: string | null;
+  source: "regular" | "turo" | null;
+  turo_guest_id: string | null;
 };
 
 const initials = (name: string) =>
@@ -31,12 +34,13 @@ export default function MobileCustomers() {
   const [loading, setLoading] = useState(true);
   useRegisterFab({ icon: Plus, label: "Novo cliente", onClick: () => navigate("/admin/customers?new=1") });
   const [search, setSearch] = useState("");
+  const [segment, setSegment] = useState<"regular" | "turo">("regular");
 
   const load = async () => {
     setLoading(true);
     const { data } = await supabase
       .from("customers")
-      .select("id, full_name, email, phone")
+      .select("id, full_name, email, phone, source, turo_guest_id")
       .is("deleted_at", null)
       .order("full_name");
 
@@ -45,12 +49,19 @@ export default function MobileCustomers() {
   };
   useEffect(() => { void load(); }, []);
 
+  const counts = useMemo(() => ({
+    regular: items.filter((c) => c.source !== "turo").length,
+    turo: items.filter((c) => c.source === "turo").length,
+  }), [items]);
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return items.filter((c) =>
-      !q || `${c.full_name} ${c.email || ""} ${c.phone || ""}`.toLowerCase().includes(q),
-    );
-  }, [items, search]);
+    return items
+      .filter((c) => (segment === "turo" ? c.source === "turo" : c.source !== "turo"))
+      .filter((c) =>
+        !q || `${c.full_name} ${c.email || ""} ${c.phone || ""} ${c.turo_guest_id || ""}`.toLowerCase().includes(q),
+      );
+  }, [items, search, segment]);
 
   const grouped = useMemo(() => {
     const g: Record<string, Customer[]> = {};
@@ -69,15 +80,44 @@ export default function MobileCustomers() {
           <CustomersSubNav />
         </div>
         <div className="px-4">
-          <p className="text-xs text-muted-foreground">{filtered.length} cadastrados</p>
+          {/* Segmento Zeus (Regular) / Turo */}
+          <div className="mt-1 grid grid-cols-2 gap-2">
+            {([
+              { id: "regular" as const, label: "Zeus", icon: Users, count: counts.regular },
+              { id: "turo" as const, label: "Turo", icon: Car, count: counts.turo },
+            ]).map((s) => {
+              const Icon = s.icon;
+              const active = segment === s.id;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => setSegment(s.id)}
+                  className={`h-10 rounded-xl border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
+                    active
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card text-foreground border-border/50"
+                  }`}
+                >
+                  <Icon size={14} />
+                  <span>{s.label}</span>
+                  <span className={`text-[11px] font-semibold tabular-nums ${active ? "opacity-90" : "text-muted-foreground"}`}>
+                    {s.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
+          <p className="mt-3 text-xs text-muted-foreground">
+            {segment === "turo" ? `${filtered.length} hóspedes Turo` : `${filtered.length} cadastrados`}
+          </p>
 
           <div className="mt-3 relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar cliente"
+              placeholder={segment === "turo" ? "Buscar por nome ou Guest #..." : "Buscar cliente"}
               className="w-full h-11 pl-10 pr-10 rounded-xl bg-card border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
             {search && (
@@ -109,34 +149,50 @@ export default function MobileCustomers() {
               <div className="px-4 py-1.5 text-[10px] uppercase tracking-[0.18em] font-semibold text-muted-foreground bg-muted/40 sticky top-0 backdrop-blur z-10">
                 {letter}
               </div>
-              {list.map((c) => (
-                <div key={c.id} className="flex items-center px-4 py-3 border-b border-border/30 bg-card">
-                  <button
-                    onClick={() => navigate(`/admin/customers/${c.id}`)}
-                    className="flex items-center gap-3 flex-1 min-w-0 text-left"
-                  >
-                    <div className="h-10 w-10 rounded-full bg-primary/15 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
-                      {initials(c.full_name) || "?"}
+              {list.map((c) => {
+                const isTuro = c.source === "turo";
+                return (
+                  <div key={c.id} className="flex items-center px-4 py-3 border-b border-border/30 bg-card">
+                    <button
+                      onClick={() => navigate(`/admin/customers/${c.id}`)}
+                      className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                    >
+                      <div className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${
+                        isTuro ? "bg-purple-500/15 text-purple-600" : "bg-primary/15 text-primary"
+                      }`}>
+                        {isTuro ? <Car size={16} /> : (initials(c.full_name) || "?")}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <div className="text-sm font-medium truncate">{formatPersonName(c.full_name)}</div>
+                          {isTuro && (
+                            <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-[1px] rounded-full bg-purple-500/12 text-purple-600 text-[9px] font-semibold uppercase tracking-wider">
+                              <Car size={8} /> Turo
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          {isTuro
+                            ? (c.turo_guest_id ? `Guest #${c.turo_guest_id}` : "Hóspede Turo")
+                            : (c.phone || c.email || "—")}
+                        </div>
+                      </div>
+                    </button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {!isTuro && c.phone && (
+                        <>
+                          <a href={`tel:${onlyDigits(c.phone)}`} className="h-9 w-9 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center active:bg-emerald-500/20">
+                            <Phone size={15} />
+                          </a>
+                          <a href={`https://wa.me/${onlyDigits(c.phone)}`} target="_blank" rel="noreferrer" className="h-9 w-9 rounded-full bg-[#25D366]/15 text-[#1ea152] flex items-center justify-center active:bg-[#25D366]/25">
+                            <MessageCircle size={15} />
+                          </a>
+                        </>
+                      )}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium truncate">{formatPersonName(c.full_name)}</div>
-                      <div className="text-xs text-muted-foreground truncate">{c.phone || c.email || "—"}</div>
-                    </div>
-                  </button>
-                  <div className="flex items-center gap-1 shrink-0">
-                    {c.phone && (
-                      <>
-                        <a href={`tel:${onlyDigits(c.phone)}`} className="h-9 w-9 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center active:bg-emerald-500/20">
-                          <Phone size={15} />
-                        </a>
-                        <a href={`https://wa.me/${onlyDigits(c.phone)}`} target="_blank" rel="noreferrer" className="h-9 w-9 rounded-full bg-[#25D366]/15 text-[#1ea152] flex items-center justify-center active:bg-[#25D366]/25">
-                          <MessageCircle size={15} />
-                        </a>
-                      </>
-                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ))}
         </div>
