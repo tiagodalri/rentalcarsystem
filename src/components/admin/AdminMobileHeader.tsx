@@ -10,10 +10,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useThemeMode } from "@/i18n/ThemeContext";
 import { useAdminPageTitle } from "@/hooks/useAdminPageTitle";
+import { useAdminFab } from "@/hooks/useAdminFab";
+import { haptic } from "@/lib/haptic";
 
 export function AdminMobileHeader() {
   const title = useAdminPageTitle();
   const { theme, toggleTheme } = useThemeMode();
+  const { fab } = useAdminFab();
+  const FabIcon = fab?.icon;
   const [isFs, setIsFs] = useState(false);
   const [fsSupported, setFsSupported] = useState(true);
 
@@ -48,6 +52,18 @@ export function AdminMobileHeader() {
       <h1 className="flex-1 min-w-0 truncate text-[15px] font-medium tracking-tight text-foreground">
         {title}
       </h1>
+      {fab && FabIcon && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label={fab.label}
+          onClick={() => { haptic.tap(); fab.onClick(); }}
+          className="admin-icon-btn h-10 w-10 rounded-full bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-transform"
+        >
+          <FabIcon className="h-[18px] w-[18px]" strokeWidth={2.2} />
+        </Button>
+      )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
