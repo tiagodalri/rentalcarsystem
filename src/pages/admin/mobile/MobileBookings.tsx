@@ -54,8 +54,10 @@ export default function MobileBookings() {
     const { data } = await supabase
       .from("bookings")
       .select("id, customer_name, pickup_date, return_date, pickup_time, return_time, total_price, status, vehicle_id, booking_number")
+      .is("deleted_at", null)
       .order("pickup_date", { ascending: false })
       .limit(500);
+
     const list = (data as Booking[]) || [];
     const vids = Array.from(new Set(list.map((b) => b.vehicle_id).filter(Boolean))) as string[];
     if (vids.length) {
