@@ -44,7 +44,7 @@ const AboutSection = () => {
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl gold-gradient flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
                   <Icon className="text-primary-foreground" size={24} strokeWidth={1.5} />
                 </div>
-                <p className="mt-4 text-[11px] sm:text-xs md:text-sm font-semibold uppercase tracking-wider leading-snug">{title}</p>
+                <p className="mt-4 card-title leading-snug">{title}</p>
               </motion.div>
             );
           })}
