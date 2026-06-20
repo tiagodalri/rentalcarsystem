@@ -188,9 +188,9 @@ export const translations: Record<Language, TranslationKeys> = {
     deals: {
       title: "Condições ",
       titleHighlight: "Especiais",
-      subtitle: "Condições especiais para sua reserva. Quanto mais dias, maior o desconto.",
+      subtitle: "Quanto mais tempo com a Zeus, mais vantagem para você.",
       discount5: "2 a 5 dias de locação",
-      discount10: "+7 dias de locação",
+      discount10: "Reservas acima de 10 diárias",
     },
     whyZeus: {
       title: "Por que escolher a ",
