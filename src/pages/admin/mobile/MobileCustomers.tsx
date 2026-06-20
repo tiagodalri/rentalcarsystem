@@ -38,8 +38,8 @@ export default function MobileCustomers() {
       .from("customers")
       .select("id, full_name, email, phone")
       .is("deleted_at", null)
-      .neq("source", "turo")
       .order("full_name");
+
     setItems((data as Customer[]) || []);
     setLoading(false);
   };
