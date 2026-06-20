@@ -11,6 +11,42 @@ interface EmptyStateProps {
   compact?: boolean;
 }
 
+/**
+ * Decorative monochrome backdrop — concentric rings + dotted grid.
+ * Pure SVG, uses currentColor so it adapts to light/dark automatically.
+ */
+function EmptyIllustration({ size }: { size: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 160 160"
+      fill="none"
+      aria-hidden="true"
+      className="absolute inset-0 m-auto text-foreground/[0.06] pointer-events-none"
+    >
+      <defs>
+        <pattern id="empty-dots" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+          <circle cx="1" cy="1" r="1" fill="currentColor" />
+        </pattern>
+        <radialGradient id="empty-fade" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="white" stopOpacity="1" />
+          <stop offset="100%" stopColor="white" stopOpacity="0" />
+        </radialGradient>
+        <mask id="empty-mask">
+          <rect width="160" height="160" fill="url(#empty-fade)" />
+        </mask>
+      </defs>
+      {/* Dotted grid faded at edges */}
+      <rect width="160" height="160" fill="url(#empty-dots)" mask="url(#empty-mask)" />
+      {/* Concentric rings */}
+      <circle cx="80" cy="80" r="36" stroke="currentColor" strokeWidth="1" fill="none" />
+      <circle cx="80" cy="80" r="52" stroke="currentColor" strokeWidth="1" fill="none" strokeDasharray="2 4" />
+      <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="1" fill="none" opacity="0.6" />
+    </svg>
+  );
+}
+
 export function EmptyState({
   icon: Icon,
   title,
@@ -19,20 +55,35 @@ export function EmptyState({
   onAction,
   compact = false,
 }: EmptyStateProps) {
+  const illustrationSize = compact ? 120 : 160;
+  const iconSize = compact ? 28 : 36;
+
   return (
     <div
-      className={`flex flex-col items-center justify-center text-center ${
+      className={`flex flex-col items-center justify-center text-center animate-fade-in ${
         compact ? "py-8" : "py-20"
       }`}
     >
-      <Icon size={compact ? 40 : 56} strokeWidth={1.2} className="text-muted-foreground/40 mb-4" />
-      <h3 className="text-sm font-semibold text-foreground mb-1">{title}</h3>
-      <p className="text-xs text-muted-foreground max-w-xs">{description}</p>
+      {/* Illustration: rings + dots backdrop with icon floating in the middle */}
+      <div
+        className="relative flex items-center justify-center mb-5"
+        style={{ width: illustrationSize, height: illustrationSize }}
+      >
+        <EmptyIllustration size={illustrationSize} />
+        <div className="relative flex items-center justify-center rounded-full bg-muted/60 border border-border/40 shadow-sm"
+             style={{ width: illustrationSize * 0.35, height: illustrationSize * 0.35 }}>
+          <Icon size={iconSize} strokeWidth={1.4} className="text-muted-foreground" />
+        </div>
+      </div>
+
+      <h3 className="text-sm font-semibold text-foreground mb-1.5">{title}</h3>
+      <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">{description}</p>
+
       {actionLabel && onAction && (
         <Button
           onClick={onAction}
           size="sm"
-          className="mt-4 gold-gradient text-primary-foreground text-xs font-semibold uppercase tracking-wider hover:opacity-90"
+          className="mt-5 gold-gradient text-primary-foreground text-xs font-semibold uppercase tracking-wider hover:opacity-90"
         >
           {actionLabel}
         </Button>
