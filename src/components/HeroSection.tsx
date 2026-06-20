@@ -31,12 +31,13 @@ const HeroSection = () => {
           src={zeusLogo}
           alt="Zeus Rental Car"
           loading="eager"
-          width={176}
-          height={176}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
+          width={1269}
+          height={607}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)]"
+          style={{ imageRendering: "-webkit-optimize-contrast" }}
         />
 
         {/* Title */}
