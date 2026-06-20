@@ -188,9 +188,9 @@ export const translations: Record<Language, TranslationKeys> = {
     deals: {
       title: "Condições ",
       titleHighlight: "Especiais",
-      subtitle: "Condições especiais para sua reserva. Quanto mais dias, maior o desconto.",
+      subtitle: "Quanto mais tempo com a Zeus, mais vantagem para você.",
       discount5: "2 a 5 dias de locação",
-      discount10: "+7 dias de locação",
+      discount10: "Reservas acima de 10 diárias",
     },
     whyZeus: {
       title: "Por que escolher a ",
@@ -315,9 +315,9 @@ export const translations: Record<Language, TranslationKeys> = {
     deals: {
       title: "Special ",
       titleHighlight: "Deals",
-      subtitle: "Special conditions for your reservation. The more days, the bigger the discount.",
+      subtitle: "The longer you stay with Zeus, the more you save.",
       discount5: "2 to 5 rental days",
-      discount10: "7+ rental days",
+      discount10: "Bookings over 10 days",
     },
     whyZeus: {
       title: "Why choose ",
@@ -442,9 +442,9 @@ export const translations: Record<Language, TranslationKeys> = {
     deals: {
       title: "Condiciones ",
       titleHighlight: "Especiales",
-      subtitle: "Condiciones especiales para tu reserva. Más días, mayor descuento.",
+      subtitle: "Cuanto más tiempo con Zeus, más ahorras.",
       discount5: "2 a 5 días de alquiler",
-      discount10: "+7 días de alquiler",
+      discount10: "Reservas de más de 10 días",
     },
     whyZeus: {
       title: "¿Por qué elegir ",
@@ -569,9 +569,9 @@ export const translations: Record<Language, TranslationKeys> = {
     deals: {
       title: "Condizioni ",
       titleHighlight: "Speciali",
-      subtitle: "Condizioni speciali per la tua prenotazione. Più giorni, più sconto.",
+      subtitle: "Più tempo con Zeus, più risparmi.",
       discount5: "2 a 5 giorni di noleggio",
-      discount10: "+7 giorni di noleggio",
+      discount10: "Prenotazioni oltre 10 giorni",
     },
     whyZeus: {
       title: "Perché scegliere ",
@@ -696,9 +696,9 @@ export const translations: Record<Language, TranslationKeys> = {
     deals: {
       title: "Sonder",
       titleHighlight: "konditionen",
-      subtitle: "Sonderkonditionen für Ihre Buchung. Je mehr Tage, desto größer der Rabatt.",
+      subtitle: "Je länger bei Zeus, desto mehr sparen Sie.",
       discount5: "2 bis 5 Miettage",
-      discount10: "7+ Miettage",
+      discount10: "Buchungen über 10 Tage",
     },
     whyZeus: {
       title: "Warum ",
@@ -823,9 +823,9 @@ export const translations: Record<Language, TranslationKeys> = {
     deals: {
       title: "Conditions ",
       titleHighlight: "Spéciales",
-      subtitle: "Conditions spéciales pour votre réservation. Plus de jours, plus de réduction.",
+      subtitle: "Plus longtemps avec Zeus, plus vous économisez.",
       discount5: "2 à 5 jours de location",
-      discount10: "+7 jours de location",
+      discount10: "Réservations de plus de 10 jours",
     },
     whyZeus: {
       title: "Pourquoi choisir ",
