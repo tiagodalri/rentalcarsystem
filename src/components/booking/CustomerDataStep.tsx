@@ -104,8 +104,22 @@ export default function CustomerDataStep({ data, onChange }: Props) {
     onChange({ ...data, [key]: value });
   };
 
+  // Default country: BR if nationality Brasileira (or unset), else US
+  const country: AddressCountry =
+    data.country || (data.nationality === "Brasileira" || !data.nationality ? "BR" : "US");
+
+  const setCountry = (c: AddressCountry) => {
+    onChange({ ...data, country: c, zip_code: "", address: "", district: "", city: "", state: "", house_number: "" });
+    setAddressOpen(false);
+  };
+
   const formatCep = (raw: string) => {
     const d = raw.replace(/\D/g, "").slice(0, 8);
+    return d.length <= 5 ? d : `${d.slice(0, 5)}-${d.slice(5)}`;
+  };
+
+  const formatUsZip = (raw: string) => {
+    const d = raw.replace(/\D/g, "").slice(0, 9);
     return d.length <= 5 ? d : `${d.slice(0, 5)}-${d.slice(5)}`;
   };
 
@@ -119,18 +133,44 @@ export default function CustomerDataStep({ data, onChange }: Props) {
       if (!result.erro) {
         onChange({
           ...data,
+          country: "BR",
           zip_code: formatCep(cep),
           address: result.logradouro || data.address,
           district: result.bairro || data.district,
           city: result.localidade || data.city,
           state: (result.uf || data.state || "").toUpperCase(),
         });
-        // Open the address section so user can complete house number
         setAddressOpen(true);
       }
     } catch { /* noop */ }
     setCepLoading(false);
   };
+
+  const lookupUsZip = async (zip: string) => {
+    const clean = zip.replace(/\D/g, "").slice(0, 5);
+    if (clean.length !== 5) return;
+    setCepLoading(true);
+    try {
+      const res = await fetch(`https://api.zippopotam.us/us/${clean}`);
+      if (res.ok) {
+        const result = await res.json();
+        const place = result.places?.[0];
+        if (place) {
+          onChange({
+            ...data,
+            country: "US",
+            zip_code: formatUsZip(zip),
+            city: place["place name"] || data.city,
+            state: (place["state abbreviation"] || data.state || "").toUpperCase(),
+          });
+          setAddressOpen(true);
+        }
+      }
+    } catch { /* noop */ }
+    setCepLoading(false);
+  };
+
+
 
   // ---- status flags ----
   const personalComplete = nameValid && emailValid && (data.phone || "").length > 6 && !!data.date_of_birth;
