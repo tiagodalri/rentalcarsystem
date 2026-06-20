@@ -236,24 +236,23 @@ const FleetSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
           <AnimatePresence mode="popLayout">
             {filtered.map((v, idx) => {
               const vehicleT = t.vehicles[v.name];
-              const eager = idx < 3;
+              const eager = idx < 4;
               return (
                 <motion.div
                   key={v.name}
                   layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.3 }}
-                  className="group relative overflow-hidden rounded-2xl cursor-pointer hover-lift border border-border/10 hover:border-primary/20 bg-card"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.25 }}
+                  className="group relative flex items-stretch gap-3 sm:gap-4 rounded-xl cursor-pointer overflow-hidden border border-border/40 hover:border-primary/40 bg-card/60 hover:bg-card transition-all duration-300"
                   onClick={() => navigate(`/veiculo/${encodeURIComponent(v.name)}`)}
                 >
-                  <div className="relative h-64 overflow-hidden bg-muted/40">
-                    {/* shimmer skeleton enquanto carrega — evita "card vazio" */}
+                  <div className="relative w-28 sm:w-36 shrink-0 overflow-hidden bg-muted/40">
                     <div
                       aria-hidden
                       className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted/60 via-muted/30 to-muted/60"
@@ -261,36 +260,42 @@ const FleetSection = () => {
                     <img
                       src={v.coverImage}
                       alt={v.name}
-                      className="relative w-full h-full object-cover object-[center_40%] transition-transform duration-700 group-hover:scale-105"
+                      className="relative w-full h-full object-cover object-[center_45%] transition-transform duration-700 group-hover:scale-105"
                       loading={eager ? "eager" : "lazy"}
                       decoding="async"
                       fetchPriority={eager ? "high" : "auto"}
-                      width={1280}
-                      height={720}
+                      width={640}
+                      height={480}
                       onLoad={(e) => {
                         const prev = (e.currentTarget.previousElementSibling as HTMLElement | null);
                         if (prev) prev.style.display = "none";
                       }}
                     />
-
                     {v.preparing && (
-                      <div className="absolute top-4 right-4 z-10">
-                        <span className="bg-primary/90 text-primary-foreground text-xs font-bold uppercase tracking-widest px-3 py-1.5 rounded-lg backdrop-blur-sm shadow-lg">
-                          Em preparação
-                        </span>
-                      </div>
+                      <span className="absolute top-1.5 left-1.5 bg-primary/95 text-primary-foreground text-[9px] font-bold uppercase tracking-[0.14em] px-1.5 py-0.5 rounded-md backdrop-blur-sm">
+                        Preparo
+                      </span>
                     )}
                   </div>
 
-                  <div className="bg-card px-5 py-4 border-t border-border/40">
-                    <h3 className="text-lg font-black uppercase tracking-wider text-foreground">{v.name}</h3>
-                    <p className="text-xs text-primary font-medium italic mt-1">{vehicleT?.subtitle}</p>
-                    <div className="flex items-center gap-5 mt-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        <Users size={14} className="text-primary" /> {v.passengers} {v.passengers === 1 ? "passageiro" : "passageiros"}
+                  <div className="flex-1 min-w-0 py-3 pr-3 sm:py-3.5 sm:pr-4 flex flex-col justify-center">
+                    <p className="text-[9.5px] text-primary font-bold uppercase tracking-[0.18em] truncate">
+                      {categoryLabels[v.categoryKey] || v.categoryKey}
+                    </p>
+                    <h3 className="text-[13.5px] sm:text-[14.5px] font-black uppercase tracking-wide text-foreground leading-tight mt-0.5 truncate">
+                      {v.name}
+                    </h3>
+                    {vehicleT?.subtitle && (
+                      <p className="text-[11px] text-muted-foreground italic mt-0.5 truncate">
+                        {vehicleT.subtitle}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-3 mt-2 text-[11px] text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Users size={12} className="text-primary" /> {v.passengers}
                       </span>
-                      <span className="flex items-center gap-1.5">
-                        <Briefcase size={14} className="text-primary" /> {v.luggage} {v.luggage === 1 ? "mala" : "malas"}
+                      <span className="flex items-center gap-1">
+                        <Briefcase size={12} className="text-primary" /> {v.luggage}
                       </span>
                     </div>
                   </div>
@@ -298,36 +303,28 @@ const FleetSection = () => {
               );
             })}
 
-            {/* "Coming Soon" surprise cards — mesma estrutura/altura dos cards reais */}
             {[1, 2].map((i) => (
               <motion.div
                 key={`surprise-${i}`}
                 layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: 0.1 * i }}
-                className="relative overflow-hidden rounded-2xl border border-dashed border-primary/25 bg-card"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: 0.05 * i }}
+                className="relative flex items-stretch gap-3 sm:gap-4 rounded-xl border border-dashed border-primary/25 bg-card/40 overflow-hidden"
               >
-                <div className="relative h-64 flex items-center justify-center bg-gradient-to-br from-primary/[0.04] via-transparent to-primary/[0.08]">
-                  <div className="text-center px-6">
-                    <Diamond size={36} className="text-primary mx-auto mb-3" strokeWidth={1} />
-                    <p className="text-sm text-muted-foreground italic font-light">
-                      Novidade chegando à frota Zeus
-                    </p>
-                  </div>
+                <div className="w-28 sm:w-36 shrink-0 flex items-center justify-center bg-gradient-to-br from-primary/[0.04] via-transparent to-primary/[0.08]">
+                  <Diamond size={22} className="text-primary" strokeWidth={1.2} />
                 </div>
-                <div className="bg-card px-5 py-4 border-t border-border/40">
-                  <h3 className="text-lg font-black uppercase tracking-wider text-foreground/70">
+                <div className="flex-1 min-w-0 py-3 pr-3 sm:py-3.5 sm:pr-4 flex flex-col justify-center">
+                  <p className="text-[9.5px] text-primary font-bold uppercase tracking-[0.18em]">
                     Em breve
+                  </p>
+                  <h3 className="text-[13.5px] sm:text-[14.5px] font-black uppercase tracking-wide text-foreground/70 leading-tight mt-0.5">
+                    Novidade Zeus
                   </h3>
-                  <p className="text-xs text-primary font-medium italic mt-1">
+                  <p className="text-[11px] text-muted-foreground italic mt-0.5 truncate">
                     Surpresa exclusiva
                   </p>
-                  <div className="flex items-center gap-5 mt-3 text-xs text-muted-foreground/60">
-                    <span className="flex items-center gap-1.5">
-                      <Diamond size={12} className="text-primary" /> aguarde
-                    </span>
-                  </div>
                 </div>
               </motion.div>
             ))}
