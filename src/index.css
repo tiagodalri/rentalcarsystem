@@ -195,6 +195,34 @@
     }
   }
 
+  /* ============================================================
+     Tap feedback global — sensação de "press" estilo app nativo.
+     Aplica somente em ponteiros coarse (touch), pra não bagunçar
+     hover de mouse. Cobre elementos que NÃO usam o <Button> shadcn
+     (links, [role=button], <summary>, .tap, etc.).
+     Quem quiser opt-out: classe .no-tap-feedback.
+     ============================================================ */
+  @media (hover: none) and (pointer: coarse) {
+    a:not(.no-tap-feedback),
+    button:not(.no-tap-feedback),
+    [role="button"]:not(.no-tap-feedback),
+    summary:not(.no-tap-feedback),
+    label[for]:not(.no-tap-feedback),
+    .tap {
+      transition: transform 120ms ease-out, opacity 120ms ease-out, filter 120ms ease-out;
+    }
+    a:not(.no-tap-feedback):active,
+    button:not(:disabled):not(.no-tap-feedback):active,
+    [role="button"]:not([aria-disabled="true"]):not(.no-tap-feedback):active,
+    summary:not(.no-tap-feedback):active,
+    label[for]:not(.no-tap-feedback):active,
+    .tap:active {
+      transform: scale(0.97);
+      filter: brightness(0.96);
+    }
+  }
+
+
   /* Defesa extra contra overflow horizontal: imagens/midias largas nao podem
      estourar o viewport, e textos longos (URLs, emails) precisam quebrar. */
   img, video, canvas, svg, iframe {
