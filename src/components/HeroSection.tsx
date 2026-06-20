@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import zeusLogo from "@/assets/zeus-logo.png";
+import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { useLanguage } from "@/i18n/LanguageContext";
 import SearchBar from "@/components/SearchBar";
 
