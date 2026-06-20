@@ -10,7 +10,10 @@ const HeroSection = () => {
   return (
     <section className="relative min-h-screen min-h-[100svh] flex flex-col items-center justify-start overflow-hidden pt-28 sm:pt-32 pb-8 sm:pb-12">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(40,100%,48%,0.06)_0%,_transparent_70%)]" />
+      {/* Glow dourado deslocado para baixo — antes ficava bem atrás do logo e
+          criava uma mancha esbranquiçada sobre ele. */}
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_bottom,_hsl(40,100%,48%,0.05)_0%,_transparent_65%)] pointer-events-none" />
+
 
       <svg className="absolute bottom-0 left-0 right-0 w-full opacity-10" viewBox="0 0 1440 200" fill="none">
         <path d="M0 200C240 100 480 50 720 80C960 110 1200 160 1440 120V200H0Z" fill="url(#goldGrad)" />
@@ -33,7 +36,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto drop-shadow-[0_2px_12px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)] dark:brightness-100 brightness-95 contrast-110"
+          className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)]"
         />
 
         {/* Title */}

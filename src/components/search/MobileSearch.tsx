@@ -364,27 +364,26 @@ function TimeRow({
   onChange: (t: string) => void;
 }) {
   return (
-    <label className="flex items-center gap-2.5 px-4 py-3 cursor-pointer">
+    <label className="flex flex-col items-center gap-1.5 px-4 py-3 cursor-pointer text-center">
       <span className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
         <Clock size={15} className="text-primary" />
       </span>
-      <div className="flex-1 min-w-0">
-        <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-bold">
-          {label}
-        </p>
-        <div className="relative">
-          <select
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="appearance-none bg-transparent text-[14.5px] font-semibold text-foreground outline-none w-full pr-4 tabular-nums"
-          >
-            {timeSlots.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
+      <p className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground font-bold">
+        {label}
+      </p>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="appearance-none bg-transparent text-[14.5px] font-semibold text-foreground outline-none text-center tabular-nums cursor-pointer"
+        >
+          {timeSlots.map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
       </div>
     </label>
+
   );
 }
 
