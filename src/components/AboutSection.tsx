@@ -1,12 +1,19 @@
 import { motion } from "framer-motion";
-import { Globe, CheckCircle, Zap, Shield } from "lucide-react";
 import { useLanguage } from "@/i18n/LanguageContext";
-
-const icons = [Globe, CheckCircle, Zap, Shield];
+import featSupport from "@/assets/feat-support-pt.png";
+import featVehicles from "@/assets/feat-vehicles-checked.png";
+import featEasy from "@/assets/feat-easy-process.png";
+import featTrip from "@/assets/feat-trip-support.png";
 
 const AboutSection = () => {
   const { t } = useLanguage();
-  const features = [t.about.feat1, t.about.feat2, t.about.feat3, t.about.feat4];
+
+  const features = [
+    { img: featSupport, label: t.about.feat1, alt: "Atendimento em português" },
+    { img: featVehicles, label: t.about.feat2, alt: "Veículos selecionados e revisados" },
+    { img: featEasy, label: t.about.feat3, alt: "Processo simples e ágil" },
+    { img: featTrip, label: t.about.feat4, alt: "Suporte durante toda a viagem" },
+  ];
 
   return (
     <section id="quem-somos" className="py-16 sm:py-28 relative section-divider">
@@ -29,25 +36,41 @@ const AboutSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          {features.map((title, i) => {
-            const Icon = icons[i];
-            return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="glass-card p-6 sm:p-8 text-center hover-lift hover:gold-border-glow group"
-              >
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl gold-gradient flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
-                  <Icon className="text-primary-foreground" size={24} strokeWidth={1.5} />
-                </div>
-                <p className="mt-4 card-title leading-snug">{title}</p>
-              </motion.div>
-            );
-          })}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {features.map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className="group relative rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm overflow-hidden hover:border-primary/40 transition-colors"
+            >
+              {/* Ambient gold glow */}
+              <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.06] via-transparent to-transparent pointer-events-none" aria-hidden />
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-40 h-40 bg-primary/10 rounded-full blur-[60px] opacity-60 group-hover:opacity-100 transition-opacity" aria-hidden />
+
+              <div className="relative aspect-[4/3] flex items-center justify-center px-5 pt-5 sm:px-6 sm:pt-6">
+                <img
+                  src={item.img}
+                  alt={item.alt}
+                  loading="lazy"
+                  width={1024}
+                  height={1024}
+                  className="max-h-full w-auto object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,0.25)] transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-[-2deg]"
+                />
+              </div>
+
+              <div className="relative px-4 pb-5 pt-1 sm:px-5 sm:pb-6 text-center">
+                <p className="card-eyebrow">
+                  0{i + 1}
+                </p>
+                <p className="mt-1.5 card-title leading-snug">
+                  {item.label}
+                </p>
+              </div>
+            </motion.div>
+          ))}
         </div>
 
         {/* CTAs — moved from hero to keep search as the primary focus above the fold */}
