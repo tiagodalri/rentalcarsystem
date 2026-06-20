@@ -44,9 +44,12 @@ export async function deleteBookingSafe(
 
   const isPaid =
     booking?.payment_status === "paid" || pr?.status === "SOLICITACAO_PAGO";
+  const isAlreadyCancelled = booking?.status === "cancelled";
 
-  // 3) Bloqueia reserva paga
-  if (isPaid) {
+  // 3) Bloqueia reserva paga — EXCETO quando já está cancelada
+  //    (se status='cancelled', o estorno já foi processado OU é reserva de
+  //    teste; em qualquer caso o admin pode remover da lista).
+  if (isPaid && !isAlreadyCancelled) {
     handlers.alert(
       "Esta reserva está PAGA e não pode ser apenas excluída.\n\n" +
         'Para cancelar, abra a reserva, use "Cancelar reserva" e processe o estorno ' +
