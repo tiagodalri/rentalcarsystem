@@ -52,38 +52,43 @@ export function AdminBottomNav() {
       }}
     >
       <div className="relative h-16">
-        {/* Pill animado que desliza entre as abas (estilo Instagram/Threads). */}
+        {/* Pill animado que desliza entre as abas (estilo Instagram/Threads).
+            Wrapper tem largura EXATA de uma coluna (100%/count) e desliza
+            translateX(activeIndex * 100%) — assim cada passo é exatamente
+            uma coluna. Margens visuais ficam por dentro (inset). */}
         <span
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute top-1/2 -translate-y-1/2 rounded-2xl bg-foreground/[0.06]",
+            "pointer-events-none absolute top-0 bottom-0 flex items-center",
             hasActive ? "opacity-100" : "opacity-0"
           )}
           style={{
             left: 0,
-            width: `calc(${100 / count}% - 16px)`,
-            height: 44,
-            marginLeft: 8,
-            transform: `translate(${activeIndex * 100}%, -50%)`,
+            width: `${100 / count}%`,
+            transform: `translateX(${activeIndex * 100}%)`,
             transition: `transform 360ms ${PILL_EASE}, opacity 200ms ease-out`,
           }}
-        />
+        >
+          <span className="absolute inset-x-2 top-1/2 -translate-y-1/2 h-11 rounded-2xl bg-foreground/[0.06]" />
+        </span>
 
         {/* Barra superior fina que também desliza (acento visual). */}
         <span
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute top-0 h-[3px] rounded-b-full bg-foreground",
+            "pointer-events-none absolute top-0 h-[3px]",
             hasActive ? "opacity-100" : "opacity-0"
           )}
           style={{
             left: 0,
-            width: `calc(${100 / count}% - 48px)`,
-            marginLeft: 24,
+            width: `${100 / count}%`,
             transform: `translateX(${activeIndex * 100}%)`,
             transition: `transform 360ms ${PILL_EASE}, opacity 200ms ease-out`,
           }}
-        />
+        >
+          <span className="absolute inset-x-6 top-0 h-[3px] rounded-b-full bg-foreground" />
+        </span>
+
 
         <ul
           className="relative h-full grid"
