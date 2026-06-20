@@ -32,6 +32,7 @@ import InstallPrompt from "./components/InstallPrompt.tsx";
 import { useSwUpdateOnNavigate } from "./hooks/useSwUpdateOnNavigate.ts";
 import { useDynamicThemeColor } from "./hooks/useDynamicThemeColor.ts";
 import { useNativeFeel } from "./hooks/useNativeFeel.ts";
+import { useSwipeBack } from "./hooks/useSwipeBack.ts";
 
 // Lazy-loaded: client authenticated pages
 const MyAccount = lazy(() => import("./pages/MyAccount.tsx"));
