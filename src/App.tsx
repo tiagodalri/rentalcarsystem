@@ -1,6 +1,8 @@
-import { lazy, Suspense, useLayoutEffect } from "react";
+import { lazy, Suspense, useLayoutEffect, useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation, useNavigationType } from "react-router-dom";
+import { RouteErrorBoundary } from "./components/RouteErrorBoundary.tsx";
+import { RouteProgress } from "./components/RouteProgress.tsx";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -82,37 +84,74 @@ const queryClient = new QueryClient({
 });
 
 const AdminSuspense = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<AdminShellSkeleton />}>{children}</Suspense>
+  <RouteErrorBoundary>
+    <Suspense fallback={<AdminShellSkeleton />}>{children}</Suspense>
+  </RouteErrorBoundary>
 );
 
 const ClientSuspense = ({ children }: { children: React.ReactNode }) => (
-  <Suspense fallback={<AccountSkeleton />}>{children}</Suspense>
+  <RouteErrorBoundary>
+    <Suspense fallback={<AccountSkeleton />}>{children}</Suspense>
+  </RouteErrorBoundary>
 );
 
-const forceScrollTop = () => {
-  const root = document.documentElement;
-  const previousScrollBehavior = root.style.scrollBehavior;
-
-  root.style.scrollBehavior = "auto";
-  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  root.scrollTop = 0;
-  document.body.scrollTop = 0;
-  root.style.scrollBehavior = previousScrollBehavior;
+/**
+ * Gerencia scroll entre navegações:
+ * - PUSH/REPLACE → vai pro topo (comportamento esperado de "abrir nova tela").
+ * - POP (voltar/avançar do browser) → restaura a posição que estava ao sair.
+ *
+ * Posições ficam em sessionStorage indexadas por location.key, então
+ * sobrevivem a hot reloads do mesmo tab mas não vazam entre abas.
+ */
+const SCROLL_STORAGE_KEY = "zeus:scroll-positions";
+const loadPositions = (): Map<string, number> => {
+  try {
+    const raw = sessionStorage.getItem(SCROLL_STORAGE_KEY);
+    if (!raw) return new Map();
+    return new Map(JSON.parse(raw) as [string, number][]);
+  } catch {
+    return new Map();
+  }
+};
+const persistPositions = (map: Map<string, number>) => {
+  try {
+    sessionStorage.setItem(SCROLL_STORAGE_KEY, JSON.stringify([...map]));
+  } catch {
+    /* quota / private mode */
+  }
 };
 
-const ScrollToTop = () => {
-  const { pathname } = useLocation();
+const ScrollManager = () => {
+  const { key, pathname } = useLocation();
+  const navType = useNavigationType();
+  const prevKeyRef = useRef<string>(key);
+  const positionsRef = useRef<Map<string, number>>(loadPositions());
 
   useLayoutEffect(() => {
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
+    // Salva a posição da rota que estava saindo
+    if (prevKeyRef.current && prevKeyRef.current !== key) {
+      positionsRef.current.set(prevKeyRef.current, window.scrollY);
+      persistPositions(positionsRef.current);
+    }
+    prevKeyRef.current = key;
 
-    forceScrollTop();
-    const frame = window.requestAnimationFrame(forceScrollTop);
+    if (navType === "POP" && positionsRef.current.has(key)) {
+      const y = positionsRef.current.get(key) ?? 0;
+      // Aguarda 1 frame pra DOM/Suspense montar antes de restaurar
+      const frame = window.requestAnimationFrame(() => {
+        window.scrollTo(0, y);
+      });
+      return () => window.cancelAnimationFrame(frame);
+    }
 
-    return () => window.cancelAnimationFrame(frame);
-  }, [pathname]);
+    // PUSH/REPLACE → topo
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [key, navType, pathname]);
 
   return null;
 };
@@ -136,8 +175,9 @@ const App = () => (
           <OfflineBanner />
           <InstallPrompt />
           <BrowserRouter>
-            <ScrollToTop />
+            <ScrollManager />
             <SwUpdateOnNavigate />
+            <RouteProgress />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/share/track/:token" element={<PublicTrack />} />
