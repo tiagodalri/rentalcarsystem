@@ -771,3 +771,15 @@
   .bg-status-danger     { background-color: hsl(0, 84%, 60%, 0.12); }
 }
 
+/* --- Native polish: bloqueia o menu de contexto longo-press do Safari/Chrome
+   em imagens da UI ("Salvar imagem", "Copiar"). Apps nativos não exibem isso.
+   Mantemos para <img> dentro de [data-allow-save] (ex.: galerias futuras
+   onde o usuário PRECISA salvar a foto). */
+img:not([data-allow-save] img):not([data-allow-save]) {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+
