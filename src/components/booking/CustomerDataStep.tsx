@@ -6,8 +6,7 @@ import {
 } from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { isValidEmail, suggestEmail } from "@/lib/formValidators";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { BirthDatePicker } from "./BirthDatePicker";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { format, parse, isValid } from "date-fns";
@@ -267,42 +266,14 @@ export default function CustomerDataStep({ data, onChange }: Props) {
           </div>
         </div>
 
-        {/* Date of birth — custom picker */}
+        {/* Date of birth — mobile wheel picker / desktop calendar */}
         <div>
           <FieldLabel>Data de nascimento</FieldLabel>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                className={cn(
-                  FIELD_BASE, FIELD_OK,
-                  "flex items-center justify-between text-left",
-                  !dobDate && "text-muted-foreground/60"
-                )}
-              >
-                <span className="flex items-center gap-3">
-                  <CalendarIcon size={18} className="text-primary/70" />
-                  {dobDate ? format(dobDate, "dd 'de' MMMM 'de' yyyy", { locale: pt }) : "Selecione a data"}
-                </span>
-                <ChevronDown size={16} className="text-muted-foreground/60" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
-              <Calendar
-                mode="single"
-                selected={dobDate}
-                onSelect={(d) => {
-                  if (d) update("date_of_birth", format(d, "yyyy-MM-dd"));
-                }}
-                captionLayout="dropdown-buttons"
-                fromYear={1930}
-                toYear={new Date().getFullYear() - 18}
-                defaultMonth={dobDate || new Date(1995, 0)}
-                initialFocus
-                className="p-3 pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
+          <BirthDatePicker
+            value={data.date_of_birth}
+            onChange={(iso) => update("date_of_birth", iso)}
+            className={cn(FIELD_BASE, FIELD_OK)}
+          />
         </div>
       </SectionCard>
 
