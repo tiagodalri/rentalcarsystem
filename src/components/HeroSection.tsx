@@ -8,7 +8,7 @@ const HeroSection = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative min-h-screen min-h-[100svh] flex flex-col items-center justify-start overflow-hidden pt-28 sm:pt-32 pb-12 gap-4">
+    <section className="relative min-h-screen min-h-[100svh] flex flex-col items-center justify-start overflow-hidden pt-20 sm:pt-32 pb-6 sm:pb-12 gap-2.5 sm:gap-4">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
       {/* Glow dourado deslocado para baixo — antes ficava bem atrás do logo e
           criava uma mancha esbranquiçada sobre ele. */}
@@ -25,7 +25,7 @@ const HeroSection = () => {
         </defs>
       </svg>
 
-      <div className="relative z-10 container mx-auto px-4 text-center flex flex-col items-center gap-3 md:gap-5">
+      <div className="relative z-10 container mx-auto px-4 text-center flex flex-col items-center gap-2 sm:gap-5">
         {/* Logo */}
         <motion.img
           src={zeusLogo}
@@ -36,7 +36,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)]"
+          className="h-10 sm:h-16 md:h-20 lg:h-24 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)]"
         />
 
         {/* Title */}
@@ -44,32 +44,32 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold uppercase tracking-tight leading-[1.2] max-w-4xl px-2 whitespace-normal lg:whitespace-nowrap"
+          className="text-[13px] sm:text-lg md:text-xl lg:text-2xl font-bold uppercase tracking-tight leading-[1.2] max-w-4xl px-2 whitespace-normal lg:whitespace-nowrap"
         >
           {t.hero.title}
           <span className="gold-text">{t.hero.titleHighlight}</span>
         </motion.h1>
 
-        {/* Subtitle */}
+        {/* Subtitle — hidden on mobile to fit search bar above the fold */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.5 }}
-          className="text-xs sm:text-sm md:text-base text-muted-foreground font-light tracking-wide max-w-xl italic px-3 leading-relaxed"
+          className="hidden sm:block text-xs sm:text-sm md:text-base text-muted-foreground font-light tracking-wide max-w-xl italic px-3 leading-relaxed"
         >
           {t.hero.subtitle}
         </motion.p>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons — inline row on mobile to save vertical space */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center w-full max-w-sm sm:max-w-none px-4 sm:px-0 mt-1"
+          className="flex flex-row gap-2 sm:gap-3 justify-center w-full max-w-sm sm:max-w-none px-2 sm:px-0 mt-0.5 sm:mt-1"
         >
           <a
             href="#frota"
-            className="gold-gradient text-primary-foreground px-5 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-md shadow-primary/10 text-center"
+            className="flex-1 sm:flex-none gold-gradient text-primary-foreground px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-md shadow-primary/10 text-center"
           >
             {t.hero.exploreFleet}
           </a>
@@ -77,7 +77,7 @@ const HeroSection = () => {
             href={`https://wa.me/16892981754?text=${encodeURIComponent("Olá, venho do site da Zeus e gostaria de realizar uma reserva!")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="border border-primary/50 text-primary px-5 py-2.5 rounded-lg text-[11px] font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300 backdrop-blur-sm text-center"
+            className="flex-1 sm:flex-none border border-primary/50 text-primary px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300 backdrop-blur-sm text-center"
           >
             {t.hero.contactUs}
           </a>
