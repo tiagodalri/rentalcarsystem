@@ -64,10 +64,10 @@ const RequirementsSection = () => {
               </div>
 
               <div className="relative px-5 pb-6 pt-2 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary/80">
+                <p className="card-eyebrow">
                   0{i + 1}
                 </p>
-                <p className="mt-1.5 text-[14px] sm:text-[15px] font-bold tracking-wide text-foreground">
+                <p className="mt-1.5 card-title">
                   {item.label}
                 </p>
               </div>
