@@ -8,7 +8,7 @@ const HeroSection = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative min-h-screen min-h-[100svh] flex flex-col items-center justify-start overflow-hidden pt-20 sm:pt-32 pb-6 sm:pb-12 gap-2.5 sm:gap-4">
+    <section className="relative min-h-screen min-h-[100svh] flex flex-col items-center justify-start overflow-hidden pt-16 sm:pt-32 pb-8 sm:pb-12 gap-3 sm:gap-4">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
       {/* Glow dourado deslocado para baixo — antes ficava bem atrás do logo e
           criava uma mancha esbranquiçada sobre ele. */}
@@ -25,7 +25,7 @@ const HeroSection = () => {
         </defs>
       </svg>
 
-      <div className="relative z-10 container mx-auto px-4 text-center flex flex-col items-center gap-2 sm:gap-5">
+      <div className="relative z-10 container mx-auto px-4 text-center flex flex-col items-center gap-3 sm:gap-5">
         {/* Logo */}
         <motion.img
           src={zeusLogo}
@@ -33,18 +33,30 @@ const HeroSection = () => {
           loading="eager"
           width={1584}
           height={672}
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="h-10 sm:h-16 md:h-20 lg:h-24 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)]"
+          className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.35)]"
         />
+
+        {/* Editorial tagline */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="flex items-center gap-2.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.32em] text-primary/90"
+        >
+          <span className="h-px w-6 sm:w-8 bg-primary/40" />
+          Aluguel Premium · Orlando
+          <span className="h-px w-6 sm:w-8 bg-primary/40" />
+        </motion.div>
 
         {/* Title */}
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-[13px] sm:text-lg md:text-xl lg:text-2xl font-bold uppercase tracking-tight leading-[1.2] max-w-4xl px-2 whitespace-normal lg:whitespace-nowrap"
+          transition={{ duration: 0.8, delay: 0.25 }}
+          className="text-[20px] sm:text-2xl md:text-3xl lg:text-[2rem] font-black uppercase tracking-tight leading-[1.15] max-w-[18ch] sm:max-w-3xl lg:max-w-4xl px-2 lg:whitespace-nowrap text-balance"
         >
           {t.hero.title}
           <span className="gold-text">{t.hero.titleHighlight}</span>
@@ -54,7 +66,7 @@ const HeroSection = () => {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          transition={{ duration: 0.8, delay: 0.45 }}
           className="hidden sm:block text-xs sm:text-sm md:text-base text-muted-foreground font-light tracking-wide max-w-xl italic px-3 leading-relaxed"
         >
           {t.hero.subtitle}
@@ -69,7 +81,7 @@ const HeroSection = () => {
         href="#frota"
         animate={{ y: [0, 6, 0] }}
         transition={{ repeat: Infinity, duration: 2.5 }}
-        className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 cursor-pointer opacity-30 hover:opacity-60 transition-opacity duration-300"
+        className="hidden sm:block absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 cursor-pointer opacity-30 hover:opacity-60 transition-opacity duration-300"
       >
         <ChevronDown className="text-primary/50" size={24} />
       </motion.a>
