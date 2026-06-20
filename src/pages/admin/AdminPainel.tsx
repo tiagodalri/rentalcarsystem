@@ -415,9 +415,9 @@ function MiniListCard({
 }
 
 function DeltaCard({
-  label, value, delta, prev, icon: Icon,
+  label, value, delta, prev, icon: Icon, format,
 }: {
-  label: string; value: string; delta: number; prev: string; icon: typeof Activity;
+  label: string; value: number; delta: number; prev: string; icon: typeof Activity; format?: (n: number) => string;
 }) {
   const isUp = delta >= 0;
   const isZero = Math.abs(delta) < 0.1;
@@ -429,7 +429,9 @@ function DeltaCard({
         <Icon size={13} className="text-muted-foreground/50" strokeWidth={1.75} />
       </div>
       <div className="flex items-baseline gap-2 flex-wrap">
-        <span className="admin-kpi text-foreground">{value}</span>
+        <span className="admin-kpi text-foreground">
+          <AnimatedNumber value={value} format={format} />
+        </span>
         {!isZero && (
           <span className={`inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums ${
             isUp ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
