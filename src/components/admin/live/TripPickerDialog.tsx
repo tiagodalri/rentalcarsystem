@@ -208,9 +208,8 @@ export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick
           )}
 
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12 text-white/50 text-xs gap-2">
-              <Loader2 size={18} className="animate-spin" />
-              Carregando viagens…
+            <div className="py-4">
+              <LoadingRows count={4} rowHeight={56} className="px-2" />
             </div>
           ) : grouped.length === 0 && !live ? (
             <div className="text-center py-12 px-4 text-white/60">
