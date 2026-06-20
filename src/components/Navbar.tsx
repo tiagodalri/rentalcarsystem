@@ -114,7 +114,16 @@ const Navbar = () => {
         transform: shouldHide ? "translateY(-110%)" : "translateY(0)",
       }}
     >
-      <div className="container mx-auto relative flex items-center justify-between pt-3 pb-3 sm:py-4 px-5 sm:px-6 lg:px-8 safe-x">
+      <div
+        className="container mx-auto relative flex items-center justify-between pt-3 pb-3 sm:py-4 lg:px-8"
+        style={{
+          // Soma o padding base ao safe-area-inset em vez de deixar a utility
+          // .safe-x sobrescrever o px-* do Tailwind (bug que deixava os
+          // botões grudados na borda em iPhone/Android em portrait).
+          paddingLeft: "max(1.5rem, calc(env(safe-area-inset-left, 0px) + 1.25rem))",
+          paddingRight: "max(1.5rem, calc(env(safe-area-inset-right, 0px) + 1.25rem))",
+        }}
+      >
 
         <a
           href="/#"
