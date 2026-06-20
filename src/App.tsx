@@ -132,6 +132,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <OfflineBanner />
           <InstallPrompt />
           <BrowserRouter>
             <ScrollToTop />
