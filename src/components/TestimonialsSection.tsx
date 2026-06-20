@@ -44,12 +44,12 @@ const TestimonialsSection = () => {
                   <Star key={j} size={14} className="text-primary fill-primary" />
                 ))}
               </div>
-              <p className="text-sm text-muted-foreground font-light leading-relaxed italic mb-5">"{tm.text}"</p>
+              <p className="card-body italic mb-5">"{tm.text}"</p>
               <div className="flex items-center gap-3 pt-4 border-t border-border/20">
                 <div className="w-10 h-10 rounded-full gold-gradient flex items-center justify-center">
-                  <span className="text-xs font-bold text-primary-foreground">{tm.name[0]}</span>
+                  <span className="text-[11px] font-bold text-primary-foreground">{tm.name[0]}</span>
                 </div>
-                <span className="text-sm font-semibold tracking-wide">{tm.name}</span>
+                <span className="text-[13px] sm:text-[14px] font-semibold tracking-[0.04em]">{tm.name}</span>
               </div>
             </motion.div>
           ))}

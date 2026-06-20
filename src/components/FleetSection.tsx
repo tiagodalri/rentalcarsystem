@@ -111,10 +111,10 @@ const FleetSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <p className="text-primary text-sm font-bold uppercase tracking-[0.3em] mb-2">
+          <p className="section-eyebrow">
             {t.fleet.sectionTag}
           </p>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-wider">
+          <h2 className="section-heading">
             {t.fleet.title}<br />
             <span className="gold-text">{t.fleet.titleHighlight}</span>
           </h2>

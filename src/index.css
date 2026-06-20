@@ -267,9 +267,26 @@
     background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--muted)) 50%, hsl(var(--background)) 100%);
   }
 
-  /* Refined section heading style */
+  /* ============================================================
+     UNIFIED SECTION TYPOGRAPHY — premium, balanced, consistent
+     ============================================================ */
   .section-heading {
-    @apply text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-wider;
+    @apply text-[26px] sm:text-[32px] lg:text-[40px] font-black uppercase tracking-[0.04em] leading-[1.1];
+  }
+  .section-eyebrow {
+    @apply inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.28em] text-primary mb-3;
+  }
+  .section-subtitle {
+    @apply text-[13px] sm:text-[14px] text-muted-foreground font-light leading-relaxed mt-4 max-w-xl mx-auto;
+  }
+  .card-title {
+    @apply text-[13px] sm:text-[14px] font-bold uppercase tracking-[0.14em] text-foreground;
+  }
+  .card-body {
+    @apply text-[13px] sm:text-[14px] text-muted-foreground font-light leading-relaxed;
+  }
+  .card-eyebrow {
+    @apply text-[10px] font-semibold uppercase tracking-[0.22em] text-primary/80;
   }
 
   /* Subtle separator line between sections */

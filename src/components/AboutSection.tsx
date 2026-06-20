@@ -18,13 +18,13 @@ const AboutSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto mb-12 sm:mb-20"
         >
-          <h2 className="section-heading mb-5">
+          <h2 className="section-heading mb-4">
             {t.about.title}<span className="gold-text">{t.about.titleHighlight}</span>
           </h2>
-          <p className="text-muted-foreground text-base sm:text-lg font-light leading-relaxed">
+          <p className="section-subtitle">
             {t.about.description}
           </p>
-          <p className="mt-5 text-lg sm:text-xl font-semibold gold-text italic tracking-wide">
+          <p className="mt-5 text-[14px] sm:text-[15px] font-semibold gold-text italic tracking-[0.04em]">
             {t.about.tagline}
           </p>
         </motion.div>
@@ -44,7 +44,7 @@ const AboutSection = () => {
                 <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl gold-gradient flex items-center justify-center mx-auto group-hover:scale-110 transition-transform duration-300">
                   <Icon className="text-primary-foreground" size={24} strokeWidth={1.5} />
                 </div>
-                <p className="mt-4 text-[11px] sm:text-xs md:text-sm font-semibold uppercase tracking-wider leading-snug">{title}</p>
+                <p className="mt-4 card-title leading-snug">{title}</p>
               </motion.div>
             );
           })}

@@ -364,19 +364,19 @@ const HowItWorksSection = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="inline-block text-primary text-[11px] uppercase tracking-[4px] font-semibold mb-4 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/[0.06]"
+            className="section-eyebrow px-4 py-1.5 rounded-full border border-primary/20 bg-primary/[0.06]"
           >
             Como Funciona
           </motion.span>
 
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+          <h2 className="section-heading mt-1">
             Experiência{" "}
             <span className="gold-text italic font-black">concierge</span>
             <br className="hidden sm:block" />{" "}
             <span className="text-muted-foreground font-light">do início ao fim</span>
           </h2>
 
-          <p className="text-muted-foreground text-sm sm:text-base mt-4 max-w-md mx-auto leading-relaxed">
+          <p className="section-subtitle">
             Você só precisa chegar.{" "}
             <span className="text-foreground font-medium">A Zeus cuida de todo o resto.</span>
           </p>
