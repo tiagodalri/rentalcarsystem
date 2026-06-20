@@ -1,4 +1,5 @@
 import { Car, CheckCircle2, KeyRound, Wrench, Eye, AlertTriangle } from "lucide-react";
+import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 
 type Vehicle = {
   status: string;
@@ -57,7 +58,7 @@ export default function FleetKpiStrip({ vehicles, onFilter, activeKey }: Props) 
               <span className="admin-label">{label}</span>
               <Icon size={13} className={`${accent} opacity-70`} strokeWidth={1.75} />
             </div>
-            <div className={`admin-kpi-sm ${accent}`}>{value}</div>
+            <div className={`admin-kpi-sm ${accent}`}><AnimatedNumber value={value} /></div>
           </button>
         );
       })}

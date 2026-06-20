@@ -358,7 +358,9 @@ function KpiCard({
         </span>
         <Icon size={13} className="text-muted-foreground/50 group-hover:text-foreground transition-colors" strokeWidth={1.75} />
       </div>
-      <div className={`admin-kpi ${accent ? ACCENT_TEXT[accent] : "text-foreground"}`}>{value}</div>
+      <div className={`admin-kpi ${accent ? ACCENT_TEXT[accent] : "text-foreground"}`}>
+        {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
+      </div>
       {sub && <span className="text-[11px] text-muted-foreground/70 leading-tight">{sub}</span>}
     </button>
   );
@@ -378,7 +380,7 @@ function MiniListCard({
           <Icon size={12} className={ACCENT_TEXT[accent]} strokeWidth={1.75} />
           {label}
         </span>
-        <span className={`text-[15px] font-medium tabular-nums ${ACCENT_TEXT[accent]}`}>{count}</span>
+        <span className={`text-[15px] font-medium tabular-nums ${ACCENT_TEXT[accent]}`}><AnimatedNumber value={count} /></span>
       </div>
       {items.length === 0 ? (
         <p className="text-[12px] text-muted-foreground/70 flex-1 flex items-center">
