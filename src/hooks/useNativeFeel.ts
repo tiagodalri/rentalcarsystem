@@ -17,22 +17,28 @@ export function useNativeFeel() {
   const navType = useNavigationType();
   const prevPath = useRef(pathname);
 
-  // 1) View Transitions: aplica uma transição quando a rota muda.
-  //    Usamos useLayoutEffect para casar com o frame em que o React acabou
-  //    de pintar a nova rota.
+  // 1) View Transitions: slide direcional quando a rota muda.
+  //    PUSH => entra pela direita (forward). POP => entra pela esquerda (back),
+  //    imitando o push/pop nativo de iOS/Android.
   useLayoutEffect(() => {
     if (prevPath.current === pathname) return;
     prevPath.current = pathname;
 
-    // POP (botão voltar) já tem comportamento próprio do navegador — pulamos
-    // pra evitar duplicar a animação durante swipe-back do iOS.
-    if (navType === "POP") return;
-
     const doc: any = document;
+    const root = document.documentElement;
+    const direction = navType === "POP" ? "back" : "forward";
+    root.dataset.navDirection = direction;
+
     if (typeof doc.startViewTransition !== "function") return;
-    // O React já fez o commit nesse useLayoutEffect; startViewTransition aqui
-    // captura o "novo" frame imediatamente e cross-fade do snapshot antigo.
-    try { doc.startViewTransition(() => {}); } catch { /* no-op */ }
+    try {
+      const transition = doc.startViewTransition(() => {});
+      const cleanup = () => {
+        if (root.dataset.navDirection === direction) {
+          delete root.dataset.navDirection;
+        }
+      };
+      transition?.finished?.then?.(cleanup, cleanup);
+    } catch { /* no-op */ }
   }, [pathname, navType]);
 
   // 2) Centralizar input focado quando teclado virtual abre.
