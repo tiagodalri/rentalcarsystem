@@ -394,7 +394,11 @@
     text-wrap: balance;
   }
 
-  /* Safe-area helpers for PWA / notched devices */
+  /* Safe-area helpers para PWA / devices com notch.
+     IMPORTANTE: estas utilities usam padding. NÃO combine com px-*/py-* do
+     Tailwind no mesmo elemento — a última declaração ganha e você acaba
+     sem padding base. Para combinar, use inline style com:
+       paddingLeft: max(1.5rem, calc(env(safe-area-inset-left,0px) + 1.25rem)) */
   .safe-top { padding-top: env(safe-area-inset-top, 0px); }
   .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
   .safe-left { padding-left: env(safe-area-inset-left, 0px); }
@@ -404,13 +408,13 @@
   .mt-safe { margin-top: env(safe-area-inset-top, 0px); }
   .mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
 
-  /* In installed PWA (standalone), add extra breathing room below the
-     status bar / notch so navbar icons don't collide with system UI. */
+  /* PWA instalado (standalone): garante respiro extra abaixo do status bar/notch. */
   @media (display-mode: standalone) {
     .safe-top { padding-top: calc(env(safe-area-inset-top, 0px) + 0.5rem); }
     .safe-x   { padding-left: calc(env(safe-area-inset-left, 0px) + 0.5rem);
                 padding-right: calc(env(safe-area-inset-right, 0px) + 0.5rem); }
   }
+
 
   /* Smooth hover lift for interactive cards */
   .hover-lift {
