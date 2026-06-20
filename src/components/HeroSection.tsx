@@ -33,7 +33,7 @@ const HeroSection = () => {
           loading="eager"
           width={800}
           height={383}
-          className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)] animate-fade-in"
+          className="h-14 sm:h-16 md:h-20 lg:h-24 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.3)]"
           style={{ imageRendering: "-webkit-optimize-contrast" }}
         />
 
