@@ -14,6 +14,8 @@ import { format, parse, isValid } from "date-fns";
 import { pt } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
+export type AddressCountry = "BR" | "US" | "OTHER";
+
 export interface CustomerData {
   full_name: string;
   email: string;
@@ -29,6 +31,7 @@ export interface CustomerData {
   district: string;
   city: string;
   state: string;
+  country?: AddressCountry;
   licenseFile: File | null;
 }
 
@@ -101,8 +104,22 @@ export default function CustomerDataStep({ data, onChange }: Props) {
     onChange({ ...data, [key]: value });
   };
 
+  // Default country: BR if nationality Brasileira (or unset), else US
+  const country: AddressCountry =
+    data.country || (data.nationality === "Brasileira" || !data.nationality ? "BR" : "US");
+
+  const setCountry = (c: AddressCountry) => {
+    onChange({ ...data, country: c, zip_code: "", address: "", district: "", city: "", state: "", house_number: "" });
+    setAddressOpen(false);
+  };
+
   const formatCep = (raw: string) => {
     const d = raw.replace(/\D/g, "").slice(0, 8);
+    return d.length <= 5 ? d : `${d.slice(0, 5)}-${d.slice(5)}`;
+  };
+
+  const formatUsZip = (raw: string) => {
+    const d = raw.replace(/\D/g, "").slice(0, 9);
     return d.length <= 5 ? d : `${d.slice(0, 5)}-${d.slice(5)}`;
   };
 
@@ -116,18 +133,44 @@ export default function CustomerDataStep({ data, onChange }: Props) {
       if (!result.erro) {
         onChange({
           ...data,
+          country: "BR",
           zip_code: formatCep(cep),
           address: result.logradouro || data.address,
           district: result.bairro || data.district,
           city: result.localidade || data.city,
           state: (result.uf || data.state || "").toUpperCase(),
         });
-        // Open the address section so user can complete house number
         setAddressOpen(true);
       }
     } catch { /* noop */ }
     setCepLoading(false);
   };
+
+  const lookupUsZip = async (zip: string) => {
+    const clean = zip.replace(/\D/g, "").slice(0, 5);
+    if (clean.length !== 5) return;
+    setCepLoading(true);
+    try {
+      const res = await fetch(`https://api.zippopotam.us/us/${clean}`);
+      if (res.ok) {
+        const result = await res.json();
+        const place = result.places?.[0];
+        if (place) {
+          onChange({
+            ...data,
+            country: "US",
+            zip_code: formatUsZip(zip),
+            city: place["place name"] || data.city,
+            state: (place["state abbreviation"] || data.state || "").toUpperCase(),
+          });
+          setAddressOpen(true);
+        }
+      }
+    } catch { /* noop */ }
+    setCepLoading(false);
+  };
+
+
 
   // ---- status flags ----
   const personalComplete = nameValid && emailValid && (data.phone || "").length > 6 && !!data.date_of_birth;
@@ -396,113 +439,188 @@ export default function CustomerDataStep({ data, onChange }: Props) {
       <SectionCard
         icon={MapPin}
         title="Endereço"
-        subtitle="Comece pelo CEP — preenchemos o resto"
+        subtitle={
+          country === "BR" ? "Comece pelo CEP — preenchemos o resto"
+          : country === "US" ? "Start with your ZIP code — we'll fill the rest"
+          : "Preencha seu endereço"
+        }
         status={addressComplete ? "complete" : "default"}
       >
-        {/* CEP */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-1">
-            <FieldLabel>CEP / Zip Code</FieldLabel>
-            <div className="relative">
-              <input
-                type="text"
-                inputMode="numeric"
-                value={data.zip_code || ""}
-                maxLength={9}
-                onChange={(e) => {
-                  const val = formatCep(e.target.value);
-                  update("zip_code", val);
-                  lookupCep(val);
-                }}
-                placeholder="00000-000"
-                className={cn(FIELD_BASE, FIELD_OK, "pr-11")}
-              />
-              {cepLoading && (
-                <Loader2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary animate-spin" />
-              )}
-            </div>
-          </div>
-          <div>
-            <FieldLabel>Cidade</FieldLabel>
-            <input
-              type="text"
-              value={data.city || ""}
-              onChange={(e) => update("city", e.target.value)}
-              placeholder="Sua cidade"
-              className={cn(FIELD_BASE, FIELD_OK)}
-            />
+        {/* Country selector */}
+        <div>
+          <FieldLabel>País</FieldLabel>
+          <div className="flex flex-wrap gap-2">
+            {([
+              { v: "BR", label: "Brasil" },
+              { v: "US", label: "Estados Unidos" },
+              { v: "OTHER", label: "Outro" },
+            ] as { v: AddressCountry; label: string }[]).map(({ v, label }) => {
+              const active = country === v;
+              return (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setCountry(v)}
+                  className={cn(
+                    "h-11 px-4 rounded-full border text-sm font-medium transition-all",
+                    active
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      : "border-border/60 bg-background text-foreground hover:border-primary/50"
+                  )}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Collapsible: endereço completo */}
-        <Collapsible open={addressOpen} onOpenChange={setAddressOpen}>
-          <CollapsibleTrigger className="w-full flex items-center justify-between text-sm font-medium text-primary hover:text-primary/80 transition-colors py-2">
-            <span>Endereço completo</span>
-            <ChevronDown
-              size={16}
-              className={cn("transition-transform", addressOpen && "rotate-180")}
-            />
-          </CollapsibleTrigger>
+        {/* ZIP / CEP + City */}
+        {country !== "OTHER" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <FieldLabel>{country === "BR" ? "CEP" : "ZIP code"}</FieldLabel>
+              <div className="relative">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={data.zip_code || ""}
+                  maxLength={country === "BR" ? 9 : 10}
+                  onChange={(e) => {
+                    const val = country === "BR" ? formatCep(e.target.value) : formatUsZip(e.target.value);
+                    update("zip_code", val);
+                    if (country === "BR") lookupCep(val);
+                    else lookupUsZip(val);
+                  }}
+                  placeholder={country === "BR" ? "00000-000" : "33101"}
+                  className={cn(FIELD_BASE, FIELD_OK, "pr-11")}
+                />
+                {cepLoading && (
+                  <Loader2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary animate-spin" />
+                )}
+              </div>
+            </div>
+            <div>
+              <FieldLabel>{country === "BR" ? "Cidade" : "City"}</FieldLabel>
+              <input
+                type="text"
+                value={data.city || ""}
+                onChange={(e) => update("city", e.target.value)}
+                placeholder={country === "BR" ? "Sua cidade" : "Miami"}
+                className={cn(FIELD_BASE, FIELD_OK)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Collapsible: full address */}
+        <Collapsible open={addressOpen || country === "OTHER"} onOpenChange={setAddressOpen}>
+          {country !== "OTHER" && (
+            <CollapsibleTrigger className="w-full flex items-center justify-between text-sm font-medium text-primary hover:text-primary/80 transition-colors py-2">
+              <span>{country === "BR" ? "Endereço completo" : "Full address"}</span>
+              <ChevronDown
+                size={16}
+                className={cn("transition-transform", addressOpen && "rotate-180")}
+              />
+            </CollapsibleTrigger>
+          )}
           <CollapsibleContent className="space-y-4 pt-2">
-            <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px] gap-4">
+            {country === "OTHER" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <FieldLabel>Zip / Postal code</FieldLabel>
+                  <input
+                    type="text"
+                    value={data.zip_code || ""}
+                    onChange={(e) => update("zip_code", e.target.value)}
+                    placeholder="—"
+                    className={cn(FIELD_BASE, FIELD_OK)}
+                  />
+                </div>
+                <div>
+                  <FieldLabel>City</FieldLabel>
+                  <input
+                    type="text"
+                    value={data.city || ""}
+                    onChange={(e) => update("city", e.target.value)}
+                    placeholder="—"
+                    className={cn(FIELD_BASE, FIELD_OK)}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_140px] gap-4">
               <div>
-                <FieldLabel>Rua / Logradouro</FieldLabel>
+                <FieldLabel>
+                  {country === "BR" ? "Rua / Logradouro"
+                  : country === "US" ? "Street address" : "Street"}
+                </FieldLabel>
                 <input
                   type="text"
                   value={data.address || ""}
                   onChange={(e) => update("address", e.target.value)}
-                  placeholder="Avenida Paulista"
+                  placeholder={country === "US" ? "123 Ocean Drive" : "Avenida Paulista"}
                   className={cn(FIELD_BASE, FIELD_OK)}
                 />
               </div>
               <div>
-                <FieldLabel>Número</FieldLabel>
+                <FieldLabel>{country === "BR" ? "Número" : country === "US" ? "Apt / Unit" : "Number"}</FieldLabel>
                 <input
                   type="text"
-                  inputMode="numeric"
                   value={data.house_number || ""}
                   onChange={(e) => update("house_number", e.target.value)}
-                  placeholder="123"
+                  placeholder={country === "US" ? "4B" : "123"}
                   className={cn(FIELD_BASE, FIELD_OK)}
                 />
               </div>
             </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <FieldLabel>Complemento (opcional)</FieldLabel>
+                <FieldLabel>
+                  {country === "BR" ? "Complemento (opcional)" : "Complement (optional)"}
+                </FieldLabel>
                 <input
                   type="text"
                   value={data.complement || ""}
                   onChange={(e) => update("complement", e.target.value)}
-                  placeholder="Apto, bloco, sala"
+                  placeholder={country === "BR" ? "Apto, bloco" : "Suite, floor"}
                   className={cn(FIELD_BASE, FIELD_OK)}
                 />
               </div>
               <div>
-                <FieldLabel>Bairro</FieldLabel>
+                <FieldLabel>
+                  {country === "BR" ? "Bairro" : country === "US" ? "Neighborhood (optional)" : "District"}
+                </FieldLabel>
                 <input
                   type="text"
                   value={data.district || ""}
                   onChange={(e) => update("district", e.target.value)}
-                  placeholder="Centro"
+                  placeholder={country === "US" ? "Brickell" : "Centro"}
                   className={cn(FIELD_BASE, FIELD_OK)}
                 />
               </div>
             </div>
+
             <div>
-              <FieldLabel>Estado (UF)</FieldLabel>
+              <FieldLabel>
+                {country === "BR" ? "Estado (UF)" : country === "US" ? "State" : "State / Province"}
+              </FieldLabel>
               <input
                 type="text"
                 value={data.state || ""}
-                maxLength={2}
+                maxLength={country === "OTHER" ? undefined : 2}
                 onChange={(e) => update("state", e.target.value.toUpperCase())}
-                placeholder="SP"
+                placeholder={country === "BR" ? "SP" : country === "US" ? "FL" : "—"}
                 className={cn(FIELD_BASE, FIELD_OK, "uppercase tracking-widest")}
               />
             </div>
           </CollapsibleContent>
         </Collapsible>
       </SectionCard>
+
+
 
       {/* Trust footer */}
       <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground py-2">
