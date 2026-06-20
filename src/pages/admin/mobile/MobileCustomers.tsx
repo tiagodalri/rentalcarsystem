@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Plus, Phone, MessageCircle, X } from "lucide-react";
+import { Search, Plus, Phone, MessageCircle, X, Users, Car } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
@@ -11,6 +11,7 @@ import { useRegisterFab } from "@/hooks/useAdminFab";
    CLIENTES — Mobile-first
    Lista estilo agenda do iPhone: avatares com inicial,
    agrupado por letra, swipe→ligar/whatsapp.
+   Segmento Regular (Zeus) / Turo igual ao desktop.
    ============================================================ */
 
 type Customer = {
@@ -18,6 +19,8 @@ type Customer = {
   full_name: string;
   email: string | null;
   phone: string | null;
+  source: "regular" | "turo" | null;
+  turo_guest_id: string | null;
 };
 
 const initials = (name: string) =>
