@@ -13,6 +13,7 @@ import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { formatPersonName } from "@/lib/formatName";
 import MobilePainel from "./mobile/MobilePainel";
+import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 
 
 
