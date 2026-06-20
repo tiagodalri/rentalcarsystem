@@ -1,23 +1,34 @@
-import { useState, useRef } from "react";
-import { User, Mail, Phone, Calendar, Globe, FileText, MapPin, Upload, Camera, Loader2, Building2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useState, useRef, useMemo } from "react";
+import {
+  User, Mail, Phone, Calendar as CalendarIcon, Globe, FileText, MapPin,
+  Upload, Camera, Loader2, Building2, AlertCircle, CheckCircle2,
+  ShieldCheck, ChevronDown, Lock,
+} from "lucide-react";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { isValidEmail, suggestEmail } from "@/lib/formValidators";
-
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { format, parse, isValid } from "date-fns";
+import { pt } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 export interface CustomerData {
   full_name: string;
   email: string;
   phone: string;
-  date_of_birth: string;
+  date_of_birth: string;       // ISO yyyy-MM-dd
   nationality: string;
   document_number: string;
-  address: string;       // street / logradouro
+  document_type?: "cpf" | "passport" | "id";
+  address: string;
   house_number: string;
   complement: string;
   zip_code: string;
-  district: string;      // bairro
-  city: string;          // cidade
-  state: string;         // UF (2 letras)
+  district: string;
+  city: string;
+  state: string;
   licenseFile: File | null;
 }
 
@@ -26,21 +37,45 @@ interface Props {
   onChange: (data: CustomerData) => void;
 }
 
-const fields = [
-  { key: "full_name", label: "Nome Completo *", icon: User, type: "text", placeholder: "Nome e sobrenome (como no documento)", colSpan: 2 },
-  { key: "email", label: "E-mail *", icon: Mail, type: "email", placeholder: "voce@email.com", colSpan: 2 },
-  { key: "phone", label: "Celular (WhatsApp) *", icon: Phone, type: "tel", placeholder: "+55 11 99999-0000", colSpan: 2 },
-  { key: "date_of_birth", label: "Data de Nascimento *", icon: Calendar, type: "date", placeholder: "", colSpan: 2 },
-  { key: "nationality", label: "Nacionalidade", icon: Globe, type: "text", placeholder: "Brasileira", colSpan: 2 },
-  { key: "document_number", label: "Documento (CPF / Passport / ID) *", icon: FileText, type: "text", placeholder: "Apenas números", colSpan: 2 },
-  { key: "zip_code", label: "CEP / Zip Code *", icon: MapPin, type: "text", placeholder: "00000-000", colSpan: 2 },
-  { key: "address", label: "Rua / Logradouro *", icon: MapPin, type: "text", placeholder: "Avenida Paulista", colSpan: 2 },
-  { key: "house_number", label: "Número *", icon: MapPin, type: "text", placeholder: "123", colSpan: 2 },
-  { key: "complement", label: "Complemento", icon: MapPin, type: "text", placeholder: "Apto, bloco, sala (opcional)", colSpan: 2 },
-  { key: "district", label: "Bairro", icon: Building2, type: "text", placeholder: "Centro", colSpan: 2 },
-  { key: "city", label: "Cidade *", icon: Building2, type: "text", placeholder: "São Paulo", colSpan: 2 },
-  { key: "state", label: "Estado (UF) *", icon: Building2, type: "text", placeholder: "SP", colSpan: 2 },
-] as const;
+const NATIONALITIES = ["Brasileira", "Americana", "Portuguesa", "Outra"] as const;
+
+const FIELD_BASE =
+  "w-full h-14 px-4 rounded-xl border bg-background text-base text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all";
+const FIELD_OK = "border-border/60 focus:ring-primary/25 focus:border-primary/50";
+const FIELD_ERR = "border-destructive/60 focus:ring-destructive/25 focus:border-destructive/60";
+
+function SectionCard({
+  icon: Icon, title, subtitle, children, status,
+}: {
+  icon: any; title: string; subtitle?: string; children: React.ReactNode;
+  status?: "default" | "complete" | "warning";
+}) {
+  return (
+    <section className="rounded-2xl border border-border/50 bg-card overflow-hidden">
+      <header className="flex items-start gap-3 p-5 sm:p-6 pb-4 border-b border-border/40">
+        <div className={cn(
+          "h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
+          status === "complete" ? "bg-emerald-500/10 text-emerald-500" : "bg-primary/10 text-primary"
+        )}>
+          {status === "complete" ? <CheckCircle2 size={18} /> : <Icon size={18} />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-base font-semibold text-foreground leading-tight">{title}</h3>
+          {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
+        </div>
+      </header>
+      <div className="p-5 sm:p-6 space-y-4">{children}</div>
+    </section>
+  );
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="text-xs font-medium text-muted-foreground mb-2 block">
+      {children}
+    </label>
+  );
+}
 
 export default function CustomerDataStep({ data, onChange }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -48,6 +83,11 @@ export default function CustomerDataStep({ data, onChange }: Props) {
   const [cepLoading, setCepLoading] = useState(false);
   const [emailTouched, setEmailTouched] = useState(false);
   const [nameTouched, setNameTouched] = useState(false);
+  const [otherNationality, setOtherNationality] = useState(
+    data.nationality && !NATIONALITIES.includes(data.nationality as any)
+  );
+  const [addressOpen, setAddressOpen] = useState(false);
+
   const emailSuggestion = suggestEmail(data.email || "");
   const emailValid = isValidEmail(data.email || "");
   const showEmailError = emailTouched && (data.email || "").length > 0 && !emailValid;
@@ -55,16 +95,15 @@ export default function CustomerDataStep({ data, onChange }: Props) {
   const nameValid = nameParts.length >= 2;
   const showNameError = nameTouched && (data.full_name || "").trim().length > 0 && !nameValid;
 
+  const documentType = data.document_type || "cpf";
 
-
-  const update = (key: string, value: string) => {
+  const update = (key: keyof CustomerData, value: any) => {
     onChange({ ...data, [key]: value });
   };
 
   const formatCep = (raw: string) => {
     const d = raw.replace(/\D/g, "").slice(0, 8);
-    if (d.length <= 5) return d;
-    return `${d.slice(0, 5)}-${d.slice(5)}`;
+    return d.length <= 5 ? d : `${d.slice(0, 5)}-${d.slice(5)}`;
   };
 
   const lookupCep = async (cep: string) => {
@@ -83,144 +122,392 @@ export default function CustomerDataStep({ data, onChange }: Props) {
           city: result.localidade || data.city,
           state: (result.uf || data.state || "").toUpperCase(),
         });
+        // Open the address section so user can complete house number
+        setAddressOpen(true);
       }
     } catch { /* noop */ }
     setCepLoading(false);
   };
 
+  // ---- status flags ----
+  const personalComplete = nameValid && emailValid && (data.phone || "").length > 6 && !!data.date_of_birth;
+  const docComplete = !!data.document_number && !!data.nationality;
+  const addressComplete = !!data.zip_code && !!data.address && !!data.house_number && !!data.city && !!data.state;
+
+  // ---- DOB picker helpers ----
+  const dobDate = useMemo(() => {
+    if (!data.date_of_birth) return undefined;
+    const d = parse(data.date_of_birth, "yyyy-MM-dd", new Date());
+    return isValid(d) ? d : undefined;
+  }, [data.date_of_birth]);
+
+  const documentPlaceholder =
+    documentType === "cpf" ? "000.000.000-00"
+    : documentType === "passport" ? "BR123456"
+    : "Número do documento";
 
   return (
-    <div className="rounded-xl border border-border/40 bg-card p-5 sm:p-6 space-y-5">
-      <div className="flex items-center gap-2">
-        <User size={16} className="text-primary" />
-        <h3 className="text-sm font-bold uppercase tracking-[0.1em] text-foreground">Dados do Condutor</h3>
-      </div>
-      <p className="text-xs text-muted-foreground -mt-2">
-        Preencha para finalizar sua reserva. Digite o CEP que rua, bairro, cidade e estado são preenchidos sozinhos.
-      </p>
+    <div className="space-y-4">
+      {/* ============ Você ============ */}
+      <SectionCard
+        icon={User}
+        title="Você"
+        subtitle="Como devemos te identificar e contatar"
+        status={personalComplete ? "complete" : "default"}
+      >
+        {/* Nome */}
+        <div>
+          <FieldLabel>Nome completo</FieldLabel>
+          <div className="relative">
+            <input
+              type="text"
+              value={data.full_name || ""}
+              onChange={(e) => update("full_name", e.target.value)}
+              onBlur={() => setNameTouched(true)}
+              placeholder="Como aparece no seu documento"
+              autoComplete="name"
+              className={cn(FIELD_BASE, "pr-11", showNameError ? FIELD_ERR : FIELD_OK)}
+            />
+            {nameValid && (
+              <CheckCircle2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none" />
+            )}
+          </div>
+          {showNameError && (
+            <p className="mt-2 text-xs text-destructive flex items-center gap-1.5">
+              <AlertCircle size={12} /> Informe nome e sobrenome completos.
+            </p>
+          )}
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
-        {fields.map(({ key, label, icon: Icon, type, placeholder, colSpan }) => (
-          <div key={key} className={colSpan === 2 ? "sm:col-span-2" : ""}>
-            <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-              <Icon size={11} className="text-primary/60" />
-              {label}
-            </label>
+        {/* Email + Phone */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <FieldLabel>E-mail</FieldLabel>
             <div className="relative">
-              {key === "phone" ? (
-                <PhoneInput
-                  value={(data as any)[key]}
-                  onChange={(val) => update(key, val)}
-                  inputClassName="h-11 px-3 text-sm"
-                />
-              ) : (
-                <input
-                  type={type}
-                  inputMode={key === "email" ? "email" : key === "zip_code" || key === "document_number" || key === "house_number" ? "numeric" : undefined}
-                  autoComplete={key === "email" ? "email" : undefined}
-                  value={(data as any)[key] ?? ""}
-                  maxLength={key === "state" ? 2 : key === "zip_code" ? 9 : undefined}
-                  onBlur={() => { if (key === "email") setEmailTouched(true); if (key === "full_name") setNameTouched(true); }}
-                  onChange={(e) => {
-                    let val: string = e.target.value;
-                    if (key === "state") val = val.toUpperCase();
-                    if (key === "zip_code") val = formatCep(val);
-                    update(key, val);
-                    if (key === "zip_code") lookupCep(val);
-                  }}
-
-                  placeholder={placeholder}
-                  className={`w-full h-11 px-3 pr-9 rounded-md border bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
-                    (key === "email" && showEmailError) || (key === "full_name" && showNameError)
-                      ? "border-destructive/60 focus:ring-destructive/25 focus:border-destructive/60"
-                      : "border-border/50 focus:ring-primary/25 focus:border-primary/40"
-                  }`}
-                />
-              )}
-              {key === "zip_code" && cepLoading && (
-                <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-spin" />
-              )}
-              {key === "email" && emailValid && (
-                <CheckCircle2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none" />
-              )}
-              {key === "full_name" && nameValid && (
-                <CheckCircle2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none" />
+              <input
+                type="email"
+                inputMode="email"
+                autoComplete="email"
+                value={data.email || ""}
+                onChange={(e) => update("email", e.target.value)}
+                onBlur={() => setEmailTouched(true)}
+                placeholder="voce@email.com"
+                className={cn(FIELD_BASE, "pr-11", showEmailError ? FIELD_ERR : FIELD_OK)}
+              />
+              {emailValid && (
+                <CheckCircle2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none" />
               )}
             </div>
-            {key === "full_name" && showNameError && (
-              <p className="mt-1 text-[11px] text-destructive flex items-center gap-1">
-                <AlertCircle size={11} />
-                Informe nome e sobrenome completos (ex.: Miqueias Santos).
+            {showEmailError && (
+              <p className="mt-2 text-xs text-destructive flex items-center gap-1.5">
+                <AlertCircle size={12} /> E-mail inválido.
               </p>
             )}
-            {key === "email" && showEmailError && (
-              <p className="mt-1 text-[11px] text-destructive flex items-center gap-1">
-                <AlertCircle size={11} />
-                E-mail inválido. Use o formato nome@dominio.com
-              </p>
-            )}
-            {key === "email" && emailSuggestion && !emailValid && (
+            {emailSuggestion && !emailValid && (
               <button
                 type="button"
                 onClick={() => { update("email", emailSuggestion); setEmailTouched(true); }}
-                className="mt-1 text-[11px] text-primary hover:underline text-left"
+                className="mt-2 text-xs text-primary hover:underline text-left"
               >
                 Você quis dizer <span className="font-medium">{emailSuggestion}</span>?
               </button>
             )}
           </div>
-        ))}
-      </div>
 
-
-      {/* License upload */}
-      <div>
-        <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
-          <FileText size={11} className="text-primary/60" />
-          Habilitação (CNH) — Foto ou PDF
-        </label>
-        {/* sr-only inputs — iOS/Safari ignora .click() em input com display:none.
-            Use sr-only para manter no fluxo de acessibilidade e abrir a câmera nativa. */}
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*,.pdf"
-          onChange={(e) => {
-            const file = e.target.files?.[0] || null;
-            onChange({ ...data, licenseFile: file });
-          }}
-          className="sr-only"
-        />
-        <input
-          ref={cameraRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={(e) => {
-            const file = e.target.files?.[0] || null;
-            onChange({ ...data, licenseFile: file });
-          }}
-          className="sr-only"
-        />
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => cameraRef.current?.click()}
-            className="h-11 px-3 rounded-md border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all flex items-center gap-2"
-          >
-            <Camera size={13} />
-            Câmera
-          </button>
-          <button
-            type="button"
-            onClick={() => fileRef.current?.click()}
-            className="flex-1 h-11 px-3 rounded-md border border-dashed border-border/50 bg-background/50 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all flex items-center gap-2 truncate"
-          >
-            <Upload size={13} />
-            <span className="truncate">{data.licenseFile ? data.licenseFile.name : "Anexar arquivo"}</span>
-          </button>
+          <div>
+            <FieldLabel>Celular (WhatsApp)</FieldLabel>
+            <PhoneInput
+              value={data.phone}
+              onChange={(val) => update("phone", val)}
+              inputClassName="h-14 px-4 text-base rounded-xl"
+            />
+          </div>
         </div>
 
+        {/* Date of birth — custom picker */}
+        <div>
+          <FieldLabel>Data de nascimento</FieldLabel>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  FIELD_BASE, FIELD_OK,
+                  "flex items-center justify-between text-left",
+                  !dobDate && "text-muted-foreground/60"
+                )}
+              >
+                <span className="flex items-center gap-3">
+                  <CalendarIcon size={18} className="text-primary/70" />
+                  {dobDate ? format(dobDate, "dd 'de' MMMM 'de' yyyy", { locale: pt }) : "Selecione a data"}
+                </span>
+                <ChevronDown size={16} className="text-muted-foreground/60" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+              <Calendar
+                mode="single"
+                selected={dobDate}
+                onSelect={(d) => {
+                  if (d) update("date_of_birth", format(d, "yyyy-MM-dd"));
+                }}
+                captionLayout="dropdown-buttons"
+                fromYear={1930}
+                toYear={new Date().getFullYear() - 18}
+                defaultMonth={dobDate || new Date(1995, 0)}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+      </SectionCard>
+
+      {/* ============ Documentos ============ */}
+      <SectionCard
+        icon={FileText}
+        title="Documentos"
+        subtitle="Necessários para validar sua reserva"
+        status={docComplete && data.licenseFile ? "complete" : "default"}
+      >
+        {/* Nationality chips */}
+        <div>
+          <FieldLabel>Nacionalidade</FieldLabel>
+          <div className="flex flex-wrap gap-2">
+            {NATIONALITIES.map((n) => {
+              const isOther = n === "Outra";
+              const active = isOther
+                ? otherNationality
+                : data.nationality === n;
+              return (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => {
+                    if (isOther) {
+                      setOtherNationality(true);
+                      if (NATIONALITIES.includes(data.nationality as any)) update("nationality", "");
+                    } else {
+                      setOtherNationality(false);
+                      update("nationality", n);
+                    }
+                  }}
+                  className={cn(
+                    "h-11 px-4 rounded-full border text-sm font-medium transition-all",
+                    active
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      : "border-border/60 bg-background text-foreground hover:border-primary/50"
+                  )}
+                >
+                  {n}
+                </button>
+              );
+            })}
+          </div>
+          {otherNationality && (
+            <input
+              type="text"
+              value={data.nationality || ""}
+              onChange={(e) => update("nationality", e.target.value)}
+              placeholder="Digite sua nacionalidade"
+              className={cn(FIELD_BASE, FIELD_OK, "mt-3")}
+            />
+          )}
+        </div>
+
+        {/* Document type tabs */}
+        <div>
+          <FieldLabel>Tipo de documento</FieldLabel>
+          <Tabs
+            value={documentType}
+            onValueChange={(v) => update("document_type", v as any)}
+            className="w-full"
+          >
+            <TabsList className="grid grid-cols-3 w-full h-12 rounded-xl bg-muted/50 p-1">
+              <TabsTrigger value="cpf" className="rounded-lg text-sm h-full">CPF</TabsTrigger>
+              <TabsTrigger value="passport" className="rounded-lg text-sm h-full">Passaporte</TabsTrigger>
+              <TabsTrigger value="id" className="rounded-lg text-sm h-full">Outro ID</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <input
+            type="text"
+            inputMode={documentType === "cpf" ? "numeric" : "text"}
+            value={data.document_number || ""}
+            onChange={(e) => update("document_number", e.target.value)}
+            placeholder={documentPlaceholder}
+            className={cn(FIELD_BASE, FIELD_OK, "mt-3")}
+          />
+        </div>
+
+        {/* License upload */}
+        <div>
+          <FieldLabel>Habilitação (CNH) — foto ou PDF</FieldLabel>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*,.pdf"
+            onChange={(e) => onChange({ ...data, licenseFile: e.target.files?.[0] || null })}
+            className="sr-only"
+          />
+          <input
+            ref={cameraRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={(e) => onChange({ ...data, licenseFile: e.target.files?.[0] || null })}
+            className="sr-only"
+          />
+          {data.licenseFile ? (
+            <div className="flex items-center gap-3 h-14 px-4 rounded-xl border border-emerald-500/40 bg-emerald-500/5">
+              <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
+              <span className="flex-1 text-sm text-foreground truncate">{data.licenseFile.name}</span>
+              <button
+                type="button"
+                onClick={() => onChange({ ...data, licenseFile: null })}
+                className="text-xs text-muted-foreground hover:text-destructive"
+              >
+                Trocar
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => cameraRef.current?.click()}
+                className="h-14 rounded-xl border-2 border-dashed border-border/60 bg-background hover:border-primary/50 hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-0.5"
+              >
+                <Camera size={16} className="text-primary" />
+                <span className="text-xs font-medium text-foreground">Tirar foto</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="h-14 rounded-xl border-2 border-dashed border-border/60 bg-background hover:border-primary/50 hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-0.5"
+              >
+                <Upload size={16} className="text-primary" />
+                <span className="text-xs font-medium text-foreground">Anexar arquivo</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </SectionCard>
+
+      {/* ============ Endereço ============ */}
+      <SectionCard
+        icon={MapPin}
+        title="Endereço"
+        subtitle="Comece pelo CEP — preenchemos o resto"
+        status={addressComplete ? "complete" : "default"}
+      >
+        {/* CEP */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-1">
+            <FieldLabel>CEP / Zip Code</FieldLabel>
+            <div className="relative">
+              <input
+                type="text"
+                inputMode="numeric"
+                value={data.zip_code || ""}
+                maxLength={9}
+                onChange={(e) => {
+                  const val = formatCep(e.target.value);
+                  update("zip_code", val);
+                  lookupCep(val);
+                }}
+                placeholder="00000-000"
+                className={cn(FIELD_BASE, FIELD_OK, "pr-11")}
+              />
+              {cepLoading && (
+                <Loader2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary animate-spin" />
+              )}
+            </div>
+          </div>
+          <div>
+            <FieldLabel>Cidade</FieldLabel>
+            <input
+              type="text"
+              value={data.city || ""}
+              onChange={(e) => update("city", e.target.value)}
+              placeholder="Sua cidade"
+              className={cn(FIELD_BASE, FIELD_OK)}
+            />
+          </div>
+        </div>
+
+        {/* Collapsible: endereço completo */}
+        <Collapsible open={addressOpen} onOpenChange={setAddressOpen}>
+          <CollapsibleTrigger className="w-full flex items-center justify-between text-sm font-medium text-primary hover:text-primary/80 transition-colors py-2">
+            <span>Endereço completo</span>
+            <ChevronDown
+              size={16}
+              className={cn("transition-transform", addressOpen && "rotate-180")}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_120px] gap-4">
+              <div>
+                <FieldLabel>Rua / Logradouro</FieldLabel>
+                <input
+                  type="text"
+                  value={data.address || ""}
+                  onChange={(e) => update("address", e.target.value)}
+                  placeholder="Avenida Paulista"
+                  className={cn(FIELD_BASE, FIELD_OK)}
+                />
+              </div>
+              <div>
+                <FieldLabel>Número</FieldLabel>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={data.house_number || ""}
+                  onChange={(e) => update("house_number", e.target.value)}
+                  placeholder="123"
+                  className={cn(FIELD_BASE, FIELD_OK)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <FieldLabel>Complemento (opcional)</FieldLabel>
+                <input
+                  type="text"
+                  value={data.complement || ""}
+                  onChange={(e) => update("complement", e.target.value)}
+                  placeholder="Apto, bloco, sala"
+                  className={cn(FIELD_BASE, FIELD_OK)}
+                />
+              </div>
+              <div>
+                <FieldLabel>Bairro</FieldLabel>
+                <input
+                  type="text"
+                  value={data.district || ""}
+                  onChange={(e) => update("district", e.target.value)}
+                  placeholder="Centro"
+                  className={cn(FIELD_BASE, FIELD_OK)}
+                />
+              </div>
+            </div>
+            <div>
+              <FieldLabel>Estado (UF)</FieldLabel>
+              <input
+                type="text"
+                value={data.state || ""}
+                maxLength={2}
+                onChange={(e) => update("state", e.target.value.toUpperCase())}
+                placeholder="SP"
+                className={cn(FIELD_BASE, FIELD_OK, "uppercase tracking-widest")}
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </SectionCard>
+
+      {/* Trust footer */}
+      <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground py-2">
+        <Lock size={12} className="text-emerald-500" />
+        <span>Seus dados são criptografados e usados apenas para emitir o contrato.</span>
       </div>
     </div>
   );
