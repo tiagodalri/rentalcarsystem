@@ -14,6 +14,8 @@ import { format, parse, isValid } from "date-fns";
 import { pt } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
+export type AddressCountry = "BR" | "US" | "OTHER";
+
 export interface CustomerData {
   full_name: string;
   email: string;
@@ -29,6 +31,7 @@ export interface CustomerData {
   district: string;
   city: string;
   state: string;
+  country?: AddressCountry;
   licenseFile: File | null;
 }
 
