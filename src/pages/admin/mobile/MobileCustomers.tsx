@@ -34,12 +34,13 @@ export default function MobileCustomers() {
   const [loading, setLoading] = useState(true);
   useRegisterFab({ icon: Plus, label: "Novo cliente", onClick: () => navigate("/admin/customers?new=1") });
   const [search, setSearch] = useState("");
+  const [segment, setSegment] = useState<"regular" | "turo">("regular");
 
   const load = async () => {
     setLoading(true);
     const { data } = await supabase
       .from("customers")
-      .select("id, full_name, email, phone")
+      .select("id, full_name, email, phone, source, turo_guest_id")
       .is("deleted_at", null)
       .order("full_name");
 
@@ -48,12 +49,19 @@ export default function MobileCustomers() {
   };
   useEffect(() => { void load(); }, []);
 
+  const counts = useMemo(() => ({
+    regular: items.filter((c) => c.source !== "turo").length,
+    turo: items.filter((c) => c.source === "turo").length,
+  }), [items]);
+
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    return items.filter((c) =>
-      !q || `${c.full_name} ${c.email || ""} ${c.phone || ""}`.toLowerCase().includes(q),
-    );
-  }, [items, search]);
+    return items
+      .filter((c) => (segment === "turo" ? c.source === "turo" : c.source !== "turo"))
+      .filter((c) =>
+        !q || `${c.full_name} ${c.email || ""} ${c.phone || ""} ${c.turo_guest_id || ""}`.toLowerCase().includes(q),
+      );
+  }, [items, search, segment]);
 
   const grouped = useMemo(() => {
     const g: Record<string, Customer[]> = {};
