@@ -44,8 +44,8 @@ const WhyZeusSection = () => {
                 <div className="w-12 h-12 rounded-xl gold-gradient flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
                   <Icon className="text-primary-foreground" size={22} />
                 </div>
-                <h3 className="text-sm sm:text-base font-bold uppercase tracking-wider mb-2.5">{b.title}</h3>
-                <p className="text-sm text-muted-foreground font-light leading-relaxed">{b.desc}</p>
+                <h3 className="card-title mb-2.5">{b.title}</h3>
+                <p className="card-body">{b.desc}</p>
               </motion.div>
             );
           })}
