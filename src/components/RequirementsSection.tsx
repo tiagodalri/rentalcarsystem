@@ -27,7 +27,7 @@ const RequirementsSection = () => {
             {t.requirements.title}
             <span className="gold-text">{t.requirements.titleHighlight}</span>
           </h2>
-          <p className="text-muted-foreground italic font-light mt-3 text-base sm:text-lg">
+          <p className="section-subtitle italic">
             {t.requirements.subtitle}
           </p>
         </motion.div>
