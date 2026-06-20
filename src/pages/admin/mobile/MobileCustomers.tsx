@@ -80,15 +80,44 @@ export default function MobileCustomers() {
           <CustomersSubNav />
         </div>
         <div className="px-4">
-          <p className="text-xs text-muted-foreground">{filtered.length} cadastrados</p>
+          {/* Segmento Zeus (Regular) / Turo */}
+          <div className="mt-1 grid grid-cols-2 gap-2">
+            {([
+              { id: "regular" as const, label: "Zeus", icon: Users, count: counts.regular },
+              { id: "turo" as const, label: "Turo", icon: Car, count: counts.turo },
+            ]).map((s) => {
+              const Icon = s.icon;
+              const active = segment === s.id;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => setSegment(s.id)}
+                  className={`h-10 rounded-xl border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
+                    active
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card text-foreground border-border/50"
+                  }`}
+                >
+                  <Icon size={14} />
+                  <span>{s.label}</span>
+                  <span className={`text-[11px] font-semibold tabular-nums ${active ? "opacity-90" : "text-muted-foreground"}`}>
+                    {s.count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
+          <p className="mt-3 text-xs text-muted-foreground">
+            {segment === "turo" ? `${filtered.length} hóspedes Turo` : `${filtered.length} cadastrados`}
+          </p>
 
           <div className="mt-3 relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar cliente"
+              placeholder={segment === "turo" ? "Buscar por nome ou Guest #..." : "Buscar cliente"}
               className="w-full h-11 pl-10 pr-10 rounded-xl bg-card border border-border/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
             {search && (
