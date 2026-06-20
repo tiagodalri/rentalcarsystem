@@ -29,6 +29,7 @@ import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import { AdminShellSkeleton } from "./components/skeletons/AdminShellSkeleton.tsx";
 import { AccountSkeleton } from "./components/skeletons/AccountSkeleton.tsx";
 import InstallPrompt from "./components/InstallPrompt.tsx";
+import { OfflineBanner } from "./components/OfflineBanner";
 import { useSwUpdateOnNavigate } from "./hooks/useSwUpdateOnNavigate.ts";
 import { useDynamicThemeColor } from "./hooks/useDynamicThemeColor.ts";
 import { useNativeFeel } from "./hooks/useNativeFeel.ts";
@@ -132,6 +133,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <OfflineBanner />
           <InstallPrompt />
           <BrowserRouter>
             <ScrollToTop />

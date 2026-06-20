@@ -1,12 +1,14 @@
 // Zeus Rental Car — Service Worker
-// Strategy (v7 — fix lentidão e "recarregamento do nada"):
+// Strategy (v8 — offline shell):
 //  - HTML navigations: NetworkFirst com timeout de 2s. Online = sempre fresco.
 //    Offline ou rede travada = cai pro cache imediatamente. Sem race condition.
 //  - Static assets (JS/CSS/fonts/images): StaleWhileRevalidate.
+//  - v8: precacheia rotas-shell (/, /frota, /buscar, /contato, /minha-conta)
+//    pra que abrir essas URLs offline funcione mesmo sem ter visitado antes.
 //  - Tudo o mais: pass-through.
 //  - Atualização: SKIP_WAITING via mensagem; SEM auto-reload (vide useSwUpdateOnNavigate).
 
-const VERSION = "v7";
+const VERSION = "v8";
 const HTML_CACHE = `zeus-html-${VERSION}`;
 const ASSET_CACHE = `zeus-assets-${VERSION}`;
 const OFFLINE_URL = "/";
@@ -14,12 +16,17 @@ const HTML_NETWORK_TIMEOUT_MS = 2000;
 
 const PRECACHE_ASSETS = [
   "/",
+  "/frota",
+  "/buscar",
+  "/contato",
+  "/minha-conta",
   "/manifest.json",
   "/icon-192x192.png",
   "/icon-512x512.png",
   "/icon-maskable-512.png",
   "/apple-touch-icon.png",
 ];
+
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
