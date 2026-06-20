@@ -60,28 +60,6 @@ const HeroSection = () => {
           {t.hero.subtitle}
         </motion.p>
 
-        {/* CTA Buttons — inline row on mobile to save vertical space */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-row gap-2 sm:gap-3 justify-center w-full max-w-sm sm:max-w-none px-2 sm:px-0 mt-0.5 sm:mt-1"
-        >
-          <a
-            href="#frota"
-            className="flex-1 sm:flex-none gold-gradient text-primary-foreground px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-md shadow-primary/10 text-center"
-          >
-            {t.hero.exploreFleet}
-          </a>
-          <a
-            href={`https://wa.me/16892981754?text=${encodeURIComponent("Olá, venho do site da Zeus e gostaria de realizar uma reserva!")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-1 sm:flex-none border border-primary/50 text-primary px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300 backdrop-blur-sm text-center"
-          >
-            {t.hero.contactUs}
-          </a>
-        </motion.div>
 
         {/* Search Bar */}
         <SearchBar />

@@ -49,6 +49,30 @@ const AboutSection = () => {
             );
           })}
         </div>
+
+        {/* CTAs — moved from hero to keep search as the primary focus above the fold */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-10 sm:mt-14 flex flex-col sm:flex-row gap-3 justify-center items-center max-w-md sm:max-w-none mx-auto"
+        >
+          <a
+            href="#frota"
+            className="w-full sm:w-auto gold-gradient text-primary-foreground px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg text-[11px] sm:text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-md shadow-primary/10 text-center"
+          >
+            {t.hero.exploreFleet}
+          </a>
+          <a
+            href={`https://wa.me/16892981754?text=${encodeURIComponent("Olá, venho do site da Zeus e gostaria de realizar uma reserva!")}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full sm:w-auto border border-primary/50 text-primary px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg text-[11px] sm:text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300 backdrop-blur-sm text-center"
+          >
+            {t.hero.contactUs}
+          </a>
+        </motion.div>
       </div>
     </section>
   );
