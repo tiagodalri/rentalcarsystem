@@ -13,6 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 import { MobileSheet } from "@/components/mobile/MobileSheet";
 import { ShareTrackingDialog } from "@/components/admin/live/ShareTrackingDialog";
@@ -216,7 +217,7 @@ export default function MobileLive() {
 
         <div className="max-h-[58vh] overflow-y-auto overscroll-contain pb-6">
           {loading ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">Carregando…</div>
+            <LoadingRows count={5} rowHeight={72} />
           ) : filtered.length === 0 ? (
             <div className="py-10 text-center text-sm text-muted-foreground">
               Nenhum veículo encontrado.

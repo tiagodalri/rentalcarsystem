@@ -13,6 +13,7 @@ import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { TransactionDialog } from "./TransactionDialog";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { EmptyState } from "@/components/admin/EmptyState";
 
 type Tx = {
@@ -273,9 +274,7 @@ export function TransactionsTab() {
       <Card className="border-border/30">
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-10 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
-              <Loader2 size={14} className="animate-spin" /> Carregando...
-            </div>
+            <LoadingRows count={6} rowHeight={48} className="p-4" />
           ) : filtered.length === 0 ? (
             <EmptyState icon={TrendingUp} title="Nenhum lançamento" description="Crie um lançamento manual usando os botões acima." compact />
           ) : (

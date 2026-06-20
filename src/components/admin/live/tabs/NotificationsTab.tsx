@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useVehicleEvents, categorizeEvent, type EventCategory, type VehicleEvent } from "@/hooks/useVehicleEvents";
 import { AlertTriangle, Gauge, Activity, Plug, Wrench, Fuel, MapPin } from "lucide-react";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 
 const TABS: { id: EventCategory; label: string }[] = [
   { id: "drive", label: "Direção" },
@@ -109,7 +110,7 @@ export function NotificationsTab({ vehicleId }: { vehicleId: string }) {
       </div>
 
       {isLoading ? (
-        <div className="p-6 text-center text-xs text-muted-foreground">Carregando…</div>
+        <LoadingRows count={5} rowHeight={48} />
       ) : list.length === 0 ? (
         <div className="text-center py-8 px-4 rounded-lg border border-dashed border-border/40">
           <Activity size={20} className="mx-auto text-muted-foreground mb-2" />

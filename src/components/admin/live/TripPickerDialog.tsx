@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { X, Play, MapPin, Clock, Gauge, Loader2, Radio } from "lucide-react";
 import { useVehicleTrips, type VehicleTrip } from "@/hooks/useVehicleTrips";
 import { supabase } from "@/integrations/supabase/client";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 
 const VEHICLE_TZ = "America/New_York";
 

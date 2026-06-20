@@ -324,7 +324,7 @@ export function FleetCalendar() {
       {/* Timeline */}
       <Card className="bg-card/60 border-border/30 overflow-hidden">
         {loading ? (
-          <div className="p-10 text-center text-sm text-muted-foreground">Carregando...</div>
+          <LoadingRowsLocal />
         ) : filteredVehicles.length === 0 ? (
           <div className="p-10 text-center text-sm text-muted-foreground space-y-2">
             <Filter size={20} className="mx-auto text-muted-foreground/60" />

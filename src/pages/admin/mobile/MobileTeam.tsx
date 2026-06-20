@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Search, UsersRound, Shield, X, Phone, Mail } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 
 /* ============================================================
    EQUIPE — Mobile-first
@@ -69,7 +70,7 @@ export default function MobileTeam() {
 
         <div className="mt-4 space-y-2 px-4">
           {loading ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">Carregando…</div>
+            <LoadingRows count={5} rowHeight={64} />
           ) : filtered.length === 0 ? (
             <div className="py-10 text-center text-sm text-muted-foreground">Nenhum membro.</div>
           ) : filtered.map((m) => (
