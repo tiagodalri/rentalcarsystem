@@ -215,7 +215,7 @@ export default function PricingPanel({ vehicleId, basePrice, onBasePriceSaved }:
 
   if (loading) {
     return (
-      <LoadingRowsPricing />
+      <LoadingRows count={6} rowHeight={48} className="p-6" />
     );
   }
 
