@@ -8,7 +8,7 @@ const HeroSection = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative min-h-screen min-h-[100svh] flex flex-col items-center justify-center overflow-hidden pt-24 sm:pt-28 pb-8 sm:pb-12">
+    <section className="relative min-h-screen min-h-[100svh] flex flex-col items-center justify-start overflow-hidden pt-28 sm:pt-32 pb-12 gap-4">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
       {/* Glow dourado deslocado para baixo — antes ficava bem atrás do logo e
           criava uma mancha esbranquiçada sobre ele. */}
