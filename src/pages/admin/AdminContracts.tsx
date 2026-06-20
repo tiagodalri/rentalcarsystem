@@ -222,12 +222,15 @@ const AdminContracts = () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={7} className="py-10 text-center text-muted-foreground">
-                    <Loader2 size={16} className="inline animate-spin mr-2" />
-                    Carregando...
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={`sk-${i}`} className="border-b border-border/40">
+                    {Array.from({ length: 7 }).map((__, j) => (
+                      <td key={j} className="py-3 px-2">
+                        <div className="h-4 w-full rounded bg-muted animate-pulse" />
+                      </td>
+                    ))}
+                  </tr>
+                ))
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-10 text-center text-muted-foreground">
