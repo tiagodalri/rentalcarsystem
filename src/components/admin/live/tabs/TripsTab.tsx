@@ -3,6 +3,7 @@ import { useVehicleTrips, type VehicleTrip } from "@/hooks/useVehicleTrips";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, RefreshCw, ChevronRight, MapPin, Gauge, Clock, Fuel, AlertTriangle, Activity } from "lucide-react";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 
 // Fuso do veículo (frota em Orlando/FL). Garante que o horário exibido
 // bata com o portal Bouncie e com o relógio do motorista — independente
@@ -81,7 +82,7 @@ export function TripsTab({ vehicleId }: { vehicleId: string }) {
   }
 
   if (isLoading) {
-    return <div className="p-6 text-center text-xs text-muted-foreground">Carregando viagens…</div>;
+    return <LoadingRows count={5} rowHeight={56} />;
   }
 
   return (

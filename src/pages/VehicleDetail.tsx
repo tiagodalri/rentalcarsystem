@@ -12,6 +12,7 @@ import { useVehiclePricing } from "@/hooks/useVehiclePricing";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { coverImageMap, galleryMap } from "@/data/fleetAssets";
 import { useToast } from "@/hooks/use-toast";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 
 const VehicleDetail = () => {
   const { vehicleName } = useParams<{ vehicleName: string }>();
@@ -151,7 +152,7 @@ const VehicleDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="pt-32 text-center text-muted-foreground">Carregando...</div>
+        <div className="pt-32 px-4 max-w-5xl mx-auto"><LoadingRows count={4} rowHeight={120} /></div>
       </div>
     );
   }

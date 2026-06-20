@@ -10,6 +10,7 @@ import { ptBR } from "date-fns/locale";
 import { formatPersonName } from "@/lib/formatName";
 import { SegmentedControl } from "@/components/mobile/SegmentedControl";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { MobileList, MobileListItem } from "@/components/mobile/MobileListItem";
 import { SwipeAction } from "@/components/mobile/SwipeAction";
 
@@ -178,7 +179,7 @@ export default function MobileOps() {
 
         {/* List */}
         {loading ? (
-          <div className="px-4 py-12 text-center text-sm text-muted-foreground">Carregando…</div>
+          <LoadingRows count={5} rowHeight={72} className="px-4" />
         ) : tab === "prep" ? (
           <MobileList>
             {prep.length === 0 ? (

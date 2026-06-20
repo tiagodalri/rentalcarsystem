@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, X, Tag, Check, Trash2, Loader2 } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { LoadingInline } from "@/components/skeletons/LoadingRows";
 import { toast } from "@/hooks/use-toast";
 
 type CustomerTag = { id: string; name: string; color: string; description: string | null };
@@ -88,7 +89,7 @@ export function CustomerTagsManager({ customerId, compact = false }: Props) {
 
   const assignedTags = allTags.filter(t => assigned.includes(t.id));
 
-  if (loading) return <div className="flex items-center gap-1.5 text-xs text-muted-foreground"><Loader2 size={12} className="animate-spin" /> Carregando tags...</div>;
+  if (loading) return <LoadingInline />;
 
   return (
     <div className={`flex flex-wrap items-center gap-1.5 ${compact ? "" : "min-h-[28px]"}`}>

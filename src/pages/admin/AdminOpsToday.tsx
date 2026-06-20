@@ -10,6 +10,7 @@ import { addDays, format, isSameDay, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import { BrandAvatar } from "@/components/admin/fleet-calendar/BrandAvatar";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 
 type BookingRow = {
   id: string;
@@ -161,7 +162,7 @@ export default function AdminOpsToday() {
   }), [maintenance]);
 
   if (loading) {
-    return <div className="p-10 text-center text-sm text-muted-foreground">Carregando operação do dia...</div>;
+    return <LoadingRows count={6} rowHeight={64} className="p-6" />;
   }
   if (isMobile) return <MobileOps />;
 

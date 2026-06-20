@@ -8,6 +8,7 @@ import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobileApp } from "@/hooks/useIsMobileApp";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 
 /* ============================================================
    ANIVERSARIANTES — Visão estratégica para marketing
@@ -252,7 +253,7 @@ export default function AdminCustomerBirthdays() {
 
       {/* Content */}
       {loading ? (
-        <div className="py-16 text-center text-sm text-muted-foreground">Carregando aniversariantes…</div>
+        <LoadingRows count={5} rowHeight={64} className="px-0" />
       ) : currentList.length === 0 ? (
         <EmptyState
           icon={Cake}

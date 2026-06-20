@@ -13,6 +13,7 @@ import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 import { VehicleDetailDrawer } from "@/components/admin/live/VehicleDetailDrawer";
 import { MapControlsPanel, useMapLayers } from "@/components/admin/live/MapControlsPanel";
 import { TripPickerDialog } from "@/components/admin/live/TripPickerDialog";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 // Wave 3 perf: TripReplayOverlay tem ~1580 linhas e só carrega quando o
 // usuário escolhe uma viagem para reproduzir. Lazy split tira esse peso
 // do bundle inicial de /admin/live.
@@ -291,7 +292,7 @@ function AdminLiveDesktop() {
 
           <div className="lg:flex-1 lg:overflow-y-auto space-y-1.5 lg:pr-1 scrollbar-thin">
             {loading ? (
-              <div className="text-xs text-muted-foreground p-4 text-center">Carregando telemetria…</div>
+              <LoadingRows count={4} rowHeight={56} className="p-2" />
             ) : filtered.length === 0 ? (
               <EmptyState
                 icon={Activity}

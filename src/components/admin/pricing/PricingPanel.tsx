@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import {
   DollarSign,
   Plus,
@@ -215,9 +216,7 @@ export default function PricingPanel({ vehicleId, basePrice, onBasePriceSaved }:
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 text-muted-foreground">
-        <Loader2 className="animate-spin mr-2" size={16} /> Carregando precificação...
-      </div>
+      <LoadingRows count={6} rowHeight={48} className="p-6" />
     );
   }
 

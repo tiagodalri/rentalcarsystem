@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MessageSquarePlus, User, Trash2, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 
 type Note = {
   id: string;
@@ -95,9 +96,7 @@ export function CustomerNotesTimeline({ customerId }: Props) {
 
       {/* Timeline */}
       {loading ? (
-        <div className="flex items-center justify-center py-6 text-xs text-muted-foreground gap-2">
-          <Loader2 size={14} className="animate-spin" /> Carregando...
-        </div>
+        <LoadingRows count={3} rowHeight={48} />
       ) : notes.length === 0 ? (
         <div className="text-center py-8 text-xs text-muted-foreground">Nenhuma anotação ainda.</div>
       ) : (

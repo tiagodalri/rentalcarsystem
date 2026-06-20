@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -324,7 +325,7 @@ export function FleetCalendar() {
       {/* Timeline */}
       <Card className="bg-card/60 border-border/30 overflow-hidden">
         {loading ? (
-          <div className="p-10 text-center text-sm text-muted-foreground">Carregando...</div>
+          <LoadingRows count={6} rowHeight={56} className="p-4" />
         ) : filteredVehicles.length === 0 ? (
           <div className="p-10 text-center text-sm text-muted-foreground space-y-2">
             <Filter size={20} className="mx-auto text-muted-foreground/60" />
