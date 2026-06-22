@@ -280,7 +280,7 @@ export default function AdminTuroImport() {
                   const pct = (f.total / max) * 100;
                   const autoPct = (f.auto / f.total) * 100;
                   return (
-                    <div key={f.field} className="grid grid-cols-[140px_1fr_auto] items-center gap-3 text-xs">
+                    <div key={f.label} className="grid grid-cols-[140px_1fr_auto] items-center gap-3 text-xs">
                       <div className="text-foreground truncate" title={f.label}>{f.label}</div>
                       <div className="relative h-5 rounded bg-muted/50 overflow-hidden">
                         <div className="absolute inset-y-0 left-0 bg-amber-500/30" style={{ width: `${pct}%` }} />
