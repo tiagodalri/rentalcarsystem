@@ -130,14 +130,19 @@ export default function AdminTuroImport() {
     try {
       const selected = classifications.filter((c) => c.selected);
       const report = await applyClassifications(selected);
+      const parts = [
+        `${report.insertedIds.length} criadas`,
+        `${report.updatedIds.length} atualizadas`,
+      ];
+      if (report.skipped.length) parts.push(`${report.skipped.length} ignoradas (já existiam)`);
+      if (report.failures.length) parts.push(`${report.failures.length} falhas`);
       toast({
-        title: "Importação concluída",
-        description: `${report.insertedIds.length} criadas · ${report.updatedIds.length} atualizadas${report.failures.length ? ` · ${report.failures.length} falhas` : ""}`,
+        title: report.failures.length ? "Importação concluída com avisos" : "Importação concluída",
+        description: parts.join(" · "),
+        variant: report.failures.length ? "destructive" : "default",
       });
-      if (report.failures.length > 0) {
-        // Log no console pra inspeção
-        console.warn("[turo-import] failures", report.failures);
-      }
+      if (report.failures.length > 0) console.warn("[turo-import] failures", report.failures);
+      if (report.skipped.length > 0) console.info("[turo-import] skipped (dedupe)", report.skipped);
       setConfirmOpen(false);
       navigate("/admin/bookings");
     } catch (e: any) {
