@@ -98,6 +98,17 @@ export default function AdminTuroImport() {
     }));
   };
 
+  const handleBulkSelectFields = (indices: number[], selectAll: boolean) => {
+    const indexSet = new Set(indices);
+    setClassifications((prev) => prev.map((c, i) => {
+      if (!indexSet.has(i) || c.kind !== "enrich") return c;
+      const next = selectAll
+        ? new Set<keyof BookingSnapshot>(c.diffs.map((d) => d.field))
+        : new Set<keyof BookingSnapshot>();
+      return { ...c, selectedFields: next, selected: next.size > 0 };
+    }));
+  };
+
   const handleVehicleMapped = (turoName: string, vehicleId: string) => {
     const nextMapping = new Map(vehicleMapping);
     nextMapping.set(turoName.trim(), vehicleId);
