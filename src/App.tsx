@@ -66,6 +66,7 @@ const AdminFleetGantt = lazy(() => import("./pages/admin/AdminFleetGantt.tsx"));
 const AdminVehicleNew = lazy(() => import("./pages/admin/AdminVehicleNew.tsx"));
 const AdminBookingNew = lazy(() => import("./pages/admin/AdminBookingNew.tsx"));
 const AdminContracts = lazy(() => import("./pages/admin/AdminContracts.tsx"));
+const AdminTuroImport = lazy(() => import("./pages/admin/AdminTuroImport.tsx"));
 
 
 const queryClient = new QueryClient({
@@ -225,6 +226,7 @@ const App = () => (
                 <Route path="ops-today" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminOpsToday /></AdminSuspense></RequireRole>} />
                 <Route path="calendar" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminFleetGantt /></AdminSuspense></RequireRole>} />
                 <Route path="contracts" element={<RequireRole roles={["admin","operations","support","finance"]}><AdminSuspense><AdminContracts /></AdminSuspense></RequireRole>} />
+                <Route path="turo-import" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminTuroImport /></AdminSuspense></RequireRole>} />
               </Route>
 
 
