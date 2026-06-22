@@ -125,6 +125,30 @@ export default function AdminTuroImport() {
     return { total: sel.length, ins, upd, can };
   }, [classifications]);
 
+  // Breakdown por campo: quantos enriches tocam cada campo e quantos foram auto-marcados
+  const fieldBreakdown = useMemo(() => {
+    const map = new Map<string, { label: string; total: number; auto: number; manual: number }>();
+    for (const c of classifications) {
+      if (c.kind !== "enrich") continue;
+      for (const d of c.diffs) {
+        const key = String(d.field);
+        const entry = map.get(key) || { label: d.label, total: 0, auto: 0, manual: 0 };
+        entry.total++;
+        if (d.autoSelected) entry.auto++;
+        else entry.manual++;
+        map.set(key, entry);
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => b.total - a.total);
+  }, [classifications]);
+
+  // Quantos enriches só têm campos NÃO auto-marcados (aparecem mas não sincronizam sozinhos)
+  const enrichManualOnly = useMemo(
+    () => classifications.filter((c) => c.kind === "enrich" && c.diffs.every((d) => !d.autoSelected)).length,
+    [classifications]
+  );
+  const enrichAutoCount = summary.enrichCount - enrichManualOnly;
+
   const handleApply = async () => {
     setApplying(true);
     try {
@@ -239,9 +263,39 @@ export default function AdminTuroImport() {
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs leading-relaxed">
             <div className="font-semibold text-foreground mb-1">Como funciona a pré-seleção</div>
             <div className="text-muted-foreground">
-              O sistema <span className="font-medium text-foreground">marcou automaticamente</span> só o que é seguro aplicar: campos que estão vazios no banco ou status que avançou naturalmente (ex: <span className="tabular-nums">confirmed → completed</span>). Nada que você marcou manualmente é sobrescrito. Use o filtro <span className="font-medium text-amber-700 dark:text-amber-400">"Só selecionadas"</span> abaixo para revisar exatamente o que vai mudar antes de aplicar.
+              Das <span className="tabular-nums font-medium text-foreground">{summary.enrichCount}</span> linhas em "Enriquecer", <span className="tabular-nums font-medium text-emerald-600 dark:text-emerald-400">{enrichAutoCount}</span> têm pelo menos um campo seguro auto-marcado e <span className="tabular-nums font-medium text-amber-600 dark:text-amber-400">{enrichManualOnly}</span> estão só com campos "protegidos" (ex: nome do cliente já preenchido, status que regrediria) — essas <span className="font-medium text-foreground">só sincronizam se você marcar manualmente</span>. Nada é sobrescrito sem seu opt-in.
             </div>
           </div>
+
+          {/* Breakdown por campo — explica QUAIS campos estão divergindo */}
+          {fieldBreakdown.length > 0 && (
+            <div className="rounded-xl border border-border/60 bg-card p-4">
+              <div className="text-sm font-semibold mb-1">Onde estão as divergências</div>
+              <div className="text-xs text-muted-foreground mb-3">
+                Cada barra mostra em quantas reservas aquele campo difere entre o CSV e o Zeus. "Auto" = será aplicado se você confirmar. "Manual" = só com seu opt-in.
+              </div>
+              <div className="space-y-1.5">
+                {fieldBreakdown.map((f) => {
+                  const max = fieldBreakdown[0].total || 1;
+                  const pct = (f.total / max) * 100;
+                  const autoPct = (f.auto / f.total) * 100;
+                  return (
+                    <div key={f.label} className="grid grid-cols-[140px_1fr_auto] items-center gap-3 text-xs">
+                      <div className="text-foreground truncate" title={f.label}>{f.label}</div>
+                      <div className="relative h-5 rounded bg-muted/50 overflow-hidden">
+                        <div className="absolute inset-y-0 left-0 bg-amber-500/30" style={{ width: `${pct}%` }} />
+                        <div className="absolute inset-y-0 left-0 bg-emerald-500/60" style={{ width: `${(pct * autoPct) / 100}%` }} />
+                      </div>
+                      <div className="tabular-nums text-muted-foreground whitespace-nowrap">
+                        <span className="font-semibold text-foreground">{f.total}</span>
+                        <span className="opacity-60"> · {f.auto} auto · {f.manual} manual</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {parseErrors.length > 0 && (
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 flex items-start gap-2 text-xs">
