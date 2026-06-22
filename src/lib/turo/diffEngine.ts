@@ -84,8 +84,15 @@ function statusAdvanced(current: string, next: string): boolean {
   return (STATUS_RANK[next] ?? -99) > (STATUS_RANK[current] ?? -99);
 }
 
-function isEmpty(v: any): boolean {
-  return v === null || v === undefined || (typeof v === "string" && v.trim() === "") || v === 0;
+function isEmpty(field: string, v: any): boolean {
+  if (v === null || v === undefined) return true;
+  if (typeof v === "string") {
+    const s = v.trim().toLowerCase();
+    if (s === "") return true;
+    if ((field === "pickup_location" || field === "return_location") && (s === "(casa/endereço)" || s === "casa/endereço")) return true;
+  }
+  // Em imports antigos, total_price = 0 foi usado como valor ausente.
+  return field === "total_price" && v === 0;
 }
 
 const FIELD_LABELS: Record<string, string> = {
@@ -125,17 +132,27 @@ function normalizeForCompare(field: string, v: any): string {
     return isFinite(n) ? n.toFixed(2) : s;
   }
   if (field === "pickup_location" || field === "return_location" || field === "customer_name") {
-    return s.replace(/\s+/g, " ").toLowerCase();
+    const normalized = s.replace(/\s+/g, " ").replace(/\./g, "").toLowerCase();
+    if (field === "pickup_location" || field === "return_location") {
+      if (normalized === "(casa/endereço)" || normalized === "casa/endereço") return "";
+      if (
+        normalized === "mco orlando" ||
+        normalized === "orlando international airport" ||
+        normalized.includes("jeff fuqua")
+      ) return "mco-orlando";
+    }
+    return normalized;
   }
   return s;
 }
 
 function buildDiff(field: keyof BookingSnapshot, current: any, next: any, opts: { allowAutoIfEmpty?: boolean; reason?: string } = {}): FieldDiff | null {
   if (next === null || next === undefined || next === "") return null;
-  const currentEmpty = isEmpty(current);
   // Comparação normalizada por tipo (cobre "13:00" vs "13:00:00", price 127.29 vs "127.29", etc.)
-  if (!currentEmpty && normalizeForCompare(String(field), current) === normalizeForCompare(String(field), next)) return null;
+  if (normalizeForCompare(String(field), current) === normalizeForCompare(String(field), next)) return null;
+  const currentEmpty = isEmpty(String(field), current);
   const isProtected = PROTECTED_FIELDS.has(String(field));
+  if (isProtected && !currentEmpty) return null;
   const autoSelected = currentEmpty && (opts.allowAutoIfEmpty ?? true);
   return {
     field,
