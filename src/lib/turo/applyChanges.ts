@@ -103,7 +103,7 @@ export async function applyClassifications(classifications: Classification[]): P
   const report: ApplyReport = { insertedIds: [], updatedIds: [], skipped: [], failures: [] };
 
   const toInsertAll = classifications.filter(
-    (c) => c.kind === "new" && c.selected && c.vehicleId
+    (c) => (c.kind === "new" || c.kind === "cancelled_csv") && c.selected && c.vehicleId
   );
   const toUpdate = classifications.filter(
     (c) => c.kind === "enrich" && c.selected && c.existing && c.selectedFields.size > 0
