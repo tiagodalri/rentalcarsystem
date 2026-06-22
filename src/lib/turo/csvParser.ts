@@ -42,6 +42,35 @@ export function parseTuroMoney(raw: string | undefined | null): number | null {
   return negative ? -n : n;
 }
 
+/**
+ * Normaliza endereços conhecidos de aeroportos para nomes legíveis.
+ * Detecta por palavras-chave do endereço (street/zipcode) e devolve
+ * "Aeroporto MCO - Orlando International (KMCO)" ou similar.
+ */
+const AIRPORT_PATTERNS: { match: RegExp; label: string }[] = [
+  // MCO - Orlando International (8810 Albury Drive, ZIP 32827)
+  { match: /\b(8810\s+albury|orlando\s+international|\bmco\b|32827)/i, label: "Aeroporto MCO - Orlando International" },
+  // SFB - Orlando Sanford International
+  { match: /\b(sanford\s+international|\bsfb\b|orlando-sanford)/i, label: "Aeroporto SFB - Orlando Sanford" },
+  // TPA - Tampa International
+  { match: /\b(tampa\s+international|\btpa\b)/i, label: "Aeroporto TPA - Tampa International" },
+  // FLL - Fort Lauderdale
+  { match: /\b(fort\s+lauderdale.*international|\bfll\b)/i, label: "Aeroporto FLL - Fort Lauderdale" },
+  // MIA - Miami International
+  { match: /\b(miami\s+international|\bmia\b)/i, label: "Aeroporto MIA - Miami International" },
+];
+
+export function normalizeLocation(raw: string | undefined | null): string | null {
+  if (!raw) return null;
+  const s = String(raw).trim();
+  if (!s) return null;
+  for (const { match, label } of AIRPORT_PATTERNS) {
+    if (match.test(s)) return label;
+  }
+  return s;
+}
+
+
 /** Converte "2026-02-13 08:00 PM" → { date: "2026-02-13", time: "20:00" }. */
 export function parseTuroDateTime(raw: string | undefined | null): { date: string | null; time: string | null } {
   if (!raw) return { date: null, time: null };
@@ -134,8 +163,8 @@ export async function parseTuroCsv(file: File): Promise<ParseResult> {
         pickupTime: tripStart.time,
         returnDate: tripEnd.date || "",
         returnTime: tripEnd.time,
-        pickupLocation: pick(raw, HEADERS.pickupLoc) || null,
-        returnLocation: pick(raw, HEADERS.returnLoc) || null,
+        pickupLocation: normalizeLocation(pick(raw, HEADERS.pickupLoc)) || null,
+        returnLocation: normalizeLocation(pick(raw, HEADERS.returnLoc)) || null,
         statusRaw,
         status: mapTuroStatus(statusRaw),
         totalEarnings: parseTuroMoney(pick(raw, HEADERS.earnings)),
