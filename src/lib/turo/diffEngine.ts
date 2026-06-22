@@ -146,6 +146,20 @@ function normalizeForCompare(field: string, v: any): string {
   return s;
 }
 
+/**
+ * Campos onde a Turo é a fonte de verdade: auto-marca sempre que divergir,
+ * mesmo se o campo no banco já estiver preenchido. Esses dados podem mudar
+ * na Turo (extensão/redução de viagem, ajuste de valor pós-viagem) e o sistema
+ * precisa refletir isso sem opt-in manual.
+ */
+const TURO_AUTHORITATIVE_FIELDS: Set<string> = new Set([
+  "pickup_date",
+  "return_date",
+  "pickup_time",
+  "return_time",
+  "total_price",
+]);
+
 function buildDiff(field: keyof BookingSnapshot, current: any, next: any, opts: { allowAutoIfEmpty?: boolean; reason?: string } = {}): FieldDiff | null {
   if (next === null || next === undefined || next === "") return null;
   // Comparação normalizada por tipo (cobre "13:00" vs "13:00:00", price 127.29 vs "127.29", etc.)
@@ -153,7 +167,8 @@ function buildDiff(field: keyof BookingSnapshot, current: any, next: any, opts: 
   const currentEmpty = isEmpty(String(field), current);
   const isProtected = PROTECTED_FIELDS.has(String(field));
   if (isProtected && !currentEmpty) return null;
-  const autoSelected = currentEmpty && (opts.allowAutoIfEmpty ?? true);
+  const isAuthoritative = TURO_AUTHORITATIVE_FIELDS.has(String(field));
+  const autoSelected = isAuthoritative || (currentEmpty && (opts.allowAutoIfEmpty ?? true));
   return {
     field,
     label: FIELD_LABELS[String(field)] || String(field),
@@ -161,7 +176,7 @@ function buildDiff(field: keyof BookingSnapshot, current: any, next: any, opts: 
     newValue: next,
     autoSelected,
     protected: isProtected,
-    reason: opts.reason || (currentEmpty ? "Campo vazio no sistema" : "Divergência com CSV"),
+    reason: opts.reason || (isAuthoritative && !currentEmpty ? "Turo é fonte de verdade — alteração detectada" : currentEmpty ? "Campo vazio no sistema" : "Divergência com CSV"),
   };
 }
 
