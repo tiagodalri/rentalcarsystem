@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronRight, Search } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, CheckSquare, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPersonName } from "@/lib/formatName";
 import type { Classification, FieldDiff, BookingSnapshot } from "@/lib/turo/diffEngine";
@@ -20,6 +20,7 @@ interface Props {
   classifications: Classification[];
   onToggleSelected: (idx: number, value: boolean) => void;
   onToggleField: (idx: number, field: keyof BookingSnapshot, value: boolean) => void;
+  onBulkSelectFields: (indices: number[], selectAll: boolean) => void;
   onVehicleMapped: (turoName: string, vehicleId: string) => void;
 }
 
@@ -29,34 +30,36 @@ function fmtValue(v: any): string {
   return String(v);
 }
 
-function FieldDiffRow({ diff, selected, onToggle }: { diff: FieldDiff; selected: boolean; onToggle: (v: boolean) => void }) {
+/** Chip compacto inline: mostra "Campo: antigo → novo" com check toggle. */
+function FieldChip({ diff, selected, onToggle }: { diff: FieldDiff; selected: boolean; onToggle: (v: boolean) => void }) {
   return (
-    <label className="flex items-start gap-2.5 px-3 py-1.5 rounded-md hover:bg-muted/30 cursor-pointer text-xs">
-      <input
-        type="checkbox"
-        checked={selected}
-        onChange={(e) => onToggle(e.target.checked)}
-        className="mt-0.5 h-3.5 w-3.5 rounded border-border accent-primary cursor-pointer"
-      />
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{diff.label}</span>
-          {diff.protected && (
-            <span className="text-[9px] uppercase tracking-wider text-amber-600 dark:text-amber-400 font-semibold">protegido</span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 mt-0.5 text-muted-foreground">
-          <span className="line-through opacity-60 tabular-nums">{fmtValue(diff.currentValue)}</span>
-          <span className="opacity-40">→</span>
-          <span className="text-foreground tabular-nums font-medium">{fmtValue(diff.newValue)}</span>
-        </div>
-        <div className="text-[10px] text-muted-foreground/70 mt-0.5">{diff.reason}</div>
-      </div>
-    </label>
+    <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); onToggle(!selected); }}
+      className={cn(
+        "group inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] transition-colors border",
+        selected
+          ? "bg-primary/10 border-primary/30 text-foreground"
+          : "bg-muted/40 border-border/60 text-muted-foreground hover:bg-muted",
+        diff.protected && !selected && "border-amber-500/30",
+      )}
+      title={diff.reason}
+    >
+      {selected
+        ? <CheckSquare className="h-3 w-3 text-primary shrink-0" />
+        : <Square className="h-3 w-3 shrink-0" />}
+      <span className="font-medium text-foreground">{diff.label}:</span>
+      <span className="line-through opacity-50 tabular-nums max-w-[80px] truncate">{fmtValue(diff.currentValue)}</span>
+      <span className="opacity-40">→</span>
+      <span className="text-foreground tabular-nums font-medium max-w-[110px] truncate">{fmtValue(diff.newValue)}</span>
+      {diff.protected && (
+        <span className="text-[8px] uppercase tracking-wider text-amber-600 dark:text-amber-400 font-semibold ml-0.5">!</span>
+      )}
+    </button>
   );
 }
 
-export function TuroDiffTable({ classifications, onToggleSelected, onToggleField, onVehicleMapped }: Props) {
+export function TuroDiffTable({ classifications, onToggleSelected, onToggleField, onBulkSelectFields, onVehicleMapped }: Props) {
   const [filter, setFilter] = useState<FilterKey>("all");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
@@ -107,6 +110,13 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
     { key: "invalid", label: "Inválidas" },
   ];
 
+  const visibleIndices = filtered.map(({ idx }) => idx);
+  const visibleEnrichIndices = filtered.filter(({ c }) => c.kind === "enrich" && c.diffs.length > 0).map(({ idx }) => idx);
+  const allSelectedAcrossVisible = visibleEnrichIndices.length > 0 && visibleEnrichIndices.every((i) => {
+    const c = classifications[i];
+    return c.selectedFields.size === c.diffs.length;
+  });
+
   return (
     <div className="space-y-3">
       {/* Filtros */}
@@ -143,7 +153,32 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
 
       {filter === "selected" && counts.selected > 0 && (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
-          Mostrando as <span className="font-semibold">{counts.selected}</span> reservas que o sistema pré-selecionou. Expanda qualquer linha para ver exatamente quais campos serão alterados — só os marcados com check serão aplicados.
+          Mostrando as <span className="font-semibold">{counts.selected}</span> reservas pré-selecionadas. Cada chip embaixo da linha é um campo que será alterado — clique para marcar/desmarcar.
+        </div>
+      )}
+
+      {/* Barra de ações em massa (visível quando há enriquecidas no filtro atual) */}
+      {visibleEnrichIndices.length > 0 && (
+        <div className="flex items-center justify-between gap-2 px-1 text-[11px] text-muted-foreground">
+          <div>
+            <span className="font-medium text-foreground tabular-nums">{visibleEnrichIndices.length}</span> reservas a enriquecer nesta visão
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => onBulkSelectFields(visibleEnrichIndices, !allSelectedAcrossVisible)}
+              className="h-7 px-2.5 rounded-md bg-muted hover:bg-muted/70 font-medium"
+            >
+              {allSelectedAcrossVisible ? "Desmarcar todos os campos" : "Marcar todos os campos"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setExpanded(new Set(expanded.size === visibleIndices.length ? [] : visibleIndices))}
+              className="h-7 px-2.5 rounded-md bg-muted hover:bg-muted/70 font-medium"
+            >
+              {expanded.size > 0 ? "Recolher tudo" : "Expandir tudo"}
+            </button>
+          </div>
         </div>
       )}
 
@@ -157,7 +192,8 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
           const meta = KIND_META[c.kind];
           const canSelect = c.kind === "new" || c.kind === "enrich" || c.kind === "cancelled_csv";
           const isOpen = expanded.has(idx);
-          const hasDetails = c.diffs.length > 0 || c.kind === "unmapped";
+          const hasDiffs = c.diffs.length > 0;
+          const selectedCount = c.selectedFields.size;
 
           return (
             <div key={c.row.reservationId} className="bg-card rounded-lg border border-border/60 overflow-hidden">
@@ -175,16 +211,17 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
                     )}
                     {!canSelect && <div className="w-4 shrink-0" />}
 
-                    <button
-                      type="button"
-                      onClick={() => hasDetails && toggleExpand(idx)}
-                      className="flex-1 min-w-0 text-left"
-                    >
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-medium">{formatPersonName(c.row.guestName)}</span>
                         <span className={cn("text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full", meta.chip)}>
                           {meta.label}
                         </span>
+                        {hasDiffs && (
+                          <span className="text-[10px] font-medium text-muted-foreground tabular-nums">
+                            {selectedCount}/{c.diffs.length} campos
+                          </span>
+                        )}
                         {c.existing?.booking_number && (
                           <span className="text-[10px] text-muted-foreground">#{c.existing.booking_number}</span>
                         )}
@@ -201,9 +238,23 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
                           </>
                         )}
                       </div>
-                    </button>
 
-                    {hasDetails && (
+                      {/* CHIPS INLINE — sempre visíveis pra enrich */}
+                      {hasDiffs && (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {c.diffs.map((diff) => (
+                            <FieldChip
+                              key={String(diff.field)}
+                              diff={diff}
+                              selected={c.selectedFields.has(diff.field)}
+                              onToggle={(v) => onToggleField(idx, diff.field, v)}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {c.kind === "unmapped" && (
                       <button
                         type="button"
                         onClick={() => toggleExpand(idx)}
@@ -224,22 +275,6 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
                         turoVehicleName={c.row.vehicleModel}
                         onMapped={(vid) => onVehicleMapped(c.row.vehicleModel, vid)}
                       />
-                    </div>
-                  )}
-
-                  {isOpen && c.diffs.length > 0 && (
-                    <div className="mt-2 pl-7 pr-1 space-y-0.5 border-t border-border/40 pt-2">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5 px-3">
-                        Campos a atualizar
-                      </div>
-                      {c.diffs.map((diff) => (
-                        <FieldDiffRow
-                          key={String(diff.field)}
-                          diff={diff}
-                          selected={c.selectedFields.has(diff.field)}
-                          onToggle={(v) => onToggleField(idx, diff.field, v)}
-                        />
-                      ))}
                     </div>
                   )}
                 </div>
