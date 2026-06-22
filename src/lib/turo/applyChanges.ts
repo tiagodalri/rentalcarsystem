@@ -1,9 +1,14 @@
 /**
  * Aplica as classificações aprovadas pelo usuário:
- *  - INSERT para novas
+ *  - INSERT para novas (com re-check anti-duplicação imediatamente antes do insert)
  *  - UPDATE seletivo para enriquecidas (somente campos marcados)
  *
- * Cada operação é independente — falha em uma linha não derruba o lote.
+ * Garantias:
+ *  - Re-busca os turo_reservation_id existentes no momento do apply (evita
+ *    duplicar caso outra aba/usuário já tenha inserido entre o load e o apply).
+ *  - Inserts em chunks de 25; se um chunk falhar, faz retry linha-a-linha
+ *    para que o erro seja atribuído à linha correta.
+ *  - Updates linha-a-linha (campos variam) com captura de erro por reserva.
  */
 import { supabase } from "@/integrations/supabase/client";
 import type { Classification, BookingSnapshot } from "./diffEngine";
@@ -12,8 +17,11 @@ import type { TuroRow } from "./csvParser";
 export interface ApplyReport {
   insertedIds: string[];
   updatedIds: string[];
+  skipped: { reservationId: string; reason: string }[];
   failures: { reservationId: string; reason: string }[];
 }
+
+const INSERT_CHUNK_SIZE = 25;
 
 function statusForBooking(row: TuroRow): { status: string; payment_status: string } {
   switch (row.status) {
@@ -57,42 +65,108 @@ function buildUpdatePayload(c: Classification): Record<string, any> {
     if (!c.selectedFields.has(diff.field)) continue;
     payload[String(diff.field)] = diff.newValue;
   }
-  // Garante que payment_status acompanhe status quando aplicável
   if ("status" in payload && (payload.status === "completed" || payload.status === "in_progress")) {
-    // só promove para paid se ainda não estiver pago
     payload.payment_status = "paid";
   }
   return payload;
 }
 
+/** Re-busca os turo_reservation_id já existentes no banco para um conjunto de candidatos. */
+async function fetchExistingTuroIds(ids: string[]): Promise<Set<string>> {
+  if (ids.length === 0) return new Set();
+  const existing = new Set<string>();
+  // OR filter em chunks pra não estourar limite de URL
+  const CHUNK = 100;
+  for (let i = 0; i < ids.length; i += CHUNK) {
+    const slice = ids.slice(i, i + CHUNK);
+    const filter = slice.map((id) => `addons->>turo_reservation_id.eq.${id}`).join(",");
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("addons")
+      .or(filter);
+    if (error) throw error;
+    for (const row of (data || []) as any[]) {
+      const tid = row.addons?.turo_reservation_id;
+      if (tid) existing.add(String(tid));
+    }
+  }
+  return existing;
+}
+
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+  return out;
+}
+
 export async function applyClassifications(classifications: Classification[]): Promise<ApplyReport> {
-  const report: ApplyReport = { insertedIds: [], updatedIds: [], failures: [] };
+  const report: ApplyReport = { insertedIds: [], updatedIds: [], skipped: [], failures: [] };
 
-  // Filtra apenas selecionadas e com ação real
-  const toInsert = classifications.filter((c) => c.kind === "new" && c.selected && c.vehicleId);
-  const toUpdate = classifications.filter((c) => c.kind === "enrich" && c.selected && c.existing && c.selectedFields.size > 0);
+  const toInsertAll = classifications.filter(
+    (c) => c.kind === "new" && c.selected && c.vehicleId
+  );
+  const toUpdate = classifications.filter(
+    (c) => c.kind === "enrich" && c.selected && c.existing && c.selectedFields.size > 0
+  );
 
-  // INSERTS (em lote)
-  if (toInsert.length > 0) {
-    const payloads = toInsert.map((c) => buildInsertPayload(c.row, c.vehicleId!));
+  // 1) Re-check anti-duplicação no momento do apply
+  let alreadyExisting = new Set<string>();
+  try {
+    alreadyExisting = await fetchExistingTuroIds(toInsertAll.map((c) => c.row.reservationId));
+  } catch (e: any) {
+    // Se o re-check falhar, ainda assim seguimos — o índice/conflito do banco será o último recurso
+    console.warn("[turo-import] re-check failed, proceeding without it:", e?.message);
+  }
+
+  const toInsert: Classification[] = [];
+  for (const c of toInsertAll) {
+    if (alreadyExisting.has(c.row.reservationId)) {
+      report.skipped.push({
+        reservationId: c.row.reservationId,
+        reason: "Já existe no sistema (criada por outra importação)",
+      });
+    } else {
+      toInsert.push(c);
+    }
+  }
+
+  // 2) INSERTS em chunks; em caso de erro de chunk, retry linha-a-linha
+  for (const group of chunk(toInsert, INSERT_CHUNK_SIZE)) {
+    const payloads = group.map((c) => buildInsertPayload(c.row, c.vehicleId!));
     const { data, error } = await supabase
       .from("bookings")
       .insert(payloads)
-      .select("id, addons");
-    if (error) {
-      for (const c of toInsert) report.failures.push({ reservationId: c.row.reservationId, reason: error.message });
-    } else {
-      for (const r of data || []) {
-        report.insertedIds.push((r as any).id);
+      .select("id");
+
+    if (!error && data) {
+      for (const r of data as any[]) report.insertedIds.push(r.id);
+      continue;
+    }
+
+    // Fallback: insere uma a uma pra atribuir erro corretamente
+    for (let i = 0; i < group.length; i++) {
+      const c = group[i];
+      const { data: single, error: singleErr } = await supabase
+        .from("bookings")
+        .insert(payloads[i])
+        .select("id")
+        .single();
+      if (singleErr) {
+        report.failures.push({ reservationId: c.row.reservationId, reason: singleErr.message });
+      } else if (single) {
+        report.insertedIds.push((single as any).id);
       }
     }
   }
 
-  // UPDATES (linha a linha — campos variam)
+  // 3) UPDATES linha-a-linha
   for (const c of toUpdate) {
     const payload = buildUpdatePayload(c);
     if (Object.keys(payload).length === 0) continue;
-    const { error } = await supabase.from("bookings").update(payload).eq("id", c.existing!.id);
+    const { error } = await supabase
+      .from("bookings")
+      .update(payload)
+      .eq("id", c.existing!.id);
     if (error) report.failures.push({ reservationId: c.row.reservationId, reason: error.message });
     else report.updatedIds.push(c.existing!.id);
   }
