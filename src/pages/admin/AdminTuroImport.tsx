@@ -125,6 +125,30 @@ export default function AdminTuroImport() {
     return { total: sel.length, ins, upd, can };
   }, [classifications]);
 
+  // Breakdown por campo: quantos enriches tocam cada campo e quantos foram auto-marcados
+  const fieldBreakdown = useMemo(() => {
+    const map = new Map<string, { label: string; total: number; auto: number; manual: number }>();
+    for (const c of classifications) {
+      if (c.kind !== "enrich") continue;
+      for (const d of c.diffs) {
+        const key = String(d.field);
+        const entry = map.get(key) || { label: d.label, total: 0, auto: 0, manual: 0 };
+        entry.total++;
+        if (d.autoSelected) entry.auto++;
+        else entry.manual++;
+        map.set(key, entry);
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => b.total - a.total);
+  }, [classifications]);
+
+  // Quantos enriches só têm campos NÃO auto-marcados (aparecem mas não sincronizam sozinhos)
+  const enrichManualOnly = useMemo(
+    () => classifications.filter((c) => c.kind === "enrich" && c.diffs.every((d) => !d.autoSelected)).length,
+    [classifications]
+  );
+  const enrichAutoCount = summary.enrichCount - enrichManualOnly;
+
   const handleApply = async () => {
     setApplying(true);
     try {
