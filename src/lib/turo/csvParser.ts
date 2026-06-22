@@ -68,6 +68,8 @@ export function normalizeLocation(raw: string | undefined | null): string | null
     if (match.test(s)) return label;
   }
   return s;
+}
+
 
 /** Converte "2026-02-13 08:00 PM" → { date: "2026-02-13", time: "20:00" }. */
 export function parseTuroDateTime(raw: string | undefined | null): { date: string | null; time: string | null } {
