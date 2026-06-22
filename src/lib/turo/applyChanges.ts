@@ -28,7 +28,7 @@ function statusForBooking(row: TuroRow): { status: string; payment_status: strin
     case "completed":   return { status: "completed",   payment_status: "paid" };
     case "in_progress": return { status: "in_progress", payment_status: "paid" };
     case "confirmed":   return { status: "confirmed",   payment_status: "pending" };
-    case "cancelled":   return { status: "cancelled",   payment_status: "pending" };
+    case "cancelled":   return { status: "cancelled",   payment_status: "cancelled" };
     default:            return { status: "confirmed",   payment_status: "pending" };
   }
 }
