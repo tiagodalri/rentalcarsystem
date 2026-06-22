@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2, ArrowLeft, ArrowRight, AlertTriangle, CheckCircle2, FileSpreadsheet } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -42,6 +42,13 @@ export default function AdminTuroImport() {
   const [rawRows, setRawRows] = useState<TuroRow[]>([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [applying, setApplying] = useState(false);
+
+  useEffect(() => {
+    const prev = document.title;
+    document.title = "Importar Turo · Zeus Rental Car";
+    return () => { document.title = prev; };
+  }, []);
+
 
   const handleAddFiles = (newFiles: File[]) => {
     setFiles((prev) => [...prev, ...newFiles]);
