@@ -62,9 +62,12 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
   const counts = useMemo(() => {
-    const c: Record<string, number> = { all: classifications.length };
+    const c: Record<string, number> = { all: classifications.length, selected: 0 };
     for (const k of Object.keys(KIND_META)) c[k] = 0;
-    for (const x of classifications) c[x.kind]++;
+    for (const x of classifications) {
+      c[x.kind]++;
+      if (x.selected) c.selected++;
+    }
     return c;
   }, [classifications]);
 
@@ -72,7 +75,9 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
     return classifications
       .map((c, idx) => ({ c, idx }))
       .filter(({ c }) => {
-        if (filter !== "all" && c.kind !== filter) return false;
+        if (filter === "selected") {
+          if (!c.selected) return false;
+        } else if (filter !== "all" && c.kind !== filter) return false;
         if (search) {
           const q = search.toLowerCase();
           const blob = `${c.row.guestName} ${c.row.vehicleModel} ${c.row.reservationId}`.toLowerCase();
