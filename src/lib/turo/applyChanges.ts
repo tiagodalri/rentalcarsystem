@@ -68,6 +68,9 @@ function buildUpdatePayload(c: Classification): Record<string, any> {
   if ("status" in payload && (payload.status === "completed" || payload.status === "in_progress")) {
     payload.payment_status = "paid";
   }
+  if ("status" in payload && payload.status === "cancelled") {
+    payload.payment_status = "cancelled";
+  }
   return payload;
 }
 
