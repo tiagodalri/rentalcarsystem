@@ -5,7 +5,7 @@ import { formatPersonName } from "@/lib/formatName";
 import type { Classification, FieldDiff, BookingSnapshot } from "@/lib/turo/diffEngine";
 import { TuroVehicleMapper } from "./TuroVehicleMapper";
 
-type FilterKey = "all" | "new" | "enrich" | "identical" | "cancelled_csv" | "unmapped" | "invalid";
+type FilterKey = "all" | "selected" | "new" | "enrich" | "identical" | "cancelled_csv" | "unmapped" | "invalid";
 
 const KIND_META: Record<string, { label: string; chip: string; bar: string }> = {
   new:           { label: "Nova",        chip: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", bar: "bg-emerald-500" },
