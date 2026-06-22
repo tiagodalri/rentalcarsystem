@@ -178,29 +178,54 @@ export function classifyRow(row: TuroRow, opts: ClassifyOptions): Classification
 
   // CSV cancelada
   if (row.status === "cancelled") {
-    if (!existing) {
+    if (!existing || existing.deleted_at) {
+      // Sem veículo mapeado → bloqueia (mesma regra das novas)
+      if (!vehicleId) {
+        return { kind: "unmapped", row, vehicleId: null, diffs: [], selected: false, selectedFields: new Set() };
+      }
+      if (!row.pickupDate || !row.returnDate) {
+        return { kind: "invalid", row, vehicleId, diffs: [], selected: false, selectedFields: new Set() };
+      }
+      // Auto-seleciona: cancelada vai entrar no sistema marcada como cancelada
       return {
         kind: "cancelled_csv",
         row,
         vehicleId,
         diffs: [],
-        selected: false, // não importa cancelada nova por padrão
+        selected: true,
         selectedFields: new Set(),
       };
     }
-    // Existe → talvez precise atualizar status
-    if (existing.status === "cancelled") {
+    // Existe → talvez precise atualizar status / valor
+    const diffs: FieldDiff[] = [];
+    if (existing.status !== "cancelled") {
+      diffs.push({
+        field: "status",
+        label: FIELD_LABELS.status,
+        currentValue: existing.status,
+        newValue: "cancelled",
+        autoSelected: true,
+        protected: false,
+        reason: "CSV marca como cancelada",
+      });
+    }
+    // Atualiza valor se divergente (cancelamento pode ter ganho residual ou zerar)
+    const totalDiff = buildDiff("total_price", existing.total_price, row.totalEarnings, {
+      reason: "Valor pós-cancelamento conforme CSV",
+    });
+    if (totalDiff) {
+      diffs.push({ ...totalDiff, autoSelected: true });
+    }
+    if (diffs.length === 0) {
       return { kind: "identical", row, existing, vehicleId, diffs: [], selected: false, selectedFields: new Set() };
     }
-    const diff = buildDiff("status", existing.status, "cancelled", { reason: "CSV marca como cancelada" });
-    const diffs = diff ? [{ ...diff, autoSelected: true }] : [];
     return {
       kind: "enrich",
       row,
       existing,
       vehicleId,
       diffs,
-      selected: diffs.length > 0,
+      selected: true,
       selectedFields: new Set(diffs.filter((d) => d.autoSelected).map((d) => d.field)),
     };
   }
