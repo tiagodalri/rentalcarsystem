@@ -104,11 +104,37 @@ const PROTECTED_FIELDS: Set<string> = new Set([
   "customer_name", // só auto-marca se estiver vazio
 ]);
 
+/** Normaliza valores por tipo para comparação robusta (evita "13:00" != "13:00:00"). */
+function normalizeForCompare(field: string, v: any): string {
+  if (v === null || v === undefined) return "";
+  const s = String(v).trim();
+  if (s === "") return "";
+  if (field === "pickup_time" || field === "return_time") {
+    // "13:00:00" → "13:00"; "13:00" → "13:00"
+    const m = s.match(/^(\d{1,2}):(\d{2})/);
+    if (m) return `${m[1].padStart(2, "0")}:${m[2]}`;
+    return s;
+  }
+  if (field === "pickup_date" || field === "return_date") {
+    // ISO date possivelmente com timestamp → YYYY-MM-DD
+    const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+    return m ? m[1] : s;
+  }
+  if (field === "total_price") {
+    const n = typeof v === "number" ? v : parseFloat(s);
+    return isFinite(n) ? n.toFixed(2) : s;
+  }
+  if (field === "pickup_location" || field === "return_location" || field === "customer_name") {
+    return s.replace(/\s+/g, " ").toLowerCase();
+  }
+  return s;
+}
+
 function buildDiff(field: keyof BookingSnapshot, current: any, next: any, opts: { allowAutoIfEmpty?: boolean; reason?: string } = {}): FieldDiff | null {
   if (next === null || next === undefined || next === "") return null;
   const currentEmpty = isEmpty(current);
-  // Igualdade simples (datas/strings/números)
-  if (!currentEmpty && String(current) === String(next)) return null;
+  // Comparação normalizada por tipo (cobre "13:00" vs "13:00:00", price 127.29 vs "127.29", etc.)
+  if (!currentEmpty && normalizeForCompare(String(field), current) === normalizeForCompare(String(field), next)) return null;
   const isProtected = PROTECTED_FIELDS.has(String(field));
   const autoSelected = currentEmpty && (opts.allowAutoIfEmpty ?? true);
   return {
