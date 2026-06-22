@@ -28,7 +28,7 @@ function statusForBooking(row: TuroRow): { status: string; payment_status: strin
     case "completed":   return { status: "completed",   payment_status: "paid" };
     case "in_progress": return { status: "in_progress", payment_status: "paid" };
     case "confirmed":   return { status: "confirmed",   payment_status: "pending" };
-    case "cancelled":   return { status: "cancelled",   payment_status: "pending" };
+    case "cancelled":   return { status: "cancelled",   payment_status: "cancelled" };
     default:            return { status: "confirmed",   payment_status: "pending" };
   }
 }
@@ -68,6 +68,9 @@ function buildUpdatePayload(c: Classification): Record<string, any> {
   if ("status" in payload && (payload.status === "completed" || payload.status === "in_progress")) {
     payload.payment_status = "paid";
   }
+  if ("status" in payload && payload.status === "cancelled") {
+    payload.payment_status = "cancelled";
+  }
   return payload;
 }
 
@@ -103,7 +106,7 @@ export async function applyClassifications(classifications: Classification[]): P
   const report: ApplyReport = { insertedIds: [], updatedIds: [], skipped: [], failures: [] };
 
   const toInsertAll = classifications.filter(
-    (c) => c.kind === "new" && c.selected && c.vehicleId
+    (c) => (c.kind === "new" || c.kind === "cancelled_csv") && c.selected && c.vehicleId
   );
   const toUpdate = classifications.filter(
     (c) => c.kind === "enrich" && c.selected && c.existing && c.selectedFields.size > 0
