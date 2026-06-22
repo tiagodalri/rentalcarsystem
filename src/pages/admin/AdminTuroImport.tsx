@@ -264,6 +264,7 @@ export default function AdminTuroImport() {
             classifications={classifications}
             onToggleSelected={handleToggleSelected}
             onToggleField={handleToggleField}
+            onBulkSelectFields={handleBulkSelectFields}
             onVehicleMapped={handleVehicleMapped}
           />
 
