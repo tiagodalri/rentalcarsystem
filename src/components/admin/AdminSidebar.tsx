@@ -13,6 +13,7 @@ import {
   CalendarDays,
   ChevronDown,
   FileSignature,
+  Upload,
 } from "lucide-react";
 
 import zeusLogo from "@/assets/zeus-logo-mark.png";
@@ -64,6 +65,7 @@ const menuSections: MenuSection[] = [
     label: "Gestão",
     items: [
       { title: "Reservas",   url: "/admin/bookings",  icon: CalendarRange, allowedRoles: ["admin","operations","support"] },
+      { title: "Importar Turo", url: "/admin/turo-import", icon: Upload, allowedRoles: ["admin","operations"] },
       { title: "Contratos",  url: "/admin/contracts", icon: FileSignature, allowedRoles: ["admin","operations","support","finance"] },
       { title: "Agenda", url: "/admin/calendar",  icon: CalendarDays,  allowedRoles: ["admin","operations","support"] },
       { title: "Frota",      url: "/admin/fleet",     icon: Car,           allowedRoles: ["admin","operations"] },
