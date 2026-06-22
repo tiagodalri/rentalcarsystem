@@ -327,6 +327,8 @@ export default function AdminTuroImport() {
             </div>
           )}
 
+          <TuroChangesPreview classifications={classifications} />
+
           <TuroDiffTable
             classifications={classifications}
             onToggleSelected={handleToggleSelected}
