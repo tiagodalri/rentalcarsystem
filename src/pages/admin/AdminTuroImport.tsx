@@ -194,14 +194,37 @@ export default function AdminTuroImport() {
       {/* STEP 2 — Revisar */}
       {step === 2 && (
         <div className="space-y-4">
+          {/* Resumo do que foi lido */}
+          <div className="rounded-xl border border-border/60 bg-card p-4">
+            <div className="flex items-start gap-3">
+              <FileSpreadsheet className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="text-xs text-muted-foreground leading-relaxed">
+                Lemos <span className="font-semibold text-foreground tabular-nums">{summary.total}</span> linhas
+                {" "}de <span className="font-semibold text-foreground tabular-nums">{files.length}</span> {files.length === 1 ? "arquivo" : "arquivos"} CSV
+                {files.length > 0 && (
+                  <span className="opacity-70"> ({files.map((f) => f.name).join(", ")})</span>
+                )}.
+                {" "}Cada linha foi comparada com o banco usando o <span className="font-medium text-foreground">ID da reserva Turo</span>.
+              </div>
+            </div>
+          </div>
+
           {/* KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-            <Kpi label="Total CSV" value={summary.total} tone="default" />
-            <Kpi label="Novas" value={summary.newCount} tone="success" />
-            <Kpi label="Enriquecer" value={summary.enrichCount} tone="warning" />
-            <Kpi label="Em dia" value={summary.identicalCount} tone="muted" />
-            <Kpi label="Canceladas" value={summary.cancelledCount} tone="danger" />
-            <Kpi label="Sem veículo" value={summary.unmappedCount} tone="orange" />
+            <Kpi label="Total CSV" value={summary.total} tone="default" hint="Linhas válidas lidas dos arquivos enviados." />
+            <Kpi label="Novas" value={summary.newCount} tone="success" hint="Reservas que ainda não existem no Zeus — serão criadas." />
+            <Kpi label="Enriquecer" value={summary.enrichCount} tone="warning" hint="Já existem no Zeus, mas o CSV traz dados novos (ex: hora real de devolução, valor final, status que avançou para 'concluída')." />
+            <Kpi label="Em dia" value={summary.identicalCount} tone="muted" hint="Reservas idênticas — não precisam de nada." />
+            <Kpi label="Canceladas" value={summary.cancelledCount} tone="danger" hint="CSV marca como cancelada. Aplicar só atualiza status; não cria." />
+            <Kpi label="Sem veículo" value={summary.unmappedCount} tone="orange" hint="O modelo do CSV ainda não foi vinculado a um carro da frota Zeus." />
+          </div>
+
+          {/* Explicação do que é 'Enriquecer' e por que tem pré-selecionadas */}
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs leading-relaxed">
+            <div className="font-semibold text-foreground mb-1">Como funciona a pré-seleção</div>
+            <div className="text-muted-foreground">
+              O sistema <span className="font-medium text-foreground">marcou automaticamente</span> só o que é seguro aplicar: campos que estão vazios no banco ou status que avançou naturalmente (ex: <span className="tabular-nums">confirmed → completed</span>). Nada que você marcou manualmente é sobrescrito. Use o filtro <span className="font-medium text-amber-700 dark:text-amber-400">"Só selecionadas"</span> abaixo para revisar exatamente o que vai mudar antes de aplicar.
+            </div>
           </div>
 
           {parseErrors.length > 0 && (
@@ -293,7 +316,7 @@ export default function AdminTuroImport() {
   );
 }
 
-function Kpi({ label, value, tone }: { label: string; value: number; tone: "default" | "success" | "warning" | "muted" | "danger" | "orange" }) {
+function Kpi({ label, value, tone, hint }: { label: string; value: number; tone: "default" | "success" | "warning" | "muted" | "danger" | "orange"; hint?: string }) {
   const toneClass = {
     default: "text-foreground",
     success: "text-emerald-600 dark:text-emerald-400",
@@ -303,9 +326,10 @@ function Kpi({ label, value, tone }: { label: string; value: number; tone: "defa
     orange:  "text-orange-600 dark:text-orange-400",
   }[tone];
   return (
-    <div className="bg-card rounded-lg border border-border/60 p-3">
+    <div className="bg-card rounded-lg border border-border/60 p-3" title={hint}>
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{label}</div>
       <div className={`text-xl font-semibold tabular-nums mt-1 ${toneClass}`}>{value}</div>
+      {hint && <div className="text-[10px] text-muted-foreground/70 mt-1 leading-snug line-clamp-2">{hint}</div>}
     </div>
   );
 }

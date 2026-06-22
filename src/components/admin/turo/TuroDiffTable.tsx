@@ -5,7 +5,7 @@ import { formatPersonName } from "@/lib/formatName";
 import type { Classification, FieldDiff, BookingSnapshot } from "@/lib/turo/diffEngine";
 import { TuroVehicleMapper } from "./TuroVehicleMapper";
 
-type FilterKey = "all" | "new" | "enrich" | "identical" | "cancelled_csv" | "unmapped" | "invalid";
+type FilterKey = "all" | "selected" | "new" | "enrich" | "identical" | "cancelled_csv" | "unmapped" | "invalid";
 
 const KIND_META: Record<string, { label: string; chip: string; bar: string }> = {
   new:           { label: "Nova",        chip: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", bar: "bg-emerald-500" },
@@ -62,9 +62,12 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
 
   const counts = useMemo(() => {
-    const c: Record<string, number> = { all: classifications.length };
+    const c: Record<string, number> = { all: classifications.length, selected: 0 };
     for (const k of Object.keys(KIND_META)) c[k] = 0;
-    for (const x of classifications) c[x.kind]++;
+    for (const x of classifications) {
+      c[x.kind]++;
+      if (x.selected) c.selected++;
+    }
     return c;
   }, [classifications]);
 
@@ -72,7 +75,9 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
     return classifications
       .map((c, idx) => ({ c, idx }))
       .filter(({ c }) => {
-        if (filter !== "all" && c.kind !== filter) return false;
+        if (filter === "selected") {
+          if (!c.selected) return false;
+        } else if (filter !== "all" && c.kind !== filter) return false;
         if (search) {
           const q = search.toLowerCase();
           const blob = `${c.row.guestName} ${c.row.vehicleModel} ${c.row.reservationId}`.toLowerCase();
@@ -91,8 +96,9 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
     });
   };
 
-  const filterChips: { key: FilterKey; label: string }[] = [
+  const filterChips: { key: FilterKey; label: string; highlight?: boolean }[] = [
     { key: "all", label: "Todas" },
+    { key: "selected", label: "Só selecionadas", highlight: true },
     { key: "new", label: "Novas" },
     { key: "enrich", label: "Enriquecer" },
     { key: "identical", label: "Em dia" },
@@ -124,7 +130,9 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
                 "h-8 px-3 rounded-full text-[11px] font-medium transition-colors",
                 filter === f.key
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/70",
+                  : f.highlight
+                    ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 ring-1 ring-amber-500/30"
+                    : "bg-muted text-muted-foreground hover:bg-muted/70",
               )}
             >
               {f.label} <span className="opacity-70 tabular-nums">({counts[f.key] || 0})</span>
@@ -132,6 +140,12 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
           ))}
         </div>
       </div>
+
+      {filter === "selected" && counts.selected > 0 && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+          Mostrando as <span className="font-semibold">{counts.selected}</span> reservas que o sistema pré-selecionou. Expanda qualquer linha para ver exatamente quais campos serão alterados — só os marcados com check serão aplicados.
+        </div>
+      )}
 
       {/* Lista */}
       <div className="space-y-1.5">
