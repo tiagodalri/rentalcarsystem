@@ -96,8 +96,9 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
     });
   };
 
-  const filterChips: { key: FilterKey; label: string }[] = [
+  const filterChips: { key: FilterKey; label: string; highlight?: boolean }[] = [
     { key: "all", label: "Todas" },
+    { key: "selected", label: "Só selecionadas", highlight: true },
     { key: "new", label: "Novas" },
     { key: "enrich", label: "Enriquecer" },
     { key: "identical", label: "Em dia" },
