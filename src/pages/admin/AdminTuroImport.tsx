@@ -316,7 +316,7 @@ export default function AdminTuroImport() {
   );
 }
 
-function Kpi({ label, value, tone }: { label: string; value: number; tone: "default" | "success" | "warning" | "muted" | "danger" | "orange" }) {
+function Kpi({ label, value, tone, hint }: { label: string; value: number; tone: "default" | "success" | "warning" | "muted" | "danger" | "orange"; hint?: string }) {
   const toneClass = {
     default: "text-foreground",
     success: "text-emerald-600 dark:text-emerald-400",
@@ -326,9 +326,10 @@ function Kpi({ label, value, tone }: { label: string; value: number; tone: "defa
     orange:  "text-orange-600 dark:text-orange-400",
   }[tone];
   return (
-    <div className="bg-card rounded-lg border border-border/60 p-3">
+    <div className="bg-card rounded-lg border border-border/60 p-3" title={hint}>
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{label}</div>
       <div className={`text-xl font-semibold tabular-nums mt-1 ${toneClass}`}>{value}</div>
+      {hint && <div className="text-[10px] text-muted-foreground/70 mt-1 leading-snug line-clamp-2">{hint}</div>}
     </div>
   );
 }
