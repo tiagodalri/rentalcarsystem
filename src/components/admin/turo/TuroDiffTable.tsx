@@ -130,7 +130,9 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
                 "h-8 px-3 rounded-full text-[11px] font-medium transition-colors",
                 filter === f.key
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/70",
+                  : f.highlight
+                    ? "bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 ring-1 ring-amber-500/30"
+                    : "bg-muted text-muted-foreground hover:bg-muted/70",
               )}
             >
               {f.label} <span className="opacity-70 tabular-nums">({counts[f.key] || 0})</span>
@@ -138,6 +140,12 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
           ))}
         </div>
       </div>
+
+      {filter === "selected" && counts.selected > 0 && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
+          Mostrando as <span className="font-semibold">{counts.selected}</span> reservas que o sistema pré-selecionou. Expanda qualquer linha para ver exatamente quais campos serão alterados — só os marcados com check serão aplicados.
+        </div>
+      )}
 
       {/* Lista */}
       <div className="space-y-1.5">
