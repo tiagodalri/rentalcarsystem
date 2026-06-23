@@ -172,7 +172,14 @@ export async function parseTuroCsv(file: File): Promise<ParseResult> {
         statusRaw,
         status: mapTuroStatus(statusRaw),
         totalEarnings: parseTuroMoney(pick(raw, HEADERS.earnings)),
+        bookedAt: (() => {
+          const dt = parseTuroDateTime(pick(raw, HEADERS.bookedAt));
+          if (!dt.date) return null;
+          // ISO local (sem timezone) — usado apenas para exibição na coluna "Venda"
+          return dt.time ? `${dt.date}T${dt.time}:00` : `${dt.date}T00:00:00`;
+        })(),
       };
+
 
       const check = TuroRowSchema.safeParse(row);
       if (!check.success) {
