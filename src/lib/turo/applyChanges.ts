@@ -52,6 +52,7 @@ function buildInsertPayload(row: TuroRow, vehicleId: string) {
       turo_reservation_id: row.reservationId,
       turo_vehicle_name: row.vehicleModel,
       turo_status_raw: row.statusRaw,
+      turo_booked_at: row.bookedAt, // data real em que o cliente reservou (Turo)
       imported_from: "turo_csv_import",
       imported_at: new Date().toISOString(),
     },
