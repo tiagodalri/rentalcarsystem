@@ -927,31 +927,117 @@ function AdminBookingsDesktop() {
 
       {/* Preset chips — only on table view */}
       {viewMode === "table" && (
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {(Object.keys(PRESET_LABELS) as PresetKey[]).map((key) => {
-            const active = activePreset === key;
-            return (
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {(Object.keys(PRESET_LABELS) as PresetKey[]).map((key) => {
+              const active = activePreset === key;
+              const baseCls = `text-[11px] px-2.5 py-1 rounded-full border font-medium transition-all ${
+                active
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-card/50 border-border/40 text-muted-foreground hover:text-foreground hover:border-border/60"
+              }`;
+
+              if (key === "custom") {
+                const rangeLabel = filters.dateFrom && filters.dateTo
+                  ? `${format(filters.dateFrom, "dd/MM/yy")} — ${format(filters.dateTo, "dd/MM/yy")}`
+                  : filters.dateFrom
+                    ? `Desde ${format(filters.dateFrom, "dd/MM/yy")}`
+                    : PRESET_LABELS.custom;
+                return (
+                  <Popover key={key}>
+                    <PopoverTrigger asChild>
+                      <button
+                        onClick={() => setActivePreset("custom")}
+                        className={`${baseCls} inline-flex items-center gap-1`}
+                      >
+                        <CalendarIcon size={11} />
+                        {rangeLabel}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="range"
+                        selected={{ from: filters.dateFrom, to: filters.dateTo }}
+                        onSelect={(r) => {
+                          setActivePreset("custom");
+                          setFilters((f) => ({ ...f, dateFrom: r?.from, dateTo: r?.to }));
+                        }}
+                        numberOfMonths={2}
+                        locale={ptBR}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                      <div className="flex items-center justify-between gap-2 p-2 border-t border-border/40">
+                        <span className="text-[10px] text-muted-foreground px-2">
+                          Selecione um intervalo
+                        </span>
+                        {(filters.dateFrom || filters.dateTo) && (
+                          <button
+                            onClick={() => {
+                              setFilters((f) => ({ ...f, dateFrom: undefined, dateTo: undefined }));
+                              setActivePreset(null);
+                            }}
+                            className="text-[10px] text-destructive hover:text-destructive/80 font-medium px-2 py-1 inline-flex items-center gap-1"
+                          >
+                            <X size={10} /> Limpar
+                          </button>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                );
+              }
+
+              return (
+                <button
+                  key={key}
+                  onClick={() => applyPreset(key)}
+                  className={baseCls}
+                >
+                  {PRESET_LABELS[key]}
+                </button>
+              );
+            })}
+            {activeFilterCount > 0 && (
               <button
-                key={key}
-                onClick={() => applyPreset(key)}
-                className={`text-[11px] px-2.5 py-1 rounded-full border font-medium transition-all ${
-                  active
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card/50 border-border/40 text-muted-foreground hover:text-foreground hover:border-border/60"
-                }`}
+                onClick={clearAllFilters}
+                className="text-[11px] px-2.5 py-1 rounded-full border border-destructive/30 text-destructive hover:bg-destructive/10 font-medium transition-all flex items-center gap-1 ml-1"
               >
-                {PRESET_LABELS[key]}
+                <X size={11} /> Limpar todos os filtros
               </button>
-            );
-          })}
-          {activeFilterCount > 0 && (
+            )}
+          </div>
+
+          {/* Status chips */}
+          <div className="flex items-center gap-1.5 flex-wrap">
             <button
-              onClick={clearAllFilters}
-              className="text-[11px] px-2.5 py-1 rounded-full border border-destructive/30 text-destructive hover:bg-destructive/10 font-medium transition-all flex items-center gap-1 ml-1"
+              onClick={() => setFilters((f) => ({ ...f, status: "all" }))}
+              className={`text-[11px] px-2.5 py-1 rounded-full border font-medium transition-all ${
+                filters.status === "all"
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-card/50 border-border/40 text-muted-foreground hover:text-foreground hover:border-border/60"
+              }`}
             >
-              <X size={11} /> Limpar todos os filtros
+              Todos status
             </button>
-          )}
+            {Object.entries(statusConfig).map(([key, val]) => {
+              const active = filters.status === key;
+              return (
+                <button
+                  key={key}
+                  onClick={() => setFilters((f) => ({ ...f, status: active ? "all" : key }))}
+                  className={`text-[11px] px-2.5 py-1 rounded-full border font-medium transition-all inline-flex items-center gap-1.5 ${
+                    active
+                      ? `${val.calBg} ${val.calText} border-current/30`
+                      : "bg-card/50 border-border/40 text-muted-foreground hover:text-foreground hover:border-border/60"
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${val.calBg.replace("/15", "").replace("/10", "")} ${val.calText}`} style={{ backgroundColor: "currentColor" }} />
+                  {val.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
