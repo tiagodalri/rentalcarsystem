@@ -21,6 +21,8 @@ export interface TuroRow {
   statusRaw: string;
   status: TuroStatus;
   totalEarnings: number | null;
+  bookedAt: string | null; // ISO timestamp da data em que o cliente fez a reserva
+
 }
 
 /** Converte "US$ 1.234,56" → 1234.56, e "- US$ 46,55" → -46.55. */
