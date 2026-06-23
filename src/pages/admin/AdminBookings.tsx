@@ -44,9 +44,11 @@ type Booking = {
   extra_driver: boolean | null;
   vehicle_id: string | null;
   created_at: string;
+  addons: Record<string, any> | null;
   vehicle_name?: string;
   vehicle_image?: string;
 };
+
 
 const statusConfig: Record<string, { label: string; color: string; calBg: string; calText: string; accent: string }> = {
   pending:     { label: "Pendente",       color: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20", calBg: "bg-yellow-500/15", calText: "text-yellow-700 dark:text-yellow-400", accent: "border-l-yellow-500" },
