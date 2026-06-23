@@ -21,6 +21,8 @@ export interface TuroRow {
   statusRaw: string;
   status: TuroStatus;
   totalEarnings: number | null;
+  bookedAt: string | null; // ISO timestamp da data em que o cliente fez a reserva
+
 }
 
 /** Converte "US$ 1.234,56" → 1234.56, e "- US$ 46,55" → -46.55. */
@@ -109,7 +111,9 @@ const HEADERS = {
   returnLoc: ["Local de devolução", "Return location"],
   status: ["Status da viagem", "Trip status", "Status"],
   earnings: ["Ganhos totais", "Total earnings"],
+  bookedAt: ["Data da reserva", "Booked at", "Booking date", "Reserva realizada em"],
 };
+
 
 function pick(row: Record<string, string>, keys: string[]): string {
   for (const k of keys) {
@@ -168,7 +172,14 @@ export async function parseTuroCsv(file: File): Promise<ParseResult> {
         statusRaw,
         status: mapTuroStatus(statusRaw),
         totalEarnings: parseTuroMoney(pick(raw, HEADERS.earnings)),
+        bookedAt: (() => {
+          const dt = parseTuroDateTime(pick(raw, HEADERS.bookedAt));
+          if (!dt.date) return null;
+          // ISO local (sem timezone) — usado apenas para exibição na coluna "Venda"
+          return dt.time ? `${dt.date}T${dt.time}:00` : `${dt.date}T00:00:00`;
+        })(),
       };
+
 
       const check = TuroRowSchema.safeParse(row);
       if (!check.success) {
