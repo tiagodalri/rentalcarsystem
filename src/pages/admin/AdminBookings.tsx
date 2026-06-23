@@ -1347,7 +1347,8 @@ function AdminBookingsDesktop() {
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
                             {(() => {
-                              const d = new Date(b.created_at);
+                              const turoBookedAt = (b.addons as any)?.turo_booked_at as string | undefined;
+                              const d = new Date(turoBookedAt || b.created_at);
                               return (
                                 <div className="leading-tight">
                                   <div className="text-foreground/85 text-[12px]">{d.toLocaleDateString("pt-BR")}</div>
@@ -1356,6 +1357,7 @@ function AdminBookingsDesktop() {
                               );
                             })()}
                           </td>
+
                           <td className="px-5 py-3.5 border-l-2 border-border/60">
                             <div className="flex items-center gap-2.5 min-w-[160px]">
                               {b.vehicle_image ? (
