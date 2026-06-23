@@ -111,7 +111,9 @@ const HEADERS = {
   returnLoc: ["Local de devolução", "Return location"],
   status: ["Status da viagem", "Trip status", "Status"],
   earnings: ["Ganhos totais", "Total earnings"],
+  bookedAt: ["Data da reserva", "Booked at", "Booking date", "Reserva realizada em"],
 };
+
 
 function pick(row: Record<string, string>, keys: string[]): string {
   for (const k of keys) {
