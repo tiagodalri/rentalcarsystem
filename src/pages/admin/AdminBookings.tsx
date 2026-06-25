@@ -399,8 +399,8 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
                         <div className="text-[9px] opacity-50 truncate mt-0.5">📍 {b.return_location}</div>
                       )}
 
-                      {/* Price */}
-                      {b.total_price && (
+                      {/* Price (hidden for restricted operators) */}
+                      {!hideFin && b.total_price && (
                         <div className="text-[9px] font-semibold mt-1.5 opacity-80 tabular-nums">
                           ${b.total_price.toFixed(2)}
                         </div>
