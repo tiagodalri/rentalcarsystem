@@ -223,6 +223,7 @@ function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (
 
 // ─── Weekly Calendar ───────────────────────────────────────
 function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (path: string) => void }) {
+  const hideFin = useHideFinancials();
   const [weekStart, setWeekStart] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - d.getDay()); // start on Sunday
