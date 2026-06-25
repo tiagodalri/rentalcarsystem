@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CalendarCheck, CalendarX2, Wrench, ChevronLeft, ChevronRight,
-  CalendarDays, Phone, MessageCircle, ClipboardCheck, Car,
+  CalendarDays, Phone, MessageCircle, ClipboardCheck, Car, Calendar as CalendarIcon,
 } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { addDays, format, isSameDay, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatPersonName } from "@/lib/formatName";
