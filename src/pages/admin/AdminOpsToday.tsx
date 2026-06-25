@@ -229,6 +229,31 @@ export default function AdminOpsToday() {
               <CalendarDays size={12} />
               {isToday ? "Hoje" : format(selectedDate, "dd 'de' MMM", { locale: ptBR })}
             </button>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  aria-label="Selecionar data"
+                  title="Selecionar data"
+                >
+                  <CalendarIcon size={14} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(d) => {
+                    if (d) {
+                      setSelectedDate(startOfDay(d));
+                      setCalendarOpen(false);
+                    }
+                  }}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
             <button
               onClick={() => setSelectedDate(d => addDays(d, 1))}
               className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
