@@ -77,6 +77,7 @@ const WEEKDAYS_FULL = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sext
 // ─── Monthly Calendar ───────────────────────────────────────
 function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (path: string) => void }) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const hideFin = useHideFinancials();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
