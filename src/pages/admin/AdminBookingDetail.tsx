@@ -12,6 +12,7 @@ import {
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { LocationDisplay } from "@/components/admin/LocationDisplay";
 import MiniLocationMap from "@/components/admin/MiniLocationMap";
+import { useHideFinancials } from "@/hooks/useHideFinancials";
 import { EditBookingDialog } from "@/components/admin/EditBookingDialog";
 import { BookingIncidentDialog } from "@/components/admin/BookingIncidentDialog";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
@@ -110,6 +111,7 @@ const contractStatusConfig: Record<string, { label: string; cls: string }> = {
 export default function AdminBookingDetail() {
   const { bookingId } = useParams();
   const navigate = useNavigate();
+  const hideFin = useHideFinancials();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
@@ -479,10 +481,12 @@ export default function AdminBookingDetail() {
               <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Dias</p>
               <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{days}</p>
             </div>
-            <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent">
-              <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Total</p>
-              <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
-            </div>
+            {!hideFin && (
+              <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent">
+                <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Total</p>
+                <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
+              </div>
+            )}
           </div>
 
         </div>
@@ -742,13 +746,15 @@ export default function AdminBookingDetail() {
                 </div>
               </div>
 
-              <div className="w-full md:w-1/2 flex flex-col items-center justify-center md:border-l border-t md:border-t-0 border-border/40 md:pl-8 pt-6 md:pt-0 py-2 md:py-4">
-                <p className="admin-label mb-2">Valor da Diária</p>
-                <p className="text-3xl sm:text-4xl font-light tabular-nums text-foreground tracking-[-0.02em]">
-                  <span className="text-base sm:text-lg font-normal text-muted-foreground/80 mr-1">$</span>
-                  {vehicle.daily_price_usd.toFixed(2)}
-                </p>
-              </div>
+              {!hideFin && (
+                <div className="w-full md:w-1/2 flex flex-col items-center justify-center md:border-l border-t md:border-t-0 border-border/40 md:pl-8 pt-6 md:pt-0 py-2 md:py-4">
+                  <p className="admin-label mb-2">Valor da Diária</p>
+                  <p className="text-3xl sm:text-4xl font-light tabular-nums text-foreground tracking-[-0.02em]">
+                    <span className="text-base sm:text-lg font-normal text-muted-foreground/80 mr-1">$</span>
+                    {vehicle.daily_price_usd.toFixed(2)}
+                  </p>
+                </div>
+              )}
 
             </div>
           ) : (
@@ -758,10 +764,13 @@ export default function AdminBookingDetail() {
 
         {/* Resumo Financeiro & Observações */}
         <section className="space-y-6 pt-2">
+          {!hideFin && (
           <h2 className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-2">
             Resumo Financeiro & Observações
           </h2>
+          )}
 
+          {!hideFin && (<>
           <div className="space-y-1">
             <div className="flex justify-between py-2.5 border-b border-border/30">
               <span className="text-sm text-muted-foreground">Duração da reserva</span>
@@ -928,6 +937,7 @@ export default function AdminBookingDetail() {
               </div>
             );
           })()}
+          </>)}
 
 
           {booking.notes && (

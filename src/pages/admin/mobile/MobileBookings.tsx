@@ -8,6 +8,7 @@ import { formatPersonName } from "@/lib/formatName";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { MobileSheet } from "@/components/mobile/MobileSheet";
 import { SegmentedControl } from "@/components/mobile/SegmentedControl";
+import { useHideFinancials } from "@/hooks/useHideFinancials";
 
 /* ============================================================
    RESERVAS — Mobile-first
@@ -40,6 +41,7 @@ const STATUS: Record<string, { label: string; bar: string; chip: string }> = {
 type Range = "upcoming" | "today" | "past" | "all";
 
 export default function MobileBookings() {
+  const hideFin = useHideFinancials();
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const [loading, setLoading] = useState(true);
@@ -178,7 +180,7 @@ export default function MobileBookings() {
                         <Calendar size={11} />
                         {format(new Date(b.pickup_date), "dd MMM", { locale: ptBR })} → {format(new Date(b.return_date), "dd MMM", { locale: ptBR })}
                       </span>
-                      {b.total_price != null && (
+                      {!hideFin && b.total_price != null && (
                         <span className="font-semibold tabular-nums">${Math.round(b.total_price).toLocaleString("en-US")}</span>
                       )}
                     </div>

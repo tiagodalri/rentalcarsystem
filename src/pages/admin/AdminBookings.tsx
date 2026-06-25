@@ -20,6 +20,7 @@ import jsPDF from "jspdf";
 import { storageThumb } from "@/lib/storageThumb";
 import { coverImageMap } from "@/data/fleetAssets";
 import { deleteBookingSafe } from "@/lib/deleteBookingSafe";
+import { useHideFinancials } from "@/hooks/useHideFinancials";
 
 
 type Booking = {
@@ -76,6 +77,7 @@ const WEEKDAYS_FULL = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sext
 // ─── Monthly Calendar ───────────────────────────────────────
 function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (path: string) => void }) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const hideFin = useHideFinancials();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -221,6 +223,7 @@ function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (
 
 // ─── Weekly Calendar ───────────────────────────────────────
 function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (path: string) => void }) {
+  const hideFin = useHideFinancials();
   const [weekStart, setWeekStart] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - d.getDay()); // start on Sunday
@@ -398,8 +401,8 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
                         <div className="text-[9px] opacity-50 truncate mt-0.5">📍 {b.return_location}</div>
                       )}
 
-                      {/* Price */}
-                      {b.total_price && (
+                      {/* Price (hidden for restricted operators) */}
+                      {!hideFin && b.total_price && (
                         <div className="text-[9px] font-semibold mt-1.5 opacity-80 tabular-nums">
                           ${b.total_price.toFixed(2)}
                         </div>
@@ -523,6 +526,7 @@ export default function AdminBookings() {
 
 function AdminBookingsDesktop() {
   const navigate = useNavigate();
+  const hideFin = useHideFinancials();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -892,22 +896,24 @@ function AdminBookingsDesktop() {
           >
             <Plus size={14} /> <span>Nova reserva</span>
           </button>
-          {/* Export */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="flex items-center gap-1.5 h-8 sm:h-9 px-3 rounded-lg border border-border/40 bg-card/50 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-border/60 transition-all">
-                <Download size={13} /> <span className="hidden sm:inline">Exportar</span>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[180px] p-1.5" align="end">
-              <button onClick={exportCSV} className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                <FileSpreadsheet size={14} /> Exportar CSV
-              </button>
-              <button onClick={exportPDF} className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                <FileText size={14} /> Exportar PDF
-              </button>
-            </PopoverContent>
-          </Popover>
+          {/* Export — esconde quando o usuário não pode ver valores (CSV/PDF contêm financeiro) */}
+          {!hideFin && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center gap-1.5 h-8 sm:h-9 px-3 rounded-lg border border-border/40 bg-card/50 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-border/60 transition-all">
+                  <Download size={13} /> <span className="hidden sm:inline">Exportar</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[180px] p-1.5" align="end">
+                <button onClick={exportCSV} className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                  <FileSpreadsheet size={14} /> Exportar CSV
+                </button>
+                <button onClick={exportPDF} className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                  <FileText size={14} /> Exportar PDF
+                </button>
+              </PopoverContent>
+            </Popover>
+          )}
           {/* View toggle */}
           <div className="flex items-center bg-muted/50 rounded-lg p-0.5 border border-border/30">
             {viewModes.map(({ key, label, icon: Icon }) => (
@@ -1324,9 +1330,9 @@ function AdminBookingsDesktop() {
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Devolução</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Hora</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Local</th>
-                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Total</th>
-                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Caução</th>
-                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Franquia</th>
+                      {!hideFin && <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Total</th>}
+                      {!hideFin && <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Caução</th>}
+                      {!hideFin && <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Franquia</th>}
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Status</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold min-w-[120px] border-l-2 border-border/60 pl-5">Progresso</th>
                       <th className="px-3 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Inspeção</th>
@@ -1459,30 +1465,36 @@ function AdminBookingsDesktop() {
                               );
                             })()}
                           </td>
-                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
-                            <span className="text-foreground font-semibold text-[13px]">
-                              {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
-                            {(b.deposit_amount ?? 0) > 0 ? (
-                              <div className="leading-tight">
-                                <div className="text-[12px] text-foreground/80">${Number(b.deposit_amount).toFixed(0)}</div>
-                                {b.deposit_refund_days ? (
-                                  <div className="text-[10px] text-muted-foreground/70">{b.deposit_refund_days}d</div>
-                                ) : null}
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground/50 text-xs">—</span>
-                            )}
-                          </td>
-                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
-                            {(b.franchise_amount ?? 0) > 0 ? (
-                              <span className="text-[12px] text-foreground/80">${Number(b.franchise_amount).toFixed(0)}</span>
-                            ) : (
-                              <span className="text-muted-foreground/50 text-xs">—</span>
-                            )}
-                          </td>
+                          {!hideFin && (
+                            <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
+                              <span className="text-foreground font-semibold text-[13px]">
+                                {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
+                              </span>
+                            </td>
+                          )}
+                          {!hideFin && (
+                            <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
+                              {(b.deposit_amount ?? 0) > 0 ? (
+                                <div className="leading-tight">
+                                  <div className="text-[12px] text-foreground/80">${Number(b.deposit_amount).toFixed(0)}</div>
+                                  {b.deposit_refund_days ? (
+                                    <div className="text-[10px] text-muted-foreground/70">{b.deposit_refund_days}d</div>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground/50 text-xs">—</span>
+                              )}
+                            </td>
+                          )}
+                          {!hideFin && (
+                            <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
+                              {(b.franchise_amount ?? 0) > 0 ? (
+                                <span className="text-[12px] text-foreground/80">${Number(b.franchise_amount).toFixed(0)}</span>
+                              ) : (
+                                <span className="text-muted-foreground/50 text-xs">—</span>
+                              )}
+                            </td>
+                          )}
                           <td className="px-5 py-3.5 border-l-2 border-border/60" onClick={(e) => e.stopPropagation()}>
                             <select
                               value={b.status}

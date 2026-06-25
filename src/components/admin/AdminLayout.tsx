@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminTabsBar } from "./AdminTabsBar";
@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 export default function AdminLayout() {
   const { user, roles, loading, signOut } = useAdminAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const restrictedToastShown = useRef(false);
   const { theme, toggleTheme } = useThemeMode();
 
@@ -47,6 +48,16 @@ export default function AdminLayout() {
       navigate("/", { replace: true });
     }
   }, [loading, user, roles, navigate]);
+
+  // Driver-only users land on Operação (Hoje), not the financial Painel.
+  useEffect(() => {
+    if (loading) return;
+    if (!user || roles.length === 0) return;
+    const isDriverOnly = roles.length > 0 && roles.every((r) => r === "driver");
+    if (isDriverOnly && location.pathname === "/admin") {
+      navigate("/admin/ops-today", { replace: true });
+    }
+  }, [loading, user, roles, location.pathname, navigate]);
 
   if (loading) {
     return <AdminShellSkeleton />;

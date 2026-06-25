@@ -15,11 +15,11 @@ type Tab = {
 };
 
 const TABS: Tab[] = [
-  { label: "Hoje", url: "/admin/ops-today", icon: Sparkles, allowedRoles: ["admin", "operations", "support"] },
-  { label: "Reservas", url: "/admin/bookings", icon: CalendarRange, allowedRoles: ["admin", "operations", "support"] },
+  { label: "Hoje", url: "/admin/ops-today", icon: Sparkles, allowedRoles: ["admin", "operations", "support", "driver"] },
+  { label: "Reservas", url: "/admin/bookings", icon: CalendarRange, allowedRoles: ["admin", "operations", "support", "driver"] },
   { label: "Frota", url: "/admin/fleet", icon: Car, allowedRoles: ["admin", "operations"] },
   { label: "Clientes", url: "/admin/customers", icon: Users, allowedRoles: ["admin", "operations", "support"] },
-  { label: "Mais", icon: Menu, allowedRoles: ["admin", "operations", "support", "finance"], action: "open-sidebar" },
+  { label: "Mais", icon: Menu, allowedRoles: ["admin", "operations", "support", "finance", "driver"], action: "open-sidebar" },
 ];
 
 export function AdminBottomNav() {
