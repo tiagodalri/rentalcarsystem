@@ -46,6 +46,7 @@ export default function MobileOps() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState<Date>(startOfDay(new Date()));
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("pickups");
   const [pickups, setPickups] = useState<Booking[]>([]);
   const [returns, setReturns] = useState<Booking[]>([]);
