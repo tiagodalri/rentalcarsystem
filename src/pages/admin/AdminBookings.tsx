@@ -20,6 +20,7 @@ import jsPDF from "jspdf";
 import { storageThumb } from "@/lib/storageThumb";
 import { coverImageMap } from "@/data/fleetAssets";
 import { deleteBookingSafe } from "@/lib/deleteBookingSafe";
+import { useHideFinancials } from "@/hooks/useHideFinancials";
 
 
 type Booking = {
@@ -523,6 +524,7 @@ export default function AdminBookings() {
 
 function AdminBookingsDesktop() {
   const navigate = useNavigate();
+  const hideFin = useHideFinancials();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -1324,9 +1326,9 @@ function AdminBookingsDesktop() {
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Devolução</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap">Hora</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Local</th>
-                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Total</th>
-                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Caução</th>
-                      <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Franquia</th>
+                      {!hideFin && <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Total</th>}
+                      {!hideFin && <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Caução</th>}
+                      {!hideFin && <th className="px-3 py-3 text-right text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Franquia</th>}
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold border-l-2 border-border/60 pl-5">Status</th>
                       <th className="px-3 py-3 text-left text-[10px] text-muted-foreground uppercase tracking-wider font-semibold min-w-[120px] border-l-2 border-border/60 pl-5">Progresso</th>
                       <th className="px-3 py-3 text-center text-[10px] text-muted-foreground uppercase tracking-wider font-semibold whitespace-nowrap border-l-2 border-border/60 pl-5">Inspeção</th>
@@ -1459,30 +1461,36 @@ function AdminBookingsDesktop() {
                               );
                             })()}
                           </td>
-                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
-                            <span className="text-foreground font-semibold text-[13px]">
-                              {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
-                            </span>
-                          </td>
-                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
-                            {(b.deposit_amount ?? 0) > 0 ? (
-                              <div className="leading-tight">
-                                <div className="text-[12px] text-foreground/80">${Number(b.deposit_amount).toFixed(0)}</div>
-                                {b.deposit_refund_days ? (
-                                  <div className="text-[10px] text-muted-foreground/70">{b.deposit_refund_days}d</div>
-                                ) : null}
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground/50 text-xs">—</span>
-                            )}
-                          </td>
-                          <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
-                            {(b.franchise_amount ?? 0) > 0 ? (
-                              <span className="text-[12px] text-foreground/80">${Number(b.franchise_amount).toFixed(0)}</span>
-                            ) : (
-                              <span className="text-muted-foreground/50 text-xs">—</span>
-                            )}
-                          </td>
+                          {!hideFin && (
+                            <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
+                              <span className="text-foreground font-semibold text-[13px]">
+                                {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
+                              </span>
+                            </td>
+                          )}
+                          {!hideFin && (
+                            <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
+                              {(b.deposit_amount ?? 0) > 0 ? (
+                                <div className="leading-tight">
+                                  <div className="text-[12px] text-foreground/80">${Number(b.deposit_amount).toFixed(0)}</div>
+                                  {b.deposit_refund_days ? (
+                                    <div className="text-[10px] text-muted-foreground/70">{b.deposit_refund_days}d</div>
+                                  ) : null}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground/50 text-xs">—</span>
+                              )}
+                            </td>
+                          )}
+                          {!hideFin && (
+                            <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
+                              {(b.franchise_amount ?? 0) > 0 ? (
+                                <span className="text-[12px] text-foreground/80">${Number(b.franchise_amount).toFixed(0)}</span>
+                              ) : (
+                                <span className="text-muted-foreground/50 text-xs">—</span>
+                              )}
+                            </td>
+                          )}
                           <td className="px-5 py-3.5 border-l-2 border-border/60" onClick={(e) => e.stopPropagation()}>
                             <select
                               value={b.status}
