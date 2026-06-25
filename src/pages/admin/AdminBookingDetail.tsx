@@ -111,6 +111,7 @@ const contractStatusConfig: Record<string, { label: string; cls: string }> = {
 export default function AdminBookingDetail() {
   const { bookingId } = useParams();
   const navigate = useNavigate();
+  const hideFin = useHideFinancials();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
