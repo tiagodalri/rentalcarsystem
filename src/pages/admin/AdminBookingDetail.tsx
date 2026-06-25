@@ -937,6 +937,7 @@ export default function AdminBookingDetail() {
               </div>
             );
           })()}
+          </>)}
 
 
           {booking.notes && (
