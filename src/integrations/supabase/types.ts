@@ -1886,7 +1886,13 @@ export type Database = {
       record_last_login: { Args: never; Returns: undefined }
     }
     Enums: {
-      app_role: "admin" | "user" | "finance" | "operations" | "support"
+      app_role:
+        | "admin"
+        | "user"
+        | "finance"
+        | "operations"
+        | "support"
+        | "driver"
       expense_type:
         | "maintenance"
         | "insurance"
@@ -2032,7 +2038,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "finance", "operations", "support"],
+      app_role: ["admin", "user", "finance", "operations", "support", "driver"],
       expense_type: [
         "maintenance",
         "insurance",
