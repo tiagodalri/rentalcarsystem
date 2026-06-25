@@ -134,13 +134,13 @@ const Navbar = () => {
         </a>
 
         {/* Desktop links — centralizados absolutamente no meio da tela */}
-        <div className="hidden lg:flex items-center gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="hidden lg:flex items-center gap-4 xl:gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           {navLinks.map((link) =>
             link.isRoute ? (
               <button
                 key={link.href}
                 onClick={() => navigate(link.href)}
-                className="text-xs font-medium tracking-wider uppercase text-muted-foreground hover:text-primary transition-colors duration-300"
+                className="whitespace-nowrap text-[11px] xl:text-xs font-medium tracking-wider uppercase text-muted-foreground hover:text-primary transition-colors duration-300"
               >
                 {link.label}
               </button>
@@ -148,7 +148,7 @@ const Navbar = () => {
               <a
                 key={link.href}
                 href={link.href}
-                className="text-xs font-medium tracking-wider uppercase text-muted-foreground hover:text-primary transition-colors duration-300"
+                className="whitespace-nowrap text-[11px] xl:text-xs font-medium tracking-wider uppercase text-muted-foreground hover:text-primary transition-colors duration-300"
               >
                 {link.label}
               </a>
