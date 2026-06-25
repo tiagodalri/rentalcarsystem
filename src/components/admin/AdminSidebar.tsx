@@ -57,14 +57,14 @@ const menuSections: MenuSection[] = [
     label: "Operações",
     items: [
       { title: "Painel",        url: "/admin",           icon: LayoutDashboard, allowedRoles: ["admin","finance","operations","support"] },
-      { title: "Operação", url: "/admin/ops-today", icon: Sparkles,        allowedRoles: ["admin","operations","support"] },
+      { title: "Operação", url: "/admin/ops-today", icon: Sparkles,        allowedRoles: ["admin","operations","support","driver"] },
       { title: "Live",          url: "/admin/live",      icon: Radio,           allowedRoles: ["admin","operations"] },
     ],
   },
   {
     label: "Gestão",
     items: [
-      { title: "Reservas",   url: "/admin/bookings",  icon: CalendarRange, allowedRoles: ["admin","operations","support"] },
+      { title: "Reservas",   url: "/admin/bookings",  icon: CalendarRange, allowedRoles: ["admin","operations","support","driver"] },
       { title: "Importar Turo", url: "/admin/turo-import", icon: Upload, allowedRoles: ["admin","operations"] },
       { title: "Contratos",  url: "/admin/contracts", icon: FileSignature, allowedRoles: ["admin","operations","support","finance"] },
       { title: "Agenda", url: "/admin/calendar",  icon: CalendarDays,  allowedRoles: ["admin","operations","support"] },

@@ -202,19 +202,19 @@ const App = () => (
               <Route path="/admin/login" element={<AdminLogin />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<RequireRole roles={["admin","finance","operations","support"]}><AdminSuspense><AdminPainel /></AdminSuspense></RequireRole>} />
-                <Route path="bookings" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookings /></AdminSuspense></RequireRole>} />
-                <Route path="bookings/:bookingId" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookingDetail /></AdminSuspense></RequireRole>} />
+                <Route path="bookings" element={<RequireRole roles={["admin","operations","support","driver"]}><AdminSuspense><AdminBookings /></AdminSuspense></RequireRole>} />
+                <Route path="bookings/:bookingId" element={<RequireRole roles={["admin","operations","support","driver"]}><AdminSuspense><AdminBookingDetail /></AdminSuspense></RequireRole>} />
                 <Route path="live" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminLive /></AdminSuspense></RequireRole>} />
                 <Route path="bookings/new" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminBookingNew /></AdminSuspense></RequireRole>} />
                 <Route path="fleet" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminFleet /></AdminSuspense></RequireRole>} />
                 <Route path="fleet/new" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminVehicleNew /></AdminSuspense></RequireRole>} />
                 <Route path="customers" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminCustomers /></AdminSuspense></RequireRole>} />
                 <Route path="customers/birthdays" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminCustomerBirthdays /></AdminSuspense></RequireRole>} />
-                <Route path="customers/:customerId" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminCustomerDetail /></AdminSuspense></RequireRole>} />
+                <Route path="customers/:customerId" element={<RequireRole roles={["admin","operations","support","driver"]}><AdminSuspense><AdminCustomerDetail /></AdminSuspense></RequireRole>} />
                 <Route path="settings" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminSettings /></AdminSuspense></RequireRole>} />
-                <Route path="inspection/:bookingId" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminInspection /></AdminSuspense></RequireRole>} />
-                <Route path="inspection/compare/:bookingId" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminInspectionCompare /></AdminSuspense></RequireRole>} />
-                <Route path="inspection/report/:bookingId" element={<RequireRole roles={["admin","operations","finance"]}><AdminSuspense><AdminInspectionReport /></AdminSuspense></RequireRole>} />
+                <Route path="inspection/:bookingId" element={<RequireRole roles={["admin","operations","driver"]}><AdminSuspense><AdminInspection /></AdminSuspense></RequireRole>} />
+                <Route path="inspection/compare/:bookingId" element={<RequireRole roles={["admin","operations","driver"]}><AdminSuspense><AdminInspectionCompare /></AdminSuspense></RequireRole>} />
+                <Route path="inspection/report/:bookingId" element={<RequireRole roles={["admin","operations","finance","driver"]}><AdminSuspense><AdminInspectionReport /></AdminSuspense></RequireRole>} />
                 <Route path="vehicle-history/:vehicleId" element={<RequireRole roles={["admin","finance","operations"]}><AdminSuspense><AdminVehicleHistory /></AdminSuspense></RequireRole>} />
                 <Route path="fleet/:vehicleId" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminVehicleDetail /></AdminSuspense></RequireRole>} />
                 <Route path="report" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminReport /></AdminSuspense></RequireRole>} />
@@ -223,7 +223,7 @@ const App = () => (
 
                 <Route path="finance" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminFinance /></AdminSuspense></RequireRole>} />
                 <Route path="team" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminTeam /></AdminSuspense></RequireRole>} />
-                <Route path="ops-today" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminOpsToday /></AdminSuspense></RequireRole>} />
+                <Route path="ops-today" element={<RequireRole roles={["admin","operations","support","driver"]}><AdminSuspense><AdminOpsToday /></AdminSuspense></RequireRole>} />
                 <Route path="calendar" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminFleetGantt /></AdminSuspense></RequireRole>} />
                 <Route path="contracts" element={<RequireRole roles={["admin","operations","support","finance"]}><AdminSuspense><AdminContracts /></AdminSuspense></RequireRole>} />
                 <Route path="turo-import" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminTuroImport /></AdminSuspense></RequireRole>} />
