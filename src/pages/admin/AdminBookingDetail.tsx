@@ -764,15 +764,27 @@ export default function AdminBookingDetail() {
 
         {/* Resumo Financeiro & Observações */}
         <section className="space-y-6 pt-2">
+          {!hideFin && (
           <h2 className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-2">
             Resumo Financeiro & Observações
           </h2>
+          )}
 
           <div className="space-y-1">
             <div className="flex justify-between py-2.5 border-b border-border/30">
               <span className="text-sm text-muted-foreground">Duração da reserva</span>
               <span className="text-sm font-semibold text-foreground tabular-nums">{days} dia{days > 1 ? "s" : ""}</span>
             </div>
+          {!hideFin && (
+          <div className="space-y-1">
+            <div className="flex justify-between py-2.5 border-b border-border/30">
+              <span className="text-sm text-muted-foreground">Duração da reserva</span>
+              <span className="text-sm font-semibold text-foreground tabular-nums">{days} dia{days > 1 ? "s" : ""}</span>
+            </div>
+          </div>
+          )}
+          {!hideFin && (<>
+          <div className="space-y-1 -mt-1">
             <div className="flex justify-between py-2.5 border-b border-border/30">
               <span className="text-sm text-muted-foreground">Condutor adicional</span>
               <span className="text-sm font-semibold text-foreground">{booking.extra_driver ? "Sim" : "Não"}</span>
