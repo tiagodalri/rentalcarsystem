@@ -12,6 +12,7 @@ import {
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { LocationDisplay } from "@/components/admin/LocationDisplay";
 import MiniLocationMap from "@/components/admin/MiniLocationMap";
+import { useHideFinancials } from "@/hooks/useHideFinancials";
 import { EditBookingDialog } from "@/components/admin/EditBookingDialog";
 import { BookingIncidentDialog } from "@/components/admin/BookingIncidentDialog";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
