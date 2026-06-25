@@ -161,6 +161,30 @@ export default function MobileOps() {
             >
               <CalendarDays size={13} /> {isToday ? "Hoje" : "Voltar para hoje"}
             </button>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground active:bg-muted"
+                  aria-label="Selecionar data"
+                >
+                  <CalendarIcon size={16} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(d) => {
+                    if (d) {
+                      setDate(startOfDay(d));
+                      setCalendarOpen(false);
+                    }
+                  }}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
             <button onClick={() => setDate((d) => addDays(d, 1))} className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground active:bg-muted">
               <ChevronRight size={16} />
             </button>
