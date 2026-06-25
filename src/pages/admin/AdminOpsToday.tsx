@@ -107,6 +107,7 @@ export default function AdminOpsToday() {
       sessionStorage.setItem("adminOpsToday:selectedDate", format(selectedDate, "yyyy-MM-dd"));
     } catch {}
   }, [selectedDate]);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [pickups, setPickups] = useState<BookingRow[]>([]);
   const [returns, setReturns] = useState<BookingRow[]>([]);
   const [vehicles, setVehicles] = useState<Record<string, Vehicle>>({});
