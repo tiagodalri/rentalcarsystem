@@ -770,20 +770,12 @@ export default function AdminBookingDetail() {
           </h2>
           )}
 
-          <div className="space-y-1">
-            <div className="flex justify-between py-2.5 border-b border-border/30">
-              <span className="text-sm text-muted-foreground">Duração da reserva</span>
-              <span className="text-sm font-semibold text-foreground tabular-nums">{days} dia{days > 1 ? "s" : ""}</span>
-            </div>
           {!hideFin && (
           <div className="space-y-1">
             <div className="flex justify-between py-2.5 border-b border-border/30">
               <span className="text-sm text-muted-foreground">Duração da reserva</span>
               <span className="text-sm font-semibold text-foreground tabular-nums">{days} dia{days > 1 ? "s" : ""}</span>
             </div>
-          </div>
-          )}
-          {!hideFin && (<>
           <div className="space-y-1 -mt-1">
             <div className="flex justify-between py-2.5 border-b border-border/30">
               <span className="text-sm text-muted-foreground">Condutor adicional</span>
