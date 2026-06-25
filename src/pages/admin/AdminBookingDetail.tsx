@@ -481,10 +481,12 @@ export default function AdminBookingDetail() {
               <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Dias</p>
               <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{days}</p>
             </div>
-            <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent">
-              <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Total</p>
-              <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
-            </div>
+            {!hideFin && (
+              <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent">
+                <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Total</p>
+                <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
+              </div>
+            )}
           </div>
 
         </div>
