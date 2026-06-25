@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CalendarCheck, CalendarX2, Wrench, ChevronLeft, ChevronRight,
-  CalendarDays, Phone, MessageCircle, ClipboardCheck, Car,
+  CalendarDays, Phone, MessageCircle, ClipboardCheck, Car, Calendar as CalendarIcon,
 } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { addDays, format, isSameDay, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatPersonName } from "@/lib/formatName";
@@ -44,6 +46,7 @@ export default function MobileOps() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState<Date>(startOfDay(new Date()));
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("pickups");
   const [pickups, setPickups] = useState<Booking[]>([]);
   const [returns, setReturns] = useState<Booking[]>([]);
@@ -158,6 +161,30 @@ export default function MobileOps() {
             >
               <CalendarDays size={13} /> {isToday ? "Hoje" : "Voltar para hoje"}
             </button>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground active:bg-muted"
+                  aria-label="Selecionar data"
+                >
+                  <CalendarIcon size={16} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(d) => {
+                    if (d) {
+                      setDate(startOfDay(d));
+                      setCalendarOpen(false);
+                    }
+                  }}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
             <button onClick={() => setDate((d) => addDays(d, 1))} className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground active:bg-muted">
               <ChevronRight size={16} />
             </button>

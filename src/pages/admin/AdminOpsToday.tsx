@@ -4,8 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
   CalendarCheck, CalendarX2, Wrench, Car, MapPin, ChevronRight, Sun,
-  Clock, ChevronDown, ChevronLeft, CalendarDays, Play,
+  Clock, ChevronDown, ChevronLeft, CalendarDays, Play, Calendar as CalendarIcon,
 } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { addDays, format, isSameDay, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -105,6 +107,7 @@ export default function AdminOpsToday() {
       sessionStorage.setItem("adminOpsToday:selectedDate", format(selectedDate, "yyyy-MM-dd"));
     } catch {}
   }, [selectedDate]);
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [pickups, setPickups] = useState<BookingRow[]>([]);
   const [returns, setReturns] = useState<BookingRow[]>([]);
   const [vehicles, setVehicles] = useState<Record<string, Vehicle>>({});
@@ -226,6 +229,31 @@ export default function AdminOpsToday() {
               <CalendarDays size={12} />
               {isToday ? "Hoje" : format(selectedDate, "dd 'de' MMM", { locale: ptBR })}
             </button>
+            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  aria-label="Selecionar data"
+                  title="Selecionar data"
+                >
+                  <CalendarIcon size={14} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(d) => {
+                    if (d) {
+                      setSelectedDate(startOfDay(d));
+                      setCalendarOpen(false);
+                    }
+                  }}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
             <button
               onClick={() => setSelectedDate(d => addDays(d, 1))}
               className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
