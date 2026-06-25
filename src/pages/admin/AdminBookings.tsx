@@ -896,22 +896,24 @@ function AdminBookingsDesktop() {
           >
             <Plus size={14} /> <span>Nova reserva</span>
           </button>
-          {/* Export */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <button className="flex items-center gap-1.5 h-8 sm:h-9 px-3 rounded-lg border border-border/40 bg-card/50 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-border/60 transition-all">
-                <Download size={13} /> <span className="hidden sm:inline">Exportar</span>
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[180px] p-1.5" align="end">
-              <button onClick={exportCSV} className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                <FileSpreadsheet size={14} /> Exportar CSV
-              </button>
-              <button onClick={exportPDF} className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                <FileText size={14} /> Exportar PDF
-              </button>
-            </PopoverContent>
-          </Popover>
+          {/* Export — esconde quando o usuário não pode ver valores (CSV/PDF contêm financeiro) */}
+          {!hideFin && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center gap-1.5 h-8 sm:h-9 px-3 rounded-lg border border-border/40 bg-card/50 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-border/60 transition-all">
+                  <Download size={13} /> <span className="hidden sm:inline">Exportar</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[180px] p-1.5" align="end">
+                <button onClick={exportCSV} className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                  <FileSpreadsheet size={14} /> Exportar CSV
+                </button>
+                <button onClick={exportPDF} className="flex items-center gap-2 w-full text-left px-3 py-2 rounded-md text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                  <FileText size={14} /> Exportar PDF
+                </button>
+              </PopoverContent>
+            </Popover>
+          )}
           {/* View toggle */}
           <div className="flex items-center bg-muted/50 rounded-lg p-0.5 border border-border/30">
             {viewModes.map(({ key, label, icon: Icon }) => (
