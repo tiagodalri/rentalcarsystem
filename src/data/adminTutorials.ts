@@ -68,7 +68,7 @@ export const adminTutorials: Tutorial[] = [
           { n: 2, x: 8.5, y: 30, w: 17, h: 4.5, label: "Reservas — busca completa por nome ou ID" },
           { n: 3, x: 8.5, y: 41, w: 17, h: 4.5, label: "Agenda — visão semanal/mensal de todos os carros" },
           { n: 4, x: 8.5, y: 45.5, w: 17, h: 4.5, label: "Frota — situação de cada veículo da Zeus" },
-          { n: 5, x: 8.5, y: 66.5, w: 17, h: 4.5, label: "Tutoriais — você está aqui agora 😉" },
+          { n: 5, x: 8.5, y: 66.5, w: 17, h: 4.5, label: "Tutoriais — você está aqui agora" },
         ],
       },
       {
