@@ -22,6 +22,8 @@ import { toast } from "@/hooks/use-toast";
 import VehicleAgenda from "@/components/admin/VehicleAgenda";
 import PricingPanel from "@/components/admin/pricing/PricingPanel";
 import { VehicleDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
+import { SignedImage } from "@/components/admin/SignedImage";
+import { getSignedInspectionUrl } from "@/lib/inspectionStorage";
 
 // ─── Types ────────────────────────────────────────────────────────────
 type Vehicle = {
