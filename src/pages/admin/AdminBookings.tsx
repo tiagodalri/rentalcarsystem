@@ -669,6 +669,20 @@ function AdminBookingsDesktop() {
     return result;
   }, [bookings, search, filters]);
 
+  // Reset page when filters/search change
+  useEffect(() => { setPage(1); }, [search, filters, pageSize]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = useMemo(
+    () => (viewMode === "table" ? filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize) : filtered),
+    [filtered, currentPage, pageSize, viewMode]
+  );
+
+  useEffect(() => {
+    sessionStorage.setItem("admin-bookings-page-size", String(pageSize));
+  }, [pageSize]);
+
   const activeFilterCount = [
     filters.status !== "all",
     filters.pickupLocation !== "all",
