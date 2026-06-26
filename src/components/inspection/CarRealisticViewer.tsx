@@ -6,10 +6,13 @@ import {
   ContactShadows,
   useGLTF,
   Bounds,
+  Html,
 } from "@react-three/drei";
 import * as THREE from "three";
-import { RotateCcw, ZoomIn, ZoomOut, Info } from "lucide-react";
+import { RotateCcw, ZoomIn, ZoomOut, Info, Loader2, Plus, X, Hand } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { haptic } from "@/lib/haptic";
 import {
   pickVehicle3dModel,
   classifyMesh,
