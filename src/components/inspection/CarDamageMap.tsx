@@ -121,22 +121,23 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
           d={path}
           fill={
             hasDamage
-              ? "hsl(var(--destructive) / 0.28)"
+              ? "hsl(var(--primary) / 0.18)"
               : isHover
-              ? "hsl(var(--primary) / 0.22)"
-              : "hsl(var(--primary) / 0.04)"
+              ? "hsl(var(--primary) / 0.12)"
+              : "hsl(var(--card))"
           }
           stroke={
             hasDamage
-              ? "hsl(var(--destructive))"
-              : isHover
               ? "hsl(var(--primary))"
-              : "hsl(var(--primary) / 0.25)"
+              : isHover
+              ? "hsl(var(--primary) / 0.7)"
+              : "hsl(var(--primary) / 0.18)"
           }
-          strokeWidth={hasDamage || isHover ? 1.8 : 1}
+          strokeWidth={hasDamage ? 1.6 : isHover ? 1.4 : 0.9}
           style={{
             cursor: disabled ? "not-allowed" : "pointer",
-            transition: "fill 120ms, stroke 120ms",
+            transition: "fill 200ms ease-out, stroke 200ms ease-out, stroke-width 200ms ease-out",
+            filter: isHover || hasDamage ? "drop-shadow(0 0 6px hsl(var(--primary) / 0.35))" : undefined,
           }}
           onMouseEnter={() => setHoverId(z.id)}
           onMouseLeave={() => setHoverId((id) => (id === z.id ? null : id))}
@@ -149,16 +150,20 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header: contador + dropdown alternativo */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium text-foreground">
-            Clique na peça do veículo para registrar uma avaria
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Passe o mouse para ver o nome completo · {totalDamages} avaria{totalDamages === 1 ? "" : "s"} registrada{totalDamages === 1 ? "" : "s"}
-          </p>
+    <div className="space-y-5">
+      {/* Header — private bank style */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-border/40">
+        <div className="flex items-center gap-3">
+          <div className="w-[3px] h-7 bg-primary rounded-full" />
+          <div>
+            <p className="admin-section-title text-sm">Mapa de Avarias</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">
+              Clique na peça do veículo para registrar uma avaria
+            </p>
+          </div>
+          <span className="hidden sm:inline-flex px-2.5 py-0.5 rounded-full bg-primary/8 border border-primary/25 text-[10px] font-medium tracking-wider uppercase text-primary tabular-nums">
+            {String(totalDamages).padStart(2, "0")} {totalDamages === 1 ? "Registro" : "Registros"}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <Select
@@ -166,7 +171,7 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
             onValueChange={(v) => setSelectedFromList(v)}
             disabled={disabled}
           >
-            <SelectTrigger className="h-9 w-[260px]">
+            <SelectTrigger className="h-9 w-full sm:w-[260px] bg-card border-border/60">
               <SelectValue placeholder="Selecionar peça pelo nome..." />
             </SelectTrigger>
             <SelectContent className="max-h-[300px]">
@@ -180,7 +185,6 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
           <Button
             type="button"
             size="sm"
-            variant="outline"
             disabled={disabled || !selectedFromList}
             onClick={() => {
               if (selectedFromList) {
@@ -188,76 +192,90 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
                 setSelectedFromList("");
               }
             }}
+            className="h-9 px-4 gap-1.5"
           >
-            <Plus size={14} className="mr-1" /> Adicionar
+            <Plus size={14} /> Adicionar
           </Button>
         </div>
       </div>
 
-      {/* Rótulo flutuante grande mostrando peça em destaque */}
-      <div className="h-7 flex items-center justify-center">
+      {/* Rótulo flutuante elegante */}
+      <div className="h-8 flex items-center justify-center">
         {hoverLabel ? (
-          <span className="text-sm font-semibold text-foreground bg-muted px-3 py-1 rounded-md border border-border/60 shadow-sm">
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-card/90 backdrop-blur-sm border border-primary/25 shadow-sm text-xs font-medium text-foreground transition-all duration-200 animate-in fade-in slide-in-from-bottom-1">
             {hoverLabel}
             {damageCountByLabel[hoverLabel] ? (
-              <span className="ml-2 text-xs font-normal text-destructive">
+              <span className="text-[10px] font-semibold tracking-wider uppercase text-primary tabular-nums">
                 · {damageCountByLabel[hoverLabel]} avaria{damageCountByLabel[hoverLabel] === 1 ? "" : "s"}
               </span>
             ) : null}
           </span>
         ) : (
-          <span className="text-xs text-muted-foreground italic">— passe o mouse sobre uma peça —</span>
+          <span className="text-[11px] text-muted-foreground/70 tracking-wider uppercase">
+            Passe o mouse sobre uma peça
+          </span>
         )}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-4">
+      {/* Painéis com divisor dourado central */}
+      <div className="grid md:grid-cols-2 gap-0 md:gap-0 rounded-xl overflow-hidden border border-border/40 bg-gradient-to-b from-card/40 to-background relative">
+        {/* Divisor vertical dourado entre os painéis (apenas md+) */}
+        <div className="hidden md:block absolute left-1/2 top-6 bottom-6 w-px bg-gradient-to-b from-transparent via-primary/25 to-transparent pointer-events-none" />
+
         {/* Vista superior */}
-        <div className="bg-muted/20 rounded-xl p-3 border border-border/30">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground text-center mb-2">
-            Vista superior
-          </p>
-          <svg viewBox="0 0 300 440" className="w-full h-auto" style={{ maxHeight: 460 }}>
-            {/* Silhueta do carro (apenas visual) */}
+        <div className="p-6 md:p-8 flex flex-col items-center relative">
+          <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-muted-foreground/80 mb-5">
+            Vista Superior
+          </span>
+          <svg viewBox="0 0 300 440" className="w-full h-auto max-w-[240px]" style={{ maxHeight: 460 }}>
+            {/* Silhueta do carro — traço fino dourado */}
             <path
               d="M150 12 C95 12 65 28 58 55 L48 100 L40 200 L40 290 L48 380 L58 415 C65 432 95 442 150 442 C205 442 235 432 242 415 L252 380 L260 290 L260 200 L252 100 L242 55 C235 28 205 12 150 12 Z"
-              fill="hsl(var(--muted) / 0.25)"
-              stroke="hsl(var(--border))"
-              strokeWidth="1.5"
+              fill="hsl(var(--card) / 0.4)"
+              stroke="hsl(var(--primary) / 0.3)"
+              strokeWidth="0.8"
             />
             {CAR_ZONES.filter((z) => z.topPath).map((z) => renderRegion(z, z.topPath!))}
           </svg>
         </div>
 
         {/* Vista lateral */}
-        <div className="bg-muted/20 rounded-xl p-3 border border-border/30 flex flex-col">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground text-center mb-2">
-            Vista lateral (esquerda)
-          </p>
-          <div className="flex-1 flex items-center">
-            <svg viewBox="0 0 600 180" className="w-full h-auto">
+        <div className="p-6 md:p-8 flex flex-col items-center border-t md:border-t-0 border-border/40 relative">
+          <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-muted-foreground/80 mb-5">
+            Vista Lateral (Esquerda)
+          </span>
+          <div className="w-full flex-1 flex items-center justify-center">
+            <svg viewBox="0 0 600 180" className="w-full h-auto max-w-[420px]">
               {/* Silhueta lateral */}
               <path
                 d="M30,135 C20,118 30,80 60,72 L160,42 C180,38 420,38 440,42 L540,72 C570,80 580,118 570,135 L570,160 L30,160 Z"
-                fill="hsl(var(--muted) / 0.25)"
-                stroke="hsl(var(--border))"
-                strokeWidth="1.5"
+                fill="hsl(var(--card) / 0.4)"
+                stroke="hsl(var(--primary) / 0.3)"
+                strokeWidth="0.8"
               />
-              {/* Rodas */}
-              <circle cx="135" cy="155" r="28" fill="hsl(var(--foreground) / 0.08)" stroke="hsl(var(--foreground) / 0.25)" strokeWidth="1.5" />
-              <circle cx="465" cy="155" r="28" fill="hsl(var(--foreground) / 0.08)" stroke="hsl(var(--foreground) / 0.25)" strokeWidth="1.5" />
+              {/* Rodas — anel externo + interno dourado discreto */}
+              <circle cx="135" cy="155" r="28" fill="hsl(var(--card))" stroke="hsl(var(--primary) / 0.35)" strokeWidth="1" />
+              <circle cx="135" cy="155" r="22" fill="none" stroke="hsl(var(--primary) / 0.18)" strokeWidth="0.6" />
+              <circle cx="465" cy="155" r="28" fill="hsl(var(--card))" stroke="hsl(var(--primary) / 0.35)" strokeWidth="1" />
+              <circle cx="465" cy="155" r="22" fill="none" stroke="hsl(var(--primary) / 0.18)" strokeWidth="0.6" />
               {CAR_ZONES.filter((z) => z.sidePath).map((z) => renderRegion(z, z.sidePath!))}
             </svg>
           </div>
         </div>
       </div>
 
-      {/* Legenda */}
-      <div className="flex items-center justify-center gap-5 text-xs text-muted-foreground pt-1">
-        <span className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded bg-primary/10 border border-primary/30 inline-block" /> Sem avaria
+      {/* Legenda — bordas finas, sem cor crua */}
+      <div className="flex items-center justify-center gap-6 pt-1">
+        <span className="flex items-center gap-2 text-[11px] text-muted-foreground tracking-wider uppercase font-medium">
+          <span className="w-2.5 h-2.5 rounded-full border border-primary/35 bg-card inline-block" />
+          Sem avaria
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3.5 h-3.5 rounded bg-destructive/25 border border-destructive inline-block" /> Com avaria
+        <span className="flex items-center gap-2 text-[11px] text-muted-foreground tracking-wider uppercase font-medium">
+          <span
+            className="w-2.5 h-2.5 rounded-full bg-primary inline-block"
+            style={{ boxShadow: "0 0 6px hsl(var(--primary) / 0.45)" }}
+          />
+          Com avaria
         </span>
       </div>
     </div>
