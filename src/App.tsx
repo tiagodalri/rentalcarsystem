@@ -193,25 +193,25 @@ const App = () => (
             <RouteProgress />
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/share/track/:token" element={<PublicTrack />} />
+              <Route path="/share/track/:token" element={<PublicSuspense><PublicTrack /></PublicSuspense>} />
 
-              <Route path="/sobre-nos" element={<AboutUs />} />
-              <Route path="/frota" element={<Frota />} />
-              <Route path="/buscar" element={<SearchResults />} />
-              <Route path="/resultados" element={<SearchResults />} />
-              <Route path="/veiculo/:vehicleName" element={<VehicleDetail />} />
-              <Route path="/reserva/:vehicleName" element={<BookingDetails />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/reserva/confirmada" element={<BookingConfirmed />} />
-              <Route path="/cadastro" element={<CustomerRegistration />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/redefinir-senha" element={<ResetPassword />} />
-              <Route path="/contato" element={<Contato />} />
+              <Route path="/sobre-nos" element={<PublicSuspense><AboutUs /></PublicSuspense>} />
+              <Route path="/frota" element={<PublicSuspense><Frota /></PublicSuspense>} />
+              <Route path="/buscar" element={<PublicSuspense><SearchResults /></PublicSuspense>} />
+              <Route path="/resultados" element={<PublicSuspense><SearchResults /></PublicSuspense>} />
+              <Route path="/veiculo/:vehicleName" element={<PublicSuspense><VehicleDetail /></PublicSuspense>} />
+              <Route path="/reserva/:vehicleName" element={<PublicSuspense><BookingDetails /></PublicSuspense>} />
+              <Route path="/checkout" element={<PublicSuspense><Checkout /></PublicSuspense>} />
+              <Route path="/reserva/confirmada" element={<PublicSuspense><BookingConfirmed /></PublicSuspense>} />
+              <Route path="/cadastro" element={<PublicSuspense><CustomerRegistration /></PublicSuspense>} />
+              <Route path="/login" element={<PublicSuspense><Login /></PublicSuspense>} />
+              <Route path="/redefinir-senha" element={<PublicSuspense><ResetPassword /></PublicSuspense>} />
+              <Route path="/contato" element={<PublicSuspense><Contato /></PublicSuspense>} />
               <Route path="/minha-conta" element={<RequireAuth><ClientSuspense><MyAccount /></ClientSuspense></RequireAuth>} />
               <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><ClientSuspense><BookingDetailClient /></ClientSuspense></RequireAuth>} />
 
               {/* Admin routes */}
-              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/login" element={<PublicSuspense><AdminLogin /></PublicSuspense>} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<RequireRole roles={["admin","finance","operations","support","driver"]}><AdminSuspense><AdminPainel /></AdminSuspense></RequireRole>} />
                 <Route path="bookings" element={<RequireRole roles={["admin","operations","support","driver"]}><AdminSuspense><AdminBookings /></AdminSuspense></RequireRole>} />
