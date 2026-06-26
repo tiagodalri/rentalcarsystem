@@ -15,6 +15,8 @@ import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { MobileList, MobileListItem } from "@/components/mobile/MobileListItem";
 import { SwipeAction } from "@/components/mobile/SwipeAction";
+import { VEHICLE_3D_MODELS } from "@/data/vehicle3dModels";
+
 
 /* ============================================================
    OPERAÇÃO — Mobile-first
