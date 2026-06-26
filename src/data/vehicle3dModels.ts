@@ -29,6 +29,13 @@ export type Vehicle3dModelDef = {
   cameraPosition?: [number, number, number];
   /** Target/look-at point */
   cameraTarget?: [number, number, number];
+  /**
+   * OPTIONAL model-specific mesh classifier. When present, it runs BEFORE
+   * the generic LABEL_RULES and the spatial inference. Returns `null` to
+   * fall through to the generic pipeline. This is how we get pixel-perfect
+   * part-by-part highlighting on curated GLBs (e.g. Tiguan).
+   */
+  meshClassifier?: (meshName: string) => MeshClassification | null;
 };
 
 export const VEHICLE_3D_MODELS: Record<string, Vehicle3dModelDef> = {
@@ -40,6 +47,7 @@ export const VEHICLE_3D_MODELS: Record<string, Vehicle3dModelDef> = {
     defaultForCategories: [],
     cameraPosition: [5.2, 2.4, 6.2],
     cameraTarget: [0, 0.6, 0],
+    meshClassifier: classifyTiguanMesh,
   },
   "khronos-concept": {
     key: "khronos-concept",
