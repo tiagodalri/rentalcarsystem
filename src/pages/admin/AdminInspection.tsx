@@ -497,7 +497,7 @@ export default function AdminInspection() {
     const url = await uploadPhoto(file, `damage-${damagePhotoTarget.substring(0, 8)}`);
     if (url) {
       setDamages((prev) =>
-        prev.map((d) => (d.id === damagePhotoTarget ? { ...d, photoUrl: url } : d))
+        prev.map((d) => (d.id === damagePhotoTarget ? { ...d, photo_url: url } : d))
       );
     }
     setDamagePhotoTarget("");
