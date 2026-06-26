@@ -1005,62 +1005,148 @@ export default function AdminInspection() {
 
             {/* Damage list */}
             {damages.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium text-foreground">Avarias Registradas ({damages.length})</h3>
-                {damages.map((d) => (
-                  <div key={d.id} className="flex gap-3 p-3 rounded-lg bg-muted/30 border border-border/30">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-[10px]">{d.position}</Badge>
-                        <select
-                          value={d.severity}
-                          onChange={(e) => updateDamage(d.id, "severity", e.target.value)}
-                          disabled={isCompleted}
-                          className="text-xs bg-background border border-border/40 rounded px-2 py-1 text-foreground"
-                        >
-                          <option value="light">Leve</option>
-                          <option value="medium">Moderada</option>
-                          <option value="heavy">Grave</option>
-                        </select>
-                      </div>
-                      <Input
-                        placeholder="Descreva a avaria..."
-                        value={d.description}
-                        onChange={(e) => updateDamage(d.id, "description", e.target.value)}
-                        disabled={isCompleted}
-                        className="h-8 text-xs"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                      {d.photoUrl ? (
-                        <SignedImage value={d.photoUrl} alt="Avaria" className="w-16 h-16 object-cover rounded border" />
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => captureDamagePhoto(d.id)}
-                          disabled={isCompleted}
-                          className="h-16 w-16 flex-col text-[9px]"
-                        >
-                          <Camera size={14} />
-                          Foto
-                        </Button>
-                      )}
-                      {!isCompleted && (
-                        <Button size="sm" variant="ghost" onClick={() => removeDamage(d.id)} className="h-6 text-destructive">
-                          <Trash2 size={12} />
-                        </Button>
-                      )}
-                    </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b border-border/40">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-[3px] h-5 bg-primary rounded-full" />
+                    <h3 className="admin-section-title text-sm">Avarias Registradas</h3>
                   </div>
-                ))}
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary/8 border border-primary/25 text-[10px] font-medium tracking-wider uppercase text-primary tabular-nums">
+                    {String(damages.length).padStart(2, "0")} {damages.length === 1 ? "Registro" : "Registros"}
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {damages.map((d, idx) => {
+                    const severityMeta =
+                      d.severity === "heavy"
+                        ? { label: "Grave", dot: "bg-rose-500", ring: "border-rose-500/30 bg-rose-500/5 text-rose-600 dark:text-rose-400" }
+                        : d.severity === "medium"
+                        ? { label: "Moderada", dot: "bg-amber-500", ring: "border-amber-500/30 bg-amber-500/5 text-amber-600 dark:text-amber-400" }
+                        : { label: "Leve", dot: "bg-emerald-500", ring: "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400" };
+                    const charCount = (d.description || "").length;
+
+                    return (
+                      <div
+                        key={d.id}
+                        className="group relative rounded-xl border border-border/50 bg-card hover:border-primary/30 hover:shadow-[0_4px_20px_-8px_hsl(var(--primary)/0.25)] transition-all duration-200"
+                      >
+                        {/* Side accent */}
+                        <div className="absolute left-0 top-3 bottom-3 w-[2px] bg-gradient-to-b from-primary/60 via-primary/30 to-transparent rounded-full" />
+
+                        <div className="flex flex-col sm:flex-row gap-4 p-4 pl-5">
+                          {/* Photo column */}
+                          <div className="flex sm:flex-col items-start gap-2 shrink-0">
+                            {d.photoUrl ? (
+                              <div className="relative group/photo">
+                                <SignedImage
+                                  value={d.photoUrl}
+                                  alt={`Avaria ${idx + 1}`}
+                                  className="w-24 h-24 object-cover rounded-lg border border-border/60 shadow-sm"
+                                />
+                                {!isCompleted && (
+                                  <button
+                                    type="button"
+                                    onClick={() => captureDamagePhoto(d.id)}
+                                    className="absolute inset-0 flex items-center justify-center rounded-lg bg-background/85 backdrop-blur-sm opacity-0 group-hover/photo:opacity-100 transition-opacity"
+                                    aria-label="Trocar foto"
+                                  >
+                                    <span className="flex items-center gap-1.5 text-[10px] font-medium tracking-wider uppercase text-foreground">
+                                      <Camera size={12} /> Trocar
+                                    </span>
+                                  </button>
+                                )}
+                                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold flex items-center justify-center tabular-nums shadow-sm">
+                                  {idx + 1}
+                                </span>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => captureDamagePhoto(d.id)}
+                                disabled={isCompleted}
+                                className="relative w-24 h-24 rounded-lg border-2 border-dashed border-border/60 bg-muted/20 hover:border-primary/50 hover:bg-primary/5 transition-all flex flex-col items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                                aria-label="Adicionar foto da avaria"
+                              >
+                                <Camera size={20} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                                <span className="text-[10px] font-medium tracking-wider uppercase text-muted-foreground">
+                                  Adicionar foto
+                                </span>
+                                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-muted text-muted-foreground border border-border text-[10px] font-semibold flex items-center justify-center tabular-nums">
+                                  {idx + 1}
+                                </span>
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Content column */}
+                          <div className="flex-1 min-w-0 space-y-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/8 border border-primary/25 text-[11px] font-medium text-foreground">
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                {d.position}
+                              </span>
+
+                              <div className={`inline-flex items-center gap-1.5 px-1 py-0.5 rounded-md border ${severityMeta.ring}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${severityMeta.dot} ml-1.5`} />
+                                <select
+                                  value={d.severity}
+                                  onChange={(e) => updateDamage(d.id, "severity", e.target.value)}
+                                  disabled={isCompleted}
+                                  className="bg-transparent text-[11px] font-medium pr-1 py-0.5 focus:outline-none cursor-pointer appearance-none disabled:cursor-not-allowed"
+                                  aria-label="Gravidade da avaria"
+                                >
+                                  <option value="light">Leve</option>
+                                  <option value="medium">Moderada</option>
+                                  <option value="heavy">Grave</option>
+                                </select>
+                              </div>
+
+                              {!isCompleted && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => removeDamage(d.id)}
+                                  className="h-7 px-2 ml-auto text-muted-foreground hover:text-destructive hover:bg-destructive/8 gap-1.5 text-[11px]"
+                                  aria-label="Remover avaria"
+                                >
+                                  <Trash2 size={12} /> Remover
+                                </Button>
+                              )}
+                            </div>
+
+                            <div className="relative">
+                              <Textarea
+                                placeholder="Descreva a avaria — localização exata, tamanho aproximado, profundidade, observações relevantes..."
+                                value={d.description}
+                                onChange={(e) => updateDamage(d.id, "description", e.target.value)}
+                                disabled={isCompleted}
+                                maxLength={280}
+                                rows={2}
+                                className="text-xs resize-none bg-background/60 border-border/60 focus-visible:border-primary/50 focus-visible:ring-primary/15 pr-14 leading-relaxed"
+                              />
+                              <span className="absolute bottom-1.5 right-2 text-[9px] tracking-wider tabular-nums text-muted-foreground/70">
+                                {charCount}/280
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
             {damages.length === 0 && (
-              <div className="text-center py-4 text-sm text-muted-foreground">
-                <CheckCircle2 size={24} className="mx-auto mb-2 text-emerald-500" />
-                Nenhuma avaria registrada
+              <div className="text-center py-8 rounded-xl border border-dashed border-border/50 bg-muted/10">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-3">
+                  <CheckCircle2 size={22} className="text-emerald-500" />
+                </div>
+                <p className="text-sm font-medium text-foreground">Nenhuma avaria registrada</p>
+                <p className="text-[11px] text-muted-foreground mt-1 tracking-wide">
+                  Clique nas peças do modelo 3D para registrar
+                </p>
               </div>
             )}
           </CardContent>
