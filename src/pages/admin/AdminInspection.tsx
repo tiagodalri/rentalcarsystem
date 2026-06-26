@@ -341,7 +341,7 @@ export default function AdminInspection() {
         const url = await uploadPhoto(file, `damage-${webcamTarget.damageId.substring(0, 8)}`);
         if (url) {
           setDamages((prev) =>
-            prev.map((d) => (d.id === webcamTarget.damageId ? { ...d, photoUrl: url } : d))
+            prev.map((d) => (d.id === webcamTarget.damageId ? { ...d, photo_url: url } : d))
           );
         }
       } else if (webcamTarget.kind === "odometer") {
