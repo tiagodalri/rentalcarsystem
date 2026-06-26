@@ -79,7 +79,7 @@ Deno.serve(async (req) => {
           console.error("[bouncie-oauth] no access_token in body");
         }
       } else {
-        console.error("[bouncie-oauth] token exchange failed", tokenResp.status, tokenBody);
+        console.error("[bouncie-oauth] token exchange failed", tokenResp.status);
       }
     } catch (e) {
       console.error("[bouncie-oauth] token exchange threw:", (e as Error).message);
