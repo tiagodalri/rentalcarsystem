@@ -92,21 +92,7 @@ export default function AdminOpsToday() {
   const navigate = useNavigate();
   const { isMobile } = useIsMobileApp();
   const [loading, setLoading] = useState(true);
-  const [selectedDate, setSelectedDate] = useState<Date>(() => {
-    try {
-      const saved = sessionStorage.getItem("adminOpsToday:selectedDate");
-      if (saved) {
-        const d = new Date(saved);
-        if (!isNaN(d.getTime())) return startOfDay(d);
-      }
-    } catch {}
-    return startOfDay(new Date());
-  });
-  useEffect(() => {
-    try {
-      sessionStorage.setItem("adminOpsToday:selectedDate", format(selectedDate, "yyyy-MM-dd"));
-    } catch {}
-  }, [selectedDate]);
+  const [selectedDate, setSelectedDate] = useState<Date>(() => startOfDay(new Date()));
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [pickups, setPickups] = useState<BookingRow[]>([]);
   const [returns, setReturns] = useState<BookingRow[]>([]);
