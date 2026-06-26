@@ -82,3 +82,49 @@ export function useSignedInspectionUrl(value: string | null | undefined): string
 
   return url;
 }
+
+/**
+ * Client-side image compression. Reduces large phone photos (3-6 MB) to ~200-400 KB
+ * JPEGs at <=1600px on the long edge, making uploads dramatically faster on mobile.
+ * Falls back to the original file if anything goes wrong (HEIC, no canvas, etc).
+ */
+export async function compressInspectionImage(
+  file: File,
+  maxDim = 1600,
+  quality = 0.78,
+): Promise<Blob> {
+  try {
+    if (!file.type.startsWith("image/")) return file;
+    // Already small enough — skip work.
+    if (file.size < 350 * 1024) return file;
+
+    const bitmap = await createImageBitmap(file).catch(() => null);
+    if (!bitmap) return file;
+
+    const longest = Math.max(bitmap.width, bitmap.height);
+    const scale = longest > maxDim ? maxDim / longest : 1;
+    const w = Math.round(bitmap.width * scale);
+    const h = Math.round(bitmap.height * scale);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      bitmap.close?.();
+      return file;
+    }
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    bitmap.close?.();
+
+    const blob: Blob | null = await new Promise((resolve) =>
+      canvas.toBlob((b) => resolve(b), "image/jpeg", quality),
+    );
+    if (!blob) return file;
+    // Safety: if compression somehow made it bigger, keep original.
+    return blob.size < file.size ? blob : file;
+  } catch {
+    return file;
+  }
+}
+
