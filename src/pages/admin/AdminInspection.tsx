@@ -282,18 +282,31 @@ export default function AdminInspection() {
   const [isDrawingCustomer, setIsDrawingCustomer] = useState(false);
   const [isDrawingAgent, setIsDrawingAgent] = useState(false);
 
-  // Camera
+  // Camera (capture) + Gallery (attach existing) refs
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputGalRef = useRef<HTMLInputElement>(null);
   const [capturePosition, setCapturePosition] = useState<string>("");
   const [uploading, setUploading] = useState(false);
 
   // Damage photo
   const damageFileRef = useRef<HTMLInputElement>(null);
+  const damageFileGalRef = useRef<HTMLInputElement>(null);
   const [damagePhotoTarget, setDamagePhotoTarget] = useState<string>("");
 
   // Odometer/fuel photo refs
   const odometerPhotoRef = useRef<HTMLInputElement>(null);
+  const odometerPhotoGalRef = useRef<HTMLInputElement>(null);
   const fuelPhotoRef = useRef<HTMLInputElement>(null);
+  const fuelPhotoGalRef = useRef<HTMLInputElement>(null);
+
+  // Source picker (Camera vs Gallery)
+  const [sourcePicker, setSourcePicker] = useState<
+    | null
+    | { kind: "exterior"; position: string }
+    | { kind: "damage"; damageId: string }
+    | { kind: "odometer" }
+    | { kind: "fuel" }
+  >(null);
 
   // Webcam dialog (desktop only — mobile uses native camera via input capture)
   const isTouchDevice = typeof window !== "undefined"
