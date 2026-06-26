@@ -13,7 +13,11 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [
+    react(),
+    mode === "development" && componentTagger(),
+    mode === "analyze" && visualizer({ filename: "dist/stats.html", template: "treemap", gzipSize: true, brotliSize: true }),
+  ].filter(Boolean),
   define: {
     "import.meta.env.VITE_ZEUS_GOOGLE_MAPS_PREVIEW_BROWSER_KEY": JSON.stringify(process.env.GOOGLE_MAPS_BROWSER_KEY ?? ""),
     "import.meta.env.VITE_ZEUS_GOOGLE_MAPS_CUSTOM_BROWSER_KEY": JSON.stringify(process.env.GOOGLE_MAPS_BROWSER_KEY_1 ?? ""),
