@@ -106,9 +106,11 @@ export default function AdminLayout() {
               <main
                 className="flex-1 px-4 pt-3 pb-4 lg:p-6"
                 style={{
-                  // Reserva espaço pra bottom nav em mobile; desktop usa o padding normal.
+                  // Reserva espaço pra bottom nav só em mobile (lg = 1024px).
                   paddingBottom:
-                    "max(calc(64px + env(safe-area-inset-bottom, 0px) + 20px), 1rem)",
+                    typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches
+                      ? undefined
+                      : "max(calc(64px + env(safe-area-inset-bottom, 0px) + 20px), 1rem)",
                 }}
               >
                 <Outlet />
