@@ -1344,6 +1344,8 @@ export default function AdminInspection() {
               ) : (
                 <canvas
                   ref={agentCanvasRef}
+                  role="img"
+                  aria-label="Área de assinatura do agente — desenhe sua assinatura com o dedo ou mouse"
                   width={400}
                   height={150}
                   className="border-2 border-dashed border-border/60 rounded-lg bg-white cursor-crosshair touch-none w-full max-w-md"
