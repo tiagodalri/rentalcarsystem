@@ -200,12 +200,11 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
         </div>
       </div>
 
-      {/* Cena 3D imersiva — gira, zoom, clica na peça */}
-      <Car3DScene
+      {/* Visualização fotorrealista do veículo com pins clicáveis por peça */}
+      <CarRealisticViewer
         damageCountByLabel={damageCountByLabel}
         onAddDamage={onAddDamage}
         disabled={disabled}
-        height={520}
       />
 
 
