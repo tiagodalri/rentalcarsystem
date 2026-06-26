@@ -22,6 +22,8 @@ import { toast } from "@/hooks/use-toast";
 import VehicleAgenda from "@/components/admin/VehicleAgenda";
 import PricingPanel from "@/components/admin/pricing/PricingPanel";
 import { VehicleDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
+import { SignedImage } from "@/components/admin/SignedImage";
+import { getSignedInspectionUrl } from "@/lib/inspectionStorage";
 
 // ─── Types ────────────────────────────────────────────────────────────
 type Vehicle = {
@@ -215,8 +217,8 @@ export default function AdminVehicleDetail() {
       const path = `expenses/${vehicleId}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("inspections").upload(path, file, { cacheControl: "3600", upsert: false });
       if (error) throw error;
-      const { data } = supabase.storage.from("inspections").getPublicUrl(path);
-      setExpenseForm(prev => ({ ...prev, receipt_url: data.publicUrl }));
+      // Store path; render-time helpers (SignedImage / getSignedInspectionUrl) resolve to signed URL.
+      setExpenseForm(prev => ({ ...prev, receipt_url: path }));
       toast({ title: "Comprovante anexado" });
     } catch (e: any) {
       toast({ title: "Erro ao enviar comprovante", description: e.message, variant: "destructive" });
@@ -888,13 +890,20 @@ export default function AdminVehicleDetail() {
                     {expenseForm.receipt_url ? (
                       <div className="relative rounded-lg border border-border/60 bg-muted/30 p-2 flex items-center gap-2">
                         {/\.(jpg|jpeg|png|webp|gif)$/i.test(expenseForm.receipt_url) ? (
-                          <img src={expenseForm.receipt_url} alt="Comprovante" className="w-14 h-14 object-cover rounded-md border border-border/40" />
+                          <SignedImage value={expenseForm.receipt_url} alt="Comprovante" className="w-14 h-14 object-cover rounded-md border border-border/40" />
                         ) : (
                           <div className="w-14 h-14 rounded-md bg-primary/10 flex items-center justify-center text-primary"><Paperclip size={18} /></div>
                         )}
-                        <a href={expenseForm.receipt_url} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 text-xs font-medium text-foreground truncate hover:text-primary flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const u = await getSignedInspectionUrl(expenseForm.receipt_url);
+                            if (u) window.open(u, "_blank", "noopener,noreferrer");
+                          }}
+                          className="flex-1 min-w-0 text-left text-xs font-medium text-foreground truncate hover:text-primary flex items-center gap-1"
+                        >
                           Ver anexo <ExternalLink size={11} />
-                        </a>
+                        </button>
                         <button type="button" onClick={() => setExpenseForm({ ...expenseForm, receipt_url: "" })} className="w-7 h-7 rounded-md hover:bg-destructive/10 text-destructive flex items-center justify-center transition-colors" title="Remover">
                           <X size={14} />
                         </button>
@@ -939,9 +948,17 @@ export default function AdminVehicleDetail() {
                           <span className="font-semibold text-foreground text-sm">{et.label}</span>
                           {e.is_recurring && <Badge variant="outline" className="text-[9px]">Recorrente</Badge>}
                           {e.receipt_url && (
-                            <a href={e.receipt_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline" title="Ver comprovante">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const u = await getSignedInspectionUrl(e.receipt_url);
+                                if (u) window.open(u, "_blank", "noopener,noreferrer");
+                              }}
+                              className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline"
+                              title="Ver comprovante"
+                            >
                               <Paperclip size={10} /> Nota
-                            </a>
+                            </button>
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground truncate">{e.description || e.supplier || "—"}</p>

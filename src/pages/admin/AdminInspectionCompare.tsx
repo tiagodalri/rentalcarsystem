@@ -9,6 +9,7 @@ import {
   PenTool, ArrowRight, Loader2, CheckCircle2, XCircle, Download
 } from "lucide-react";
 import { generateInspectionPDF } from "@/utils/inspectionPdf";
+import { SignedImage } from "@/components/admin/SignedImage";
 
 const FUEL_LABELS: Record<string, string> = {
   empty: "Vazio", "1/8": "1/8", "1/4": "1/4", "3/8": "3/8",
@@ -251,7 +252,7 @@ export default function AdminInspectionCompare() {
                         </p>
                       </div>
                       {d.photoUrl && (
-                        <img src={d.photoUrl} alt="" className="w-12 h-12 rounded object-cover ml-auto" />
+                        <SignedImage value={d.photoUrl} alt="" className="w-12 h-12 rounded object-cover ml-auto" />
                       )}
                     </div>
                   ))}
@@ -301,12 +302,12 @@ export default function AdminInspectionCompare() {
                         <div className="flex gap-2">
                           <div className="flex-1">
                             <p className="text-[10px] text-muted-foreground mb-1">Entrega</p>
-                            <img src={ciPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded-lg border border-border/40" />
+                            <SignedImage value={ciPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded-lg border border-border/40" />
                           </div>
                           <div className="flex-1">
                             <p className="text-[10px] text-muted-foreground mb-1">Devolução</p>
                             {coPhoto ? (
-                              <img src={coPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded-lg border border-border/40" />
+                              <SignedImage value={coPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded-lg border border-border/40" />
                             ) : (
                               <div className="w-full aspect-[4/3] rounded-lg border-2 border-dashed border-border/40 flex items-center justify-center text-xs text-muted-foreground">
                                 Sem foto
