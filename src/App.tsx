@@ -40,6 +40,7 @@ const Contato = lazy(() => import("./pages/Contato.tsx"));
 const VehicleDetail = lazy(() => import("./pages/VehicleDetail.tsx"));
 const Frota = lazy(() => import("./pages/Frota.tsx"));
 const PublicTrack = lazy(() => import("./pages/PublicTrack.tsx"));
+const PublicInspection = lazy(() => import("./pages/PublicInspection.tsx"));
 const Checkout = lazy(() => import("./pages/Checkout.tsx"));
 
 // Lazy-loaded: client authenticated pages
@@ -199,6 +200,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/share/track/:token" element={<PublicSuspense><PublicTrack /></PublicSuspense>} />
+              <Route path="/share/inspection/:token" element={<PublicSuspense><PublicInspection /></PublicSuspense>} />
 
               <Route path="/sobre-nos" element={<PublicSuspense><AboutUs /></PublicSuspense>} />
               <Route path="/frota" element={<PublicSuspense><Frota /></PublicSuspense>} />
