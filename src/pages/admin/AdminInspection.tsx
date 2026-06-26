@@ -654,14 +654,17 @@ export default function AdminInspection() {
           </p>
         </div>
         <div className="flex gap-2">
-          {isCompleted && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => generateInspectionPDF({ type, booking, vehicle, inspection: existingInspection })}
-            >
-              <Download size={14} className="mr-1" /> PDF
-            </Button>
+          {isCompleted && bookingId && (
+            <>
+              <ShareInspectionButton bookingId={bookingId} type={type} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => generateInspectionPDF({ type, booking, vehicle, inspection: existingInspection })}
+              >
+                <Download size={14} className="mr-1" /> PDF
+              </Button>
+            </>
           )}
           <Button
             variant="outline"
