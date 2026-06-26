@@ -457,7 +457,7 @@ export default function AdminInspection() {
     setLoading(false);
   };
 
-  // Generic upload helper
+  // Generic upload helper — returns the storage PATH (signed URLs generated at render-time)
   const uploadPhoto = async (file: File, tag: string): Promise<string | null> => {
     const ext = file.name.split(".").pop();
     const path = `${bookingId}/${type}/${Date.now()}-${tag}.${ext}`;
@@ -466,8 +466,7 @@ export default function AdminInspection() {
       toast({ title: "Erro ao enviar foto", description: error.message, variant: "destructive" });
       return null;
     }
-    const { data: urlData } = supabase.storage.from("inspections").getPublicUrl(path);
-    return urlData.publicUrl;
+    return path;
   };
 
   // -- Photo capture

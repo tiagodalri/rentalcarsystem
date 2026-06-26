@@ -215,8 +215,8 @@ export default function AdminVehicleDetail() {
       const path = `expenses/${vehicleId}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("inspections").upload(path, file, { cacheControl: "3600", upsert: false });
       if (error) throw error;
-      const { data } = supabase.storage.from("inspections").getPublicUrl(path);
-      setExpenseForm(prev => ({ ...prev, receipt_url: data.publicUrl }));
+      // Store path; render-time helpers (SignedImage / getSignedInspectionUrl) resolve to signed URL.
+      setExpenseForm(prev => ({ ...prev, receipt_url: path }));
       toast({ title: "Comprovante anexado" });
     } catch (e: any) {
       toast({ title: "Erro ao enviar comprovante", description: e.message, variant: "destructive" });
