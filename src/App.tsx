@@ -101,6 +101,13 @@ const ClientSuspense = ({ children }: { children: React.ReactNode }) => (
   </RouteErrorBoundary>
 );
 
+// Fallback minimalista para páginas públicas — o RouteProgress já indica carregamento
+const PublicSuspense = ({ children }: { children: React.ReactNode }) => (
+  <RouteErrorBoundary>
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>{children}</Suspense>
+  </RouteErrorBoundary>
+);
+
 /**
  * Gerencia scroll entre navegações:
  * - PUSH/REPLACE → vai pro topo (comportamento esperado de "abrir nova tela").
