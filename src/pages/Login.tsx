@@ -124,7 +124,8 @@ const Login = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
@@ -135,7 +136,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => { setMode("forgot"); setError(null); }}
-                    className="text-xs text-primary hover:text-primary/80 transition-colors"
+                    className="text-xs text-primary hover:text-primary/80 transition-colors py-2 px-1 -mr-1 min-h-11 inline-flex items-center"
                   >
                     Esqueci minha senha
                   </button>
@@ -156,7 +157,7 @@ const Login = () => {
                   Não tem conta?{" "}
                   <button
                     onClick={() => navigate("/cadastro")}
-                    className="text-primary hover:text-primary/80 font-medium transition-colors"
+                    className="text-primary hover:text-primary/80 font-medium transition-colors py-2 px-1 min-h-11 inline-flex items-center"
                   >
                     Criar conta
                   </button>

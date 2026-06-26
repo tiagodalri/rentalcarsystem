@@ -201,7 +201,7 @@ const CustomerRegistration = () => {
           </p>
           <p className="text-xs text-muted-foreground/70 mt-3">
             Já tem conta?{" "}
-            <button onClick={() => navigate("/login")} className="text-primary hover:text-primary/80 font-medium">
+            <button onClick={() => navigate("/login")} className="text-primary hover:text-primary/80 font-medium py-2 px-1 min-h-11 inline-flex items-center">
               Entrar
             </button>
           </p>
@@ -264,7 +264,8 @@ const CustomerRegistration = () => {
               <button
                 type="button"
                 onClick={() => setShowPwd(!showPwd)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label={showPwd ? "Ocultar senha" : "Mostrar senha"}
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
               >
                 {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
@@ -291,7 +292,8 @@ const CustomerRegistration = () => {
               <button
                 type="button"
                 onClick={() => setShowPwd2(!showPwd2)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                aria-label={showPwd2 ? "Ocultar senha" : "Mostrar senha"}
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 inline-flex items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
               >
                 {showPwd2 ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
