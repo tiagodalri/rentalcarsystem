@@ -82,6 +82,12 @@ const menuSections: MenuSection[] = [
     ],
   },
   {
+    label: "Aprenda",
+    items: [
+      { title: "Tutoriais", url: "/admin/tutoriais", icon: GraduationCap, allowedRoles: ["admin","operations","support","driver","finance"] },
+    ],
+  },
+  {
     label: "Administração",
     items: [
       { title: "Equipe",        url: "/admin/team",     icon: UsersRound, allowedRoles: ["admin"] },
