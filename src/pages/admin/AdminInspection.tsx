@@ -28,6 +28,7 @@ import refRodaDD from "@/assets/inspection/roda-dd.jpg";
 import refRodaTE from "@/assets/inspection/roda-te.jpg";
 import refRodaTD from "@/assets/inspection/roda-td.jpg";
 import { SignedImage } from "@/components/admin/SignedImage";
+import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 import { registerLocalInspectionPreview } from "@/lib/inspectionStorage";
 import CarDamageMap from "@/components/inspection/CarDamageMap";
 
