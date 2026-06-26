@@ -33,7 +33,13 @@ Deno.serve(async (req) => {
     if (action === 'revoke') {
       const t = String(body?.token ?? '');
       if (!/^[A-Za-z0-9_-]{12,80}$/.test(t)) return j({ error: 'invalid_token' }, 400);
-      await admin.from('public_inspection_links').update({ revoked: true }).eq('token', t);
+      const { data: revoked, error: rErr } = await admin
+        .from('public_inspection_links')
+        .update({ revoked: true })
+        .eq('token', t)
+        .select('token');
+      if (rErr) throw rErr;
+      if (!revoked || revoked.length === 0) return j({ error: 'not_found' }, 404);
       return j({ ok: true });
     }
 
