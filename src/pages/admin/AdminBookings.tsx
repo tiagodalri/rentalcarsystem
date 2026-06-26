@@ -16,7 +16,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import jsPDF from "jspdf";
+// jsPDF é pesado (~600KB gzip). Importado dinâmico só quando o usuário clica em "Exportar PDF".
+import type jsPDFType from "jspdf";
 import { storageThumb } from "@/lib/storageThumb";
 import { coverImageMap } from "@/data/fleetAssets";
 import { deleteBookingSafe } from "@/lib/deleteBookingSafe";
