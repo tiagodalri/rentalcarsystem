@@ -270,7 +270,7 @@ export default function CarRealisticViewer({
         onMouseMove={handleMouseMove}
         onMouseLeave={() => {
           setMousePos(null);
-          setHoveredMesh(null);
+          setHoveredLabel(null);
           document.body.style.cursor = "auto";
         }}
       >
@@ -295,9 +295,9 @@ export default function CarRealisticViewer({
             <Bounds fit clip observe margin={1.15} key={modelDef.key}>
               <CarModel
                 url={modelDef.url}
-                hoveredMesh={hoveredMesh}
+                hoveredLabel={hoveredLabel}
                 damagedLabels={damagedLabels}
-                onHover={setHoveredMesh}
+                onHover={setHoveredLabel}
                 onPick={onAddDamage}
                 disabled={disabled}
               />
