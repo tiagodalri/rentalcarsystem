@@ -35,6 +35,7 @@ type Vehicle = {
   acquired_date: string | null; license_plate: string | null;
   vin: string | null; color: string | null; notes: string | null;
   bouncie_imei: string | null;
+  e_pass_transponder: string | null;
   bouncie_vin: string | null;
   created_at: string; engine_type: string | null; engine_size: string | null;
   doors: number | null; insurance_policy: string | null;
@@ -190,6 +191,7 @@ export default function AdminVehicleDetail() {
       vin: editForm.vin || null,
       color: editForm.color || null,
       bouncie_imei: editForm.bouncie_imei ? String(editForm.bouncie_imei).trim() || null : null,
+      e_pass_transponder: editForm.e_pass_transponder ? String(editForm.e_pass_transponder).trim() || null : null,
       
       notes: editForm.notes || null,
       engine_type: editForm.engine_type || null,
@@ -1157,8 +1159,9 @@ export default function AdminVehicleDetail() {
                 {renderField("Chassi (VIN)", "vin", "text")}
                 {renderField("Cor", "color", "text")}
                 {renderField("IMEI Bouncie", "bouncie_imei", "text")}
+                {renderField("E-Pass Transponder", "e_pass_transponder", "text")}
               </div>
-              <p className="text-[11px] text-muted-foreground -mt-4 mb-6">Número do rastreador Bouncie — encontrado em Users & Devices no portal.</p>
+              <p className="text-[11px] text-muted-foreground -mt-4 mb-6">IMEI Bouncie: rastreador (Users & Devices no portal). E-Pass: tag de pedágio para controle de cobranças.</p>
 
               {/* Comercial */}
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Comercial</h4>

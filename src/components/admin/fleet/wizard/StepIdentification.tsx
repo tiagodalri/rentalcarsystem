@@ -53,6 +53,11 @@ export default function StepIdentification({ form, set }: Props) {
         <input className={`${inputCls} tabular-nums font-mono text-sm`} inputMode="numeric" value={form.bouncie_imei} onChange={(e) => set({ bouncie_imei: e.target.value.replace(/\s/g, "") })} placeholder="Ex: 351234567890123" />
         <p className="text-[11px] text-muted-foreground mt-1">Encontre em Users & Devices no portal Bouncie.</p>
       </div>
+      <div className="sm:col-span-2">
+        <label className={labelCls}>E-Pass Transponder</label>
+        <input className={`${inputCls} font-mono text-sm`} value={form.e_pass_transponder} onChange={(e) => set({ e_pass_transponder: e.target.value.trim() })} placeholder="Número da tag de pedágio" />
+        <p className="text-[11px] text-muted-foreground mt-1">Usado para controlar pedágios cobrados durante a reserva.</p>
+      </div>
     </div>
   );
 }
