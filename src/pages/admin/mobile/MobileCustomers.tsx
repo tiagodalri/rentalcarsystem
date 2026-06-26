@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Plus, Phone, MessageCircle, X, Users, Car, Loader2, User, Mail, FileText, MapPin, Save } from "lucide-react";
+import { Search, Plus, Phone, MessageCircle, X, Users, Car, Loader2, User, Mail, FileText, MapPin, Save, type LucideIcon } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
@@ -444,7 +444,7 @@ export default function MobileCustomers() {
 
 const mobileInputClass = "w-full min-h-11 rounded-xl border border-border/50 bg-card px-3 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary/25";
 
-function MobileField({ label, icon: Icon, children }: { label: string; icon: typeof User; children: React.ReactNode }) {
+function MobileField({ label, icon: Icon, children }: { label: string; icon: LucideIcon; children: ReactNode }) {
   return (
     <label className="block space-y-1.5">
       <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground flex items-center gap-1.5">
