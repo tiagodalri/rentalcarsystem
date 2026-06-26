@@ -108,26 +108,26 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
         </header>
 
         {/* ───── Body: split panel ───── */}
-        <div className={cn("flex-1 min-h-0 grid", hasImage ? "lg:grid-cols-[1.55fr_1fr]" : "grid-cols-1")}>
-          {/* Image pane (sticky on desktop) */}
+        <div className={cn("flex-1 min-h-0 grid", hasImage ? "grid-cols-1 md:grid-cols-[1.4fr_minmax(0,1fr)]" : "grid-cols-1")}>
+          {/* Image pane */}
           {hasImage && (
-            <div className="relative bg-gradient-to-br from-muted/40 via-background to-muted/30 border-b lg:border-b-0 lg:border-r border-border/30 overflow-hidden">
-              <div className="absolute inset-0 p-5 sm:p-8 lg:p-10 flex flex-col">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                    <span className="text-[10px] font-semibold tracking-[0.22em] text-muted-foreground uppercase">
+            <div className="relative min-w-0 bg-gradient-to-br from-muted/40 via-background to-muted/30 border-b md:border-b-0 md:border-r border-border/30 overflow-hidden">
+              <div className="absolute inset-0 p-5 sm:p-7 lg:p-9 flex flex-col min-w-0">
+                <div className="flex items-center justify-between gap-3 mb-4 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                    <span className="text-[10px] font-semibold tracking-[0.22em] text-muted-foreground uppercase whitespace-nowrap">
                       Tela real do sistema
                     </span>
                   </div>
                   {current.hotspots && current.hotspots.length > 0 && (
-                    <span className="text-[10px] font-medium text-muted-foreground/70 tabular-nums">
+                    <span className="text-[10px] font-medium text-muted-foreground/70 tabular-nums whitespace-nowrap shrink-0">
                       {current.hotspots.length} {current.hotspots.length === 1 ? "marcação" : "marcações"}
                     </span>
                   )}
                 </div>
 
-                <div className="flex-1 min-h-0 flex items-center justify-center">
+                <div className="flex-1 min-h-0 min-w-0 flex items-center justify-center">
                   <AnnotatedScreenshot
                     src={screenSrc!}
                     alt={`Tela — ${current.title}`}
@@ -148,16 +148,16 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
           )}
 
           {/* Text pane */}
-          <div className="overflow-y-auto">
-            <div className="px-6 sm:px-9 py-8 sm:py-10 max-w-[560px]">
+          <div className="min-w-0 overflow-y-auto">
+            <div className="px-6 sm:px-8 py-7 sm:py-9 max-w-[600px]">
               <div className="text-[10px] font-semibold tracking-[0.24em] uppercase text-primary/70 mb-3">
                 Passo {String(step + 1).padStart(2, "0")}
               </div>
-              <h3 className="text-[26px] sm:text-[30px] font-semibold text-foreground leading-[1.15] tracking-[-0.02em] mb-5">
+              <h3 className="text-[22px] sm:text-[24px] lg:text-[28px] font-semibold text-foreground leading-[1.2] tracking-[-0.02em] mb-5 [text-wrap:balance]">
                 {current.title}
               </h3>
 
-              <div className="space-y-3.5 text-[15px] leading-[1.65] text-foreground/75">
+              <div className="space-y-3.5 text-[14.5px] leading-[1.65] text-foreground/75">
                 {paragraphs.map((p, i) => (
                   <p key={i} className={i === 0 ? "text-foreground/85" : undefined}>
                     {p}
