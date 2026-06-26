@@ -52,8 +52,25 @@ type CarModelProps = {
 function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled }: CarModelProps) {
   const { scene } = useGLTF(url, true);
 
-  // Clona materiais por malha e classifica cada uma em um grupo lógico
+  // Clona materiais por malha e classifica cada uma em um grupo lógico.
+  // Quando o nome da malha não bate com nenhuma regra, usamos a POSIÇÃO 3D
+  // dentro do bounding box do carro para inferir um nome real de peça.
   const classified = useMemo<ClassifiedMesh[]>(() => {
+    scene.updateMatrixWorld(true);
+
+    // 1ª passada — bounding box global do carro
+    const globalBox = new THREE.Box3().setFromObject(scene);
+    const size = new THREE.Vector3();
+    const center = new THREE.Vector3();
+    globalBox.getSize(size);
+    globalBox.getCenter(center);
+    const half = { x: size.x / 2 || 1, y: size.y / 2 || 1, z: size.z / 2 || 1 };
+
+    // Detecta orientação: o "comprimento" do carro é o maior eixo horizontal.
+    // Usamos esse eixo como Z normalizado (frente/trás), e o outro como X.
+    const lengthAxis: "x" | "z" = size.z >= size.x ? "z" : "x";
+    const widthAxis: "x" | "z" = lengthAxis === "z" ? "x" : "z";
+
     const list: ClassifiedMesh[] = [];
     scene.traverse((o) => {
       const mesh = o as THREE.Mesh;
@@ -65,7 +82,24 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled 
       }
       mesh.castShadow = true;
       mesh.receiveShadow = true;
-      const { label, pickable } = classifyMesh(mesh.name);
+
+      let { label, pickable } = classifyMesh(mesh.name);
+
+      if (label === "__UNKNOWN__") {
+        // Centro do mesh no espaço do mundo
+        const meshBox = new THREE.Box3().setFromObject(mesh);
+        const mc = new THREE.Vector3();
+        meshBox.getCenter(mc);
+        // Normaliza para [-1, 1] em relação ao bbox do carro
+        const norm = {
+          x: (mc[widthAxis] - center[widthAxis]) / (widthAxis === "x" ? half.x : half.z),
+          y: (mc.y - center.y) / half.y,
+          z: (mc[lengthAxis] - center[lengthAxis]) / (lengthAxis === "z" ? half.z : half.x),
+        };
+        label = inferLabelByPosition(norm);
+        pickable = label !== "Assoalho / Chassi";
+      }
+
       list.push({ mesh, label, pickable });
     });
     return list;
