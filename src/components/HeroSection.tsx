@@ -31,6 +31,8 @@ const HeroSection = () => {
           src={zeusLogo}
           alt="Zeus Rental Car"
           loading="eager"
+          decoding="async"
+          fetchPriority="high"
           width={1584}
           height={672}
           initial={{ opacity: 0, scale: 0.85 }}
