@@ -272,6 +272,9 @@ export default function AdminInspectionReport() {
               <p><User size={9} className="inline mr-1" /> Agente: <span className="font-medium text-foreground">{fmtName(data.agent_name)}</span></p>
               <p><Calendar size={9} className="inline mr-1" /> {fmtDateTime(data.completed_at)}</p>
             </div>
+            <div className="pt-1 print:hidden">
+              <ShareInspectionButton bookingId={booking.id} type={type} className="w-full justify-center" />
+            </div>
           </>
         ) : (
           <div className="rounded-lg border border-dashed border-border/50 p-6 text-center space-y-2">
