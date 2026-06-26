@@ -29,7 +29,7 @@ import refRodaTE from "@/assets/inspection/roda-te.jpg";
 import refRodaTD from "@/assets/inspection/roda-td.jpg";
 import { SignedImage } from "@/components/admin/SignedImage";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
-import { registerLocalInspectionPreview } from "@/lib/inspectionStorage";
+import { registerLocalInspectionPreview, compressInspectionImage } from "@/lib/inspectionStorage";
 import CarDamageMap from "@/components/inspection/CarDamageMap";
 import { PhotoSourceSheet } from "@/components/admin/PhotoSourceSheet";
 
@@ -404,20 +404,39 @@ export default function AdminInspection() {
     }
   };
 
-  // Generic upload helper — returns the storage PATH (signed URLs generated at render-time)
+  // Counter-based "uploading" state so multiple concurrent background uploads
+  // are tracked correctly without flicker.
+  const pendingUploadsRef = useRef(0);
+  const bumpUploading = (delta: number) => {
+    pendingUploadsRef.current = Math.max(0, pendingUploadsRef.current + delta);
+    setUploading(pendingUploadsRef.current > 0);
+  };
+
+  // Optimistic upload: compresses the photo, registers an instant blob preview,
+  // returns the storage path immediately, and uploads in the background.
+  // The thumbnail appears in the UI right away — no waiting for the round-trip.
   const uploadPhoto = async (file: File, tag: string): Promise<string | null> => {
-    const ext = file.name.split(".").pop();
-    const path = `${bookingId}/${type}/${Date.now()}-${tag}.${ext}`;
-    const { error } = await supabase.storage.from("inspections").upload(path, file);
-    if (error) {
-      toast({ title: "Erro ao enviar foto", description: error.message, variant: "destructive" });
-      return null;
-    }
-    // Register an immediate local preview so the UI shows the photo instantly,
-    // without waiting for the signed URL round-trip (and as a fallback if signing fails).
-    registerLocalInspectionPreview(path, file);
+    const compressed = await compressInspectionImage(file);
+    const ext = compressed.type === "image/jpeg" ? "jpg" : (file.name.split(".").pop() || "jpg");
+    const path = `${bookingId}/${type}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${tag}.${ext}`;
+    registerLocalInspectionPreview(path, compressed);
+    bumpUploading(+1);
+    void supabase.storage
+      .from("inspections")
+      .upload(path, compressed, {
+        contentType: compressed.type || "image/jpeg",
+        cacheControl: "3600",
+        upsert: false,
+      })
+      .then(({ error }) => {
+        if (error) {
+          toast({ title: "Erro ao enviar foto", description: error.message, variant: "destructive" });
+        }
+      })
+      .finally(() => bumpUploading(-1));
     return path;
   };
+
 
   // -- Photo capture (exterior) — opens source picker
   const capturePhoto = (position: string) => {
