@@ -67,7 +67,7 @@ serve(async (req) => {
         .maybeSingle();
 
       if (!pr) {
-        console.warn("payment_request not found for token", token);
+        console.warn("payment_request not found for token");
         return;
       }
 
