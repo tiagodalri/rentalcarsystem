@@ -297,11 +297,6 @@ export default function CarRealisticViewer({
           <CameraResetHook resetSignal={resetSignal} />
         </Canvas>
 
-        {/* Loader sobre o canvas */}
-        <Suspense fallback={null}>
-          <LoadingOverlay />
-        </Suspense>
-
         {/* Rótulo flutuante elegante que segue o mouse */}
         {hoverLabel && mousePos && (
           <div
