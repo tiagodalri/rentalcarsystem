@@ -172,7 +172,7 @@ export default function CarRealisticViewer({
     useGLTF.preload(modelDef.url, true);
   }, [modelDef.url]);
 
-  const [hoveredMesh, setHoveredMesh] = useState<string | null>(null);
+  const [hoveredLabel, setHoveredLabel] = useState<string | null>(null);
   const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
   const [resetSignal, setResetSignal] = useState(0);
   const [attributionOpen, setAttributionOpen] = useState(false);
@@ -181,7 +181,7 @@ export default function CarRealisticViewer({
 
   // Reset hover + camera when the model changes (different vehicle category)
   useEffect(() => {
-    setHoveredMesh(null);
+    setHoveredLabel(null);
     setResetSignal((s) => s + 1);
   }, [modelDef.key]);
 
@@ -195,8 +195,9 @@ export default function CarRealisticViewer({
     [damageCountByLabel]
   );
 
-  const hoverLabel = hoveredMesh ? inferMeshLabel(hoveredMesh) : null;
+  const hoverLabel = hoveredLabel;
   const hoverCount = hoverLabel ? damageCountByLabel[hoverLabel] || 0 : 0;
+
 
   useEffect(() => () => {
     document.body.style.cursor = "auto";
