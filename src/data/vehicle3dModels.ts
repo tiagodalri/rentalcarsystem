@@ -31,16 +31,6 @@ export type Vehicle3dModelDef = {
 };
 
 export const VEHICLE_3D_MODELS: Record<string, Vehicle3dModelDef> = {
-  "ferrari-458": {
-    key: "ferrari-458",
-    label: "Ferrari 458 Italia",
-    url: ferrariAsset.url,
-    attribution: "Modelo: Ferrari 458 Italia · vicent091036 · CC-BY 3.0",
-    source: "https://threejs.org/examples/?q=car#webgl_materials_car",
-    defaultForCategories: ["esportivo", "sports", "coupe", "cupê", "supercar", "premium"],
-    cameraPosition: [4.5, 2.2, 5.5],
-    cameraTarget: [0, 0.4, 0],
-  },
   "khronos-concept": {
     key: "khronos-concept",
     label: "Concept Car (Khronos)",
@@ -51,13 +41,23 @@ export const VEHICLE_3D_MODELS: Record<string, Vehicle3dModelDef> = {
     cameraPosition: [5.0, 2.3, 6.0],
     cameraTarget: [0, 0.5, 0],
   },
+  "ferrari-458": {
+    key: "ferrari-458",
+    label: "Ferrari 458 Italia",
+    url: ferrariAsset.url,
+    attribution: "Modelo: Ferrari 458 Italia · vicent091036 · CC-BY 3.0",
+    source: "https://threejs.org/examples/?q=car#webgl_materials_car",
+    defaultForCategories: ["esportivo", "sports", "coupe", "cupê", "supercar"],
+    cameraPosition: [4.5, 2.2, 5.5],
+    cameraTarget: [0, 0.4, 0],
+  },
 };
 
 /** All registered models, ordered for UI listings */
 export const ALL_VEHICLE_3D_MODELS: Vehicle3dModelDef[] = Object.values(VEHICLE_3D_MODELS);
 
-/** Sensible fallback when no category matches */
-export const FALLBACK_MODEL: Vehicle3dModelDef = VEHICLE_3D_MODELS["ferrari-458"];
+/** Default fallback — Khronos has segmented panels (hood/doors/fenders), better UX */
+export const FALLBACK_MODEL: Vehicle3dModelDef = VEHICLE_3D_MODELS["khronos-concept"];
 
 /** Lightweight subset of a vehicle row used to pick a model */
 export type VehicleLike = {
@@ -68,27 +68,14 @@ export type VehicleLike = {
   name?: string | null;
 } | null | undefined;
 
-/**
- * Picks the best curated 3D model for a given vehicle.
- *
- * Strategy:
- *  1. Exact key override via brand+model heuristic (e.g. "Ferrari 458" → ferrari-458)
- *  2. Category match against `defaultForCategories`
- *  3. Fallback to a known-good model
- */
 export function pickVehicle3dModel(vehicle: VehicleLike): Vehicle3dModelDef {
   if (!vehicle) return FALLBACK_MODEL;
 
-  const haystack = [
-    vehicle.brand,
-    vehicle.model,
-    vehicle.name,
-  ]
+  const haystack = [vehicle.brand, vehicle.model, vehicle.name]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
 
-  // Explicit overrides for vehicles whose name matches a curated silhouette
   if (haystack.includes("ferrari") || haystack.includes("458")) {
     return VEHICLE_3D_MODELS["ferrari-458"];
   }
@@ -107,64 +94,104 @@ export function pickVehicle3dModel(vehicle: VehicleLike): Vehicle3dModelDef {
 
 // ─── Smart mesh labelling ─────────────────────────────────────────────────────
 //
-// We don't know in advance the mesh naming convention of every GLB, so we infer
-// a friendly pt-BR label from substrings. This works across the Ferrari (uses
-// "body", "rim_fl", "trim", "glass") AND the Khronos concept car (uses
-// "Body", "Wheel", "Glass" etc.), and any future asset that follows the usual
-// 3D-artist conventions.
+// Returns a group label in pt-BR. Multiple sub-meshes can map to the same
+// label — that's intentional: hovering any sub-mesh of "Porta dianteira
+// esquerda" (color1, color2, handle, mirror, window…) lights up the whole
+// logical part together.
+//
+// Handles both naming conventions:
+//   - Khronos CarConcept:  BodyHood, BodyDoorLColor1, BodyDoorLMirror,
+//                          BodyRoofPanel, BodyPanelsColor2, BodyRearPanels…,
+//                          WheelFrontL*, BodyHeadlights, BodyTaillights, etc.
+//   - Ferrari 458:         body, glass, trim, rim_fl, wheel_fr…
+//   - Generic 3D artists:  hood, door_fl, fender_l, bumper_front…
 
-type LabelRule = { test: RegExp; label: string };
+type LabelRule = { test: RegExp; label: string; pickable?: boolean };
+
+const NON_PICKABLE = false;
 
 const LABEL_RULES: LabelRule[] = [
-  // Wheels — position-aware
-  { test: /(wheel|rim|tire|tyre).*(fl|front.*left|frontleft|_l$)/i, label: "Roda dianteira esquerda" },
-  { test: /(wheel|rim|tire|tyre).*(fr|front.*right|frontright|_r$)/i, label: "Roda dianteira direita" },
-  { test: /(wheel|rim|tire|tyre).*(rl|rear.*left|back.*left)/i, label: "Roda traseira esquerda" },
-  { test: /(wheel|rim|tire|tyre).*(rr|rear.*right|back.*right)/i, label: "Roda traseira direita" },
+  // ── INTERIOR (não clicável) ──
+  { test: /^interior|seat|dash|pedal|steering|carpet|floor|cage|pillar.*interior|hatchinterior|hoodinterior|hoodunder|hoodtopgrill|axles|engine|bodyunderside|leather|carbon|chrome$|^centre$|^nuts$|^brake$|brakedisc|brakepad/i, label: "Interior", pickable: NON_PICKABLE },
+
+  // ── RODAS (cada canto agrupado) ──
+  { test: /(wheel|rim|tire|tyre).*(front.?l|fl\b|_fl|frontleft)/i, label: "Roda dianteira esquerda" },
+  { test: /(wheel|rim|tire|tyre).*(front.?r|fr\b|_fr|frontright)/i, label: "Roda dianteira direita" },
+  { test: /(wheel|rim|tire|tyre).*(rear.?l|rl\b|_rl|back.?l)/i, label: "Roda traseira esquerda" },
+  { test: /(wheel|rim|tire|tyre).*(rear.?r|rr\b|_rr|back.?r)/i, label: "Roda traseira direita" },
   { test: /(wheel|rim|tire|tyre)/i, label: "Roda" },
 
-  // Glass surfaces
-  { test: /windshield|windscreen/i, label: "Para-brisa" },
-  { test: /(glass|window).*(rear|back)/i, label: "Vidro traseiro" },
-  { test: /(glass|window).*(left|_l)/i, label: "Vidro lateral esquerdo" },
-  { test: /(glass|window).*(right|_r)/i, label: "Vidro lateral direito" },
-  { test: /glass|window/i, label: "Vidros" },
+  // ── VIDROS ──
+  { test: /windshield|windscreen|para.?brisa/i, label: "Para-brisa" },
+  { test: /rearwindow|window.*rear|rear.*window|vidro.*tras/i, label: "Vidro traseiro" },
+  { test: /(window|glass|vidro).*(rear.?sides|sides|laterais)/i, label: "Vidros laterais" },
+  { test: /doorl.*window|window.*l\b|vidro.*esq/i, label: "Vidro porta esquerda" },
+  { test: /doorr.*window|window.*r\b|vidro.*dir/i, label: "Vidro porta direita" },
+  { test: /glass|window|vidro/i, label: "Vidros" },
 
-  // Doors
-  { test: /door.*(front.*left|fl|_fl)/i, label: "Porta dianteira esquerda" },
-  { test: /door.*(front.*right|fr|_fr)/i, label: "Porta dianteira direita" },
-  { test: /door.*(rear.*left|rl|_rl|back.*left)/i, label: "Porta traseira esquerda" },
-  { test: /door.*(rear.*right|rr|_rr|back.*right)/i, label: "Porta traseira direita" },
+  // ── PORTAS (todos sub-componentes agrupados) ──
+  { test: /doorl(color|handle|mirror|window|gasket|$)|door.*(front.?left|_fl|fl\b)/i, label: "Porta esquerda" },
+  { test: /doorr(color|handle|mirror|window|gasket|$)|door.*(front.?right|_fr|fr\b)/i, label: "Porta direita" },
+  { test: /door.*(rear.?left|rl\b|_rl)/i, label: "Porta traseira esquerda" },
+  { test: /door.*(rear.?right|rr\b|_rr)/i, label: "Porta traseira direita" },
   { test: /door/i, label: "Porta" },
 
-  // Lights
-  { test: /(headlight|head_light|light.*front|front.*light)/i, label: "Farol" },
-  { test: /(taillight|tail_light|light.*rear|rear.*light|brake.*light)/i, label: "Lanterna traseira" },
-  { test: /fog.*light/i, label: "Farol de neblina" },
+  // ── RETROVISORES (caso queiram separar do conjunto da porta) ──
+  // (deixei dentro do grupo Porta acima — comente se quiser separar)
 
-  // Body sections
-  { test: /(hood|bonnet|capo)/i, label: "Capô" },
-  { test: /(trunk|boot|tailgate|porta.?malas)/i, label: "Porta-malas" },
-  { test: /roof|teto/i, label: "Teto" },
-  { test: /(bumper|para.?choque).*(front|dianteiro)/i, label: "Para-choque dianteiro" },
-  { test: /(bumper|para.?choque).*(rear|back|traseiro)/i, label: "Para-choque traseiro" },
-  { test: /(bumper|para.?choque)/i, label: "Para-choque" },
+  // ── FARÓIS / LANTERNAS ──
+  { test: /headlight|head_light|light.*front|front.*light|farol/i, label: "Faróis dianteiros" },
+  { test: /taillight|tail_light|light.*rear|rear.*light|brake.*light|lanterna/i, label: "Lanternas traseiras" },
+  { test: /turnsignal|pisca|blinker/i, label: "Piscas" },
+  { test: /fog.*light|neblina/i, label: "Farol de neblina" },
+
+  // ── CAPÔ ──
+  { test: /^bodyhood$|^hood$|bonnet|capo|capô/i, label: "Capô" },
+  { test: /hoodtopgrill|grille|grade/i, label: "Grade frontal" },
+
+  // ── TETO ──
+  { test: /roofpanel|^roof$|teto/i, label: "Teto" },
+
+  // ── TRASEIRA / PORTA-MALAS ──
+  { test: /rearpanel|rear_panel|trunk|boot|tailgate|porta.?malas|bodyrear/i, label: "Traseira / Porta-malas" },
+
+  // ── PARA-CHOQUES ──
+  { test: /bumper.*(front|dianteiro)|frontbumper/i, label: "Para-choque dianteiro" },
+  { test: /bumper.*(rear|back|traseiro)|rearbumper/i, label: "Para-choque traseiro" },
+  { test: /bumper|para.?choque/i, label: "Para-choque" },
+
+  // ── LATERAIS / PARALAMAS ──
+  { test: /panelscolor|fender|paralama|quarter.?panel|side.?panel/i, label: "Laterais / Paralamas" },
+
+  // ── ACESSÓRIOS ──
   { test: /mirror|retrovisor/i, label: "Retrovisor" },
-  { test: /grille|grade/i, label: "Grade frontal" },
-  { test: /spoiler|aerofolio/i, label: "Aerofólio" },
+  { test: /spoiler|aerofolio|aerofólio/i, label: "Aerofólio" },
   { test: /antenna|antena/i, label: "Antena" },
   { test: /exhaust|escapamento|muffler/i, label: "Escapamento" },
-  { test: /trim|chrome|cromad|moldur/i, label: "Detalhes cromados" },
-  { test: /fender|paralama/i, label: "Paralama" },
+  { test: /wiper|limpador/i, label: "Limpador de para-brisa" },
+  { test: /license.?plate|placa/i, label: "Placa" },
+  { test: /trim|moldur/i, label: "Frisos / Molduras" },
 
-  // Whole-body fallback
+  // ── CARROCERIA (Ferrari "body" cai aqui) ──
   { test: /^body$|carroceria|chassis|carbody|car_body/i, label: "Carroceria" },
 ];
 
-export function inferMeshLabel(meshName: string | null | undefined): string {
-  if (!meshName) return "Peça do veículo";
+export type MeshClassification = {
+  label: string;
+  pickable: boolean;
+};
+
+export function classifyMesh(meshName: string | null | undefined): MeshClassification {
+  if (!meshName) return { label: "Peça do veículo", pickable: true };
   for (const rule of LABEL_RULES) {
-    if (rule.test.test(meshName)) return rule.label;
+    if (rule.test.test(meshName)) {
+      return { label: rule.label, pickable: rule.pickable !== false };
+    }
   }
-  return "Peça do veículo";
+  return { label: "Peça do veículo", pickable: true };
+}
+
+/** Back-compat helper — most callers just need the label */
+export function inferMeshLabel(meshName: string | null | undefined): string {
+  return classifyMesh(meshName).label;
 }
