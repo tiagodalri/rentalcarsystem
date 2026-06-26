@@ -513,6 +513,7 @@ export default function AdminInspection() {
   // Counter-based "uploading" state so multiple concurrent background uploads
   // are tracked correctly without flicker.
   const pendingUploadsRef = useRef(0);
+  const pendingUploadPromisesRef = useRef<Promise<void>[]>([]);
   const bumpUploading = (delta: number) => {
     pendingUploadsRef.current = Math.max(0, pendingUploadsRef.current + delta);
     setUploading(pendingUploadsRef.current > 0);
@@ -545,28 +546,40 @@ export default function AdminInspection() {
     setPhotoUploadStatus((prev) => ({ ...prev, [path]: "uploading" }));
     bumpUploading(+1);
 
-    window.setTimeout(() => {
-      void (async () => {
-        const compressed = await compressInspectionImage(file);
-        const { error } = await supabase.storage
-          .from("inspections")
-          .upload(path, compressed, {
-            contentType: compressed.type || file.type || "image/jpeg",
-            cacheControl: "3600",
-            upsert: false,
-          });
+    const task = new Promise<void>((resolve) => {
+      window.setTimeout(() => {
+        void (async () => {
+          try {
+            const compressed = await compressInspectionImage(file);
+            const { error } = await supabase.storage
+              .from("inspections")
+              .upload(path, compressed, {
+                contentType: compressed.type || file.type || "image/jpeg",
+                cacheControl: "3600",
+                upsert: false,
+              });
 
-        if (error) {
-          setPhotoUploadStatus((prev) => ({ ...prev, [path]: "failed" }));
-          toast({ title: "Erro ao enviar foto", description: error.message, variant: "destructive" });
-          return;
-        }
-        setPhotoUploadStatus((prev) => ({ ...prev, [path]: "done" }));
-      })().finally(() => bumpUploading(-1));
-    }, 0);
+            if (error) {
+              setPhotoUploadStatus((prev) => ({ ...prev, [path]: "failed" }));
+              toast({ title: "Erro ao enviar foto", description: error.message, variant: "destructive" });
+              return;
+            }
+            setPhotoUploadStatus((prev) => ({ ...prev, [path]: "done" }));
+          } finally {
+            bumpUploading(-1);
+            resolve();
+          }
+        })();
+      }, 0);
+    });
+    pendingUploadPromisesRef.current.push(task);
+    void task.finally(() => {
+      pendingUploadPromisesRef.current = pendingUploadPromisesRef.current.filter((p) => p !== task);
+    });
 
     return path;
   };
+
 
 
   // -- Photo capture (exterior) — opens source picker
