@@ -656,7 +656,35 @@ function AdminBookingsDesktop() {
       return matchSearch && matchStatus && matchPickup && matchReturn && matchVehicle && matchDateFrom && matchDateTo;
     });
 
+    // Prioridade por status: em andamento > ativa/confirmada (futuras próximas primeiro) > pendente > concluída > cancelada (sempre por último)
+    const statusPriority = (s: string): number => {
+      switch (s) {
+        case "in_progress": return 0;
+        case "active": return 1;
+        case "confirmed": return 2;
+        case "pending": return 3;
+        case "completed": return 4;
+        case "cancelled": return 5;
+        default: return 3;
+      }
+    };
+
     result.sort((a, b) => {
+      const pa = statusPriority(a.status);
+      const pb = statusPriority(b.status);
+      if (pa !== pb) return pa - pb;
+
+      // Dentro do mesmo grupo de status: futuras/ativas pela data de retirada mais próxima primeiro
+      if (pa <= 3) {
+        const diff = new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime();
+        if (diff !== 0) return diff;
+      } else {
+        // concluídas e canceladas: mais recentes primeiro
+        const diff = new Date(b.pickup_date).getTime() - new Date(a.pickup_date).getTime();
+        if (diff !== 0) return diff;
+      }
+
+      // Desempate pelo sort selecionado pelo usuário
       const dir = filters.sortDir === "asc" ? 1 : -1;
       switch (filters.sortBy) {
         case "pickup_date": return dir * (new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime());
