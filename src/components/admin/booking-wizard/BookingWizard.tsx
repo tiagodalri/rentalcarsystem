@@ -74,7 +74,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   const [aiKeys, setAiKeys] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
 
-  const { vehicles } = useVehiclesDB();
+  const { vehicles } = useVehiclesDB({ includeSensitive: true });
 
   // Persist drafts (form only, not customer object)
   useFormDraft(DRAFT_KEY, form, (next) => setForm(next), phase === "wizard");
@@ -488,7 +488,7 @@ function CustomerStep({ form, set, aiKeys }: StepProps) {
 }
 
 function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?: () => void }) {
-  const { vehicles } = useVehiclesDB();
+  const { vehicles } = useVehiclesDB({ includeSensitive: true });
   const [query, setQuery] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
   const [editPrice, setEditPrice] = useState<string>("");
@@ -1211,7 +1211,7 @@ function PaymentStep({ form, set, aiKeys, days }: StepProps & { days: number }) 
 
 
 function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; days: number; jumpTo: (id: StepId) => void; aiKeys: Set<string> }) {
-  const { vehicles } = useVehiclesDB();
+  const { vehicles } = useVehiclesDB({ includeSensitive: true });
   const vehicle = vehicles.find((v) => v.id === form.vehicle_id);
 
   const Row = ({ label, value, aiKey }: { label: string; value: React.ReactNode; aiKey?: string }) => (

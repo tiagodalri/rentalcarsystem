@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function TuroVehicleMapper({ turoVehicleName, onMapped }: Props) {
-  const { vehicles, loading } = useVehiclesDB();
+  const { vehicles, loading } = useVehiclesDB({ includeSensitive: true });
   const [selected, setSelected] = useState<string>("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
