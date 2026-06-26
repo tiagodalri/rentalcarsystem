@@ -47,6 +47,7 @@ type Booking = {
   vehicle_id: string | null;
   created_at: string;
   addons: Record<string, any> | null;
+  booking_number?: string | null;
   vehicle_name?: string;
   vehicle_image?: string;
 };
