@@ -94,13 +94,16 @@ export const CAR_ZONES: CarZone[] = [
 
 const NAME_BY_ID = Object.fromEntries(CAR_ZONES.map((z) => [z.id, z.label]));
 
+import type { VehicleLike } from "@/data/vehicle3dModels";
+
 interface Props {
   damageCountByLabel: Record<string, number>;
   onAddDamage: (label: string) => void;
   disabled?: boolean;
+  vehicle?: VehicleLike;
 }
 
-export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled }: Props) {
+export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled, vehicle }: Props) {
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [selectedFromList, setSelectedFromList] = useState<string>("");
 
