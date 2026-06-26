@@ -49,8 +49,146 @@ type CarModelProps = {
   disabled?: boolean;
 };
 
+// Meshes do Tiguan que contêm decalques específicos do mercado chinês
+// (texto 上汽大众, placa "New Tiguan L PHEV", marcações 430 PHEV).
+// Ocultamos e substituímos por uma placa branca da Zeus + label "TIGUAN".
+const TIGUAN_BADGES_TO_HIDE = new Set<string>([
+  "46_trunk_map_c_badges_0",     // trunk: chinese text + plate + 430 PHEV
+  "73_PHEV_blue_plastic_blue_plastic_0", // PHEV blue tag
+  "80_map_map_0",                // front grille decal
+  "80_glass_glass_0",            // front grille glass decal layer
+]);
+
+function makeZeusPlateTexture(): THREE.CanvasTexture {
+  const W = 1024, H = 256;
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d")!;
+  // fundo branco com borda preta
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = "#0a0a0a";
+  ctx.lineWidth = 10;
+  ctx.strokeRect(8, 8, W - 16, H - 16);
+  // faixa dourada superior
+  ctx.fillStyle = "#D4AF37";
+  ctx.fillRect(16, 16, W - 32, 44);
+  ctx.fillStyle = "#0a0a0a";
+  ctx.font = "600 26px 'Inter', sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("ZEUS RENTAL CAR · ORLANDO FL", W / 2, 38);
+  // placa principal
+  ctx.fillStyle = "#0a0a0a";
+  ctx.font = "700 130px 'Inter', sans-serif";
+  ctx.fillText("ZEUS", W / 2, 165);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+
+function makeTiguanBadgeTexture(): THREE.CanvasTexture {
+  const W = 1024, H = 192;
+  const c = document.createElement("canvas");
+  c.width = W; c.height = H;
+  const ctx = c.getContext("2d")!;
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = "#1a1a1a";
+  ctx.font = "600 110px 'Inter', sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.letterSpacing = "12px";
+  ctx.fillText("TIGUAN", W / 2, H / 2);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+
 function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled, meshClassifier }: CarModelProps & { meshClassifier?: (n: string) => { label: string; pickable: boolean } | null }) {
   const { scene } = useGLTF(url, true);
+
+  // Ocultar decalques chineses e injetar placa Zeus + emblema TIGUAN no traseiro.
+  useEffect(() => {
+    if (!url.includes("tiguan")) return;
+    scene.updateMatrixWorld(true);
+
+    // 1) hide badge meshes
+    scene.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh && TIGUAN_BADGES_TO_HIDE.has(o.name)) {
+        o.visible = false;
+      }
+    });
+
+    // Evita duplicar se efeito rodar de novo
+    const existing = scene.getObjectByName("__zeus_rear_overlay__");
+    if (existing) return;
+
+    const bbox = new THREE.Box3().setFromObject(scene);
+    const size = new THREE.Vector3();
+    const center = new THREE.Vector3();
+    bbox.getSize(size);
+    bbox.getCenter(center);
+
+    // eixo de comprimento: o maior entre x e z
+    const lengthAxis: "x" | "z" = size.z >= size.x ? "z" : "x";
+    const widthAxis: "x" | "z" = lengthAxis === "z" ? "x" : "z";
+    const rearSign = -1; // traseira no extremo negativo do eixo de comprimento
+    const lengthHalf = lengthAxis === "z" ? size.z / 2 : size.x / 2;
+    const carWidth = widthAxis === "x" ? size.x : size.z;
+
+    const group = new THREE.Group();
+    group.name = "__zeus_rear_overlay__";
+
+    // PLACA ZEUS
+    const plateW = carWidth * 0.28;
+    const plateH = plateW * 0.25;
+    const plateGeo = new THREE.PlaneGeometry(plateW, plateH);
+    const plateMat = new THREE.MeshStandardMaterial({
+      map: makeZeusPlateTexture(),
+      roughness: 0.55,
+      metalness: 0.0,
+    });
+    const plateMesh = new THREE.Mesh(plateGeo, plateMat);
+    plateMesh.name = "__zeus_plate__";
+    plateMesh.position.set(
+      center.x,
+      center.y + size.y * 0.02,
+      center.z + (lengthAxis === "z" ? rearSign * (lengthHalf + 0.005) : 0),
+    );
+    if (lengthAxis === "x") {
+      plateMesh.position.x = center.x + rearSign * (lengthHalf + 0.005);
+      plateMesh.rotation.y = rearSign > 0 ? 0 : Math.PI;
+    } else {
+      plateMesh.rotation.y = rearSign > 0 ? 0 : Math.PI;
+    }
+    (plateMat as any).polygonOffset = true;
+    (plateMat as any).polygonOffsetFactor = -2;
+    group.add(plateMesh);
+
+    // EMBLEMA TIGUAN (acima da placa)
+    const badgeW = carWidth * 0.34;
+    const badgeH = badgeW * 0.13;
+    const badgeGeo = new THREE.PlaneGeometry(badgeW, badgeH);
+    const badgeMat = new THREE.MeshStandardMaterial({
+      map: makeTiguanBadgeTexture(),
+      transparent: true,
+      roughness: 0.4,
+      metalness: 0.3,
+    });
+    const badgeMesh = new THREE.Mesh(badgeGeo, badgeMat);
+    badgeMesh.name = "__zeus_badge__";
+    badgeMesh.position.copy(plateMesh.position);
+    badgeMesh.position.y = plateMesh.position.y + plateH * 0.85;
+    badgeMesh.rotation.copy(plateMesh.rotation);
+    (badgeMat as any).polygonOffset = true;
+    (badgeMat as any).polygonOffsetFactor = -2;
+    group.add(badgeMesh);
+
+    scene.add(group);
+  }, [scene, url]);
+
 
   const classified = useMemo<ClassifiedMesh[]>(() => {
     scene.updateMatrixWorld(true);
