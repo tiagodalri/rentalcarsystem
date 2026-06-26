@@ -289,3 +289,136 @@ export function inferLabelByPosition(p: NormalizedPoint): string {
   return "Lateral central";
 }
 
+// ─── Tiguan-specific classifier ───────────────────────────────────────────────
+// The Tiguan GLB has 148 sub-meshes with very descriptive prefixes
+// (`02_car_body_lf_door_*`, `43_car_body_trunk_*`, `13_headlight_*` ...).
+// We map every single mesh to a real, Portuguese, anatomically-correct part
+// label so that hovering any sub-mesh lights up the exact panel.
+//
+// Mesh-name → part label was derived by inspecting bounding boxes against the
+// car's local axes (length axis = Z, width axis = X, vertical = Y).
+
+const TIGUAN_EXACT: Record<string, { label: string; pickable?: boolean }> = {
+  // ── CAPÔ ──
+  "01_car_body_carPaint_0": { label: "Capô" },
+  "01_car_body_4_carPaint_0": { label: "Capô" },
+
+  // ── PARA-CHOQUE DIANTEIRO + GRADE ──
+  "01_car_body_1_carPaint_0": { label: "Para-choque dianteiro" },
+  "01_car_body_2_carPaint_0": { label: "Para-choque dianteiro" },
+  "01_car_body_3_carPaint_0": { label: "Para-choque dianteiro" },
+  "01_car_body_12_carPaint_0": { label: "Para-choque dianteiro" },
+  "01_car_body_16_carPaint_0": { label: "Para-choque dianteiro" },
+
+  // ── PARA-CHOQUE TRASEIRO ──
+  "01_car_body_8_carPaint_0": { label: "Para-choque traseiro" },
+  "01_car_body_9_carPaint_0": { label: "Para-choque traseiro" },
+  "01_car_body_10_carPaint_0": { label: "Para-choque traseiro" },
+  "01_car_body_13_carPaint_0": { label: "Para-choque traseiro" },
+  "43_car_body_trunk_4_carPaint_0": { label: "Para-choque traseiro" },
+
+  // ── LATERAIS (sills + colunas) ──
+  "01_car_body_14_carPaint_0": { label: "Coluna traseira esquerda" },
+  "01_car_body_17_carPaint_0": { label: "Soleira esquerda" },
+  "01_car_body_20_carPaint_0": { label: "Soleira direita" },
+  "01_car_body_19_carPaint_0": { label: "Caixilho de teto esquerdo" },
+  "01_car_body_21_carPaint_0": { label: "Caixilho de teto direito" },
+
+  // ── TETO ──
+  "51_car_body_top_carPaint_0": { label: "Teto" },
+  "01_car_body_18_carPaint_0": { label: "Teto" },
+
+  // ── TAMPA DO PORTA-MALAS ──
+  "43_car_body_trunk_carPaint_0": { label: "Tampa do porta-malas" },
+  "43_car_body_trunk_1_carPaint_0": { label: "Tampa do porta-malas" },
+  "43_car_body_trunk_2_carPaint_0": { label: "Tampa do porta-malas" },
+  "43_car_body_trunk_3_carPaint_0": { label: "Tampa do porta-malas" },
+  "43_car_body_trunk_5_carPaint_0": { label: "Tampa do porta-malas" },
+
+  // ── ASSOALHO / CHASSI (não clicável) ──
+  "01_car_body_15_carPaint_0": { label: "Assoalho / Chassi", pickable: false },
+  "58_car_body_bottom_chassis_0": { label: "Assoalho / Chassi", pickable: false },
+  "jiemian_chassis_0": { label: "Assoalho / Chassi", pickable: false },
+};
+
+export function classifyTiguanMesh(name: string): MeshClassification | null {
+  // 1) Exact match (body subdivisions classified by bounding box analysis)
+  const exact = TIGUAN_EXACT[name];
+  if (exact) return { label: exact.label, pickable: exact.pickable !== false };
+
+  // 2) Prefix-based rules for everything else
+  // PORTAS — sub-componentes (color, plastic, glass, mirror, badge…) agrupados
+  if (/^0[2-9]_lf_door|^lf_volkswagen|02_car_body_lf_door/i.test(name)) {
+    return { label: "Porta dianteira esquerda", pickable: true };
+  }
+  if (/^2[5-9]_lr_door|^3[0-1]_lr_door|25_car_body_lr_door/i.test(name)) {
+    return { label: "Porta traseira esquerda", pickable: true };
+  }
+  if (/^3[1-8]_rf_door|^rf_volkswagen|31_car_body_rf_door/i.test(name)) {
+    return { label: "Porta dianteira direita", pickable: true };
+  }
+  if (/^3[8-9]_rr_door|^4[0-6]_rr_door|38_car_body_rr_door/i.test(name)) {
+    return { label: "Porta traseira direita", pickable: true };
+  }
+
+  // RETROVISORES (mesh dedicado)
+  if (/37_rf_door_mirror/i.test(name)) return { label: "Retrovisor direito", pickable: true };
+  if (/53_inner_map_c_1_mirror/i.test(name)) return { label: "Retrovisor esquerdo", pickable: true };
+
+  // FARÓIS DIANTEIROS (todas as camadas: glass, plastic, white_plastic, chrome, badges, IQLIGHT)
+  if (/^(1[3-7]|59|60_IQLIGHT|62_inner|63|64_inner|65)_/i.test(name) && !/Taillight|tail/i.test(name)) {
+    // Decide lado pelo nome? não tem _l/_r — usar único grupo "Faróis dianteiros"
+    return { label: "Faróis dianteiros", pickable: true };
+  }
+  if (/^18_car_body_black_plastic_b/i.test(name)) {
+    return { label: "Faróis dianteiros", pickable: true };
+  }
+
+  // LANTERNAS TRASEIRAS
+  if (/58_Taillight|^(141|142|143|146|147)_/i.test(name) || /Car_L_Rod|car_L_rod/i.test(name)) {
+    return { label: "Lanternas traseiras", pickable: true };
+  }
+
+  // PARA-BRISA (glass principal da carroceria)
+  if (/^09_car_body_glass/i.test(name)) return { label: "Para-brisa", pickable: true };
+
+  // TETO SOLAR
+  if (/^52_top_glass/i.test(name)) return { label: "Teto solar", pickable: true };
+
+  // RODAS — pneus, aros, freios (não distinguimos os 4 cantos no Tiguan GLB)
+  if (/^(2[1-2])_tire/i.test(name)) return { label: "Pneus", pickable: true };
+  if (/^(2[3-4])_hub/i.test(name)) return { label: "Rodas (aros)", pickable: true };
+  if (/^49_brake/i.test(name)) return { label: "Discos de freio", pickable: true };
+
+  // EMBLEMA / BADGES
+  if (/^54_chebiao|volkswagen_black|46_trunk_map_c_badges|14_headlight_map_c.*badges/i.test(name)) {
+    return { label: "Emblemas", pickable: true };
+  }
+
+  // PLACA
+  if (/license|placa|^73_PHEV|^71_inner_red|^72_inner_blue|^70_inner_white/i.test(name)) {
+    return { label: "Placa", pickable: true };
+  }
+
+  // CARROCERIA — peças plásticas externas pretas restantes
+  if (/^1[0-1]_car_body_(plastic|black_plastic)/i.test(name)) {
+    return { label: "Frisos / Molduras externas", pickable: true };
+  }
+  if (/^12_car_body_metal/i.test(name)) {
+    return { label: "Frisos cromados", pickable: true };
+  }
+
+  // INTERIOR — não clicável
+  if (/^(5[3-7]|6[1-9]|8[0])_/i.test(name) || /chair|inner_chair|inner_map|inner_plastic|inner_metal|inner_white|inner_red|inner_blue/i.test(name)) {
+    return { label: "Interior", pickable: false };
+  }
+
+  // CHASSI / underbody
+  if (/chassis|jiemian/i.test(name)) {
+    return { label: "Assoalho / Chassi", pickable: false };
+  }
+
+  return null; // fall through to generic rules
+}
+
+
