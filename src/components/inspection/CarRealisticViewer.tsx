@@ -280,8 +280,10 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
 
       if (Array.isArray(mesh.material)) mesh.material.forEach(applyMat);
       else applyMat(mesh.material as THREE.Material);
+    });
     invalidate();
   }, [classified, hoveredLabel, damagedLabels, invalidate]);
+
 
 
   const labelOf = (mesh: THREE.Object3D | undefined): ClassifiedMesh | null => {
