@@ -182,16 +182,88 @@ export type MeshClassification = {
 };
 
 export function classifyMesh(meshName: string | null | undefined): MeshClassification {
-  if (!meshName) return { label: "Peça do veículo", pickable: true };
+  if (!meshName) return { label: "__UNKNOWN__", pickable: true };
   for (const rule of LABEL_RULES) {
     if (rule.test.test(meshName)) {
       return { label: rule.label, pickable: rule.pickable !== false };
     }
   }
-  return { label: "Peça do veículo", pickable: true };
+  return { label: "__UNKNOWN__", pickable: true };
 }
 
 /** Back-compat helper — most callers just need the label */
 export function inferMeshLabel(meshName: string | null | undefined): string {
-  return classifyMesh(meshName).label;
+  const c = classifyMesh(meshName);
+  return c.label === "__UNKNOWN__" ? "Peça do veículo" : c.label;
 }
+
+// ─── Spatial label inference ──────────────────────────────────────────────────
+// When a mesh name doesn't match any rule, infer the real part name from
+// WHERE the mesh sits in the car's local coordinate system. Coordinates are
+// normalized to [-1,1] using the full car bounding box, where +Z is "front"
+// (towards the camera default), +Y is "top", +X is "right".
+//
+// This guarantees every visible panel gets a real-world Portuguese name —
+// "Capô", "Teto", "Paralama dianteiro esquerdo", "Para-choque traseiro" etc.
+
+export type NormalizedPoint = { x: number; y: number; z: number };
+
+export function inferLabelByPosition(p: NormalizedPoint): string {
+  const { x, y, z } = p;
+
+  // Underbody / chassis — não é peça visual relevante
+  if (y < -0.55) return "Assoalho / Chassi";
+
+  // ── TOPO do carro ──
+  if (y > 0.35) {
+    if (z > 0.45) return "Capô";
+    if (z < -0.45) return "Porta-malas / Tampa traseira";
+    return "Teto";
+  }
+
+  // ── FRENTE ──
+  if (z > 0.55) {
+    if (y < -0.1) return "Para-choque dianteiro";
+    if (Math.abs(x) > 0.45) {
+      return x > 0 ? "Farol dianteiro direito" : "Farol dianteiro esquerdo";
+    }
+    return "Grade frontal";
+  }
+
+  // ── TRASEIRA ──
+  if (z < -0.55) {
+    if (y < -0.1) return "Para-choque traseiro";
+    if (Math.abs(x) > 0.45) {
+      return x > 0 ? "Lanterna traseira direita" : "Lanterna traseira esquerda";
+    }
+    return "Painel traseiro";
+  }
+
+  // ── LATERAIS ──
+  if (Math.abs(x) > 0.4) {
+    const side = x > 0 ? "direito" : "direita";
+    const sideF = x > 0 ? "direita" : "esquerda";
+
+    // Paralamas (extremidades do comprimento)
+    if (z > 0.2) {
+      return `Paralama dianteiro ${x > 0 ? "direito" : "esquerdo"}`;
+    }
+    if (z < -0.2) {
+      return `Paralama traseiro ${x > 0 ? "direito" : "esquerdo"}`;
+    }
+
+    // Estribo / soleira embaixo
+    if (y < -0.2) {
+      return `Soleira ${sideF}`;
+    }
+
+    // Porta (meio lateral)
+    return `Porta ${sideF}`;
+  }
+
+  // Centro do meio — provavelmente longarina/painel inferior
+  if (y < -0.1) return "Painel inferior";
+
+  return "Lateral central";
+}
+
