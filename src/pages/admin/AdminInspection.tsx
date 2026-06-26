@@ -563,7 +563,7 @@ export default function AdminInspection() {
         }
         setPhotoUploadStatus((prev) => ({ ...prev, [path]: "done" }));
       })().finally(() => bumpUploading(-1));
-    }, 80);
+    }, 0);
 
     return path;
   };
@@ -1008,7 +1008,7 @@ export default function AdminInspection() {
               </label>
               {odometerPhoto ? (
                 <div className="relative group">
-                  <SignedImage value={odometerPhoto} alt="Painel do veículo" className="w-full h-auto max-h-[320px] object-cover rounded-lg border border-border/40" />
+                  <SignedImage value={odometerPhoto} alt="Painel do veículo" className="w-full h-auto max-h-[360px] object-contain rounded-lg border border-border/40 bg-muted/20" />
                   {!isCompleted && (
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
                       <Button size="sm" variant="secondary" onClick={captureOdometerPhoto} className="h-7 text-xs">
@@ -1062,7 +1062,7 @@ export default function AdminInspection() {
                       <div key={pos.name} className="relative group">
                         {photo ? (
                           <div className="relative aspect-[4/3] rounded-lg overflow-hidden border border-border/40">
-                            <SignedImage value={photo.url} alt={pos.name} className="w-full h-full object-cover" />
+                            <SignedImage value={photo.url} alt={pos.name} className="w-full h-full object-contain bg-muted/20" />
                             <PhotoUploadBadge status={photoUploadStatus[photo.url]} />
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                               {!isCompleted && (
@@ -1292,7 +1292,7 @@ export default function AdminInspection() {
                                 <SignedImage
                                   value={d.photo_url}
                                   alt={`Avaria ${idx + 1}`}
-                                  className="w-24 h-24 object-cover rounded-lg border border-border/60 shadow-sm"
+                                  className="w-24 h-24 object-contain rounded-lg border border-border/60 bg-muted/20 shadow-sm"
                                 />
                                 <PhotoUploadBadge status={photoUploadStatus[d.photo_url]} />
                                 {!isCompleted && (
@@ -1578,12 +1578,10 @@ export default function AdminInspection() {
           })()}
           {failedUploadCount > 0 ? (
             <p className="text-[11px] text-destructive">{failedUploadCount} foto(s) falharam no envio. Refazer antes de finalizar.</p>
-          ) : uploading && (
-            <p className="text-[11px] text-muted-foreground">Fotos disponíveis na hora. Envio seguro em segundo plano.</p>
-          )}
+          ) : null}
           <div className="flex gap-2">
             {!isCompleted && (
-              <Button variant="outline" onClick={() => handleSave(false)} disabled={saving || uploading || failedUploadCount > 0}>
+              <Button variant="outline" onClick={() => handleSave(false)} disabled={saving || failedUploadCount > 0}>
                 {saving ? <Loader2 size={14} className="animate-spin mr-1" /> : <Save size={14} className="mr-1" />}
                 Salvar Rascunho
               </Button>
