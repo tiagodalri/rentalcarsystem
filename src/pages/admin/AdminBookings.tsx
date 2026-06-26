@@ -1360,7 +1360,7 @@ function AdminBookingsDesktop() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((b) => {
+                    {paginated.map((b) => {
                       const progress = getBookingProgress(b.pickup_date, b.return_date, b.status);
                       const sc = statusConfig[b.status] || statusConfig.pending;
                       return (
