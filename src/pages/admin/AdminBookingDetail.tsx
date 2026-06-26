@@ -18,6 +18,7 @@ import { BookingIncidentDialog } from "@/components/admin/BookingIncidentDialog"
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { SignedImage } from "@/components/admin/SignedImage";
 
 type Booking = {
   id: string;
@@ -309,7 +310,7 @@ export default function AdminBookingDetail() {
                     onClick={() => setExpandedPhoto(photo.url)}
                     className="group relative aspect-square rounded-lg overflow-hidden border border-border/30 hover:border-primary/40 transition-all"
                   >
-                    <img src={photo.url} alt={photo.position} className="w-full h-full object-cover" loading="lazy" />
+                    <SignedImage value={photo.url} alt={photo.position} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <Image size={16} className="text-foreground" />
                     </div>
@@ -348,7 +349,7 @@ export default function AdminBookingDetail() {
                     </div>
                     {d.photoUrl && (
                       <button onClick={() => setExpandedPhoto(d.photoUrl)} className="w-10 h-10 rounded-md overflow-hidden border border-border/30 shrink-0">
-                        <img src={d.photoUrl} alt="" className="w-full h-full object-cover" />
+                        <SignedImage value={d.photoUrl} alt="" className="w-full h-full object-cover" />
                       </button>
                     )}
                   </div>
@@ -422,7 +423,7 @@ export default function AdminBookingDetail() {
           <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80">
             <XIcon size={20} />
           </button>
-          <img src={expandedPhoto} alt="" className="max-w-full max-h-full rounded-xl shadow-2xl object-contain" />
+          <SignedImage value={expandedPhoto} alt="" className="max-w-full max-h-full rounded-xl shadow-2xl object-contain" />
         </div>
       )}
 
