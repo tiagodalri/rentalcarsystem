@@ -1327,7 +1327,7 @@ function AdminBookingsDesktop() {
               <>
                 {/* Mobile: native-style cards */}
                 <div className="md:hidden p-3 space-y-3 bg-background">
-                  {filtered.map((b) => (
+                  {paginated.map((b) => (
                     <MobileBookingCard
                       key={b.id}
                       booking={b}
