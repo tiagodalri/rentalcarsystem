@@ -127,9 +127,17 @@ export default function MobileOps() {
     }
     return (
       <SwipeAction key={b.id} rightActions={actions}>
-        <button
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => navigate(`/admin/bookings/${b.id}`)}
-          className="w-full flex items-center gap-3 px-4 py-3.5 bg-card hover:bg-muted/40 active:bg-muted/60 transition-colors text-left"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              navigate(`/admin/bookings/${b.id}`);
+            }
+          }}
+          className="w-full flex items-center gap-3 px-4 py-3.5 bg-card hover:bg-muted/40 active:bg-muted/60 transition-colors text-left cursor-pointer select-none"
         >
           <div className="flex flex-col items-center justify-center w-14 shrink-0">
             <span className="text-lg font-semibold tabular-nums leading-none">{time}</span>
@@ -146,12 +154,13 @@ export default function MobileOps() {
             </div>
           </div>
           <button
+            type="button"
             onClick={(e) => { e.stopPropagation(); navigate(`/admin/inspection/${b.id}?type=${kind === "in" ? "checkin" : "checkout"}`); }}
             className="shrink-0 h-9 px-3 rounded-lg bg-primary text-primary-foreground text-[11px] font-semibold inline-flex items-center gap-1.5"
           >
             <ClipboardCheck size={13} /> {kind === "in" ? "Check-in" : "Check-out"}
           </button>
-        </button>
+        </div>
       </SwipeAction>
     );
   };
