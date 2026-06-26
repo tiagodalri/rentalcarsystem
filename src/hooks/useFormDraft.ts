@@ -14,7 +14,7 @@ export function useFormDraft<T extends object>(
   value: T,
   setValue: (v: T) => void,
   enabled: boolean,
-  options?: { isEmpty?: (v: T) => boolean; debounceMs?: number; silentRestore?: boolean }
+  options?: { isEmpty?: (v: T) => boolean; debounceMs?: number; silentRestore?: boolean; restoreMode?: "when-empty" | "always" }
 ) {
   const restoredRef = useRef(false);
   const restoredKeyRef = useRef<string | null>(null);
@@ -64,7 +64,8 @@ export function useFormDraft<T extends object>(
       if (!raw) return;
       const parsed = JSON.parse(raw);
       const empty = options?.isEmpty ? options.isEmpty(value) : isShallowEmpty(value);
-      if (empty && parsed && typeof parsed === "object") {
+      const shouldRestore = options?.restoreMode === "always" || empty;
+      if (shouldRestore && parsed && typeof parsed === "object") {
         setValue({ ...value, ...(parsed as Partial<T>) } as T);
         if (!options?.silentRestore) {
           toast({

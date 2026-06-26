@@ -66,7 +66,13 @@ const ProfileTab = () => {
 
   useFormDraft(profileDraftKey, form, setForm, Boolean(customer), {
     debounceMs: 150,
-    isEmpty: (draft) => Object.values(draft).every((value) => !String(value ?? "").trim()),
+    isEmpty: (draft) => {
+      const empty = Object.values(draft).every((value) => !String(value ?? "").trim());
+      const sameAsSaved = initial
+        ? (Object.keys(draft) as (keyof ProfileForm)[]).every((key) => draft[key] === initial[key])
+        : false;
+      return empty || sameAsSaved;
+    },
   });
 
   // Build preview URL for current CNH (signed for private bucket)
