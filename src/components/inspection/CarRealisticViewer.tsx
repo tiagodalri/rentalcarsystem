@@ -8,7 +8,7 @@ import {
   Bounds,
 } from "@react-three/drei";
 import * as THREE from "three";
-import { Loader2, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
+import { RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
