@@ -201,7 +201,7 @@ const CustomerRegistration = () => {
           </p>
           <p className="text-xs text-muted-foreground/70 mt-3">
             Já tem conta?{" "}
-            <button onClick={() => navigate("/login")} className="text-primary hover:text-primary/80 font-medium">
+            <button onClick={() => navigate("/login")} className="text-primary hover:text-primary/80 font-medium py-2 px-1 min-h-11 inline-flex items-center">
               Entrar
             </button>
           </p>
