@@ -13,10 +13,9 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY')!,
       { global: { headers: { Authorization: authHeader } } },
     );
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: cErr } = await userClient.auth.getClaims(token);
-    if (cErr || !claims?.claims?.sub) return j({ error: 'Unauthorized' }, 401);
-    const userId = claims.claims.sub;
+    const { data: userData, error: cErr } = await userClient.auth.getUser();
+    if (cErr || !userData?.user?.id) return j({ error: 'Unauthorized' }, 401);
+    const userId = userData.user.id;
 
     const { data: hasRole } = await userClient.rpc('has_any_role', {
       _user_id: userId,
@@ -34,7 +33,13 @@ Deno.serve(async (req) => {
     if (action === 'revoke') {
       const t = String(body?.token ?? '');
       if (!/^[A-Za-z0-9_-]{12,80}$/.test(t)) return j({ error: 'invalid_token' }, 400);
-      await admin.from('public_inspection_links').update({ revoked: true }).eq('token', t);
+      const { data: revoked, error: rErr } = await admin
+        .from('public_inspection_links')
+        .update({ revoked: true })
+        .eq('token', t)
+        .select('token');
+      if (rErr) throw rErr;
+      if (!revoked || revoked.length === 0) return j({ error: 'not_found' }, 404);
       return j({ ok: true });
     }
 

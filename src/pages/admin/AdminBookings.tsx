@@ -726,7 +726,11 @@ function AdminBookingsDesktop() {
   ].filter(Boolean).length;
 
   const updateStatus = async (id: string, status: string) => {
-    await supabase.from("bookings").update({ status }).eq("id", id);
+    const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
+    if (error) {
+      toast({ title: "Falha ao atualizar status", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: "Status atualizado" });
     load();
   };

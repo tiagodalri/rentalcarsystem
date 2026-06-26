@@ -54,7 +54,7 @@ type DamageItem = {
   position: string;
   description: string;
   severity: "light" | "medium" | "heavy";
-  photoUrl?: string;
+  photo_url?: string;
 };
 
 type ExteriorPhoto = {
@@ -341,7 +341,7 @@ export default function AdminInspection() {
         const url = await uploadPhoto(file, `damage-${webcamTarget.damageId.substring(0, 8)}`);
         if (url) {
           setDamages((prev) =>
-            prev.map((d) => (d.id === webcamTarget.damageId ? { ...d, photoUrl: url } : d))
+            prev.map((d) => (d.id === webcamTarget.damageId ? { ...d, photo_url: url } : d))
           );
         }
       } else if (webcamTarget.kind === "odometer") {
@@ -497,7 +497,7 @@ export default function AdminInspection() {
     const url = await uploadPhoto(file, `damage-${damagePhotoTarget.substring(0, 8)}`);
     if (url) {
       setDamages((prev) =>
-        prev.map((d) => (d.id === damagePhotoTarget ? { ...d, photoUrl: url } : d))
+        prev.map((d) => (d.id === damagePhotoTarget ? { ...d, photo_url: url } : d))
       );
     }
     setDamagePhotoTarget("");
@@ -667,8 +667,8 @@ export default function AdminInspection() {
     }
 
     toast({ title: finalize ? "Inspeção finalizada com sucesso!" : "Rascunho salvo!" });
-    if (finalize) navigate("/admin/bookings");
     setSaving(false);
+    if (finalize) navigate("/admin/bookings");
   };
 
   const steps = [
@@ -1138,10 +1138,10 @@ export default function AdminInspection() {
                         <div className="flex flex-col sm:flex-row gap-4 p-4 pl-5">
                           {/* Photo column */}
                           <div className="flex sm:flex-col items-start gap-2 shrink-0">
-                            {d.photoUrl ? (
+                            {d.photo_url ? (
                               <div className="relative group/photo">
                                 <SignedImage
-                                  value={d.photoUrl}
+                                  value={d.photo_url}
                                   alt={`Avaria ${idx + 1}`}
                                   className="w-24 h-24 object-cover rounded-lg border border-border/60 shadow-sm"
                                 />
