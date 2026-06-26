@@ -16,7 +16,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import jsPDF from "jspdf";
+// jsPDF é pesado (~600KB gzip). Importado dinâmico só quando o usuário clica em "Exportar PDF".
+import type jsPDFType from "jspdf";
 import { storageThumb } from "@/lib/storageThumb";
 import { coverImageMap } from "@/data/fleetAssets";
 import { deleteBookingSafe } from "@/lib/deleteBookingSafe";
@@ -748,8 +749,9 @@ function AdminBookingsDesktop() {
     toast({ title: "CSV exportado com sucesso" });
   }, [filtered]);
 
-  const exportPDF = useCallback(() => {
-    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const exportPDF = useCallback(async () => {
+    const { default: jsPDF } = await import("jspdf");
+    const doc: jsPDFType = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
 
