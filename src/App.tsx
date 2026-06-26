@@ -9,25 +9,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { ThemeProvider } from "@/i18n/ThemeContext";
 import { CurrencyProvider } from "@/i18n/CurrencyContext";
+// Eager: home (LCP crítico) e shell admin
 import Index from "./pages/Index.tsx";
-import AboutUs from "./pages/AboutUs.tsx";
-import SearchResults from "./pages/SearchResults.tsx";
-import BookingDetails from "./pages/BookingDetails.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import Login from "./pages/Login.tsx";
-import BookingConfirmed from "./pages/BookingConfirmed.tsx";
-import CustomerRegistration from "./pages/CustomerRegistration.tsx";
-import ResetPassword from "./pages/ResetPassword.tsx";
-import Contato from "./pages/Contato.tsx";
-import VehicleDetail from "./pages/VehicleDetail.tsx";
-import Frota from "./pages/Frota.tsx";
-import PublicTrack from "./pages/PublicTrack.tsx";
-import Checkout from "./pages/Checkout.tsx";
 
 import RequireAuth from "./components/RequireAuth.tsx";
 import { RequireRole } from "./components/admin/RequireRole.tsx";
 import AdminLayout from "./components/admin/AdminLayout.tsx";
-import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import { AdminShellSkeleton } from "./components/skeletons/AdminShellSkeleton.tsx";
 import { AccountSkeleton } from "./components/skeletons/AccountSkeleton.tsx";
 import InstallPrompt from "./components/InstallPrompt.tsx";
@@ -37,9 +25,26 @@ import { useDynamicThemeColor } from "./hooks/useDynamicThemeColor.ts";
 import { useNativeFeel } from "./hooks/useNativeFeel.ts";
 import { useSwipeBack } from "./hooks/useSwipeBack.ts";
 
+// Lazy-loaded: páginas públicas secundárias (reduz bundle inicial da home)
+const AboutUs = lazy(() => import("./pages/AboutUs.tsx"));
+const SearchResults = lazy(() => import("./pages/SearchResults.tsx"));
+const BookingDetails = lazy(() => import("./pages/BookingDetails.tsx"));
+const Login = lazy(() => import("./pages/Login.tsx"));
+const BookingConfirmed = lazy(() => import("./pages/BookingConfirmed.tsx"));
+const CustomerRegistration = lazy(() => import("./pages/CustomerRegistration.tsx"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
+const Contato = lazy(() => import("./pages/Contato.tsx"));
+const VehicleDetail = lazy(() => import("./pages/VehicleDetail.tsx"));
+const Frota = lazy(() => import("./pages/Frota.tsx"));
+const PublicTrack = lazy(() => import("./pages/PublicTrack.tsx"));
+const Checkout = lazy(() => import("./pages/Checkout.tsx"));
+
 // Lazy-loaded: client authenticated pages
 const MyAccount = lazy(() => import("./pages/MyAccount.tsx"));
 const BookingDetailClient = lazy(() => import("./pages/BookingDetailClient.tsx"));
+
+// Lazy-loaded: admin login (raramente acessado por visitantes do site público)
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.tsx"));
 
 // Lazy-loaded: admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.tsx"));
@@ -93,6 +98,13 @@ const AdminSuspense = ({ children }: { children: React.ReactNode }) => (
 const ClientSuspense = ({ children }: { children: React.ReactNode }) => (
   <RouteErrorBoundary>
     <Suspense fallback={<AccountSkeleton />}>{children}</Suspense>
+  </RouteErrorBoundary>
+);
+
+// Fallback minimalista para páginas públicas — o RouteProgress já indica carregamento
+const PublicSuspense = ({ children }: { children: React.ReactNode }) => (
+  <RouteErrorBoundary>
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>{children}</Suspense>
   </RouteErrorBoundary>
 );
 
@@ -181,25 +193,25 @@ const App = () => (
             <RouteProgress />
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/share/track/:token" element={<PublicTrack />} />
+              <Route path="/share/track/:token" element={<PublicSuspense><PublicTrack /></PublicSuspense>} />
 
-              <Route path="/sobre-nos" element={<AboutUs />} />
-              <Route path="/frota" element={<Frota />} />
-              <Route path="/buscar" element={<SearchResults />} />
-              <Route path="/resultados" element={<SearchResults />} />
-              <Route path="/veiculo/:vehicleName" element={<VehicleDetail />} />
-              <Route path="/reserva/:vehicleName" element={<BookingDetails />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/reserva/confirmada" element={<BookingConfirmed />} />
-              <Route path="/cadastro" element={<CustomerRegistration />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/redefinir-senha" element={<ResetPassword />} />
-              <Route path="/contato" element={<Contato />} />
+              <Route path="/sobre-nos" element={<PublicSuspense><AboutUs /></PublicSuspense>} />
+              <Route path="/frota" element={<PublicSuspense><Frota /></PublicSuspense>} />
+              <Route path="/buscar" element={<PublicSuspense><SearchResults /></PublicSuspense>} />
+              <Route path="/resultados" element={<PublicSuspense><SearchResults /></PublicSuspense>} />
+              <Route path="/veiculo/:vehicleName" element={<PublicSuspense><VehicleDetail /></PublicSuspense>} />
+              <Route path="/reserva/:vehicleName" element={<PublicSuspense><BookingDetails /></PublicSuspense>} />
+              <Route path="/checkout" element={<PublicSuspense><Checkout /></PublicSuspense>} />
+              <Route path="/reserva/confirmada" element={<PublicSuspense><BookingConfirmed /></PublicSuspense>} />
+              <Route path="/cadastro" element={<PublicSuspense><CustomerRegistration /></PublicSuspense>} />
+              <Route path="/login" element={<PublicSuspense><Login /></PublicSuspense>} />
+              <Route path="/redefinir-senha" element={<PublicSuspense><ResetPassword /></PublicSuspense>} />
+              <Route path="/contato" element={<PublicSuspense><Contato /></PublicSuspense>} />
               <Route path="/minha-conta" element={<RequireAuth><ClientSuspense><MyAccount /></ClientSuspense></RequireAuth>} />
               <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><ClientSuspense><BookingDetailClient /></ClientSuspense></RequireAuth>} />
 
               {/* Admin routes */}
-              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/login" element={<PublicSuspense><AdminLogin /></PublicSuspense>} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<RequireRole roles={["admin","finance","operations","support","driver"]}><AdminSuspense><AdminPainel /></AdminSuspense></RequireRole>} />
                 <Route path="bookings" element={<RequireRole roles={["admin","operations","support","driver"]}><AdminSuspense><AdminBookings /></AdminSuspense></RequireRole>} />
