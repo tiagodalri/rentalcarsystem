@@ -26,19 +26,7 @@ export function useFormDraft<T extends object>(
   const previousEnabledRef = useRef(enabled);
   const debounce = options?.debounceMs ?? 400;
 
-  useEffect(() => {
-    if (previousEnabledRef.current && !enabled && restoredRef.current) {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      persist(latestKeyRef.current, latestValueRef.current);
-    }
-    previousEnabledRef.current = enabled;
-    latestValueRef.current = value;
-    latestKeyRef.current = key;
-    latestEnabledRef.current = enabled;
-    latestOptionsRef.current = options;
-  }, [value, key, enabled, options]);
-
-  const persist = (draftKey: string, draftValue: T) => {
+  function persist(draftKey: string, draftValue: T) {
     try {
       const opts = latestOptionsRef.current;
       const empty = opts?.isEmpty ? opts.isEmpty(draftValue) : isShallowEmpty(draftValue);
@@ -50,7 +38,19 @@ export function useFormDraft<T extends object>(
     } catch {
       /* ignore quota / serialization */
     }
-  };
+  }
+
+  useEffect(() => {
+    if (previousEnabledRef.current && !enabled && restoredRef.current) {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      persist(latestKeyRef.current, latestValueRef.current);
+    }
+    previousEnabledRef.current = enabled;
+    latestValueRef.current = value;
+    latestKeyRef.current = key;
+    latestEnabledRef.current = enabled;
+    latestOptionsRef.current = options;
+  }, [value, key, enabled, options]);
 
   // Restaurar
   useEffect(() => {
