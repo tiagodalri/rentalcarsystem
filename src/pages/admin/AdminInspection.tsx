@@ -1069,43 +1069,15 @@ export default function AdminInspection() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Realistic car diagram */}
-            <div className="relative bg-muted/20 rounded-xl p-4 border border-border/30">
-              <p className="text-xs text-muted-foreground mb-2 text-center">Clique na zona do veículo para registrar uma avaria</p>
-              <div className="relative mx-auto" style={{ width: "300px", height: "500px" }}>
-                <CarDiagramSVG />
-                {/* Clickable damage zones */}
-                {CAR_ZONES.map((zone) => {
-                  const zoneDamages = damages.filter((d) => d.position === zone.label);
-                  const hasDamage = zoneDamages.length > 0;
-                  return (
-                    <button
-                      key={zone.id}
-                      onClick={() => !isCompleted && addDamage(zone.label)}
-                      disabled={isCompleted}
-                      className={`absolute flex items-center justify-center rounded-full transition-all z-10 ${
-                        hasDamage
-                          ? "w-8 h-8 -ml-4 -mt-4 bg-destructive/25 text-destructive border-2 border-destructive/60 shadow-lg shadow-destructive/20"
-                          : "w-6 h-6 -ml-3 -mt-3 bg-primary/10 text-primary/50 border border-primary/20 hover:bg-primary/25 hover:scale-125 hover:text-primary"
-                      }`}
-                      style={{ left: `${zone.x}%`, top: `${zone.y}%` }}
-                      title={zone.label}
-                    >
-                      {hasDamage ? (
-                        <span className="text-[10px] font-medium">{zoneDamages.length}</span>
-                      ) : (
-                        <span className="text-[10px]">+</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-              {/* Zone legend */}
-              <div className="mt-3 flex items-center justify-center gap-4 text-[10px] text-muted-foreground">
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-primary/10 border border-primary/20 inline-block" /> Sem avaria</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-destructive/25 border-2 border-destructive/60 inline-block" /> Com avaria</span>
-              </div>
-            </div>
+            {/* Mapa interativo de avarias (vista superior + lateral) */}
+            <CarDamageMap
+              damageCountByLabel={damages.reduce<Record<string, number>>((acc, d) => {
+                acc[d.position] = (acc[d.position] || 0) + 1;
+                return acc;
+              }, {})}
+              onAddDamage={(label) => !isCompleted && addDamage(label)}
+              disabled={isCompleted}
+            />
 
             {/* Damage list */}
             {damages.length > 0 && (
