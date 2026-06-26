@@ -121,8 +121,8 @@ self.addEventListener("fetch", (event) => {
 
   // 2) Static assets -> StaleWhileRevalidate (hashes garantem invalidação).
   //    IMPORTANTE: nunca cachear respostas !ok. Se o chunk sumiu do servidor
-  //    (404 pós-deploy), deixamos o erro propagar para o app — que dispara
-  //    location.reload() via o handler global de ChunkLoadError (main.tsx).
+  //    (404 pós-deploy), deixamos o erro propagar para o app mostrar fallback,
+  //    sem reload automático em cima de formulários abertos.
   //    Antes, caches.match silenciosamente devolvia uma versão "boa" velha
   //    enquanto o resto do bundle já estava em outro hash → tela branca.
   if (isAsset(request)) {

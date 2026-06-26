@@ -135,7 +135,7 @@ const Checkout = () => {
     hasCheckoutState(state),
     {
       debounceMs: 120,
-      restoreMode: "always",
+      restoreMode: hasCheckoutState(incomingState) ? "when-empty" : "always",
       isEmpty: (draft) => Object.values(draft).every((value) => !String(value ?? "").trim()),
     },
   );
