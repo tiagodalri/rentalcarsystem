@@ -31,6 +31,7 @@ import { SignedImage } from "@/components/admin/SignedImage";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 import { registerLocalInspectionPreview } from "@/lib/inspectionStorage";
 import CarDamageMap from "@/components/inspection/CarDamageMap";
+import { PhotoSourceSheet } from "@/components/admin/PhotoSourceSheet";
 
 const PHOTO_REFERENCES: Record<string, string> = {
   "Frente": refFrente,
