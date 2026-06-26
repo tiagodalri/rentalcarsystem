@@ -59,7 +59,7 @@ export async function getSignedInspectionUrl(value: string | null | undefined): 
 /** React hook: resolves a stored value (path / legacy URL / data URL) to a usable URL. */
 export function useSignedInspectionUrl(value: string | null | undefined): string | null {
   const [url, setUrl] = useState<string | null>(() =>
-    value && value.startsWith("data:") ? value : null
+    value && (value.startsWith("data:") || value.startsWith("blob:")) ? value : null
   );
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export function useSignedInspectionUrl(value: string | null | undefined): string
       setUrl(null);
       return;
     }
-    if (value.startsWith("data:")) {
+    if (value.startsWith("data:") || value.startsWith("blob:")) {
       setUrl(value);
       return;
     }
