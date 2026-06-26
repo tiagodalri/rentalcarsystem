@@ -31,6 +31,7 @@ import { SignedImage } from "@/components/admin/SignedImage";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 import { registerLocalInspectionPreview } from "@/lib/inspectionStorage";
 import CarDamageMap from "@/components/inspection/CarDamageMap";
+import { PhotoSourceSheet } from "@/components/admin/PhotoSourceSheet";
 
 const PHOTO_REFERENCES: Record<string, string> = {
   "Frente": refFrente,
@@ -281,18 +282,31 @@ export default function AdminInspection() {
   const [isDrawingCustomer, setIsDrawingCustomer] = useState(false);
   const [isDrawingAgent, setIsDrawingAgent] = useState(false);
 
-  // Camera
+  // Camera (capture) + Gallery (attach existing) refs
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputGalRef = useRef<HTMLInputElement>(null);
   const [capturePosition, setCapturePosition] = useState<string>("");
   const [uploading, setUploading] = useState(false);
 
   // Damage photo
   const damageFileRef = useRef<HTMLInputElement>(null);
+  const damageFileGalRef = useRef<HTMLInputElement>(null);
   const [damagePhotoTarget, setDamagePhotoTarget] = useState<string>("");
 
   // Odometer/fuel photo refs
   const odometerPhotoRef = useRef<HTMLInputElement>(null);
+  const odometerPhotoGalRef = useRef<HTMLInputElement>(null);
   const fuelPhotoRef = useRef<HTMLInputElement>(null);
+  const fuelPhotoGalRef = useRef<HTMLInputElement>(null);
+
+  // Source picker (Camera vs Gallery)
+  const [sourcePicker, setSourcePicker] = useState<
+    | null
+    | { kind: "exterior"; position: string }
+    | { kind: "damage"; damageId: string }
+    | { kind: "odometer" }
+    | { kind: "fuel" }
+  >(null);
 
   // Webcam dialog (desktop only — mobile uses native camera via input capture)
   const isTouchDevice = typeof window !== "undefined"
@@ -405,39 +419,41 @@ export default function AdminInspection() {
     return path;
   };
 
-  // -- Photo capture
+  // -- Photo capture (exterior) — opens source picker
   const capturePhoto = (position: string) => {
-    if (!isTouchDevice) {
-      setWebcamTarget({ kind: "exterior", position });
-      return;
-    }
     setCapturePosition(position);
-    fileInputRef.current?.click();
+    setSourcePicker({ kind: "exterior", position });
   };
 
   const handleFileCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !capturePosition) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !capturePosition) return;
     setUploading(true);
-    const url = await uploadPhoto(file, capturePosition.replace(/\s/g, "_"));
-    if (url) {
-      setPhotos((prev) => {
-        const filtered = prev.filter((p) => p.position !== capturePosition);
-        return [...filtered, { id: crypto.randomUUID(), position: capturePosition, url }];
-      });
+    // For gallery multi-select we keep the position label on the first file and
+    // append the others as additional photos for the same position.
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const url = await uploadPhoto(file, capturePosition.replace(/\s/g, "_"));
+      if (url) {
+        setPhotos((prev) => {
+          // Single capture replaces the same position; multi-select appends.
+          if (files.length === 1) {
+            const filtered = prev.filter((p) => p.position !== capturePosition);
+            return [...filtered, { id: crypto.randomUUID(), position: capturePosition, url }];
+          }
+          return [...prev, { id: crypto.randomUUID(), position: capturePosition, url }];
+        });
+      }
     }
     setCapturePosition("");
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (fileInputGalRef.current) fileInputGalRef.current.value = "";
   };
 
   // Odometer photo
   const captureOdometerPhoto = () => {
-    if (!isTouchDevice) {
-      setWebcamTarget({ kind: "odometer" });
-      return;
-    }
-    odometerPhotoRef.current?.click();
+    setSourcePicker({ kind: "odometer" });
   };
 
   const handleOdometerPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -449,15 +465,12 @@ export default function AdminInspection() {
 
     setUploading(false);
     if (odometerPhotoRef.current) odometerPhotoRef.current.value = "";
+    if (odometerPhotoGalRef.current) odometerPhotoGalRef.current.value = "";
   };
 
   // Fuel photo
   const captureFuelPhoto = () => {
-    if (!isTouchDevice) {
-      setWebcamTarget({ kind: "fuel" });
-      return;
-    }
-    fuelPhotoRef.current?.click();
+    setSourcePicker({ kind: "fuel" });
   };
 
   const handleFuelPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -468,16 +481,13 @@ export default function AdminInspection() {
     if (url) setFuelPhoto(url);
     setUploading(false);
     if (fuelPhotoRef.current) fuelPhotoRef.current.value = "";
+    if (fuelPhotoGalRef.current) fuelPhotoGalRef.current.value = "";
   };
 
   // -- Damage photo
   const captureDamagePhoto = (damageId: string) => {
-    if (!isTouchDevice) {
-      setWebcamTarget({ kind: "damage", damageId });
-      return;
-    }
     setDamagePhotoTarget(damageId);
-    damageFileRef.current?.click();
+    setSourcePicker({ kind: "damage", damageId });
   };
 
   const handleDamageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -493,6 +503,29 @@ export default function AdminInspection() {
     setDamagePhotoTarget("");
     setUploading(false);
     if (damageFileRef.current) damageFileRef.current.value = "";
+    if (damageFileGalRef.current) damageFileGalRef.current.value = "";
+  };
+
+  // Resolve picker action: trigger the right hidden input based on choice.
+  const handlePickerCamera = () => {
+    if (!sourcePicker) return;
+    // Desktop (no touch): prefer the in-page webcam dialog.
+    if (!isTouchDevice) {
+      setWebcamTarget(sourcePicker);
+      return;
+    }
+    if (sourcePicker.kind === "exterior") fileInputRef.current?.click();
+    else if (sourcePicker.kind === "damage") damageFileRef.current?.click();
+    else if (sourcePicker.kind === "odometer") odometerPhotoRef.current?.click();
+    else if (sourcePicker.kind === "fuel") fuelPhotoRef.current?.click();
+  };
+
+  const handlePickerGallery = () => {
+    if (!sourcePicker) return;
+    if (sourcePicker.kind === "exterior") fileInputGalRef.current?.click();
+    else if (sourcePicker.kind === "damage") damageFileGalRef.current?.click();
+    else if (sourcePicker.kind === "odometer") odometerPhotoGalRef.current?.click();
+    else if (sourcePicker.kind === "fuel") fuelPhotoGalRef.current?.click();
   };
 
   // -- Damages
@@ -658,14 +691,36 @@ export default function AdminInspection() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* File inputs — capture="environment" opens rear camera on mobile.
+      {/* Camera-capture inputs — capture="environment" opens rear camera on mobile.
           NOTE: iOS Safari (and standalone PWA) ignore programmatic .click() on
-          inputs with display:none. Use sr-only style so the input stays in the
-          layout/accessibility tree and the click reliably opens the camera. */}
+          inputs with display:none. Use sr-only so the input stays in the layout
+          tree and the click reliably opens the camera. */}
       <input ref={fileInputRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleFileCapture} />
       <input ref={damageFileRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleDamageFile} />
       <input ref={odometerPhotoRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleOdometerPhoto} />
       <input ref={fuelPhotoRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleFuelPhoto} />
+
+      {/* Gallery inputs — no capture attribute → opens file/photo picker (existing photos). */}
+      <input ref={fileInputGalRef} type="file" accept="image/*" multiple className="sr-only" onChange={handleFileCapture} />
+      <input ref={damageFileGalRef} type="file" accept="image/*" className="sr-only" onChange={handleDamageFile} />
+      <input ref={odometerPhotoGalRef} type="file" accept="image/*" className="sr-only" onChange={handleOdometerPhoto} />
+      <input ref={fuelPhotoGalRef} type="file" accept="image/*" className="sr-only" onChange={handleFuelPhoto} />
+
+      {/* Source picker: Camera vs. Gallery */}
+      <PhotoSourceSheet
+        open={!!sourcePicker}
+        onClose={() => setSourcePicker(null)}
+        onPickCamera={handlePickerCamera}
+        onPickGallery={handlePickerGallery}
+        title={
+          sourcePicker?.kind === "exterior" ? `Foto: ${sourcePicker.position}` :
+          sourcePicker?.kind === "damage" ? "Foto da avaria" :
+          sourcePicker?.kind === "odometer" ? "Foto do odômetro" :
+          sourcePicker?.kind === "fuel" ? "Foto do tanque" : "Adicionar foto"
+        }
+        allowMultiple={sourcePicker?.kind === "exterior"}
+      />
+
 
       {/* Webcam dialog — only used on desktop/notebook (no touch). Mobile uses native camera via input capture. */}
       <WebcamCaptureDialog
