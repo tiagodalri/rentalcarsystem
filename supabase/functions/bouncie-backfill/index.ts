@@ -16,12 +16,7 @@ const BOUNCIE_CLIENT_ID = Deno.env.get("BOUNCIE_CLIENT_ID")!;
 const BOUNCIE_CLIENT_SECRET = Deno.env.get("BOUNCIE_CLIENT_SECRET")!;
 const BOUNCIE_REDIRECT_URI = Deno.env.get("BOUNCIE_REDIRECT_URI")!;
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
+import { buildCorsHeaders } from "../_shared/cors.ts";
 const WEEK_MS = 7 * 86400_000;
 const RECENT_DAYS = 60;
 const DEEP_CAP_YEARS = 3;
@@ -240,6 +235,7 @@ async function processVehicle(
 }
 
 Deno.serve(async (req) => {
+  const cors = buildCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   const t0 = Date.now();
   try {
