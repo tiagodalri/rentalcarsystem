@@ -239,85 +239,8 @@ const DEFAULT_ACCESSORIES: Record<string, string> = {
   sunshade: "Protetor Solar",
 };
 
-const CAR_ZONES = [
-  { id: "hood", label: "Capô", x: 50, y: 6 },
-  { id: "front-bumper", label: "Para-choque Diant.", x: 50, y: 14 },
-  { id: "windshield", label: "Para-brisa", x: 50, y: 24 },
-  { id: "front-left-fender", label: "Para-lama Diant. Esq.", x: 12, y: 18 },
-  { id: "front-right-fender", label: "Para-lama Diant. Dir.", x: 88, y: 18 },
-  { id: "front-left-door", label: "Porta Diant. Esq.", x: 10, y: 36 },
-  { id: "front-right-door", label: "Porta Diant. Dir.", x: 90, y: 36 },
-  { id: "rear-left-door", label: "Porta Tras. Esq.", x: 10, y: 56 },
-  { id: "rear-right-door", label: "Porta Tras. Dir.", x: 90, y: 56 },
-  { id: "roof", label: "Teto", x: 50, y: 44 },
-  { id: "left-mirror", label: "Retrovisor Esq.", x: 18, y: 28 },
-  { id: "right-mirror", label: "Retrovisor Dir.", x: 82, y: 28 },
-  { id: "rear-left-fender", label: "Para-lama Tras. Esq.", x: 12, y: 72 },
-  { id: "rear-right-fender", label: "Para-lama Tras. Dir.", x: 88, y: 72 },
-  { id: "trunk", label: "Porta-Malas", x: 50, y: 82 },
-  { id: "rear-bumper", label: "Para-choque Tras.", x: 50, y: 92 },
-  { id: "rear-window", label: "Vidro Traseiro", x: 50, y: 72 },
-];
+// Mapa de avarias agora vive em src/components/inspection/CarDamageMap.tsx
 
-// Realistic top-down car SVG
-const CarDiagramSVG = () => (
-  <svg viewBox="0 0 300 500" className="absolute inset-0 w-full h-full" style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.06))" }}>
-    {/* Body outline */}
-    <path
-      d="M150 15 C100 15 72 30 65 55 L58 90 C52 110 48 130 48 155 L45 200 L45 300 L48 345 C48 370 52 390 58 410 L65 445 C72 470 100 485 150 485 C200 485 228 470 235 445 L242 410 C248 390 252 370 252 345 L255 300 L255 200 L252 155 C252 130 248 110 242 90 L235 55 C228 30 200 15 150 15Z"
-      fill="hsl(var(--muted) / 0.3)"
-      stroke="hsl(var(--border))"
-      strokeWidth="2.5"
-    />
-    {/* Hood lines */}
-    <path d="M90 55 L210 55" fill="none" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.5" />
-    <path d="M85 75 L215 75" fill="none" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.5" />
-    {/* Windshield */}
-    <path
-      d="M82 100 L218 100 L205 145 L95 145Z"
-      fill="hsl(var(--primary) / 0.05)"
-      stroke="hsl(var(--primary) / 0.3)"
-      strokeWidth="1.5"
-    />
-    {/* Roof */}
-    <rect x="88" y="155" width="124" height="120" rx="8" fill="none" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.4" />
-    {/* Rear window */}
-    <path
-      d="M95 355 L205 355 L218 400 L82 400Z"
-      fill="hsl(var(--primary) / 0.05)"
-      stroke="hsl(var(--primary) / 0.3)"
-      strokeWidth="1.5"
-    />
-    {/* Trunk lines */}
-    <path d="M85 425 L215 425" fill="none" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.5" />
-    {/* Front headlights */}
-    <ellipse cx="80" cy="42" rx="18" ry="10" fill="hsl(var(--primary) / 0.1)" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1" />
-    <ellipse cx="220" cy="42" rx="18" ry="10" fill="hsl(var(--primary) / 0.1)" stroke="hsl(var(--primary) / 0.3)" strokeWidth="1" />
-    {/* Rear taillights */}
-    <ellipse cx="80" cy="458" rx="18" ry="10" fill="hsl(var(--destructive) / 0.1)" stroke="hsl(var(--destructive) / 0.3)" strokeWidth="1" />
-    <ellipse cx="220" cy="458" rx="18" ry="10" fill="hsl(var(--destructive) / 0.1)" stroke="hsl(var(--destructive) / 0.3)" strokeWidth="1" />
-    {/* Wheels */}
-    <rect x="30" y="95" width="28" height="55" rx="6" fill="hsl(var(--foreground) / 0.08)" stroke="hsl(var(--foreground) / 0.2)" strokeWidth="1.5" />
-    <rect x="242" y="95" width="28" height="55" rx="6" fill="hsl(var(--foreground) / 0.08)" stroke="hsl(var(--foreground) / 0.2)" strokeWidth="1.5" />
-    <rect x="30" y="345" width="28" height="55" rx="6" fill="hsl(var(--foreground) / 0.08)" stroke="hsl(var(--foreground) / 0.2)" strokeWidth="1.5" />
-    <rect x="242" y="345" width="28" height="55" rx="6" fill="hsl(var(--foreground) / 0.08)" stroke="hsl(var(--foreground) / 0.2)" strokeWidth="1.5" />
-    {/* Side mirrors */}
-    <ellipse cx="40" cy="130" rx="10" ry="7" fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth="1" />
-    <ellipse cx="260" cy="130" rx="10" ry="7" fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth="1" />
-    {/* Door handles */}
-    <rect x="60" y="185" width="12" height="4" rx="2" fill="hsl(var(--foreground) / 0.15)" />
-    <rect x="228" y="185" width="12" height="4" rx="2" fill="hsl(var(--foreground) / 0.15)" />
-    <rect x="60" y="275" width="12" height="4" rx="2" fill="hsl(var(--foreground) / 0.15)" />
-    <rect x="228" y="275" width="12" height="4" rx="2" fill="hsl(var(--foreground) / 0.15)" />
-    {/* Door lines */}
-    <path d="M65 160 L65 310" fill="none" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.3" />
-    <path d="M235 160 L235 310" fill="none" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.3" />
-    <path d="M65 235 L80 235" fill="none" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.3" />
-    <path d="M235 235 L220 235" fill="none" stroke="hsl(var(--border))" strokeWidth="1" opacity="0.3" />
-    {/* Center label */}
-    <text x="150" y="220" textAnchor="middle" fontSize="11" fill="hsl(var(--muted-foreground))" opacity="0.4" fontWeight="bold">VISTA SUPERIOR</text>
-  </svg>
-);
 
 export default function AdminInspection() {
   const { bookingId } = useParams();
