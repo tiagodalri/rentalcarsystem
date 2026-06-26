@@ -12,6 +12,35 @@ import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { uploadCnh } from "@/lib/cnhStorage";
+import { clearFormDraft, useFormDraft } from "@/hooks/useFormDraft";
+
+type RegistrationForm = {
+  full_name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phone: string;
+  document_number: string;
+  nationality: string;
+  date_of_birth: string;
+  address: string;
+  zip_code: string;
+  house_number: string;
+  complement: string;
+  driver_license: string;
+  driver_license_expiry: string;
+};
+
+type RegistrationDraft = Omit<RegistrationForm, "password" | "confirmPassword">;
+
+const REGISTRATION_DRAFT_KEY = "customer-registration-v2";
+
+const emptyRegistrationForm: RegistrationForm = {
+  full_name: "", email: "", password: "", confirmPassword: "",
+  phone: "", document_number: "",
+  nationality: "", date_of_birth: "", address: "", zip_code: "",
+  house_number: "", complement: "", driver_license: "", driver_license_expiry: "",
+};
 
 const passwordSchema = z
   .string()
@@ -24,12 +53,7 @@ const CustomerRegistration = () => {
   const navigate = useNavigate();
   const { signUp } = useAuth();
   const { language } = useLanguage();
-  const [form, setForm] = useState({
-    full_name: "", email: "", password: "", confirmPassword: "",
-    phone: "", document_number: "",
-    nationality: "", date_of_birth: "", address: "", zip_code: "",
-    house_number: "", complement: "", driver_license: "", driver_license_expiry: "",
-  });
+  const [form, setForm] = useState<RegistrationForm>({ ...emptyRegistrationForm });
   const [showPwd, setShowPwd] = useState(false);
   const [showPwd2, setShowPwd2] = useState(false);
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
@@ -38,6 +62,22 @@ const CustomerRegistration = () => {
   const [cepLoading, setCepLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const registrationDraft = useMemo<RegistrationDraft>(() => {
+    const { password: _password, confirmPassword: _confirmPassword, ...draft } = form;
+    return draft;
+  }, [form]);
+
+  useFormDraft(
+    REGISTRATION_DRAFT_KEY,
+    registrationDraft,
+    (draft) => setForm((prev) => ({ ...prev, ...draft })),
+    !success,
+    {
+      debounceMs: 150,
+      isEmpty: (draft) => Object.values(draft).every((value) => !String(value ?? "").trim()),
+    },
+  );
 
   const update = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
 
@@ -141,6 +181,7 @@ const CustomerRegistration = () => {
         }
       }
 
+      clearFormDraft(REGISTRATION_DRAFT_KEY);
       setSuccess(true);
       setTimeout(() => navigate("/minha-conta"), 1500);
     } catch (err: any) {

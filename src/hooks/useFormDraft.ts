@@ -9,22 +9,53 @@ const PREFIX = "zeus:draft:";
  * - Salva (debounced) sempre que `value` muda enquanto enabled=true.
  * - Use `clearFormDraft(key)` ao concluir/cancelar para limpar.
  */
-export function useFormDraft<T extends Record<string, any>>(
+export function useFormDraft<T extends object>(
   key: string,
   value: T,
   setValue: (v: T) => void,
   enabled: boolean,
-  options?: { isEmpty?: (v: T) => boolean; debounceMs?: number }
+  options?: { isEmpty?: (v: T) => boolean; debounceMs?: number; silentRestore?: boolean }
 ) {
   const restoredRef = useRef(false);
+  const restoredKeyRef = useRef<string | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestValueRef = useRef(value);
+  const latestKeyRef = useRef(key);
+  const latestEnabledRef = useRef(enabled);
+  const latestOptionsRef = useRef(options);
   const debounce = options?.debounceMs ?? 400;
+
+  useEffect(() => {
+    latestValueRef.current = value;
+    latestKeyRef.current = key;
+    latestEnabledRef.current = enabled;
+    latestOptionsRef.current = options;
+  }, [value, key, enabled, options]);
+
+  const persist = (draftKey: string, draftValue: T) => {
+    try {
+      const opts = latestOptionsRef.current;
+      const empty = opts?.isEmpty ? opts.isEmpty(draftValue) : isShallowEmpty(draftValue);
+      if (empty) {
+        localStorage.removeItem(PREFIX + draftKey);
+      } else {
+        localStorage.setItem(PREFIX + draftKey, JSON.stringify(draftValue));
+      }
+    } catch {
+      /* ignore quota / serialization */
+    }
+  };
 
   // Restaurar
   useEffect(() => {
     if (!enabled) {
       restoredRef.current = false;
+      restoredKeyRef.current = null;
       return;
+    }
+    if (restoredKeyRef.current !== key) {
+      restoredRef.current = false;
+      restoredKeyRef.current = key;
     }
     if (restoredRef.current) return;
     restoredRef.current = true;
@@ -34,11 +65,13 @@ export function useFormDraft<T extends Record<string, any>>(
       const parsed = JSON.parse(raw);
       const empty = options?.isEmpty ? options.isEmpty(value) : isShallowEmpty(value);
       if (empty && parsed && typeof parsed === "object") {
-        setValue({ ...value, ...parsed });
-        toast({
-          title: "Rascunho restaurado",
-          description: "Recuperamos o que você havia preenchido antes.",
-        });
+        setValue({ ...value, ...(parsed as Partial<T>) } as T);
+        if (!options?.silentRestore) {
+          toast({
+            title: "Rascunho restaurado",
+            description: "Recuperamos o que você havia preenchido antes.",
+          });
+        }
       }
     } catch {
       /* ignore */
@@ -51,22 +84,36 @@ export function useFormDraft<T extends Record<string, any>>(
     if (!enabled || !restoredRef.current) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      try {
-        const empty = options?.isEmpty ? options.isEmpty(value) : isShallowEmpty(value);
-        if (empty) {
-          localStorage.removeItem(PREFIX + key);
-        } else {
-          localStorage.setItem(PREFIX + key, JSON.stringify(value));
-        }
-      } catch {
-        /* ignore quota / serialization */
-      }
+      persist(key, value);
     }, debounce);
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, enabled]);
+
+  // iOS/PWA pode congelar a aba antes do debounce terminar. Flush imediato.
+  useEffect(() => {
+    const flush = () => {
+      if (!latestEnabledRef.current || !restoredRef.current) return;
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      persist(latestKeyRef.current, latestValueRef.current);
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+
+    window.addEventListener("pagehide", flush);
+    window.addEventListener("beforeunload", flush);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      flush();
+      window.removeEventListener("pagehide", flush);
+      window.removeEventListener("beforeunload", flush);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 }
 
 export function clearFormDraft(key: string) {
@@ -77,7 +124,7 @@ export function clearFormDraft(key: string) {
   }
 }
 
-function isShallowEmpty(v: any): boolean {
+function isShallowEmpty(v: unknown): boolean {
   if (!v || typeof v !== "object") return true;
   return Object.values(v).every(
     (x) => x === "" || x === null || x === undefined || (Array.isArray(x) && x.length === 0)

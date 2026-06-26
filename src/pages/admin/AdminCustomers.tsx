@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 import MobileCustomers from "./mobile/MobileCustomers";
 import { useRegisterFab } from "@/hooks/useAdminFab";
@@ -18,6 +18,7 @@ import { formatPersonName } from "@/lib/formatName";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
 import { ensureTuroTagAssigned } from "@/lib/turoTag";
 import { uploadCnhAsStaff, getCnhViewUrl } from "@/lib/cnhStorage";
+import { clearFormDraft, useFormDraft } from "@/hooks/useFormDraft";
 
 type CustomerSource = "regular" | "turo";
 
@@ -43,6 +44,8 @@ const emptyCustomer = {
   source: "regular" as CustomerSource, turo_guest_id: "",
 };
 
+const ADMIN_CUSTOMER_DRAFT_KEY = "admin-customer-new-v2";
+
 export default function AdminCustomers() {
   const navigate = useNavigate();
   const { isMobile } = useIsMobileApp();
@@ -52,6 +55,7 @@ export default function AdminCustomers() {
 
 function AdminCustomersDesktop() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState("");
   const [segment, setSegment] = useState<CustomerSource>("regular");
@@ -59,10 +63,30 @@ function AdminCustomersDesktop() {
   const [editing, setEditing] = useState<(Partial<Customer> & { date_of_birth?: string; address?: string; house_number?: string; complement?: string; zip_code?: string; driver_license_expiry?: string; driver_license_file_url?: string }) | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
-  useRegisterFab({ icon: Plus, label: "Adicionar cliente", onClick: () => { setEditing({ ...emptyCustomer }); setIsNew(true); } });
+  const openNewCustomer = (source: CustomerSource = segment) => {
+    setEditing({ ...emptyCustomer, source });
+    setIsNew(true);
+  };
+  useRegisterFab({ icon: Plus, label: "Adicionar cliente", onClick: () => openNewCustomer() }, [segment]);
   const [cepLoading, setCepLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { loading: ocrLoading, result: ocrResult, runOcr, reset: resetOcr } = useDocumentOcr();
+
+  useFormDraft(
+    ADMIN_CUSTOMER_DRAFT_KEY,
+    (editing ?? emptyCustomer) as typeof emptyCustomer,
+    (draft) => {
+      if (!isNew) return;
+      setEditing((prev) => ({ ...(prev ?? emptyCustomer), ...draft }));
+    },
+    Boolean(isNew && editing),
+    {
+      debounceMs: 120,
+      isEmpty: (draft) => Object.entries(draft)
+        .filter(([key]) => key !== "source")
+        .every(([, value]) => !String(value ?? "").trim()),
+    },
+  );
 
   const onLicenseFile = async (file: File | null) => {
     setLicenseFile(file);
@@ -128,6 +152,17 @@ function AdminCustomersDesktop() {
   };
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (searchParams.get("new") !== "1") return;
+    openNewCustomer(segment);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("new");
+      return next;
+    }, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, setSearchParams]);
 
   const counts = {
     regular: customers.filter((c) => c.source !== "turo").length,
@@ -206,6 +241,7 @@ function AdminCustomersDesktop() {
       await ensureTuroTagAssigned(customerId);
     }
 
+    if (isNew) clearFormDraft(ADMIN_CUSTOMER_DRAFT_KEY);
     setEditing(null);
     setLicenseFile(null);
     resetOcr();
@@ -270,7 +306,7 @@ function AdminCustomersDesktop() {
             </button>
           </div>
           <button
-            onClick={() => { setEditing({ ...emptyCustomer, source: segment }); setIsNew(true); }}
+            onClick={() => openNewCustomer(segment)}
             className="gold-gradient text-primary-foreground px-3 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wider flex items-center gap-1.5 hover:opacity-90 transition-opacity"
           >
             <Plus size={12} /> Adicionar
@@ -326,6 +362,11 @@ function AdminCustomersDesktop() {
                 <X size={16} />
               </button>
             </div>
+            {isNew && (
+              <div className="px-6 py-2 border-b border-border/20 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">
+                Rascunho salvo automaticamente
+              </div>
+            )}
 
             <div className="p-6 space-y-4">
               {/* Tipo de cliente */}
@@ -535,7 +576,7 @@ function AdminCustomersDesktop() {
           ) : filtered.length === 0 && customers.length > 0 ? (
             <EmptyState icon={Search} title="Nenhum cliente encontrado" description="Nenhum cliente corresponde à busca atual." actionLabel="Limpar busca" onAction={() => setSearch("")} compact />
           ) : filtered.length === 0 ? (
-            <EmptyState icon={Users} title={segment === "turo" ? "Nenhum cliente Turo" : "Nenhum cliente cadastrado"} description={segment === "turo" ? "Hóspedes importados da Turo aparecerão aqui." : "Os clientes aparecerão aqui após se cadastrarem ou serem adicionados manualmente."} actionLabel="Adicionar Cliente" onAction={() => { setEditing({ ...emptyCustomer, source: segment }); setIsNew(true); }} compact />
+            <EmptyState icon={Users} title={segment === "turo" ? "Nenhum cliente Turo" : "Nenhum cliente cadastrado"} description={segment === "turo" ? "Hóspedes importados da Turo aparecerão aqui." : "Os clientes aparecerão aqui após se cadastrarem ou serem adicionados manualmente."} actionLabel="Adicionar Cliente" onAction={() => openNewCustomer(segment)} compact />
           ) : segment === "turo" ? (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

@@ -18,8 +18,8 @@ const CHUNK_ERROR_REGEX =
  * rede caiu no meio do import etc.), mostramos um fallback amigável com botão
  * "tentar de novo" em vez de tela em branco / Suspense infinito.
  *
- * Caso seja erro clássico de chunk obsoleto, tentamos UM reload automático
- * (com guard de 10s pra não entrar em loop).
+ * Caso seja erro clássico de chunk obsoleto, não damos reload automático:
+ * isso interrompe formulários no PWA. O usuário decide quando tentar de novo.
  */
 export class RouteErrorBoundary extends Component<Props, State> {
   state: State = { error: null };
@@ -30,16 +30,7 @@ export class RouteErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error) {
     if (CHUNK_ERROR_REGEX.test(error.message || "")) {
-      try {
-        const key = "zeus:chunk-reload-at";
-        const last = Number(sessionStorage.getItem(key) || 0);
-        if (Date.now() - last > 10_000) {
-          sessionStorage.setItem(key, String(Date.now()));
-          window.location.reload();
-        }
-      } catch {
-        /* ignore */
-      }
+      this.setState({ error });
     }
     // eslint-disable-next-line no-console
     console.error("[RouteErrorBoundary]", error);
