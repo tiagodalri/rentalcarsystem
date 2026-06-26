@@ -753,12 +753,37 @@ export default function AdminInspection() {
   const handleSave = async (finalize = false) => {
     setSaving(true);
 
+    // Before finalizing, wait for any in-flight background uploads so the
+    // saved record never references a storage path that hasn't landed yet.
+    if (finalize && pendingUploadPromisesRef.current.length > 0) {
+      toast({ title: "Aguardando envio das fotos...", description: "Finalizando em instantes." });
+      await Promise.allSettled(pendingUploadPromisesRef.current);
+    }
+
+    // Hard-block finalize if any photo upload ultimately failed — avoids
+    // shipping a "completed" inspection with broken image links.
+    if (finalize) {
+      const failedPaths = Object.entries(photoUploadStatus)
+        .filter(([, s]) => s === "failed")
+        .map(([p]) => p);
+      if (failedPaths.length > 0) {
+        toast({
+          title: "Algumas fotos não foram enviadas",
+          description: "Toque em 'Refazer' nas fotos com erro e tente finalizar novamente.",
+          variant: "destructive",
+        });
+        setSaving(false);
+        return;
+      }
+    }
+
     // Merge odometer/fuel photos into exterior_photos
     const allPhotos = [
       ...photos.filter((p) => !p.position.startsWith("__")),
       ...(odometerPhoto ? [{ id: "odometer-photo", position: "__odometer", url: odometerPhoto }] : []),
       ...(fuelPhoto ? [{ id: "fuel-photo", position: "__fuel", url: fuelPhoto }] : []),
     ];
+
 
     const payload = {
       booking_id: bookingId!,
