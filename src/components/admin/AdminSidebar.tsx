@@ -14,6 +14,7 @@ import {
   ChevronDown,
   FileSignature,
   Upload,
+  GraduationCap,
 } from "lucide-react";
 
 import zeusLogo from "@/assets/zeus-logo-mark.png";
