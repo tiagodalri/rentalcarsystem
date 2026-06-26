@@ -180,24 +180,25 @@ export default function AdminBookingDetail() {
     if (!bookingId) return;
     const load = async () => {
       setLoading(true);
-      const { data: b } = await supabase.from("bookings").select("*").eq("id", bookingId).single();
+      // Single round-trip: booking + related customer/vehicle/inspections.
+      const { data: b } = await supabase
+        .from("bookings")
+        .select(
+          "*, customer:customers(*), vehicle:vehicles(*), inspections:vehicle_inspections(*)",
+        )
+        .eq("id", bookingId)
+        .single();
       if (!b) { setLoading(false); return; }
-      setBooking(b);
-
-      if (b.customer_id) {
-        const { data: c } = await supabase.from("customers").select("*").eq("id", b.customer_id).single();
-        setCustomer(c);
-      }
-      if (b.vehicle_id) {
-        const { data: v } = await supabase.from("vehicles").select("*").eq("id", b.vehicle_id).single();
-        setVehicle(v);
-      }
-      const { data: insp } = await supabase.from("vehicle_inspections").select("*").eq("booking_id", bookingId);
-      setInspections(insp || []);
+      const { customer: c, vehicle: v, inspections: insp, ...bookingRow } = b as any;
+      setBooking(bookingRow);
+      setCustomer(c ?? null);
+      setVehicle(v ?? null);
+      setInspections(insp ?? []);
       setLoading(false);
     };
     load();
   }, [bookingId]);
+
 
   if (loading) return <BookingDetailSkeleton />;
   if (!booking) return (

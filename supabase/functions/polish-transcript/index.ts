@@ -2,11 +2,7 @@
 // NÃO altera conteúdo, datas, nomes, números. Apenas pontuação, capitalização,
 // concordância e remove muletas (uh, ééé, hmm).
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
+import { buildCorsHeaders } from "../_shared/cors.ts";
 const SYSTEM = `Você é um corretor de transcrições de áudio em português brasileiro.
 
 REGRAS ESTRITAS:
@@ -20,6 +16,7 @@ REGRAS ESTRITAS:
 Retorne SOMENTE JSON: { "text": "<texto corrigido>" }`;
 
 Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {

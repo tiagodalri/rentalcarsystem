@@ -1,11 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
+import { buildCorsHeaders } from "../_shared/cors.ts";
 const json = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), {
     status,
@@ -19,6 +14,7 @@ const CLICKSIGN_API_TOKEN = (Deno.env.get("CLICKSIGN_API_TOKEN") ?? "").replace(
 const CLICKSIGN_BASE_URL = (Deno.env.get("CLICKSIGN_BASE_URL") ?? "https://app.clicksign.com").replace(/\/$/, "");
 
 Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json(405, { error: "Method not allowed" });
 

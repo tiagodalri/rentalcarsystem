@@ -8,12 +8,7 @@ import { renderPaymentReceipt } from "./templates/payment-receipt.ts";
 import { renderBookingCancellation } from "./templates/booking-cancellation.ts";
 import { renderPasswordChanged } from "./templates/password-changed.ts";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
+import { buildCorsHeaders } from "../_shared/cors.ts";
 // Resend direct API
 const RESEND_API_URL = "https://api.resend.com/emails";
 const FROM_EMAIL = "Zeus Rental Car <noreply@zeusrentalcar.com>";
@@ -118,6 +113,7 @@ async function sendWithRetry(
 }
 
 serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }

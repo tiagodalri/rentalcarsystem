@@ -1,16 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-};
-
+import { buildCorsHeaders } from "../_shared/cors.ts";
 const APP_ID = Deno.env.get("CAMBIOREAL_APP_ID") || "1781587732";
 const BASE_URL = Deno.env.get("CAMBIOREAL_BASE_URL") || "https://www.cambioreal.com";
 
 serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   // Always 200 to the gateway, process in background.
@@ -71,7 +67,7 @@ serve(async (req) => {
         .maybeSingle();
 
       if (!pr) {
-        console.warn("payment_request not found for token", token);
+        console.warn("payment_request not found for token");
         return;
       }
 
