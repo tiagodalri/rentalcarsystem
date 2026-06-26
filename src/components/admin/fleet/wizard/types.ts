@@ -50,6 +50,7 @@ export const EMPTY_FORM: WizardForm = {
   license_plate: "",
   color: "",
   bouncie_imei: "",
+  e_pass_transponder: "",
   category: "Economy",
   passengers: 5,
   bags: 2,
