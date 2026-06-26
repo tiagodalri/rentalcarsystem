@@ -14,6 +14,7 @@ import {
   ChevronDown,
   FileSignature,
   Upload,
+  GraduationCap,
 } from "lucide-react";
 
 import zeusLogo from "@/assets/zeus-logo-mark.png";
@@ -78,6 +79,12 @@ const menuSections: MenuSection[] = [
     items: [
       { title: "Financeiro", url: "/admin/finance", icon: DollarSign, allowedRoles: ["admin","finance"] },
       { title: "Relatórios", url: "/admin/report",  icon: BarChart3,  allowedRoles: ["admin","finance"] },
+    ],
+  },
+  {
+    label: "Aprenda",
+    items: [
+      { title: "Tutoriais", url: "/admin/tutoriais", icon: GraduationCap, allowedRoles: ["admin","operations","support","driver","finance"] },
     ],
   },
   {
