@@ -29,12 +29,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string | null> 
   return addr;
 }
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
+import { buildCorsHeaders } from "../_shared/cors.ts";
 function pickNumber(...vals: any[]): number | null {
   for (const v of vals) {
     if (v === null || v === undefined) continue;
@@ -75,6 +70,7 @@ function severityFor(eventType: string | null): string {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {

@@ -1,11 +1,7 @@
 // Edge function: extract booking data from image/pdf/text using Lovable AI (Gemini)
 // Returns a partial booking JSON; UI prefills fields and flags missing as pendentes.
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
+import { buildCorsHeaders } from "../_shared/cors.ts";
 const SYSTEM = `Você é um assistente especialista em extrair dados de reservas de aluguel de carro a partir de QUALQUER fonte: prints de conversas de WhatsApp/iMessage/SMS, fotos de anotações em papel (LETRA MANUSCRITA inclusive), PDFs de contratos/recibos, e-mails, transcrições de áudio em português ou inglês, ou texto livre.
 
 Seu objetivo é entender a INTENÇÃO mesmo quando a informação está fragmentada, espalhada em várias mensagens, com abreviações, gírias ou rabiscos. Junte pedaços para formar a reserva completa.
@@ -48,6 +44,7 @@ Regras de interpretação inteligente:
 
 
 Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {

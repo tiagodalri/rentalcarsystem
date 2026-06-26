@@ -8,11 +8,7 @@ const BOUNCIE_CLIENT_ID = Deno.env.get("BOUNCIE_CLIENT_ID")!;
 const BOUNCIE_CLIENT_SECRET = Deno.env.get("BOUNCIE_CLIENT_SECRET")!;
 const BOUNCIE_REDIRECT_URI = Deno.env.get("BOUNCIE_REDIRECT_URI")!;
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "*",
-};
-
+import { buildCorsHeaders } from "../_shared/cors.ts";
 async function refreshTokenIfNeeded(admin: any) {
   const { data: integ, error } = await admin
     .from("bouncie_integration")
@@ -63,6 +59,7 @@ async function refreshTokenIfNeeded(admin: any) {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = buildCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
