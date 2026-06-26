@@ -17,9 +17,19 @@ import {
   pickVehicle3dModel,
   classifyMesh,
   inferLabelByPosition,
+  VEHICLE_3D_MODELS,
   type VehicleLike,
   type Vehicle3dModelDef,
 } from "@/data/vehicle3dModels";
+
+// Kick off the Tiguan GLB download IMMEDIATELY when this module is loaded
+// (não espera o Canvas montar). Reduz drasticamente o TTI do visualizador.
+try {
+  useGLTF.preload(VEHICLE_3D_MODELS["vw-tiguan"].url, true);
+} catch {
+  /* SSR / test safety */
+}
+
 
 /**
  * CarRealisticViewer

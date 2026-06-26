@@ -74,8 +74,8 @@ export const VEHICLE_3D_MODELS: Record<string, Vehicle3dModelDef> = {
 /** All registered models, ordered for UI listings */
 export const ALL_VEHICLE_3D_MODELS: Vehicle3dModelDef[] = Object.values(VEHICLE_3D_MODELS);
 
-/** Default fallback — Khronos has segmented panels (hood/doors/fenders), better UX */
-export const FALLBACK_MODEL: Vehicle3dModelDef = VEHICLE_3D_MODELS["khronos-concept"];
+/** Default fallback — Tiguan é o modelo padrão para TODAS as inspeções por enquanto */
+export const FALLBACK_MODEL: Vehicle3dModelDef = VEHICLE_3D_MODELS["vw-tiguan"];
 
 /** Lightweight subset of a vehicle row used to pick a model */
 export type VehicleLike = {
@@ -86,33 +86,12 @@ export type VehicleLike = {
   name?: string | null;
 } | null | undefined;
 
-export function pickVehicle3dModel(vehicle: VehicleLike): Vehicle3dModelDef {
-  if (!vehicle) return FALLBACK_MODEL;
-
-  const haystack = [vehicle.brand, vehicle.model, vehicle.name]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-
-  if (haystack.includes("tiguan")) {
-    return VEHICLE_3D_MODELS["vw-tiguan"];
-  }
-
-  if (haystack.includes("ferrari") || haystack.includes("458")) {
-    return VEHICLE_3D_MODELS["ferrari-458"];
-  }
-
-  const cat = (vehicle.category || vehicle.body_type || "").toLowerCase().trim();
-  if (cat) {
-    for (const def of ALL_VEHICLE_3D_MODELS) {
-      if (def.defaultForCategories.some((c) => cat.includes(c))) {
-        return def;
-      }
-    }
-  }
-
-  return FALLBACK_MODEL;
+export function pickVehicle3dModel(_vehicle: VehicleLike): Vehicle3dModelDef {
+  // Padrão único: Tiguan para todas as reservas/veículos.
+  // (Quando expandirmos a biblioteca, basta restaurar a lógica anterior por categoria/brand.)
+  return VEHICLE_3D_MODELS["vw-tiguan"];
 }
+
 
 // ─── Smart mesh labelling ─────────────────────────────────────────────────────
 //

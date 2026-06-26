@@ -15,6 +15,8 @@ import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { MobileList, MobileListItem } from "@/components/mobile/MobileListItem";
 import { SwipeAction } from "@/components/mobile/SwipeAction";
+import { VEHICLE_3D_MODELS } from "@/data/vehicle3dModels";
+
 
 /* ============================================================
    OPERAÇÃO — Mobile-first
@@ -52,6 +54,24 @@ export default function MobileOps() {
   const [returns, setReturns] = useState<Booking[]>([]);
   const [vehicles, setVehicles] = useState<Record<string, Vehicle>>({});
   const [prep, setPrep] = useState<Vehicle[]>([]);
+
+  // Pré-busca o GLB da Tiguan (modelo 3D padrão de inspeção) com prioridade baixa.
+  // Quando o Rui tocar em "Check-in"/"Check-out", o modelo já estará no cache.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = VEHICLE_3D_MODELS["vw-tiguan"]?.url;
+    if (!url) return;
+    const existing = document.querySelector(`link[data-prefetch-glb="tiguan"]`);
+    if (existing) return;
+    const link = document.createElement("link");
+    link.rel = "prefetch";
+    link.as = "fetch";
+    link.href = url;
+    link.crossOrigin = "anonymous";
+    link.setAttribute("data-prefetch-glb", "tiguan");
+    document.head.appendChild(link);
+  }, []);
+
 
   const load = async () => {
     setLoading(true);
