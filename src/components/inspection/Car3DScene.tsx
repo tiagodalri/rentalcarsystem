@@ -23,7 +23,7 @@ interface Car3DSceneProps {
 type PartProps = {
   label: string;
   position: [number, number, number];
-  size: [number, number, number];
+  size: number[];
   rotation?: [number, number, number];
   shape?: "box" | "cyl" | "sphere";
   baseColor?: string;
