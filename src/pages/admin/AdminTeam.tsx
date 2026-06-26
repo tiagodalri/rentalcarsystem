@@ -195,7 +195,9 @@ function AdminTeamDesktop() {
     });
   };
 
+  const [saving, setSaving] = useState(false);
   const handleSave = async () => {
+    if (saving) return;
     if (!form.full_name.trim()) { toast({ title: "Nome é obrigatório", variant: "destructive" }); return; }
 
     const payload = {
@@ -209,17 +211,26 @@ function AdminTeamDesktop() {
       permissions: form.permissions as any,
     };
 
-    if (editingId) {
-      await supabase.from("team_members").update(payload).eq("id", editingId);
-      toast({ title: "Membro atualizado" });
-    } else {
-      await supabase.from("team_members").insert(payload);
-      toast({ title: "Membro adicionado" });
+    setSaving(true);
+    try {
+      if (editingId) {
+        const { error } = await supabase.from("team_members").update(payload).eq("id", editingId);
+        if (error) throw error;
+        toast({ title: "Membro atualizado" });
+      } else {
+        const { error } = await supabase.from("team_members").insert(payload);
+        if (error) throw error;
+        toast({ title: "Membro adicionado" });
+      }
+      setShowForm(false);
+      setEditingId(null);
+      setForm(emptyForm);
+      load();
+    } catch (e: any) {
+      toast({ title: "Erro ao salvar", description: e?.message ?? "Tente novamente.", variant: "destructive" });
+    } finally {
+      setSaving(false);
     }
-    setShowForm(false);
-    setEditingId(null);
-    setForm(emptyForm);
-    load();
   };
 
   const handleEdit = (m: TeamMember) => {
