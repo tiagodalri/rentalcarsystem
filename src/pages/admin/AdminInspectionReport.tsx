@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { SignedImage } from "@/components/admin/SignedImage";
+import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 
 const FUEL_LABELS: Record<string, string> = {
   empty: "Vazio", "1/8": "1/8", "1/4": "1/4", "3/8": "3/8",
