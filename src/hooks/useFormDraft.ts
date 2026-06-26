@@ -66,7 +66,9 @@ export function useFormDraft<T extends object>(
       const empty = options?.isEmpty ? options.isEmpty(value) : isShallowEmpty(value);
       const shouldRestore = options?.restoreMode === "always" || empty;
       if (shouldRestore && parsed && typeof parsed === "object") {
-        setValue({ ...value, ...(parsed as Partial<T>) } as T);
+        const merged = { ...value, ...(parsed as Partial<T>) } as T;
+        latestValueRef.current = merged;
+        setValue(merged);
         if (!options?.silentRestore) {
           toast({
             title: "Rascunho restaurado",
