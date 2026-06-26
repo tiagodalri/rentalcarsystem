@@ -419,39 +419,41 @@ export default function AdminInspection() {
     return path;
   };
 
-  // -- Photo capture
+  // -- Photo capture (exterior) — opens source picker
   const capturePhoto = (position: string) => {
-    if (!isTouchDevice) {
-      setWebcamTarget({ kind: "exterior", position });
-      return;
-    }
     setCapturePosition(position);
-    fileInputRef.current?.click();
+    setSourcePicker({ kind: "exterior", position });
   };
 
   const handleFileCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !capturePosition) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !capturePosition) return;
     setUploading(true);
-    const url = await uploadPhoto(file, capturePosition.replace(/\s/g, "_"));
-    if (url) {
-      setPhotos((prev) => {
-        const filtered = prev.filter((p) => p.position !== capturePosition);
-        return [...filtered, { id: crypto.randomUUID(), position: capturePosition, url }];
-      });
+    // For gallery multi-select we keep the position label on the first file and
+    // append the others as additional photos for the same position.
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const url = await uploadPhoto(file, capturePosition.replace(/\s/g, "_"));
+      if (url) {
+        setPhotos((prev) => {
+          // Single capture replaces the same position; multi-select appends.
+          if (files.length === 1) {
+            const filtered = prev.filter((p) => p.position !== capturePosition);
+            return [...filtered, { id: crypto.randomUUID(), position: capturePosition, url }];
+          }
+          return [...prev, { id: crypto.randomUUID(), position: capturePosition, url }];
+        });
+      }
     }
     setCapturePosition("");
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    if (fileInputGalRef.current) fileInputGalRef.current.value = "";
   };
 
   // Odometer photo
   const captureOdometerPhoto = () => {
-    if (!isTouchDevice) {
-      setWebcamTarget({ kind: "odometer" });
-      return;
-    }
-    odometerPhotoRef.current?.click();
+    setSourcePicker({ kind: "odometer" });
   };
 
   const handleOdometerPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -463,15 +465,12 @@ export default function AdminInspection() {
 
     setUploading(false);
     if (odometerPhotoRef.current) odometerPhotoRef.current.value = "";
+    if (odometerPhotoGalRef.current) odometerPhotoGalRef.current.value = "";
   };
 
   // Fuel photo
   const captureFuelPhoto = () => {
-    if (!isTouchDevice) {
-      setWebcamTarget({ kind: "fuel" });
-      return;
-    }
-    fuelPhotoRef.current?.click();
+    setSourcePicker({ kind: "fuel" });
   };
 
   const handleFuelPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -482,16 +481,13 @@ export default function AdminInspection() {
     if (url) setFuelPhoto(url);
     setUploading(false);
     if (fuelPhotoRef.current) fuelPhotoRef.current.value = "";
+    if (fuelPhotoGalRef.current) fuelPhotoGalRef.current.value = "";
   };
 
   // -- Damage photo
   const captureDamagePhoto = (damageId: string) => {
-    if (!isTouchDevice) {
-      setWebcamTarget({ kind: "damage", damageId });
-      return;
-    }
     setDamagePhotoTarget(damageId);
-    damageFileRef.current?.click();
+    setSourcePicker({ kind: "damage", damageId });
   };
 
   const handleDamageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -507,6 +503,29 @@ export default function AdminInspection() {
     setDamagePhotoTarget("");
     setUploading(false);
     if (damageFileRef.current) damageFileRef.current.value = "";
+    if (damageFileGalRef.current) damageFileGalRef.current.value = "";
+  };
+
+  // Resolve picker action: trigger the right hidden input based on choice.
+  const handlePickerCamera = () => {
+    if (!sourcePicker) return;
+    // Desktop (no touch): prefer the in-page webcam dialog.
+    if (!isTouchDevice) {
+      setWebcamTarget(sourcePicker);
+      return;
+    }
+    if (sourcePicker.kind === "exterior") fileInputRef.current?.click();
+    else if (sourcePicker.kind === "damage") damageFileRef.current?.click();
+    else if (sourcePicker.kind === "odometer") odometerPhotoRef.current?.click();
+    else if (sourcePicker.kind === "fuel") fuelPhotoRef.current?.click();
+  };
+
+  const handlePickerGallery = () => {
+    if (!sourcePicker) return;
+    if (sourcePicker.kind === "exterior") fileInputGalRef.current?.click();
+    else if (sourcePicker.kind === "damage") damageFileGalRef.current?.click();
+    else if (sourcePicker.kind === "odometer") odometerPhotoGalRef.current?.click();
+    else if (sourcePicker.kind === "fuel") fuelPhotoGalRef.current?.click();
   };
 
   // -- Damages
