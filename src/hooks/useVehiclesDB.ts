@@ -19,24 +19,33 @@ export interface DBVehicle {
   model?: string | null;
   model_year?: number | null;
   color?: string | null;
-  
+  license_plate?: string | null;
   photos?: any;
   doors?: number | null;
   default_deposit_amount?: number;
   default_franchise_amount?: number;
 }
 
+const PUBLIC_COLUMNS = "id, name, category, daily_price_usd, passengers, bags, transmission, fuel, year, status, features, image_url, published, photos, brand, model, model_year, color, doors, default_deposit_amount, default_franchise_amount";
+const ADMIN_COLUMNS = PUBLIC_COLUMNS + ", license_plate";
+
 let cachedVehicles: DBVehicle[] | null = null;
 let cacheTimestamp = 0;
+let cachedAdmin = false;
 const CACHE_TTL = 60_000; // 1 minute
 
-export function useVehiclesDB() {
-  const [vehicles, setVehicles] = useState<DBVehicle[]>(cachedVehicles || []);
-  const [loading, setLoading] = useState(!cachedVehicles);
+export function useVehiclesDB(opts: { includeSensitive?: boolean } = {}) {
+  const includeSensitive = !!opts.includeSensitive;
+  const [vehicles, setVehicles] = useState<DBVehicle[]>(
+    cachedVehicles && cachedAdmin === includeSensitive ? cachedVehicles : []
+  );
+  const [loading, setLoading] = useState(
+    !(cachedVehicles && cachedAdmin === includeSensitive)
+  );
 
   useEffect(() => {
     const now = Date.now();
-    if (cachedVehicles && now - cacheTimestamp < CACHE_TTL) {
+    if (cachedVehicles && cachedAdmin === includeSensitive && now - cacheTimestamp < CACHE_TTL) {
       setVehicles(cachedVehicles);
       setLoading(false);
       return;
@@ -44,18 +53,19 @@ export function useVehiclesDB() {
 
     supabase
       .from("vehicles")
-      .select("id, name, category, daily_price_usd, passengers, bags, transmission, fuel, year, status, features, image_url, published, photos, brand, model, model_year, color, doors, default_deposit_amount, default_franchise_amount")
+      .select(includeSensitive ? ADMIN_COLUMNS : PUBLIC_COLUMNS)
       .eq("published", true)
       .is("deleted_at", null)
       .order("daily_price_usd", { ascending: false })
       .then(({ data }) => {
         const list = (data || []) as DBVehicle[];
         cachedVehicles = list;
+        cachedAdmin = includeSensitive;
         cacheTimestamp = Date.now();
         setVehicles(list);
         setLoading(false);
       });
-  }, []);
+  }, [includeSensitive]);
 
   return { vehicles, loading };
 }
