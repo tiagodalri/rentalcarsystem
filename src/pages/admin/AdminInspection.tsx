@@ -28,6 +28,7 @@ import refRodaDD from "@/assets/inspection/roda-dd.jpg";
 import refRodaTE from "@/assets/inspection/roda-te.jpg";
 import refRodaTD from "@/assets/inspection/roda-td.jpg";
 import { SignedImage } from "@/components/admin/SignedImage";
+import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 import { registerLocalInspectionPreview } from "@/lib/inspectionStorage";
 import CarDamageMap from "@/components/inspection/CarDamageMap";
 
@@ -654,14 +655,17 @@ export default function AdminInspection() {
           </p>
         </div>
         <div className="flex gap-2">
-          {isCompleted && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => generateInspectionPDF({ type, booking, vehicle, inspection: existingInspection })}
-            >
-              <Download size={14} className="mr-1" /> PDF
-            </Button>
+          {isCompleted && bookingId && (
+            <>
+              <ShareInspectionButton bookingId={bookingId} type={type} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => generateInspectionPDF({ type, booking, vehicle, inspection: existingInspection })}
+              >
+                <Download size={14} className="mr-1" /> PDF
+              </Button>
+            </>
           )}
           <Button
             variant="outline"

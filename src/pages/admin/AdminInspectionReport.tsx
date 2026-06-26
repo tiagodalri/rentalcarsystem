@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { SignedImage } from "@/components/admin/SignedImage";
+import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 
 const FUEL_LABELS: Record<string, string> = {
   empty: "Vazio", "1/8": "1/8", "1/4": "1/4", "3/8": "3/8",
@@ -271,6 +272,9 @@ export default function AdminInspectionReport() {
             <div className="text-[11px] text-muted-foreground border-t border-border/30 pt-2 space-y-0.5">
               <p><User size={9} className="inline mr-1" /> Agente: <span className="font-medium text-foreground">{fmtName(data.agent_name)}</span></p>
               <p><Calendar size={9} className="inline mr-1" /> {fmtDateTime(data.completed_at)}</p>
+            </div>
+            <div className="pt-1 print:hidden">
+              <ShareInspectionButton bookingId={booking.id} type={type} className="w-full justify-center" />
             </div>
           </>
         ) : (

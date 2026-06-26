@@ -796,6 +796,53 @@ export type Database = {
         }
         Relationships: []
       }
+      public_inspection_links: {
+        Row: {
+          booking_id: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          inspection_type: string
+          label: string | null
+          last_viewed_at: string | null
+          revoked: boolean
+          token: string
+          view_count: number
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          inspection_type: string
+          label?: string | null
+          last_viewed_at?: string | null
+          revoked?: boolean
+          token: string
+          view_count?: number
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          inspection_type?: string
+          label?: string | null
+          last_viewed_at?: string | null
+          revoked?: boolean
+          token?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_inspection_links_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_track_links: {
         Row: {
           created_at: string
