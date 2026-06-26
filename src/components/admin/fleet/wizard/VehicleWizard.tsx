@@ -92,6 +92,7 @@ export default function VehicleWizard() {
         license_plate: form.license_plate.trim().toUpperCase(),
         color: form.color || null,
         bouncie_imei: form.bouncie_imei.trim() || null,
+        e_pass_transponder: form.e_pass_transponder.trim() || null,
         category: form.category,
         passengers: form.passengers,
         bags: form.bags,
