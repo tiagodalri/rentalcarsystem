@@ -35,6 +35,7 @@ type Vehicle = {
   acquired_date: string | null; license_plate: string | null;
   vin: string | null; color: string | null; notes: string | null;
   bouncie_imei: string | null;
+  e_pass_transponder: string | null;
   bouncie_vin: string | null;
   created_at: string; engine_type: string | null; engine_size: string | null;
   doors: number | null; insurance_policy: string | null;
