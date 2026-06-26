@@ -29,6 +29,7 @@ import refRodaTE from "@/assets/inspection/roda-te.jpg";
 import refRodaTD from "@/assets/inspection/roda-td.jpg";
 import { SignedImage } from "@/components/admin/SignedImage";
 import { registerLocalInspectionPreview } from "@/lib/inspectionStorage";
+import CarDamageMap from "@/components/inspection/CarDamageMap";
 
 const PHOTO_REFERENCES: Record<string, string> = {
   "Frente": refFrente,
