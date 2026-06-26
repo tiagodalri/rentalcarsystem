@@ -97,7 +97,7 @@ const VehicleModal = ({ vehicle, categoryLabel, onClose, onReserve }: VehicleMod
               className="w-full h-full object-cover cursor-zoom-in"
               loading="eager"
               decoding="async"
-              fetchPriority="high"
+              {...({ fetchpriority: "high" } as Record<string, string>)}
               onClick={(e) => { e.stopPropagation(); setIsFullscreen(true); }}
             />
           </AnimatePresence>
