@@ -227,15 +227,64 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
           <span className="text-[10px] uppercase tracking-[0.22em] font-semibold text-muted-foreground/80 mb-5">
             Vista Superior
           </span>
-          <svg viewBox="0 0 300 440" className="w-full h-auto max-w-[240px]" style={{ maxHeight: 460 }}>
-            {/* Silhueta do carro — traço fino dourado */}
-            <path
-              d="M150 12 C95 12 65 28 58 55 L48 100 L40 200 L40 290 L48 380 L58 415 C65 432 95 442 150 442 C205 442 235 432 242 415 L252 380 L260 290 L260 200 L252 100 L242 55 C235 28 205 12 150 12 Z"
-              fill="hsl(var(--card) / 0.4)"
-              stroke="hsl(var(--primary) / 0.3)"
-              strokeWidth="0.8"
-            />
+          <svg viewBox="0 0 300 460" className="w-full h-auto max-w-[240px]" style={{ maxHeight: 480 }}>
+            <defs>
+              {/* Sombra projetada sob o veículo */}
+              <radialGradient id="topGroundShadow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="hsl(var(--foreground) / 0.35)" />
+                <stop offset="60%" stopColor="hsl(var(--foreground) / 0.10)" />
+                <stop offset="100%" stopColor="hsl(var(--foreground) / 0)" />
+              </radialGradient>
+              {/* Corpo metálico — verticalmente, claro nas bordas, escuro no centro */}
+              <linearGradient id="topBodyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="hsl(var(--card))" stopOpacity="0.95" />
+                <stop offset="18%" stopColor="hsl(var(--muted) / 0.55)" />
+                <stop offset="50%" stopColor="hsl(var(--card) / 0.25)" />
+                <stop offset="82%" stopColor="hsl(var(--muted) / 0.55)" />
+                <stop offset="100%" stopColor="hsl(var(--card))" stopOpacity="0.95" />
+              </linearGradient>
+              {/* Reflexo especular dourado no centro */}
+              <linearGradient id="topSheen" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stopColor="hsl(var(--primary) / 0)" />
+                <stop offset="35%" stopColor="hsl(var(--primary) / 0.10)" />
+                <stop offset="65%" stopColor="hsl(var(--primary) / 0.10)" />
+                <stop offset="100%" stopColor="hsl(var(--primary) / 0)" />
+              </linearGradient>
+              <filter id="topBodyShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="3" stdDeviation="6" floodColor="hsl(var(--foreground))" floodOpacity="0.18" />
+              </filter>
+            </defs>
+
+            {/* Sombra no chão */}
+            <ellipse cx="150" cy="450" rx="120" ry="8" fill="url(#topGroundShadow)" />
+
+            {/* Corpo do carro — gradiente metálico com sombra projetada */}
+            <g filter="url(#topBodyShadow)">
+              <path
+                d="M150 12 C95 12 65 28 58 55 L48 100 L40 200 L40 290 L48 380 L58 415 C65 432 95 442 150 442 C205 442 235 432 242 415 L252 380 L260 290 L260 200 L252 100 L242 55 C235 28 205 12 150 12 Z"
+                fill="url(#topBodyGrad)"
+                stroke="hsl(var(--primary) / 0.35)"
+                strokeWidth="0.8"
+              />
+              <path
+                d="M150 12 C95 12 65 28 58 55 L48 100 L40 200 L40 290 L48 380 L58 415 C65 432 95 442 150 442 C205 442 235 432 242 415 L252 380 L260 290 L260 200 L252 100 L242 55 C235 28 205 12 150 12 Z"
+                fill="url(#topSheen)"
+                pointerEvents="none"
+              />
+            </g>
+
             {CAR_ZONES.filter((z) => z.topPath).map((z) => renderRegion(z, z.topPath!))}
+
+            {/* Highlight superior — brilho fino no capô */}
+            <path
+              d="M95,52 C115,46 185,46 205,52"
+              fill="none"
+              stroke="hsl(var(--primary) / 0.25)"
+              strokeWidth="0.6"
+              pointerEvents="none"
+            />
+            {/* Highlight no teto */}
+            <line x1="150" y1="160" x2="150" y2="273" stroke="hsl(var(--primary) / 0.12)" strokeWidth="0.5" pointerEvents="none" />
           </svg>
         </div>
 
@@ -245,20 +294,93 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
             Vista Lateral (Esquerda)
           </span>
           <div className="w-full flex-1 flex items-center justify-center">
-            <svg viewBox="0 0 600 180" className="w-full h-auto max-w-[420px]">
-              {/* Silhueta lateral */}
-              <path
-                d="M30,135 C20,118 30,80 60,72 L160,42 C180,38 420,38 440,42 L540,72 C570,80 580,118 570,135 L570,160 L30,160 Z"
-                fill="hsl(var(--card) / 0.4)"
-                stroke="hsl(var(--primary) / 0.3)"
-                strokeWidth="0.8"
-              />
-              {/* Rodas — anel externo + interno dourado discreto */}
-              <circle cx="135" cy="155" r="28" fill="hsl(var(--card))" stroke="hsl(var(--primary) / 0.35)" strokeWidth="1" />
-              <circle cx="135" cy="155" r="22" fill="none" stroke="hsl(var(--primary) / 0.18)" strokeWidth="0.6" />
-              <circle cx="465" cy="155" r="28" fill="hsl(var(--card))" stroke="hsl(var(--primary) / 0.35)" strokeWidth="1" />
-              <circle cx="465" cy="155" r="22" fill="none" stroke="hsl(var(--primary) / 0.18)" strokeWidth="0.6" />
+            <svg viewBox="0 0 600 200" className="w-full h-auto max-w-[420px]">
+              <defs>
+                <radialGradient id="sideGroundShadow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="hsl(var(--foreground) / 0.40)" />
+                  <stop offset="60%" stopColor="hsl(var(--foreground) / 0.12)" />
+                  <stop offset="100%" stopColor="hsl(var(--foreground) / 0)" />
+                </radialGradient>
+                {/* Corpo lateral — claro em cima (teto reflete céu), escuro embaixo */}
+                <linearGradient id="sideBodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="hsl(var(--card))" stopOpacity="0.95" />
+                  <stop offset="40%" stopColor="hsl(var(--muted) / 0.55)" />
+                  <stop offset="100%" stopColor="hsl(var(--card) / 0.25)" />
+                </linearGradient>
+                {/* Faixa de reflexo dourado horizontal */}
+                <linearGradient id="sideSheen" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="hsl(var(--primary) / 0)" />
+                  <stop offset="30%" stopColor="hsl(var(--primary) / 0.12)" />
+                  <stop offset="70%" stopColor="hsl(var(--primary) / 0.12)" />
+                  <stop offset="100%" stopColor="hsl(var(--primary) / 0)" />
+                </linearGradient>
+                {/* Roda — gradiente radial para profundidade */}
+                <radialGradient id="wheelGrad" cx="50%" cy="40%" r="60%">
+                  <stop offset="0%" stopColor="hsl(var(--muted))" />
+                  <stop offset="55%" stopColor="hsl(var(--card))" />
+                  <stop offset="100%" stopColor="hsl(var(--foreground) / 0.85)" />
+                </radialGradient>
+                <radialGradient id="hubGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.85" />
+                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.25" />
+                </radialGradient>
+                <filter id="sideBodyShadow" x="-10%" y="-10%" width="120%" height="140%">
+                  <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="hsl(var(--foreground))" floodOpacity="0.22" />
+                </filter>
+              </defs>
+
+              {/* Sombra projetada no chão */}
+              <ellipse cx="300" cy="185" rx="270" ry="9" fill="url(#sideGroundShadow)" />
+
+              {/* Carroceria com gradiente + sombra projetada */}
+              <g filter="url(#sideBodyShadow)">
+                <path
+                  d="M30,135 C20,118 30,80 60,72 L160,42 C180,38 420,38 440,42 L540,72 C570,80 580,118 570,135 L570,160 L30,160 Z"
+                  fill="url(#sideBodyGrad)"
+                  stroke="hsl(var(--primary) / 0.35)"
+                  strokeWidth="0.8"
+                />
+                <path
+                  d="M30,135 C20,118 30,80 60,72 L160,42 C180,38 420,38 440,42 L540,72 C570,80 580,118 570,135 L570,160 L30,160 Z"
+                  fill="url(#sideSheen)"
+                  pointerEvents="none"
+                />
+              </g>
+
+              {/* Rodas com profundidade — pneu, aro, raios, cubo dourado */}
+              {[135, 465].map((cx) => (
+                <g key={cx}>
+                  {/* pneu */}
+                  <circle cx={cx} cy={155} r={30} fill="hsl(var(--foreground) / 0.92)" />
+                  {/* aro/disco */}
+                  <circle cx={cx} cy={155} r={24} fill="url(#wheelGrad)" stroke="hsl(var(--primary) / 0.5)" strokeWidth="0.8" />
+                  {/* raios */}
+                  {[0, 60, 120, 180, 240, 300].map((a) => (
+                    <line
+                      key={a}
+                      x1={cx}
+                      y1={155}
+                      x2={cx + Math.cos((a * Math.PI) / 180) * 22}
+                      y2={155 + Math.sin((a * Math.PI) / 180) * 22}
+                      stroke="hsl(var(--primary) / 0.35)"
+                      strokeWidth="0.7"
+                    />
+                  ))}
+                  {/* cubo central dourado */}
+                  <circle cx={cx} cy={155} r={5} fill="url(#hubGrad)" stroke="hsl(var(--primary))" strokeWidth="0.6" />
+                </g>
+              ))}
+
               {CAR_ZONES.filter((z) => z.sidePath).map((z) => renderRegion(z, z.sidePath!))}
+
+              {/* Vinco lateral — linha de caráter sutil dourada */}
+              <path
+                d="M70,115 C200,108 400,108 540,115"
+                fill="none"
+                stroke="hsl(var(--primary) / 0.22)"
+                strokeWidth="0.6"
+                pointerEvents="none"
+              />
             </svg>
           </div>
         </div>
