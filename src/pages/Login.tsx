@@ -157,7 +157,7 @@ const Login = () => {
                   Não tem conta?{" "}
                   <button
                     onClick={() => navigate("/cadastro")}
-                    className="text-primary hover:text-primary/80 font-medium transition-colors"
+                    className="text-primary hover:text-primary/80 font-medium transition-colors py-2 px-1 min-h-11 inline-flex items-center"
                   >
                     Criar conta
                   </button>
