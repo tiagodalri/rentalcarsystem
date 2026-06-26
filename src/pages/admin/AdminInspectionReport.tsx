@@ -12,6 +12,7 @@ import {
   TrendingUp, TrendingDown, Minus, Sparkles, Hash, Phone, Mail,
 } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
+import { SignedImage } from "@/components/admin/SignedImage";
 
 const FUEL_LABELS: Record<string, string> = {
   empty: "Vazio", "1/8": "1/8", "1/4": "1/4", "3/8": "3/8",
@@ -674,7 +675,7 @@ export default function AdminInspectionReport() {
                       <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLOR[d.severity] || ""}`}>{SEVERITY_LABELS[d.severity] || d.severity}</Badge>
                       <span className="font-semibold text-foreground">{d.position}</span>
                       <span className="text-muted-foreground flex-1 min-w-0 truncate">— {d.description || "—"}</span>
-                      {d.photoUrl && <img src={d.photoUrl} alt="" className="w-12 h-12 rounded object-cover border border-border/30 ml-auto" />}
+                      {d.photoUrl && <SignedImage value={d.photoUrl} alt="" className="w-12 h-12 rounded object-cover border border-border/30 ml-auto" />}
                     </div>
                   ))}
                 </div>
@@ -718,12 +719,12 @@ export default function AdminInspectionReport() {
                       <div className="grid grid-cols-2 divide-x divide-border/30">
                         <div className="p-2">
                           <p className="text-[9px] uppercase tracking-wider text-primary font-medium mb-1.5">Entrega</p>
-                          <img src={ciPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded" loading="lazy" />
+                          <SignedImage value={ciPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded" loading="lazy" />
                         </div>
                         <div className="p-2">
                           <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5">Devolução</p>
                           {coPhoto ? (
-                            <img src={coPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded" loading="lazy" />
+                            <SignedImage value={coPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded" loading="lazy" />
                           ) : (
                             <div className="w-full aspect-[4/3] rounded border-2 border-dashed border-border/40 flex items-center justify-center text-xs text-muted-foreground">Sem foto</div>
                           )}
