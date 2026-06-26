@@ -58,7 +58,7 @@ export function useVehiclesDB(opts: { includeSensitive?: boolean } = {}) {
       .is("deleted_at", null)
       .order("daily_price_usd", { ascending: false })
       .then(({ data }) => {
-        const list = (data || []) as DBVehicle[];
+        const list = (data || []) as unknown as DBVehicle[];
         cachedVehicles = list;
         cachedAdmin = includeSensitive;
         cacheTimestamp = Date.now();
