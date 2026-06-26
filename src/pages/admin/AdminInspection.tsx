@@ -513,6 +513,7 @@ export default function AdminInspection() {
   // Counter-based "uploading" state so multiple concurrent background uploads
   // are tracked correctly without flicker.
   const pendingUploadsRef = useRef(0);
+  const pendingUploadPromisesRef = useRef<Promise<void>[]>([]);
   const bumpUploading = (delta: number) => {
     pendingUploadsRef.current = Math.max(0, pendingUploadsRef.current + delta);
     setUploading(pendingUploadsRef.current > 0);
@@ -545,28 +546,40 @@ export default function AdminInspection() {
     setPhotoUploadStatus((prev) => ({ ...prev, [path]: "uploading" }));
     bumpUploading(+1);
 
-    window.setTimeout(() => {
-      void (async () => {
-        const compressed = await compressInspectionImage(file);
-        const { error } = await supabase.storage
-          .from("inspections")
-          .upload(path, compressed, {
-            contentType: compressed.type || file.type || "image/jpeg",
-            cacheControl: "3600",
-            upsert: false,
-          });
+    const task = new Promise<void>((resolve) => {
+      window.setTimeout(() => {
+        void (async () => {
+          try {
+            const compressed = await compressInspectionImage(file);
+            const { error } = await supabase.storage
+              .from("inspections")
+              .upload(path, compressed, {
+                contentType: compressed.type || file.type || "image/jpeg",
+                cacheControl: "3600",
+                upsert: false,
+              });
 
-        if (error) {
-          setPhotoUploadStatus((prev) => ({ ...prev, [path]: "failed" }));
-          toast({ title: "Erro ao enviar foto", description: error.message, variant: "destructive" });
-          return;
-        }
-        setPhotoUploadStatus((prev) => ({ ...prev, [path]: "done" }));
-      })().finally(() => bumpUploading(-1));
-    }, 0);
+            if (error) {
+              setPhotoUploadStatus((prev) => ({ ...prev, [path]: "failed" }));
+              toast({ title: "Erro ao enviar foto", description: error.message, variant: "destructive" });
+              return;
+            }
+            setPhotoUploadStatus((prev) => ({ ...prev, [path]: "done" }));
+          } finally {
+            bumpUploading(-1);
+            resolve();
+          }
+        })();
+      }, 0);
+    });
+    pendingUploadPromisesRef.current.push(task);
+    void task.finally(() => {
+      pendingUploadPromisesRef.current = pendingUploadPromisesRef.current.filter((p) => p !== task);
+    });
 
     return path;
   };
+
 
 
   // -- Photo capture (exterior) — opens source picker
@@ -740,12 +753,37 @@ export default function AdminInspection() {
   const handleSave = async (finalize = false) => {
     setSaving(true);
 
+    // Before finalizing, wait for any in-flight background uploads so the
+    // saved record never references a storage path that hasn't landed yet.
+    if (finalize && pendingUploadPromisesRef.current.length > 0) {
+      toast({ title: "Aguardando envio das fotos...", description: "Finalizando em instantes." });
+      await Promise.allSettled(pendingUploadPromisesRef.current);
+    }
+
+    // Hard-block finalize if any photo upload ultimately failed — avoids
+    // shipping a "completed" inspection with broken image links.
+    if (finalize) {
+      const failedPaths = Object.entries(photoUploadStatus)
+        .filter(([, s]) => s === "failed")
+        .map(([p]) => p);
+      if (failedPaths.length > 0) {
+        toast({
+          title: "Algumas fotos não foram enviadas",
+          description: "Toque em 'Refazer' nas fotos com erro e tente finalizar novamente.",
+          variant: "destructive",
+        });
+        setSaving(false);
+        return;
+      }
+    }
+
     // Merge odometer/fuel photos into exterior_photos
     const allPhotos = [
       ...photos.filter((p) => !p.position.startsWith("__")),
       ...(odometerPhoto ? [{ id: "odometer-photo", position: "__odometer", url: odometerPhoto }] : []),
       ...(fuelPhoto ? [{ id: "fuel-photo", position: "__fuel", url: fuelPhoto }] : []),
     ];
+
 
     const payload = {
       booking_id: bookingId!,
