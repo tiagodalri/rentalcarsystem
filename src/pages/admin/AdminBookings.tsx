@@ -749,8 +749,9 @@ function AdminBookingsDesktop() {
     toast({ title: "CSV exportado com sucesso" });
   }, [filtered]);
 
-  const exportPDF = useCallback(() => {
-    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const exportPDF = useCallback(async () => {
+    const { default: jsPDF } = await import("jspdf");
+    const doc: jsPDFType = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
 
