@@ -1583,6 +1583,54 @@ function AdminBookingsDesktop() {
                   </tbody>
                 </table>
                 </div>
+
+                {/* Pager */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border/30 bg-muted/10">
+                  <div className="text-[11px] text-muted-foreground tabular-nums">
+                    Mostrando <span className="text-foreground font-medium">{(currentPage - 1) * pageSize + 1}</span>
+                    {" – "}
+                    <span className="text-foreground font-medium">{Math.min(currentPage * pageSize, filtered.length)}</span>
+                    {" de "}
+                    <span className="text-foreground font-medium">{filtered.length}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="text-[11px] text-muted-foreground">Por página</label>
+                    <select
+                      value={pageSize}
+                      onChange={(e) => setPageSize(Number(e.target.value))}
+                      className="text-[11px] rounded-md border border-border/40 bg-background px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                    >
+                      {[25, 50, 100, 200].map((n) => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                    </select>
+                    <div className="flex items-center gap-1 ml-2">
+                      <button
+                        onClick={() => setPage(1)}
+                        disabled={currentPage === 1}
+                        className="px-2 py-1 text-[11px] rounded-md border border-border/40 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+                      >«</button>
+                      <button
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPage === 1}
+                        className="px-2 py-1 text-[11px] rounded-md border border-border/40 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+                      >‹ Anterior</button>
+                      <span className="text-[11px] text-muted-foreground tabular-nums px-2">
+                        {currentPage} / {totalPages}
+                      </span>
+                      <button
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-2 py-1 text-[11px] rounded-md border border-border/40 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+                      >Próxima ›</button>
+                      <button
+                        onClick={() => setPage(totalPages)}
+                        disabled={currentPage === totalPages}
+                        className="px-2 py-1 text-[11px] rounded-md border border-border/40 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed"
+                      >»</button>
+                    </div>
+                  </div>
+                </div>
               </>
             )}
           </CardContent>
