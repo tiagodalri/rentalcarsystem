@@ -65,7 +65,7 @@ export function useAdminAuth() {
           );
 
         cachedRoles = { userId: currentUser.id, roles: rs };
-        console.log("[useAdminAuth] roles loaded:", { email: currentUser.email, userId: currentUser.id, roles: rs });
+        console.log("[useAdminAuth] roles loaded", rs);
         if (mounted) { setRoles(rs); setAuthError(null); setLoading(false); }
       } catch (error) {
         const message = error instanceof Error ? error.message : "Falha ao carregar permissões.";
