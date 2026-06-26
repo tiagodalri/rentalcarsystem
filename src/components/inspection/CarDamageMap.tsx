@@ -203,12 +203,14 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
         </div>
       </div>
 
-      {/* Visualização fotorrealista do veículo com pins clicáveis por peça */}
+      {/* Visualização 3D real do veículo — modelo é escolhido pela categoria */}
       <CarRealisticViewer
         damageCountByLabel={damageCountByLabel}
         onAddDamage={onAddDamage}
         disabled={disabled}
+        vehicle={vehicle}
       />
+
 
 
       {/* Legenda — bordas finas, sem cor crua */}
