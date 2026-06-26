@@ -667,8 +667,8 @@ export default function AdminInspection() {
     }
 
     toast({ title: finalize ? "Inspeção finalizada com sucesso!" : "Rascunho salvo!" });
-    if (finalize) navigate("/admin/bookings");
     setSaving(false);
+    if (finalize) navigate("/admin/bookings");
   };
 
   const steps = [
