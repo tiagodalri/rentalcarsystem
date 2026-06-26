@@ -340,6 +340,7 @@ export default function CarRealisticViewer({
                 onHover={setHoveredLabel}
                 onPick={onAddDamage}
                 disabled={disabled}
+                meshClassifier={modelDef.meshClassifier}
               />
             </Bounds>
             <Environment preset="studio" />
