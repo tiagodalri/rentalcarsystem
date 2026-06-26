@@ -1753,6 +1753,7 @@ export type Database = {
           deleted_at: string | null
           deleted_by: string | null
           doors: number | null
+          e_pass_transponder: string | null
           engine_size: string | null
           engine_type: string | null
           features: string[] | null
@@ -1805,6 +1806,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           doors?: number | null
+          e_pass_transponder?: string | null
           engine_size?: string | null
           engine_type?: string | null
           features?: string[] | null
@@ -1857,6 +1859,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           doors?: number | null
+          e_pass_transponder?: string | null
           engine_size?: string | null
           engine_type?: string | null
           features?: string[] | null
