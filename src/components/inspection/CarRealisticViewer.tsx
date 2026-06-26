@@ -49,16 +49,12 @@ type CarModelProps = {
   disabled?: boolean;
 };
 
-function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled }: CarModelProps) {
+function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled, meshClassifier }: CarModelProps & { meshClassifier?: (n: string) => { label: string; pickable: boolean } | null }) {
   const { scene } = useGLTF(url, true);
 
-  // Clona materiais por malha e classifica cada uma em um grupo lógico.
-  // Quando o nome da malha não bate com nenhuma regra, usamos a POSIÇÃO 3D
-  // dentro do bounding box do carro para inferir um nome real de peça.
   const classified = useMemo<ClassifiedMesh[]>(() => {
     scene.updateMatrixWorld(true);
 
-    // 1ª passada — bounding box global do carro
     const globalBox = new THREE.Box3().setFromObject(scene);
     const size = new THREE.Vector3();
     const center = new THREE.Vector3();
@@ -66,8 +62,6 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled 
     globalBox.getCenter(center);
     const half = { x: size.x / 2 || 1, y: size.y / 2 || 1, z: size.z / 2 || 1 };
 
-    // Detecta orientação: o "comprimento" do carro é o maior eixo horizontal.
-    // Usamos esse eixo como Z normalizado (frente/trás), e o outro como X.
     const lengthAxis: "x" | "z" = size.z >= size.x ? "z" : "x";
     const widthAxis: "x" | "z" = lengthAxis === "z" ? "x" : "z";
 
@@ -83,14 +77,25 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled 
       mesh.castShadow = true;
       mesh.receiveShadow = true;
 
-      let { label, pickable } = classifyMesh(mesh.name);
+      // 1) modelo-específico (Tiguan, etc.) — alta prioridade
+      let label: string | undefined;
+      let pickable = true;
+      if (meshClassifier) {
+        const r = meshClassifier(mesh.name);
+        if (r) { label = r.label; pickable = r.pickable; }
+      }
 
-      if (label === "__UNKNOWN__") {
-        // Centro do mesh no espaço do mundo
+      // 2) regras genéricas por nome
+      if (!label) {
+        const r = classifyMesh(mesh.name);
+        if (r.label !== "__UNKNOWN__") { label = r.label; pickable = r.pickable; }
+      }
+
+      // 3) fallback espacial (posição no bbox)
+      if (!label) {
         const meshBox = new THREE.Box3().setFromObject(mesh);
         const mc = new THREE.Vector3();
         meshBox.getCenter(mc);
-        // Normaliza para [-1, 1] em relação ao bbox do carro
         const norm = {
           x: (mc[widthAxis] - center[widthAxis]) / (widthAxis === "x" ? half.x : half.z),
           y: (mc.y - center.y) / half.y,
@@ -104,7 +109,7 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled 
     });
     return list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scene]);
+  }, [scene, meshClassifier]);
 
   // Aplica brilho dourado em TODAS as sub-malhas do grupo hovered
   useEffect(() => {
@@ -335,6 +340,7 @@ export default function CarRealisticViewer({
                 onHover={setHoveredLabel}
                 onPick={onAddDamage}
                 disabled={disabled}
+                meshClassifier={modelDef.meshClassifier}
               />
             </Bounds>
             <Environment preset="studio" />
