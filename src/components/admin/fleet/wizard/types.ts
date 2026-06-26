@@ -11,6 +11,7 @@ export type WizardForm = {
   license_plate: string;
   color: string;
   bouncie_imei: string;
+  e_pass_transponder: string;
   // Especificações
   category: string;
   passengers: number;
