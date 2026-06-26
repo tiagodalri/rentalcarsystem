@@ -95,7 +95,7 @@ function Part({
       castShadow
       receiveShadow
     >
-      {shape === "box" && <boxGeometry args={size} />}
+      {shape === "box" && <boxGeometry args={[size[0], size[1], size[2]]} />}
       {shape === "cyl" && <cylinderGeometry args={[size[0], size[0], size[1], 32]} />}
       {shape === "sphere" && <sphereGeometry args={[size[0], 24, 24]} />}
       <meshStandardMaterial
