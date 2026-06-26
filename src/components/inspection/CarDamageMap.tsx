@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import Car3DScene from "./Car3DScene";
+import CarRealisticViewer from "./CarRealisticViewer";
 
 /**
  * CarDamageMap
@@ -200,12 +200,11 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
         </div>
       </div>
 
-      {/* Cena 3D imersiva — gira, zoom, clica na peça */}
-      <Car3DScene
+      {/* Visualização fotorrealista do veículo com pins clicáveis por peça */}
+      <CarRealisticViewer
         damageCountByLabel={damageCountByLabel}
         onAddDamage={onAddDamage}
         disabled={disabled}
-        height={520}
       />
 
 
