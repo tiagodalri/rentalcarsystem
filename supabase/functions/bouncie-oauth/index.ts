@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
         }),
       });
       const tokenBody = await tokenResp.text();
-      console.log("[bouncie-oauth] token response", tokenResp.status, tokenBody);
+      console.log("[bouncie-oauth] token response status", tokenResp.status);
 
       if (tokenResp.ok) {
         let parsed: any = {};
