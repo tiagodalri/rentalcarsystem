@@ -184,6 +184,7 @@ const ProfileTab = () => {
       if (error) throw error;
 
       toast({ title: "Perfil atualizado", description: "Seus dados foram salvos com sucesso." });
+      setInitial(form);
       clearFormDraft(profileDraftKey);
       setLicenseFile(null);
       await refreshCustomer?.();
