@@ -1000,6 +1000,7 @@ export default function AdminInspection() {
               }, {})}
               onAddDamage={(label) => !isCompleted && addDamage(label)}
               disabled={isCompleted}
+              vehicle={vehicle}
             />
 
             {/* Damage list */}
