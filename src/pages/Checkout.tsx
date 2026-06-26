@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { detectBrand, formatCardNumber } from "@/lib/cardBrand";
+import { useFormDraft } from "@/hooks/useFormDraft";
 
 const CR_APP_ID = "1781587732";
 const CR_APP_PUBLIC = "pk_production_3db3d2837eb1416e00d9880aae287e6e";
@@ -33,6 +34,35 @@ type CheckoutState = {
     address?: AddressPayload;
   };
 };
+
+type CheckoutClientDraft = {
+  name: string;
+  email: string;
+  phone: string;
+  cpf: string;
+  birth: string;
+};
+
+const CHECKOUT_STATE_KEY = "zeus:checkout:last-state-v2";
+
+function hasCheckoutState(s: Partial<CheckoutState> | null | undefined): s is CheckoutState {
+  return Boolean(s?.vehicle_id && s?.start_at && s?.end_at && s?.amount_usd);
+}
+
+function readCheckoutState(): CheckoutState | null {
+  try {
+    const raw = localStorage.getItem(CHECKOUT_STATE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CheckoutState;
+    return hasCheckoutState(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveCheckoutState(state: CheckoutState) {
+  try { localStorage.setItem(CHECKOUT_STATE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
+}
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,7 +92,13 @@ function formatUSD(n?: number | null) {
 const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const state = (location.state || {}) as CheckoutState;
+  const incomingState = (location.state || {}) as CheckoutState;
+  const restoredCheckoutState = useMemo(() => readCheckoutState(), []);
+  const state = hasCheckoutState(incomingState) ? incomingState : (restoredCheckoutState || incomingState);
+
+  useEffect(() => {
+    if (hasCheckoutState(incomingState)) saveCheckoutState(incomingState);
+  }, [incomingState]);
 
   // Guard: missing required state
   useEffect(() => {
@@ -80,6 +116,29 @@ const Checkout = () => {
   const [cpf, setCpf] = useState(maskCPF(state.customer?.cpf || ""));
   const [birth, setBirth] = useState(state.customer?.birth_date || "");
   const addr: AddressPayload = state.customer?.address || {};
+
+  const checkoutDraftKey = useMemo(
+    () => `checkout-client-v2:${state.vehicle_id || "missing"}:${state.start_at || ""}:${state.end_at || ""}`,
+    [state.vehicle_id, state.start_at, state.end_at],
+  );
+  const checkoutClientDraft = useMemo<CheckoutClientDraft>(() => ({ name, email, phone, cpf, birth }), [name, email, phone, cpf, birth]);
+  useFormDraft(
+    checkoutDraftKey,
+    checkoutClientDraft,
+    (draft) => {
+      setName(draft.name || "");
+      setEmail(draft.email || "");
+      setPhone(draft.phone || "");
+      setCpf(draft.cpf || "");
+      setBirth(draft.birth || "");
+    },
+    hasCheckoutState(state),
+    {
+      debounceMs: 120,
+      restoreMode: hasCheckoutState(incomingState) ? "when-empty" : "always",
+      isEmpty: (draft) => Object.values(draft).every((value) => !String(value ?? "").trim()),
+    },
+  );
 
   // If we already have all required data from /reserva, skip the redundant step.
   const prefilled =

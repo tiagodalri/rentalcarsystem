@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Plus, Phone, MessageCircle, X, Users, Car } from "lucide-react";
+import { Search, Plus, Phone, MessageCircle, X, Users, Car, Loader2, User, Mail, FileText, MapPin, Save, type LucideIcon } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
 import { useRegisterFab } from "@/hooks/useAdminFab";
+import { PhoneInput } from "@/components/ui/phone-input";
+import { toast } from "@/hooks/use-toast";
+import { clearFormDraft, useFormDraft } from "@/hooks/useFormDraft";
 
 /* ============================================================
    CLIENTES — Mobile-first
@@ -23,6 +26,44 @@ type Customer = {
   turo_guest_id: string | null;
 };
 
+type MobileCustomerForm = {
+  full_name: string;
+  email: string;
+  phone: string;
+  document_number: string;
+  nationality: string;
+  driver_license: string;
+  driver_license_expiry: string;
+  date_of_birth: string;
+  zip_code: string;
+  address: string;
+  house_number: string;
+  complement: string;
+  notes: string;
+  source: "regular" | "turo";
+  turo_guest_id: string;
+};
+
+const MOBILE_CUSTOMER_DRAFT_KEY = "admin-mobile-customer-new-v2";
+
+const emptyMobileCustomer: MobileCustomerForm = {
+  full_name: "",
+  email: "",
+  phone: "",
+  document_number: "",
+  nationality: "",
+  driver_license: "",
+  driver_license_expiry: "",
+  date_of_birth: "",
+  zip_code: "",
+  address: "",
+  house_number: "",
+  complement: "",
+  notes: "",
+  source: "regular",
+  turo_guest_id: "",
+};
+
 const initials = (name: string) =>
   name.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
 
@@ -30,11 +71,34 @@ const onlyDigits = (s: string | null) => (s || "").replace(/\D/g, "");
 
 export default function MobileCustomers() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [items, setItems] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
-  useRegisterFab({ icon: Plus, label: "Novo cliente", onClick: () => navigate("/admin/customers?new=1") });
   const [search, setSearch] = useState("");
   const [segment, setSegment] = useState<"regular" | "turo">("regular");
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<MobileCustomerForm>({ ...emptyMobileCustomer });
+
+  const openNewCustomer = (source: "regular" | "turo" = segment) => {
+    setForm((prev) => ({ ...prev, source }));
+    setShowForm(true);
+  };
+
+  useRegisterFab({ icon: Plus, label: "Novo cliente", onClick: () => openNewCustomer() }, [segment]);
+
+  useFormDraft(
+    MOBILE_CUSTOMER_DRAFT_KEY,
+    form,
+    (draft) => setForm((prev) => ({ ...prev, ...draft })),
+    showForm,
+    {
+      debounceMs: 120,
+      isEmpty: (draft) => Object.entries(draft)
+        .filter(([key]) => key !== "source")
+        .every(([, value]) => !String(value ?? "").trim()),
+    },
+  );
 
   const load = async () => {
     setLoading(true);
@@ -48,6 +112,67 @@ export default function MobileCustomers() {
     setLoading(false);
   };
   useEffect(() => { void load(); }, []);
+
+  useEffect(() => {
+    if (searchParams.get("new") !== "1") return;
+    openNewCustomer(segment);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("new");
+      return next;
+    }, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, setSearchParams]);
+
+  const update = (key: keyof MobileCustomerForm, value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const saveCustomer = async () => {
+    if (!form.full_name.trim()) {
+      toast({ title: form.source === "turo" ? "Primeiro nome obrigatório" : "Nome obrigatório", variant: "destructive" });
+      return;
+    }
+
+    setSaving(true);
+    const isTuro = form.source === "turo";
+    const payload = isTuro
+      ? {
+          full_name: form.full_name.trim(),
+          source: "turo",
+          turo_guest_id: form.turo_guest_id.trim() || null,
+          notes: form.notes.trim() || null,
+        }
+      : {
+          full_name: form.full_name.trim(),
+          email: form.email.trim() || null,
+          phone: form.phone.trim() || null,
+          document_number: form.document_number.trim() || null,
+          nationality: form.nationality.trim() || null,
+          driver_license: form.driver_license.trim() || null,
+          driver_license_expiry: form.driver_license_expiry || null,
+          date_of_birth: form.date_of_birth || null,
+          zip_code: form.zip_code.trim() || null,
+          address: form.address.trim() || null,
+          house_number: form.house_number.trim() || null,
+          complement: form.complement.trim() || null,
+          notes: form.notes.trim() || null,
+          source: "regular",
+        };
+
+    const { error } = await supabase.from("customers").insert(payload);
+    setSaving(false);
+    if (error) {
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    clearFormDraft(MOBILE_CUSTOMER_DRAFT_KEY);
+    setForm({ ...emptyMobileCustomer, source: segment });
+    setShowForm(false);
+    toast({ title: isTuro ? "Cliente Turo adicionado" : "Cliente adicionado" });
+    void load();
+  };
 
   const counts = useMemo(() => ({
     regular: items.filter((c) => c.source !== "turo").length,
@@ -197,7 +322,136 @@ export default function MobileCustomers() {
           ))}
         </div>
 
+        {showForm && (
+          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-end" onClick={() => setShowForm(false)}>
+            <div
+              className="w-full max-h-[92dvh] overflow-y-auto overscroll-contain rounded-t-3xl border-t border-border/50 bg-background pb-[calc(env(safe-area-inset-bottom,0px)+16px)] shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border/40 px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Rascunho salvo automaticamente</p>
+                    <h2 className="text-base font-semibold text-foreground">Novo cliente</h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                    aria-label="Fechar cadastro"
+                    className="h-11 w-11 rounded-full border border-border/50 bg-card flex items-center justify-center text-muted-foreground"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="px-4 py-4 space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    { id: "regular" as const, label: "Zeus", icon: Users },
+                    { id: "turo" as const, label: "Turo", icon: Car },
+                  ]).map((option) => {
+                    const Icon = option.icon;
+                    const active = form.source === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => update("source", option.id)}
+                        className={`h-11 rounded-xl border text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
+                          active ? "border-primary bg-primary text-primary-foreground" : "border-border/50 bg-card text-foreground"
+                        }`}
+                      >
+                        <Icon size={15} />
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <MobileField label={form.source === "turo" ? "Primeiro nome" : "Nome completo"} icon={User}>
+                  <input value={form.full_name} onChange={(e) => update("full_name", e.target.value)} className={mobileInputClass} autoComplete="name" />
+                </MobileField>
+
+                {form.source === "turo" ? (
+                  <MobileField label="Guest # da Turo" icon={Car}>
+                    <input value={form.turo_guest_id} onChange={(e) => update("turo_guest_id", e.target.value)} className={`${mobileInputClass} font-mono tabular-nums`} />
+                  </MobileField>
+                ) : (
+                  <>
+                    <MobileField label="E-mail" icon={Mail}>
+                      <input type="email" inputMode="email" value={form.email} onChange={(e) => update("email", e.target.value)} className={mobileInputClass} autoComplete="email" />
+                    </MobileField>
+                    <MobileField label="Telefone / WhatsApp" icon={Phone}>
+                      <PhoneInput value={form.phone} onChange={(value) => update("phone", value)} inputClassName="h-11 px-3 text-base rounded-xl" />
+                    </MobileField>
+                    <div className="grid grid-cols-1 gap-4">
+                      <MobileField label="Documento" icon={FileText}>
+                        <input value={form.document_number} onChange={(e) => update("document_number", e.target.value)} className={mobileInputClass} />
+                      </MobileField>
+                      <MobileField label="CNH / Driver License" icon={FileText}>
+                        <input value={form.driver_license} onChange={(e) => update("driver_license", e.target.value)} className={mobileInputClass} />
+                      </MobileField>
+                      <MobileField label="Validade da CNH" icon={FileText}>
+                        <input type="date" value={form.driver_license_expiry} onChange={(e) => update("driver_license_expiry", e.target.value)} className={mobileInputClass} />
+                      </MobileField>
+                      <MobileField label="Data de nascimento" icon={FileText}>
+                        <input type="date" value={form.date_of_birth} onChange={(e) => update("date_of_birth", e.target.value)} className={mobileInputClass} />
+                      </MobileField>
+                      <MobileField label="Nacionalidade" icon={FileText}>
+                        <input value={form.nationality} onChange={(e) => update("nationality", e.target.value)} className={mobileInputClass} />
+                      </MobileField>
+                    </div>
+                    <MobileField label="CEP / Zip" icon={MapPin}>
+                      <input value={form.zip_code} onChange={(e) => update("zip_code", e.target.value)} className={mobileInputClass} inputMode="numeric" />
+                    </MobileField>
+                    <MobileField label="Endereço" icon={MapPin}>
+                      <input value={form.address} onChange={(e) => update("address", e.target.value)} className={mobileInputClass} />
+                    </MobileField>
+                    <div className="grid grid-cols-2 gap-3">
+                      <MobileField label="Número" icon={MapPin}>
+                        <input value={form.house_number} onChange={(e) => update("house_number", e.target.value)} className={mobileInputClass} />
+                      </MobileField>
+                      <MobileField label="Complemento" icon={MapPin}>
+                        <input value={form.complement} onChange={(e) => update("complement", e.target.value)} className={mobileInputClass} />
+                      </MobileField>
+                    </div>
+                  </>
+                )}
+
+                <MobileField label="Observações" icon={FileText}>
+                  <textarea value={form.notes} onChange={(e) => update("notes", e.target.value)} rows={3} className={`${mobileInputClass} h-auto py-3 resize-none`} />
+                </MobileField>
+
+                <button
+                  type="button"
+                  onClick={saveCustomer}
+                  disabled={saving}
+                  className="h-12 w-full rounded-xl bg-primary text-primary-foreground text-xs font-semibold uppercase tracking-[0.16em] flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+                  Salvar cliente
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </PullToRefresh>
+  );
+}
+
+const mobileInputClass = "w-full min-h-11 rounded-xl border border-border/50 bg-card px-3 text-base text-foreground focus:outline-none focus:ring-2 focus:ring-primary/25";
+
+function MobileField({ label, icon: Icon, children }: { label: string; icon: LucideIcon; children: ReactNode }) {
+  return (
+    <label className="block space-y-1.5">
+      <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground flex items-center gap-1.5">
+        <Icon size={12} className="text-primary" />
+        {label}
+      </span>
+      {children}
+    </label>
   );
 }

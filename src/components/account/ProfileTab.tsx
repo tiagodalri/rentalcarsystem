@@ -10,6 +10,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
+import { clearFormDraft, useFormDraft } from "@/hooks/useFormDraft";
 
 interface ProfileForm {
   full_name: string;
@@ -41,6 +42,7 @@ const ProfileTab = () => {
   const [cepLoading, setCepLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
+  const profileDraftKey = `customer-profile-v2:${customer?.id ?? "pending"}`;
 
   // Hydrate from customer
   useEffect(() => {
@@ -61,6 +63,17 @@ const ProfileTab = () => {
     setForm(init);
     setInitial(init);
   }, [customer]);
+
+  useFormDraft(profileDraftKey, form, setForm, Boolean(customer), {
+    debounceMs: 150,
+    isEmpty: (draft) => {
+      const empty = Object.values(draft).every((value) => !String(value ?? "").trim());
+      const sameAsSaved = initial
+        ? (Object.keys(draft) as (keyof ProfileForm)[]).every((key) => draft[key] === initial[key])
+        : false;
+      return empty || sameAsSaved;
+    },
+  });
 
   // Build preview URL for current CNH (signed for private bucket)
   useEffect(() => {
@@ -171,6 +184,8 @@ const ProfileTab = () => {
       if (error) throw error;
 
       toast({ title: "Perfil atualizado", description: "Seus dados foram salvos com sucesso." });
+      setInitial(form);
+      clearFormDraft(profileDraftKey);
       setLicenseFile(null);
       await refreshCustomer?.();
     } catch (err: any) {

@@ -25,6 +25,7 @@ import CustomerDataStep, { type CustomerData } from "@/components/booking/Custom
 import { PLANS } from "@/data/rentalPlans";
 import { useAuth } from "@/hooks/useAuth";
 import { calculateAge, isBlockedAge, isYoungDriver, YOUNG_DRIVER_SURCHARGE } from "@/lib/age";
+import { useFormDraft } from "@/hooks/useFormDraft";
 
 interface VehicleInfo {
   name: string;
@@ -53,6 +54,8 @@ const LONG_RENTAL_DISCOUNT_RATE = 0.05;
 const LONG_RENTAL_MIN_DAYS = 10;
 const BASIC_DEPOSIT = 300;
 const BASIC_FRANCHISE = 1200;
+
+type CustomerDataDraft = Omit<CustomerData, "licenseFile">;
 
 
 const vehicleFeaturesMap: Record<string, string[]> = {
@@ -147,6 +150,50 @@ const BookingDetails = () => {
     district: "", city: "", state: "",
     licenseFile: null,
   });
+
+  const bookingDraftKey = useMemo(
+    () => `booking-details-v2:${decodedName}:${pickupDateStr || ""}:${returnDateStr || ""}:${pickupTime}:${returnTime}:${pickupLocation}:${returnLocation}`,
+    [decodedName, pickupDateStr, returnDateStr, pickupTime, returnTime, pickupLocation, returnLocation],
+  );
+  const customerDataDraft = useMemo<CustomerDataDraft>(() => {
+    const { licenseFile: _licenseFile, ...draft } = customerData;
+    return draft;
+  }, [customerData]);
+
+  useFormDraft(
+    bookingDraftKey,
+    customerDataDraft,
+    (draft) => setCustomerData((prev) => ({ ...prev, ...draft, licenseFile: prev.licenseFile })),
+    true,
+    {
+      debounceMs: 150,
+      isEmpty: (draft) => Object.values(draft).every((value) => !String(value ?? "").trim()),
+    },
+  );
+
+  const addonsDraft = useMemo(() => ({
+    addonInsurance,
+    addonChildSeat,
+    addonChildSeatQty,
+    addonTollTag,
+  }), [addonInsurance, addonChildSeat, addonChildSeatQty, addonTollTag]);
+
+  useFormDraft(
+    `${bookingDraftKey}:addons`,
+    addonsDraft,
+    (draft) => {
+      setAddonInsurance(Boolean(draft.addonInsurance));
+      setAddonChildSeat(Boolean(draft.addonChildSeat));
+      setAddonChildSeatQty(Math.max(1, Number(draft.addonChildSeatQty) || 1));
+      setAddonTollTag(Boolean(draft.addonTollTag));
+    },
+    true,
+    {
+      debounceMs: 150,
+      silentRestore: true,
+      isEmpty: (draft) => !draft.addonInsurance && !draft.addonChildSeat && !draft.addonTollTag && Number(draft.addonChildSeatQty || 1) <= 1,
+    },
+  );
 
   // Handle cancelled checkout
   useEffect(() => {
