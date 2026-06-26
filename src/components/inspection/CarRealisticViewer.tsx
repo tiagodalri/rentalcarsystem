@@ -328,14 +328,3 @@ export default function CarRealisticViewer({
   );
 }
 
-function LoadingOverlay() {
-  // Renderiza apenas enquanto suspense estiver pendente — pendurado em Suspense pai
-  return (
-    <div className="absolute inset-0 flex items-center justify-center bg-background/30 backdrop-blur-sm pointer-events-none">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Loader2 size={14} className="animate-spin text-primary" />
-        Carregando modelo 3D…
-      </div>
-    </div>
-  );
-}
