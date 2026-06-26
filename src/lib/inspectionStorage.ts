@@ -23,13 +23,26 @@ export function extractInspectionPath(value: string | null | undefined): string 
 }
 
 const cache = new Map<string, { url: string; expiresAt: number }>();
+const localPreviews = new Map<string, string>(); // path -> blob: URL (immediate preview after upload)
 const TTL_SECONDS = 3600;
+
+/** Register a local blob preview for a freshly uploaded file, keyed by its storage path. */
+export function registerLocalInspectionPreview(path: string, file: File | Blob): string {
+  const url = URL.createObjectURL(file);
+  const prev = localPreviews.get(path);
+  if (prev) URL.revokeObjectURL(prev);
+  localPreviews.set(path, url);
+  return url;
+}
 
 export async function getSignedInspectionUrl(value: string | null | undefined): Promise<string | null> {
   if (!value) return null;
-  if (value.startsWith("data:")) return value; // pass through
+  if (value.startsWith("data:") || value.startsWith("blob:")) return value;
   const path = extractInspectionPath(value);
   if (!path) return null;
+
+  const local = localPreviews.get(path);
+  if (local) return local;
 
   const cached = cache.get(path);
   if (cached && cached.expiresAt > Date.now()) return cached.url;
