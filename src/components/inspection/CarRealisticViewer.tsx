@@ -12,7 +12,7 @@ import { RotateCcw, ZoomIn, ZoomOut, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   pickVehicle3dModel,
-  inferMeshLabel,
+  classifyMesh,
   type VehicleLike,
   type Vehicle3dModelDef,
 } from "@/data/vehicle3dModels";
@@ -22,77 +22,89 @@ import {
  * Visualizador 3D real do veículo (modelo GLB) com:
  *  - Modelo escolhido automaticamente conforme a categoria do veículo
  *  - Rotação 360° livre (todos os eixos), zoom, pan desativado
- *  - Hover acende a peça em dourado emissivo (sem pins/marcadores)
+ *  - Hover acende a peça INTEIRA em dourado emissivo — todas as sub-malhas
+ *    do mesmo grupo lógico (ex: porta = color1+color2+handle+mirror+window)
+ *    acendem juntas, dando o efeito de "peça recortada"
  *  - Clique na peça registra avaria
  *  - Atribuição de licença visível (CC-BY)
- *
- * A biblioteca de modelos vive em src/data/vehicle3dModels.ts — adicione
- * novos GLBs lá conforme expandir a frota da Zeus.
  */
 
 const GOLD = new THREE.Color("#D4AF37");
 const BLACK = new THREE.Color("#000000");
 
+type ClassifiedMesh = {
+  mesh: THREE.Mesh;
+  label: string;
+  pickable: boolean;
+};
+
 type CarModelProps = {
   url: string;
-  hoveredMesh: string | null;
+  /** Group label currently hovered (not the raw mesh name) */
+  hoveredLabel: string | null;
   damagedLabels: Set<string>;
-  onHover: (meshName: string | null) => void;
+  onHover: (label: string | null) => void;
   onPick: (label: string) => void;
   disabled?: boolean;
 };
 
-function CarModel({ url, hoveredMesh, damagedLabels, onHover, onPick, disabled }: CarModelProps) {
+function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled }: CarModelProps) {
   const { scene } = useGLTF(url, true);
 
-  // Clona materiais por malha p/ permitir emissive individual sem afetar outras instâncias
-  const meshes = useMemo(() => {
-    const list: THREE.Mesh[] = [];
+  // Clona materiais por malha e classifica cada uma em um grupo lógico
+  const classified = useMemo<ClassifiedMesh[]>(() => {
+    const list: ClassifiedMesh[] = [];
     scene.traverse((o) => {
       const mesh = o as THREE.Mesh;
-      if ((mesh as any).isMesh) {
-        if (Array.isArray(mesh.material)) {
-          mesh.material = mesh.material.map((m) => (m as THREE.Material).clone());
-        } else if (mesh.material) {
-          mesh.material = (mesh.material as THREE.Material).clone();
-        }
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        list.push(mesh);
+      if (!(mesh as any).isMesh) return;
+      if (Array.isArray(mesh.material)) {
+        mesh.material = mesh.material.map((m) => (m as THREE.Material).clone());
+      } else if (mesh.material) {
+        mesh.material = (mesh.material as THREE.Material).clone();
       }
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      const { label, pickable } = classifyMesh(mesh.name);
+      list.push({ mesh, label, pickable });
     });
     return list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene]);
 
-  // Aplica brilho dourado no hover / mantém leve glow nas peças com avaria
+  // Aplica brilho dourado em TODAS as sub-malhas do grupo hovered
   useEffect(() => {
-    meshes.forEach((m) => {
-      const meshName = m.name;
-      const label = inferMeshLabel(meshName);
-      const isHover = hoveredMesh === meshName;
-      const isDamaged = damagedLabels.has(label);
-      const intensity = isHover ? 0.95 : isDamaged ? 0.45 : 0;
-      const isGlass = /glass|window|windshield/i.test(meshName);
+    classified.forEach(({ mesh, label, pickable }) => {
+      const isHover = pickable && hoveredLabel != null && label === hoveredLabel;
+      const isDamaged = pickable && damagedLabels.has(label);
+      const intensity = isHover ? 1.0 : isDamaged ? 0.5 : 0;
+      const isGlass = /glass|window|windshield|gasket/i.test(mesh.name);
 
       const applyMat = (mat: THREE.Material | null | undefined) => {
         if (!mat) return;
         const std = mat as THREE.MeshStandardMaterial;
         if (!("emissive" in std)) return;
-        if (isGlass && !isHover) {
-          std.emissive?.copy(BLACK);
-          std.emissiveIntensity = 0;
+        // vidros só acendem suavemente no hover
+        if (isGlass) {
+          std.emissive?.copy(isHover ? GOLD : BLACK);
+          std.emissiveIntensity = isHover ? 0.35 : 0;
+          std.needsUpdate = true;
           return;
         }
-        std.emissive?.copy(GOLD);
+        std.emissive?.copy(intensity > 0 ? GOLD : BLACK);
         std.emissiveIntensity = intensity;
         std.needsUpdate = true;
       };
 
-      if (Array.isArray(m.material)) m.material.forEach(applyMat);
-      else applyMat(m.material as THREE.Material);
+      if (Array.isArray(mesh.material)) mesh.material.forEach(applyMat);
+      else applyMat(mesh.material as THREE.Material);
     });
-  }, [meshes, hoveredMesh, damagedLabels]);
+  }, [classified, hoveredLabel, damagedLabels]);
+
+  const labelOf = (mesh: THREE.Object3D | undefined): ClassifiedMesh | null => {
+    if (!mesh) return null;
+    const found = classified.find((c) => c.mesh === mesh);
+    return found ?? null;
+  };
 
   return (
     <primitive
@@ -100,11 +112,14 @@ function CarModel({ url, hoveredMesh, damagedLabels, onHover, onPick, disabled }
       onPointerOver={(e: any) => {
         if (disabled) return;
         e.stopPropagation();
-        const name = e.object?.name as string | undefined;
-        if (name) {
-          onHover(name);
-          document.body.style.cursor = "pointer";
+        const info = labelOf(e.object);
+        if (!info || !info.pickable) {
+          onHover(null);
+          document.body.style.cursor = "auto";
+          return;
         }
+        onHover(info.label);
+        document.body.style.cursor = "pointer";
       }}
       onPointerOut={(e: any) => {
         e.stopPropagation();
@@ -114,12 +129,13 @@ function CarModel({ url, hoveredMesh, damagedLabels, onHover, onPick, disabled }
       onClick={(e: any) => {
         if (disabled) return;
         e.stopPropagation();
-        const name = e.object?.name as string | undefined;
-        if (name) onPick(inferMeshLabel(name));
+        const info = labelOf(e.object);
+        if (info && info.pickable) onPick(info.label);
       }}
     />
   );
 }
+
 
 function CameraResetHook({ resetSignal, position, target }: {
   resetSignal: number;
