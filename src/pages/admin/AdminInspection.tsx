@@ -691,14 +691,36 @@ export default function AdminInspection() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* File inputs — capture="environment" opens rear camera on mobile.
+      {/* Camera-capture inputs — capture="environment" opens rear camera on mobile.
           NOTE: iOS Safari (and standalone PWA) ignore programmatic .click() on
-          inputs with display:none. Use sr-only style so the input stays in the
-          layout/accessibility tree and the click reliably opens the camera. */}
+          inputs with display:none. Use sr-only so the input stays in the layout
+          tree and the click reliably opens the camera. */}
       <input ref={fileInputRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleFileCapture} />
       <input ref={damageFileRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleDamageFile} />
       <input ref={odometerPhotoRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleOdometerPhoto} />
       <input ref={fuelPhotoRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleFuelPhoto} />
+
+      {/* Gallery inputs — no capture attribute → opens file/photo picker (existing photos). */}
+      <input ref={fileInputGalRef} type="file" accept="image/*" multiple className="sr-only" onChange={handleFileCapture} />
+      <input ref={damageFileGalRef} type="file" accept="image/*" className="sr-only" onChange={handleDamageFile} />
+      <input ref={odometerPhotoGalRef} type="file" accept="image/*" className="sr-only" onChange={handleOdometerPhoto} />
+      <input ref={fuelPhotoGalRef} type="file" accept="image/*" className="sr-only" onChange={handleFuelPhoto} />
+
+      {/* Source picker: Camera vs. Gallery */}
+      <PhotoSourceSheet
+        open={!!sourcePicker}
+        onClose={() => setSourcePicker(null)}
+        onPickCamera={handlePickerCamera}
+        onPickGallery={handlePickerGallery}
+        title={
+          sourcePicker?.kind === "exterior" ? `Foto: ${sourcePicker.position}` :
+          sourcePicker?.kind === "damage" ? "Foto da avaria" :
+          sourcePicker?.kind === "odometer" ? "Foto do odômetro" :
+          sourcePicker?.kind === "fuel" ? "Foto do tanque" : "Adicionar foto"
+        }
+        allowMultiple={sourcePicker?.kind === "exterior"}
+      />
+
 
       {/* Webcam dialog — only used on desktop/notebook (no touch). Mobile uses native camera via input capture. */}
       <WebcamCaptureDialog
