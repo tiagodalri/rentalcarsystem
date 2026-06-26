@@ -1138,10 +1138,10 @@ export default function AdminInspection() {
                         <div className="flex flex-col sm:flex-row gap-4 p-4 pl-5">
                           {/* Photo column */}
                           <div className="flex sm:flex-col items-start gap-2 shrink-0">
-                            {d.photoUrl ? (
+                            {d.photo_url ? (
                               <div className="relative group/photo">
                                 <SignedImage
-                                  value={d.photoUrl}
+                                  value={d.photo_url}
                                   alt={`Avaria ${idx + 1}`}
                                   className="w-24 h-24 object-cover rounded-lg border border-border/60 shadow-sm"
                                 />
