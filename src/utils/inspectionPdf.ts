@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { getSignedInspectionUrl } from "@/lib/inspectionStorage";
 
 type InspectionData = {
   type: "checkin" | "checkout";
@@ -31,9 +32,10 @@ const SEVERITY_LABELS: Record<string, string> = {
   light: "Leve", medium: "Moderada", heavy: "Grave",
 };
 
-async function loadImageAsBase64(url: string): Promise<string | null> {
+async function loadImageAsBase64(value: string): Promise<string | null> {
   try {
-    const res = await fetch(url);
+    const resolved = (await getSignedInspectionUrl(value)) || value;
+    const res = await fetch(resolved);
     const blob = await res.blob();
     return new Promise((resolve) => {
       const reader = new FileReader();
