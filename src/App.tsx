@@ -9,25 +9,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { ThemeProvider } from "@/i18n/ThemeContext";
 import { CurrencyProvider } from "@/i18n/CurrencyContext";
+// Eager: home (LCP crítico) e shell admin
 import Index from "./pages/Index.tsx";
-import AboutUs from "./pages/AboutUs.tsx";
-import SearchResults from "./pages/SearchResults.tsx";
-import BookingDetails from "./pages/BookingDetails.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import Login from "./pages/Login.tsx";
-import BookingConfirmed from "./pages/BookingConfirmed.tsx";
-import CustomerRegistration from "./pages/CustomerRegistration.tsx";
-import ResetPassword from "./pages/ResetPassword.tsx";
-import Contato from "./pages/Contato.tsx";
-import VehicleDetail from "./pages/VehicleDetail.tsx";
-import Frota from "./pages/Frota.tsx";
-import PublicTrack from "./pages/PublicTrack.tsx";
-import Checkout from "./pages/Checkout.tsx";
 
 import RequireAuth from "./components/RequireAuth.tsx";
 import { RequireRole } from "./components/admin/RequireRole.tsx";
 import AdminLayout from "./components/admin/AdminLayout.tsx";
-import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import { AdminShellSkeleton } from "./components/skeletons/AdminShellSkeleton.tsx";
 import { AccountSkeleton } from "./components/skeletons/AccountSkeleton.tsx";
 import InstallPrompt from "./components/InstallPrompt.tsx";
@@ -37,9 +25,26 @@ import { useDynamicThemeColor } from "./hooks/useDynamicThemeColor.ts";
 import { useNativeFeel } from "./hooks/useNativeFeel.ts";
 import { useSwipeBack } from "./hooks/useSwipeBack.ts";
 
+// Lazy-loaded: páginas públicas secundárias (reduz bundle inicial da home)
+const AboutUs = lazy(() => import("./pages/AboutUs.tsx"));
+const SearchResults = lazy(() => import("./pages/SearchResults.tsx"));
+const BookingDetails = lazy(() => import("./pages/BookingDetails.tsx"));
+const Login = lazy(() => import("./pages/Login.tsx"));
+const BookingConfirmed = lazy(() => import("./pages/BookingConfirmed.tsx"));
+const CustomerRegistration = lazy(() => import("./pages/CustomerRegistration.tsx"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
+const Contato = lazy(() => import("./pages/Contato.tsx"));
+const VehicleDetail = lazy(() => import("./pages/VehicleDetail.tsx"));
+const Frota = lazy(() => import("./pages/Frota.tsx"));
+const PublicTrack = lazy(() => import("./pages/PublicTrack.tsx"));
+const Checkout = lazy(() => import("./pages/Checkout.tsx"));
+
 // Lazy-loaded: client authenticated pages
 const MyAccount = lazy(() => import("./pages/MyAccount.tsx"));
 const BookingDetailClient = lazy(() => import("./pages/BookingDetailClient.tsx"));
+
+// Lazy-loaded: admin login (raramente acessado por visitantes do site público)
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.tsx"));
 
 // Lazy-loaded: admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.tsx"));
