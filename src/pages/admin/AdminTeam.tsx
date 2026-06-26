@@ -195,7 +195,9 @@ function AdminTeamDesktop() {
     });
   };
 
+  const [saving, setSaving] = useState(false);
   const handleSave = async () => {
+    if (saving) return;
     if (!form.full_name.trim()) { toast({ title: "Nome é obrigatório", variant: "destructive" }); return; }
 
     const payload = {
@@ -209,17 +211,26 @@ function AdminTeamDesktop() {
       permissions: form.permissions as any,
     };
 
-    if (editingId) {
-      await supabase.from("team_members").update(payload).eq("id", editingId);
-      toast({ title: "Membro atualizado" });
-    } else {
-      await supabase.from("team_members").insert(payload);
-      toast({ title: "Membro adicionado" });
+    setSaving(true);
+    try {
+      if (editingId) {
+        const { error } = await supabase.from("team_members").update(payload).eq("id", editingId);
+        if (error) throw error;
+        toast({ title: "Membro atualizado" });
+      } else {
+        const { error } = await supabase.from("team_members").insert(payload);
+        if (error) throw error;
+        toast({ title: "Membro adicionado" });
+      }
+      setShowForm(false);
+      setEditingId(null);
+      setForm(emptyForm);
+      load();
+    } catch (e: any) {
+      toast({ title: "Erro ao salvar", description: e?.message ?? "Tente novamente.", variant: "destructive" });
+    } finally {
+      setSaving(false);
     }
-    setShowForm(false);
-    setEditingId(null);
-    setForm(emptyForm);
-    load();
   };
 
   const handleEdit = (m: TeamMember) => {
@@ -513,7 +524,7 @@ function AdminTeamDesktop() {
             {/* Actions */}
             <div className="flex justify-end gap-2 p-5 pt-0">
               <button onClick={() => { setShowForm(false); setEditingId(null); }} className="text-xs px-4 py-2 rounded-lg border border-border/40 text-muted-foreground hover:text-foreground transition-colors">Cancelar</button>
-              <button onClick={handleSave} className="text-xs px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors">{editingId ? "Salvar" : "Adicionar"}</button>
+              <button onClick={handleSave} disabled={saving} className="text-xs px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-1.5">{saving ? "Salvando..." : (editingId ? "Salvar" : "Adicionar")}</button>
             </div>
           </CardContent>
         </Card>

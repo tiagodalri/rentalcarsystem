@@ -103,14 +103,7 @@ export default function AdminLayout() {
                 <LanguageSwitcher className="h-9 w-9 justify-center rounded-full hover:bg-accent/60" />
               </div>
 
-              <main
-                className="flex-1 px-4 pt-3 pb-4 lg:p-6"
-                style={{
-                  // Reserva espaço pra bottom nav em mobile; desktop usa o padding normal.
-                  paddingBottom:
-                    "max(calc(64px + env(safe-area-inset-bottom, 0px) + 20px), 1rem)",
-                }}
-              >
+              <main className="flex-1 px-4 pt-3 pb-[max(calc(64px+env(safe-area-inset-bottom,0px)+20px),1rem)] lg:p-6">
                 <Outlet />
               </main>
 

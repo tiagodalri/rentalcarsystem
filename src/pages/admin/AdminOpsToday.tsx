@@ -164,10 +164,10 @@ export default function AdminOpsToday() {
     preparing: maintenance.filter(v => v.status === "preparing"),
   }), [maintenance]);
 
+  if (isMobile) return <MobileOps />;
   if (loading) {
     return <LoadingRows count={6} rowHeight={64} className="p-6" />;
   }
-  if (isMobile) return <MobileOps />;
 
 
   return (

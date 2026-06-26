@@ -10,8 +10,8 @@ import MobileFinance from "./mobile/MobileFinance";
 
 export default function AdminFinance() {
   const { isMobile } = useIsMobileApp();
-  if (isMobile) return <MobileFinance />;
   const [params, setParams] = useSearchParams();
+  if (isMobile) return <MobileFinance />;
   const activeTab = params.get("tab") || "overview";
   const setActiveTab = (v: string) => {
     const next = new URLSearchParams(params);

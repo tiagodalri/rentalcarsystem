@@ -178,20 +178,20 @@ export default function MobileOps() {
           </h1>
 
           <div className="mt-3 inline-flex items-center gap-1 rounded-xl border border-border/50 bg-card p-1">
-            <button onClick={() => setDate((d) => addDays(d, -1))} className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground active:bg-muted">
+            <button aria-label="Dia anterior" onClick={() => setDate((d) => addDays(d, -1))} className="h-11 w-11 rounded-lg flex items-center justify-center text-muted-foreground active:bg-muted">
               <ChevronLeft size={16} />
             </button>
             <button
               onClick={() => setDate(startOfDay(new Date()))}
               disabled={isToday}
-              className={`h-9 px-3 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 ${isToday ? "bg-muted text-muted-foreground" : "text-foreground active:bg-muted"}`}
+              className={`h-11 px-3 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 ${isToday ? "bg-muted text-muted-foreground" : "text-foreground active:bg-muted"}`}
             >
               <CalendarDays size={13} /> {isToday ? "Hoje" : "Voltar para hoje"}
             </button>
             <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
               <PopoverTrigger asChild>
                 <button
-                  className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground active:bg-muted"
+                  className="h-11 w-11 rounded-lg flex items-center justify-center text-muted-foreground active:bg-muted"
                   aria-label="Selecionar data"
                 >
                   <CalendarIcon size={16} />
@@ -212,7 +212,7 @@ export default function MobileOps() {
                 />
               </PopoverContent>
             </Popover>
-            <button onClick={() => setDate((d) => addDays(d, 1))} className="h-9 w-9 rounded-lg flex items-center justify-center text-muted-foreground active:bg-muted">
+            <button aria-label="Próximo dia" onClick={() => setDate((d) => addDays(d, 1))} className="h-11 w-11 rounded-lg flex items-center justify-center text-muted-foreground active:bg-muted">
               <ChevronRight size={16} />
             </button>
           </div>

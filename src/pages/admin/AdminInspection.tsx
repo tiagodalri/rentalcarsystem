@@ -782,7 +782,7 @@ export default function AdminInspection() {
             <button
               key={i}
               onClick={() => setStep(i)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
                 step === i
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "bg-muted/50 text-muted-foreground hover:bg-muted"
@@ -1344,6 +1344,8 @@ export default function AdminInspection() {
               ) : (
                 <canvas
                   ref={agentCanvasRef}
+                  role="img"
+                  aria-label="Área de assinatura do agente — desenhe sua assinatura com o dedo ou mouse"
                   width={400}
                   height={150}
                   className="border-2 border-dashed border-border/60 rounded-lg bg-white cursor-crosshair touch-none w-full max-w-md"
@@ -1378,6 +1380,8 @@ export default function AdminInspection() {
               ) : (
                 <canvas
                   ref={customerCanvasRef}
+                  role="img"
+                  aria-label="Área de assinatura do cliente — desenhe a assinatura com o dedo ou mouse"
                   width={400}
                   height={150}
                   className="border-2 border-dashed border-border/60 rounded-lg bg-white cursor-crosshair touch-none w-full max-w-md"
@@ -1411,29 +1415,44 @@ export default function AdminInspection() {
             </Button>
           )}
         </div>
-        <div className="flex gap-2">
-          {!isCompleted && (
-            <Button variant="outline" onClick={() => handleSave(false)} disabled={saving}>
-              {saving ? <Loader2 size={14} className="animate-spin mr-1" /> : <Save size={14} className="mr-1" />}
-              Salvar Rascunho
-            </Button>
+        <div className="flex flex-col items-end gap-2">
+          {(() => {
+            const missing: string[] = [];
+            if (!agentName) missing.push("nome do agente");
+            if (!agentSignature) missing.push("assinatura do agente");
+            if (!customerSignature) missing.push("assinatura do cliente");
+            const isLast = step === steps.length - 1;
+            return (!isCompleted && isLast && missing.length > 0) ? (
+              <p className="text-[11px] text-muted-foreground">Preencha: {missing.join(", ")}.</p>
+            ) : null;
+          })()}
+          {uploading && (
+            <p className="text-[11px] text-amber-600 dark:text-amber-400">Aguarde o envio das fotos antes de avançar…</p>
           )}
-          {step < steps.length - 1 ? (
-            <Button onClick={() => setStep(step + 1)}>
-              Próximo
-            </Button>
-          ) : (
-            !isCompleted && (
-              <Button
-                onClick={() => handleSave(true)}
-                disabled={saving || !customerSignature || !agentSignature || !agentName}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-              >
-                {saving ? <Loader2 size={14} className="animate-spin mr-1" /> : <CheckCircle2 size={14} className="mr-1" />}
-                Finalizar Inspeção
+          <div className="flex gap-2">
+            {!isCompleted && (
+              <Button variant="outline" onClick={() => handleSave(false)} disabled={saving || uploading}>
+                {saving ? <Loader2 size={14} className="animate-spin mr-1" /> : <Save size={14} className="mr-1" />}
+                Salvar Rascunho
               </Button>
-            )
-          )}
+            )}
+            {step < steps.length - 1 ? (
+              <Button onClick={() => setStep(step + 1)} disabled={uploading}>
+                Próximo
+              </Button>
+            ) : (
+              !isCompleted && (
+                <Button
+                  onClick={() => handleSave(true)}
+                  disabled={saving || uploading || !customerSignature || !agentSignature || !agentName}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  {saving ? <Loader2 size={14} className="animate-spin mr-1" /> : <CheckCircle2 size={14} className="mr-1" />}
+                  Finalizar Inspeção
+                </Button>
+              )
+            )}
+          </div>
         </div>
       </div>
     </div>
