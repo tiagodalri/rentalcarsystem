@@ -35,6 +35,11 @@ export function registerLocalInspectionPreview(path: string, file: File | Blob):
   return url;
 }
 
+export function getLocalInspectionPreview(value: string | null | undefined): string | null {
+  const path = extractInspectionPath(value);
+  return path ? localPreviews.get(path) || null : null;
+}
+
 export async function getSignedInspectionUrl(value: string | null | undefined): Promise<string | null> {
   if (!value) return null;
   if (value.startsWith("data:") || value.startsWith("blob:")) return value;
@@ -59,7 +64,9 @@ export async function getSignedInspectionUrl(value: string | null | undefined): 
 /** React hook: resolves a stored value (path / legacy URL / data URL) to a usable URL. */
 export function useSignedInspectionUrl(value: string | null | undefined): string | null {
   const [url, setUrl] = useState<string | null>(() =>
-    value && (value.startsWith("data:") || value.startsWith("blob:")) ? value : null
+    value && (value.startsWith("data:") || value.startsWith("blob:"))
+      ? value
+      : getLocalInspectionPreview(value)
   );
 
   useEffect(() => {
@@ -70,6 +77,11 @@ export function useSignedInspectionUrl(value: string | null | undefined): string
     }
     if (value.startsWith("data:") || value.startsWith("blob:")) {
       setUrl(value);
+      return;
+    }
+    const local = getLocalInspectionPreview(value);
+    if (local) {
+      setUrl(local);
       return;
     }
     getSignedInspectionUrl(value).then((u) => {
@@ -90,8 +102,8 @@ export function useSignedInspectionUrl(value: string | null | undefined): string
  */
 export async function compressInspectionImage(
   file: File,
-  maxDim = 1600,
-  quality = 0.78,
+  maxDim = 1400,
+  quality = 0.72,
 ): Promise<Blob> {
   try {
     if (!file.type.startsWith("image/")) return file;

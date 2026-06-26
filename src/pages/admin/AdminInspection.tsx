@@ -63,6 +63,8 @@ type ExteriorPhoto = {
   url: string;
 };
 
+type PhotoUploadStatus = "uploading" | "done" | "failed";
+
 type AccessoryCheck = Record<string, boolean>;
 
 // SVG mini illustrations for each photo position
@@ -213,6 +215,27 @@ const PHOTO_POSITIONS: { name: string; guide: string; optional?: boolean }[] = [
   { name: "Estepe", guide: "Somente se o veículo possuir estepe visível ou acessível. Registre o estado do pneu reserva, independente de onde esteja (porta-malas, porta traseira, sob o veículo, etc.)", optional: true },
 ];
 
+const PhotoUploadBadge = ({ status }: { status?: PhotoUploadStatus }) => {
+  if (!status || status === "done") return null;
+
+  return (
+    <span
+      className={`absolute top-1 right-1 z-10 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium shadow-sm backdrop-blur-md ${
+        status === "failed"
+          ? "border-destructive/35 bg-destructive/90 text-destructive-foreground"
+          : "border-border/50 bg-background/85 text-foreground"
+      }`}
+    >
+      {status === "failed" ? (
+        <AlertTriangle size={10} />
+      ) : (
+        <Loader2 size={10} className="animate-spin" />
+      )}
+      {status === "failed" ? "Falhou" : "Enviando"}
+    </span>
+  );
+};
+
 
 const FUEL_LEVELS = [
   { value: "empty", label: "Vazio", pct: 0 },
@@ -287,6 +310,7 @@ export default function AdminInspection() {
   const fileInputGalRef = useRef<HTMLInputElement>(null);
   const [capturePosition, setCapturePosition] = useState<string>("");
   const [uploading, setUploading] = useState(false);
+  const [photoUploadStatus, setPhotoUploadStatus] = useState<Record<string, PhotoUploadStatus>>({});
 
   // Damage photo
   const damageFileRef = useRef<HTMLInputElement>(null);
@@ -327,35 +351,29 @@ export default function AdminInspection() {
 
   const handleWebcamFile = async (file: File) => {
     if (!webcamTarget) return;
-    setUploading(true);
-    try {
-      if (webcamTarget.kind === "exterior") {
-        const url = await uploadPhoto(file, webcamTarget.position.replace(/\s/g, "_"));
-        if (url) {
-          setPhotos((prev) => {
-            const filtered = prev.filter((p) => p.position !== webcamTarget.position);
-            return [...filtered, { id: crypto.randomUUID(), position: webcamTarget.position, url }];
-          });
-        }
-      } else if (webcamTarget.kind === "damage") {
-        const url = await uploadPhoto(file, `damage-${webcamTarget.damageId.substring(0, 8)}`);
-        if (url) {
-          setDamages((prev) =>
-            prev.map((d) => (d.id === webcamTarget.damageId ? { ...d, photo_url: url } : d))
-          );
-        }
-      } else if (webcamTarget.kind === "odometer") {
-        const url = await uploadPhoto(file, "odometro");
-        if (url) { setOdometerPhoto(url); setFuelPhoto(url); }
-
-      } else if (webcamTarget.kind === "fuel") {
-        const url = await uploadPhoto(file, "tanque_combustivel");
-        if (url) setFuelPhoto(url);
+    if (webcamTarget.kind === "exterior") {
+      const url = uploadPhoto(file, webcamTarget.position.replace(/\s/g, "_"));
+      if (url) {
+        setPhotos((prev) => {
+          const filtered = prev.filter((p) => p.position !== webcamTarget.position);
+          return [...filtered, { id: crypto.randomUUID(), position: webcamTarget.position, url }];
+        });
       }
-    } finally {
-      setUploading(false);
-      setWebcamTarget(null);
+    } else if (webcamTarget.kind === "damage") {
+      const url = uploadPhoto(file, `damage-${webcamTarget.damageId.substring(0, 8)}`);
+      if (url) {
+        setDamages((prev) =>
+          prev.map((d) => (d.id === webcamTarget.damageId ? { ...d, photo_url: url } : d))
+        );
+      }
+    } else if (webcamTarget.kind === "odometer") {
+      const url = uploadPhoto(file, "odometro");
+      if (url) { setOdometerPhoto(url); setFuelPhoto(url); }
+    } else if (webcamTarget.kind === "fuel") {
+      const url = uploadPhoto(file, "tanque_combustivel");
+      if (url) setFuelPhoto(url);
     }
+    setWebcamTarget(null);
   };
 
   const draftKey = bookingId ? `zeus_inspection_draft:${bookingId}:${type}` : "";
@@ -503,25 +521,50 @@ export default function AdminInspection() {
   // Optimistic upload: compresses the photo, registers an instant blob preview,
   // returns the storage path immediately, and uploads in the background.
   // The thumbnail appears in the UI right away — no waiting for the round-trip.
-  const uploadPhoto = async (file: File, tag: string): Promise<string | null> => {
-    const compressed = await compressInspectionImage(file);
-    const ext = compressed.type === "image/jpeg" ? "jpg" : (file.name.split(".").pop() || "jpg");
-    const path = `${bookingId}/${type}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${tag}.${ext}`;
-    registerLocalInspectionPreview(path, compressed);
+  const getImageExtension = (file: File) => {
+    const byType: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/png": "png",
+      "image/webp": "webp",
+      "image/heic": "heic",
+      "image/heif": "heif",
+    };
+    if (byType[file.type]) return byType[file.type];
+    return file.name.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  };
+
+  const uploadPhoto = (file: File, tag: string): string | null => {
+    if (!bookingId) return null;
+    const ext = getImageExtension(file);
+    const safeTag = tag.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const path = `${bookingId}/${type}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safeTag}.${ext}`;
+
+    // Register the original file immediately. This makes the thumbnail appear
+    // on the next paint; compression and network upload happen after the UI updates.
+    registerLocalInspectionPreview(path, file);
+    setPhotoUploadStatus((prev) => ({ ...prev, [path]: "uploading" }));
     bumpUploading(+1);
-    void supabase.storage
-      .from("inspections")
-      .upload(path, compressed, {
-        contentType: compressed.type || "image/jpeg",
-        cacheControl: "3600",
-        upsert: false,
-      })
-      .then(({ error }) => {
+
+    window.setTimeout(() => {
+      void (async () => {
+        const compressed = await compressInspectionImage(file);
+        const { error } = await supabase.storage
+          .from("inspections")
+          .upload(path, compressed, {
+            contentType: compressed.type || file.type || "image/jpeg",
+            cacheControl: "3600",
+            upsert: false,
+          });
+
         if (error) {
+          setPhotoUploadStatus((prev) => ({ ...prev, [path]: "failed" }));
           toast({ title: "Erro ao enviar foto", description: error.message, variant: "destructive" });
+          return;
         }
-      })
-      .finally(() => bumpUploading(-1));
+        setPhotoUploadStatus((prev) => ({ ...prev, [path]: "done" }));
+      })().finally(() => bumpUploading(-1));
+    }, 80);
+
     return path;
   };
 
@@ -532,28 +575,27 @@ export default function AdminInspection() {
     setSourcePicker({ kind: "exterior", position });
   };
 
-  const handleFileCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length || !capturePosition) return;
-    setUploading(true);
+    const selectedPosition = capturePosition;
     // For gallery multi-select we keep the position label on the first file and
     // append the others as additional photos for the same position.
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const url = await uploadPhoto(file, capturePosition.replace(/\s/g, "_"));
+      const url = uploadPhoto(file, selectedPosition.replace(/\s/g, "_"));
       if (url) {
         setPhotos((prev) => {
           // Single capture replaces the same position; multi-select appends.
           if (files.length === 1) {
-            const filtered = prev.filter((p) => p.position !== capturePosition);
-            return [...filtered, { id: crypto.randomUUID(), position: capturePosition, url }];
+            const filtered = prev.filter((p) => p.position !== selectedPosition);
+            return [...filtered, { id: crypto.randomUUID(), position: selectedPosition, url }];
           }
-          return [...prev, { id: crypto.randomUUID(), position: capturePosition, url }];
+          return [...prev, { id: crypto.randomUUID(), position: selectedPosition, url }];
         });
       }
     }
     setCapturePosition("");
-    setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (fileInputGalRef.current) fileInputGalRef.current.value = "";
   };
@@ -563,14 +605,12 @@ export default function AdminInspection() {
     setSourcePicker({ kind: "odometer" });
   };
 
-  const handleOdometerPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleOdometerPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
-    const url = await uploadPhoto(file, "odometro");
+    const url = uploadPhoto(file, "odometro");
     if (url) { setOdometerPhoto(url); setFuelPhoto(url); }
 
-    setUploading(false);
     if (odometerPhotoRef.current) odometerPhotoRef.current.value = "";
     if (odometerPhotoGalRef.current) odometerPhotoGalRef.current.value = "";
   };
@@ -580,13 +620,11 @@ export default function AdminInspection() {
     setSourcePicker({ kind: "fuel" });
   };
 
-  const handleFuelPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFuelPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setUploading(true);
-    const url = await uploadPhoto(file, "tanque_combustivel");
+    const url = uploadPhoto(file, "tanque_combustivel");
     if (url) setFuelPhoto(url);
-    setUploading(false);
     if (fuelPhotoRef.current) fuelPhotoRef.current.value = "";
     if (fuelPhotoGalRef.current) fuelPhotoGalRef.current.value = "";
   };
@@ -597,18 +635,16 @@ export default function AdminInspection() {
     setSourcePicker({ kind: "damage", damageId });
   };
 
-  const handleDamageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDamageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !damagePhotoTarget) return;
-    setUploading(true);
-    const url = await uploadPhoto(file, `damage-${damagePhotoTarget.substring(0, 8)}`);
+    const url = uploadPhoto(file, `damage-${damagePhotoTarget.substring(0, 8)}`);
     if (url) {
       setDamages((prev) =>
         prev.map((d) => (d.id === damagePhotoTarget ? { ...d, photo_url: url } : d))
       );
     }
     setDamagePhotoTarget("");
-    setUploading(false);
     if (damageFileRef.current) damageFileRef.current.value = "";
     if (damageFileGalRef.current) damageFileGalRef.current.value = "";
   };
@@ -799,6 +835,7 @@ export default function AdminInspection() {
   }
 
   const isCompleted = !!existingInspection?.completed_at;
+  const failedUploadCount = Object.values(photoUploadStatus).filter((status) => status === "failed").length;
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -986,7 +1023,7 @@ export default function AdminInspection() {
               ) : (
                 <button
                   onClick={() => !isCompleted && captureOdometerPhoto()}
-                  disabled={isCompleted || uploading}
+                  disabled={isCompleted}
                   className="min-h-[200px] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
                 >
                   <Camera size={28} />
@@ -998,7 +1035,7 @@ export default function AdminInspection() {
 
             {uploading && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 size={14} className="animate-spin" /> Enviando foto...
+                <Loader2 size={14} className="animate-spin" /> Foto já disponível. Enviando em segundo plano...
               </div>
             )}
           </CardContent>
@@ -1026,6 +1063,7 @@ export default function AdminInspection() {
                         {photo ? (
                           <div className="relative aspect-[4/3] rounded-lg overflow-hidden border border-border/40">
                             <SignedImage value={photo.url} alt={pos.name} className="w-full h-full object-cover" />
+                            <PhotoUploadBadge status={photoUploadStatus[photo.url]} />
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                               {!isCompleted && (
                                 <>
@@ -1056,7 +1094,7 @@ export default function AdminInspection() {
                         ) : (
                           <button
                             onClick={() => { !isCompleted && capturePhoto(pos.name); setActiveGuide(pos.name); }}
-                            disabled={isCompleted || uploading}
+                            disabled={isCompleted}
                             className={`aspect-[4/3] rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-1.5 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors w-full ${
                               pos.optional ? "border-border/40 bg-muted/20" : "border-border/60"
                             }`}
@@ -1086,7 +1124,7 @@ export default function AdminInspection() {
                 </div>
                 {uploading && (
                   <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
-                    <Loader2 size={14} className="animate-spin" /> Enviando foto...
+                    <Loader2 size={14} className="animate-spin" /> Fotos já aparecem na grade. Envio em segundo plano...
                   </div>
                 )}
                 <p className="text-xs text-muted-foreground mt-4">
@@ -1256,6 +1294,7 @@ export default function AdminInspection() {
                                   alt={`Avaria ${idx + 1}`}
                                   className="w-24 h-24 object-cover rounded-lg border border-border/60 shadow-sm"
                                 />
+                                <PhotoUploadBadge status={photoUploadStatus[d.photo_url]} />
                                 {!isCompleted && (
                                   <button
                                     type="button"
@@ -1537,25 +1576,27 @@ export default function AdminInspection() {
               <p className="text-[11px] text-muted-foreground">Preencha: {missing.join(", ")}.</p>
             ) : null;
           })()}
-          {uploading && (
-            <p className="text-[11px] text-amber-600 dark:text-amber-400">Aguarde o envio das fotos antes de avançar…</p>
+          {failedUploadCount > 0 ? (
+            <p className="text-[11px] text-destructive">{failedUploadCount} foto(s) falharam no envio. Refazer antes de finalizar.</p>
+          ) : uploading && (
+            <p className="text-[11px] text-muted-foreground">Fotos disponíveis na hora. Envio seguro em segundo plano.</p>
           )}
           <div className="flex gap-2">
             {!isCompleted && (
-              <Button variant="outline" onClick={() => handleSave(false)} disabled={saving || uploading}>
+              <Button variant="outline" onClick={() => handleSave(false)} disabled={saving || uploading || failedUploadCount > 0}>
                 {saving ? <Loader2 size={14} className="animate-spin mr-1" /> : <Save size={14} className="mr-1" />}
                 Salvar Rascunho
               </Button>
             )}
             {step < steps.length - 1 ? (
-              <Button onClick={() => setStep(step + 1)} disabled={uploading}>
+              <Button onClick={() => setStep(step + 1)}>
                 Próximo
               </Button>
             ) : (
               !isCompleted && (
                 <Button
                   onClick={() => handleSave(true)}
-                  disabled={saving || uploading || !customerSignature || !agentSignature || !agentName}
+                  disabled={saving || uploading || failedUploadCount > 0 || !customerSignature || !agentSignature || !agentName}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
                   {saving ? <Loader2 size={14} className="animate-spin mr-1" /> : <CheckCircle2 size={14} className="mr-1" />}
