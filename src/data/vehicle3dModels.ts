@@ -10,6 +10,7 @@
 
 import ferrariAsset from "@/assets/models3d/ferrari-458.glb.asset.json";
 import conceptAsset from "@/assets/models3d/khronos-concept.glb.asset.json";
+import tiguanAsset from "@/assets/models3d/vw-tiguan.glb.asset.json";
 
 export type Vehicle3dModelDef = {
   /** Stable identifier (used as React key / DB hint) */
