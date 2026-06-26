@@ -27,6 +27,7 @@ import refRodaDE from "@/assets/inspection/roda-de.jpg";
 import refRodaDD from "@/assets/inspection/roda-dd.jpg";
 import refRodaTE from "@/assets/inspection/roda-te.jpg";
 import refRodaTD from "@/assets/inspection/roda-td.jpg";
+import { SignedImage } from "@/components/admin/SignedImage";
 
 const PHOTO_REFERENCES: Record<string, string> = {
   "Frente": refFrente,
@@ -830,7 +831,7 @@ export default function AdminInspection() {
               </label>
               {odometerPhoto ? (
                 <div className="relative group">
-                  <img src={odometerPhoto} alt="Painel do veículo" className="w-full h-auto max-h-[320px] object-cover rounded-lg border border-border/40" />
+                  <SignedImage value={odometerPhoto} alt="Painel do veículo" className="w-full h-auto max-h-[320px] object-cover rounded-lg border border-border/40" />
                   {!isCompleted && (
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
                       <Button size="sm" variant="secondary" onClick={captureOdometerPhoto} className="h-7 text-xs">
@@ -884,7 +885,7 @@ export default function AdminInspection() {
                       <div key={pos.name} className="relative group">
                         {photo ? (
                           <div className="relative aspect-[4/3] rounded-lg overflow-hidden border border-border/40">
-                            <img src={photo.url} alt={pos.name} className="w-full h-full object-cover" />
+                            <SignedImage value={photo.url} alt={pos.name} className="w-full h-full object-cover" />
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                               {!isCompleted && (
                                 <>
@@ -1131,7 +1132,7 @@ export default function AdminInspection() {
                     </div>
                     <div className="flex flex-col gap-1">
                       {d.photoUrl ? (
-                        <img src={d.photoUrl} alt="Avaria" className="w-16 h-16 object-cover rounded border" />
+                        <SignedImage value={d.photoUrl} alt="Avaria" className="w-16 h-16 object-cover rounded border" />
                       ) : (
                         <Button
                           size="sm"
