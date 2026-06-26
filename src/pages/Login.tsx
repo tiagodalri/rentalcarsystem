@@ -136,7 +136,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => { setMode("forgot"); setError(null); }}
-                    className="text-xs text-primary hover:text-primary/80 transition-colors"
+                    className="text-xs text-primary hover:text-primary/80 transition-colors py-2 px-1 -mr-1 min-h-11 inline-flex items-center"
                   >
                     Esqueci minha senha
                   </button>
