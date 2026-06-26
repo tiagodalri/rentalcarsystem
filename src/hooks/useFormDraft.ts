@@ -23,9 +23,15 @@ export function useFormDraft<T extends object>(
   const latestKeyRef = useRef(key);
   const latestEnabledRef = useRef(enabled);
   const latestOptionsRef = useRef(options);
+  const previousEnabledRef = useRef(enabled);
   const debounce = options?.debounceMs ?? 400;
 
   useEffect(() => {
+    if (previousEnabledRef.current && !enabled && restoredRef.current) {
+      if (saveTimer.current) clearTimeout(saveTimer.current);
+      persist(latestKeyRef.current, latestValueRef.current);
+    }
+    previousEnabledRef.current = enabled;
     latestValueRef.current = value;
     latestKeyRef.current = key;
     latestEnabledRef.current = enabled;
