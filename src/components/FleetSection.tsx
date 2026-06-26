@@ -263,7 +263,7 @@ const FleetSection = () => {
                       className="relative w-full h-full object-cover object-[center_45%] transition-transform duration-700 group-hover:scale-105"
                       loading={eager ? "eager" : "lazy"}
                       decoding="async"
-                      fetchPriority={eager ? "high" : "auto"}
+                      {...({ fetchpriority: eager ? "high" : "auto" } as Record<string, string>)}
                       width={640}
                       height={480}
                       onLoad={(e) => {

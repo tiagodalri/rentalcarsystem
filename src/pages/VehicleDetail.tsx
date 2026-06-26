@@ -222,7 +222,7 @@ const VehicleDetail = () => {
                     className="w-full h-full object-cover cursor-zoom-in animate-fade-in"
                     loading="eager"
                     decoding="async"
-                    fetchPriority="high"
+                    {...({ fetchpriority: "high" } as Record<string, string>)}
                     onClick={() => setIsFullscreen(true)}
                   />
 

@@ -32,7 +32,7 @@ const HeroSection = () => {
           alt="Zeus Rental Car"
           loading="eager"
           decoding="async"
-          fetchPriority="high"
+          {...({ fetchpriority: "high" } as Record<string, string>)}
           width={1584}
           height={672}
           initial={{ opacity: 0, scale: 0.85 }}
