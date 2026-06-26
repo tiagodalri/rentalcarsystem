@@ -246,7 +246,8 @@ const DEFAULT_ACCESSORIES: Record<string, string> = {
 export default function AdminInspection() {
   const { bookingId } = useParams();
   const [searchParams] = useSearchParams();
-  const type = searchParams.get("type") as "checkin" | "checkout";
+  const rawType = searchParams.get("type");
+  const type: "checkin" | "checkout" = rawType === "checkout" ? "checkout" : "checkin";
   const navigate = useNavigate();
 
   const [booking, setBooking] = useState<any>(null);
@@ -345,43 +346,48 @@ export default function AdminInspection() {
 
   useEffect(() => {
     loadData();
-  }, [bookingId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookingId, type]);
 
   const loadData = async () => {
     if (!bookingId) return;
     setLoading(true);
+    try {
+      const [bookingRes, inspectionRes] = await Promise.all([
+        supabase.from("bookings").select("*").eq("id", bookingId).single(),
+        supabase.from("vehicle_inspections").select("*").eq("booking_id", bookingId).eq("type", type).maybeSingle(),
+      ]);
 
-    const [bookingRes, inspectionRes] = await Promise.all([
-      supabase.from("bookings").select("*").eq("id", bookingId).single(),
-      supabase.from("vehicle_inspections").select("*").eq("booking_id", bookingId).eq("type", type).maybeSingle(),
-    ]);
-
-    if (bookingRes.data) {
-      setBooking(bookingRes.data);
-      if (bookingRes.data.vehicle_id) {
-        const { data: veh } = await supabase.from("vehicles").select("*").eq("id", bookingRes.data.vehicle_id).single();
-        setVehicle(veh);
+      if (bookingRes.error) {
+        toast({ title: "Erro ao carregar reserva", description: bookingRes.error.message, variant: "destructive" });
+      } else if (bookingRes.data) {
+        setBooking(bookingRes.data);
+        if (bookingRes.data.vehicle_id) {
+          const { data: veh } = await supabase.from("vehicles").select("*").eq("id", bookingRes.data.vehicle_id).single();
+          setVehicle(veh);
+        }
       }
-    }
 
-    if (inspectionRes.data) {
-      setExistingInspection(inspectionRes.data);
-      setOdometer(inspectionRes.data.odometer_reading?.toString() || "");
-      setFuelLevel(inspectionRes.data.fuel_level || "full");
-      setPhotos((inspectionRes.data.exterior_photos as any[]) || []);
-      setDamages((inspectionRes.data.damages as any[]) || []);
-      setAccessories(inspectionRes.data.accessories_check as AccessoryCheck || {});
-      setNotes(inspectionRes.data.notes || "");
-      setAgentName(inspectionRes.data.agent_name || "");
-      setCustomerSignature(inspectionRes.data.customer_signature || "");
-      setAgentSignature(inspectionRes.data.agent_signature || "");
-      // Load extra photos from exterior_photos array
-      const extPhotos = (inspectionRes.data.exterior_photos as any[]) || [];
-      setOdometerPhoto(extPhotos.find((p: any) => p.position === "__odometer")?.url || "");
-      setFuelPhoto(extPhotos.find((p: any) => p.position === "__fuel")?.url || "");
+      if (inspectionRes.data) {
+        setExistingInspection(inspectionRes.data);
+        setOdometer(inspectionRes.data.odometer_reading?.toString() || "");
+        setFuelLevel(inspectionRes.data.fuel_level || "full");
+        setPhotos((inspectionRes.data.exterior_photos as any[]) || []);
+        setDamages((inspectionRes.data.damages as any[]) || []);
+        setAccessories(inspectionRes.data.accessories_check as AccessoryCheck || {});
+        setNotes(inspectionRes.data.notes || "");
+        setAgentName(inspectionRes.data.agent_name || "");
+        setCustomerSignature(inspectionRes.data.customer_signature || "");
+        setAgentSignature(inspectionRes.data.agent_signature || "");
+        const extPhotos = (inspectionRes.data.exterior_photos as any[]) || [];
+        setOdometerPhoto(extPhotos.find((p: any) => p.position === "__odometer")?.url || "");
+        setFuelPhoto(extPhotos.find((p: any) => p.position === "__fuel")?.url || "");
+      }
+    } catch (e: any) {
+      toast({ title: "Erro ao carregar inspeção", description: e?.message || "Tente novamente.", variant: "destructive" });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   // Generic upload helper — returns the storage PATH (signed URLs generated at render-time)
@@ -577,22 +583,58 @@ export default function AdminInspection() {
       customer_signature: customerSignature,
       agent_signature: agentSignature,
       agent_name: agentName,
-      completed_at: finalize ? new Date().toISOString() : null,
+      // Preserve a previously-recorded completion timestamp on draft saves so an
+      // accidental "Salvar Rascunho" never un-finalizes an inspection.
+      completed_at: finalize
+        ? new Date().toISOString()
+        : (existingInspection?.completed_at ?? null),
     };
 
     let error;
+    let savedRow: any = null;
     if (existingInspection) {
-      ({ error } = await supabase.from("vehicle_inspections").update(payload).eq("id", existingInspection.id));
+      const res = await supabase
+        .from("vehicle_inspections")
+        .update(payload)
+        .eq("id", existingInspection.id)
+        .select()
+        .maybeSingle();
+      error = res.error;
+      savedRow = res.data;
     } else {
-      ({ error } = await supabase.from("vehicle_inspections").insert(payload));
+      const res = await supabase
+        .from("vehicle_inspections")
+        .insert(payload)
+        .select()
+        .maybeSingle();
+      error = res.error;
+      savedRow = res.data;
     }
 
     if (error) {
       toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: finalize ? "Inspeção finalizada com sucesso!" : "Rascunho salvo!" });
-      if (finalize) navigate("/admin/bookings");
+      setSaving(false);
+      return;
     }
+
+    // Re-sync local state so subsequent saves update the same row instead of inserting a duplicate.
+    if (savedRow) setExistingInspection(savedRow);
+
+    // On finalize: also transition the parent booking status so downstream
+    // ranking (in_progress > confirmed) and reporting stay accurate.
+    if (finalize && bookingId) {
+      const nextStatus = type === "checkin" ? "in_progress" : "completed";
+      const { error: bErr } = await supabase
+        .from("bookings")
+        .update({ status: nextStatus })
+        .eq("id", bookingId);
+      if (bErr) {
+        console.error("[inspection] failed to update booking status", bErr);
+      }
+    }
+
+    toast({ title: finalize ? "Inspeção finalizada com sucesso!" : "Rascunho salvo!" });
+    if (finalize) navigate("/admin/bookings");
     setSaving(false);
   };
 

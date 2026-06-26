@@ -1896,6 +1896,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bump_public_inspection_link_view: {
+        Args: { _token: string }
+        Returns: undefined
+      }
       check_vehicle_availability: {
         Args: {
           p_exclude_id?: string
