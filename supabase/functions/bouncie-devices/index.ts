@@ -39,7 +39,7 @@ async function refreshTokenIfNeeded(admin: any) {
     }),
   });
   const body = await tokenResp.text();
-  console.log("[bouncie-devices] token refresh response", tokenResp.status, body);
+  console.log("[bouncie-devices] token refresh status", tokenResp.status);
   if (!tokenResp.ok) throw new Error(`token refresh failed ${tokenResp.status}: ${body}`);
   const parsed = JSON.parse(body);
   const accessToken = parsed.access_token as string;
