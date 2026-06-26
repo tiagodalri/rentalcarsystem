@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import {
   pickVehicle3dModel,
   classifyMesh,
+  inferLabelByPosition,
   type VehicleLike,
   type Vehicle3dModelDef,
 } from "@/data/vehicle3dModels";
