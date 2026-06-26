@@ -54,7 +54,7 @@ type DamageItem = {
   position: string;
   description: string;
   severity: "light" | "medium" | "heavy";
-  photoUrl?: string;
+  photo_url?: string;
 };
 
 type ExteriorPhoto = {
