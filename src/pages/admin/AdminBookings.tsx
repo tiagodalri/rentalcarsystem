@@ -633,9 +633,11 @@ function AdminBookingsDesktop() {
   // Filter + sort
   const filtered = useMemo(() => {
     let result = bookings.filter((b) => {
-      const matchSearch = b.customer_name.toLowerCase().includes(search.toLowerCase()) ||
-        (b.customer_email || "").toLowerCase().includes(search.toLowerCase()) ||
-        (b.vehicle_name || "").toLowerCase().includes(search.toLowerCase());
+      const q = search.toLowerCase();
+      const matchSearch = b.customer_name.toLowerCase().includes(q) ||
+        (b.customer_email || "").toLowerCase().includes(q) ||
+        (b.vehicle_name || "").toLowerCase().includes(q) ||
+        (b.booking_number || "").toLowerCase().includes(q);
       const matchStatus = filters.status === "all" || b.status === filters.status;
       const matchPickup = filters.pickupLocation === "all" || b.pickup_location === filters.pickupLocation;
       const matchReturn = filters.returnLocation === "all" || b.return_location === filters.returnLocation;

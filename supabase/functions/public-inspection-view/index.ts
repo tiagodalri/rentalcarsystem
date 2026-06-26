@@ -89,12 +89,9 @@ Deno.serve(async (req) => {
     const agent_signature = await sign(inspection.agent_signature);
     const customer_signature = await sign(inspection.customer_signature);
 
-    // bump view counter (fire-and-forget)
-    supabase
-      .from('public_inspection_links')
-      .update({ last_viewed_at: new Date().toISOString(), view_count: (link.view_count ?? 0) + 1 })
-      .eq('token', token)
-      .then(() => {});
+    // Atomic counter bump via RPC (avoids the read-modify-write race that
+    // would undercount concurrent opens of the same link).
+    supabase.rpc('bump_public_inspection_link_view', { _token: token }).then(() => {});
 
     return json({
       type: link.inspection_type,
