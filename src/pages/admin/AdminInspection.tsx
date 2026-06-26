@@ -467,6 +467,9 @@ export default function AdminInspection() {
       toast({ title: "Erro ao enviar foto", description: error.message, variant: "destructive" });
       return null;
     }
+    // Register an immediate local preview so the UI shows the photo instantly,
+    // without waiting for the signed URL round-trip (and as a fallback if signing fails).
+    registerLocalInspectionPreview(path, file);
     return path;
   };
 
