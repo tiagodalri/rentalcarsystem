@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import Car3DScene from "./Car3DScene";
+import CarRealisticViewer from "./CarRealisticViewer";
 
 /**
  * CarDamageMap
