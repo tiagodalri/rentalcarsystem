@@ -86,6 +86,10 @@ export function pickVehicle3dModel(vehicle: VehicleLike): Vehicle3dModelDef {
     .join(" ")
     .toLowerCase();
 
+  if (haystack.includes("tiguan")) {
+    return VEHICLE_3D_MODELS["vw-tiguan"];
+  }
+
   if (haystack.includes("ferrari") || haystack.includes("458")) {
     return VEHICLE_3D_MODELS["ferrari-458"];
   }
