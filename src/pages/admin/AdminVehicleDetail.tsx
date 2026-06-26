@@ -1159,8 +1159,9 @@ export default function AdminVehicleDetail() {
                 {renderField("Chassi (VIN)", "vin", "text")}
                 {renderField("Cor", "color", "text")}
                 {renderField("IMEI Bouncie", "bouncie_imei", "text")}
+                {renderField("E-Pass Transponder", "e_pass_transponder", "text")}
               </div>
-              <p className="text-[11px] text-muted-foreground -mt-4 mb-6">Número do rastreador Bouncie — encontrado em Users & Devices no portal.</p>
+              <p className="text-[11px] text-muted-foreground -mt-4 mb-6">IMEI Bouncie: rastreador (Users & Devices no portal). E-Pass: tag de pedágio para controle de cobranças.</p>
 
               {/* Comercial */}
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Comercial</h4>
