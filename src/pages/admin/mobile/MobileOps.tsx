@@ -125,14 +125,12 @@ export default function MobileOps() {
               {b.booking_number && <span className="opacity-60">· #{b.booking_number}</span>}
             </div>
           </div>
-          {kind === "in" && (
-            <button
-              onClick={(e) => { e.stopPropagation(); navigate(`/admin/inspection/${b.id}?type=${kind === "in" ? "checkin" : "checkout"}`); }}
-              className="shrink-0 h-9 px-3 rounded-lg bg-primary text-primary-foreground text-[11px] font-semibold inline-flex items-center gap-1.5"
-            >
-              <ClipboardCheck size={13} /> Inspeção
-            </button>
-          )}
+          <button
+            onClick={(e) => { e.stopPropagation(); navigate(`/admin/inspection/${b.id}?type=${kind === "in" ? "checkin" : "checkout"}`); }}
+            className="shrink-0 h-9 px-3 rounded-lg bg-primary text-primary-foreground text-[11px] font-semibold inline-flex items-center gap-1.5"
+          >
+            <ClipboardCheck size={13} /> {kind === "in" ? "Check-in" : "Check-out"}
+          </button>
         </button>
       </SwipeAction>
     );
