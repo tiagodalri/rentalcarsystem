@@ -358,10 +358,98 @@ export default function AdminInspection() {
     }
   };
 
+  const draftKey = bookingId ? `zeus_inspection_draft:${bookingId}:${type}` : "";
+  const draftRestoredRef = useRef(false);
+  const draftHydratedRef = useRef(false);
+
   useEffect(() => {
+    draftRestoredRef.current = false;
+    draftHydratedRef.current = false;
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookingId, type]);
+
+  // Restore local draft (after server hydration) so a tab switch / reload
+  // brings the user back to the same step with the same photos.
+  useEffect(() => {
+    if (loading || !draftKey || draftRestoredRef.current) return;
+    draftRestoredRef.current = true;
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) { draftHydratedRef.current = true; return; }
+      const d = JSON.parse(raw);
+      // Never override a finalized inspection.
+      if (existingInspection?.completed_at) {
+        localStorage.removeItem(draftKey);
+        draftHydratedRef.current = true;
+        return;
+      }
+      if (typeof d.step === "number") setStep(d.step);
+      if (typeof d.odometer === "string") setOdometer(d.odometer);
+      if (typeof d.fuelLevel === "string") setFuelLevel(d.fuelLevel);
+      if (Array.isArray(d.photos)) setPhotos(d.photos);
+      if (Array.isArray(d.damages)) setDamages(d.damages);
+      if (d.accessories && typeof d.accessories === "object") setAccessories(d.accessories);
+      if (typeof d.notes === "string") setNotes(d.notes);
+      if (typeof d.agentName === "string") setAgentName(d.agentName);
+      if (typeof d.customerSignature === "string") setCustomerSignature(d.customerSignature);
+      if (typeof d.agentSignature === "string") setAgentSignature(d.agentSignature);
+      if (typeof d.odometerPhoto === "string") setOdometerPhoto(d.odometerPhoto);
+      if (typeof d.fuelPhoto === "string") setFuelPhoto(d.fuelPhoto);
+    } catch (e) {
+      console.warn("[inspection] failed to restore draft", e);
+    } finally {
+      draftHydratedRef.current = true;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, draftKey]);
+
+  // Persist draft on every relevant change (only after hydration to avoid
+  // wiping the saved draft with empty initial values).
+  useEffect(() => {
+    if (!draftKey || !draftHydratedRef.current) return;
+    if (existingInspection?.completed_at) return;
+    try {
+      const payload = {
+        step, odometer, fuelLevel, photos, damages, accessories,
+        notes, agentName, customerSignature, agentSignature,
+        odometerPhoto, fuelPhoto,
+        savedAt: Date.now(),
+      };
+      localStorage.setItem(draftKey, JSON.stringify(payload));
+    } catch (e) {
+      // QuotaExceeded etc — silently ignore.
+    }
+  }, [
+    draftKey, step, odometer, fuelLevel, photos, damages, accessories,
+    notes, agentName, customerSignature, agentSignature,
+    odometerPhoto, fuelPhoto, existingInspection?.completed_at,
+  ]);
+
+  // Also flush a save when the tab is hidden (iOS may freeze the page).
+  useEffect(() => {
+    const flush = () => {
+      if (!draftKey || !draftHydratedRef.current) return;
+      if (existingInspection?.completed_at) return;
+      try {
+        localStorage.setItem(draftKey, JSON.stringify({
+          step, odometer, fuelLevel, photos, damages, accessories,
+          notes, agentName, customerSignature, agentSignature,
+          odometerPhoto, fuelPhoto, savedAt: Date.now(),
+        }));
+      } catch {}
+    };
+    window.addEventListener("visibilitychange", flush);
+    window.addEventListener("pagehide", flush);
+    return () => {
+      window.removeEventListener("visibilitychange", flush);
+      window.removeEventListener("pagehide", flush);
+    };
+  }, [
+    draftKey, step, odometer, fuelLevel, photos, damages, accessories,
+    notes, agentName, customerSignature, agentSignature,
+    odometerPhoto, fuelPhoto, existingInspection?.completed_at,
+  ]);
 
   const loadData = async () => {
     if (!bookingId) return;
