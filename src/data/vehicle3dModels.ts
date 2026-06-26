@@ -32,6 +32,15 @@ export type Vehicle3dModelDef = {
 };
 
 export const VEHICLE_3D_MODELS: Record<string, Vehicle3dModelDef> = {
+  "vw-tiguan": {
+    key: "vw-tiguan",
+    label: "Volkswagen Tiguan",
+    url: tiguanAsset.url,
+    attribution: "Modelo: 2022 Volkswagen Tiguan L 430 PHEV · CC-BY",
+    defaultForCategories: [],
+    cameraPosition: [5.2, 2.4, 6.2],
+    cameraTarget: [0, 0.6, 0],
+  },
   "khronos-concept": {
     key: "khronos-concept",
     label: "Concept Car (Khronos)",
