@@ -773,6 +773,10 @@ export default function AdminInspection() {
       }
     }
 
+    if (finalize && draftKey) {
+      try { localStorage.removeItem(draftKey); } catch {}
+    }
+
     toast({ title: finalize ? "Inspeção finalizada com sucesso!" : "Rascunho salvo!" });
     setSaving(false);
     if (finalize) navigate("/admin/bookings");
