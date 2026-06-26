@@ -191,6 +191,7 @@ export default function AdminVehicleDetail() {
       vin: editForm.vin || null,
       color: editForm.color || null,
       bouncie_imei: editForm.bouncie_imei ? String(editForm.bouncie_imei).trim() || null : null,
+      e_pass_transponder: editForm.e_pass_transponder ? String(editForm.e_pass_transponder).trim() || null : null,
       
       notes: editForm.notes || null,
       engine_type: editForm.engine_type || null,
