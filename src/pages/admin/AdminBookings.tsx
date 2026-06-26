@@ -533,6 +533,11 @@ function AdminBookingsDesktop() {
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [activePreset, setActivePreset] = useState<PresetKey | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "calendar" | "week">("table");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(() => {
+    const saved = Number(sessionStorage.getItem("admin-bookings-page-size"));
+    return saved && [25, 50, 100, 200].includes(saved) ? saved : 50;
+  });
   
   const [searchParams, setSearchParams] = useSearchParams();
 
