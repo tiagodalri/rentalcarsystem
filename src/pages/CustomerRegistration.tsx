@@ -13,6 +13,7 @@ import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { uploadCnh } from "@/lib/cnhStorage";
 import { clearFormDraft, useFormDraft } from "@/hooks/useFormDraft";
+import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 
 type RegistrationForm = {
   full_name: string;
