@@ -21,7 +21,10 @@ export function AdminMobileHeader() {
   const FabIcon = fab?.icon;
   const [isFs, setIsFs] = useState(false);
   const [fsSupported, setFsSupported] = useState(true);
-  const hidden = useHideOnScroll({ topOffset: 60, threshold: 10 });
+  // Header sempre visível no mobile — esconder ao rolar fazia o stepper logo abaixo
+  // sobrepor a status bar do iPhone (notch / Wi-Fi / bateria) em PWA standalone.
+  const hidden = false;
+
 
   useEffect(() => {
     const doc: any = document;
