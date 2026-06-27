@@ -654,14 +654,11 @@ function AdminCustomersDesktop() {
                   {filtered.map((c) => {
                     const wa = buildWhatsAppUrl(c.phone, defaultClientMessage(c.full_name));
                     const displayName = formatPersonName(c.full_name);
-                    const initials = displayName.split(" ").filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join("");
                     return (
                     <tr key={c.id} onClick={() => navigate(`/admin/customers/${c.id}`)} className="border-b border-border/10 hover:bg-muted/20 transition-colors group cursor-pointer">
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-muted/60 border border-border/40 flex items-center justify-center text-[10px] font-medium text-muted-foreground shrink-0">
-                            {initials || "?"}
-                          </div>
+                          <PersonAvatar name={c.full_name} size="sm" />
                           <span className="text-foreground font-medium text-[13px] truncate max-w-[200px]">{displayName}</span>
                         </div>
                       </td>
