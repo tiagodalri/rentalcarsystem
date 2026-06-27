@@ -81,8 +81,19 @@ export function ShareWhatsAppInspectionButton({
 
   const handleShare = async () => {
     setLoading(true);
+
+    // IMPORTANTE: abrir a janela do WhatsApp SINCRONAMENTE dentro do clique.
+    // Se abrirmos depois de qualquer `await`, o navegador bloqueia o popup e
+    // os downloads rodam sozinhos sem o WhatsApp abrir.
+    let waWindow: Window | null = null;
+    const isDesktopLike =
+      typeof window !== "undefined" &&
+      !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isDesktopLike) {
+      waWindow = window.open("about:blank", "_blank", "noopener,noreferrer");
+    }
+
     try {
-      // Load booking + vehicle + inspection in one roundtrip.
       const { data: booking, error: bErr } = await supabase
         .from("bookings")
         .select("*, customer:customers(*), vehicle:vehicles(*), inspections:vehicle_inspections(*)")
@@ -121,64 +132,82 @@ export function ShareWhatsAppInspectionButton({
         completedAt: inspection.completed_at ?? null,
       });
 
-      // Resolve photo URLs in parallel.
-      toast({ title: "Preparando fotos…", description: `Baixando ${photos.length} imagem(ns) para compartilhar.` });
+      const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+      // 1) Mobile/PWA: tenta Web Share API com arquivos (WhatsApp aparece na folha).
+      if (!isDesktopLike) {
+        toast({ title: "Preparando fotos…", description: `Baixando ${photos.length} imagem(ns).` });
+        const files: File[] = [];
+        const signed = await Promise.all(
+          photos.map(async (p, idx) => {
+            const url = await getSignedInspectionUrl(p.url || "");
+            if (!url) return null;
+            const safePos = (p.position || `foto-${idx + 1}`).toString().replace(/[^a-zA-Z0-9_-]/g, "_");
+            return urlToFile(url, `inspecao-${type}-${idx + 1}-${safePos}.jpg`);
+          }),
+        );
+        for (const f of signed) if (f) files.push(f);
+
+        const canShareFiles =
+          "canShare" in navigator &&
+          files.length > 0 &&
+          (navigator as any).canShare({ files });
+
+        if (canShareFiles && navigator.share) {
+          try {
+            await navigator.share({ text: message, title: "Inspeção Zeus", files } as any);
+            toast({ title: "Selecione o WhatsApp", description: "Toque no ícone do WhatsApp na folha de compartilhamento." });
+            return;
+          } catch (err: any) {
+            if (err?.name === "AbortError") return;
+          }
+        }
+        // Fallback mobile sem files: abre wa.me direto (gesto ainda válido).
+        await navigator.clipboard.writeText(message).catch(() => undefined);
+        window.location.href = waUrl;
+        return;
+      }
+
+      // 2) Desktop: redireciona a janela já aberta para o WhatsApp Web.
+      await navigator.clipboard.writeText(message).catch(() => undefined);
+      if (waWindow && !waWindow.closed) {
+        waWindow.location.href = waUrl;
+      } else {
+        // popup bloqueado — última tentativa
+        window.open(waUrl, "_blank", "noopener,noreferrer");
+      }
+
+      // 3) Em paralelo, baixa as fotos para o usuário anexar manualmente no WhatsApp Web.
+      toast({ title: "Baixando fotos…", description: `${photos.length} imagem(ns) — anexe no WhatsApp Web.` });
       const files: File[] = [];
       const signed = await Promise.all(
         photos.map(async (p, idx) => {
           const url = await getSignedInspectionUrl(p.url || "");
           if (!url) return null;
           const safePos = (p.position || `foto-${idx + 1}`).toString().replace(/[^a-zA-Z0-9_-]/g, "_");
-          const filename = `inspecao-${type}-${idx + 1}-${safePos}.jpg`;
-          return urlToFile(url, filename);
+          return urlToFile(url, `inspecao-${type}-${idx + 1}-${safePos}.jpg`);
         }),
       );
       for (const f of signed) if (f) files.push(f);
 
-      // Web Share API Level 2: text + multiple files (WhatsApp on iOS/Android supports this).
-      const shareData: ShareData = { text: message, title: "Inspeção Zeus" };
-      const canShareFiles =
-        typeof navigator !== "undefined" &&
-        "canShare" in navigator &&
-        files.length > 0 &&
-        (navigator as any).canShare({ files });
-
-      if (canShareFiles && navigator.share) {
-        try {
-          await navigator.share({ ...shareData, files } as any);
-          toast({ title: "Pronto para enviar", description: "Selecione o WhatsApp na folha de compartilhamento." });
-          return;
-        } catch (err: any) {
-          if (err?.name === "AbortError") return;
-          // fall through to fallback
-        }
+      for (const file of files) {
+        const u = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = u;
+        a.download = file.name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(u), 1500);
       }
 
-      // Fallback: open WhatsApp with the formatted message and download photos as a zip.
-      await navigator.clipboard.writeText(message).catch(() => undefined);
-      const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-      window.open(waUrl, "_blank", "noopener,noreferrer");
-
-      if (files.length > 0) {
-        // Trigger sequential downloads so the user has the originals on hand.
-        for (const file of files) {
-          const u = URL.createObjectURL(file);
-          const a = document.createElement("a");
-          a.href = u;
-          a.download = file.name;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(u), 1500);
-        }
-        toast({
-          title: "Mensagem aberta no WhatsApp",
-          description: `As ${files.length} foto(s) foram baixadas — anexe-as na conversa.`,
-        });
-      } else {
-        toast({ title: "Mensagem aberta no WhatsApp", description: "Texto copiado também para a área de transferência." });
-      }
+      toast({
+        title: "WhatsApp aberto",
+        description: `Mensagem pronta. ${files.length} foto(s) baixada(s) — arraste para a conversa.`,
+      });
     } catch (e: any) {
+      // se já abrimos a janela em branco e deu erro, fecha pra não deixar lixo
+      if (waWindow && !waWindow.closed) waWindow.close();
       toast({
         title: "Não foi possível compartilhar",
         description: e?.message || "Tente novamente em instantes.",
