@@ -107,6 +107,7 @@ export default function AdminOpsToday() {
   const [returns, setReturns] = useState<BookingRow[]>([]);
   const [vehicles, setVehicles] = useState<Record<string, Vehicle>>({});
   const [maintenance, setMaintenance] = useState<Vehicle[]>([]);
+  const [inspectionMap, setInspectionMap] = useState<Record<string, { checkin: boolean; checkout: boolean }>>({});
   const [showAllPrep, setShowAllPrep] = useState(false);
   const [pickupFilter, setPickupFilter] = useState<OpsStatus | "all">("all");
   const [returnFilter, setReturnFilter] = useState<OpsStatus | "all">("all");
