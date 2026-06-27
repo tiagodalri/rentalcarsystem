@@ -580,6 +580,7 @@ export default function CarRealisticViewer({
                 onPick={handlePick}
                 disabled={disabled}
                 meshClassifier={modelDef.meshClassifier}
+                isTiguan={modelDef.key === "vw-tiguan"}
               />
             </Bounds>
             <Environment preset="studio" />
