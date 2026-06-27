@@ -1198,12 +1198,18 @@ export default function AdminInspection() {
                   <>
                     <div className="rounded-lg overflow-hidden border border-border/40 bg-muted/30">
                       <div className="relative aspect-[3/2] bg-muted">
-                        <img
-                          src={PHOTO_REFERENCES[activeGuide]}
-                          alt={`Exemplo: ${activeGuide}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
+                        {PHOTO_REFERENCES[activeGuide] ? (
+                          <img
+                            src={PHOTO_REFERENCES[activeGuide]}
+                            alt={`Exemplo: ${activeGuide}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <PhotoIllustration position={activeGuide} />
+                          </div>
+                        )}
                         <div className="absolute top-2 left-2 bg-background/90 backdrop-blur px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-medium text-muted-foreground border border-border/40">
                           Exemplo
                         </div>
