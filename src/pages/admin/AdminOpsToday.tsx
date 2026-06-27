@@ -94,12 +94,8 @@ function deriveStatus(
   }
 }
 
-import { useIsMobileApp } from "@/hooks/useIsMobileApp";
-import MobileOps from "./mobile/MobileOps";
-
 export default function AdminOpsToday() {
   const navigate = useNavigate();
-  const { isMobile } = useIsMobileApp();
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(() => startOfDay(new Date()));
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -196,7 +192,6 @@ export default function AdminOpsToday() {
     preparing: maintenance.filter(v => v.status === "preparing"),
   }), [maintenance]);
 
-  if (isMobile) return <MobileOps />;
   if (loading) {
     return <LoadingRows count={6} rowHeight={64} className="p-6" />;
   }
