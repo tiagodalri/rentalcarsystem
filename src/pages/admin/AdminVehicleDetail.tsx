@@ -473,10 +473,10 @@ export default function AdminVehicleDetail() {
             const Icon = s.icon;
             return (
               <Card key={i} className="border-border/40">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-1.5 mb-1">
+                <CardContent className="p-3 h-full min-h-[88px] flex flex-col items-center justify-center text-center gap-1.5">
+                  <div className="flex items-center justify-center gap-1.5">
                     <Icon size={12} className="text-primary" />
-                    <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium truncate">{s.label}</span>
+                    <span className="text-[9px] text-muted-foreground uppercase tracking-wider font-medium">{s.label}</span>
                   </div>
                   <p className="text-sm font-medium text-foreground tabular-nums">{s.value}</p>
                 </CardContent>
