@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 import MobileCustomers from "./mobile/MobileCustomers";
 import { useRegisterFab } from "@/hooks/useAdminFab";
+import { useConfirm } from "@/components/mobile/ConfirmSheet";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Plus, Pencil, Trash2, X, FileText, Upload, Camera, Loader2, ExternalLink, Copy, Check, Users, MessageCircle, User, Car } from "lucide-react";
