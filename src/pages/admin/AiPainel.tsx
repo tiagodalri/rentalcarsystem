@@ -754,34 +754,34 @@ export default function AiPainel({
         {tab === "strategy" && (
           <div className="space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <RecCard title="Candidatos a venda" subtitle="Baixa ocupação + ROI fraco +180d" icon={AlertTriangle} hue="rose" empty="Frota saudável."
-                items={sellCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}%`, sub: `ROI ${p.roi.toFixed(1)}% · ${p.daysInFleet}d` }))} />
-              <RecCard title="Subir preço" subtitle="Demanda quente, +12% a +18%" icon={Flame} hue="amber" empty="Sem demanda excedente."
-                items={priceUpCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}%`, sub: `Diária ${fmtUSD(p.daily)} → sugerir ${fmtUSD(p.daily * 1.15)}` }))} />
-              <RecCard title="Baixar preço / promo" subtitle="Ocupação fria há +90d" icon={Snowflake} hue="amber" empty="Nenhum veículo congelado."
-                items={priceDownCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}%`, sub: `Diária ${fmtUSD(p.daily)} → testar ${fmtUSD(p.daily * 0.85)}` }))} />
+              <RecCard title="Carros para considerar vender" subtitle="Mais de 6 meses na frota com pouco uso e retorno baixo" icon={AlertTriangle} hue="rose" empty="Frota saudável — nenhum carro nessa situação."
+                items={sellCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Já devolveu ${p.roi.toFixed(1)}% do investido · ${p.daysInFleet} dias na frota` }))} />
+              <RecCard title="Carros que aguentam preço maior" subtitle="Estão sempre alugados — dá pra cobrar 12% a 18% a mais" icon={Flame} hue="amber" empty="Nenhum carro com demanda excedente."
+                items={priceUpCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 1.15)}/dia` }))} />
+              <RecCard title="Carros parados — testar promo" subtitle="Pouco alugados há mais de 90 dias" icon={Snowflake} hue="amber" empty="Nenhum carro nessa situação."
+                items={priceDownCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 0.85)}/dia em promo` }))} />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <div className="ai-card">
-                <CardHeader title="Estrelas da frota" sub="Replicar perfil em novas aquisições" icon={Award} />
+                <CardHeader title="Os carros que mais geram dinheiro" sub="Quem mais retorna por dia que está na sua frota — vale a pena comprar parecidos" icon={Award} />
                 <ul className="space-y-2.5">
                   {topStars.map(p => (
                     <li key={p.v.id} className="flex justify-between text-[12.5px]">
                       <div className="min-w-0">
                         <div className="text-white/90 truncate">{p.v.name}</div>
-                        <div className="text-[10.5px] text-white/55">{p.bookingsCount} reservas · {p.customerCount} clientes</div>
+                        <div className="text-[10.5px] text-white/55">{p.bookingsCount} reservas · {p.customerCount} clientes diferentes</div>
                       </div>
-                      <span className="tabular-nums text-emerald-200">{fmtUSD(p.revPerDayOwned)}/d</span>
+                      <span className="tabular-nums text-emerald-200">{fmtUSD(p.revPerDayOwned)}/dia</span>
                     </li>
                   ))}
                 </ul>
               </div>
               <div className="ai-card">
-                <CardHeader title="Categorias mais rentáveis" sub="Receita por dia possuído" icon={TrendingUp} />
+                <CardHeader title="Categorias que mais dão dinheiro" sub="Receita por dia que o carro está na sua frota" icon={TrendingUp} />
                 <ul className="space-y-2.5">
                   {byCategory.slice(0, 6).map(c => (
                     <li key={c.cat} className="text-[12.5px]">
-                      <div className="flex justify-between"><span className="text-white/85">{c.cat}</span><span className="tabular-nums text-amber-200">{fmtUSD(c.rpd)}/d</span></div>
+                      <div className="flex justify-between"><span className="text-white/85">{c.cat}</span><span className="tabular-nums text-amber-200">{fmtUSD(c.rpd)}/dia</span></div>
                       <div className="mt-1 h-1 rounded-full bg-white/10 overflow-hidden">
                         <div className="h-full ai-bar-emerald" style={{ width: `${Math.min(c.avgOcc, 100)}%` }} />
                       </div>
@@ -791,7 +791,7 @@ export default function AiPainel({
               </div>
             </div>
             <div className="ai-card">
-              <CardHeader title="Marcas que mais entregam" sub="Receita acumulada × ocupação média" icon={Zap} />
+              <CardHeader title="Marcas com melhor desempenho" sub="Receita total e taxa de uso média" icon={Zap} />
               <ul className="space-y-2.5">
                 {byBrand.slice(0, 6).map(b => (
                   <li key={b.brand} className="text-[12.5px]">
