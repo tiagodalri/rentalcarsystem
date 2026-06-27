@@ -109,9 +109,9 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
   return (
     <div className="rounded-xl border border-border/40 bg-card/40 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-[13px]">
+        <table className="w-full min-w-[1100px] text-[13px]">
           <thead>
-            <tr className="text-left text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70 border-b border-border/40">
+            <tr className="text-left text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70 border-b border-border/40 whitespace-nowrap">
               <th className="px-3 py-3 font-medium">Veículo</th>
               <th className="px-3 py-3 font-medium">Placa</th>
               <th className="px-3 py-3 font-medium">Categoria</th>
