@@ -303,6 +303,12 @@ export default function AdminFleetReport({
         ))}
       </div>
 
+      <p className="text-[11px] text-muted-foreground/70 -mt-2 flex items-center gap-1.5">
+        <span className="inline-block h-1 w-1 rounded-full bg-muted-foreground/40" />
+        Receita reconhecida pela data de retirada (pickup) e exclui reservas canceladas.
+      </p>
+
+
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Revenue per vehicle */}
