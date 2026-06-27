@@ -217,6 +217,7 @@ const App = () => (
               <Route path="/contato" element={<PublicSuspense><Contato /></PublicSuspense>} />
               <Route path="/minha-conta" element={<RequireAuth><ClientSuspense><MyAccount /></ClientSuspense></RequireAuth>} />
               <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><ClientSuspense><BookingDetailClient /></ClientSuspense></RequireAuth>} />
+              <Route path="/completar-perfil" element={<RequireAuth><ClientSuspense><CompleteProfile /></ClientSuspense></RequireAuth>} />
 
               {/* Admin routes */}
               <Route path="/admin/login" element={<PublicSuspense><AdminLogin /></PublicSuspense>} />
