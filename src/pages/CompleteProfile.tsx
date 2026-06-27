@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProfileTab from "@/components/account/ProfileTab";
 import { useAuth } from "@/hooks/useAuth";
+import type { User } from "@supabase/supabase-js";
 import { AccountSkeleton } from "@/components/skeletons/AccountSkeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPersonName } from "@/lib/formatName";
