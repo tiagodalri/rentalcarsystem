@@ -104,7 +104,7 @@ export function WebcamCaptureDialog({
     ctx.drawImage(video, 0, 0);
 
     // Não queimamos carimbo aqui — o stampInspectionPhoto aplica o carimbo
-    // novo (canto superior direito, grande e legível) após a captura.
+    // definitivo no canto inferior direito, já com segundos e mês por extenso.
 
     setPreview(canvas.toDataURL("image/jpeg", 0.92));
 
