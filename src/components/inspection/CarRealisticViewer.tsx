@@ -45,7 +45,8 @@ try {
  *  - Atribuição de licença visível (CC-BY)
  */
 
-const GOLD = new THREE.Color("#D4AF37");
+const GOLD = new THREE.Color("#FFD700");
+const DARK = new THREE.Color("#0a0a0a");
 const BLACK = new THREE.Color("#000000");
 
 type ClassifiedMesh = {
@@ -273,29 +274,65 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene, meshClassifier]);
 
-  // Aplica brilho dourado em TODAS as sub-malhas do grupo hovered
+  // Cache da cor original de cada material p/ restaurar quando desselecionar.
+  const originalColors = useRef<WeakMap<THREE.Material, THREE.Color>>(new WeakMap());
+
+  // Aplica alto contraste: peça selecionada brilha intenso em dourado,
+  // o restante do carro escurece pra destacar nitidamente a seleção.
   useEffect(() => {
+    const hasSelection = hoveredLabel != null;
+
     classified.forEach(({ mesh, label, pickable }) => {
-      const isHover = pickable && hoveredLabel != null && label === hoveredLabel;
+      const isHover = pickable && hasSelection && label === hoveredLabel;
       const isDamaged = pickable && damagedLabels.has(label);
-      const intensity = isHover ? 1.0 : isDamaged ? 0.5 : 0;
       const isGlass = /glass|window|windshield|gasket/i.test(mesh.name);
 
       const applyMat = (mat: THREE.Material | null | undefined) => {
         if (!mat) return;
         const std = mat as THREE.MeshStandardMaterial;
         if (!("emissive" in std)) return;
-        // vidros só acendem suavemente no hover
+
+        // Salva cor original 1x
+        if (std.color && !originalColors.current.has(std)) {
+          originalColors.current.set(std, std.color.clone());
+        }
+        const orig = originalColors.current.get(std);
+
         if (isGlass) {
           std.emissive?.copy(isHover ? GOLD : BLACK);
-          std.emissiveIntensity = isHover ? 0.35 : 0;
+          std.emissiveIntensity = isHover ? 0.6 : 0;
+          if (std.color && orig) {
+            // vidros: escurece levemente quando outra peça está selecionada
+            if (hasSelection && !isHover) std.color.copy(orig).multiplyScalar(0.45);
+            else std.color.copy(orig);
+          }
           std.needsUpdate = true;
           return;
         }
-        std.emissive?.copy(intensity > 0 ? GOLD : BLACK);
-        std.emissiveIntensity = intensity;
+
+        if (isHover) {
+          // Peça selecionada: dourado intenso + cor original viva
+          std.emissive?.copy(GOLD);
+          std.emissiveIntensity = 1.6;
+          if (std.color && orig) std.color.copy(orig);
+        } else if (isDamaged && !hasSelection) {
+          std.emissive?.copy(GOLD);
+          std.emissiveIntensity = 0.45;
+          if (std.color && orig) std.color.copy(orig);
+        } else if (hasSelection) {
+          // Resto do carro: escurece drasticamente p/ realçar a peça
+          std.emissive?.copy(BLACK);
+          std.emissiveIntensity = 0;
+          if (std.color && orig) std.color.copy(orig).multiplyScalar(0.22);
+        } else {
+          // Estado neutro: tudo restaurado
+          std.emissive?.copy(BLACK);
+          std.emissiveIntensity = 0;
+          if (std.color && orig) std.color.copy(orig);
+        }
         std.needsUpdate = true;
       };
+
 
       if (Array.isArray(mesh.material)) mesh.material.forEach(applyMat);
       else applyMat(mesh.material as THREE.Material);
