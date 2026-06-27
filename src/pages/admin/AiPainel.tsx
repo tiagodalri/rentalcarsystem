@@ -133,6 +133,64 @@ export default function AiPainel({
     p.occupancy < 25 && p.daysInFleet > 90 && p.daily > 0
   ).sort((a, b) => a.occupancy - b.occupancy).slice(0, 5);
 
+  /* ───── Concentração de receita (estilo Pareto) ───── */
+  const concentration = useMemo(() => {
+    const totalRev = perVehicle.reduce((s, p) => s + p.revenue, 0);
+    const totalInv = perVehicle.reduce((s, p) => s + p.purchase, 0);
+    const totalCount = perVehicle.length;
+    if (totalRev <= 0 || totalCount === 0) return null;
+
+    const sorted = [...perVehicle].sort((a, b) => b.revenue - a.revenue);
+
+    // Quantos carros são necessários para chegar a 80% da receita
+    let acc = 0;
+    const topForRev: typeof sorted = [];
+    for (const p of sorted) {
+      acc += p.revenue;
+      topForRev.push(p);
+      if (acc / totalRev >= 0.8) break;
+    }
+    const topRevShare = (acc / totalRev) * 100;
+    const topInv = topForRev.reduce((s, p) => s + p.purchase, 0);
+    const topInvShare = totalInv > 0 ? (topInv / totalInv) * 100 : 0;
+    const topCountShare = (topForRev.length / totalCount) * 100;
+    const topAvgOcc = topForRev.reduce((s, p) => s + p.occupancy, 0) / topForRev.length;
+
+    // O que sobra (cauda longa)
+    const tail = sorted.slice(topForRev.length);
+    const tailRev = tail.reduce((s, p) => s + p.revenue, 0);
+    const tailInv = tail.reduce((s, p) => s + p.purchase, 0);
+    const tailAvgOcc = tail.length ? tail.reduce((s, p) => s + p.occupancy, 0) / tail.length : 0;
+
+    // Concentração de receita por marca
+    const brandRev = new Map<string, number>();
+    perVehicle.forEach(p => {
+      const k = p.v.brand || p.v.name?.split(" ")[0] || "—";
+      brandRev.set(k, (brandRev.get(k) || 0) + p.revenue);
+    });
+    const topBrand = Array.from(brandRev.entries()).sort((a, b) => b[1] - a[1])[0];
+    const topBrandShare = topBrand ? (topBrand[1] / totalRev) * 100 : 0;
+
+    // Concentração por cliente
+    const custRev = new Map<string, number>();
+    realBookings.forEach(b => {
+      const k = b.customer_id || b.customer_name || "—";
+      custRev.set(k, (custRev.get(k) || 0) + (Number(b.total_price) || 0));
+    });
+    const custSorted = Array.from(custRev.values()).sort((a, b) => b - a);
+    const top10pct = Math.max(1, Math.ceil(custSorted.length * 0.1));
+    const top10Rev = custSorted.slice(0, top10pct).reduce((s, x) => s + x, 0);
+    const top10Share = totalRev > 0 ? (top10Rev / totalRev) * 100 : 0;
+
+    return {
+      topForRev, topRevShare, topInvShare, topCountShare, topAvgOcc,
+      tail, tailRev, tailInv, tailAvgOcc, totalRev, totalInv, totalCount,
+      topBrand: topBrand ? { name: topBrand[0], share: topBrandShare } : null,
+      topCustomers: { count: top10pct, share: top10Share, total: custSorted.length },
+    };
+  }, [perVehicle, realBookings]);
+
+
   /* ───── Category & Brand ───── */
   const byCategory = useMemo(() => {
     const map = new Map<string, { revenue: number; days: number; count: number; occ: number }>();
