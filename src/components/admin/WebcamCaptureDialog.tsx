@@ -105,56 +105,11 @@ export function WebcamCaptureDialog({
     if (!ctx) return;
     ctx.drawImage(video, 0, 0);
 
-    // Queima carimbo no canvas (mesmo formato do overlay ao vivo) — assim a foto
-    // entregue ao caller já vem com o stamp visível, sem depender de pós-processo.
-    if (stampAddress) {
-      const W = canvas.width;
-      const H = canvas.height;
-      const pad = Math.round(W * 0.018);
-      const fontPx = Math.max(18, Math.round(W * 0.022));
-      ctx.font = `600 ${fontPx}px Inter, system-ui, sans-serif`;
-      ctx.textBaseline = "bottom";
-      const dateText = formatStampDate(new Date());
-      const addressText = stampAddress;
-      // Quebra de endereço em até 2 linhas pelo width disponível.
-      const maxLineWidth = W - pad * 2;
-      const words = addressText.split(/\s+/);
-      const lines: string[] = [];
-      let current = "";
-      for (const w of words) {
-        const test = current ? current + " " + w : w;
-        if (ctx.measureText(test).width > maxLineWidth && current) {
-          lines.push(current);
-          current = w;
-        } else {
-          current = test;
-        }
-        if (lines.length === 1 && ctx.measureText(current).width > maxLineWidth) {
-          lines.push(current);
-          current = "";
-          break;
-        }
-      }
-      if (current) lines.push(current);
-      const allLines = [dateText, ...lines.slice(0, 2)];
-      const lineHeight = Math.round(fontPx * 1.25);
-      const blockH = lineHeight * allLines.length + pad;
-      // Fundo gradiente para garantir contraste.
-      const grad = ctx.createLinearGradient(0, H - blockH * 1.4, 0, H);
-      grad.addColorStop(0, "rgba(0,0,0,0)");
-      grad.addColorStop(1, "rgba(0,0,0,0.72)");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, H - blockH * 1.4, W, blockH * 1.4);
-      // Texto.
-      ctx.fillStyle = "#FFD479";
-      ctx.fillText(allLines[0], pad, H - lineHeight * (allLines.length - 1) - pad / 2);
-      ctx.fillStyle = "#ffffff";
-      for (let i = 1; i < allLines.length; i++) {
-        ctx.fillText(allLines[i], pad, H - lineHeight * (allLines.length - 1 - i) - pad / 2);
-      }
-    }
+    // Não queimamos carimbo aqui — o stampInspectionPhoto aplica o carimbo
+    // novo (canto superior direito, grande e legível) após a captura.
 
     setPreview(canvas.toDataURL("image/jpeg", 0.92));
+
   };
 
   const confirm = async () => {
