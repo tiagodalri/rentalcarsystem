@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { loadGoogleMaps } from "@/lib/googleMapsLoader";
 import { MapPin, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AddressAutocompleteInputProps {
   value: string;
@@ -13,13 +13,12 @@ interface AddressAutocompleteInputProps {
   id?: string;
 }
 
+type Suggestion = { placeId: string; primary: string; secondary: string };
+
 /**
- * Address autocomplete usando Google Places API (New).
- * - Sugestões aparecem a partir de 2 caracteres
- * - Bias para Orlando/FL, escopo US (formato CircleLiteral)
- * - Em caso de erro, exibe mensagem discreta abaixo do input
- * - Suporta toque (onPointerDown) e mouseup pra evitar que o blur do input
- *   feche o dropdown antes do tap registrar no mobile.
+ * Address autocomplete via edge function `places-autocomplete`, que chama o
+ * Google Places API (New) pelo connector gateway. Funciona em qualquer domínio
+ * (custom domain, PWA, mobile) porque NÃO depende da chave browser/referrer.
  */
 export function AddressAutocompleteInput({
   value,
@@ -29,14 +28,11 @@ export function AddressAutocompleteInput({
   disabled,
   id,
 }: AddressAutocompleteInputProps) {
-  const [suggestions, setSuggestions] = useState<
-    Array<{ placeId: string; primary: string; secondary: string }>
-  >([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const sessionTokenRef = useRef<any>(null);
-  const placesLibRef = useRef<any>(null);
+  const sessionTokenRef = useRef<string>(crypto.randomUUID());
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -64,72 +60,40 @@ export function AddressAutocompleteInput({
       try {
         setLoading(true);
         setError(null);
-        const google = await loadGoogleMaps();
-        if (!placesLibRef.current) {
-          placesLibRef.current = await google.maps.importLibrary("places");
-        }
-        const { AutocompleteSuggestion, AutocompleteSessionToken } = placesLibRef.current;
-        if (!AutocompleteSuggestion) {
-          throw new Error("Places API (New) indisponível — verifique a chave do Google Maps");
-        }
-        if (!sessionTokenRef.current) {
-          sessionTokenRef.current = new AutocompleteSessionToken();
-        }
-        const { suggestions: out } =
-          await AutocompleteSuggestion.fetchAutocompleteSuggestions({
-            input: q,
-            sessionToken: sessionTokenRef.current,
-            // Formato CircleLiteral do Places API New
-            locationBias: {
-              center: { lat: 28.5383, lng: -81.3792 }, // Orlando/FL
-              radius: 150000,
-            },
-            includedRegionCodes: ["us"],
-            language: "pt-BR",
-            region: "us",
-          });
+        const { data, error: fnErr } = await supabase.functions.invoke("places-autocomplete", {
+          body: { input: q, sessionToken: sessionTokenRef.current },
+        });
         if (cancelled) return;
-        const mapped = (out || [])
-          .map((s: any) => {
-            const p = s.placePrediction;
-            if (!p) return null;
-            return {
-              placeId: p.placeId,
-              primary: p.mainText?.text || p.text?.text || "",
-              secondary: p.secondaryText?.text || "",
-            };
-          })
-          .filter(Boolean) as typeof suggestions;
+        if (fnErr) throw fnErr;
+        if ((data as any)?.error) throw new Error((data as any).error);
+        const mapped: Suggestion[] = (data as any)?.suggestions || [];
         setSuggestions(mapped);
         setOpen(mapped.length > 0);
-        if (mapped.length === 0) {
-          setError("Nenhum endereço encontrado");
-        }
+        if (mapped.length === 0) setError("Nenhum endereço encontrado");
       } catch (e: any) {
         if (cancelled) return;
-        console.error("[AddressAutocomplete] erro ao buscar sugestões:", e);
+        console.error("[AddressAutocomplete] erro:", e);
         setSuggestions([]);
         setOpen(false);
-        setError(e?.message?.includes("REQUEST_DENIED")
-          ? "Chave do Google Maps sem permissão pra Places API neste domínio"
-          : "Falha ao buscar sugestões. Tente novamente.");
+        setError("Falha ao buscar sugestões. Tente novamente.");
       } finally {
         if (!cancelled) setLoading(false);
       }
-    }, 220);
+    }, 250);
     return () => {
       cancelled = true;
       window.clearTimeout(t);
     };
   }, [value]);
 
-  const pick = (s: { primary: string; secondary: string }) => {
+  const pick = (s: Suggestion) => {
     const full = [s.primary, s.secondary].filter(Boolean).join(", ");
     onChange(full);
     setSuggestions([]);
     setOpen(false);
     setError(null);
-    sessionTokenRef.current = null; // encerra a sessão (faturamento por sessão)
+    // Nova sessão p/ próxima busca (faturamento por sessão no Places API)
+    sessionTokenRef.current = crypto.randomUUID();
   };
 
   return (
@@ -163,7 +127,6 @@ export function AddressAutocompleteInput({
       {open && suggestions.length > 0 && (
         <div
           className="absolute z-[60] mt-1 w-full rounded-lg border border-border bg-popover shadow-xl overflow-hidden max-h-72 overflow-y-auto"
-          // Bloqueia o blur do input antes do click registrar (iOS Safari).
           onPointerDown={(e) => e.preventDefault()}
         >
           {suggestions.map((s) => (
@@ -173,13 +136,9 @@ export function AddressAutocompleteInput({
               onClick={() => pick(s)}
               className="w-full text-left px-3 py-3 hover:bg-muted/60 active:bg-muted transition-colors border-b border-border/40 last:border-b-0 min-h-[48px]"
             >
-              <div className="text-sm font-medium text-foreground line-clamp-1">
-                {s.primary}
-              </div>
+              <div className="text-sm font-medium text-foreground line-clamp-1">{s.primary}</div>
               {s.secondary && (
-                <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
-                  {s.secondary}
-                </div>
+                <div className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{s.secondary}</div>
               )}
             </button>
           ))}
