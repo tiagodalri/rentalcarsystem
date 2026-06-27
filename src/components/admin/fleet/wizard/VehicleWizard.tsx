@@ -13,6 +13,28 @@ import StepPhotosAndPublish, { PendingPhoto } from "./StepPhotosAndPublish";
 
 const DRAFT_KEY = "new-vehicle";
 
+const isVehicleDraftEmpty = (draft: WizardForm) => [
+  draft.name,
+  draft.brand,
+  draft.model,
+  draft.version,
+  draft.vin,
+  draft.license_plate,
+  draft.color,
+  draft.bouncie_imei,
+  draft.e_pass_transponder,
+  draft.engine_type,
+  draft.engine_size,
+  draft.daily_price_usd,
+  draft.purchase_price,
+  draft.acquired_date,
+  draft.initial_odometer,
+  draft.current_odometer,
+  draft.insurance_policy,
+  draft.insurance_expiry,
+  draft.registration_expiry,
+].every((value) => !String(value ?? "").trim()) && (!Array.isArray(draft.features) || draft.features.length === 0);
+
 type StepId = 1 | 2 | 3 | 4 | 5;
 
 const STEPS = [
@@ -37,6 +59,10 @@ export default function VehicleWizard() {
     form as unknown as Record<string, any>,
     (v) => setForm((p) => ({ ...p, ...(v as Partial<WizardForm>) })),
     true,
+    {
+      debounceMs: 150,
+      isEmpty: (draft) => isVehicleDraftEmpty(draft as unknown as WizardForm),
+    },
   );
 
   const set = (patch: Partial<WizardForm>) => setForm((p) => ({ ...p, ...patch }));

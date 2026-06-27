@@ -18,6 +18,43 @@ import { useFormDraft, clearFormDraft } from "@/hooks/useFormDraft";
 
 const DRAFT_KEY = "new-booking";
 
+type NewBookingForm = {
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  vehicle_id: string;
+  pickup_date: string;
+  pickup_time: string;
+  return_date: string;
+  return_time: string;
+  pickup_location: string;
+  return_location: string;
+  plan_id: string;
+  total_price: string;
+  currency: string;
+  payment_method: string;
+  status: string;
+  notes: string;
+  deposit_amount: string;
+  deposit_refund_days: string;
+  franchise_amount: string;
+};
+
+const isNewBookingDraftEmpty = (draft: NewBookingForm) => [
+  draft.customer_name,
+  draft.customer_email,
+  draft.customer_phone,
+  draft.vehicle_id,
+  draft.pickup_date,
+  draft.return_date,
+  draft.pickup_location,
+  draft.return_location,
+  draft.total_price,
+  draft.notes,
+  draft.deposit_amount,
+  draft.franchise_amount,
+].every((value) => !String(value ?? "").trim());
+
 const PENDING_CLASS = "ring-1 ring-amber-500/60 focus-visible:ring-amber-500";
 
 type Vehicle = { id: string; name: string; daily_price_usd: number; default_deposit_amount?: number | null; default_franchise_amount?: number | null };
@@ -109,7 +146,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
     }
   };
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<NewBookingForm>({
     customer_name: "",
     customer_email: "",
     customer_phone: "",
@@ -145,7 +182,10 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
   const pendingClass = (k: string) => (pendingFields.has(k) ? PENDING_CLASS : "");
 
   // Auto-save de rascunho (restaura ao abrir, salva enquanto preenche)
-  useFormDraft(DRAFT_KEY, form, setForm, open);
+  useFormDraft(DRAFT_KEY, form, (draft) => setForm(draft), open, {
+    debounceMs: 150,
+    isEmpty: isNewBookingDraftEmpty,
+  });
 
   const matchVehicleByName = (name?: string | null): string => {
     if (!name) return "";
