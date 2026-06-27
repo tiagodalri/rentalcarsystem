@@ -1454,14 +1454,13 @@ function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; day
       </Block>
 
       <div className="rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 text-xs text-muted-foreground">
-        Ao confirmar, a reserva será criada como <span className="font-semibold text-foreground">Confirmada</span>, com os selos
-        <span className="font-semibold text-foreground"> Contrato pendente</span> e
+        Ao confirmar, a reserva será criada como <span className="font-semibold text-foreground">Confirmada</span>, com o selo
         {form.payment_status === "paid"
           ? <span className="font-semibold text-foreground"> Pagamento concluído</span>
           : form.payment_status === "partial"
             ? <span className="font-semibold text-foreground"> Sinal recebido — restante pendente</span>
             : <span className="font-semibold text-foreground"> Pagamento pendente</span>}.
-        Esses selos dão baixa automaticamente quando o contrato é assinado no Clicksign e o pagamento é confirmado.
+        O <span className="font-semibold text-foreground">contrato é opcional</span> nesta fase — pode ser enviado depois pela tela da reserva, sem bloquear entrega ou devolução.
       </div>
 
     </div>
