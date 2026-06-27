@@ -985,6 +985,7 @@ export default function AdminInspection() {
         <div className="flex gap-2">
           {isCompleted && bookingId && (
             <>
+              <ShareWhatsAppInspectionButton bookingId={bookingId} type={type} />
               <ShareInspectionButton bookingId={bookingId} type={type} />
               <Button
                 variant="outline"
