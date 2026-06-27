@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useThemeMode } from "@/i18n/ThemeContext";
 import { useAdminPageTitle } from "@/hooks/useAdminPageTitle";
-import { useAdminPageTitle } from "@/hooks/useAdminPageTitle";
 import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 import { haptic } from "@/lib/haptic";
 
