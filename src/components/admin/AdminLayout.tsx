@@ -76,6 +76,7 @@ export default function AdminLayout() {
     >
       <AdminTabsProvider>
         <AdminFabProvider>
+          <ConfirmProvider>
           <div className="admin-shell min-h-[100dvh] flex w-full bg-background">
             <AdminSidebar onSignOut={signOut} />
             <div className="flex-1 flex flex-col min-w-0">
@@ -119,6 +120,7 @@ export default function AdminLayout() {
             <MobileFabDock />
             <AdminBottomNav />
           </div>
+          </ConfirmProvider>
         </AdminFabProvider>
       </AdminTabsProvider>
     </SidebarProvider>
