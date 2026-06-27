@@ -1101,14 +1101,15 @@ function AiKpi({ label, sub, value, icon: Icon, hue }: { label: string; sub?: st
     rose:    { txt: "text-rose-200",    glow: "rgba(255,140,160,0.35)"  },
   }[hue];
   return (
-    <div className="ai-card" style={{ boxShadow: `0 20px 60px -30px ${hueMap.glow}` }}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] uppercase tracking-[0.18em] text-white/55">{label}</span>
-        <Icon size={13} className={hueMap.txt} />
+    <div className="ai-card ai-kpi" style={{ boxShadow: `0 20px 60px -30px ${hueMap.glow}` }}>
+      <div className="flex items-center justify-between mb-2 sm:mb-3 gap-2">
+        <span className="text-[10px] sm:text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.18em] text-white/55 leading-tight">{label}</span>
+        <Icon size={13} className={`${hueMap.txt} shrink-0`} />
       </div>
-      <div className={`text-3xl font-light tabular-nums ${hueMap.txt}`} style={{ textShadow: `0 0 24px ${hueMap.glow}` }}>{value}</div>
-      {sub && <div className="text-[10.5px] text-white/50 mt-1">{sub}</div>}
+      <div className={`text-[22px] sm:text-3xl font-light tabular-nums ${hueMap.txt}`} style={{ textShadow: `0 0 24px ${hueMap.glow}` }}>{value}</div>
+      {sub && <div className="text-[10.5px] text-white/50 mt-1 leading-snug">{sub}</div>}
     </div>
+
   );
 }
 
