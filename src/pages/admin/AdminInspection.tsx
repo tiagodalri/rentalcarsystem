@@ -434,6 +434,7 @@ export default function AdminInspection() {
       if (typeof d.agentSignature === "string") setAgentSignature(d.agentSignature);
       if (typeof d.odometerPhoto === "string") setOdometerPhoto(d.odometerPhoto);
       if (typeof d.fuelPhoto === "string") setFuelPhoto(d.fuelPhoto);
+      if (typeof d.inspectionAddress === "string" && d.inspectionAddress) setInspectionAddress(d.inspectionAddress);
     } catch (e) {
       console.warn("[inspection] failed to restore draft", e);
     } finally {
