@@ -121,9 +121,10 @@ function makeTiguanBadgeTexture(): THREE.CanvasTexture {
   return tex;
 }
 
-function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled, meshClassifier }: CarModelProps & { meshClassifier?: (n: string) => { label: string; pickable: boolean } | null }) {
+function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled, meshClassifier, isTiguan }: CarModelProps & { meshClassifier?: (n: string) => { label: string; pickable: boolean } | null; isTiguan?: boolean }) {
   const { scene } = useGLTF(url, true);
   const { invalidate } = useThree();
+  const bboxRef = useRef<{ center: THREE.Vector3; half: THREE.Vector3; lengthAxis: "x" | "z"; widthAxis: "x" | "z" } | null>(null);
 
 
   // Ocultar decalques chineses e injetar placa Zeus + emblema TIGUAN no traseiro.
