@@ -823,7 +823,7 @@ export default function AiPainel({
                   <h3 className="text-lg md:text-xl font-light text-white leading-snug mb-3">
                     <span className="text-amber-200 font-medium tabular-nums">{concentration.topRevShare.toFixed(0)}%</span> da sua receita vem de{" "}
                     <span className="text-amber-200 font-medium tabular-nums">{concentration.topForRev.length} carro{concentration.topForRev.length > 1 ? "s" : ""}</span>
-                    {" "}— que representa{m => m} apenas{" "}
+                    {" "}— que representa apenas{" "}
                     <span className="text-amber-200 font-medium tabular-nums">{concentration.topCountShare.toFixed(0)}%</span> da frota
                     {concentration.topInvShare > 0 && (
                       <> e <span className="text-amber-200 font-medium tabular-nums">{concentration.topInvShare.toFixed(0)}%</span> do total investido</>
