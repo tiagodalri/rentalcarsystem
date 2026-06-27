@@ -159,6 +159,7 @@ export type Database = {
           status: string
           stripe_session_id: string | null
           total_price: number | null
+          turo_reservation_code: string | null
           updated_at: string
           vehicle_id: string
         }
@@ -204,6 +205,7 @@ export type Database = {
           status?: string
           stripe_session_id?: string | null
           total_price?: number | null
+          turo_reservation_code?: string | null
           updated_at?: string
           vehicle_id: string
         }
@@ -249,6 +251,7 @@ export type Database = {
           status?: string
           stripe_session_id?: string | null
           total_price?: number | null
+          turo_reservation_code?: string | null
           updated_at?: string
           vehicle_id?: string
         }
