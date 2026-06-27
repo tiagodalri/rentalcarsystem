@@ -161,9 +161,9 @@ export function generateContractPdf(
 
   // BLOCO 1 — LOCADORA
   section("LOCADORA");
-  row("Razão Social", "Zeus Rental Car LLC");
+  row("Razão Social", template.company_name);
   y += 8;
-  twoCols("Endereço", "Orlando, FL — EUA", "EIN / CNPJ", "—");
+  twoCols("Endereço", template.company_address, "EIN / CNPJ", template.company_ein);
 
   // BLOCO 2 — LOCATÁRIO
   const fullAddress = [
