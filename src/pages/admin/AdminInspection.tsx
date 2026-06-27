@@ -311,6 +311,10 @@ export default function AdminInspection() {
   const [agentSignature, setAgentSignature] = useState("");
   const [odometerPhoto, setOdometerPhoto] = useState("");
   const [fuelPhoto, setFuelPhoto] = useState("");
+  // Local da inspeção (carimbado em todas as fotos)
+  const [inspectionAddress, setInspectionAddress] = useState<string>(() => {
+    try { return localStorage.getItem("zeus_inspection_last_address") || ""; } catch { return ""; }
+  });
 
   // Guide panel
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
