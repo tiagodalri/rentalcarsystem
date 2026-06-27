@@ -17,6 +17,8 @@ import {
   pickVehicle3dModel,
   classifyMesh,
   inferLabelByPosition,
+  inferTiguanLabelFromPoint,
+  TIGUAN_AMBIGUOUS_LABELS,
   VEHICLE_3D_MODELS,
   type VehicleLike,
   type Vehicle3dModelDef,
