@@ -106,10 +106,10 @@ export function generateContractPdf(
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text("ZEUS RENTAL CAR", margin, 15);
+  doc.text((template.company_name || "ZEUS RENTAL CAR").toUpperCase(), margin, 15);
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
-  doc.text("CONTRATO DE LOCAÇÃO DE VEÍCULO", margin, 23);
+  doc.text(template.header_subtitle || "CONTRATO DE LOCAÇÃO DE VEÍCULO", margin, 23);
   doc.setFontSize(8);
   doc.text(`Emissão: ${new Date().toLocaleDateString("pt-BR")}`, margin, 30);
 
