@@ -311,14 +311,33 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
     return found ?? null;
   };
 
+  // Refina o label usando o PONTO real do raycast (apenas Tiguan).
+  // Para peças com nome ambíguo/cross-cutting (carroceria, faróis genéricos,
+  // rodas únicas L+R), o ponto exato do clique resolve qual é a peça real.
+  const refineByHitPoint = (info: ClassifiedMesh, e: any): ClassifiedMesh => {
+    if (!isTiguan || !bboxRef.current || !e?.point) return info;
+    if (!TIGUAN_AMBIGUOUS_LABELS.has(info.label)) return info;
+    const { center, half, lengthAxis, widthAxis } = bboxRef.current;
+    const pt = e.point as THREE.Vector3;
+    const norm = {
+      x: (pt[widthAxis] - center[widthAxis]) / (widthAxis === "x" ? half.x : half.z),
+      y: (pt.y - center.y) / half.y,
+      z: (pt[lengthAxis] - center[lengthAxis]) / (lengthAxis === "z" ? half.z : half.x),
+    };
+    const r = inferTiguanLabelFromPoint(norm);
+    return { mesh: info.mesh, label: r.label, pickable: r.pickable };
+  };
+
   return (
     <primitive
       object={scene}
       onPointerOver={(e: any) => {
         if (disabled) return;
         e.stopPropagation();
-        const info = labelOf(e.object);
-        if (!info || !info.pickable) {
+        const raw = labelOf(e.object);
+        if (!raw) { onHover(null); document.body.style.cursor = "auto"; return; }
+        const info = refineByHitPoint(raw, e);
+        if (!info.pickable) {
           onHover(null);
           document.body.style.cursor = "auto";
           return;
@@ -334,8 +353,10 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
       onClick={(e: any) => {
         if (disabled) return;
         e.stopPropagation();
-        const info = labelOf(e.object);
-        if (info && info.pickable) onPick(info.label);
+        const raw = labelOf(e.object);
+        if (!raw) return;
+        const info = refineByHitPoint(raw, e);
+        if (info.pickable) onPick(info.label);
       }}
     />
   );
