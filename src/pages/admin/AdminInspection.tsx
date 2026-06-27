@@ -1039,23 +1039,20 @@ export default function AdminInspection() {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Inspection location — stamped on every photo */}
-            <div className="flex flex-col gap-2 p-4 rounded-lg border border-primary/20 bg-primary/5">
-              <label className="text-sm font-medium text-foreground flex items-center gap-2">
-                <MapPin size={16} className="text-primary" />
-                Local da Inspeção
-                <span className="text-xs text-muted-foreground font-normal">(será carimbado em todas as fotos)</span>
-              </label>
+            <div className="flex flex-col gap-2.5 p-3.5 rounded-xl border border-primary/20 bg-primary/5">
+              <div className="flex items-center gap-2">
+                <MapPin size={16} className="text-primary shrink-0" />
+                <span className="text-sm font-medium text-foreground">Local da Inspeção</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground -mt-1 leading-tight">
+                Carimbado automaticamente em todas as fotos (data, hora e endereço).
+              </p>
               <AddressAutocompleteInput
                 value={inspectionAddress}
                 onChange={setInspectionAddress}
-                placeholder="Digite o endereço onde a inspeção está sendo feita..."
+                placeholder="Digite o endereço da inspeção..."
                 disabled={isCompleted}
               />
-              {inspectionAddress && (
-                <p className="text-xs text-muted-foreground">
-                  Data, hora e este endereço aparecerão automaticamente em cada foto.
-                </p>
-              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1068,41 +1065,49 @@ export default function AdminInspection() {
                   value={odometer}
                   onChange={(e) => setOdometer(e.target.value)}
                   placeholder="Ex: 45230"
-                  className="tabular-nums"
+                  className="tabular-nums h-12 text-base"
                   disabled={isCompleted}
                 />
               </div>
 
-              {/* Fuel selector */}
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-foreground">Nível de Combustível</label>
-                <div className="flex items-center gap-3">
-                  <Fuel size={20} className="text-muted-foreground shrink-0" />
-                  <div className="flex-1 h-9 bg-muted/50 rounded-full overflow-hidden relative">
-                    <div
-                      className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-emerald-500 rounded-full transition-all duration-500"
-                      style={{ width: `${FUEL_LEVELS.find((f) => f.value === fuelLevel)?.pct || 0}%` }}
-                    />
-                  </div>
-                  <span className="text-sm font-medium text-foreground min-w-[50px] text-right">
+              {/* Fuel selector — native-feel segmented control */}
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-foreground">Nível de Combustível</label>
+                  <span className="text-sm font-semibold text-primary tabular-nums">
                     {FUEL_LEVELS.find((f) => f.value === fuelLevel)?.label}
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {FUEL_LEVELS.map((f) => (
-                    <button
-                      key={f.value}
-                      onClick={() => !isCompleted && setFuelLevel(f.value)}
-                      disabled={isCompleted}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                        fuelLevel === f.value
-                          ? "bg-primary/10 text-primary border-primary/30"
-                          : "border-border/40 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
+                <div className="flex items-center gap-2.5">
+                  <Fuel size={18} className="text-muted-foreground shrink-0" />
+                  <div className="flex-1 h-3 bg-muted/60 rounded-full overflow-hidden relative">
+                    <div
+                      className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-emerald-500 rounded-full transition-all duration-300"
+                      style={{ width: `${FUEL_LEVELS.find((f) => f.value === fuelLevel)?.pct || 0}%` }}
+                    />
+                  </div>
+                </div>
+                {/* Single-row segmented selector — scrolls horizontally on narrow screens */}
+                <div className="-mx-1 px-1 overflow-x-auto" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                  <div className="flex gap-1.5 min-w-min pb-1">
+                    {FUEL_LEVELS.map((f) => {
+                      const active = fuelLevel === f.value;
+                      return (
+                        <button
+                          key={f.value}
+                          onClick={() => !isCompleted && setFuelLevel(f.value)}
+                          disabled={isCompleted}
+                          className={`shrink-0 min-w-[46px] h-9 px-2.5 rounded-full text-xs font-semibold border transition-all tabular-nums ${
+                            active
+                              ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                              : "bg-background border-border/50 text-muted-foreground active:scale-95"
+                          }`}
+                        >
+                          {f.label}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
