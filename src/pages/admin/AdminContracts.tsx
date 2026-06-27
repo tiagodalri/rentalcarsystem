@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   XCircle,
   Search,
+  FileText,
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
