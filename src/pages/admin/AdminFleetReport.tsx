@@ -96,7 +96,10 @@ export default function AdminFleetReport({
     ]);
 
     const vehs = vRes.data || [];
-    const bks = bRes.data || [];
+    const allBks = bRes.data || [];
+    // Regra unificada: receita/ocupação/contagem NÃO incluem reservas canceladas.
+    // Reconhecimento pela data de retirada (pickup_date) — filtro já aplicado no SELECT.
+    const bks = allBks.filter((b: any) => b.status !== "cancelled");
     const insps = iRes.data || [];
 
     setVehicles(vehs);
