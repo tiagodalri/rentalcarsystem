@@ -90,6 +90,18 @@ export function useAdminAuth() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "INITIAL_SESSION") return;
+      // TOKEN_REFRESHED dispara quando a aba volta ao foco. Se for o MESMO
+      // usuário já carregado, não fazemos NADA — caso contrário o
+      // setLoading(true) + setRoles([]) desmontaria a página inteira e
+      // o usuário perderia o que estava preenchendo. Mesmo vale para
+      // USER_UPDATED quando o id não mudou.
+      if (
+        (event === "TOKEN_REFRESHED" || event === "USER_UPDATED") &&
+        session?.user &&
+        cachedRoles?.userId === session.user.id
+      ) {
+        return;
+      }
       cachedRoles = null;
       loadRoles(session?.user ?? null);
       if (event === "SIGNED_IN" && session?.user) {
