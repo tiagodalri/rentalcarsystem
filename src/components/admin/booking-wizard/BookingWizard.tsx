@@ -71,6 +71,7 @@ const AI_BADGE = (
 type ValidationIssue = {
   stepId: StepId;
   label: string;
+  field: keyof WizardFormState;
 };
 
 const isWizardFormMeaningfullyEmpty = (draft: WizardFormState): boolean => {
@@ -123,22 +124,22 @@ const getStepIssues = (form: WizardFormState, days: number, stepId: StepId): Val
 
   switch (stepId) {
     case "customer":
-      if (!form.customer_name.trim()) issues.push({ stepId, label: "nome do cliente" });
+      if (!form.customer_name.trim()) issues.push({ stepId, label: "nome do cliente", field: "customer_name" });
       break;
     case "vehicle":
-      if (!form.vehicle_id) issues.push({ stepId, label: "veículo" });
+      if (!form.vehicle_id) issues.push({ stepId, label: "veículo", field: "vehicle_id" });
       break;
     case "schedule":
-      if (!form.pickup_date) issues.push({ stepId, label: "data de retirada" });
-      if (!form.pickup_time) issues.push({ stepId, label: "horário de retirada" });
-      if (!form.return_date) issues.push({ stepId, label: "data de devolução" });
-      if (!form.return_time) issues.push({ stepId, label: "horário de devolução" });
+      if (!form.pickup_date) issues.push({ stepId, label: "data de retirada", field: "pickup_date" });
+      if (!form.pickup_time) issues.push({ stepId, label: "horário de retirada", field: "pickup_time" });
+      if (!form.return_date) issues.push({ stepId, label: "data de devolução", field: "return_date" });
+      if (!form.return_time) issues.push({ stepId, label: "horário de devolução", field: "return_time" });
       if (form.pickup_date && form.return_date && days <= 0) {
-        issues.push({ stepId, label: "período de locação válido" });
+        issues.push({ stepId, label: "período de locação válido (devolução depois da retirada)", field: "return_date" });
       }
       break;
     case "payment":
-      if (!form.total_price || Number(form.total_price) <= 0) issues.push({ stepId, label: "valor total" });
+      if (!form.total_price || Number(form.total_price) <= 0) issues.push({ stepId, label: "valor total", field: "total_price" });
       break;
     case "deposit":
     case "extras":
@@ -154,12 +155,16 @@ const formatIssues = (issues: ValidationIssue[]): string => {
   return unique.slice(0, 4).join(", ") + (unique.length > 4 ? "..." : "");
 };
 
+
 export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   const [phase, setPhase] = useState<"capture" | "wizard">(aiMode ? "capture" : "wizard");
   const [stepIdx, setStepIdx] = useState(0);
   const [form, setForm] = useState<WizardFormState>(initialWizardForm);
   const [aiKeys, setAiKeys] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
+  const [errorFields, setErrorFields] = useState<Set<string>>(new Set());
+  const [pendingAdvance, setPendingAdvance] = useState(false);
+
 
   const { vehicles } = useVehiclesDB({ includeSensitive: true });
 
@@ -226,7 +231,31 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
         return n;
       });
     }
+    if (errorFields.has(k as string)) {
+      setErrorFields((prev) => {
+        const n = new Set(prev);
+        n.delete(k as string);
+        return n;
+      });
+    }
   };
+
+  const flagErrors = (issues: ValidationIssue[]) => {
+    if (issues.length === 0) return;
+    setErrorFields(new Set(issues.map((i) => i.field as string)));
+    // Scroll to first invalid field after render
+    setTimeout(() => {
+      const first = issues[0]?.field;
+      if (!first) return;
+      const el = document.querySelector(`[data-field="${first}"]`) as HTMLElement | null;
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        const focusable = el.querySelector("input, textarea, select, button") as HTMLElement | null;
+        focusable?.focus();
+      }
+    }, 60);
+  };
+
 
   const matchVehicleByName = (name?: string | null): string => {
     if (!name) return "";
@@ -301,20 +330,33 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   const canAdvance = stepValid(currentStep.id);
   const isLast = stepIdx === WIZARD_STEPS.length - 1;
 
-  const goNext = () => {
-    if (canAdvance && !isLast) {
-      setStepIdx((i) => i + 1);
+  // Resolve race: when VehicleStep dispara "Confirmar e avançar", esperamos o state
+  // commitar para validar com o vehicle_id já presente.
+  useEffect(() => {
+    if (!pendingAdvance) return;
+    if (currentStep.id !== "vehicle") {
+      setPendingAdvance(false);
       return;
     }
-
-    const issues = getStepIssues(form, days, currentStep.id);
-    if (issues.length > 0) {
-      toast({
-        title: "Complete esta etapa antes de avançar",
-        description: `Falta preencher: ${formatIssues(issues)}.`,
-        variant: "destructive",
-      });
+    if (stepValid("vehicle") && !isLast) {
+      setPendingAdvance(false);
+      setStepIdx((i) => i + 1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingAdvance, form.vehicle_id, currentStep.id]);
+
+  const goNext = () => {
+    const issues = getStepIssues(form, days, currentStep.id);
+    if (issues.length === 0) {
+      if (!isLast) setStepIdx((i) => i + 1);
+      return;
+    }
+    flagErrors(issues);
+    toast({
+      title: "Complete esta etapa antes de avançar",
+      description: `Falta preencher: ${formatIssues(issues)}.`,
+      variant: "destructive",
+    });
   };
   const goBack = () => { if (stepIdx > 0) setStepIdx((i) => i - 1); else onCancel(); };
   const handleStepJump = (targetIdx: number) => {
@@ -331,6 +373,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       const step = WIZARD_STEPS[firstInvalidIdx];
       const issues = getStepIssues(form, days, step.id);
       setStepIdx(firstInvalidIdx);
+      flagErrors(issues);
       toast({
         title: "Existe uma etapa incompleta",
         description: `Falta preencher: ${formatIssues(issues)}.`,
@@ -351,13 +394,15 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     if (issues.length > 0) {
       const firstInvalidIdx = WIZARD_STEPS.findIndex((step) => getStepIssues(form, days, step.id).length > 0);
       if (firstInvalidIdx >= 0) setStepIdx(firstInvalidIdx);
+      flagErrors(issues);
       toast({
-        title: "Reserva incompleta",
-        description: `Nada foi apagado. Volte na etapa indicada e preencha: ${formatIssues(issues)}.`,
+        title: "Reserva incompleta — nada foi apagado",
+        description: `Te levamos para a etapa que falta. Preencha: ${formatIssues(issues)}.`,
         variant: "destructive",
       });
       return;
     }
+
     setSaving(true);
     const available = await checkAvailability(form.vehicle_id, form.pickup_date, form.return_date);
     if (!available) {
@@ -473,27 +518,34 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
         <StepHeader id={currentStep.id} />
         <div className="rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
           {currentStep.id === "customer" && (
-            <CustomerStep form={form} set={set} aiKeys={aiKeys} />
+            <CustomerStep form={form} set={set} aiKeys={aiKeys} errorFields={errorFields} />
           )}
           {currentStep.id === "vehicle" && (
-            <VehicleStep form={form} set={set} aiKeys={aiKeys} onAdvance={goNext} />
+            <VehicleStep
+              form={form}
+              set={set}
+              aiKeys={aiKeys}
+              errorFields={errorFields}
+              onAdvance={() => setPendingAdvance(true)}
+            />
           )}
           {currentStep.id === "schedule" && (
-            <ScheduleStep form={form} set={set} aiKeys={aiKeys} days={days} />
+            <ScheduleStep form={form} set={set} aiKeys={aiKeys} days={days} errorFields={errorFields} />
           )}
 
           {currentStep.id === "deposit" && (
-            <DepositStep form={form} set={set} aiKeys={aiKeys} />
+            <DepositStep form={form} set={set} aiKeys={aiKeys} errorFields={errorFields} />
           )}
           {currentStep.id === "extras" && (
-            <ExtrasStep form={form} set={set} aiKeys={aiKeys} days={days} />
+            <ExtrasStep form={form} set={set} aiKeys={aiKeys} days={days} errorFields={errorFields} />
           )}
           {currentStep.id === "payment" && (
-            <PaymentStep form={form} set={set} aiKeys={aiKeys} days={days} />
+            <PaymentStep form={form} set={set} aiKeys={aiKeys} days={days} errorFields={errorFields} />
           )}
           {currentStep.id === "review" && (
-            <ReviewStep form={form} days={days} jumpTo={jumpTo} aiKeys={aiKeys} />
+            <ReviewStep form={form} days={days} jumpTo={jumpTo} aiKeys={aiKeys} vehicles={vehicles} />
           )}
+
         </div>
       </div>
 
@@ -586,7 +638,12 @@ type StepProps = {
   form: WizardFormState;
   set: <K extends keyof WizardFormState>(k: K, v: WizardFormState[K]) => void;
   aiKeys: Set<string>;
+  errorFields?: Set<string>;
 };
+
+const errorClass = (errorFields: Set<string> | undefined, key: string) =>
+  errorFields?.has(key) ? "border-destructive ring-2 ring-destructive/30" : "";
+
 
 function FieldLabel({ children, ai }: { children: React.ReactNode; ai?: boolean }) {
   return (
@@ -597,7 +654,7 @@ function FieldLabel({ children, ai }: { children: React.ReactNode; ai?: boolean 
   );
 }
 
-function CustomerStep({ form, set, aiKeys }: StepProps) {
+function CustomerStep({ form, set, aiKeys, errorFields }: StepProps) {
   return (
     <div className="space-y-4">
       <div>
@@ -615,10 +672,11 @@ function CustomerStep({ form, set, aiKeys }: StepProps) {
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="sm:col-span-2">
+        <div className="sm:col-span-2" data-field="customer_name">
           <FieldLabel ai={aiKeys.has("customer_name")}>Nome completo *</FieldLabel>
-          <Input value={form.customer_name} onChange={(e) => set("customer_name", e.target.value)} placeholder="João da Silva" className="h-11" />
+          <Input value={form.customer_name} onChange={(e) => set("customer_name", e.target.value)} placeholder="João da Silva" className={`h-11 ${errorClass(errorFields, "customer_name")}`} />
         </div>
+
         <div>
           <FieldLabel ai={aiKeys.has("customer_email")}>E-mail</FieldLabel>
           <Input type="email" value={form.customer_email} onChange={(e) => set("customer_email", e.target.value)} placeholder="email@exemplo.com" className="h-11" />
@@ -632,7 +690,7 @@ function CustomerStep({ form, set, aiKeys }: StepProps) {
   );
 }
 
-function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?: () => void }) {
+function VehicleStep({ form, set, aiKeys, errorFields, onAdvance }: StepProps & { onAdvance?: () => void }) {
   const { vehicles } = useVehiclesDB({ includeSensitive: true });
   const [query, setQuery] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
@@ -677,12 +735,13 @@ function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?:
 
   const confirmSelection = () => {
     if (!previewVeh) return;
-    const price = Number(editPrice);
     set("vehicle_id", previewVeh.id);
     set("daily_price_override", editPrice);
     setPreview(null);
-    setTimeout(() => onAdvance?.(), 80);
+    // Sinaliza o wizard pra avançar quando o vehicle_id já tiver sido commitado.
+    onAdvance?.();
   };
+
 
 
   return (
@@ -860,7 +919,7 @@ function InfoRow({ icon: Icon, label, value, mono }: { icon: any; label: string;
   );
 }
 
-function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
+function ScheduleStep({ form, set, aiKeys, days, errorFields }: StepProps & { days: number }) {
   return (
     <div className="space-y-5">
       {/* Retirada */}
@@ -872,15 +931,16 @@ function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number })
           <h3 className="text-sm font-semibold">Retirada</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
+          <div data-field="pickup_date" className={`rounded-lg ${errorFields?.has("pickup_date") ? "ring-2 ring-destructive/40 p-1 -m-1" : ""}`}>
             <FieldLabel ai={aiKeys.has("pickup_date")}>Data *</FieldLabel>
             <BookingDateField value={form.pickup_date} onChange={(v) => set("pickup_date", v)} />
           </div>
-          <div>
+          <div data-field="pickup_time">
             <FieldLabel ai={aiKeys.has("pickup_time")}>Horário *</FieldLabel>
-            <Input type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} className="h-11" />
+            <Input type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} className={`h-11 ${errorClass(errorFields, "pickup_time")}`} />
           </div>
         </div>
+
         <div className="space-y-2">
           <FieldLabel>Onde será a retirada?</FieldLabel>
           <div className="flex flex-wrap gap-2">
@@ -950,15 +1010,16 @@ function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number })
           <h3 className="text-sm font-semibold">Devolução</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
+          <div data-field="return_date" className={`rounded-lg ${errorFields?.has("return_date") ? "ring-2 ring-destructive/40 p-1 -m-1" : ""}`}>
             <FieldLabel ai={aiKeys.has("return_date")}>Data *</FieldLabel>
             <BookingDateField value={form.return_date} onChange={(v) => set("return_date", v)} />
           </div>
-          <div>
+          <div data-field="return_time">
             <FieldLabel ai={aiKeys.has("return_time")}>Horário *</FieldLabel>
-            <Input type="time" value={form.return_time} onChange={(e) => set("return_time", e.target.value)} className="h-11" />
+            <Input type="time" value={form.return_time} onChange={(e) => set("return_time", e.target.value)} className={`h-11 ${errorClass(errorFields, "return_time")}`} />
           </div>
         </div>
+
         <div className="space-y-2">
           <FieldLabel>Onde será a devolução?</FieldLabel>
           <div className="flex flex-wrap gap-2">
@@ -1030,6 +1091,8 @@ function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number })
 
 
 function DepositStep({ form, set, aiKeys }: StepProps) {
+
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <div>
@@ -1210,7 +1273,7 @@ function ExtrasStep({ form, set, days }: StepProps & { days: number }) {
 }
 
 
-function PaymentStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
+function PaymentStep({ form, set, aiKeys, days, errorFields }: StepProps & { days: number }) {
   const total = Number(form.total_price) || 0;
   const deposit = Number(form.deposit_paid_amount) || 0;
   const remaining = Math.max(total - deposit, 0);
@@ -1255,9 +1318,10 @@ function PaymentStep({ form, set, aiKeys, days }: StepProps & { days: number }) 
             </SelectContent>
           </Select>
         </div>
-        <div className="sm:col-span-2">
+        <div className="sm:col-span-2" data-field="total_price">
           <FieldLabel ai={aiKeys.has("total_price")}>Valor total *</FieldLabel>
-          <Input type="number" min="0" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} placeholder="0.00" className="h-11 tabular-nums text-lg" />
+          <Input type="number" min="0" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} placeholder="0.00" className={`h-11 tabular-nums text-lg ${errorClass(errorFields, "total_price")}`} />
+
           {days > 0 && form.total_price && (
             <p className="text-[11px] text-muted-foreground mt-1">
               Equivale a <span className="tabular-nums">{currencySymbol}{(total / days).toFixed(2)}</span>/dia × {days} dia{days > 1 ? "s" : ""}
@@ -1355,9 +1419,9 @@ function PaymentStep({ form, set, aiKeys, days }: StepProps & { days: number }) 
 }
 
 
-function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; days: number; jumpTo: (id: StepId) => void; aiKeys: Set<string> }) {
-  const { vehicles } = useVehiclesDB({ includeSensitive: true });
+function ReviewStep({ form, days, jumpTo, aiKeys, vehicles }: { form: WizardFormState; days: number; jumpTo: (id: StepId) => void; aiKeys: Set<string>; vehicles: any[] }) {
   const vehicle = vehicles.find((v) => v.id === form.vehicle_id);
+
 
   const Row = ({ label, value, aiKey }: { label: string; value: React.ReactNode; aiKey?: string }) => (
     <div className="flex items-center justify-between gap-3 py-2 border-b border-border/30 last:border-0">
