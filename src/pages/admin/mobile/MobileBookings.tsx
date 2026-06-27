@@ -5,6 +5,7 @@ import { Search, SlidersHorizontal, Plus, Car, Calendar, X } from "lucide-react"
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatPersonName } from "@/lib/formatName";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { MobileSheet } from "@/components/mobile/MobileSheet";
 import { SegmentedControl } from "@/components/mobile/SegmentedControl";
