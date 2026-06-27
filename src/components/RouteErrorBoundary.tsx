@@ -6,6 +6,7 @@ import { isRecoverableChunkLoadError, recoverFromStaleApp } from "@/lib/pwaRecov
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  resetKey?: string;
 }
 interface State {
   error: Error | null;
@@ -34,6 +35,12 @@ export class RouteErrorBoundary extends Component<Props, State> {
     }
     // eslint-disable-next-line no-console
     console.error("[RouteErrorBoundary]", error);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (this.state.error && prevProps.resetKey !== this.props.resetKey) {
+      this.setState({ error: null });
+    }
   }
 
   reset = () => {
