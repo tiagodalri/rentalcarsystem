@@ -102,9 +102,9 @@ function drawStamp(
   h: number,
   lines: string[],
 ) {
-  // Tamanho proporcional à menor dimensão — fica grande e legível como na referência.
-  const fontSize = Math.max(20, Math.round(Math.min(w, h) * 0.032));
-  const lineHeight = Math.round(fontSize * 1.22);
+  // Tamanho proporcional à menor dimensão — grande e legível, estilo Timestamp Camera.
+  const fontSize = Math.max(28, Math.round(Math.min(w, h) * 0.048));
+  const lineHeight = Math.round(fontSize * 1.25);
   const marginX = Math.round(fontSize * 0.9);
   const marginY = Math.round(fontSize * 0.9);
 
@@ -112,15 +112,15 @@ function drawStamp(
   ctx.textAlign = "right";
   ctx.textBaseline = "top";
 
-  // Sombra suave em todas as direções para garantir contraste em qualquer fundo.
-  ctx.shadowColor = "rgba(0,0,0,0.85)";
-  ctx.shadowBlur = Math.max(4, Math.round(fontSize * 0.35));
+  // Sombra forte para garantir contraste em qualquer fundo (céu claro, etc.).
+  ctx.shadowColor = "rgba(0,0,0,0.9)";
+  ctx.shadowBlur = Math.max(6, Math.round(fontSize * 0.4));
   ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = Math.round(fontSize * 0.08);
+  ctx.shadowOffsetY = Math.round(fontSize * 0.1);
 
-  // Stroke escuro fino reforça a borda das letras.
-  ctx.strokeStyle = "rgba(0,0,0,0.55)";
-  ctx.lineWidth = Math.max(1, Math.round(fontSize * 0.08));
+  // Stroke escuro reforça a borda das letras.
+  ctx.strokeStyle = "rgba(0,0,0,0.7)";
+  ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.11));
   ctx.lineJoin = "round";
 
   ctx.fillStyle = "rgba(255,255,255,0.98)";
