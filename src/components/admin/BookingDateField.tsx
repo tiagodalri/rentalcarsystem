@@ -103,7 +103,7 @@ export function BookingDateField({ value, onChange, className }: BookingDateFiel
               setText(format(date, "dd/MM/yyyy"));
               onChange(iso);
             }}
-            defaultMonth={selected ?? new Date(2026, 0, 1)}
+            defaultMonth={selected ?? new Date()}
             initialFocus
             className="p-3 pointer-events-auto"
           />
