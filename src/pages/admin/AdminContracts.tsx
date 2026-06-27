@@ -163,10 +163,20 @@ const AdminContracts = () => {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader
-        title="Contratos"
-        subtitle="Acompanhe o status de assinatura de todos os contratos de locação."
-      />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <AdminPageHeader
+          title="Contratos"
+          subtitle="Acompanhe o status de assinatura de todos os contratos de locação."
+        />
+        <button
+          onClick={() => navigate("/admin/contracts/template")}
+          className="inline-flex items-center gap-2 h-10 px-4 rounded-md border border-border/50 bg-card hover:bg-accent text-sm font-medium transition-colors"
+        >
+          <FileText size={14} className="text-primary" />
+          Modelo de contrato
+        </button>
+      </div>
+
 
 
       <div className="admin-card p-4 space-y-4">
