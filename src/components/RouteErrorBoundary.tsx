@@ -29,8 +29,31 @@ export class RouteErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error) {
-    if (CHUNK_ERROR_REGEX.test(error.message || "")) {
+    const isChunkError = CHUNK_ERROR_REGEX.test(error.message || "");
+    if (isChunkError) {
       this.setState({ error });
+      // Auto-recover ONCE por sessão: limpa caches do SW e recarrega.
+      // Drafts já são salvos em visibilitychange/pagehide via useFormDraft,
+      // então o reload não perde dados de formulário do usuário.
+      try {
+        const KEY = "__zeus_chunk_recover__";
+        if (!sessionStorage.getItem(KEY)) {
+          sessionStorage.setItem(KEY, String(Date.now()));
+          void (async () => {
+            try {
+              if ("caches" in window) {
+                const keys = await caches.keys();
+                await Promise.all(keys.map((k) => caches.delete(k)));
+              }
+              if ("serviceWorker" in navigator) {
+                const regs = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(regs.map((r) => r.unregister()));
+              }
+            } catch (_) {}
+            window.location.reload();
+          })();
+        }
+      } catch (_) {}
     }
     // eslint-disable-next-line no-console
     console.error("[RouteErrorBoundary]", error);
