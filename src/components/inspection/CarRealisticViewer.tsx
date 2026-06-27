@@ -45,7 +45,8 @@ try {
  *  - Atribuição de licença visível (CC-BY)
  */
 
-const GOLD = new THREE.Color("#D4AF37");
+const GOLD = new THREE.Color("#FFD700");
+const DARK = new THREE.Color("#0a0a0a");
 const BLACK = new THREE.Color("#000000");
 
 type ClassifiedMesh = {
