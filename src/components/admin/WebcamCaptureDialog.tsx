@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Camera, RefreshCcw, X, Check, Play, MapPin } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { formatStampDateOnly, formatStampTime } from "@/lib/inspectionStamp";
 
 interface WebcamCaptureDialogProps {
   open: boolean;
@@ -12,9 +13,6 @@ interface WebcamCaptureDialogProps {
   /** Endereço carimbado no preview ao vivo (e queimado na foto capturada). */
   stampAddress?: string;
 }
-
-import { formatStampDateOnly, formatStampTime } from "@/lib/inspectionStamp";
-
 
 export function WebcamCaptureDialog({
   open,
