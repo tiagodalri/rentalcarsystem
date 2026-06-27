@@ -1,5 +1,6 @@
 import { Car, Plane, MapPin, ArrowRight, ArrowLeftRight, ChevronRight, Clock } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
 
 type Booking = {
   id: string;
