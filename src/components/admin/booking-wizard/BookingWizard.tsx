@@ -231,7 +231,31 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
         return n;
       });
     }
+    if (errorFields.has(k as string)) {
+      setErrorFields((prev) => {
+        const n = new Set(prev);
+        n.delete(k as string);
+        return n;
+      });
+    }
   };
+
+  const flagErrors = (issues: ValidationIssue[]) => {
+    if (issues.length === 0) return;
+    setErrorFields(new Set(issues.map((i) => i.field as string)));
+    // Scroll to first invalid field after render
+    setTimeout(() => {
+      const first = issues[0]?.field;
+      if (!first) return;
+      const el = document.querySelector(`[data-field="${first}"]`) as HTMLElement | null;
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        const focusable = el.querySelector("input, textarea, select, button") as HTMLElement | null;
+        focusable?.focus();
+      }
+    }, 60);
+  };
+
 
   const matchVehicleByName = (name?: string | null): string => {
     if (!name) return "";
