@@ -198,6 +198,20 @@ export default function AdminBookingDetail() {
       setVehicle(v ?? null);
       setInspections(insp ?? []);
       setLoading(false);
+      // Pre-warm signed URLs for all inspection photos in one batched call.
+      try {
+        const urls: string[] = [];
+        for (const i of insp ?? []) {
+          const ext = Array.isArray(i.exterior_photos) ? i.exterior_photos : [];
+          for (const p of ext) if (p?.url) urls.push(p.url);
+          const dmg = Array.isArray(i.damages) ? i.damages : [];
+          for (const d of dmg) if (d?.photoUrl) urls.push(d.photoUrl);
+        }
+        if (urls.length) {
+          const { prefetchSignedInspectionUrls } = await import("@/lib/inspectionStorage");
+          prefetchSignedInspectionUrls(urls);
+        }
+      } catch { /* non-fatal */ }
     };
     load();
   }, [bookingId]);
