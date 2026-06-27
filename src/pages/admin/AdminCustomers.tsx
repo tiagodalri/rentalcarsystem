@@ -592,14 +592,11 @@ function AdminCustomersDesktop() {
                 <tbody>
                   {filtered.map((c) => {
                     const displayName = formatPersonName(c.full_name);
-                    const initials = displayName.split(" ").filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase()).join("");
                     return (
                       <tr key={c.id} onClick={() => navigate(`/admin/customers/${c.id}`)} className="border-b border-border/10 hover:bg-muted/20 transition-colors group cursor-pointer">
                         <td className="px-4 py-2.5 whitespace-nowrap">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-full bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-[10px] font-medium text-purple-500 shrink-0">
-                              {initials || "?"}
-                            </div>
+                            <PersonAvatar name={c.full_name} size="sm" />
                             <span className="text-foreground font-medium text-[13px] truncate max-w-[260px]">{displayName}</span>
                             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider bg-purple-500/15 text-purple-500 border border-purple-500/30">
                               <Car size={9} /> Turo
