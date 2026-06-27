@@ -150,7 +150,15 @@ export default function AdminPainel() {
 
   // ───── Mobile-first layout ─────
   if (isMobile) {
-    return <MobilePainel bookings={bookings} vehicles={vehicles} onRefresh={load} />;
+    if (aiMode) {
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center justify-end px-1">{AiToggle}</div>
+          <AiPainel bookings={bookings as any} vehicles={vehicles as any} />
+        </div>
+      );
+    }
+    return <MobilePainel bookings={bookings} vehicles={vehicles} onRefresh={load} onToggleAi={() => setAiMode(v => !v)} aiMode={aiMode} />;
   }
 
 
