@@ -1,6 +1,7 @@
 import { Component, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
+import { isRecoverableChunkLoadError, recoverFromStaleApp } from "@/lib/pwaRecovery";
 
 interface Props {
   children: ReactNode;
@@ -9,9 +10,6 @@ interface Props {
 interface State {
   error: Error | null;
 }
-
-const CHUNK_ERROR_REGEX =
-  /Loading chunk|Failed to fetch dynamically imported module|Importing a module script failed|ChunkLoadError/i;
 
 /**
  * Boundary por rota. Se uma tela falhar ao carregar (chunk perdido após deploy,
@@ -29,44 +27,20 @@ export class RouteErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error) {
-    const isChunkError = CHUNK_ERROR_REGEX.test(error.message || "");
+    const isChunkError = isRecoverableChunkLoadError(error.message || "");
     if (isChunkError) {
       this.setState({ error });
-      // Auto-recover: limpa caches do SW e recarrega. Janela de 5min entre tentativas
-      // para evitar loop, mas sem travar o usuário permanentemente após a 1ª falha.
-      try {
-        const KEY = "__zeus_chunk_recover_at__";
-        const last = Number(sessionStorage.getItem(KEY) || 0);
-        const now = Date.now();
-        if (!last || now - last > 5 * 60 * 1000) {
-          sessionStorage.setItem(KEY, String(now));
-          void this.hardReload();
-        }
-      } catch (_) {}
+      void recoverFromStaleApp();
     }
     // eslint-disable-next-line no-console
     console.error("[RouteErrorBoundary]", error);
   }
 
-  hardReload = async () => {
-    try {
-      if ("caches" in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map((k) => caches.delete(k)));
-      }
-      if ("serviceWorker" in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map((r) => r.unregister()));
-      }
-    } catch (_) {}
-    window.location.reload();
-  };
-
   reset = () => {
-    const isChunkError = CHUNK_ERROR_REGEX.test(this.state.error?.message || "");
+    const isChunkError = isRecoverableChunkLoadError(this.state.error?.message || "");
     if (isChunkError) {
       // chunk antigo: limpar caches e recarregar é a única forma confiável
-      void this.hardReload();
+      void recoverFromStaleApp({ force: true });
       return;
     }
     this.setState({ error: null });

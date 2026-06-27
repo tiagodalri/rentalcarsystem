@@ -1,14 +1,16 @@
 // Zeus Rental Car — Service Worker
-// Strategy (v8 — offline shell):
+// Strategy (v9 — admin-safe shell):
 //  - HTML navigations: NetworkFirst com timeout de 2s. Online = sempre fresco.
 //    Offline ou rede travada = cai pro cache imediatamente. Sem race condition.
-//  - Static assets (JS/CSS/fonts/images): StaleWhileRevalidate.
+//  - Static assets: cache only images/fonts. JS/CSS are pass-through to avoid
+//    stale dynamic chunks after deploys.
 //  - v8: precacheia rotas-shell (/, /frota, /buscar, /contato, /minha-conta)
 //    pra que abrir essas URLs offline funcione mesmo sem ter visitado antes.
 //  - Tudo o mais: pass-through.
-//  - Atualização: SKIP_WAITING via mensagem; SEM auto-reload (vide useSwUpdateOnNavigate).
+//  - /admin: always pass-through. Back-office must be online and never receive
+//    stale app shells/chunks from PWA cache.
 
-const VERSION = "v8";
+const VERSION = "v9";
 const HTML_CACHE = `zeus-html-${VERSION}`;
 const ASSET_CACHE = `zeus-assets-${VERSION}`;
 const OFFLINE_URL = "/";
@@ -32,8 +34,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(HTML_CACHE).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
-  // Não chamamos skipWaiting() automático — a ativação é coordenada pelo app
-  // (useSwUpdateOnNavigate) numa troca de rota, sem interromper o usuário.
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -57,9 +58,6 @@ self.addEventListener("activate", (event) => {
 const isAsset = (request) => {
   const dest = request.destination;
   return (
-    dest === "style" ||
-    dest === "script" ||
-    dest === "worker" ||
     dest === "font" ||
     dest === "image"
   );
@@ -107,6 +105,8 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  if (url.pathname === "/admin" || url.pathname.startsWith("/admin/")) return;
+
   // 1) HTML navigations -> NetworkFirst com fallback rápido para cache.
   //    Resolve "carregamento do nada" porque online sempre serve a versão fresca.
   if (request.mode === "navigate") {
@@ -119,12 +119,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2) Static assets -> StaleWhileRevalidate (hashes garantem invalidação).
-  //    IMPORTANTE: nunca cachear respostas !ok. Se o chunk sumiu do servidor
-  //    (404 pós-deploy), deixamos o erro propagar para o app mostrar fallback,
-  //    sem reload automático em cima de formulários abertos.
-  //    Antes, caches.match silenciosamente devolvia uma versão "boa" velha
-  //    enquanto o resto do bundle já estava em outro hash → tela branca.
+  // 2) Images/fonts -> StaleWhileRevalidate. JS/CSS ficam fora do SW para evitar
+  //    version skew em imports dinâmicos no mobile/Safari após deploy.
   if (isAsset(request)) {
     event.respondWith(
       (async () => {
