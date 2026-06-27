@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
       locationBias: {
         circle: {
           center: { latitude: 28.5383, longitude: -81.3792 },
-          radius: 150000.0,
+          radius: 50000.0,
         },
       },
       includedRegionCodes: ["us"],
