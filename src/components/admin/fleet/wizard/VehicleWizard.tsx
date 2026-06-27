@@ -33,7 +33,7 @@ const isVehicleDraftEmpty = (draft: WizardForm) => [
   draft.insurance_policy,
   draft.insurance_expiry,
   draft.registration_expiry,
-].every((value) => !String(value ?? "").trim()) && draft.features.length === 0;
+].every((value) => !String(value ?? "").trim()) && (!Array.isArray(draft.features) || draft.features.length === 0);
 
 type StepId = 1 | 2 | 3 | 4 | 5;
 
