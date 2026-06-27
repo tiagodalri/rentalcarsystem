@@ -17,6 +17,7 @@ type Booking = {
   total_price: number | null; vehicle_id: string | null; customer_name: string | null;
   customer_id?: string | null; created_at?: string | null;
   cancelled_at?: string | null; payment_status?: string | null;
+  stripe_session_id?: string | null; turo_reservation_code?: string | null;
 };
 type Vehicle = {
   id: string; name: string | null; status: string | null; color: string | null;
