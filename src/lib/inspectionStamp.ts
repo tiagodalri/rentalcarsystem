@@ -50,14 +50,7 @@ export async function stampInspectionPhoto(
 }
 
 function buildLines(date: Date, address?: string | null): string[] {
-  const dateLine = date.toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  });
+  const dateLine = formatStampDate(date);
   const lines = [dateLine];
   if (address && address.trim()) {
     const addr = address
@@ -68,6 +61,14 @@ function buildLines(date: Date, address?: string | null): string[] {
   }
   return lines;
 }
+
+const MONTHS_PT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+export function formatStampDate(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}/${MONTHS_PT[d.getMonth()]}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
 
 async function loadBitmap(file: File): Promise<ImageBitmap | HTMLImageElement | null> {
   if ("createImageBitmap" in window) {
