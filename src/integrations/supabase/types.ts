@@ -270,6 +270,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bookings_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       bouncie_backfill_progress: {
@@ -321,6 +328,13 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: true
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bouncie_backfill_progress_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: true
+            referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -873,6 +887,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "financial_transactions_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       job_titles: {
@@ -1086,6 +1107,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "public_track_links_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       suppressed_emails: {
@@ -1229,6 +1257,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "trip_events_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       turo_vehicle_mapping: {
@@ -1259,6 +1294,13 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "turo_vehicle_mapping_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1332,6 +1374,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vehicle_diagnostics_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       vehicle_documents: {
@@ -1388,6 +1437,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vehicle_documents_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       vehicle_events: {
@@ -1438,6 +1494,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vehicle_events_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       vehicle_expenses: {
@@ -1486,6 +1549,13 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_expenses_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1561,6 +1631,13 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_incidents_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1666,6 +1743,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vehicle_price_overrides_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       vehicle_price_seasons: {
@@ -1710,6 +1794,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vehicle_price_seasons_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       vehicle_pricing_rules: {
@@ -1746,6 +1837,13 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: true
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_pricing_rules_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: true
+            referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1813,6 +1911,13 @@ export type Database = {
             referencedRelation: "vehicles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vehicle_telemetry_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: true
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       vehicle_telemetry_history: {
@@ -1858,6 +1963,13 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_telemetry_history_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -1956,6 +2068,13 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_trips_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2124,7 +2243,96 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      vehicles_public: {
+        Row: {
+          bags: number | null
+          brand: string | null
+          category: string | null
+          color: string | null
+          created_at: string | null
+          daily_price_usd: number | null
+          default_deposit_amount: number | null
+          default_franchise_amount: number | null
+          deleted_at: string | null
+          doors: number | null
+          engine_size: string | null
+          engine_type: string | null
+          features: string[] | null
+          fuel: string | null
+          id: string | null
+          image_url: string | null
+          manufacture_year: number | null
+          model: string | null
+          model_year: number | null
+          name: string | null
+          passengers: number | null
+          photos: Json | null
+          published: boolean | null
+          status: string | null
+          transmission: string | null
+          updated_at: string | null
+          year: number | null
+        }
+        Insert: {
+          bags?: number | null
+          brand?: string | null
+          category?: string | null
+          color?: string | null
+          created_at?: string | null
+          daily_price_usd?: number | null
+          default_deposit_amount?: number | null
+          default_franchise_amount?: number | null
+          deleted_at?: string | null
+          doors?: number | null
+          engine_size?: string | null
+          engine_type?: string | null
+          features?: string[] | null
+          fuel?: string | null
+          id?: string | null
+          image_url?: string | null
+          manufacture_year?: number | null
+          model?: string | null
+          model_year?: number | null
+          name?: string | null
+          passengers?: number | null
+          photos?: Json | null
+          published?: boolean | null
+          status?: string | null
+          transmission?: string | null
+          updated_at?: string | null
+          year?: number | null
+        }
+        Update: {
+          bags?: number | null
+          brand?: string | null
+          category?: string | null
+          color?: string | null
+          created_at?: string | null
+          daily_price_usd?: number | null
+          default_deposit_amount?: number | null
+          default_franchise_amount?: number | null
+          deleted_at?: string | null
+          doors?: number | null
+          engine_size?: string | null
+          engine_type?: string | null
+          features?: string[] | null
+          fuel?: string | null
+          id?: string | null
+          image_url?: string | null
+          manufacture_year?: number | null
+          model?: string | null
+          model_year?: number | null
+          name?: string | null
+          passengers?: number | null
+          photos?: Json | null
+          published?: boolean | null
+          status?: string | null
+          transmission?: string | null
+          updated_at?: string | null
+          year?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       bump_public_inspection_link_view: {
@@ -2149,6 +2357,19 @@ export type Database = {
         Returns: number
       }
       get_occupancy_rate: { Args: never; Returns: number }
+      get_vehicle_for_my_booking: {
+        Args: { p_booking_id: string }
+        Returns: {
+          category: string
+          color: string
+          current_odometer: number
+          daily_price_usd: number
+          id: string
+          license_plate: string
+          name: string
+          year: number
+        }[]
+      }
       get_vehicle_pricing: {
         Args: { p_pickup: string; p_return: string; p_vehicle_id: string }
         Returns: {
