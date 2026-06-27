@@ -402,7 +402,7 @@ export default function AdminBookingDetail() {
                     val ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-600" : "border-red-500/20 bg-red-500/5 text-red-500"
                   }`}>
                     {val ? <Check size={11} /> : <XIcon size={11} />}
-                    <span className="truncate">{key}</span>
+                    <span className="truncate capitalize">{accessoryLabel(key)}</span>
                   </div>
                 ))}
               </div>
