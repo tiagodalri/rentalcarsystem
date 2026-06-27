@@ -127,6 +127,8 @@ export function ShareWhatsAppInspectionButton({
         plate: vehicle?.license_plate ?? null,
         pickupDate: (booking as any).pickup_date,
         returnDate: (booking as any).return_date,
+        pickupLocation: (booking as any).pickup_location ?? null,
+        returnLocation: (booking as any).return_location ?? null,
         odometer: inspection.odometer_reading ?? null,
         fuel: inspection.fuel_level ?? null,
         address:
