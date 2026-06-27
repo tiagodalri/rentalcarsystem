@@ -36,6 +36,7 @@ const Login = lazy(() => import("./pages/Login.tsx"));
 const BookingConfirmed = lazy(() => import("./pages/BookingConfirmed.tsx"));
 const CustomerRegistration = lazy(() => import("./pages/CustomerRegistration.tsx"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe.tsx"));
 const Contato = lazy(() => import("./pages/Contato.tsx"));
 const VehicleDetail = lazy(() => import("./pages/VehicleDetail.tsx"));
 const Frota = lazy(() => import("./pages/Frota.tsx"));
@@ -245,6 +246,7 @@ const App = () => (
               <Route path="/login" element={<PublicSuspense><Login /></PublicSuspense>} />
               <Route path="/redefinir-senha" element={<PublicSuspense><ResetPassword /></PublicSuspense>} />
               <Route path="/contato" element={<PublicSuspense><Contato /></PublicSuspense>} />
+              <Route path="/unsubscribe" element={<PublicSuspense><Unsubscribe /></PublicSuspense>} />
               <Route path="/minha-conta" element={<RequireAuth><ClientSuspense><MyAccount /></ClientSuspense></RequireAuth>} />
               <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><ClientSuspense><BookingDetailClient /></ClientSuspense></RequireAuth>} />
               <Route path="/completar-perfil" element={<RequireAuth><ClientSuspense><CompleteProfile /></ClientSuspense></RequireAuth>} />
