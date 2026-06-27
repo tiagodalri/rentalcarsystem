@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 import MobileCustomers from "./mobile/MobileCustomers";
 import { useRegisterFab } from "@/hooks/useAdminFab";
+import { useConfirm } from "@/components/mobile/ConfirmSheet";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Search, Plus, Pencil, Trash2, X, FileText, Upload, Camera, Loader2, ExternalLink, Copy, Check, Users, MessageCircle, User, Car } from "lucide-react";
@@ -69,6 +70,7 @@ function AdminCustomersDesktop() {
     setIsNew(true);
   };
   useRegisterFab({ icon: Plus, label: "Adicionar cliente", onClick: () => openNewCustomer() }, [segment]);
+  const confirm = useConfirm();
   const [cepLoading, setCepLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const { loading: ocrLoading, result: ocrResult, runOcr, reset: resetOcr } = useDocumentOcr();
@@ -250,7 +252,13 @@ function AdminCustomersDesktop() {
   };
 
   const deleteCustomer = async (id: string) => {
-    if (!confirm("Excluir este cliente? (Pode ser restaurado por um administrador)")) return;
+    const ok = await confirm({
+      title: "Excluir este cliente?",
+      description: "Ele será movido para a lixeira e poderá ser restaurado por um administrador.",
+      confirmLabel: "Excluir",
+      variant: "destructive",
+    });
+    if (!ok) return;
     const { data: { user } } = await supabase.auth.getUser();
     await supabase.from("customers").update({ deleted_at: new Date().toISOString(), deleted_by: user?.id ?? null }).eq("id", id);
     toast({ title: "Cliente excluído", description: "Movido para a lixeira." });

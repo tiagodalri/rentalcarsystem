@@ -10,6 +10,7 @@ import FleetToolbar, { FleetFilters } from "@/components/admin/fleet/FleetToolba
 import FleetGrid, { FleetVehicleCard } from "@/components/admin/fleet/FleetGrid";
 import FleetTable, { FleetTableVehicle } from "@/components/admin/fleet/FleetTable";
 import { useRegisterFab } from "@/hooks/useAdminFab";
+import { useConfirm } from "@/components/mobile/ConfirmSheet";
 import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 import MobileFleet from "./mobile/MobileFleet";
 
@@ -65,6 +66,7 @@ export default function AdminFleet() {
   }, []);
 
   useRegisterFab({ icon: Plus, label: "Adicionar veículo", onClick: () => navigate("/admin/fleet/new") });
+  const confirm = useConfirm();
 
   useEffect(() => {
     try {
@@ -121,7 +123,13 @@ export default function AdminFleet() {
   };
 
   const deleteVehicle = async (id: string) => {
-    if (!confirm("Excluir este veículo? (Pode ser restaurado por um administrador)")) return;
+    const ok = await confirm({
+      title: "Excluir este veículo?",
+      description: "Ele será movido para a lixeira e poderá ser restaurado por um administrador.",
+      confirmLabel: "Excluir",
+      variant: "destructive",
+    });
+    if (!ok) return;
     const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("vehicles")
