@@ -44,8 +44,10 @@ export async function stampInspectionPhoto(
     const ctx = canvas.getContext("2d");
     if (!ctx) return file;
 
+    ctx.save();
     applyExifOrientationTransform(ctx, orientation, w, h);
     ctx.drawImage(bitmap, 0, 0, drawWidth, drawHeight);
+    ctx.restore();
     if ("close" in bitmap) bitmap.close();
     drawStamp(ctx, w, h, lines);
 
