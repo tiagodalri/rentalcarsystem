@@ -10,15 +10,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useThemeMode } from "@/i18n/ThemeContext";
 import { useAdminPageTitle } from "@/hooks/useAdminPageTitle";
-import { useAdminFab } from "@/hooks/useAdminFab";
+import { useAdminPageTitle } from "@/hooks/useAdminPageTitle";
 import { useHideOnScroll } from "@/hooks/useHideOnScroll";
 import { haptic } from "@/lib/haptic";
 
 export function AdminMobileHeader() {
   const title = useAdminPageTitle();
   const { theme, toggleTheme } = useThemeMode();
-  const { fab } = useAdminFab();
-  const FabIcon = fab?.icon;
   const [isFs, setIsFs] = useState(false);
   const [fsSupported, setFsSupported] = useState(true);
   // Header sempre visível no mobile — esconder ao rolar fazia o stepper logo abaixo
