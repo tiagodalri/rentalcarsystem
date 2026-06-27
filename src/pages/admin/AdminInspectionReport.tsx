@@ -90,6 +90,21 @@ export default function AdminInspectionReport() {
       setCheckout(coRes.data);
       setIncidents(incRes.data || []);
       setTransactions(txRes.data || []);
+      // Pre-warm signed URLs for all inspection photos so the gallery renders instantly.
+      try {
+        const urls: string[] = [];
+        for (const i of [ciRes.data, coRes.data]) {
+          if (!i) continue;
+          const ext = Array.isArray((i as any).exterior_photos) ? (i as any).exterior_photos : [];
+          for (const p of ext) if (p?.url) urls.push(p.url);
+          const dmg = Array.isArray((i as any).damages) ? (i as any).damages : [];
+          for (const d of dmg) if (d?.photoUrl) urls.push(d.photoUrl);
+        }
+        if (urls.length) {
+          const { prefetchSignedInspectionUrls } = await import("@/lib/inspectionStorage");
+          prefetchSignedInspectionUrls(urls);
+        }
+      } catch { /* non-fatal */ }
       if (bRes.data?.vehicle_id) {
         const { data: v } = await supabase.from("vehicles").select("*").eq("id", bRes.data.vehicle_id).single();
         setVehicle(v);

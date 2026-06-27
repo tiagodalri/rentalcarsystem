@@ -63,6 +63,58 @@ export function subscribeLocalInspectionPreview(
   };
 }
 
+// Batches concurrent requests into a single createSignedUrls() call so that
+// galleries with many photos resolve in 1 round-trip instead of N.
+let pendingBatch: Map<string, Array<(url: string | null) => void>> | null = null;
+let batchTimer: ReturnType<typeof setTimeout> | null = null;
+
+function flushBatch() {
+  const batch = pendingBatch;
+  pendingBatch = null;
+  batchTimer = null;
+  if (!batch || batch.size === 0) return;
+  const paths = Array.from(batch.keys());
+  supabase.storage
+    .from(INSPECTIONS_BUCKET)
+    .createSignedUrls(paths, TTL_SECONDS)
+    .then(({ data, error }) => {
+      const byPath = new Map<string, string>();
+      if (!error && Array.isArray(data)) {
+        for (const item of data) {
+          if (item?.path && item.signedUrl) {
+            byPath.set(item.path, item.signedUrl);
+            cache.set(item.path, {
+              url: item.signedUrl,
+              expiresAt: Date.now() + (TTL_SECONDS - 60) * 1000,
+            });
+          }
+        }
+      }
+      batch.forEach((listeners, path) => {
+        const url = byPath.get(path) ?? null;
+        listeners.forEach((cb) => cb(url));
+      });
+    })
+    .catch(() => {
+      batch.forEach((listeners) => listeners.forEach((cb) => cb(null)));
+    });
+}
+
+function enqueueSignedUrl(path: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    if (!pendingBatch) pendingBatch = new Map();
+    const listeners = pendingBatch.get(path) || [];
+    listeners.push(resolve);
+    pendingBatch.set(path, listeners);
+    if (!batchTimer) batchTimer = setTimeout(flushBatch, 20);
+    // Hard cap to avoid huge URL lists in a single request.
+    if (pendingBatch.size >= 50) {
+      if (batchTimer) clearTimeout(batchTimer);
+      flushBatch();
+    }
+  });
+}
+
 export async function getSignedInspectionUrl(value: string | null | undefined): Promise<string | null> {
   if (!value) return null;
   if (value.startsWith("data:") || value.startsWith("blob:")) return value;
@@ -75,13 +127,25 @@ export async function getSignedInspectionUrl(value: string | null | undefined): 
   const cached = cache.get(path);
   if (cached && cached.expiresAt > Date.now()) return cached.url;
 
-  const { data, error } = await supabase.storage
-    .from(INSPECTIONS_BUCKET)
-    .createSignedUrl(path, TTL_SECONDS);
-  if (error || !data?.signedUrl) return null;
+  return enqueueSignedUrl(path);
+}
 
-  cache.set(path, { url: data.signedUrl, expiresAt: Date.now() + (TTL_SECONDS - 60) * 1000 });
-  return data.signedUrl;
+/** Pre-warms the signed-URL cache for a list of stored values in a single round-trip. */
+export async function prefetchSignedInspectionUrls(values: Array<string | null | undefined>): Promise<void> {
+  const paths = Array.from(
+    new Set(
+      values
+        .map((v) => extractInspectionPath(v))
+        .filter((p): p is string => {
+          if (!p) return false;
+          if (localPreviews.has(p)) return false;
+          const c = cache.get(p);
+          return !(c && c.expiresAt > Date.now());
+        }),
+    ),
+  );
+  if (paths.length === 0) return;
+  await Promise.all(paths.map((p) => enqueueSignedUrl(p)));
 }
 
 /** React hook: resolves a stored value (path / legacy URL / data URL) to a usable URL. */

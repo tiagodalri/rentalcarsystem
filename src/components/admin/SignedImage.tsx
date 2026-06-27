@@ -26,5 +26,5 @@ export function SignedImage({ value, fallbackClassName, className, alt, ...rest 
     );
   }
 
-  return <img src={url} alt={alt} className={className} decoding="async" {...rest} />;
+  return <img src={url} alt={alt} className={className} decoding="async" loading="lazy" {...rest} />;
 }
