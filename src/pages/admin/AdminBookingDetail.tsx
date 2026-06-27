@@ -530,10 +530,13 @@ export default function AdminBookingDetail() {
               })()}
               {(() => {
                 const ps = booking.payment_status || "pending";
+                const isTuro = !!(booking.turo_reservation_code || (booking as any).addons?.turo_reservation_id);
                 const cls = ps === "paid"
                   ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
                   : "bg-amber-500/10 text-amber-600 border-amber-500/30";
-                const label = ps === "paid" ? "Pagamento OK" : "Pagamento pendente";
+                const label = ps === "paid"
+                  ? "Pagamento OK"
+                  : isTuro ? "Pagamento pós check-out" : "Pagamento pendente";
                 return <Badge className={`${cls} border text-[10px] px-3 py-1 font-semibold whitespace-nowrap`}>{label}</Badge>;
               })()}
             </div>
