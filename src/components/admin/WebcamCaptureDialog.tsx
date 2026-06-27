@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Camera, RefreshCcw, X, Check, Play, MapPin } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { formatStampDateOnly, formatStampTime } from "@/lib/inspectionStamp";
 
 interface WebcamCaptureDialogProps {
   open: boolean;
@@ -12,9 +13,6 @@ interface WebcamCaptureDialogProps {
   /** Endereço carimbado no preview ao vivo (e queimado na foto capturada). */
   stampAddress?: string;
 }
-
-import { formatStampDate } from "@/lib/inspectionStamp";
-
 
 export function WebcamCaptureDialog({
   open,
@@ -106,7 +104,7 @@ export function WebcamCaptureDialog({
     ctx.drawImage(video, 0, 0);
 
     // Não queimamos carimbo aqui — o stampInspectionPhoto aplica o carimbo
-    // novo (canto superior direito, grande e legível) após a captura.
+    // definitivo no canto inferior direito, já com segundos e mês por extenso.
 
     setPreview(canvas.toDataURL("image/jpeg", 0.92));
 
@@ -158,13 +156,16 @@ export function WebcamCaptureDialog({
 
           {/* Carimbo ao vivo — visível na pré-visualização da câmera. */}
           {showStampOverlay && (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 px-4 pt-10 pb-3 bg-gradient-to-t from-black/75 via-black/40 to-transparent">
-              <div className="text-[#FFD479] text-xs sm:text-sm font-semibold tabular-nums tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-                {formatStampDate(now)}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 px-4 pt-10 pb-3 bg-gradient-to-t from-black/75 via-black/40 to-transparent text-right">
+              <div className="text-[#FFD479] text-sm sm:text-base font-semibold tabular-nums tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                {formatStampTime(now)}
               </div>
-              <div className="mt-0.5 flex items-start gap-1.5 text-white text-xs sm:text-sm font-medium leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+              <div className="text-white text-xs sm:text-sm font-semibold tabular-nums tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                {formatStampDateOnly(now)}
+              </div>
+              <div className="mt-0.5 flex items-start justify-end gap-1.5 text-white text-xs sm:text-sm font-medium leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
                 <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[#FFD479]" strokeWidth={2} />
-                <span className="line-clamp-2">{stampAddress}</span>
+                <span className="line-clamp-2 max-w-[78%]">{stampAddress}</span>
               </div>
             </div>
           )}
