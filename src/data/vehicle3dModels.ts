@@ -277,48 +277,22 @@ export function inferLabelByPosition(p: NormalizedPoint): string {
 // Mesh-name → part label was derived by inspecting bounding boxes against the
 // car's local axes (length axis = Z, width axis = X, vertical = Y).
 
+// Apenas peças que NÃO devem ser classificadas pela posição (chassi, teto,
+// para-brisa, tampa do porta-malas). Todas as outras subdivisões do corpo
+// (`01_car_body_N_carPaint_0`, `43_car_body_trunk_N_carPaint_0`, etc.)
+// caem na inferência espacial (`inferLabelByPosition`) — que olha o bbox real
+// de cada submalha e devolve "Capô", "Paralama dianteiro esquerdo",
+// "Para-choque dianteiro" corretamente, sem mapeamento manual frágil.
 const TIGUAN_EXACT: Record<string, { label: string; pickable?: boolean }> = {
-  // ── CAPÔ ──
-  "01_car_body_carPaint_0": { label: "Capô" },
-  "01_car_body_4_carPaint_0": { label: "Capô" },
-
-  // ── PARA-CHOQUE DIANTEIRO + GRADE ──
-  "01_car_body_1_carPaint_0": { label: "Para-choque dianteiro" },
-  "01_car_body_2_carPaint_0": { label: "Para-choque dianteiro" },
-  "01_car_body_3_carPaint_0": { label: "Para-choque dianteiro" },
-  "01_car_body_12_carPaint_0": { label: "Para-choque dianteiro" },
-  "01_car_body_16_carPaint_0": { label: "Para-choque dianteiro" },
-
-  // ── PARA-CHOQUE TRASEIRO ──
-  "01_car_body_8_carPaint_0": { label: "Para-choque traseiro" },
-  "01_car_body_9_carPaint_0": { label: "Para-choque traseiro" },
-  "01_car_body_10_carPaint_0": { label: "Para-choque traseiro" },
-  "01_car_body_13_carPaint_0": { label: "Para-choque traseiro" },
-  "43_car_body_trunk_4_carPaint_0": { label: "Para-choque traseiro" },
-
-  // ── LATERAIS (sills + colunas) ──
-  "01_car_body_14_carPaint_0": { label: "Coluna traseira esquerda" },
-  "01_car_body_17_carPaint_0": { label: "Soleira esquerda" },
-  "01_car_body_20_carPaint_0": { label: "Soleira direita" },
-  "01_car_body_19_carPaint_0": { label: "Caixilho de teto esquerdo" },
-  "01_car_body_21_carPaint_0": { label: "Caixilho de teto direito" },
-
-  // ── TETO ──
+  // ── TETO (única peça plana do topo central, segura mapear direto) ──
   "51_car_body_top_carPaint_0": { label: "Teto" },
-  "01_car_body_18_carPaint_0": { label: "Teto" },
-
-  // ── TAMPA DO PORTA-MALAS ──
-  "43_car_body_trunk_carPaint_0": { label: "Tampa do porta-malas" },
-  "43_car_body_trunk_1_carPaint_0": { label: "Tampa do porta-malas" },
-  "43_car_body_trunk_2_carPaint_0": { label: "Tampa do porta-malas" },
-  "43_car_body_trunk_3_carPaint_0": { label: "Tampa do porta-malas" },
-  "43_car_body_trunk_5_carPaint_0": { label: "Tampa do porta-malas" },
 
   // ── ASSOALHO / CHASSI (não clicável) ──
   "01_car_body_15_carPaint_0": { label: "Assoalho / Chassi", pickable: false },
   "58_car_body_bottom_chassis_0": { label: "Assoalho / Chassi", pickable: false },
   "jiemian_chassis_0": { label: "Assoalho / Chassi", pickable: false },
 };
+
 
 export function classifyTiguanMesh(name: string): MeshClassification | null {
   // 1) Exact match (body subdivisions classified by bounding box analysis)
