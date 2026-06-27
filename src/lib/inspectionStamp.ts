@@ -15,6 +15,7 @@ export async function stampInspectionPhoto(
 ): Promise<File> {
   try {
     if (!file.type.startsWith("image/")) return file;
+    if (/(?:-stamped|-carimbo-final)\.(jpe?g|png|webp)$/i.test(file.name)) return file;
 
     const date = opts.date ?? new Date();
     const lines = buildLines(date, opts.address);
@@ -52,13 +53,22 @@ export async function stampInspectionPhoto(
 function buildLines(date: Date, address?: string | null): string[] {
   const lines = [formatStampTime(date), formatStampDateOnly(date)];
   if (address && address.trim()) {
-    const addr = address
-      .split(/\n|,\s+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const addr = normalizeAddressLines(address);
     lines.push(...addr.slice(0, 5));
   }
   return lines;
+}
+
+function normalizeAddressLines(address: string): string[] {
+  const parts = address
+    .split(/\n|,\s+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (parts.length >= 3) {
+    return [parts[0], parts.slice(1).join(", ")];
+  }
+  return parts;
 }
 
 const MONTHS_PT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -111,14 +121,26 @@ function drawStamp(
   h: number,
   lines: string[],
 ) {
-  // Tamanho proporcional à menor dimensão — grande e legível, estilo Timestamp Camera.
-  const fontSize = Math.max(28, Math.round(Math.min(w, h) * 0.048));
-  const lineHeight = Math.round(fontSize * 1.25);
-  const marginX = Math.round(fontSize * 0.9);
-  const marginY = Math.round(fontSize * 0.9);
+  // Tamanho proporcional e com limite de largura/altura para nunca sobrepor linhas.
+  const marginX = Math.max(24, Math.round(Math.min(w, h) * 0.035));
+  const marginY = marginX;
+  const maxWidth = Math.round(w * 0.48);
+  const maxHeight = Math.round(h * 0.32);
+  let fontSize = Math.max(28, Math.round(Math.min(w, h) * 0.043));
+  let lineHeight = Math.round(fontSize * 1.22);
+
+  const measure = () => {
+    ctx.font = `650 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
+    return Math.max(...lines.map((line) => ctx.measureText(line).width));
+  };
+
+  while (fontSize > 22 && (measure() > maxWidth || lines.length * lineHeight > maxHeight)) {
+    fontSize -= 1;
+    lineHeight = Math.round(fontSize * 1.22);
+  }
   const blockHeight = lines.length * lineHeight;
 
-  ctx.font = `500 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
+  ctx.font = `650 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
   ctx.textAlign = "right";
   ctx.textBaseline = "top";
 
