@@ -32,6 +32,9 @@ import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton"
 import { registerLocalInspectionPreview, compressInspectionImage } from "@/lib/inspectionStorage";
 import CarDamageMap from "@/components/inspection/CarDamageMap";
 import { PhotoSourceSheet } from "@/components/admin/PhotoSourceSheet";
+import { stampInspectionPhoto } from "@/lib/inspectionStamp";
+import { AddressAutocompleteInput } from "@/components/admin/AddressAutocompleteInput";
+import { MapPin } from "lucide-react";
 
 const PHOTO_REFERENCES: Record<string, string> = {
   "Frente": refFrente,
