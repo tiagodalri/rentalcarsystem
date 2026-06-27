@@ -3,8 +3,10 @@ import { Navigate, useNavigate } from "react-router-dom";
 import {
   Activity, Brain, CalendarDays, CalendarRange, Car, CheckCircle2,
   ChevronRight, Clock, DollarSign, LogIn, LogOut as LogOutIcon,
-  TrendingDown, TrendingUp, Wrench,
+  TrendingDown, TrendingUp, Wrench, X,
 } from "lucide-react";
+import { createPortal } from "react-dom";
+
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
