@@ -1,6 +1,8 @@
 const RECOVERY_STARTED_KEY = "__zeus_recovery_started_at__";
 const RECOVERY_DONE_KEY = "__zeus_recovery_done_at__";
 const RECOVERY_COOLDOWN_MS = 15_000;
+const LEGACY_REFRESH_PARAM = "__zeus_refresh";
+const ADMIN_REFRESH_PARAM = "__zeus_admin_recover";
 
 const CHUNK_LOAD_PATTERNS = [
   /ChunkLoadError/i,
@@ -42,6 +44,7 @@ export async function clearPwaState(): Promise<void> {
 
 export async function recoverFromStaleApp(options: { force?: boolean } = {}): Promise<void> {
   const now = Date.now();
+  const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 
   try {
     const lastStarted = Number(sessionStorage.getItem(RECOVERY_STARTED_KEY) || 0);
@@ -60,6 +63,9 @@ export async function recoverFromStaleApp(options: { force?: boolean } = {}): Pr
   }
 
   const url = new URL(window.location.href);
-  url.searchParams.set("__zeus_refresh", String(Date.now()));
+  // Em rotas admin, mantenha um nome de parâmetro estável e reconhecível pelo
+  // boot script do index.html; isso evita loop e força uma navegação realmente
+  // fresca no Safari/iOS quando o erro veio de chunk/app-shell antigo.
+  url.searchParams.set(isAdminRoute ? ADMIN_REFRESH_PARAM : LEGACY_REFRESH_PARAM, String(Date.now()));
   window.location.replace(url.toString());
 }
