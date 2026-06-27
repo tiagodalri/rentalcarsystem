@@ -260,7 +260,7 @@ export function generateContractPdf(
   doc.setFontSize(8);
   doc.text(customer.full_name, margin, y + 10);
   doc.text(`Doc.: ${customer.document_number || "—"}`, margin, y + 14);
-  doc.text("Zeus Rental Car LLC", margin + sigW + 10, y + 10);
+  doc.text(template.company_name, margin + sigW + 10, y + 10);
   y += 22;
 
   doc.setTextColor(...gray);
