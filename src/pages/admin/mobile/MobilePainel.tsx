@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CalendarPlus, Car, ChevronRight, ClipboardCheck, LogIn,
+  Brain, CalendarPlus, Car, ChevronRight, ClipboardCheck, LogIn,
   LogOut as LogOutIcon, Phone, Radio, Sparkles, Wrench,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -37,6 +37,8 @@ interface MobilePainelProps {
   bookings: BookingRow[];
   vehicles: { id: string; name: string | null; status: string | null; color: string | null }[];
   onRefresh: () => Promise<void>;
+  aiMode?: boolean;
+  onToggleAi?: () => void;
 }
 
 const ACTIVE_STATUSES = new Set(["confirmed", "active", "in_progress"]);
@@ -56,7 +58,7 @@ const PERIOD_LABEL: Record<Period, string> = {
   evening: "Noite",
 };
 
-export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePainelProps) {
+export default function MobilePainel({ bookings, vehicles, onRefresh, aiMode, onToggleAi }: MobilePainelProps) {
   const navigate = useNavigate();
   const now = useMemo(() => new Date(), []);
   const today = todayStr();
@@ -270,6 +272,31 @@ export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePa
               ))
           )}
         </section>
+
+        {/* ═══════════ Modo IA ═══════════ */}
+        {onToggleAi && (
+          <button
+            onClick={onToggleAi}
+            className={`w-full text-left rounded-2xl border p-4 flex items-center gap-3 active:scale-[0.99] transition-transform ${
+              aiMode
+                ? "border-cyan-300/40 bg-gradient-to-r from-cyan-500/15 via-violet-500/15 to-fuchsia-500/15 shadow-[0_0_20px_rgba(120,180,255,0.25)]"
+                : "border-border/40 bg-card/70 hover:bg-card"
+            }`}
+          >
+            <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
+              aiMode ? "bg-cyan-500/20 text-cyan-300" : "bg-foreground/5 text-foreground"
+            }`}>
+              <Brain size={20} strokeWidth={1.75} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[14px] font-medium text-foreground">Modo IA</div>
+              <div className="text-[11px] text-muted-foreground truncate">
+                {aiMode ? "IA ativada — toque para voltar" : "Insights inteligentes da frota"}
+              </div>
+            </div>
+            <ChevronRight size={16} className="text-muted-foreground/50" />
+          </button>
+        )}
 
         {/* ═══════════ Atalhos ═══════════ */}
         <section>
