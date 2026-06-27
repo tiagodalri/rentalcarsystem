@@ -109,9 +109,9 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
   return (
     <div className="rounded-xl border border-border/40 bg-card/40 overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-[13px]">
+        <table className="w-full min-w-[1100px] text-[13px]">
           <thead>
-            <tr className="text-left text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70 border-b border-border/40">
+            <tr className="text-left text-[10px] uppercase tracking-[0.14em] text-muted-foreground/70 border-b border-border/40 whitespace-nowrap">
               <th className="px-3 py-3 font-medium">Veículo</th>
               <th className="px-3 py-3 font-medium">Placa</th>
               <th className="px-3 py-3 font-medium">Categoria</th>
@@ -148,9 +148,9 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                       <span className="font-normal text-foreground whitespace-nowrap tracking-[-0.005em]">{v.name}</span>
                     </button>
                   </td>
-                  <td className="px-3 py-2.5 font-mono text-[11px] text-muted-foreground/80 uppercase tracking-wider">{v.license_plate || "—"}</td>
-                  <td className="px-3 py-2.5 text-muted-foreground">{v.category}</td>
-                  <td className="px-3 py-2">
+                  <td className="px-3 py-2.5 font-mono text-[11px] text-muted-foreground/80 uppercase tracking-wider whitespace-nowrap">{v.license_plate || "—"}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground whitespace-nowrap">{v.category}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">
                     {isEditingCell("status") ? (
                       <div className="inline-flex items-center gap-1">
                         <select
@@ -176,7 +176,7 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                     )}
                   </td>
                   {(["daily_price_usd", "default_deposit_amount", "default_franchise_amount"] as const).map((f) => (
-                    <td key={f} className="px-3 py-2 text-right tabular-nums">
+                    <td key={f} className="px-3 py-2 text-right tabular-nums whitespace-nowrap">
                       {isEditingCell(f) ? (
                         <div className="inline-flex items-center gap-1">
                           <input
