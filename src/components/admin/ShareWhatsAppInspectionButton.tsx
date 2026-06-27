@@ -19,6 +19,8 @@ type ExteriorPhoto = { id?: string; position?: string; url?: string };
 
 function buildMessage(args: {
   type: "checkin" | "checkout";
+  bookingNumber?: string | null;
+  turoReservationCode?: string | null;
   customerName: string;
   vehicleLabel: string;
   plate?: string | null;
