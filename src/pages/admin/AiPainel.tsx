@@ -437,11 +437,11 @@ export default function AiPainel({
 
   const tabs: { key: TabKey; label: string; icon: typeof Brain }[] = [
     { key: "revenue", label: "Receita", icon: DollarSign },
-    { key: "demand", label: "Demanda", icon: Activity },
+    { key: "demand", label: "Reservas", icon: Activity },
     { key: "customers", label: "Clientes", icon: Users },
     { key: "operations", label: "Operação", icon: Gauge },
-    { key: "financial", label: "Financeiro", icon: Wallet },
-    { key: "strategy", label: "Estratégia", icon: Wand2 },
+    { key: "financial", label: "Dinheiro", icon: Wallet },
+    { key: "strategy", label: "Recomendações", icon: Wand2 },
   ];
 
   return (
@@ -457,26 +457,26 @@ export default function AiPainel({
             <div className="flex items-center gap-2 mb-2">
               <div className="ai-badge">
                 <Sparkles size={11} strokeWidth={2} />
-                <span>ZEUS INTELLIGENCE</span>
+                <span>MODO IA ATIVADO</span>
                 <span className="ai-pulse" />
               </div>
             </div>
-            <h1 className="ai-title">Cockpit Inteligente</h1>
+            <h1 className="ai-title">Painel Inteligente</h1>
             <p className="ai-subtitle">
-              {perVehicle.length} veículos · {realBookings.length} reservas · {customers.length} clientes únicos
+              {perVehicle.length} carros · {realBookings.length} reservas · {customers.length} clientes únicos
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="ai-chip"><Brain size={12} /><span>Neural v3.0</span></div>
+            <div className="ai-chip"><Brain size={12} /><span>Análise IA</span></div>
           </div>
         </div>
 
         {/* Hero KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <AiKpi label="RevPAC" sub="Receita / carro-dia disponível" value={fmtUSD2(revPAC)} icon={Rocket} hue="violet" />
-          <AiKpi label="ADR efetivo" sub="Diária média realizada" value={fmtUSD(fleetADR)} icon={DollarSign} hue="amber" />
-          <AiKpi label="Margem operacional" value={`${fleetMargin.toFixed(1)}%`} icon={Target} hue={fleetMargin >= 25 ? "emerald" : "rose"} />
-          <AiKpi label="Pacing MTD" sub={`vs ${fmtUSD(pacing.lmtd)} mês passado`} value={fmtUSD(pacing.mtd)} icon={pacing.delta >= 0 ? ArrowUpRight : ArrowDownRight} hue={pacing.delta >= 0 ? "emerald" : "rose"} />
+          <AiKpi label="Receita por carro/dia" sub="Quanto cada carro gera, na média, por dia que está na frota" value={fmtUSD2(revPAC)} icon={Rocket} hue="violet" />
+          <AiKpi label="Diária média cobrada" sub="Valor médio efetivamente recebido por dia alugado" value={fmtUSD(fleetADR)} icon={DollarSign} hue="amber" />
+          <AiKpi label="Margem de lucro" sub="Receita menos despesas, em %" value={`${fleetMargin.toFixed(1)}%`} icon={Target} hue={fleetMargin >= 25 ? "emerald" : "rose"} />
+          <AiKpi label="Receita do mês até hoje" sub={`No mesmo dia do mês passado: ${fmtUSD(pacing.lmtd)} (${pacing.delta >= 0 ? "+" : ""}${pacing.delta.toFixed(1)}%)`} value={fmtUSD(pacing.mtd)} icon={pacing.delta >= 0 ? ArrowUpRight : ArrowDownRight} hue={pacing.delta >= 0 ? "emerald" : "rose"} />
         </div>
 
         {/* AI Briefing */}
@@ -485,10 +485,10 @@ export default function AiPainel({
             <div className="ai-insight-icon"><Brain size={16} /></div>
             <div className="flex-1">
               <div className="text-[10px] uppercase tracking-[0.2em] text-cyan-300/80 mb-1">
-                {briefingLoading ? "Gerando análise neural..." : "Briefing executivo · IA"}
+                {briefingLoading ? "Analisando dados da sua frota..." : "O que a IA está vendo agora"}
               </div>
               <p className="text-[13.5px] text-white/90 leading-relaxed whitespace-pre-line">
-                {briefing ?? "Sintetizando dados..."}
+                {briefing ?? "Carregando análise..."}
               </p>
             </div>
           </div>
@@ -525,7 +525,7 @@ export default function AiPainel({
           <div className="space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card lg:col-span-2">
-                <CardHeader title="Pulso de receita · 6 meses" sub="Tendência operacional" icon={LineChart} />
+                <CardHeader title="Receita dos últimos 6 meses" sub="Como sua frota faturou mês a mês" icon={LineChart} />
                 <div className="flex items-end gap-3 h-40">
                   {monthlyTrend.map((m, i) => {
                     const h = (m.revenue / maxBar) * 100;
@@ -544,7 +544,7 @@ export default function AiPainel({
               </div>
 
               <div className="ai-card">
-                <CardHeader title="ADR vs preço de tabela" sub="Desconto silencioso" icon={DollarSign} />
+                <CardHeader title="Está cobrando menos que a tabela?" sub="Diária real recebida vs preço cadastrado" icon={DollarSign} />
                 <ul className="space-y-2.5">
                   {[...perVehicle].filter(p => p.bookingsCount > 0 && p.daily > 0).sort((a, b) => a.adrGap - b.adrGap).slice(0, 5).map(p => (
                     <li key={p.v.id} className="text-[12.5px]">
@@ -554,7 +554,7 @@ export default function AiPainel({
                           {p.adrGap >= 0 ? "+" : ""}{p.adrGap.toFixed(1)}%
                         </span>
                       </div>
-                      <div className="text-[10.5px] text-white/50">ADR {fmtUSD(p.adr)} · tabela {fmtUSD(p.daily)}</div>
+                      <div className="text-[10.5px] text-white/50">Recebido {fmtUSD(p.adr)}/dia · tabela {fmtUSD(p.daily)}/dia</div>
                     </li>
                   ))}
                 </ul>
@@ -562,9 +562,9 @@ export default function AiPainel({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <KpiBlock title="Receita histórica" value={fmtUSD(fleetRevenue)} sub={`Despesas ${fmtUSD(fleetExpenses)}`} icon={DollarSign} />
-              <KpiBlock title="Pipeline 30 dias" value={fmtUSD(next30)} sub={`60d ${fmtUSD(next60)}`} icon={Rocket} />
-              <KpiBlock title="Ocupação média" value={`${avgOccupancy.toFixed(1)}%`} sub={`${totalDaysBooked} dias reservados`} icon={Gauge} />
+              <KpiBlock title="Receita total acumulada" value={fmtUSD(fleetRevenue)} sub={`Despesas registradas: ${fmtUSD(fleetExpenses)}`} icon={DollarSign} />
+              <KpiBlock title="Receita confirmada — próximos 30 dias" value={fmtUSD(next30)} sub={`Em 60 dias: ${fmtUSD(next60)}`} icon={Rocket} />
+              <KpiBlock title="Ocupação média da frota" value={`${avgOccupancy.toFixed(1)}%`} sub={`${totalDaysBooked} dias alugados no total`} icon={Gauge} />
             </div>
           </div>
         )}
@@ -574,20 +574,20 @@ export default function AiPainel({
           <div className="space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card">
-                <CardHeader title="Lead time médio" sub="Antecipação de reserva" icon={Clock} />
+                <CardHeader title="Com quanto tempo o cliente reserva" sub="Antecedência média entre fazer a reserva e retirar o carro" icon={Clock} />
                 <div className="text-3xl font-light text-cyan-200 tabular-nums">{leadTime.avg.toFixed(0)}<span className="text-base text-white/50"> dias</span></div>
-                <div className="text-[11px] text-white/55 mt-1">Mediana {leadTime.median}d · {leadTime.sample} reservas</div>
+                <div className="text-[11px] text-white/55 mt-1">Metade dos clientes reserva com até {leadTime.median} dias de antecedência · base: {leadTime.sample} reservas</div>
               </div>
               <div className="ai-card">
-                <CardHeader title="Funil de conversão" sub="Total → confirmadas → completas" icon={Activity} />
-                <FunnelBar label="Total" value={funnel.total} max={funnel.total} hue="violet" />
+                <CardHeader title="O que está acontecendo com as reservas" sub="Quantas chegam, confirmam, viajam e cancelam" icon={Activity} />
+                <FunnelBar label="Reservas criadas" value={funnel.total} max={funnel.total} hue="violet" />
                 <FunnelBar label="Confirmadas" value={funnel.confirmed} max={funnel.total} hue="cyan" />
-                <FunnelBar label="Em viagem" value={funnel.inProg} max={funnel.total} hue="amber" />
+                <FunnelBar label="Em viagem agora ou já viajou" value={funnel.inProg} max={funnel.total} hue="amber" />
                 <FunnelBar label="Concluídas" value={funnel.completed} max={funnel.total} hue="emerald" />
                 <FunnelBar label="Canceladas" value={funnel.cancelled} max={funnel.total} hue="rose" />
               </div>
               <div className="ai-card">
-                <CardHeader title="Heatmap dia da semana" sub="Distribuição de pickups" icon={Calendar} />
+                <CardHeader title="Quais dias da semana saem mais carros" sub="Dias mais movimentados na retirada" icon={Calendar} />
                 <div className="grid grid-cols-7 gap-1.5">
                   {dowHeat.map(d => (
                     <div key={d.label} className="flex flex-col items-center gap-1">
@@ -601,9 +601,9 @@ export default function AiPainel({
             </div>
 
             <div className="ai-card">
-              <CardHeader title="Janelas de oportunidade" sub="Gaps entre reservas confirmadas — receita recuperável" icon={Sparkles} />
+              <CardHeader title="Buracos entre reservas — dinheiro na mesa" sub="Períodos curtos em que o carro fica parado entre duas reservas confirmadas. Oferecer promo de última hora pode capturar essa receita." icon={Sparkles} />
               {opportunityWindows.length === 0 ? (
-                <p className="text-white/55 text-xs">Sem janelas ociosas significativas no momento.</p>
+                <p className="text-white/55 text-xs">Sem buracos relevantes no momento — agenda bem encaixada.</p>
               ) : (
                 <ul className="space-y-2.5">
                   {opportunityWindows.map((o, i) => (
@@ -611,12 +611,12 @@ export default function AiPainel({
                       <div className="min-w-0">
                         <div className="text-white/90 truncate">{o.vehicle}</div>
                         <div className="text-[10.5px] text-white/55">
-                          {format(o.gapStart, "dd MMM", { locale: ptBR })} → {format(o.gapEnd, "dd MMM", { locale: ptBR })} · {o.nights} noites
+                          Livre de {format(o.gapStart, "dd MMM", { locale: ptBR })} até {format(o.gapEnd, "dd MMM", { locale: ptBR })} · {o.nights} noites paradas
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="tabular-nums text-emerald-200/95">{fmtUSD(o.estLoss)}</div>
-                        <div className="text-[10px] text-white/50">recuperável</div>
+                        <div className="text-[10px] text-white/50">possível recuperar</div>
                       </div>
                     </li>
                   ))}
@@ -630,32 +630,39 @@ export default function AiPainel({
         {tab === "customers" && (
           <div className="space-y-3">
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
-              {(["Champion", "Loyal", "At Risk", "Hibernating", "New"] as const).map(s => (
-                <div key={s} className="ai-card text-center py-4">
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-white/55">{s}</div>
-                  <div className="text-2xl font-light text-white/90 tabular-nums mt-1">{segmentCounts[s] || 0}</div>
+              {([
+                { k: "Champion", pt: "Fiéis VIP", help: "4+ reservas, voltaram nos últimos 90 dias" },
+                { k: "Loyal", pt: "Recorrentes", help: "2+ reservas, ativos nos últimos 6 meses" },
+                { k: "At Risk", pt: "Em risco", help: "Já voltaram antes, mas sumiram há mais de 6 meses" },
+                { k: "Hibernating", pt: "Adormecidos", help: "Alugaram uma vez e nunca mais voltaram" },
+                { k: "New", pt: "Novos", help: "Primeira reserva recente" },
+              ] as const).map(s => (
+                <div key={s.k} className="ai-card text-center py-4">
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-white/55">{s.pt}</div>
+                  <div className="text-2xl font-light text-white/90 tabular-nums mt-1">{segmentCounts[s.k] || 0}</div>
+                  <div className="text-[9.5px] text-white/45 mt-1 px-1 leading-tight">{s.help}</div>
                 </div>
               ))}
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card">
-                <CardHeader title="Taxa de retorno" sub="% clientes com 2+ reservas" icon={Repeat} />
+                <CardHeader title="Clientes que voltaram" sub="% de clientes com 2 ou mais reservas" icon={Repeat} />
                 <div className="text-3xl font-light text-emerald-200 tabular-nums">{repeatRate.toFixed(1)}%</div>
-                <div className="text-[11px] text-white/55 mt-1">{customers.filter(c => c.trips >= 2).length} de {customers.length}</div>
+                <div className="text-[11px] text-white/55 mt-1">{customers.filter(c => c.trips >= 2).length} clientes voltaram, de {customers.length} no total</div>
               </div>
               <div className="ai-card lg:col-span-2">
-                <CardHeader title="Risco de churn — clientes high-value" sub="Tempo sem reservar > intervalo histórico" icon={ShieldAlert} />
-                {churnRisks.length === 0 ? <p className="text-white/55 text-xs">Sem clientes em zona de risco crítica.</p> : (
+                <CardHeader title="Clientes valiosos que estão sumindo" sub="Já gastaram bem na sua frota e estão demorando mais do que o normal para voltar — vale uma mensagem" icon={ShieldAlert} />
+                {churnRisks.length === 0 ? <p className="text-white/55 text-xs">Nenhum cliente importante em zona de risco.</p> : (
                   <ul className="space-y-2.5">
                     {churnRisks.map((c, i) => (
                       <li key={i} className="flex items-center justify-between gap-2 text-[12.5px]">
                         <div className="min-w-0">
                           <div className="text-white/90 truncate">{c.name}</div>
-                          <div className="text-[10.5px] text-white/55">{c.trips} reservas · sem reservar há {c.recency}d (intervalo médio {c.avgInterval.toFixed(0)}d)</div>
+                          <div className="text-[10.5px] text-white/55">{c.trips} reservas · sem alugar há {c.recency} dias (costuma voltar a cada {c.avgInterval.toFixed(0)} dias)</div>
                         </div>
                         <div className="text-right">
                           <div className="tabular-nums text-rose-300">{c.churnRisk.toFixed(0)}%</div>
-                          <div className="text-[10px] text-white/50">{fmtUSD(c.revenue)} CLV</div>
+                          <div className="text-[10px] text-white/50">já gastou {fmtUSD(c.revenue)}</div>
                         </div>
                       </li>
                     ))}
@@ -665,13 +672,13 @@ export default function AiPainel({
             </div>
 
             <div className="ai-card">
-              <CardHeader title="Clientes de alto valor" sub="Top 5 por receita acumulada" icon={Award} />
+              <CardHeader title="Top 5 clientes que mais gastaram" sub="Receita total acumulada na sua frota" icon={Award} />
               <ul className="space-y-2.5">
                 {topCustomers.map((c, i) => (
                   <li key={i} className="flex items-center justify-between gap-2 text-[12.5px]">
                     <div className="min-w-0">
                       <div className="text-white/90 truncate">{c.name}</div>
-                      <div className="text-[10.5px] text-white/55">{c.trips} reservas · {c.segment}</div>
+                      <div className="text-[10.5px] text-white/55">{c.trips} reservas · {ptSegment(c.segment)}</div>
                     </div>
                     <span className="tabular-nums text-amber-200/95">{fmtUSD(c.revenue)}</span>
                   </li>
@@ -686,25 +693,25 @@ export default function AiPainel({
           <div className="space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card">
-                <CardHeader title="Turnaround médio" sub="Dias entre devolução e próxima retirada" icon={Clock} />
+                <CardHeader title="Tempo parado entre uma reserva e outra" sub="Quanto tempo em média o carro fica parado entre uma devolução e a próxima retirada" icon={Clock} />
                 <div className="text-3xl font-light text-cyan-200 tabular-nums">{turnaround.avg.toFixed(1)}<span className="text-base text-white/50"> dias</span></div>
-                <div className="text-[11px] text-white/55 mt-1">Mínimo {turnaround.min}d · {turnaround.sample} transições</div>
+                <div className="text-[11px] text-white/55 mt-1">Melhor caso: {turnaround.min} dia(s) · base: {turnaround.sample} trocas</div>
               </div>
               <div className="ai-card">
-                <CardHeader title="Incidentes registrados" sub="Total + custo acumulado" icon={ShieldAlert} />
+                <CardHeader title="Total de incidentes" sub="Avarias, batidas e ocorrências registradas" icon={ShieldAlert} />
                 <div className="text-3xl font-light text-rose-200 tabular-nums">{incidents.length}</div>
-                <div className="text-[11px] text-white/55 mt-1">{fmtUSD(incidents.reduce((s, i) => s + Number(i.actual_cost ?? i.estimated_cost ?? 0), 0))} em custos</div>
+                <div className="text-[11px] text-white/55 mt-1">Custo total: {fmtUSD(incidents.reduce((s, i) => s + Number(i.actual_cost ?? i.estimated_cost ?? 0), 0))}</div>
               </div>
               <div className="ai-card">
-                <CardHeader title="Densidade de risco" sub="Veículos com mais incidentes" icon={Flame} />
+                <CardHeader title="Carros com mais problemas" sub="Quais veículos acumularam mais incidentes" icon={Flame} />
                 <ul className="space-y-1.5">
                   {incidentByVehicle.filter(x => x.count > 0).slice(0, 4).map(x => (
                     <li key={x.v.id} className="flex justify-between text-[12px]">
                       <span className="text-white/85 truncate">{x.v.name}</span>
-                      <span className="tabular-nums text-rose-300">{x.count} · {fmtUSD(x.cost)}</span>
+                      <span className="tabular-nums text-rose-300">{x.count} ocorrências · {fmtUSD(x.cost)}</span>
                     </li>
                   ))}
-                  {incidentByVehicle.filter(x => x.count > 0).length === 0 && <li className="text-white/55 text-xs">Nenhum incidente.</li>}
+                  {incidentByVehicle.filter(x => x.count > 0).length === 0 && <li className="text-white/55 text-xs">Nenhum incidente registrado.</li>}
                 </ul>
               </div>
             </div>
@@ -716,19 +723,19 @@ export default function AiPainel({
           <div className="space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card">
-                <CardHeader title="Mix de canais" sub="Receita por origem" icon={Layers} />
-                <ChannelBar label="Stripe (site)" value={channelMix.stripe} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="cyan" />
+                <CardHeader title="De onde vem a receita" sub="Quanto cada canal gerou de aluguel" icon={Layers} />
+                <ChannelBar label="Site Zeus (Stripe)" value={channelMix.stripe} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="cyan" />
                 <ChannelBar label="Turo" value={channelMix.turo} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="violet" />
-                <ChannelBar label="Outros" value={channelMix.other} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="amber" />
+                <ChannelBar label="Outros (reserva manual)" value={channelMix.other} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="amber" />
               </div>
               <div className="ai-card lg:col-span-2">
-                <CardHeader title="Break-even projetado" sub="Dias até receita líquida cobrir aquisição" icon={Target} />
+                <CardHeader title="Quando o carro se paga" sub="Previsão de quando a receita acumulada cobre o preço de compra do carro" icon={Target} />
                 <ul className="space-y-2.5">
                   {perVehicle.filter(p => p.breakEvenDate && p.purchase > 0).sort((a, b) => (a.breakEvenDays ?? 0) - (b.breakEvenDays ?? 0)).slice(0, 6).map(p => (
                     <li key={p.v.id} className="flex justify-between text-[12.5px]">
                       <span className="text-white/85 truncate">{p.v.name}</span>
                       <span className="tabular-nums text-emerald-200">
-                        {p.breakEvenDays! <= 0 ? "JÁ PAGO" : `${p.breakEvenDays}d · ${format(p.breakEvenDate!, "MMM yyyy", { locale: ptBR })}`}
+                        {p.breakEvenDays! <= 0 ? "Já se pagou" : `Em ${p.breakEvenDays} dias · ${format(p.breakEvenDate!, "MMM 'de' yyyy", { locale: ptBR })}`}
                       </span>
                     </li>
                   ))}
@@ -736,9 +743,9 @@ export default function AiPainel({
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <KpiBlock title="Investido" value={fmtUSD(fleetInvested)} sub="Total em aquisições" icon={Wallet} />
-              <KpiBlock title="Receita acumulada" value={fmtUSD(fleetRevenue)} sub={`Margem ${fleetMargin.toFixed(1)}%`} icon={DollarSign} />
-              <KpiBlock title="ROI consolidado" value={`${fleetROI.toFixed(1)}%`} sub="Receita líquida / investido" icon={Target} />
+              <KpiBlock title="Total investido em carros" value={fmtUSD(fleetInvested)} sub="Soma do preço de compra de toda a frota" icon={Wallet} />
+              <KpiBlock title="Receita total já gerada" value={fmtUSD(fleetRevenue)} sub={`Margem de lucro atual: ${fleetMargin.toFixed(1)}%`} icon={DollarSign} />
+              <KpiBlock title="Retorno sobre o investimento" value={`${fleetROI.toFixed(1)}%`} sub="Quanto a frota já devolveu do que foi investido" icon={Target} />
             </div>
           </div>
         )}
@@ -747,34 +754,34 @@ export default function AiPainel({
         {tab === "strategy" && (
           <div className="space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <RecCard title="Candidatos a venda" subtitle="Baixa ocupação + ROI fraco +180d" icon={AlertTriangle} hue="rose" empty="Frota saudável."
-                items={sellCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}%`, sub: `ROI ${p.roi.toFixed(1)}% · ${p.daysInFleet}d` }))} />
-              <RecCard title="Subir preço" subtitle="Demanda quente, +12% a +18%" icon={Flame} hue="amber" empty="Sem demanda excedente."
-                items={priceUpCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}%`, sub: `Diária ${fmtUSD(p.daily)} → sugerir ${fmtUSD(p.daily * 1.15)}` }))} />
-              <RecCard title="Baixar preço / promo" subtitle="Ocupação fria há +90d" icon={Snowflake} hue="amber" empty="Nenhum veículo congelado."
-                items={priceDownCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}%`, sub: `Diária ${fmtUSD(p.daily)} → testar ${fmtUSD(p.daily * 0.85)}` }))} />
+              <RecCard title="Carros para considerar vender" subtitle="Mais de 6 meses na frota com pouco uso e retorno baixo" icon={AlertTriangle} hue="rose" empty="Frota saudável — nenhum carro nessa situação."
+                items={sellCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Já devolveu ${p.roi.toFixed(1)}% do investido · ${p.daysInFleet} dias na frota` }))} />
+              <RecCard title="Carros que aguentam preço maior" subtitle="Estão sempre alugados — dá pra cobrar 12% a 18% a mais" icon={Flame} hue="amber" empty="Nenhum carro com demanda excedente."
+                items={priceUpCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 1.15)}/dia` }))} />
+              <RecCard title="Carros parados — testar promo" subtitle="Pouco alugados há mais de 90 dias" icon={Snowflake} hue="amber" empty="Nenhum carro nessa situação."
+                items={priceDownCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 0.85)}/dia em promo` }))} />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <div className="ai-card">
-                <CardHeader title="Estrelas da frota" sub="Replicar perfil em novas aquisições" icon={Award} />
+                <CardHeader title="Os carros que mais geram dinheiro" sub="Quem mais retorna por dia que está na sua frota — vale a pena comprar parecidos" icon={Award} />
                 <ul className="space-y-2.5">
                   {topStars.map(p => (
                     <li key={p.v.id} className="flex justify-between text-[12.5px]">
                       <div className="min-w-0">
                         <div className="text-white/90 truncate">{p.v.name}</div>
-                        <div className="text-[10.5px] text-white/55">{p.bookingsCount} reservas · {p.customerCount} clientes</div>
+                        <div className="text-[10.5px] text-white/55">{p.bookingsCount} reservas · {p.customerCount} clientes diferentes</div>
                       </div>
-                      <span className="tabular-nums text-emerald-200">{fmtUSD(p.revPerDayOwned)}/d</span>
+                      <span className="tabular-nums text-emerald-200">{fmtUSD(p.revPerDayOwned)}/dia</span>
                     </li>
                   ))}
                 </ul>
               </div>
               <div className="ai-card">
-                <CardHeader title="Categorias mais rentáveis" sub="Receita por dia possuído" icon={TrendingUp} />
+                <CardHeader title="Categorias que mais dão dinheiro" sub="Receita por dia que o carro está na sua frota" icon={TrendingUp} />
                 <ul className="space-y-2.5">
                   {byCategory.slice(0, 6).map(c => (
                     <li key={c.cat} className="text-[12.5px]">
-                      <div className="flex justify-between"><span className="text-white/85">{c.cat}</span><span className="tabular-nums text-amber-200">{fmtUSD(c.rpd)}/d</span></div>
+                      <div className="flex justify-between"><span className="text-white/85">{c.cat}</span><span className="tabular-nums text-amber-200">{fmtUSD(c.rpd)}/dia</span></div>
                       <div className="mt-1 h-1 rounded-full bg-white/10 overflow-hidden">
                         <div className="h-full ai-bar-emerald" style={{ width: `${Math.min(c.avgOcc, 100)}%` }} />
                       </div>
@@ -784,7 +791,7 @@ export default function AiPainel({
               </div>
             </div>
             <div className="ai-card">
-              <CardHeader title="Marcas que mais entregam" sub="Receita acumulada × ocupação média" icon={Zap} />
+              <CardHeader title="Marcas com melhor desempenho" sub="Receita total e taxa de uso média" icon={Zap} />
               <ul className="space-y-2.5">
                 {byBrand.slice(0, 6).map(b => (
                   <li key={b.brand} className="text-[12.5px]">
@@ -800,15 +807,15 @@ export default function AiPainel({
         )}
 
         <div className="ai-card">
-          <CardHeader title="Pontos cegos resolvidos pela IA" sub="Underperformers persistentes" icon={Snowflake} />
+          <CardHeader title="Carros com desempenho fraco" sub="Estão na frota há mais de 2 meses e geram pouco por dia" icon={Snowflake} />
           <ul className="space-y-2">
             {underperformers.map(p => (
               <li key={p.v.id} className="flex justify-between text-[12.5px]">
                 <span className="text-white/85 truncate">{p.v.name}</span>
-                <span className="tabular-nums text-rose-300">{fmtUSD(p.revPerDayOwned)}/d · {p.occupancy.toFixed(0)}%</span>
+                <span className="tabular-nums text-rose-300">{fmtUSD(p.revPerDayOwned)}/dia · {p.occupancy.toFixed(0)}% de uso</span>
               </li>
             ))}
-            {underperformers.length === 0 && <li className="text-white/55 text-xs">Frota equilibrada.</li>}
+            {underperformers.length === 0 && <li className="text-white/55 text-xs">Frota equilibrada — nenhum carro com desempenho fraco.</li>}
           </ul>
         </div>
       </div>
@@ -967,18 +974,34 @@ function RecCard({ title, subtitle, icon: Icon, hue, items, empty }: {
   );
 }
 
+function ptSegment(s: string): string {
+  switch (s) {
+    case "Champion": return "Fiel VIP";
+    case "Loyal": return "Recorrente";
+    case "At Risk": return "Em risco";
+    case "Hibernating": return "Adormecido";
+    case "New": return "Novo";
+    default: return s;
+  }
+}
+
 function localBriefing(p: any): string {
   const parts: string[] = [];
-  if (p.pacing) parts.push(`Pacing do mês: ${fmtUSD(p.pacing.mtd)} vs ${fmtUSD(p.pacing.lmtd)} no mesmo dia do mês passado (${p.pacing.delta >= 0 ? "+" : ""}${p.pacing.delta.toFixed(1)}%).`);
-  if (p.avgOccupancy !== undefined) {
-    if (p.avgOccupancy < 40) parts.push(`Ocupação em ${p.avgOccupancy.toFixed(0)}% sinaliza capacidade ociosa — priorize ativação de demanda antes de novas aquisições.`);
-    else if (p.avgOccupancy > 70) parts.push(`Frota a ${p.avgOccupancy.toFixed(0)}% de ocupação: janela ideal para reprecificar para cima.`);
+  if (p.pacing) {
+    const sinal = p.pacing.delta >= 0 ? "acima" : "abaixo";
+    parts.push(`Este mês você já faturou ${fmtUSD(p.pacing.mtd)}, ficando ${Math.abs(p.pacing.delta).toFixed(0)}% ${sinal} do mesmo dia do mês passado (${fmtUSD(p.pacing.lmtd)}).`);
   }
-  if (p.revPAC) parts.push(`RevPAC atual de ${fmtUSD2(p.revPAC)} por carro-dia — esse é o seu benchmark interno para qualquer novo veículo.`);
-  if (p.sellCandidatesCount) parts.push(`${p.sellCandidatesCount} veículo(s) elegível(is) a desinvestimento.`);
-  if (p.priceUpCount) parts.push(`${p.priceUpCount} veículo(s) suportam aumento de diária entre 12% e 18%.`);
-  if (p.opportunityWindows) parts.push(`${p.opportunityWindows} janelas de ociosidade detectadas — receita recuperável via campanha de last-minute.`);
-  if (p.champions) parts.push(`${p.champions} clientes Champion sustentam recorrência; ${p.atRisk ?? 0} estão em risco e merecem reativação.`);
-  if (p.topCategory) parts.push(`Categoria ${p.topCategory} é a mais rentável em receita/dia possuído.`);
+  if (p.avgOccupancy !== undefined) {
+    if (p.avgOccupancy < 40) parts.push(`A frota está alugada apenas ${p.avgOccupancy.toFixed(0)}% do tempo — o foco agora deve ser atrair mais clientes antes de comprar carros novos.`);
+    else if (p.avgOccupancy > 70) parts.push(`Os carros estão alugados ${p.avgOccupancy.toFixed(0)}% do tempo — é o momento certo de aumentar preço.`);
+    else parts.push(`Ocupação está em ${p.avgOccupancy.toFixed(0)}% — saudável, com espaço para ajustes pontuais.`);
+  }
+  if (p.revPAC) parts.push(`Cada carro está gerando em média ${fmtUSD2(p.revPAC)} por dia que está na sua frota — use isso como referência ao avaliar a compra de um carro novo.`);
+  if (p.sellCandidatesCount) parts.push(`Existem ${p.sellCandidatesCount} carro(s) com pouco uso e baixo retorno que valem ser considerados para venda.`);
+  if (p.priceUpCount) parts.push(`${p.priceUpCount} carro(s) estão sempre alugados e aguentam um aumento de preço entre 12% e 18%.`);
+  if (p.opportunityWindows) parts.push(`Encontrei ${p.opportunityWindows} períodos curtos de carros parados entre reservas — uma promo de última hora pode capturar essa receita.`);
+  if (p.champions || p.atRisk) parts.push(`Você tem ${p.champions ?? 0} clientes Fiéis VIP que sustentam a recorrência${p.atRisk ? ` e ${p.atRisk} cliente(s) Em risco que merecem uma mensagem` : ""}.`);
+  if (p.topCategory) parts.push(`A categoria que mais rende hoje é ${p.topCategory}.`);
   return parts.join(" ");
 }
+
