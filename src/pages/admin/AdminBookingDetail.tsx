@@ -359,12 +359,12 @@ export default function AdminBookingDetail() {
                     onClick={() => setExpandedPhoto(photo.url)}
                     className="group relative aspect-square rounded-lg overflow-hidden border border-border/30 hover:border-primary/40 transition-all"
                   >
-                    <SignedImage value={photo.url} alt={photo.position} className="w-full h-full object-cover" loading="lazy" />
+                    <SignedImage value={photo.url} alt={positionLabel(photo.position)} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <Image size={16} className="text-foreground" />
                     </div>
                     <div className="absolute bottom-0 inset-x-0 bg-background/80 backdrop-blur-sm px-1.5 py-0.5">
-                      <span className="text-[8px] text-foreground font-medium">{photo.position}</span>
+                      <span className="text-[8px] text-foreground font-medium truncate block">{positionLabel(photo.position)}</span>
                     </div>
                   </button>
                 ))}
