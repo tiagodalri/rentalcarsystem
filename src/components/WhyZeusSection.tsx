@@ -71,7 +71,7 @@ const WhyZeusSection = () => {
                   loading="lazy"
                   width={512}
                   height={512}
-                  className="max-h-full w-auto object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,0.25)] transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-[-2deg]"
+                  className="max-h-[55%] w-auto object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,0.18)] transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-[-2deg]"
                 />
               </div>
 
