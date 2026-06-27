@@ -133,6 +133,64 @@ export default function AiPainel({
     p.occupancy < 25 && p.daysInFleet > 90 && p.daily > 0
   ).sort((a, b) => a.occupancy - b.occupancy).slice(0, 5);
 
+  /* ───── Concentração de receita (estilo Pareto) ───── */
+  const concentration = useMemo(() => {
+    const totalRev = perVehicle.reduce((s, p) => s + p.revenue, 0);
+    const totalInv = perVehicle.reduce((s, p) => s + p.purchase, 0);
+    const totalCount = perVehicle.length;
+    if (totalRev <= 0 || totalCount === 0) return null;
+
+    const sorted = [...perVehicle].sort((a, b) => b.revenue - a.revenue);
+
+    // Quantos carros são necessários para chegar a 80% da receita
+    let acc = 0;
+    const topForRev: typeof sorted = [];
+    for (const p of sorted) {
+      acc += p.revenue;
+      topForRev.push(p);
+      if (acc / totalRev >= 0.8) break;
+    }
+    const topRevShare = (acc / totalRev) * 100;
+    const topInv = topForRev.reduce((s, p) => s + p.purchase, 0);
+    const topInvShare = totalInv > 0 ? (topInv / totalInv) * 100 : 0;
+    const topCountShare = (topForRev.length / totalCount) * 100;
+    const topAvgOcc = topForRev.reduce((s, p) => s + p.occupancy, 0) / topForRev.length;
+
+    // O que sobra (cauda longa)
+    const tail = sorted.slice(topForRev.length);
+    const tailRev = tail.reduce((s, p) => s + p.revenue, 0);
+    const tailInv = tail.reduce((s, p) => s + p.purchase, 0);
+    const tailAvgOcc = tail.length ? tail.reduce((s, p) => s + p.occupancy, 0) / tail.length : 0;
+
+    // Concentração de receita por marca
+    const brandRev = new Map<string, number>();
+    perVehicle.forEach(p => {
+      const k = p.v.brand || p.v.name?.split(" ")[0] || "—";
+      brandRev.set(k, (brandRev.get(k) || 0) + p.revenue);
+    });
+    const topBrand = Array.from(brandRev.entries()).sort((a, b) => b[1] - a[1])[0];
+    const topBrandShare = topBrand ? (topBrand[1] / totalRev) * 100 : 0;
+
+    // Concentração por cliente
+    const custRev = new Map<string, number>();
+    realBookings.forEach(b => {
+      const k = b.customer_id || b.customer_name || "—";
+      custRev.set(k, (custRev.get(k) || 0) + (Number(b.total_price) || 0));
+    });
+    const custSorted = Array.from(custRev.values()).sort((a, b) => b - a);
+    const top10pct = Math.max(1, Math.ceil(custSorted.length * 0.1));
+    const top10Rev = custSorted.slice(0, top10pct).reduce((s, x) => s + x, 0);
+    const top10Share = totalRev > 0 ? (top10Rev / totalRev) * 100 : 0;
+
+    return {
+      topForRev, topRevShare, topInvShare, topCountShare, topAvgOcc,
+      tail, tailRev, tailInv, tailAvgOcc, totalRev, totalInv, totalCount,
+      topBrand: topBrand ? { name: topBrand[0], share: topBrandShare } : null,
+      topCustomers: { count: top10pct, share: top10Share, total: custSorted.length },
+    };
+  }, [perVehicle, realBookings]);
+
+
   /* ───── Category & Brand ───── */
   const byCategory = useMemo(() => {
     const map = new Map<string, { revenue: number; days: number; count: number; occ: number }>();
@@ -753,6 +811,107 @@ export default function AiPainel({
         {/* ───── Tab: STRATEGY ───── */}
         {tab === "strategy" && (
           <div className="space-y-3">
+            {concentration && concentration.topForRev.length > 0 && (
+              <div className="ai-card relative overflow-hidden">
+                <div className="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-16 -left-12 w-72 h-72 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles className="w-4 h-4 text-amber-300" />
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-amber-200/80">Revelação da IA</span>
+                  </div>
+                  <h3 className="text-lg md:text-xl font-light text-white leading-snug mb-3">
+                    <span className="text-amber-200 font-medium tabular-nums">{concentration.topRevShare.toFixed(0)}%</span> da sua receita vem de{" "}
+                    <span className="text-amber-200 font-medium tabular-nums">{concentration.topForRev.length} carro{concentration.topForRev.length > 1 ? "s" : ""}</span>
+                    {" "}— que representa apenas{" "}
+                    <span className="text-amber-200 font-medium tabular-nums">{concentration.topCountShare.toFixed(0)}%</span> da frota
+                    {concentration.topInvShare > 0 && (
+                      <> e <span className="text-amber-200 font-medium tabular-nums">{concentration.topInvShare.toFixed(0)}%</span> do total investido</>
+                    )}.
+                  </h3>
+                  <p className="text-[13px] text-white/70 leading-relaxed mb-4">
+                    Esses carros estão alugados em média <span className="text-emerald-200 tabular-nums">{concentration.topAvgOcc.toFixed(0)}%</span> do tempo,
+                    {concentration.tail.length > 0 && (
+                      <> enquanto o restante da frota ({concentration.tail.length} carro{concentration.tail.length > 1 ? "s" : ""}) gira apenas <span className="text-rose-200 tabular-nums">{concentration.tailAvgOcc.toFixed(0)}%</span> do tempo.</>
+                    )}
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
+                    <div className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
+                      <div className="text-[10.5px] uppercase tracking-wider text-white/50 mb-1">Receita dos campeões</div>
+                      <div className="text-lg font-light text-amber-200 tabular-nums">{fmtUSD(concentration.topForRev.reduce((s, p) => s + p.revenue, 0))}</div>
+                      <div className="text-[11px] text-white/55 mt-0.5">de {fmtUSD(concentration.totalRev)} no total</div>
+                    </div>
+                    <div className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
+                      <div className="text-[10.5px] uppercase tracking-wider text-white/50 mb-1">Investido nos campeões</div>
+                      <div className="text-lg font-light text-cyan-200 tabular-nums">{fmtUSD(concentration.topForRev.reduce((s, p) => s + p.purchase, 0))}</div>
+                      <div className="text-[11px] text-white/55 mt-0.5">de {fmtUSD(concentration.totalInv)} investidos</div>
+                    </div>
+                    <div className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
+                      <div className="text-[10.5px] uppercase tracking-wider text-white/50 mb-1">Receita perdida na cauda</div>
+                      <div className="text-lg font-light text-rose-200 tabular-nums">{fmtUSD(concentration.tailRev)}</div>
+                      <div className="text-[11px] text-white/55 mt-0.5">{concentration.tail.length} carros somam só {(100 - concentration.topRevShare).toFixed(0)}% da receita</div>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-1.5 mb-4">
+                    {concentration.topForRev.slice(0, 5).map((p, i) => (
+                      <li key={p.v.id} className="flex items-center justify-between text-[12.5px]">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="w-5 h-5 rounded-full bg-amber-400/15 border border-amber-300/30 text-amber-200 text-[10px] flex items-center justify-center tabular-nums">{i + 1}</span>
+                          <span className="text-white/85 truncate">{p.v.name}</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="tabular-nums text-amber-200">{fmtUSD(p.revenue)} <span className="text-white/45 text-[10.5px]">· {((p.revenue / concentration.totalRev) * 100).toFixed(1)}%</span></div>
+                          <div className="text-[10.5px] text-white/50">{p.occupancy.toFixed(0)}% de uso · ROI {p.roi.toFixed(0)}%</div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="rounded-lg bg-amber-300/[0.06] border border-amber-300/20 p-3">
+                    <div className="text-[11px] uppercase tracking-wider text-amber-200/80 mb-1">O que isso significa para você</div>
+                    <p className="text-[13px] text-white/85 leading-relaxed">
+                      A frota está apoiada em poucos carros. Antes de comprar veículos novos, vale: <span className="text-white">(1)</span> proteger esses campeões com manutenção em dia e preço otimizado;{" "}
+                      <span className="text-white">(2)</span> considerar vender ou trocar parte dos carros da cauda longa que não estão pagando o espaço que ocupam;{" "}
+                      <span className="text-white">(3)</span> usar o perfil dos campeões como referência ao escolher a próxima compra.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {(concentration?.topBrand || (concentration && concentration.topCustomers.share > 0)) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {concentration?.topBrand && (
+                  <div className="ai-card">
+                    <CardHeader title="Dependência de uma marca" sub="Quanto da sua receita depende de uma única marca" icon={Layers} />
+                    <div className="text-2xl font-light text-white tabular-nums">
+                      {concentration.topBrand.share.toFixed(0)}% <span className="text-base text-white/50">vem de {concentration.topBrand.name}</span>
+                    </div>
+                    <p className="text-[12px] text-white/60 mt-2 leading-relaxed">
+                      {concentration.topBrand.share > 50
+                        ? "Concentração alta. Se essa marca tiver um problema (recall, manutenção, demanda fria), o impacto no caixa é grande. Vale diversificar nas próximas compras."
+                        : "Distribuição saudável entre marcas — risco diluído."}
+                    </p>
+                  </div>
+                )}
+                {concentration && concentration.topCustomers.share > 0 && (
+                  <div className="ai-card">
+                    <CardHeader title="Dependência de poucos clientes" sub="Quanto vem dos seus melhores clientes" icon={Users} />
+                    <div className="text-2xl font-light text-white tabular-nums">
+                      {concentration.topCustomers.share.toFixed(0)}% <span className="text-base text-white/50">vem dos top {concentration.topCustomers.count} clientes</span>
+                    </div>
+                    <p className="text-[12px] text-white/60 mt-2 leading-relaxed">
+                      {concentration.topCustomers.share > 50
+                        ? `Os 10% melhores clientes (${concentration.topCustomers.count} de ${concentration.topCustomers.total}) sustentam mais da metade da receita. Programa de fidelidade e atendimento VIP aqui é prioridade — perder um desses dói no caixa.`
+                        : "Base de clientes bem distribuída — risco baixo de perder um cliente grande."}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <RecCard title="Carros para considerar vender" subtitle="Mais de 6 meses na frota com pouco uso e retorno baixo" icon={AlertTriangle} hue="rose" empty="Frota saudável — nenhum carro nessa situação."
                 items={sellCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Já devolveu ${p.roi.toFixed(1)}% do investido · ${p.daysInFleet} dias na frota` }))} />
