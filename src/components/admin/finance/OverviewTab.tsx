@@ -172,6 +172,12 @@ export function OverviewTab() {
         ))}
       </div>
 
+      <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/60 flex items-center gap-1.5 -mt-2">
+        <span className="inline-block h-1 w-1 rounded-full bg-muted-foreground/40" />
+        Receita reconhecida pela data de retirada · exclui reservas canceladas
+      </p>
+
+
       {/* Destaques: Top 5 + Tempo médio */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="rounded-lg bg-card border border-border/70 p-6 lg:col-span-2">
