@@ -1268,13 +1268,19 @@ export default function AdminInspection() {
                           <span className="w-4 text-center text-[10px] font-medium tabular-nums shrink-0">
                             {done ? <CheckCircle2 size={13} className="text-emerald-500" /> : <span className="text-muted-foreground">{i + 1}</span>}
                           </span>
-                          <div className="relative w-20 h-16 sm:w-24 sm:h-[72px] rounded-md overflow-hidden bg-muted shrink-0 border border-border/30">
-                            <img
-                              src={PHOTO_REFERENCES[pos.name]}
-                              alt=""
-                              className={`w-full h-full object-cover transition ${done ? "opacity-60" : ""}`}
-                              loading="lazy"
-                            />
+                          <div className="relative w-20 h-16 sm:w-24 sm:h-[72px] rounded-md overflow-hidden bg-muted shrink-0 border border-border/30 flex items-center justify-center">
+                            {PHOTO_REFERENCES[pos.name] ? (
+                              <img
+                                src={PHOTO_REFERENCES[pos.name]}
+                                alt=""
+                                className={`w-full h-full object-cover transition ${done ? "opacity-60" : ""}`}
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className={done ? "opacity-50" : ""}>
+                                <PhotoIllustration position={pos.name} />
+                              </div>
+                            )}
                           </div>
                           <span className={`flex-1 truncate ${done ? "text-muted-foreground line-through" : "text-foreground"}`}>
                             {pos.name}
