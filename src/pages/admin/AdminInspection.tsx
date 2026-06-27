@@ -194,6 +194,19 @@ const PhotoIllustration = ({ position }: { position: string }) => {
           <path d="M16 28 L32 28 M24 20 L24 36" stroke={stroke} strokeWidth="0.6" opacity="0.5"/>
         </svg>
       );
+    case "Chaves + Ticket":
+      return (
+        <svg viewBox="0 0 48 48" width={s} height={s}>
+          {/* Ticket */}
+          <rect x="22" y="12" width="20" height="26" rx="2" fill={fill} stroke={bodyStroke} strokeWidth="1.2"/>
+          <path d="M25 18 L39 18 M25 22 L37 22 M25 26 L35 26" stroke={bodyStroke} strokeWidth="0.8" opacity="0.5"/>
+          <rect x="25" y="30" width="10" height="4" rx="0.5" fill="hsl(var(--primary) / 0.2)" stroke={stroke} strokeWidth="0.8"/>
+          {/* Key */}
+          <circle cx="12" cy="20" r="5" fill="none" stroke={stroke} strokeWidth="1.4"/>
+          <circle cx="12" cy="20" r="1.6" fill={stroke}/>
+          <path d="M16.5 20 L22 20 L22 23 L20 23 M22 20 L24 20" stroke={stroke} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+        </svg>
+      );
     default:
       return carBody(null);
   }
@@ -201,17 +214,17 @@ const PhotoIllustration = ({ position }: { position: string }) => {
 
 const PHOTO_POSITIONS: { name: string; guide: string; optional?: boolean }[] = [
   { name: "Frente", guide: "Foto centralizada da frente do veículo, mostrando faróis, grade e placa inteiros. Distância: ~2 metros." },
-  { name: "Traseira", guide: "Foto centralizada da traseira, mostrando lanternas, placa e para-choque inteiros. Distância: ~2 metros." },
   { name: "Lateral Esquerda", guide: "Foto lateral completa do lado do motorista. Posicione-se no meio do carro. Distância: ~3 metros." },
+  { name: "Roda Dianteira Esq.", guide: "Foto focada na roda dianteira esquerda: pneu, calota/roda e suspensão visível." },
+  { name: "Roda Traseira Esq.", guide: "Foto focada na roda traseira esquerda: pneu, calota/roda e suspensão visível." },
   { name: "Lateral Direita", guide: "Foto lateral completa do lado do passageiro. Posicione-se no meio do carro. Distância: ~3 metros." },
-  { name: "Painel", guide: "Foto do painel/dashboard de frente, mostrando volante, tela e instrumentos. Tire do banco do passageiro." },
+  { name: "Roda Dianteira Dir.", guide: "Foto focada na roda dianteira direita: pneu, calota/roda e suspensão visível." },
+  { name: "Roda Traseira Dir.", guide: "Foto focada na roda traseira direita: pneu, calota/roda e suspensão visível." },
+  { name: "Traseira", guide: "Foto centralizada da traseira, mostrando lanternas, placa e para-choque inteiros. Distância: ~2 metros." },
+  { name: "Porta-Malas", guide: "Foto do porta-malas aberto, mostrando espaço, tapete e estepe (se visível)." },
   { name: "Banco Dianteiro", guide: "Foto dos bancos dianteiros mostrando estado do estofamento. Tire da porta traseira aberta." },
   { name: "Banco Traseiro", guide: "Foto dos bancos traseiros e assoalho. Tire com a porta traseira aberta." },
-  { name: "Porta-Malas", guide: "Foto do porta-malas aberto, mostrando espaço, tapete e estepe (se visível)." },
-  { name: "Roda Dianteira Esq.", guide: "Foto focada na roda dianteira esquerda: pneu, calota/roda e suspensão visível." },
-  { name: "Roda Dianteira Dir.", guide: "Foto focada na roda dianteira direita: pneu, calota/roda e suspensão visível." },
-  { name: "Roda Traseira Esq.", guide: "Foto focada na roda traseira esquerda: pneu, calota/roda e suspensão visível." },
-  { name: "Roda Traseira Dir.", guide: "Foto focada na roda traseira direita: pneu, calota/roda e suspensão visível." },
+  { name: "Chaves + Ticket", guide: "Foto da chave do veículo posicionada junto ao ticket do parking. Enquadre ambos lado a lado em superfície limpa para que o número do ticket fique legível." },
   { name: "Estepe", guide: "Somente se o veículo possuir estepe visível ou acessível. Registre o estado do pneu reserva, independente de onde esteja (porta-malas, porta traseira, sob o veículo, etc.)", optional: true },
 ];
 
@@ -1185,12 +1198,18 @@ export default function AdminInspection() {
                   <>
                     <div className="rounded-lg overflow-hidden border border-border/40 bg-muted/30">
                       <div className="relative aspect-[3/2] bg-muted">
-                        <img
-                          src={PHOTO_REFERENCES[activeGuide]}
-                          alt={`Exemplo: ${activeGuide}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
+                        {PHOTO_REFERENCES[activeGuide] ? (
+                          <img
+                            src={PHOTO_REFERENCES[activeGuide]}
+                            alt={`Exemplo: ${activeGuide}`}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <PhotoIllustration position={activeGuide} />
+                          </div>
+                        )}
                         <div className="absolute top-2 left-2 bg-background/90 backdrop-blur px-2 py-0.5 rounded text-[10px] uppercase tracking-wider font-medium text-muted-foreground border border-border/40">
                           Exemplo
                         </div>
@@ -1249,13 +1268,19 @@ export default function AdminInspection() {
                           <span className="w-4 text-center text-[10px] font-medium tabular-nums shrink-0">
                             {done ? <CheckCircle2 size={13} className="text-emerald-500" /> : <span className="text-muted-foreground">{i + 1}</span>}
                           </span>
-                          <div className="relative w-20 h-16 sm:w-24 sm:h-[72px] rounded-md overflow-hidden bg-muted shrink-0 border border-border/30">
-                            <img
-                              src={PHOTO_REFERENCES[pos.name]}
-                              alt=""
-                              className={`w-full h-full object-cover transition ${done ? "opacity-60" : ""}`}
-                              loading="lazy"
-                            />
+                          <div className="relative w-20 h-16 sm:w-24 sm:h-[72px] rounded-md overflow-hidden bg-muted shrink-0 border border-border/30 flex items-center justify-center">
+                            {PHOTO_REFERENCES[pos.name] ? (
+                              <img
+                                src={PHOTO_REFERENCES[pos.name]}
+                                alt=""
+                                className={`w-full h-full object-cover transition ${done ? "opacity-60" : ""}`}
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className={done ? "opacity-50" : ""}>
+                                <PhotoIllustration position={pos.name} />
+                              </div>
+                            )}
                           </div>
                           <span className={`flex-1 truncate ${done ? "text-muted-foreground line-through" : "text-foreground"}`}>
                             {pos.name}
