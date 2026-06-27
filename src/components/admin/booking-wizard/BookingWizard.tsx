@@ -71,6 +71,7 @@ const AI_BADGE = (
 type ValidationIssue = {
   stepId: StepId;
   label: string;
+  field: keyof WizardFormState;
 };
 
 const isWizardFormMeaningfullyEmpty = (draft: WizardFormState): boolean => {
@@ -123,22 +124,22 @@ const getStepIssues = (form: WizardFormState, days: number, stepId: StepId): Val
 
   switch (stepId) {
     case "customer":
-      if (!form.customer_name.trim()) issues.push({ stepId, label: "nome do cliente" });
+      if (!form.customer_name.trim()) issues.push({ stepId, label: "nome do cliente", field: "customer_name" });
       break;
     case "vehicle":
-      if (!form.vehicle_id) issues.push({ stepId, label: "veículo" });
+      if (!form.vehicle_id) issues.push({ stepId, label: "veículo", field: "vehicle_id" });
       break;
     case "schedule":
-      if (!form.pickup_date) issues.push({ stepId, label: "data de retirada" });
-      if (!form.pickup_time) issues.push({ stepId, label: "horário de retirada" });
-      if (!form.return_date) issues.push({ stepId, label: "data de devolução" });
-      if (!form.return_time) issues.push({ stepId, label: "horário de devolução" });
+      if (!form.pickup_date) issues.push({ stepId, label: "data de retirada", field: "pickup_date" });
+      if (!form.pickup_time) issues.push({ stepId, label: "horário de retirada", field: "pickup_time" });
+      if (!form.return_date) issues.push({ stepId, label: "data de devolução", field: "return_date" });
+      if (!form.return_time) issues.push({ stepId, label: "horário de devolução", field: "return_time" });
       if (form.pickup_date && form.return_date && days <= 0) {
-        issues.push({ stepId, label: "período de locação válido" });
+        issues.push({ stepId, label: "período de locação válido (devolução depois da retirada)", field: "return_date" });
       }
       break;
     case "payment":
-      if (!form.total_price || Number(form.total_price) <= 0) issues.push({ stepId, label: "valor total" });
+      if (!form.total_price || Number(form.total_price) <= 0) issues.push({ stepId, label: "valor total", field: "total_price" });
       break;
     case "deposit":
     case "extras":
@@ -153,6 +154,7 @@ const formatIssues = (issues: ValidationIssue[]): string => {
   const unique = Array.from(new Set(issues.map((issue) => issue.label)));
   return unique.slice(0, 4).join(", ") + (unique.length > 4 ? "..." : "");
 };
+
 
 export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   const [phase, setPhase] = useState<"capture" | "wizard">(aiMode ? "capture" : "wizard");
