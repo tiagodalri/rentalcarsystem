@@ -165,11 +165,14 @@ export default function MobileBookings() {
                   <div className={`w-1 ${cfg.bar}`} />
                   <div className="flex-1 p-3.5 min-w-0">
                     <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-medium truncate">{formatPersonName(b.customer_name)}</div>
-                        <div className="text-xs text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
-                          <Car size={11} /> {b.vehicle_name || "—"}
-                          {b.booking_number && <span className="opacity-60">· #{b.booking_number}</span>}
+                      <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                        <PersonAvatar name={b.customer_name} size="sm" />
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium truncate">{formatPersonName(b.customer_name)}</div>
+                          <div className="text-xs text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
+                            <Car size={11} /> {b.vehicle_name || "—"}
+                            {b.booking_number && <span className="opacity-60">· #{b.booking_number}</span>}
+                          </div>
                         </div>
                       </div>
                       <span className={`text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full ${cfg.chip}`}>
