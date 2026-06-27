@@ -340,7 +340,7 @@ export default function AdminBookingDetail() {
           {/* Metrics row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <MetricCard icon={Gauge} label="Odômetro" value={insp.odometer_reading ? `${insp.odometer_reading.toLocaleString()} mi` : "—"} />
-            <MetricCard icon={Fuel} label="Combustível" value={insp.fuel_level || "—"} />
+            <MetricCard icon={Fuel} label="Combustível" value={insp.fuel_level ? (FUEL_LABELS[insp.fuel_level] || insp.fuel_level) : "—"} />
             <MetricCard icon={AlertTriangle} label="Avarias" value={damages.length} color={damages.length > 0 ? "text-red-500" : "text-emerald-500"} />
             <MetricCard icon={CheckCircle2} label="Acessórios" value={`${accessoryOk}/${accessoryEntries.length}`} />
           </div>
