@@ -23,6 +23,35 @@ import { SignedImage } from "@/components/admin/SignedImage";
 import { ShareWhatsAppInspectionButton } from "@/components/admin/ShareWhatsAppInspectionButton";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 
+const FUEL_LABELS: Record<string, string> = {
+  empty: "Vazio", "1/8": "1/8", "1/4": "1/4", "3/8": "3/8",
+  "1/2": "1/2", "5/8": "5/8", "3/4": "3/4", "7/8": "7/8", full: "Cheio",
+};
+const POSITION_LABELS: Record<string, string> = {
+  front: "Frente", rear: "Traseira", left: "Lateral Esq.", right: "Lateral Dir.",
+  hood: "Capô", roof: "Teto", trunk: "Porta-malas",
+  front_left: "Diant. Esq.", front_right: "Diant. Dir.",
+  rear_left: "Tras. Esq.", rear_right: "Tras. Dir.",
+  dashboard: "Painel", odometer: "Odômetro", fuel: "Combustível",
+  interior: "Interior", keys_ticket: "Chaves + Ticket",
+};
+const positionLabel = (p?: string) => {
+  if (!p) return "";
+  const clean = p.replace(/^__/, "");
+  return POSITION_LABELS[clean] || clean.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
+const ACCESSORIES_LABELS: Record<string, string> = {
+  spare_tire: "Estepe", jack: "Macaco", triangle: "Triângulo",
+  fire_extinguisher: "Extintor", first_aid: "Kit Primeiros Socorros",
+  manual: "Manual do Veículo", floor_mats: "Tapetes", antenna: "Antena",
+  hubcaps: "Calotas", wiper_blades: "Palhetas", charger_cable: "Cabo Carregador",
+  sunshade: "Protetor Solar",
+};
+const accessoryLabel = (k: string) =>
+  ACCESSORIES_LABELS[k] ||
+  k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
 type Booking = {
   id: string;
   customer_name: string;
@@ -311,7 +340,7 @@ export default function AdminBookingDetail() {
           {/* Metrics row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <MetricCard icon={Gauge} label="Odômetro" value={insp.odometer_reading ? `${insp.odometer_reading.toLocaleString()} mi` : "—"} />
-            <MetricCard icon={Fuel} label="Combustível" value={insp.fuel_level || "—"} />
+            <MetricCard icon={Fuel} label="Combustível" value={insp.fuel_level ? (FUEL_LABELS[insp.fuel_level] || insp.fuel_level) : "—"} />
             <MetricCard icon={AlertTriangle} label="Avarias" value={damages.length} color={damages.length > 0 ? "text-red-500" : "text-emerald-500"} />
             <MetricCard icon={CheckCircle2} label="Acessórios" value={`${accessoryOk}/${accessoryEntries.length}`} />
           </div>
@@ -330,12 +359,12 @@ export default function AdminBookingDetail() {
                     onClick={() => setExpandedPhoto(photo.url)}
                     className="group relative aspect-square rounded-lg overflow-hidden border border-border/30 hover:border-primary/40 transition-all"
                   >
-                    <SignedImage value={photo.url} alt={photo.position} className="w-full h-full object-cover" loading="lazy" />
+                    <SignedImage value={photo.url} alt={positionLabel(photo.position)} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <Image size={16} className="text-foreground" />
                     </div>
                     <div className="absolute bottom-0 inset-x-0 bg-background/80 backdrop-blur-sm px-1.5 py-0.5">
-                      <span className="text-[8px] text-foreground font-medium">{photo.position}</span>
+                      <span className="text-[8px] text-foreground font-medium truncate block">{positionLabel(photo.position)}</span>
                     </div>
                   </button>
                 ))}
@@ -365,7 +394,7 @@ export default function AdminBookingDetail() {
                           {d.severity === "heavy" ? "Grave" : d.severity === "medium" ? "Média" : "Leve"}
                         </Badge>
                       </div>
-                      {d.position && <span className="text-[10px] text-muted-foreground">{d.position}</span>}
+                      {d.position && <span className="text-[10px] text-muted-foreground">{positionLabel(d.position)}</span>}
                     </div>
                     {d.photoUrl && (
                       <button onClick={() => setExpandedPhoto(d.photoUrl)} className="w-10 h-10 rounded-md overflow-hidden border border-border/30 shrink-0">
@@ -391,7 +420,7 @@ export default function AdminBookingDetail() {
                     val ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-600" : "border-red-500/20 bg-red-500/5 text-red-500"
                   }`}>
                     {val ? <Check size={11} /> : <XIcon size={11} />}
-                    <span className="truncate">{key}</span>
+                    <span className="truncate capitalize">{accessoryLabel(key)}</span>
                   </div>
                 ))}
               </div>
