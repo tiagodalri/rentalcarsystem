@@ -518,27 +518,34 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
         <StepHeader id={currentStep.id} />
         <div className="rounded-2xl border border-border/50 bg-card/40 p-5 sm:p-6">
           {currentStep.id === "customer" && (
-            <CustomerStep form={form} set={set} aiKeys={aiKeys} />
+            <CustomerStep form={form} set={set} aiKeys={aiKeys} errorFields={errorFields} />
           )}
           {currentStep.id === "vehicle" && (
-            <VehicleStep form={form} set={set} aiKeys={aiKeys} onAdvance={goNext} />
+            <VehicleStep
+              form={form}
+              set={set}
+              aiKeys={aiKeys}
+              errorFields={errorFields}
+              onAdvance={() => setPendingAdvance(true)}
+            />
           )}
           {currentStep.id === "schedule" && (
-            <ScheduleStep form={form} set={set} aiKeys={aiKeys} days={days} />
+            <ScheduleStep form={form} set={set} aiKeys={aiKeys} days={days} errorFields={errorFields} />
           )}
 
           {currentStep.id === "deposit" && (
-            <DepositStep form={form} set={set} aiKeys={aiKeys} />
+            <DepositStep form={form} set={set} aiKeys={aiKeys} errorFields={errorFields} />
           )}
           {currentStep.id === "extras" && (
-            <ExtrasStep form={form} set={set} aiKeys={aiKeys} days={days} />
+            <ExtrasStep form={form} set={set} aiKeys={aiKeys} days={days} errorFields={errorFields} />
           )}
           {currentStep.id === "payment" && (
-            <PaymentStep form={form} set={set} aiKeys={aiKeys} days={days} />
+            <PaymentStep form={form} set={set} aiKeys={aiKeys} days={days} errorFields={errorFields} />
           )}
           {currentStep.id === "review" && (
-            <ReviewStep form={form} days={days} jumpTo={jumpTo} aiKeys={aiKeys} />
+            <ReviewStep form={form} days={days} jumpTo={jumpTo} aiKeys={aiKeys} vehicles={vehicles} />
           )}
+
         </div>
       </div>
 
