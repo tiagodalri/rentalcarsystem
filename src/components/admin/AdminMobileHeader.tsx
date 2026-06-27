@@ -1,5 +1,4 @@
-import { MoreVertical, Sun, Moon, Maximize2, Minimize2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { MoreVertical, Sun, Moon } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,36 +9,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useThemeMode } from "@/i18n/ThemeContext";
 import { useAdminPageTitle } from "@/hooks/useAdminPageTitle";
-import { useHideOnScroll } from "@/hooks/useHideOnScroll";
-import { haptic } from "@/lib/haptic";
 
 export function AdminMobileHeader() {
   const title = useAdminPageTitle();
   const { theme, toggleTheme } = useThemeMode();
-  const [isFs, setIsFs] = useState(false);
-  const [fsSupported, setFsSupported] = useState(true);
-  // Header sempre visível no mobile — esconder ao rolar fazia o stepper logo abaixo
-  // sobrepor a status bar do iPhone (notch / Wi-Fi / bateria) em PWA standalone.
-  const hidden = false;
-
-
-  useEffect(() => {
-    const doc: any = document;
-    setFsSupported(!!(doc.documentElement.requestFullscreen || doc.documentElement.webkitRequestFullscreen));
-    const onChange = () => setIsFs(!!(doc.fullscreenElement || doc.webkitFullscreenElement));
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
-
-  const toggleFs = () => {
-    const doc: any = document;
-    const el: any = document.documentElement;
-    if (!(doc.fullscreenElement || doc.webkitFullscreenElement)) {
-      (el.requestFullscreen?.() || el.webkitRequestFullscreen?.())?.catch?.(() => {});
-    } else {
-      (doc.exitFullscreen?.() || doc.webkitExitFullscreen?.())?.catch?.(() => {});
-    }
-  };
 
   return (
     <header
