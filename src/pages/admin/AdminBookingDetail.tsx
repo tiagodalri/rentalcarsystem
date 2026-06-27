@@ -965,11 +965,14 @@ export default function AdminBookingDetail() {
                       <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
                       <div className="text-xs leading-relaxed">
                         <p className="font-medium text-amber-700 dark:text-amber-400">
-                          Cobrar na retirada: <span className="tabular-nums">${balanceDue.toFixed(2)}</span>
+                          {isTuro
+                            ? <>Pagamento pós check-out (Turo): <span className="tabular-nums">${balanceDue.toFixed(2)}</span></>
+                            : <>Cobrar na retirada: <span className="tabular-nums">${balanceDue.toFixed(2)}</span></>}
                         </p>
                         <p className="text-muted-foreground mt-0.5">
-                          O cliente ainda não pagou a reserva. Confirme o pagamento antes de entregar o veículo
-                          {deposit > 0 ? <> e retenha a caução de <span className="tabular-nums font-semibold text-foreground">${deposit.toFixed(2)}</span></> : ""}.
+                          {isTuro
+                            ? <>Repasse da Turo cai após o check-out. Será marcado como pago automaticamente ao finalizar a inspeção de devolução.</>
+                            : <>O cliente ainda não pagou a reserva. Confirme o pagamento antes de entregar o veículo{deposit > 0 ? <> e retenha a caução de <span className="tabular-nums font-semibold text-foreground">${deposit.toFixed(2)}</span></> : ""}.</>}
                         </p>
                       </div>
                     </div>
