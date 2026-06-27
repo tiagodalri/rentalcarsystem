@@ -277,7 +277,7 @@ export default function AdminBookingDetail() {
             {type === "checkin" ? <LogIn size={14} className="text-primary" /> : <LogOut size={14} className="text-primary" />}
             <h3 className="text-sm font-semibold text-foreground">{label}</h3>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 flex-wrap justify-end">
             {insp.agent_name && (
               <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                 <User size={10} /> {insp.agent_name}
@@ -288,6 +288,8 @@ export default function AdminBookingDetail() {
                 {new Date(insp.completed_at).toLocaleDateString("pt-BR")} · {new Date(insp.completed_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
               </span>
             )}
+            <ShareWhatsAppInspectionButton bookingId={booking.id} type={type} size="sm" variant="outline" />
+            <ShareInspectionButton bookingId={booking.id} type={type} size="sm" variant="ghost" label="Link" />
           </div>
         </div>
 
