@@ -1227,7 +1227,7 @@ export default function AdminInspection() {
 
                         {/* Guide tooltip on hover */}
                         <button
-                          onClick={() => setActiveGuide(activeGuide === pos.name ? null : pos.name)}
+                          onClick={(e) => { e.stopPropagation(); setActiveGuide(activeGuide === pos.name ? null : pos.name); }}
                           className="absolute top-1 left-1 w-5 h-5 rounded-full bg-background/80 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors z-10"
                           title="Ver instrução"
                         >
