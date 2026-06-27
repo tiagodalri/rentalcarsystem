@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "@/hooks/use-toast";
