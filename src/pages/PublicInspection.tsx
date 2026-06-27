@@ -327,3 +327,62 @@ export default function PublicInspection() {
     </div>
   );
 }
+
+function DownloadAllPhotosButton({ photos, prefix }: { photos: any[]; prefix: string }) {
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+
+  const handleDownload = async () => {
+    const valid = photos.filter((p) => p?.url);
+    if (valid.length === 0) return;
+    setBusy(true);
+    setProgress({ done: 0, total: valid.length });
+    try {
+      for (let i = 0; i < valid.length; i++) {
+        const p = valid[i];
+        try {
+          const res = await fetch(p.url);
+          const blob = await res.blob();
+          const safePos = String(p.position || `foto-${i + 1}`).replace(/[^a-zA-Z0-9_-]/g, "_");
+          const filename = `${prefix}-${String(i + 1).padStart(2, "0")}-${safePos}.jpg`;
+          const u = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = u;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(u), 1500);
+          // pequena pausa para o navegador não engasgar com muitos downloads simultâneos
+          await new Promise((r) => setTimeout(r, 250));
+        } catch {
+          // ignora falha individual e segue
+        }
+        setProgress({ done: i + 1, total: valid.length });
+      }
+    } finally {
+      setBusy(false);
+      setTimeout(() => setProgress(null), 1500);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleDownload}
+      disabled={busy}
+      className="inline-flex items-center gap-1.5 text-[11px] font-medium rounded-md border border-border bg-background px-3 py-1.5 hover:bg-muted transition disabled:opacity-60 print:hidden"
+    >
+      {busy ? (
+        <>
+          <Loader2 size={12} className="animate-spin" />
+          Baixando {progress?.done}/{progress?.total}
+        </>
+      ) : (
+        <>
+          <Download size={12} /> Baixar todas as fotos
+        </>
+      )}
+    </button>
+  );
+}
