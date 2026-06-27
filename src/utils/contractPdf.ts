@@ -276,7 +276,7 @@ export function generateContractPdf(
     doc.rect(0, pageH - 7, pageW, 7, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(7);
-    doc.text(`Contrato gerado eletronicamente em ${ts} — Zeus Rental Car`, margin, pageH - 2.5);
+    doc.text(`${template.footer_text} — ${ts}`, margin, pageH - 2.5);
     doc.text(`Página ${i} de ${pageCount}`, pageW - margin - 25, pageH - 2.5);
   }
 
