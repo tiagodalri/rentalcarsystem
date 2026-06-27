@@ -151,15 +151,48 @@ export default function AdminPainel() {
   }
 
 
+  // ───── AI Mode ─────
+  const AiToggle = (
+    <button
+      onClick={() => setAiMode(v => !v)}
+      title={aiMode ? "Voltar ao painel clássico" : "Ativar modo IA"}
+      aria-label={aiMode ? "Voltar ao painel clássico" : "Ativar modo IA"}
+      className={`group relative inline-flex items-center gap-2 px-3 py-2 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium transition-all ${
+        aiMode
+          ? "bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-fuchsia-500/20 text-white border border-cyan-300/40 shadow-[0_0_24px_rgba(120,180,255,0.35)]"
+          : "border border-border/50 text-muted-foreground hover:text-foreground hover:border-foreground/30"
+      }`}
+    >
+      <Brain size={14} strokeWidth={1.75} className={aiMode ? "text-cyan-200" : ""} />
+      <span>{aiMode ? "IA Ativada" : "Modo IA"}</span>
+      {aiMode && (
+        <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(92,255,176,0.8)] animate-pulse" />
+      )}
+    </button>
+  );
+
+  if (aiMode) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-end">{AiToggle}</div>
+        <AiPainel bookings={bookings as any} vehicles={vehicles as any} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="min-w-0 hidden lg:block">
-        <h1 className="admin-h1">Painel</h1>
-        <p className="text-sm text-muted-foreground/80 mt-1">
-          Cockpit operacional · {format(now, "EEEE, dd 'de' MMMM", { locale: ptBR })}
-        </p>
+      <div className="min-w-0 hidden lg:flex items-start justify-between gap-4">
+        <div>
+          <h1 className="admin-h1">Painel</h1>
+          <p className="text-sm text-muted-foreground/80 mt-1">
+            Cockpit operacional · {format(now, "EEEE, dd 'de' MMMM", { locale: ptBR })}
+          </p>
+        </div>
+        {AiToggle}
       </div>
+
 
       {/* ═════════ AGORA ═════════ */}
       <Zone label="Agora" caption="Status da operação em tempo real" icon={Activity}>
