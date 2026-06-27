@@ -654,7 +654,7 @@ function FieldLabel({ children, ai }: { children: React.ReactNode; ai?: boolean 
   );
 }
 
-function CustomerStep({ form, set, aiKeys }: StepProps) {
+function CustomerStep({ form, set, aiKeys, errorFields }: StepProps) {
   return (
     <div className="space-y-4">
       <div>
