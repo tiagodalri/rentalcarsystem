@@ -24,7 +24,11 @@ export async function stampInspectionPhoto(
     const bitmap = await loadBitmap(file);
     if (!bitmap) return file;
 
-    const maxDim = opts.maxDim ?? 2200;
+    // Preserva a moldura original: só reduzimos se a foto for absurdamente grande.
+    // Antes usávamos 2200 + compressão posterior, o que diminuía a foto duas vezes
+    // e o usuário sentia que estava "cortada". Agora mantemos até 3200px e
+    // QUALIDADE alta — o arquivo final vai direto pro storage sem recompressão.
+    const maxDim = opts.maxDim ?? 3200;
     const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
     const w = Math.round(bitmap.width * scale);
     const h = Math.round(bitmap.height * scale);
@@ -39,7 +43,7 @@ export async function stampInspectionPhoto(
     drawStamp(ctx, w, h, lines);
 
     const blob: Blob | null = await new Promise((resolve) =>
-      canvas.toBlob((b) => resolve(b), "image/jpeg", opts.quality ?? 0.9),
+      canvas.toBlob((b) => resolve(b), "image/jpeg", opts.quality ?? 0.92),
     );
     if (!blob) return file;
 
