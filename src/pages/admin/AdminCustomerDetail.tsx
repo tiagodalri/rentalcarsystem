@@ -213,7 +213,8 @@ export default function AdminCustomerDetail() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="space-y-2 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap">
+            <PersonAvatar name={customer.full_name} size="lg" tone="gold" />
             <h1 className="admin-h1 text-2xl">{formatPersonName(customer.full_name)}</h1>
             {(customer as any).source === "turo" && (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-purple-500/15 text-purple-500 border border-purple-500/30">
