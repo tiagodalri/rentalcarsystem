@@ -22,11 +22,9 @@ const FUEL_PCT: Record<string, number> = {
 };
 
 const ACCESSORIES_LABELS: Record<string, string> = {
-  spare_tire: "Estepe", jack: "Macaco", triangle: "Triângulo",
-  fire_extinguisher: "Extintor", first_aid: "Kit Primeiros Socorros",
-  manual: "Manual do Veículo", floor_mats: "Tapetes", antenna: "Antena",
-  hubcaps: "Calotas", wiper_blades: "Palhetas", charger_cable: "Cabo Carregador",
-  sunshade: "Protetor Solar",
+  jack: "Macaco", antenna: "Antena", first_aid: "Kit Primeiros Socorros",
+  spare_tire: "Estepe", triangle: "Triângulo", floor_mats: "Tapetes",
+  fire_extinguisher: "Extintor",
 };
 
 const SEVERITY_LABELS: Record<string, string> = {
