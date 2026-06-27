@@ -13,6 +13,12 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const action = url.searchParams.get("action") ?? "list";
 
+  if (action === "sign") {
+    const name = url.searchParams.get("name")!;
+    const { data: s } = await sb.storage.from("inspections").createSignedUrl(`${PREFIX}/${name}`, 3600);
+    return new Response(JSON.stringify({ url: s?.signedUrl }), { headers: { ...cors, "Content-Type": "application/json" } });
+  }
+
   if (action === "list") {
     const { data } = await sb.storage.from("inspections").list(PREFIX, { limit: 500 });
     const items = await Promise.all(
