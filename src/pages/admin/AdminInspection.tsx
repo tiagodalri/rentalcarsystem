@@ -960,6 +960,7 @@ export default function AdminInspection() {
         onClose={() => setWebcamTarget(null)}
         onCapture={handleWebcamFile}
         title={webcamTitle}
+        stampAddress={inspectionAddress}
       />
 
       {/* Header */}
