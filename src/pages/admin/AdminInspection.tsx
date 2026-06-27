@@ -984,7 +984,7 @@ export default function AdminInspection() {
               .from("vehicle_inspections")
               .select("odometer_reading")
               .eq("booking_id", bookingId)
-              .eq("inspection_type", "checkin")
+              .eq("type", "checkin")
               .maybeSingle();
             odometerStart = (prevInsp as any)?.odometer_reading ?? null;
           } catch {}
