@@ -668,7 +668,7 @@ export default function AdminInspection() {
       setOcrLoading(true);
       setOcrResult(null);
       // Compress + base64 (cap ~1.2MP to keep payload small)
-      const compressed = await compressInspectionImage(file, { maxDim: 1400, quality: 0.82 }).catch(() => file);
+      const compressed = await compressInspectionImage(file, 1400, 0.82).catch(() => file);
       const buf = await compressed.arrayBuffer();
       let binary = "";
       const bytes = new Uint8Array(buf);
