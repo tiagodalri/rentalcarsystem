@@ -43,7 +43,7 @@ const CONTRACT_BADGE: Record<string, { label: string; cls: string }> = {
   signed: { label: "Assinado", cls: "bg-emerald-500/10 text-emerald-700 border-emerald-500/30" },
   sent: { label: "Aguardando assinatura", cls: "bg-amber-500/10 text-amber-700 border-amber-500/30" },
   partially_signed: { label: "Parcialmente assinado", cls: "bg-orange-500/10 text-orange-700 border-orange-500/30" },
-  not_sent: { label: "Não enviado", cls: "bg-muted text-muted-foreground border-border" },
+  not_sent: { label: "Opcional", cls: "bg-muted text-muted-foreground border-border" },
   generating: { label: "Gerando", cls: "bg-blue-500/10 text-blue-700 border-blue-500/30" },
   cancelled: { label: "Cancelado", cls: "bg-muted text-muted-foreground border-border" },
   failed: { label: "Falhou", cls: "bg-destructive/10 text-destructive border-destructive/30" },
