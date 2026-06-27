@@ -574,20 +574,20 @@ export default function AiPainel({
           <div className="space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card">
-                <CardHeader title="Lead time médio" sub="Antecipação de reserva" icon={Clock} />
+                <CardHeader title="Com quanto tempo o cliente reserva" sub="Antecedência média entre fazer a reserva e retirar o carro" icon={Clock} />
                 <div className="text-3xl font-light text-cyan-200 tabular-nums">{leadTime.avg.toFixed(0)}<span className="text-base text-white/50"> dias</span></div>
-                <div className="text-[11px] text-white/55 mt-1">Mediana {leadTime.median}d · {leadTime.sample} reservas</div>
+                <div className="text-[11px] text-white/55 mt-1">Metade dos clientes reserva com até {leadTime.median} dias de antecedência · base: {leadTime.sample} reservas</div>
               </div>
               <div className="ai-card">
-                <CardHeader title="Funil de conversão" sub="Total → confirmadas → completas" icon={Activity} />
-                <FunnelBar label="Total" value={funnel.total} max={funnel.total} hue="violet" />
+                <CardHeader title="O que está acontecendo com as reservas" sub="Quantas chegam, confirmam, viajam e cancelam" icon={Activity} />
+                <FunnelBar label="Reservas criadas" value={funnel.total} max={funnel.total} hue="violet" />
                 <FunnelBar label="Confirmadas" value={funnel.confirmed} max={funnel.total} hue="cyan" />
-                <FunnelBar label="Em viagem" value={funnel.inProg} max={funnel.total} hue="amber" />
+                <FunnelBar label="Em viagem agora ou já viajou" value={funnel.inProg} max={funnel.total} hue="amber" />
                 <FunnelBar label="Concluídas" value={funnel.completed} max={funnel.total} hue="emerald" />
                 <FunnelBar label="Canceladas" value={funnel.cancelled} max={funnel.total} hue="rose" />
               </div>
               <div className="ai-card">
-                <CardHeader title="Heatmap dia da semana" sub="Distribuição de pickups" icon={Calendar} />
+                <CardHeader title="Quais dias da semana saem mais carros" sub="Dias mais movimentados na retirada" icon={Calendar} />
                 <div className="grid grid-cols-7 gap-1.5">
                   {dowHeat.map(d => (
                     <div key={d.label} className="flex flex-col items-center gap-1">
@@ -601,9 +601,9 @@ export default function AiPainel({
             </div>
 
             <div className="ai-card">
-              <CardHeader title="Janelas de oportunidade" sub="Gaps entre reservas confirmadas — receita recuperável" icon={Sparkles} />
+              <CardHeader title="Buracos entre reservas — dinheiro na mesa" sub="Períodos curtos em que o carro fica parado entre duas reservas confirmadas. Oferecer promo de última hora pode capturar essa receita." icon={Sparkles} />
               {opportunityWindows.length === 0 ? (
-                <p className="text-white/55 text-xs">Sem janelas ociosas significativas no momento.</p>
+                <p className="text-white/55 text-xs">Sem buracos relevantes no momento — agenda bem encaixada.</p>
               ) : (
                 <ul className="space-y-2.5">
                   {opportunityWindows.map((o, i) => (
@@ -611,12 +611,12 @@ export default function AiPainel({
                       <div className="min-w-0">
                         <div className="text-white/90 truncate">{o.vehicle}</div>
                         <div className="text-[10.5px] text-white/55">
-                          {format(o.gapStart, "dd MMM", { locale: ptBR })} → {format(o.gapEnd, "dd MMM", { locale: ptBR })} · {o.nights} noites
+                          Livre de {format(o.gapStart, "dd MMM", { locale: ptBR })} até {format(o.gapEnd, "dd MMM", { locale: ptBR })} · {o.nights} noites paradas
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="tabular-nums text-emerald-200/95">{fmtUSD(o.estLoss)}</div>
-                        <div className="text-[10px] text-white/50">recuperável</div>
+                        <div className="text-[10px] text-white/50">possível recuperar</div>
                       </div>
                     </li>
                   ))}
