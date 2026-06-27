@@ -7,6 +7,7 @@ interface Props {
   children: ReactNode;
   fallback?: ReactNode;
   resetKey?: string;
+  autoRecover?: boolean;
 }
 interface State {
   error: Error | null;
@@ -30,7 +31,8 @@ export class RouteErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error) {
     const isChunkError = isRecoverableChunkLoadError(error.message || "");
     const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
-    if (isChunkError || isAdminRoute) {
+    const shouldRecover = this.props.autoRecover !== false && (isChunkError || isAdminRoute);
+    if (shouldRecover) {
       this.setState({ error });
       // Admin no mobile não pode ficar preso em uma boundary por cache/chunk antigo.
       // Mesmo quando o Safari reporta o erro com mensagem genérica, fazemos uma
