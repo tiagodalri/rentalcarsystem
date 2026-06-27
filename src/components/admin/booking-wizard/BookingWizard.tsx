@@ -638,7 +638,12 @@ type StepProps = {
   form: WizardFormState;
   set: <K extends keyof WizardFormState>(k: K, v: WizardFormState[K]) => void;
   aiKeys: Set<string>;
+  errorFields?: Set<string>;
 };
+
+const errorClass = (errorFields: Set<string> | undefined, key: string) =>
+  errorFields?.has(key) ? "border-destructive ring-2 ring-destructive/30" : "";
+
 
 function FieldLabel({ children, ai }: { children: React.ReactNode; ai?: boolean }) {
   return (
