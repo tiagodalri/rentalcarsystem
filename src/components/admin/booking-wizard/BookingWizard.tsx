@@ -690,7 +690,7 @@ function CustomerStep({ form, set, aiKeys, errorFields }: StepProps) {
   );
 }
 
-function VehicleStep({ form, set, aiKeys, onAdvance }: StepProps & { onAdvance?: () => void }) {
+function VehicleStep({ form, set, aiKeys, errorFields, onAdvance }: StepProps & { onAdvance?: () => void }) {
   const { vehicles } = useVehiclesDB({ includeSensitive: true });
   const [query, setQuery] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
