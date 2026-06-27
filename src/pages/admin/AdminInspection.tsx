@@ -474,7 +474,7 @@ export default function AdminInspection() {
         localStorage.setItem(draftKey, JSON.stringify({
           step, odometer, fuelLevel, photos, damages, accessories,
           notes, agentName, customerSignature, agentSignature,
-          odometerPhoto, fuelPhoto, savedAt: Date.now(),
+          odometerPhoto, fuelPhoto, inspectionAddress, savedAt: Date.now(),
         }));
       } catch {}
     };
@@ -487,7 +487,7 @@ export default function AdminInspection() {
   }, [
     draftKey, step, odometer, fuelLevel, photos, damages, accessories,
     notes, agentName, customerSignature, agentSignature,
-    odometerPhoto, fuelPhoto, existingInspection?.completed_at,
+    odometerPhoto, fuelPhoto, inspectionAddress, existingInspection?.completed_at,
   ]);
 
   const loadData = async () => {
