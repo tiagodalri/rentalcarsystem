@@ -260,10 +260,16 @@ export default function PublicInspection() {
         {/* Fotos */}
         {photos.length > 0 && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-3 flex items-center gap-1.5">
-              <Camera size={11} /> Registro Fotográfico
-              <span className="ml-1 text-foreground font-medium">{photos.length}</span>
-            </p>
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold flex items-center gap-1.5">
+                <Camera size={11} /> Registro Fotográfico
+                <span className="ml-1 text-foreground font-medium">{photos.length}</span>
+              </p>
+              <DownloadAllPhotosButton
+                photos={photos}
+                prefix={`zeus-${booking.booking_number || "inspecao"}-${isCheckin ? "entrega" : "devolucao"}`}
+              />
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
               {photos.map((p, i) => (
                 <figure key={i} className="rounded-xl overflow-hidden border border-border bg-muted/40">
