@@ -77,12 +77,28 @@
   <!-- End Google Tag Manager -->
 
   <script>
+    (function () {
+      var isAdmin = (window.location.pathname || "").indexOf("/admin") === 0;
+      if (!isAdmin || !("serviceWorker" in navigator)) return;
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        registrations.forEach(function (registration) { registration.unregister(); });
+      }).catch(function () {});
+      if ("caches" in window) {
+        caches.keys().then(function (keys) {
+          keys.forEach(function (key) { caches.delete(key); });
+        }).catch(function () {});
+      }
+    })();
+  </script>
+
+  <script>
     if ("serviceWorker" in navigator) {
       const isInIframe = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
       const isPreviewHost = window.location.hostname.includes("id-preview--") || window.location.hostname.includes("lovableproject.com");
-      if (!isPreviewHost && !isInIframe) {
+      const isAdmin = (window.location.pathname || "").indexOf("/admin") === 0;
+      if (!isPreviewHost && !isInIframe && !isAdmin) {
         window.addEventListener("load", () => {
-          navigator.serviceWorker.register("/sw.js").catch(() => {});
+          navigator.serviceWorker.register("/sw.js").then((reg) => reg.update()).catch(() => {});
           // Intentionally NOT calling reg.update() on visibilitychange and
           // NOT reloading on controllerchange. New service worker versions
           // take effect on the next full navigation, so users never get

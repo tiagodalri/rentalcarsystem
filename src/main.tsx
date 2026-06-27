@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { isRecoverableChunkLoadError, recoverFromStaleApp } from "@/lib/pwaRecovery";
 
 /**
  * ChunkLoadError recovery — corrige o sintoma de "tela branca, precisa fechar
@@ -14,30 +15,31 @@ import "./index.css";
  *    O usuário pode estar preenchendo um formulário; reload surpresa causa
  *    perda de contexto no PWA.
  */
-function isChunkLoadError(message: string | undefined | null): boolean {
-  if (!message) return false;
-  const m = message.toLowerCase();
-  return (
-    m.includes("chunkloaderror") ||
-    m.includes("loading chunk") ||
-    m.includes("failed to fetch dynamically imported module") ||
-    m.includes("importing a module script failed") ||
-    m.includes("error loading dynamically imported module")
-  );
-}
-
 function tryRecoverFromChunkError(message: string | undefined | null) {
-  return isChunkLoadError(message);
+  if (!isRecoverableChunkLoadError(message)) return false;
+  void recoverFromStaleApp();
+  return true;
 }
 
 window.addEventListener("error", (event) => {
-  tryRecoverFromChunkError(event?.message || event?.error?.message);
+  const target = event.target as HTMLElement | null;
+  const source = "src" in (target || {}) ? String((target as HTMLScriptElement).src || "") : "";
+  if (tryRecoverFromChunkError(event?.message || event?.error?.message || source)) {
+    event.preventDefault();
+  }
 });
 
 window.addEventListener("unhandledrejection", (event) => {
-  const reason: any = event?.reason;
+  const reason: unknown = event?.reason;
   const msg = typeof reason === "string" ? reason : reason?.message;
-  tryRecoverFromChunkError(msg);
+  if (tryRecoverFromChunkError(msg)) {
+    event.preventDefault();
+  }
+});
+
+window.addEventListener("vite:preloadError", (event) => {
+  event.preventDefault();
+  void recoverFromStaleApp();
 });
 
 createRoot(document.getElementById("root")!).render(<App />);
