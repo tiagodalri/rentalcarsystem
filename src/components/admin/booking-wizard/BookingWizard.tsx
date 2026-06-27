@@ -67,6 +67,92 @@ const AI_BADGE = (
   </span>
 );
 
+type ValidationIssue = {
+  stepId: StepId;
+  label: string;
+};
+
+const isWizardFormMeaningfullyEmpty = (draft: WizardFormState): boolean => {
+  const meaningfulText = [
+    draft.customer_name,
+    draft.customer_email,
+    draft.customer_phone,
+    draft.vehicle_id,
+    draft.daily_price_override,
+    draft.pickup_date,
+    draft.pickup_location,
+    draft.pickup_terminal,
+    draft.pickup_notes,
+    draft.return_date,
+    draft.return_location,
+    draft.return_terminal,
+    draft.return_notes,
+    draft.deposit_amount,
+    draft.franchise_amount,
+    draft.total_price,
+    draft.paid_date,
+    draft.payment_due_date,
+    draft.deposit_paid_amount,
+    draft.deposit_paid_date,
+    draft.notes,
+  ];
+
+  return meaningfulText.every((value) => !String(value ?? "").trim());
+};
+
+const normalizeWizardForm = (draft: WizardFormState): WizardFormState => {
+  const paymentStatus = ["pending", "paid", "partial"].includes(draft.payment_status)
+    ? draft.payment_status
+    : initialWizardForm.payment_status;
+
+  return {
+    ...initialWizardForm,
+    ...draft,
+    customer: draft.customer && typeof draft.customer === "object" ? draft.customer : null,
+    pickup_location_type: draft.pickup_location_type === "custom" ? "custom" : "airport",
+    return_location_type: draft.return_location_type === "custom" ? "custom" : "airport",
+    addons_list: Array.isArray(draft.addons_list) ? draft.addons_list : initialWizardForm.addons_list,
+    currency: draft.currency === "BRL" ? "BRL" : "USD",
+    payment_status: paymentStatus,
+  };
+};
+
+const getStepIssues = (form: WizardFormState, days: number, stepId: StepId): ValidationIssue[] => {
+  const issues: ValidationIssue[] = [];
+
+  switch (stepId) {
+    case "customer":
+      if (!form.customer_name.trim()) issues.push({ stepId, label: "nome do cliente" });
+      break;
+    case "vehicle":
+      if (!form.vehicle_id) issues.push({ stepId, label: "veículo" });
+      break;
+    case "schedule":
+      if (!form.pickup_date) issues.push({ stepId, label: "data de retirada" });
+      if (!form.pickup_time) issues.push({ stepId, label: "horário de retirada" });
+      if (!form.return_date) issues.push({ stepId, label: "data de devolução" });
+      if (!form.return_time) issues.push({ stepId, label: "horário de devolução" });
+      if (form.pickup_date && form.return_date && days <= 0) {
+        issues.push({ stepId, label: "período de locação válido" });
+      }
+      break;
+    case "payment":
+      if (!form.total_price || Number(form.total_price) <= 0) issues.push({ stepId, label: "valor total" });
+      break;
+    case "deposit":
+    case "extras":
+    case "review":
+      break;
+  }
+
+  return issues;
+};
+
+const formatIssues = (issues: ValidationIssue[]): string => {
+  const unique = Array.from(new Set(issues.map((issue) => issue.label)));
+  return unique.slice(0, 4).join(", ") + (unique.length > 4 ? "..." : "");
+};
+
 export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   const [phase, setPhase] = useState<"capture" | "wizard">(aiMode ? "capture" : "wizard");
   const [stepIdx, setStepIdx] = useState(0);
@@ -76,8 +162,14 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
 
   const { vehicles } = useVehiclesDB({ includeSensitive: true });
 
-  // Persist drafts (form only, not customer object)
-  useFormDraft(DRAFT_KEY, form, (next) => setForm(next), phase === "wizard");
+  // Persistência defensiva: defaults como horário/pagamento não podem impedir a restauração do rascunho.
+  useFormDraft(
+    DRAFT_KEY,
+    form,
+    (next) => setForm(normalizeWizardForm(next)),
+    phase === "wizard",
+    { isEmpty: isWizardFormMeaningfullyEmpty, debounceMs: 150 },
+  );
 
   // Persist current step index so user resumes exactly where they left off
   const STEP_KEY = `${DRAFT_KEY}-step`;
@@ -183,34 +275,69 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     return Math.max(0, Math.round((new Date(form.return_date).getTime() - new Date(form.pickup_date).getTime()) / 86400000));
   }, [form.pickup_date, form.return_date]);
 
-  // Validation per step
   const stepValid = (id: StepId): boolean => {
-    switch (id) {
-      case "customer": return !!form.customer_name.trim();
-      case "vehicle": return !!form.vehicle_id;
-      case "schedule": return !!form.pickup_date && !!form.pickup_time && !!form.return_date && !!form.return_time && days > 0;
-
-      case "deposit": return true;
-      case "extras": return true;
-      case "payment": return !!form.total_price && Number(form.total_price) > 0;
-      case "review": return true;
-    }
+    return getStepIssues(form, days, id).length === 0;
   };
 
   const currentStep = WIZARD_STEPS[stepIdx];
   const canAdvance = stepValid(currentStep.id);
   const isLast = stepIdx === WIZARD_STEPS.length - 1;
 
-  const goNext = () => { if (canAdvance && !isLast) setStepIdx((i) => i + 1); };
+  const goNext = () => {
+    if (canAdvance && !isLast) {
+      setStepIdx((i) => i + 1);
+      return;
+    }
+
+    const issues = getStepIssues(form, days, currentStep.id);
+    if (issues.length > 0) {
+      toast({
+        title: "Complete esta etapa antes de avançar",
+        description: `Falta preencher: ${formatIssues(issues)}.`,
+        variant: "destructive",
+      });
+    }
+  };
   const goBack = () => { if (stepIdx > 0) setStepIdx((i) => i - 1); else onCancel(); };
+  const handleStepJump = (targetIdx: number) => {
+    if (targetIdx <= stepIdx) {
+      setStepIdx(targetIdx);
+      return;
+    }
+
+    const firstInvalidIdx = WIZARD_STEPS
+      .slice(0, targetIdx)
+      .findIndex((step) => getStepIssues(form, days, step.id).length > 0);
+
+    if (firstInvalidIdx >= 0) {
+      const step = WIZARD_STEPS[firstInvalidIdx];
+      const issues = getStepIssues(form, days, step.id);
+      setStepIdx(firstInvalidIdx);
+      toast({
+        title: "Existe uma etapa incompleta",
+        description: `Falta preencher: ${formatIssues(issues)}.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setStepIdx(targetIdx);
+  };
   const jumpTo = (id: StepId) => {
     const idx = WIZARD_STEPS.findIndex((s) => s.id === id);
     if (idx >= 0) setStepIdx(idx);
   };
 
   const handleSubmit = async () => {
-    if (!form.customer_name || !form.vehicle_id || !form.pickup_date || !form.return_date) {
-      toast({ title: "Há campos obrigatórios faltando", variant: "destructive" });
+    const issues = WIZARD_STEPS.flatMap((step) => getStepIssues(form, days, step.id));
+    if (issues.length > 0) {
+      const firstInvalidIdx = WIZARD_STEPS.findIndex((step) => getStepIssues(form, days, step.id).length > 0);
+      if (firstInvalidIdx >= 0) setStepIdx(firstInvalidIdx);
+      toast({
+        title: "Reserva incompleta",
+        description: `Nada foi apagado. Volte na etapa indicada e preencha: ${formatIssues(issues)}.`,
+        variant: "destructive",
+      });
       return;
     }
     setSaving(true);
@@ -321,7 +448,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       </div>
 
       {/* Stepper */}
-      <Stepper stepIdx={stepIdx} onJump={(idx) => setStepIdx(idx)} stepValid={stepValid} />
+      <Stepper stepIdx={stepIdx} onJump={handleStepJump} stepValid={stepValid} />
 
       {/* Step content */}
       <div className="max-w-3xl mx-auto">
