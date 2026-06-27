@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
+import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -82,6 +83,17 @@ const Login = () => {
           {mode === "login" ? (
             <>
               <h2 className="text-lg font-semibold text-foreground mb-6">Entrar</h2>
+
+              <SocialAuthButtons label="Entrar com" />
+
+              <div className="relative my-5">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/40" />
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-card px-2 text-[10px] uppercase tracking-wider text-muted-foreground">ou com e-mail</span>
+                </div>
+              </div>
 
               {error && (
                 <Alert variant="destructive" className="mb-4">
