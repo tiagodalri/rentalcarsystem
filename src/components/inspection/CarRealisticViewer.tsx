@@ -220,6 +220,12 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
 
     const lengthAxis: "x" | "z" = size.z >= size.x ? "z" : "x";
     const widthAxis: "x" | "z" = lengthAxis === "z" ? "x" : "z";
+    bboxRef.current = {
+      center,
+      half: new THREE.Vector3(half.x, half.y, half.z),
+      lengthAxis,
+      widthAxis,
+    };
 
     const list: ClassifiedMesh[] = [];
     scene.traverse((o) => {
