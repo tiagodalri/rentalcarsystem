@@ -179,7 +179,8 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     if (!isWizardFormMeaningfullyEmpty(form)) return;
     try {
       const draftRaw = localStorage.getItem(DRAFT_STORAGE_KEY);
-      const draft = draftRaw ? normalizeWizardForm(JSON.parse(draftRaw) as WizardFormState) : null;
+      const parsedDraft = draftRaw ? JSON.parse(draftRaw) : null;
+      const draft = parsedDraft && typeof parsedDraft === "object" ? normalizeWizardForm(parsedDraft as WizardFormState) : null;
       if (!draft || isWizardFormMeaningfullyEmpty(draft)) {
         localStorage.removeItem(STEP_KEY);
         return;
