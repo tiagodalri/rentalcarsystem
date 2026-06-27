@@ -125,7 +125,10 @@ export function ShareWhatsAppInspectionButton({
         returnDate: (booking as any).return_date,
         odometer: inspection.odometer_reading ?? null,
         fuel: inspection.fuel_level ?? null,
-        address: (type === "checkin" ? (booking as any).pickup_location : (booking as any).return_location) ?? null,
+        address:
+          (inspection as any).location_address ||
+          (type === "checkin" ? (booking as any).pickup_location : (booking as any).return_location) ||
+          null,
         agent: inspection.agent_name ?? null,
         damagesCount: Array.isArray(inspection.damages) ? inspection.damages.length : 0,
         photosCount: photos.length,
