@@ -937,9 +937,26 @@ export default function AdminInspection() {
     // ranking (in_progress > confirmed) and reporting stay accurate.
     if (finalize && bookingId) {
       const nextStatus = type === "checkin" ? "in_progress" : "completed";
+      const updatePayload: Record<string, any> = { status: nextStatus };
+
+      // Regra Turo: pagamento é pós check-out. Ao finalizar a inspeção de
+      // devolução, marcamos a reserva como paga automaticamente.
+      if (type === "checkout") {
+        const { data: bk } = await supabase
+          .from("bookings")
+          .select("turo_reservation_code, addons, payment_status")
+          .eq("id", bookingId)
+          .maybeSingle();
+        const isTuro = !!(bk?.turo_reservation_code || (bk?.addons as any)?.turo_reservation_id);
+        if (isTuro && bk?.payment_status !== "paid") {
+          updatePayload.payment_status = "paid";
+          updatePayload.paid_at = new Date().toISOString();
+        }
+      }
+
       const { error: bErr } = await supabase
         .from("bookings")
-        .update({ status: nextStatus })
+        .update(updatePayload)
         .eq("id", bookingId);
       if (bErr) {
         console.error("[inspection] failed to update booking status", bErr);

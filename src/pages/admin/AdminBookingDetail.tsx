@@ -530,10 +530,13 @@ export default function AdminBookingDetail() {
               })()}
               {(() => {
                 const ps = booking.payment_status || "pending";
+                const isTuro = !!(booking.turo_reservation_code || (booking as any).addons?.turo_reservation_id);
                 const cls = ps === "paid"
                   ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
                   : "bg-amber-500/10 text-amber-600 border-amber-500/30";
-                const label = ps === "paid" ? "Pagamento OK" : "Pagamento pendente";
+                const label = ps === "paid"
+                  ? "Pagamento OK"
+                  : isTuro ? "Pagamento pós check-out" : "Pagamento pendente";
                 return <Badge className={`${cls} border text-[10px] px-3 py-1 font-semibold whitespace-nowrap`}>{label}</Badge>;
               })()}
             </div>
@@ -878,11 +881,12 @@ export default function AdminBookingDetail() {
             const isPaid = ps === "paid";
             const isRefunded = ps === "refunded";
             const isFailed = ps === "failed";
+            const isTuro = !!(booking.turo_reservation_code || (booking as any).addons?.turo_reservation_id);
             const balanceDue = isPaid ? 0 : total;
 
             const statusMap: Record<string, { label: string; tone: string; dot: string }> = {
               paid: { label: "Pago com antecedência", tone: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30", dot: "bg-emerald-500" },
-              pending: { label: "Pagamento pendente", tone: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30", dot: "bg-amber-500" },
+              pending: { label: isTuro ? "Pagamento pós check-out" : "Pagamento pendente", tone: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30", dot: "bg-amber-500" },
               failed: { label: "Pagamento falhou", tone: "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/30", dot: "bg-red-500" },
               refunded: { label: "Reembolsado", tone: "bg-sky-500/10 text-sky-700 dark:text-sky-400 border-sky-500/30", dot: "bg-sky-500" },
               refund_partial: { label: "Reembolso parcial", tone: "bg-sky-500/10 text-sky-700 dark:text-sky-400 border-sky-500/30", dot: "bg-sky-500" },
@@ -961,11 +965,14 @@ export default function AdminBookingDetail() {
                       <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
                       <div className="text-xs leading-relaxed">
                         <p className="font-medium text-amber-700 dark:text-amber-400">
-                          Cobrar na retirada: <span className="tabular-nums">${balanceDue.toFixed(2)}</span>
+                          {isTuro
+                            ? <>Pagamento pós check-out (Turo): <span className="tabular-nums">${balanceDue.toFixed(2)}</span></>
+                            : <>Cobrar na retirada: <span className="tabular-nums">${balanceDue.toFixed(2)}</span></>}
                         </p>
                         <p className="text-muted-foreground mt-0.5">
-                          O cliente ainda não pagou a reserva. Confirme o pagamento antes de entregar o veículo
-                          {deposit > 0 ? <> e retenha a caução de <span className="tabular-nums font-semibold text-foreground">${deposit.toFixed(2)}</span></> : ""}.
+                          {isTuro
+                            ? <>Repasse da Turo cai após o check-out. Será marcado como pago automaticamente ao finalizar a inspeção de devolução.</>
+                            : <>O cliente ainda não pagou a reserva. Confirme o pagamento antes de entregar o veículo{deposit > 0 ? <> e retenha a caução de <span className="tabular-nums font-semibold text-foreground">${deposit.toFixed(2)}</span></> : ""}.</>}
                         </p>
                       </div>
                     </div>
