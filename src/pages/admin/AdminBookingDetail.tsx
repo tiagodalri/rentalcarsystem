@@ -23,6 +23,24 @@ import { SignedImage } from "@/components/admin/SignedImage";
 import { ShareWhatsAppInspectionButton } from "@/components/admin/ShareWhatsAppInspectionButton";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 
+const FUEL_LABELS: Record<string, string> = {
+  empty: "Vazio", "1/8": "1/8", "1/4": "1/4", "3/8": "3/8",
+  "1/2": "1/2", "5/8": "5/8", "3/4": "3/4", "7/8": "7/8", full: "Cheio",
+};
+const POSITION_LABELS: Record<string, string> = {
+  front: "Frente", rear: "Traseira", left: "Lateral Esq.", right: "Lateral Dir.",
+  hood: "Capô", roof: "Teto", trunk: "Porta-malas",
+  front_left: "Diant. Esq.", front_right: "Diant. Dir.",
+  rear_left: "Tras. Esq.", rear_right: "Tras. Dir.",
+  dashboard: "Painel", odometer: "Odômetro", fuel: "Combustível",
+  interior: "Interior", keys_ticket: "Chaves + Ticket",
+};
+const positionLabel = (p?: string) => {
+  if (!p) return "";
+  const clean = p.replace(/^__/, "");
+  return POSITION_LABELS[clean] || clean.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
 const ACCESSORIES_LABELS: Record<string, string> = {
   spare_tire: "Estepe", jack: "Macaco", triangle: "Triângulo",
   fire_extinguisher: "Extintor", first_aid: "Kit Primeiros Socorros",
