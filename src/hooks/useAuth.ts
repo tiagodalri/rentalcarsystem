@@ -102,7 +102,7 @@ export function useAuth() {
       // mesmo usuário já hidratado, ignoramos para NÃO setar loading=true
       // de novo (causa remount da página e perda do formulário).
       if (
-        (event === "TOKEN_REFRESHED" || event === "USER_UPDATED") &&
+        (event === "TOKEN_REFRESHED" || event === "USER_UPDATED" || event === "SIGNED_IN") &&
         sess?.user &&
         cachedCustomer?.userId === sess.user.id
       ) {
