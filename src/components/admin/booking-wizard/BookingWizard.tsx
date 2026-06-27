@@ -672,10 +672,11 @@ function CustomerStep({ form, set, aiKeys, errorFields }: StepProps) {
         />
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="sm:col-span-2">
+        <div className="sm:col-span-2" data-field="customer_name">
           <FieldLabel ai={aiKeys.has("customer_name")}>Nome completo *</FieldLabel>
-          <Input value={form.customer_name} onChange={(e) => set("customer_name", e.target.value)} placeholder="João da Silva" className="h-11" />
+          <Input value={form.customer_name} onChange={(e) => set("customer_name", e.target.value)} placeholder="João da Silva" className={`h-11 ${errorClass(errorFields, "customer_name")}`} />
         </div>
+
         <div>
           <FieldLabel ai={aiKeys.has("customer_email")}>E-mail</FieldLabel>
           <Input type="email" value={form.customer_email} onChange={(e) => set("customer_email", e.target.value)} placeholder="email@exemplo.com" className="h-11" />
