@@ -267,18 +267,13 @@ const FUEL_LEVELS = [
 ];
 
 const DEFAULT_ACCESSORIES: Record<string, string> = {
-  spare_tire: "Estepe",
   jack: "Macaco",
-  triangle: "Triângulo",
-  fire_extinguisher: "Extintor",
-  first_aid: "Kit Primeiros Socorros",
-  manual: "Manual do Veículo",
-  floor_mats: "Tapetes",
   antenna: "Antena",
-  hubcaps: "Calotas",
-  wiper_blades: "Palhetas",
-  charger_cable: "Cabo Carregador",
-  sunshade: "Protetor Solar",
+  first_aid: "Kit Primeiros Socorros",
+  spare_tire: "Estepe",
+  triangle: "Triângulo",
+  floor_mats: "Tapetes",
+  fire_extinguisher: "Extintor",
 };
 
 // Mapa de avarias agora vive em src/components/inspection/CarDamageMap.tsx
