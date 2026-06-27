@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Plus, Phone, MessageCircle, X, Users, Car, Loader2, User, Mail, FileText, MapPin, Save, type LucideIcon } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
 import { useRegisterFab } from "@/hooks/useAdminFab";
