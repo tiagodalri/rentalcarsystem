@@ -187,7 +187,15 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       const raw = localStorage.getItem(STEP_KEY);
       if (raw !== null) {
         const n = Number(raw);
-        if (Number.isInteger(n) && n >= 0 && n < WIZARD_STEPS.length) setStepIdx(n);
+        if (Number.isInteger(n) && n >= 0 && n < WIZARD_STEPS.length) {
+          const restoredDays = draft.pickup_date && draft.return_date
+            ? Math.max(0, Math.round((new Date(draft.return_date).getTime() - new Date(draft.pickup_date).getTime()) / 86400000))
+            : 0;
+          const firstInvalidIdx = WIZARD_STEPS
+            .slice(0, n)
+            .findIndex((step) => getStepIssues(draft, restoredDays, step.id).length > 0);
+          setStepIdx(firstInvalidIdx >= 0 ? firstInvalidIdx : n);
+        }
       }
     } catch { /* ignore */ }
     // eslint-disable-next-line react-hooks/exhaustive-deps
