@@ -37,6 +37,8 @@ interface MobilePainelProps {
   bookings: BookingRow[];
   vehicles: { id: string; name: string | null; status: string | null; color: string | null }[];
   onRefresh: () => Promise<void>;
+  aiMode?: boolean;
+  onToggleAi?: () => void;
 }
 
 const ACTIVE_STATUSES = new Set(["confirmed", "active", "in_progress"]);
