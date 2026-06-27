@@ -28,6 +28,7 @@ import refRodaDD from "@/assets/inspection/roda-dd.jpg";
 import refRodaTE from "@/assets/inspection/roda-te.jpg";
 import refRodaTD from "@/assets/inspection/roda-td.jpg";
 import { SignedImage } from "@/components/admin/SignedImage";
+import { PhotoLightbox } from "@/components/admin/PhotoLightbox";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 import { ShareWhatsAppInspectionButton } from "@/components/admin/ShareWhatsAppInspectionButton";
 import { registerLocalInspectionPreview, compressInspectionImage } from "@/lib/inspectionStorage";
@@ -314,6 +315,7 @@ export default function AdminInspection() {
 
   // Guide panel
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ value: string; label: string } | null>(null);
 
   // Signature canvas refs
   const customerCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -959,6 +961,13 @@ export default function AdminInspection() {
         stampAddress={inspectionAddress}
       />
 
+      <PhotoLightbox
+        open={!!lightbox}
+        onClose={() => setLightbox(null)}
+        value={lightbox?.value || null}
+        label={lightbox?.label}
+      />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate("/admin/bookings")} aria-label="Voltar para reservas">
@@ -1168,7 +1177,13 @@ export default function AdminInspection() {
                     return (
                       <div key={pos.name} className="relative group">
                         {photo ? (
-                          <div className="relative aspect-[4/3] rounded-lg overflow-hidden border border-border/40">
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => setLightbox({ value: photo.url, label: pos.name })}
+                            onKeyDown={(e) => { if (e.key === "Enter") setLightbox({ value: photo.url, label: pos.name }); }}
+                            className="relative aspect-[4/3] rounded-lg overflow-hidden border border-border/40 cursor-zoom-in"
+                          >
                             <SignedImage value={photo.url} alt={pos.name} className="w-full h-full object-contain bg-muted/20" />
                             <PhotoUploadBadge status={photoUploadStatus[photo.url]} />
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -1177,7 +1192,7 @@ export default function AdminInspection() {
                                   <Button
                                     size="sm"
                                     variant="secondary"
-                                    onClick={() => capturePhoto(pos.name)}
+                                    onClick={(e) => { e.stopPropagation(); capturePhoto(pos.name); }}
                                     className="h-7 text-xs"
                                   >
                                     <Camera size={12} /> Refazer
@@ -1185,7 +1200,7 @@ export default function AdminInspection() {
                                   <Button
                                     size="sm"
                                     variant="destructive"
-                                    onClick={() => setPhotos((prev) => prev.filter((p) => p.position !== pos.name))}
+                                    onClick={(e) => { e.stopPropagation(); setPhotos((prev) => prev.filter((p) => p.position !== pos.name)); }}
                                     className="h-7 text-xs"
                                   >
                                     <Trash2 size={12} />
@@ -1219,7 +1234,7 @@ export default function AdminInspection() {
 
                         {/* Guide tooltip on hover */}
                         <button
-                          onClick={() => setActiveGuide(activeGuide === pos.name ? null : pos.name)}
+                          onClick={(e) => { e.stopPropagation(); setActiveGuide(activeGuide === pos.name ? null : pos.name); }}
                           className="absolute top-1 left-1 w-5 h-5 rounded-full bg-background/80 border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors z-10"
                           title="Ver instrução"
                         >
