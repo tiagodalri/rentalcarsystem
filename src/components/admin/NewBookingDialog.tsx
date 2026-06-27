@@ -18,7 +18,29 @@ import { useFormDraft, clearFormDraft } from "@/hooks/useFormDraft";
 
 const DRAFT_KEY = "new-booking";
 
-const isNewBookingDraftEmpty = (draft: Record<string, string>) => [
+type NewBookingForm = {
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  vehicle_id: string;
+  pickup_date: string;
+  pickup_time: string;
+  return_date: string;
+  return_time: string;
+  pickup_location: string;
+  return_location: string;
+  plan_id: string;
+  total_price: string;
+  currency: string;
+  payment_method: string;
+  status: string;
+  notes: string;
+  deposit_amount: string;
+  deposit_refund_days: string;
+  franchise_amount: string;
+};
+
+const isNewBookingDraftEmpty = (draft: NewBookingForm) => [
   draft.customer_name,
   draft.customer_email,
   draft.customer_phone,
@@ -124,7 +146,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
     }
   };
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<NewBookingForm>({
     customer_name: "",
     customer_email: "",
     customer_phone: "",
