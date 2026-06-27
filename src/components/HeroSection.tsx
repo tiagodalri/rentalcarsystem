@@ -49,7 +49,7 @@ const HeroSection = () => {
           className="flex items-center gap-2.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.32em] text-primary/90"
         >
           <span className="h-px w-6 sm:w-8 bg-primary/40" />
-          Aluguel Premium · Orlando
+          Aluguel Premium · Orlando e Miami
           <span className="h-px w-6 sm:w-8 bg-primary/40" />
         </motion.div>
 
@@ -58,7 +58,7 @@ const HeroSection = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.25 }}
-          className="text-[20px] sm:text-2xl md:text-3xl lg:text-[2rem] font-black uppercase tracking-tight leading-[1.15] max-w-[18ch] sm:max-w-3xl lg:max-w-4xl px-2 lg:whitespace-nowrap text-balance"
+          className="text-[16px] sm:text-[19px] md:text-2xl lg:text-[26px] font-black uppercase tracking-tight leading-[1.15] max-w-[18ch] sm:max-w-3xl lg:max-w-4xl px-2 lg:whitespace-nowrap text-balance"
         >
           {t.hero.title}
           <span className="gold-text">{t.hero.titleHighlight}</span>
