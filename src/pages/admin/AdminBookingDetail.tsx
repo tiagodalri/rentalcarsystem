@@ -23,6 +23,17 @@ import { SignedImage } from "@/components/admin/SignedImage";
 import { ShareWhatsAppInspectionButton } from "@/components/admin/ShareWhatsAppInspectionButton";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 
+const ACCESSORIES_LABELS: Record<string, string> = {
+  spare_tire: "Estepe", jack: "Macaco", triangle: "Triângulo",
+  fire_extinguisher: "Extintor", first_aid: "Kit Primeiros Socorros",
+  manual: "Manual do Veículo", floor_mats: "Tapetes", antenna: "Antena",
+  hubcaps: "Calotas", wiper_blades: "Palhetas", charger_cable: "Cabo Carregador",
+  sunshade: "Protetor Solar",
+};
+const accessoryLabel = (k: string) =>
+  ACCESSORIES_LABELS[k] ||
+  k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
 type Booking = {
   id: string;
   customer_name: string;
