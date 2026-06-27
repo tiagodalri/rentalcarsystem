@@ -32,6 +32,9 @@ import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton"
 import { registerLocalInspectionPreview, compressInspectionImage } from "@/lib/inspectionStorage";
 import CarDamageMap from "@/components/inspection/CarDamageMap";
 import { PhotoSourceSheet } from "@/components/admin/PhotoSourceSheet";
+import { stampInspectionPhoto } from "@/lib/inspectionStamp";
+import { AddressAutocompleteInput } from "@/components/admin/AddressAutocompleteInput";
+import { MapPin } from "lucide-react";
 
 const PHOTO_REFERENCES: Record<string, string> = {
   "Frente": refFrente,
@@ -308,6 +311,10 @@ export default function AdminInspection() {
   const [agentSignature, setAgentSignature] = useState("");
   const [odometerPhoto, setOdometerPhoto] = useState("");
   const [fuelPhoto, setFuelPhoto] = useState("");
+  // Local da inspeção (carimbado em todas as fotos)
+  const [inspectionAddress, setInspectionAddress] = useState<string>(() => {
+    try { return localStorage.getItem("zeus_inspection_last_address") || ""; } catch { return ""; }
+  });
 
   // Guide panel
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
@@ -427,6 +434,7 @@ export default function AdminInspection() {
       if (typeof d.agentSignature === "string") setAgentSignature(d.agentSignature);
       if (typeof d.odometerPhoto === "string") setOdometerPhoto(d.odometerPhoto);
       if (typeof d.fuelPhoto === "string") setFuelPhoto(d.fuelPhoto);
+      if (typeof d.inspectionAddress === "string" && d.inspectionAddress) setInspectionAddress(d.inspectionAddress);
     } catch (e) {
       console.warn("[inspection] failed to restore draft", e);
     } finally {
@@ -444,7 +452,7 @@ export default function AdminInspection() {
       const payload = {
         step, odometer, fuelLevel, photos, damages, accessories,
         notes, agentName, customerSignature, agentSignature,
-        odometerPhoto, fuelPhoto,
+        odometerPhoto, fuelPhoto, inspectionAddress,
         savedAt: Date.now(),
       };
       localStorage.setItem(draftKey, JSON.stringify(payload));
@@ -454,7 +462,7 @@ export default function AdminInspection() {
   }, [
     draftKey, step, odometer, fuelLevel, photos, damages, accessories,
     notes, agentName, customerSignature, agentSignature,
-    odometerPhoto, fuelPhoto, existingInspection?.completed_at,
+    odometerPhoto, fuelPhoto, inspectionAddress, existingInspection?.completed_at,
   ]);
 
   // Also flush a save when the tab is hidden (iOS may freeze the page).
@@ -466,7 +474,7 @@ export default function AdminInspection() {
         localStorage.setItem(draftKey, JSON.stringify({
           step, odometer, fuelLevel, photos, damages, accessories,
           notes, agentName, customerSignature, agentSignature,
-          odometerPhoto, fuelPhoto, savedAt: Date.now(),
+          odometerPhoto, fuelPhoto, inspectionAddress, savedAt: Date.now(),
         }));
       } catch {}
     };
@@ -479,8 +487,16 @@ export default function AdminInspection() {
   }, [
     draftKey, step, odometer, fuelLevel, photos, damages, accessories,
     notes, agentName, customerSignature, agentSignature,
-    odometerPhoto, fuelPhoto, existingInspection?.completed_at,
+    odometerPhoto, fuelPhoto, inspectionAddress, existingInspection?.completed_at,
   ]);
+
+  // Lembra o último endereço usado entre inspeções (preenchido por padrão).
+  useEffect(() => {
+    if (!inspectionAddress) return;
+    try { localStorage.setItem("zeus_inspection_last_address", inspectionAddress); } catch {}
+  }, [inspectionAddress]);
+
+
 
   const loadData = async () => {
     if (!bookingId) return;
@@ -554,20 +570,36 @@ export default function AdminInspection() {
     const path = `${bookingId}/${type}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safeTag}.${ext}`;
 
     // Register the original file immediately. This makes the thumbnail appear
-    // on the next paint; compression and network upload happen after the UI updates.
+    // on the next paint; stamping, compression and upload happen after the UI updates.
     registerLocalInspectionPreview(path, file);
     setPhotoUploadStatus((prev) => ({ ...prev, [path]: "uploading" }));
     bumpUploading(+1);
+
+    // Captura o endereço no momento da foto — não muda se o usuário editar depois.
+    const stampAddress = inspectionAddress;
+    const stampDate = new Date();
 
     const task = new Promise<void>((resolve) => {
       window.setTimeout(() => {
         void (async () => {
           try {
-            const compressed = await compressInspectionImage(file);
+            // 1) Carimba a foto com data/hora + endereço (igual app Timestamp Camera).
+            const stamped = await stampInspectionPhoto(file, {
+              address: stampAddress,
+              date: stampDate,
+            });
+            // Atualiza o preview local com a versão carimbada para o usuário ver
+            // o overlay imediatamente (sem esperar o upload).
+            if (stamped !== file) registerLocalInspectionPreview(path, stamped);
+
+            // 2) Compressão padrão antes do upload.
+            const compressed = await compressInspectionImage(
+              stamped instanceof File ? stamped : new File([stamped], file.name, { type: "image/jpeg" }),
+            );
             const { error } = await supabase.storage
               .from("inspections")
               .upload(path, compressed, {
-                contentType: compressed.type || file.type || "image/jpeg",
+                contentType: compressed.type || stamped.type || "image/jpeg",
                 cacheControl: "3600",
                 upsert: false,
               });

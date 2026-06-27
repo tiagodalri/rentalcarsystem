@@ -108,7 +108,7 @@ function loadWithKey(apiKey: string, channel: string | undefined): Promise<any> 
       key: apiKey,
       loading: "async",
       callback: cbName,
-      libraries: "geometry",
+      libraries: "geometry,places",
       v: "weekly",
     });
     if (channel) params.set("channel", channel);
