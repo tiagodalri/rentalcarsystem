@@ -46,6 +46,7 @@ const Checkout = lazy(() => import("./pages/Checkout.tsx"));
 // Lazy-loaded: client authenticated pages
 const MyAccount = lazy(() => import("./pages/MyAccount.tsx"));
 const BookingDetailClient = lazy(() => import("./pages/BookingDetailClient.tsx"));
+const CompleteProfile = lazy(() => import("./pages/CompleteProfile.tsx"));
 
 // Lazy-loaded: admin login (raramente acessado por visitantes do site público)
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin.tsx"));
@@ -216,6 +217,7 @@ const App = () => (
               <Route path="/contato" element={<PublicSuspense><Contato /></PublicSuspense>} />
               <Route path="/minha-conta" element={<RequireAuth><ClientSuspense><MyAccount /></ClientSuspense></RequireAuth>} />
               <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><ClientSuspense><BookingDetailClient /></ClientSuspense></RequireAuth>} />
+              <Route path="/completar-perfil" element={<RequireAuth><ClientSuspense><CompleteProfile /></ClientSuspense></RequireAuth>} />
 
               {/* Admin routes */}
               <Route path="/admin/login" element={<PublicSuspense><AdminLogin /></PublicSuspense>} />

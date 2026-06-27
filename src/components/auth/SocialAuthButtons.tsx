@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "@/hooks/use-toast";
@@ -25,12 +26,16 @@ const AppleIcon = () => (
 
 export default function SocialAuthButtons({ label = "Continuar com", redirectTo }: Props) {
   const [loading, setLoading] = useState<"google" | "apple" | null>(null);
+  const navigate = useNavigate();
 
   const handle = async (provider: "google" | "apple") => {
     setLoading(provider);
     try {
+      // Sempre cai em /completar-perfil — a página decide se redireciona
+      // pro destino final (next) quando o perfil já estiver completo.
+      const next = encodeURIComponent(redirectTo || "/minha-conta");
       const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: redirectTo || window.location.origin + "/login",
+        redirect_uri: `${window.location.origin}/completar-perfil?next=${next}`,
       });
       if (result.error) {
         toast({
@@ -39,8 +44,11 @@ export default function SocialAuthButtons({ label = "Continuar com", redirectTo 
           variant: "destructive",
         });
         setLoading(null);
+        return;
       }
-      // if redirected, browser navigates away; if success, page will hydrate via onAuthStateChange
+      if (result.redirected) return; // browser navega para o IdP
+      // Popup mode: tokens já setados — vai pra completar perfil.
+      navigate(`/completar-perfil?next=${next}`, { replace: true });
     } catch (e) {
       toast({
         title: "Erro inesperado",
