@@ -24,6 +24,8 @@ function buildMessage(args: {
   plate?: string | null;
   pickupDate?: string | null;
   returnDate?: string | null;
+  pickupLocation?: string | null;
+  returnLocation?: string | null;
   odometer?: number | null;
   fuel?: string | null;
   address?: string | null;
@@ -41,14 +43,16 @@ function buildMessage(args: {
     `*Cliente:* ${args.customerName}`,
     `*Veículo:* ${args.vehicleLabel}${args.plate ? ` (${args.plate})` : ""}`,
     `*Retirada:* ${fmtDate(args.pickupDate)}`,
+    `*Local de retirada:* ${args.pickupLocation || "—"}`,
     `*Devolução:* ${fmtDate(args.returnDate)}`,
+    `*Local de devolução:* ${args.returnLocation || "—"}`,
     ``,
     `*Odômetro:* ${args.odometer != null ? `${args.odometer.toLocaleString("pt-BR")} mi` : "—"}`,
     `*Combustível:* ${args.fuel || "—"}`,
     `*Avarias registradas:* ${args.damagesCount}`,
     `*Fotos:* ${args.photosCount}`,
     ``,
-    `*Local:* ${args.address || "—"}`,
+    `*Local da inspeção:* ${args.address || "—"}`,
     `*Agente:* ${args.agent || "—"}`,
     `*Concluída em:* ${fmtDate(args.completedAt)}`,
     ``,
@@ -123,6 +127,8 @@ export function ShareWhatsAppInspectionButton({
         plate: vehicle?.license_plate ?? null,
         pickupDate: (booking as any).pickup_date,
         returnDate: (booking as any).return_date,
+        pickupLocation: (booking as any).pickup_location ?? null,
+        returnLocation: (booking as any).return_location ?? null,
         odometer: inspection.odometer_reading ?? null,
         fuel: inspection.fuel_level ?? null,
         address:
