@@ -961,6 +961,13 @@ export default function AdminInspection() {
         stampAddress={inspectionAddress}
       />
 
+      <PhotoLightbox
+        open={!!lightbox}
+        onClose={() => setLightbox(null)}
+        value={lightbox?.value || null}
+        label={lightbox?.label}
+      />
+
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={() => navigate("/admin/bookings")} aria-label="Voltar para reservas">
