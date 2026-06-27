@@ -190,13 +190,13 @@ export default function MobileBookings() {
                         {cfg.label}
                       </span>
                     </div>
-                    <div className="mt-2.5 flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground flex items-center gap-1.5">
+                    <div className="mt-3 flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground inline-flex items-center gap-1.5 tabular-nums">
                         <Calendar size={11} />
                         {format(new Date(b.pickup_date), "dd MMM", { locale: ptBR })} → {format(new Date(b.return_date), "dd MMM", { locale: ptBR })}
                       </span>
                       {!hideFin && b.total_price != null && (
-                        <span className="font-semibold tabular-nums">${Math.round(b.total_price).toLocaleString("en-US")}</span>
+                        <span className="text-sm font-semibold tabular-nums">${Math.round(b.total_price).toLocaleString("en-US")}</span>
                       )}
                     </div>
                   </div>
