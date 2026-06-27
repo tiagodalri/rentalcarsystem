@@ -224,27 +224,24 @@ export function generateContractPdf(
   doc.setTextColor(40, 40, 40);
   doc.setFontSize(8.5);
   doc.setFont("helvetica", "normal");
-  const clauses = [
-    "1. O LOCATÁRIO declara possuir CNH válida durante toda a vigência da locação.",
-    "2. O LOCATÁRIO é responsável por danos materiais, multas de trânsito e infrações cometidas durante o período de locação.",
-    "3. A devolução deve ser feita no local e horário acordados. Atrasos podem incorrer em diária adicional.",
-    "4. O LOCATÁRIO se compromete a não conduzir o veículo sob efeito de álcool, drogas ou em condições que comprometam a segurança.",
-    "5. Em caso de sinistro, comunicar a LOCADORA imediatamente pelo WhatsApp oficial e acionar autoridades locais.",
-  ];
+  const clauses = template.clauses && template.clauses.length ? template.clauses : DEFAULT_CONTRACT_TEMPLATE.clauses;
   for (const c of clauses) {
     checkPage(10);
     const lines = doc.splitTextToSize(c, contentW);
     doc.text(lines, margin, y);
     y += lines.length * 4 + 2;
   }
-  checkPage(8);
-  doc.setTextColor(...gray);
-  doc.setFontSize(7);
-  doc.setFont("helvetica", "italic");
-  const disclaimer = "* As cláusulas acima são versão inicial e estão sujeitas a revisão jurídica final pela LOCADORA antes de serem consideradas vinculativas.";
-  const disclaimerLines = doc.splitTextToSize(disclaimer, contentW);
-  doc.text(disclaimerLines, margin, y);
-  y += disclaimerLines.length * 3.5 + 6;
+  if (template.disclaimer) {
+    checkPage(8);
+    doc.setTextColor(...gray);
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "italic");
+    const disclaimerLines = doc.splitTextToSize(template.disclaimer, contentW);
+    doc.text(disclaimerLines, margin, y);
+    y += disclaimerLines.length * 3.5 + 6;
+  } else {
+    y += 4;
+  }
 
   // ASSINATURAS
   checkPage(50);
