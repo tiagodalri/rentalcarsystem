@@ -663,11 +663,56 @@ export default function AdminInspection() {
     setSourcePicker({ kind: "odometer" });
   };
 
+  const runDashboardOcr = async (file: File) => {
+    try {
+      setOcrLoading(true);
+      setOcrResult(null);
+      // Compress + base64 (cap ~1.2MP to keep payload small)
+      const compressed = await compressInspectionImage(file, { maxDim: 1400, quality: 0.82 }).catch(() => file);
+      const buf = await compressed.arrayBuffer();
+      let binary = "";
+      const bytes = new Uint8Array(buf);
+      const chunk = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
+      }
+      const b64 = btoa(binary);
+      const { data, error } = await supabase.functions.invoke("ocr-dashboard", {
+        body: { imageBase64: b64, mimeType: compressed.type || "image/jpeg" },
+      });
+      if (error) throw error;
+      const result = (data as any)?.data;
+      if (!result) throw new Error("Sem resultado");
+      setOcrResult(result);
+      // Auto-fill only when the fields are still empty (user can always edit)
+      if (result.odometer_miles != null && !odometer.trim()) {
+        setOdometer(String(result.odometer_miles));
+      }
+      if (result.fuel_level) {
+        setFuelLevel(result.fuel_level);
+      }
+      toast({
+        title: "Painel analisado",
+        description: `Odômetro: ${result.odometer_miles ?? "—"} mi · Tanque: ${result.fuel_level ?? "—"}. Revise antes de avançar.`,
+      });
+    } catch (err: any) {
+      console.error("ocr-dashboard error", err);
+      toast({
+        title: "Não consegui ler o painel",
+        description: "Preencha o odômetro e o combustível manualmente.",
+        variant: "destructive",
+      });
+    } finally {
+      setOcrLoading(false);
+    }
+  };
+
   const handleOdometerPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = uploadPhoto(file, "odometro");
     if (url) { setOdometerPhoto(url); setFuelPhoto(url); }
+    void runDashboardOcr(file);
 
     if (odometerPhotoRef.current) odometerPhotoRef.current.value = "";
     if (odometerPhotoGalRef.current) odometerPhotoGalRef.current.value = "";
