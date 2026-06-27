@@ -18,7 +18,8 @@ import { formatPersonName } from "@/lib/formatName";
  * - Quando o perfil estiver completo, redireciona para `?next=` ou /minha-conta.
  */
 const CompleteProfile = () => {
-  const { user, customer, loading, refreshCustomer } = useAuth();
+  const { customer, loading, refreshCustomer, rawUser } = useAuth() as ReturnType<typeof useAuth> & { rawUser: User | null };
+  const user = rawUser;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [bootstrapping, setBootstrapping] = useState(true);
