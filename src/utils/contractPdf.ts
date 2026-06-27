@@ -41,6 +41,33 @@ export type ContractVehicle = {
   daily_price_usd?: number | null;
 };
 
+export type ContractTemplate = {
+  company_name: string;
+  company_address: string;
+  company_ein: string;
+  header_subtitle: string;
+  clauses: string[];
+  disclaimer: string;
+  footer_text: string;
+};
+
+export const DEFAULT_CONTRACT_TEMPLATE: ContractTemplate = {
+  company_name: "Zeus Rental Car LLC",
+  company_address: "Orlando, FL — EUA",
+  company_ein: "—",
+  header_subtitle: "CONTRATO DE LOCAÇÃO DE VEÍCULO",
+  clauses: [
+    "1. O LOCATÁRIO declara possuir CNH válida durante toda a vigência da locação.",
+    "2. O LOCATÁRIO é responsável por danos materiais, multas de trânsito e infrações cometidas durante o período de locação.",
+    "3. A devolução deve ser feita no local e horário acordados. Atrasos podem incorrer em diária adicional.",
+    "4. O LOCATÁRIO se compromete a não conduzir o veículo sob efeito de álcool, drogas ou em condições que comprometam a segurança.",
+    "5. Em caso de sinistro, comunicar a LOCADORA imediatamente pelo WhatsApp oficial e acionar autoridades locais.",
+  ],
+  disclaimer:
+    "* As cláusulas acima são versão inicial e estão sujeitas a revisão jurídica final pela LOCADORA antes de serem consideradas vinculativas.",
+  footer_text: "Contrato gerado eletronicamente — Zeus Rental Car",
+};
+
 const fmtDate = (d?: string | null) =>
   d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : "—";
 
@@ -53,6 +80,7 @@ export function generateContractPdf(
   booking: ContractBooking,
   customer: ContractCustomer,
   vehicle: ContractVehicle,
+  template: ContractTemplate = DEFAULT_CONTRACT_TEMPLATE,
 ): void {
   const doc = new jsPDF("p", "mm", "a4");
   const pageW = 210;
