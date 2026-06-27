@@ -982,7 +982,7 @@ export default function AdminInspection() {
           try {
             const { data: prevInsp } = await supabase
               .from("vehicle_inspections")
-              .select("odometer_reading, inspection_type")
+              .select("odometer_reading")
               .eq("booking_id", bookingId)
               .eq("inspection_type", "checkin")
               .maybeSingle();
