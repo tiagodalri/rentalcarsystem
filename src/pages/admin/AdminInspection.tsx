@@ -307,6 +307,8 @@ export default function AdminInspection() {
   const [customerSignature, setCustomerSignature] = useState("");
   const [agentSignature, setAgentSignature] = useState("");
   const [odometerPhoto, setOdometerPhoto] = useState("");
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrResult, setOcrResult] = useState<null | { odometer_miles: number | null; fuel_level: string | null; confidence: string }>(null);
   const [fuelPhoto, setFuelPhoto] = useState("");
   // Local da inspeção (carimbado em todas as fotos)
   const [inspectionAddress, setInspectionAddress] = useState<string>(() => {
@@ -387,6 +389,7 @@ export default function AdminInspection() {
     } else if (webcamTarget.kind === "odometer") {
       const url = uploadPhoto(file, "odometro");
       if (url) { setOdometerPhoto(url); setFuelPhoto(url); }
+      void runDashboardOcr(file);
     } else if (webcamTarget.kind === "fuel") {
       const url = uploadPhoto(file, "tanque_combustivel");
       if (url) setFuelPhoto(url);
@@ -661,11 +664,56 @@ export default function AdminInspection() {
     setSourcePicker({ kind: "odometer" });
   };
 
+  const runDashboardOcr = async (file: File) => {
+    try {
+      setOcrLoading(true);
+      setOcrResult(null);
+      // Compress + base64 (cap ~1.2MP to keep payload small)
+      const compressed = await compressInspectionImage(file, 1400, 0.82).catch(() => file);
+      const buf = await compressed.arrayBuffer();
+      let binary = "";
+      const bytes = new Uint8Array(buf);
+      const chunk = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)));
+      }
+      const b64 = btoa(binary);
+      const { data, error } = await supabase.functions.invoke("ocr-dashboard", {
+        body: { imageBase64: b64, mimeType: compressed.type || "image/jpeg" },
+      });
+      if (error) throw error;
+      const result = (data as any)?.data;
+      if (!result) throw new Error("Sem resultado");
+      setOcrResult(result);
+      // Auto-fill only when the fields are still empty (user can always edit)
+      if (result.odometer_miles != null && !odometer.trim()) {
+        setOdometer(String(result.odometer_miles));
+      }
+      if (result.fuel_level) {
+        setFuelLevel(result.fuel_level);
+      }
+      toast({
+        title: "Painel analisado",
+        description: `Odômetro: ${result.odometer_miles ?? "—"} mi · Tanque: ${result.fuel_level ?? "—"}. Revise antes de avançar.`,
+      });
+    } catch (err: any) {
+      console.error("ocr-dashboard error", err);
+      toast({
+        title: "Não consegui ler o painel",
+        description: "Preencha o odômetro e o combustível manualmente.",
+        variant: "destructive",
+      });
+    } finally {
+      setOcrLoading(false);
+    }
+  };
+
   const handleOdometerPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = uploadPhoto(file, "odometro");
     if (url) { setOdometerPhoto(url); setFuelPhoto(url); }
+    void runDashboardOcr(file);
 
     if (odometerPhotoRef.current) odometerPhotoRef.current.value = "";
     if (odometerPhotoGalRef.current) odometerPhotoGalRef.current.value = "";
@@ -1036,20 +1084,15 @@ export default function AdminInspection() {
 
       {/* Step 0: Odometer & Fuel */}
       {step === 0 && (
-        <Card className="border-border/40">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Gauge size={20} className="text-primary" /> Odômetro & Combustível
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Inspection location — stamped on every photo */}
-            <div className="flex flex-col gap-2.5 p-3.5 rounded-xl border border-primary/20 bg-primary/5">
+        <div className="space-y-4">
+          {/* 1) Inspection location — own card, comes first */}
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="p-4 sm:p-5 space-y-3">
               <div className="flex items-center gap-2">
-                <MapPin size={16} className="text-primary shrink-0" />
-                <span className="text-sm font-medium text-foreground">Local da Inspeção</span>
+                <MapPin size={18} className="text-primary shrink-0" />
+                <span className="text-sm sm:text-base font-semibold text-foreground">Local da Inspeção</span>
               </div>
-              <p className="text-[11px] text-muted-foreground -mt-1 leading-tight">
+              <p className="text-[11px] sm:text-xs text-muted-foreground leading-tight -mt-1">
                 Carimbado automaticamente em todas as fotos (data, hora e endereço).
               </p>
               <AddressAutocompleteInput
@@ -1058,104 +1101,131 @@ export default function AdminInspection() {
                 placeholder="Digite o endereço da inspeção..."
                 disabled={isCompleted}
               />
-            </div>
+            </CardContent>
+          </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Odometer input */}
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-foreground">Leitura do Odômetro (mi)</label>
-                <Input
-                  type="number"
-                  inputMode="numeric"
-                  value={odometer}
-                  onChange={(e) => setOdometer(e.target.value)}
-                  placeholder="Ex: 45230"
-                  className="tabular-nums h-12 text-base"
-                  disabled={isCompleted}
-                />
-              </div>
-
-              {/* Fuel selector — native-feel segmented control */}
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-foreground">Nível de Combustível</label>
-                  <span className="text-sm font-semibold text-primary tabular-nums">
-                    {FUEL_LEVELS.find((f) => f.value === fuelLevel)?.label}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <Fuel size={18} className="text-muted-foreground shrink-0" />
-                  <div className="flex-1 h-3 bg-muted/60 rounded-full overflow-hidden relative">
-                    <div
-                      className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-emerald-500 rounded-full transition-all duration-300"
-                      style={{ width: `${FUEL_LEVELS.find((f) => f.value === fuelLevel)?.pct || 0}%` }}
-                    />
-                  </div>
-                </div>
-                {/* Single-row segmented selector — scrolls horizontally on narrow screens */}
-                <div className="-mx-1 px-1 overflow-x-auto" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                  <div className="flex gap-1.5 min-w-min pb-1">
-                    {FUEL_LEVELS.map((f) => {
-                      const active = fuelLevel === f.value;
-                      return (
-                        <button
-                          key={f.value}
-                          onClick={() => !isCompleted && setFuelLevel(f.value)}
-                          disabled={isCompleted}
-                          className={`shrink-0 min-w-[46px] h-9 px-2.5 rounded-full text-xs font-semibold border transition-all tabular-nums ${
-                            active
-                              ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                              : "bg-background border-border/50 text-muted-foreground active:scale-95"
-                          }`}
-                        >
-                          {f.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Unified dashboard photo */}
-            <div className="flex flex-col">
-              <label className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                <Camera size={12} /> Foto do Painel Aceso
-              </label>
-              {odometerPhoto ? (
-                <div className="relative group">
-                  <SignedImage value={odometerPhoto} alt="Painel do veículo" className="w-full h-auto max-h-[360px] object-contain rounded-lg border border-border/40 bg-muted/20" />
-                  {!isCompleted && (
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                      <Button size="sm" variant="secondary" onClick={captureOdometerPhoto} className="h-7 text-xs">
-                        <Camera size={12} /> Refazer
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => { setOdometerPhoto(""); setFuelPhoto(""); }} className="h-7 text-xs">
-                        <Trash2 size={12} />
-                      </Button>
-                    </div>
+          {/* 2) Odometer & Fuel — photo first (OCR), then editable fields */}
+          <Card className="border-border/40">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Gauge size={20} className="text-primary" /> Odômetro & Combustível
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Step A — Dashboard photo (drives auto-fill via OCR) */}
+              <div className="flex flex-col">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Camera size={12} /> 1. Foto do Painel Aceso
+                  </label>
+                  {ocrLoading && (
+                    <span className="flex items-center gap-1 text-[11px] text-primary">
+                      <Loader2 size={12} className="animate-spin" /> Analisando com IA…
+                    </span>
+                  )}
+                  {!ocrLoading && ocrResult && (
+                    <span className="flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle2 size={12} /> Leitura automática
+                    </span>
                   )}
                 </div>
-              ) : (
-                <button
-                  onClick={() => !isCompleted && captureOdometerPhoto()}
-                  disabled={isCompleted}
-                  className="min-h-[200px] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
-                >
-                  <Camera size={28} />
-                  <span className="text-sm font-medium">Tirar foto do painel aceso</span>
-                  <span className="text-[11px] text-muted-foreground/70">Mostre claramente o odômetro e o indicador de combustível</span>
-                </button>
-              )}
-            </div>
-
-            {uploading && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 size={14} className="animate-spin" /> Foto já disponível. Enviando em segundo plano...
+                {odometerPhoto ? (
+                  <div className="relative group">
+                    <SignedImage value={odometerPhoto} alt="Painel do veículo" className="w-full h-auto max-h-[360px] object-contain rounded-lg border border-border/40 bg-muted/20" />
+                    {!isCompleted && (
+                      <div className="absolute inset-x-0 bottom-0 p-2 flex items-center justify-end gap-2 bg-gradient-to-t from-black/60 to-transparent rounded-b-lg">
+                        <Button size="sm" variant="secondary" onClick={captureOdometerPhoto} className="h-8 text-xs">
+                          <Camera size={12} /> Refazer
+                        </Button>
+                        <Button size="sm" variant="destructive" onClick={() => { setOdometerPhoto(""); setFuelPhoto(""); setOcrResult(null); }} className="h-8 text-xs">
+                          <Trash2 size={12} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => !isCompleted && captureOdometerPhoto()}
+                    disabled={isCompleted}
+                    className="min-h-[200px] rounded-lg border-2 border-dashed border-border/60 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors p-4 text-center"
+                  >
+                    <Camera size={28} />
+                    <span className="text-sm font-medium">Tirar foto do painel aceso</span>
+                    <span className="text-[11px] text-muted-foreground/70">
+                      A IA vai ler o odômetro e o nível de combustível automaticamente
+                    </span>
+                  </button>
+                )}
               </div>
-            )}
-          </CardContent>
-        </Card>
+
+              {/* Step B — Auto-filled, editable fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-medium text-foreground">2. Leitura do Odômetro (mi)</label>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    value={odometer}
+                    onChange={(e) => setOdometer(e.target.value)}
+                    placeholder={ocrLoading ? "Lendo painel…" : "Ex: 45230"}
+                    className="tabular-nums h-12 text-base"
+                    disabled={isCompleted}
+                  />
+                  {ocrResult?.odometer_miles != null && (
+                    <span className="text-[11px] text-muted-foreground">
+                      Sugerido pela IA: <span className="tabular-nums font-medium text-foreground">{ocrResult.odometer_miles}</span> mi · edite se preciso.
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-foreground">3. Nível de Combustível</label>
+                    <span className="text-sm font-semibold text-primary tabular-nums">
+                      {FUEL_LEVELS.find((f) => f.value === fuelLevel)?.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <Fuel size={18} className="text-muted-foreground shrink-0" />
+                    <div className="flex-1 h-3 bg-muted/60 rounded-full overflow-hidden relative">
+                      <div
+                        className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-emerald-500 rounded-full transition-all duration-300"
+                        style={{ width: `${FUEL_LEVELS.find((f) => f.value === fuelLevel)?.pct || 0}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="-mx-1 px-1 overflow-x-auto" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+                    <div className="flex gap-1.5 min-w-min pb-1">
+                      {FUEL_LEVELS.map((f) => {
+                        const active = fuelLevel === f.value;
+                        return (
+                          <button
+                            key={f.value}
+                            onClick={() => !isCompleted && setFuelLevel(f.value)}
+                            disabled={isCompleted}
+                            className={`shrink-0 min-w-[46px] h-9 px-2.5 rounded-full text-xs font-semibold border transition-all tabular-nums ${
+                              active
+                                ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                                : "bg-background border-border/50 text-muted-foreground active:scale-95"
+                            }`}
+                          >
+                            {f.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {uploading && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 size={14} className="animate-spin" /> Foto já disponível. Enviando em segundo plano...
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       )}
 
 
