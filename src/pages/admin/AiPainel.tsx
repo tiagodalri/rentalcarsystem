@@ -974,18 +974,34 @@ function RecCard({ title, subtitle, icon: Icon, hue, items, empty }: {
   );
 }
 
+function ptSegment(s: string): string {
+  switch (s) {
+    case "Champion": return "Fiel VIP";
+    case "Loyal": return "Recorrente";
+    case "At Risk": return "Em risco";
+    case "Hibernating": return "Adormecido";
+    case "New": return "Novo";
+    default: return s;
+  }
+}
+
 function localBriefing(p: any): string {
   const parts: string[] = [];
-  if (p.pacing) parts.push(`Pacing do mês: ${fmtUSD(p.pacing.mtd)} vs ${fmtUSD(p.pacing.lmtd)} no mesmo dia do mês passado (${p.pacing.delta >= 0 ? "+" : ""}${p.pacing.delta.toFixed(1)}%).`);
-  if (p.avgOccupancy !== undefined) {
-    if (p.avgOccupancy < 40) parts.push(`Ocupação em ${p.avgOccupancy.toFixed(0)}% sinaliza capacidade ociosa — priorize ativação de demanda antes de novas aquisições.`);
-    else if (p.avgOccupancy > 70) parts.push(`Frota a ${p.avgOccupancy.toFixed(0)}% de ocupação: janela ideal para reprecificar para cima.`);
+  if (p.pacing) {
+    const sinal = p.pacing.delta >= 0 ? "acima" : "abaixo";
+    parts.push(`Este mês você já faturou ${fmtUSD(p.pacing.mtd)}, ficando ${Math.abs(p.pacing.delta).toFixed(0)}% ${sinal} do mesmo dia do mês passado (${fmtUSD(p.pacing.lmtd)}).`);
   }
-  if (p.revPAC) parts.push(`RevPAC atual de ${fmtUSD2(p.revPAC)} por carro-dia — esse é o seu benchmark interno para qualquer novo veículo.`);
-  if (p.sellCandidatesCount) parts.push(`${p.sellCandidatesCount} veículo(s) elegível(is) a desinvestimento.`);
-  if (p.priceUpCount) parts.push(`${p.priceUpCount} veículo(s) suportam aumento de diária entre 12% e 18%.`);
-  if (p.opportunityWindows) parts.push(`${p.opportunityWindows} janelas de ociosidade detectadas — receita recuperável via campanha de last-minute.`);
-  if (p.champions) parts.push(`${p.champions} clientes Champion sustentam recorrência; ${p.atRisk ?? 0} estão em risco e merecem reativação.`);
-  if (p.topCategory) parts.push(`Categoria ${p.topCategory} é a mais rentável em receita/dia possuído.`);
+  if (p.avgOccupancy !== undefined) {
+    if (p.avgOccupancy < 40) parts.push(`A frota está alugada apenas ${p.avgOccupancy.toFixed(0)}% do tempo — o foco agora deve ser atrair mais clientes antes de comprar carros novos.`);
+    else if (p.avgOccupancy > 70) parts.push(`Os carros estão alugados ${p.avgOccupancy.toFixed(0)}% do tempo — é o momento certo de aumentar preço.`);
+    else parts.push(`Ocupação está em ${p.avgOccupancy.toFixed(0)}% — saudável, com espaço para ajustes pontuais.`);
+  }
+  if (p.revPAC) parts.push(`Cada carro está gerando em média ${fmtUSD2(p.revPAC)} por dia que está na sua frota — use isso como referência ao avaliar a compra de um carro novo.`);
+  if (p.sellCandidatesCount) parts.push(`Existem ${p.sellCandidatesCount} carro(s) com pouco uso e baixo retorno que valem ser considerados para venda.`);
+  if (p.priceUpCount) parts.push(`${p.priceUpCount} carro(s) estão sempre alugados e aguentam um aumento de preço entre 12% e 18%.`);
+  if (p.opportunityWindows) parts.push(`Encontrei ${p.opportunityWindows} períodos curtos de carros parados entre reservas — uma promo de última hora pode capturar essa receita.`);
+  if (p.champions || p.atRisk) parts.push(`Você tem ${p.champions ?? 0} clientes Fiéis VIP que sustentam a recorrência${p.atRisk ? ` e ${p.atRisk} cliente(s) Em risco que merecem uma mensagem` : ""}.`);
+  if (p.topCategory) parts.push(`A categoria que mais rende hoje é ${p.topCategory}.`);
   return parts.join(" ");
 }
+
