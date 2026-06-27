@@ -61,7 +61,7 @@ export function useBookingByNumber(bookingNumber: string | undefined) {
         let vehicle: DbBookingWithVehicle["vehicle"] = null;
         if (bookingRow.vehicle_id) {
           const { data: v } = await supabase
-            .from("vehicles")
+            .from("vehicles_public" as "vehicles")
             .select("id, name, category, image_url")
             .eq("id", bookingRow.vehicle_id)
             .maybeSingle();

@@ -51,8 +51,12 @@ export function useVehiclesDB(opts: { includeSensitive?: boolean } = {}) {
       return;
     }
 
+    // Customer-facing reads go through the safe view (no sensitive cols).
+    // Admin/staff reads (includeSensitive) hit the base table where staff
+    // RLS policies grant full access.
+    const source = includeSensitive ? "vehicles" : "vehicles_public";
     supabase
-      .from("vehicles")
+      .from(source as "vehicles")
       .select(includeSensitive ? ADMIN_COLUMNS : PUBLIC_COLUMNS)
       .eq("published", true)
       .is("deleted_at", null)
