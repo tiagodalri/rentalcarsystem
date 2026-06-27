@@ -162,6 +162,9 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   const [form, setForm] = useState<WizardFormState>(initialWizardForm);
   const [aiKeys, setAiKeys] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState(false);
+  const [errorFields, setErrorFields] = useState<Set<string>>(new Set());
+  const [pendingAdvance, setPendingAdvance] = useState(false);
+
 
   const { vehicles } = useVehiclesDB({ includeSensitive: true });
 
