@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import {
   Loader2, ShieldAlert, Calendar, MapPin, User, Car, Gauge, Fuel,
   Camera, AlertTriangle, ClipboardCheck, CheckCircle2, XCircle, Hash,
-  FileSignature, Printer,
+  FileSignature, Printer, Download,
 } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 
