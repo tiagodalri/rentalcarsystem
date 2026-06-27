@@ -503,39 +503,41 @@ export default function AiPainel({
   ];
 
   return (
-    <div className="ai-shell relative -mx-4 lg:-mx-6 -mt-3 lg:-mt-6 px-4 lg:px-8 pt-6 pb-10 min-h-[calc(100vh-120px)]">
+    <div className="ai-shell relative -mx-4 lg:-mx-6 -mt-3 lg:-mt-6 px-3 sm:px-4 lg:px-8 pt-4 sm:pt-6 pb-[max(2.5rem,env(safe-area-inset-bottom))] min-h-[calc(100vh-120px)]">
       <div className="ai-bg-grid" />
       <div className="ai-bg-glow" />
       <div className="ai-bg-noise" />
 
-      <div className="relative z-10 space-y-6 max-w-[1600px] mx-auto">
+      <div className="relative z-10 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <div className="ai-badge">
                 <Sparkles size={11} strokeWidth={2} />
                 <span>MODO IA ATIVADO</span>
                 <span className="ai-pulse" />
               </div>
+              <div className="ai-chip sm:hidden"><Brain size={12} /><span>Análise IA</span></div>
             </div>
             <h1 className="ai-title">Painel Inteligente</h1>
             <p className="ai-subtitle">
               {perVehicle.length} carros · {realBookings.length} reservas · {customers.length} clientes únicos
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
             <div className="ai-chip"><Brain size={12} /><span>Análise IA</span></div>
           </div>
         </div>
 
         {/* Hero KPIs */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
           <AiKpi label="Receita por carro/dia" sub="Quanto cada carro gera, na média, por dia que está na frota" value={fmtUSD2(revPAC)} icon={Rocket} hue="violet" />
           <AiKpi label="Diária média cobrada" sub="Valor médio efetivamente recebido por dia alugado" value={fmtUSD(fleetADR)} icon={DollarSign} hue="amber" />
           <AiKpi label="Margem de lucro" sub="Receita menos despesas, em %" value={`${fleetMargin.toFixed(1)}%`} icon={Target} hue={fleetMargin >= 25 ? "emerald" : "rose"} />
           <AiKpi label="Receita do mês até hoje" sub={`No mesmo dia do mês passado: ${fmtUSD(pacing.lmtd)} (${pacing.delta >= 0 ? "+" : ""}${pacing.delta.toFixed(1)}%)`} value={fmtUSD(pacing.mtd)} icon={pacing.delta >= 0 ? ArrowUpRight : ArrowDownRight} hue={pacing.delta >= 0 ? "emerald" : "rose"} />
         </div>
+
 
         {/* AI Briefing */}
         <div className="ai-insight">
