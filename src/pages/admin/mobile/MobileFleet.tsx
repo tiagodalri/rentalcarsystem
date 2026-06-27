@@ -120,19 +120,19 @@ export default function MobileFleet() {
                       <Car size={28} />
                     </div>
                   )}
-                  <div className="absolute top-2 left-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-background/80 backdrop-blur text-[10px] font-medium">
+                  <div className="absolute top-2 left-2 inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-background/85 backdrop-blur-md text-[11px] font-medium shadow-sm">
                     <span className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[v.status] || "bg-muted-foreground"}`} />
                     {v.status === "available" ? "Disponível" : v.status === "rented" ? "Alugado" : v.status === "maintenance" ? "Manutenção" : v.status}
                   </div>
                 </div>
-                <div className="p-2.5">
-                  <div className="text-xs font-semibold truncate">{v.name}</div>
-                  <div className="text-[10px] text-muted-foreground truncate">
+                <div className="p-3 space-y-1">
+                  <div className="text-[13px] font-semibold leading-tight truncate">{v.name}</div>
+                  <div className="text-[11px] text-muted-foreground truncate leading-tight">
                     {v.license_plate || v.category || "—"}
                   </div>
                   {v.daily_price_usd != null && (
-                    <div className="text-xs font-semibold mt-1 tabular-nums">
-                      ${Math.round(v.daily_price_usd)}<span className="text-[9px] text-muted-foreground font-normal">/dia</span>
+                    <div className="text-sm font-semibold pt-1 tabular-nums leading-none">
+                      ${Math.round(v.daily_price_usd)}<span className="text-[10px] text-muted-foreground font-normal ml-0.5">/dia</span>
                     </div>
                   )}
                 </div>

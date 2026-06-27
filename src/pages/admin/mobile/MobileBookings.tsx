@@ -130,10 +130,21 @@ export default function MobileBookings() {
 
           <button
             onClick={() => setFilterOpen(true)}
-            className="mt-2 w-full h-10 rounded-xl bg-muted/50 hover:bg-muted active:bg-muted/80 inline-flex items-center justify-center gap-2 text-xs font-medium"
+            className={`mt-2 w-full h-10 rounded-xl inline-flex items-center justify-center gap-2 text-xs font-medium transition-colors ${
+              statusFilter === "all"
+                ? "text-muted-foreground hover:text-foreground"
+                : "bg-primary/10 text-primary"
+            }`}
           >
             <SlidersHorizontal size={13} />
             {statusFilter === "all" ? "Filtros" : `Status: ${STATUS[statusFilter]?.label || statusFilter}`}
+            {statusFilter !== "all" && (
+              <X
+                size={14}
+                onClick={(e) => { e.stopPropagation(); setStatusFilter("all"); }}
+                className="ml-1 opacity-70 hover:opacity-100"
+              />
+            )}
           </button>
         </div>
 
@@ -179,13 +190,13 @@ export default function MobileBookings() {
                         {cfg.label}
                       </span>
                     </div>
-                    <div className="mt-2.5 flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground flex items-center gap-1.5">
+                    <div className="mt-3 flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground inline-flex items-center gap-1.5 tabular-nums">
                         <Calendar size={11} />
                         {format(new Date(b.pickup_date), "dd MMM", { locale: ptBR })} → {format(new Date(b.return_date), "dd MMM", { locale: ptBR })}
                       </span>
                       {!hideFin && b.total_price != null && (
-                        <span className="font-semibold tabular-nums">${Math.round(b.total_price).toLocaleString("en-US")}</span>
+                        <span className="text-sm font-semibold tabular-nums">${Math.round(b.total_price).toLocaleString("en-US")}</span>
                       )}
                     </div>
                   </div>
