@@ -42,6 +42,8 @@ function buildMessage(args: {
   const lines = [
     `*ZEUS RENTAL CAR — ${title}*`,
     ``,
+    `*Código Zeus:* ${args.bookingNumber || "—"}`,
+    `*Código Turo:* ${args.turoReservationCode || "—"}`,
     `*Cliente:* ${args.customerName}`,
     `*Veículo:* ${args.vehicleLabel}${args.plate ? ` (${args.plate})` : ""}`,
     `*Retirada:* ${fmtDate(args.pickupDate)}`,
