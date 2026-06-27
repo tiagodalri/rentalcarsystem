@@ -130,10 +130,21 @@ export default function MobileBookings() {
 
           <button
             onClick={() => setFilterOpen(true)}
-            className="mt-2 w-full h-10 rounded-xl bg-muted/50 hover:bg-muted active:bg-muted/80 inline-flex items-center justify-center gap-2 text-xs font-medium"
+            className={`mt-2 w-full h-10 rounded-xl inline-flex items-center justify-center gap-2 text-xs font-medium transition-colors ${
+              statusFilter === "all"
+                ? "text-muted-foreground hover:text-foreground"
+                : "bg-primary/10 text-primary"
+            }`}
           >
             <SlidersHorizontal size={13} />
             {statusFilter === "all" ? "Filtros" : `Status: ${STATUS[statusFilter]?.label || statusFilter}`}
+            {statusFilter !== "all" && (
+              <X
+                size={14}
+                onClick={(e) => { e.stopPropagation(); setStatusFilter("all"); }}
+                className="ml-1 opacity-70 hover:opacity-100"
+              />
+            )}
           </button>
         </div>
 
