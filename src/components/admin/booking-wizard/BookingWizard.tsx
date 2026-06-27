@@ -410,7 +410,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       toast({ title: "Veículo indisponível", description: "Já reservado nesse período.", variant: "destructive" });
       return;
     }
-    const { error } = await createBooking({
+    const { data: created, error } = await createBooking({
       customer_id: form.customer?.id || null,
       customer_name: form.customer_name,
       customer_email: form.customer_email || null,
@@ -465,6 +465,42 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     if (error) {
       toast({ title: "Erro ao criar reserva", description: error.message, variant: "destructive" });
       return;
+    }
+
+    // Dispara e-mail de confirmação (não bloqueia o fluxo).
+    if (created?.id) {
+      try {
+        const { sendZeusEmail } = await import("@/lib/emails/sendZeusEmail");
+        const vehicleLabel = form.vehicle_name || "";
+        const currencySym = form.currency === "USD" ? "USD " : (form.currency || "") + " ";
+        const fmtMoney = (n: number | null | undefined) =>
+          n == null ? "—" : `${currencySym}${Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        const paymentStatusLabel: Record<string, string> = {
+          paid: "Pago",
+          pending: "Pendente",
+          partial: "Parcial",
+          refunded: "Reembolsado",
+        };
+        sendZeusEmail({
+          templateName: "booking-confirmed",
+          idempotencyKey: `booking-confirmed:${created.id}`,
+          templateData: {
+            bookingNumber: created.booking_number || "—",
+            customerName: form.customer_name,
+            vehicleName: vehicleLabel,
+            vehiclePlate: form.vehicle_plate || "—",
+            pickupDate: form.pickup_date,
+            pickupTime: form.pickup_time,
+            pickupLocation: form.pickup_location || "—",
+            returnDate: form.return_date,
+            returnTime: form.return_time,
+            returnLocation: form.return_location || "—",
+            totalPrice: fmtMoney(Number(form.total_price)),
+            paymentStatus: paymentStatusLabel[form.payment_status] || form.payment_status,
+            bookingUrl: `${window.location.origin}/admin/bookings/${created.id}`,
+          },
+        });
+      } catch (e) { console.error("[zeus-email] booking-confirmed dispatch failed", e); }
     }
     clearFormDraft(DRAFT_KEY);
     try { localStorage.removeItem(STEP_KEY); } catch { /* ignore */ }
