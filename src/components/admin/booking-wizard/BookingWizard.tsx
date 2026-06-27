@@ -1412,9 +1412,9 @@ function PaymentStep({ form, set, aiKeys, days }: StepProps & { days: number }) 
 }
 
 
-function ReviewStep({ form, days, jumpTo, aiKeys }: { form: WizardFormState; days: number; jumpTo: (id: StepId) => void; aiKeys: Set<string> }) {
-  const { vehicles } = useVehiclesDB({ includeSensitive: true });
+function ReviewStep({ form, days, jumpTo, aiKeys, vehicles }: { form: WizardFormState; days: number; jumpTo: (id: StepId) => void; aiKeys: Set<string>; vehicles: any[] }) {
   const vehicle = vehicles.find((v) => v.id === form.vehicle_id);
+
 
   const Row = ({ label, value, aiKey }: { label: string; value: React.ReactNode; aiKey?: string }) => (
     <div className="flex items-center justify-between gap-3 py-2 border-b border-border/30 last:border-0">
