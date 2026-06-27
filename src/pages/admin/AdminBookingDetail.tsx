@@ -493,6 +493,23 @@ export default function AdminBookingDetail() {
               </h1>
             </div>
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              {booking.booking_number && (
+                <Badge variant="outline" className="text-[10px] px-2 py-0.5 font-mono tabular-nums">
+                  {booking.booking_number}
+                </Badge>
+              )}
+              {booking.turo_reservation_code && (
+                <a
+                  href={`https://turo.com/us/en/reservation/${booking.turo_reservation_code}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Abrir reserva na Turo"
+                >
+                  <Badge variant="outline" className="text-[10px] px-2 py-0.5 font-mono tabular-nums border-primary/40 text-primary hover:bg-primary/10 cursor-pointer">
+                    Turo #{booking.turo_reservation_code}
+                  </Badge>
+                </a>
+              )}
               <Badge className={`${sc.color} border text-[10px] px-2.5 py-0.5 font-semibold whitespace-nowrap`}>{sc.label}</Badge>
               {(() => {
                 const cs = contractStatusConfig[booking.contract_status || "not_sent"] || contractStatusConfig.not_sent;
