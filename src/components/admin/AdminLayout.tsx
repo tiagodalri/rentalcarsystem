@@ -15,6 +15,8 @@ import { AdminMobileHeader } from "./AdminMobileHeader";
 import { PainelHeaderWidgets } from "./PainelHeaderWidgets";
 import { AdminFabProvider } from "@/hooks/useAdminFab";
 import { usePrefetchAdminRoutes } from "@/hooks/usePrefetchAdminRoutes";
+import { MobileFabDock } from "@/components/mobile/MobileFabDock";
+import { ConfirmProvider } from "@/components/mobile/ConfirmSheet";
 
 import { AdminShellSkeleton } from "@/components/skeletons/AdminShellSkeleton";
 import { useThemeMode } from "@/i18n/ThemeContext";
@@ -114,6 +116,7 @@ export default function AdminLayout() {
 
             {/* Mobile-only chrome */}
             <AdminFab />
+            <MobileFabDock />
             <AdminBottomNav />
           </div>
         </AdminFabProvider>
