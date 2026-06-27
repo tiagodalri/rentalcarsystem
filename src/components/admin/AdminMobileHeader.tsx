@@ -45,12 +45,6 @@ export function AdminMobileHeader() {
             {theme === "dark" ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
             {theme === "dark" ? "Modo claro" : "Modo escuro"}
           </DropdownMenuItem>
-          {fsSupported && (
-            <DropdownMenuItem onClick={toggleFs}>
-              {isFs ? <Minimize2 className="h-4 w-4 mr-2" /> : <Maximize2 className="h-4 w-4 mr-2" />}
-              {isFs ? "Sair da tela cheia" : "Tela cheia"}
-            </DropdownMenuItem>
-          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
