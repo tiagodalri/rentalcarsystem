@@ -83,10 +83,10 @@ export function useUserBookings() {
         return;
       }
 
-      // Fetch vehicles for all bookings
+      // Fetch vehicles for all bookings via the safe public view
       const vehicleIds = [...new Set(data.map((b) => b.vehicle_id))];
       const { data: vehicles } = await supabase
-        .from("vehicles")
+        .from("vehicles_public" as "vehicles")
         .select("id, name, category, image_url")
         .in("id", vehicleIds);
 
