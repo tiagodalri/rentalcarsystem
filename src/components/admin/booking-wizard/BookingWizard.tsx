@@ -735,12 +735,13 @@ function VehicleStep({ form, set, aiKeys, errorFields, onAdvance }: StepProps & 
 
   const confirmSelection = () => {
     if (!previewVeh) return;
-    const price = Number(editPrice);
     set("vehicle_id", previewVeh.id);
     set("daily_price_override", editPrice);
     setPreview(null);
-    setTimeout(() => onAdvance?.(), 80);
+    // Sinaliza o wizard pra avançar quando o vehicle_id já tiver sido commitado.
+    onAdvance?.();
   };
+
 
 
   return (
