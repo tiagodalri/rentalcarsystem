@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
     if (!booking) return json({ error: 'booking_missing' }, 404);
 
     const { data: vehicle } = booking.vehicle_id
-      ? await supabase.from('vehicles').select('id, name, plate, color, year').eq('id', booking.vehicle_id).maybeSingle()
+      ? await supabase.from('vehicles').select('id, name, license_plate, color, year').eq('id', booking.vehicle_id).maybeSingle()
       : { data: null };
 
     const { data: inspection } = await supabase
@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
         return_location: booking.return_location,
       },
       vehicle: vehicle ? {
-        name: vehicle.name, plate: vehicle.plate, color: vehicle.color, year: vehicle.year,
+        name: vehicle.name, plate: vehicle.license_plate, color: vehicle.color, year: vehicle.year,
       } : null,
       inspection: {
         odometer_reading: inspection.odometer_reading,
