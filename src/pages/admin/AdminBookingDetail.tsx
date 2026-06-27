@@ -20,6 +20,8 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { SignedImage } from "@/components/admin/SignedImage";
+import { ShareWhatsAppInspectionButton } from "@/components/admin/ShareWhatsAppInspectionButton";
+import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 
 type Booking = {
   id: string;
