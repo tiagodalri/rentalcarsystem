@@ -268,6 +268,113 @@ export function inferLabelByPosition(p: NormalizedPoint): string {
   return "Lateral central";
 }
 
+// ─── Tiguan hit-point classifier ──────────────────────────────────────────────
+// Many body sub-meshes of the Tiguan span the entire vehicle (e.g. the single
+// `01_car_body_4_carPaint_0` mesh contains the whole front clip — hood, fenders
+// and bumper). Classifying by mesh bounding-box CENTER would always return the
+// same wrong label. Instead, we use the EXACT raycast intersection point. This
+// gives anatomically correct names: clicking on the rear-right corner of a
+// cross-cutting mesh returns "Paralama traseiro direito".
+//
+// Axes convention for the Tiguan GLB (verified from mesh inspection):
+//   +X = LEFT side  (lf_door, lr_door are at positive X)
+//   -X = RIGHT side (rf_door, rr_door are at negative X)
+//   +Y = TOP
+//   +Z = FRONT (headlights at +Z)
+//   -Z = REAR  (taillights at -Z)
+export function inferTiguanLabelFromPoint(p: NormalizedPoint): { label: string; pickable: boolean } {
+  const { x, y, z } = p;
+  const isLeft = x > 0; // +X = driver / left side
+  const side = isLeft ? "esquerd" : "direit";
+  const sideA = isLeft ? "esquerda" : "direita";
+  const sideO = isLeft ? "esquerdo" : "direito";
+
+  // ── RODAS / PNEUS (4 cantos) ──
+  if (y < -0.3 && Math.abs(z) > 0.35) {
+    if (z > 0) return { label: `Roda dianteira ${sideA}`, pickable: true };
+    return { label: `Roda traseira ${sideA}`, pickable: true };
+  }
+
+  // ── TETO ──
+  if (y > 0.7) {
+    if (z < -0.55) return { label: "Porta-malas / Tampa traseira", pickable: true };
+    return { label: "Teto", pickable: true };
+  }
+
+  // ── PORTA-MALAS / TAMPA TRASEIRA (parte alta) ──
+  if (y > 0.35 && z < -0.55) return { label: "Porta-malas / Tampa traseira", pickable: true };
+
+  // ── CAPÔ ──
+  if (y > 0.05 && z > 0.35 && z < 0.85 && Math.abs(x) < 0.7) {
+    return { label: "Capô", pickable: true };
+  }
+
+  // ── FRENTE (faróis / grade / para-choque) ──
+  if (z > 0.75) {
+    if (y < -0.15) return { label: "Para-choque dianteiro", pickable: true };
+    if (Math.abs(x) > 0.4) return { label: `Farol dianteiro ${sideO}`, pickable: true };
+    if (y < 0.05) return { label: "Grade frontal", pickable: true };
+    return { label: "Capô", pickable: true };
+  }
+
+  // ── TRASEIRA (lanternas / para-choque) ──
+  if (z < -0.75) {
+    if (y < -0.1) return { label: "Para-choque traseiro", pickable: true };
+    if (Math.abs(x) > 0.4) return { label: `Lanterna traseira ${sideA}`, pickable: true };
+    return { label: "Painel traseiro", pickable: true };
+  }
+
+  // ── LATERAIS (paralamas / portas / soleiras) ──
+  if (Math.abs(x) > 0.55) {
+    // Paralamas — extremidades do comprimento
+    if (z > 0.35) return { label: `Paralama dianteiro ${sideO}`, pickable: true };
+    if (z < -0.4) return { label: `Paralama traseiro ${sideO}`, pickable: true };
+
+    // Soleira (baixo, entre eixos)
+    if (y < -0.2) return { label: `Soleira ${sideA}`, pickable: true };
+
+    // Retrovisor (alto, próximo da frente da porta)
+    if (y > 0.4 && z > 0.05 && z < 0.35) {
+      return { label: `Retrovisor ${sideO}`, pickable: true };
+    }
+
+    // Portas — divide front/rear pela coordenada z
+    if (z > -0.05) return { label: `Porta dianteira ${sideA}`, pickable: true };
+    return { label: `Porta traseira ${sideA}`, pickable: true };
+  }
+
+  // ── CENTRO ──
+  if (y < -0.4) return { label: "Assoalho / Chassi", pickable: false };
+  if (y > 0.45) return { label: "Teto", pickable: true };
+
+  return { label: "Carroceria", pickable: true };
+}
+
+// Labels que devem ser SOBRESCRITAS pelo hit-point quando o usuário interage.
+// (mesh-based classification dá um label genérico/ambíguo; o ponto exato do
+// clique dá a peça real.)
+export const TIGUAN_AMBIGUOUS_LABELS = new Set<string>([
+  "Carroceria",
+  "Pneus",
+  "Rodas (aros)",
+  "Discos de freio",
+  "Faróis dianteiros",
+  "Lanternas traseiras",
+  "Frisos / Molduras externas",
+  "Frisos cromados",
+  "Para-choque",
+  "Para-choque dianteiro",
+  "Para-choque traseiro",
+  "Lateral central",
+  "Painel inferior",
+  "Painel traseiro",
+  "Capô",
+  "Grade frontal",
+  "Emblemas",
+  "__UNKNOWN__",
+  "Peça do veículo",
+]);
+
 // ─── Tiguan-specific classifier ───────────────────────────────────────────────
 // The Tiguan GLB has 148 sub-meshes with very descriptive prefixes
 // (`02_car_body_lf_door_*`, `43_car_body_trunk_*`, `13_headlight_*` ...).

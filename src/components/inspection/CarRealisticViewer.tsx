@@ -17,6 +17,8 @@ import {
   pickVehicle3dModel,
   classifyMesh,
   inferLabelByPosition,
+  inferTiguanLabelFromPoint,
+  TIGUAN_AMBIGUOUS_LABELS,
   VEHICLE_3D_MODELS,
   type VehicleLike,
   type Vehicle3dModelDef,
@@ -119,9 +121,10 @@ function makeTiguanBadgeTexture(): THREE.CanvasTexture {
   return tex;
 }
 
-function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled, meshClassifier }: CarModelProps & { meshClassifier?: (n: string) => { label: string; pickable: boolean } | null }) {
+function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled, meshClassifier, isTiguan }: CarModelProps & { meshClassifier?: (n: string) => { label: string; pickable: boolean } | null; isTiguan?: boolean }) {
   const { scene } = useGLTF(url, true);
   const { invalidate } = useThree();
+  const bboxRef = useRef<{ center: THREE.Vector3; half: THREE.Vector3; lengthAxis: "x" | "z"; widthAxis: "x" | "z" } | null>(null);
 
 
   // Ocultar decalques chineses e injetar placa Zeus + emblema TIGUAN no traseiro.
@@ -217,6 +220,12 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
 
     const lengthAxis: "x" | "z" = size.z >= size.x ? "z" : "x";
     const widthAxis: "x" | "z" = lengthAxis === "z" ? "x" : "z";
+    bboxRef.current = {
+      center,
+      half: new THREE.Vector3(half.x, half.y, half.z),
+      lengthAxis,
+      widthAxis,
+    };
 
     const list: ClassifiedMesh[] = [];
     scene.traverse((o) => {
@@ -302,14 +311,33 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
     return found ?? null;
   };
 
+  // Refina o label usando o PONTO real do raycast (apenas Tiguan).
+  // Para peças com nome ambíguo/cross-cutting (carroceria, faróis genéricos,
+  // rodas únicas L+R), o ponto exato do clique resolve qual é a peça real.
+  const refineByHitPoint = (info: ClassifiedMesh, e: any): ClassifiedMesh => {
+    if (!isTiguan || !bboxRef.current || !e?.point) return info;
+    if (!TIGUAN_AMBIGUOUS_LABELS.has(info.label)) return info;
+    const { center, half, lengthAxis, widthAxis } = bboxRef.current;
+    const pt = e.point as THREE.Vector3;
+    const norm = {
+      x: (pt[widthAxis] - center[widthAxis]) / (widthAxis === "x" ? half.x : half.z),
+      y: (pt.y - center.y) / half.y,
+      z: (pt[lengthAxis] - center[lengthAxis]) / (lengthAxis === "z" ? half.z : half.x),
+    };
+    const r = inferTiguanLabelFromPoint(norm);
+    return { mesh: info.mesh, label: r.label, pickable: r.pickable };
+  };
+
   return (
     <primitive
       object={scene}
       onPointerOver={(e: any) => {
         if (disabled) return;
         e.stopPropagation();
-        const info = labelOf(e.object);
-        if (!info || !info.pickable) {
+        const raw = labelOf(e.object);
+        if (!raw) { onHover(null); document.body.style.cursor = "auto"; return; }
+        const info = refineByHitPoint(raw, e);
+        if (!info.pickable) {
           onHover(null);
           document.body.style.cursor = "auto";
           return;
@@ -325,8 +353,10 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
       onClick={(e: any) => {
         if (disabled) return;
         e.stopPropagation();
-        const info = labelOf(e.object);
-        if (info && info.pickable) onPick(info.label);
+        const raw = labelOf(e.object);
+        if (!raw) return;
+        const info = refineByHitPoint(raw, e);
+        if (info.pickable) onPick(info.label);
       }}
     />
   );
@@ -550,6 +580,7 @@ export default function CarRealisticViewer({
                 onPick={handlePick}
                 disabled={disabled}
                 meshClassifier={modelDef.meshClassifier}
+                isTiguan={modelDef.key === "vw-tiguan"}
               />
             </Bounds>
             <Environment preset="studio" />
