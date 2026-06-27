@@ -205,7 +205,10 @@ export function useFinanceOverview(): OverviewData {
   }, [period, bookings, expenses, incidents, manual, vehicles]);
 
   const filteredBookings = useMemo(
-    () => bookings.filter((b) => new Date(b.created_at) >= range.start && new Date(b.created_at) <= range.end),
+    () => bookings.filter((b) => {
+      const d = new Date(b.pickup_date + "T12:00:00");
+      return d >= range.start && d <= range.end;
+    }),
     [bookings, range],
   );
   const filteredExpenses = useMemo(
