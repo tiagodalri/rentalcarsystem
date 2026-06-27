@@ -315,6 +315,7 @@ export default function AdminInspection() {
 
   // Guide panel
   const [activeGuide, setActiveGuide] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ value: string; label: string } | null>(null);
 
   // Signature canvas refs
   const customerCanvasRef = useRef<HTMLCanvasElement>(null);
