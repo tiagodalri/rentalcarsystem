@@ -1035,6 +1035,26 @@ export default function AdminInspection() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Inspection location — stamped on every photo */}
+            <div className="flex flex-col gap-2 p-4 rounded-lg border border-primary/20 bg-primary/5">
+              <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                <MapPin size={16} className="text-primary" />
+                Local da Inspeção
+                <span className="text-xs text-muted-foreground font-normal">(será carimbado em todas as fotos)</span>
+              </label>
+              <AddressAutocompleteInput
+                value={inspectionAddress}
+                onChange={setInspectionAddress}
+                placeholder="Digite o endereço onde a inspeção está sendo feita..."
+                disabled={isCompleted}
+              />
+              {inspectionAddress && (
+                <p className="text-xs text-muted-foreground">
+                  Data, hora e este endereço aparecerão automaticamente em cada foto.
+                </p>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Odometer input */}
               <div className="flex flex-col gap-2">
