@@ -1,5 +1,6 @@
 import { Car, Plane, MapPin, ArrowRight, ArrowLeftRight, ChevronRight, Clock } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
 
 type Booking = {
   id: string;
@@ -82,13 +83,16 @@ export function MobileBookingCard({ booking, onOpen }: { booking: Booking; onOpe
       <div className="p-4 pt-4">
         {/* Header: customer + status */}
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <h3 className="text-[15px] font-semibold leading-tight text-foreground truncate">
-              {formatPersonName(booking.customer_name) || "—"}
-            </h3>
-            <p className="mt-0.5 text-[11px] text-muted-foreground/80 truncate">
-              #{booking.id.slice(0, 8).toUpperCase()}
-            </p>
+          <div className="flex items-start gap-2.5 min-w-0 flex-1">
+            <PersonAvatar name={booking.customer_name} size="sm" />
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[15px] font-semibold leading-tight text-foreground truncate">
+                {formatPersonName(booking.customer_name) || "—"}
+              </h3>
+              <p className="mt-0.5 text-[11px] text-muted-foreground/80 truncate">
+                #{booking.id.slice(0, 8).toUpperCase()}
+              </p>
+            </div>
           </div>
           <span className={`shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${meta.chip} uppercase tracking-wider`}>
             {meta.label}

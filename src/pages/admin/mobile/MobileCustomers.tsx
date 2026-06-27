@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Plus, Phone, MessageCircle, X, Users, Car, Loader2, User, Mail, FileText, MapPin, Save, type LucideIcon } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
 import { useRegisterFab } from "@/hooks/useAdminFab";
@@ -282,11 +283,13 @@ export default function MobileCustomers() {
                       onClick={() => navigate(`/admin/customers/${c.id}`)}
                       className="flex items-center gap-3 flex-1 min-w-0 text-left"
                     >
-                      <div className={`h-10 w-10 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${
-                        isTuro ? "bg-purple-500/15 text-purple-600" : "bg-primary/15 text-primary"
-                      }`}>
-                        {isTuro ? <Car size={16} /> : (initials(c.full_name) || "?")}
-                      </div>
+                      {isTuro ? (
+                        <div className="h-10 w-10 rounded-full flex items-center justify-center bg-purple-500/15 text-purple-600 shrink-0">
+                          <Car size={16} />
+                        </div>
+                      ) : (
+                        <PersonAvatar name={c.full_name} size="md" />
+                      )}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 min-w-0">
                           <div className="text-sm font-medium truncate">{formatPersonName(c.full_name)}</div>

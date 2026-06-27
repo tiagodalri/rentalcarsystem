@@ -1,4 +1,5 @@
 import { formatPersonName } from "@/lib/formatName";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -439,9 +440,12 @@ export default function AdminBookingDetail() {
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 rounded-2xl border border-border/40 bg-card/50 p-4 shadow-sm sm:p-5 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
         <div className="min-w-0 space-y-3">
           <div className="space-y-2">
-            <h1 className="text-[22px] sm:admin-h1 text-2xl leading-tight break-words">
-              {formatPersonName(booking.customer_name)}
-            </h1>
+            <div className="flex items-center gap-3">
+              <PersonAvatar name={booking.customer_name} size="lg" tone="gold" />
+              <h1 className="text-[22px] sm:admin-h1 text-2xl leading-tight break-words min-w-0">
+                {formatPersonName(booking.customer_name)}
+              </h1>
+            </div>
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <Badge className={`${sc.color} border text-[10px] px-2.5 py-0.5 font-semibold whitespace-nowrap`}>{sc.label}</Badge>
               {(() => {

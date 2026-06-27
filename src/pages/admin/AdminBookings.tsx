@@ -444,6 +444,7 @@ function CalendarLegend() {
 
 // Format full names: capitalize each word, lowercase particles (da, de, do, das, dos, e)
 import { formatPersonName } from "@/lib/formatName";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
 const formatName = (raw: string | null | undefined): string => formatPersonName(raw) || "—";
 
 
@@ -1407,7 +1408,10 @@ function AdminBookingsDesktop() {
                           className="border-b border-border/10 hover:bg-muted/20 transition-colors cursor-pointer group"
                         >
                           <td className="px-5 py-3.5 whitespace-nowrap min-w-[200px]">
-                            <p className="text-foreground font-medium text-[13px]">{formatName(b.customer_name)}</p>
+                            <div className="flex items-center gap-2.5">
+                              <PersonAvatar name={b.customer_name} size="sm" />
+                              <p className="text-foreground font-medium text-[13px] truncate max-w-[220px]">{formatName(b.customer_name)}</p>
+                            </div>
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
                             {(() => {
