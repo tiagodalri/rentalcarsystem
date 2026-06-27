@@ -554,7 +554,7 @@ export default function AiPainel({
                           {p.adrGap >= 0 ? "+" : ""}{p.adrGap.toFixed(1)}%
                         </span>
                       </div>
-                      <div className="text-[10.5px] text-white/50">ADR {fmtUSD(p.adr)} · tabela {fmtUSD(p.daily)}</div>
+                      <div className="text-[10.5px] text-white/50">Recebido {fmtUSD(p.adr)}/dia · tabela {fmtUSD(p.daily)}/dia</div>
                     </li>
                   ))}
                 </ul>
@@ -562,9 +562,9 @@ export default function AiPainel({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <KpiBlock title="Receita histórica" value={fmtUSD(fleetRevenue)} sub={`Despesas ${fmtUSD(fleetExpenses)}`} icon={DollarSign} />
-              <KpiBlock title="Pipeline 30 dias" value={fmtUSD(next30)} sub={`60d ${fmtUSD(next60)}`} icon={Rocket} />
-              <KpiBlock title="Ocupação média" value={`${avgOccupancy.toFixed(1)}%`} sub={`${totalDaysBooked} dias reservados`} icon={Gauge} />
+              <KpiBlock title="Receita total acumulada" value={fmtUSD(fleetRevenue)} sub={`Despesas registradas: ${fmtUSD(fleetExpenses)}`} icon={DollarSign} />
+              <KpiBlock title="Receita confirmada — próximos 30 dias" value={fmtUSD(next30)} sub={`Em 60 dias: ${fmtUSD(next60)}`} icon={Rocket} />
+              <KpiBlock title="Ocupação média da frota" value={`${avgOccupancy.toFixed(1)}%`} sub={`${totalDaysBooked} dias alugados no total`} icon={Gauge} />
             </div>
           </div>
         )}
