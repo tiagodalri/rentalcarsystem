@@ -151,6 +151,12 @@ export function ShareWhatsAppInspectionButton({
         );
         for (const f of signed) if (f) files.push(f);
 
+        // IMPORTANTE: WhatsApp no iOS ignora o campo `text` quando há `files` no
+        // Web Share. Por isso copiamos a mensagem pro clipboard ANTES e, logo
+        // após a folha de compartilhamento, abrimos wa.me com o texto pronto
+        // para o usuário enviar a mensagem em sequência às fotos.
+        await navigator.clipboard.writeText(message).catch(() => undefined);
+
         const canShareFiles =
           "canShare" in navigator &&
           files.length > 0 &&
@@ -159,14 +165,26 @@ export function ShareWhatsAppInspectionButton({
         if (canShareFiles && navigator.share) {
           try {
             await navigator.share({ text: message, title: "Inspeção Zeus", files } as any);
-            toast({ title: "Selecione o WhatsApp", description: "Toque no ícone do WhatsApp na folha de compartilhamento." });
+            toast({
+              title: "Fotos enviadas — agora o texto",
+              description: "Mensagem copiada. Abrindo WhatsApp para enviar o resumo da inspeção.",
+            });
+            // Pequeno delay para a folha do iOS fechar antes de abrir o wa.me.
+            setTimeout(() => {
+              window.location.href = waUrl;
+            }, 400);
             return;
           } catch (err: any) {
-            if (err?.name === "AbortError") return;
+            if (err?.name === "AbortError") {
+              toast({
+                title: "Compartilhamento cancelado",
+                description: "A mensagem ficou copiada se quiser colar manualmente.",
+              });
+              return;
+            }
           }
         }
         // Fallback mobile sem files: abre wa.me direto (gesto ainda válido).
-        await navigator.clipboard.writeText(message).catch(() => undefined);
         window.location.href = waUrl;
         return;
       }
