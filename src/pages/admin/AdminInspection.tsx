@@ -307,6 +307,8 @@ export default function AdminInspection() {
   const [customerSignature, setCustomerSignature] = useState("");
   const [agentSignature, setAgentSignature] = useState("");
   const [odometerPhoto, setOdometerPhoto] = useState("");
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const [ocrResult, setOcrResult] = useState<null | { odometer_miles: number | null; fuel_level: string | null; confidence: string }>(null);
   const [fuelPhoto, setFuelPhoto] = useState("");
   // Local da inspeção (carimbado em todas as fotos)
   const [inspectionAddress, setInspectionAddress] = useState<string>(() => {
