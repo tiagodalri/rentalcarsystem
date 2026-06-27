@@ -389,6 +389,7 @@ export default function AdminInspection() {
     } else if (webcamTarget.kind === "odometer") {
       const url = uploadPhoto(file, "odometro");
       if (url) { setOdometerPhoto(url); setFuelPhoto(url); }
+      void runDashboardOcr(file);
     } else if (webcamTarget.kind === "fuel") {
       const url = uploadPhoto(file, "tanque_combustivel");
       if (url) setFuelPhoto(url);
