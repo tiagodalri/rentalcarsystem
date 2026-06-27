@@ -103,7 +103,15 @@ Deno.serve(async (req) => {
   // Resolve effective recipient: template-level `to` takes precedence over
   // the caller-provided recipientEmail. This allows notification templates
   // to always send to a fixed address (e.g., site owner from env var).
-  const effectiveRecipient = template.to || recipientEmail
+  let effectiveRecipient = template.to || recipientEmail
+
+  // Optional global override (testing / staging) — when set, all outgoing
+  // transactional emails are redirected to this address.
+  const overrideTo = Deno.env.get('EMAIL_OVERRIDE_TO')?.trim()
+  if (overrideTo) {
+    console.log('Override active — redirecting email', { from: effectiveRecipient, to: overrideTo })
+    effectiveRecipient = overrideTo
+  }
 
   if (!effectiveRecipient) {
     return new Response(

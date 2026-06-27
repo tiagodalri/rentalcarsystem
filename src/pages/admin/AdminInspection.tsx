@@ -974,7 +974,37 @@ export default function AdminInspection() {
         const tpl = type === "checkin" ? "inspection-checkin" : "inspection-checkout";
         const photosCount = (allPhotos?.length || 0) + (damages?.filter((d: any) => d?.photoUrl).length || 0);
         const completedAt = new Date().toLocaleString("pt-BR");
-        const reportUrl = `${window.location.origin}/admin/bookings/${bookingId}`;
+
+        // Public share link (no login required) for the email CTA
+        let reportUrl = `${window.location.origin}/`;
+        try {
+          const { data: linkRes } = await supabase.functions.invoke("create-public-inspection-link", {
+            body: { booking_id: bookingId, type, expires_hours: 24 * 30 },
+          });
+          if ((linkRes as any)?.token) {
+            reportUrl = `${window.location.origin}/share/inspection/${(linkRes as any).token}`;
+          }
+        } catch (e) { console.warn("[zeus-email] public link failed", e); }
+
+        // Long-lived signed URLs (30d) so photos render inside the email body
+        const photoUrls: string[] = [];
+        const sourcePaths = (allPhotos || [])
+          .map((p: any) => p?.path || p?.storagePath || p?.url)
+          .filter((v: any): v is string => typeof v === "string" && v.length > 0)
+          .map((v: string) => {
+            const marker = "/inspections/";
+            const i = v.indexOf(marker);
+            return i >= 0 ? v.slice(i + marker.length).split("?")[0] : v;
+          })
+          .slice(0, 12);
+        for (const path of sourcePaths) {
+          try {
+            const { data: signed } = await supabase.storage
+              .from("inspections")
+              .createSignedUrl(path, 60 * 60 * 24 * 30);
+            if (signed?.signedUrl) photoUrls.push(signed.signedUrl);
+          } catch {}
+        }
 
         // Para o checkout, busca odômetro do check-in para calcular milhas rodadas
         let odometerStart: number | null = null;
@@ -1015,6 +1045,7 @@ export default function AdminInspection() {
             inspectorName: "Equipe Zeus",
             completedAt,
             reportUrl,
+            photos: photoUrls,
           },
         });
       } catch (e) { console.error("[zeus-email] inspection dispatch failed", e); }
