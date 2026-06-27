@@ -443,13 +443,13 @@ export default function AdminVehicleDetail() {
           const Icon = s.icon;
           return (
             <Card key={i} className="border-border/40">
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex items-center gap-2 mb-2">
+              <CardContent className="p-4 h-full min-h-[128px] flex flex-col items-center justify-center text-center gap-2">
+                <div className="flex items-center justify-center gap-2">
                   <Icon size={14} className={s.color} />
-                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium truncate">{s.label}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{s.label}</span>
                 </div>
                 <p className="text-base sm:text-lg font-medium text-foreground leading-tight tabular-nums">{s.value}</p>
-                <p className="text-[11px] text-muted-foreground mt-1 truncate">{s.sub}</p>
+                <p className="text-[11px] text-muted-foreground truncate max-w-full">{s.sub}</p>
               </CardContent>
             </Card>
           );
