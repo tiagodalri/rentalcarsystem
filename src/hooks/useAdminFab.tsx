@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 export type FabConfig = {
@@ -29,11 +29,19 @@ export function useAdminFab() {
 /** Page-level hook: registers a FAB on mount, clears on unmount. */
 export function useRegisterFab(cfg: FabConfig | null, deps: unknown[] = []) {
   const { setFab } = useAdminFab();
-  // memoize handler ref so re-renders don't churn
+  // Guarda o handler mais recente sem fazer o efeito recadastrar o FAB em loop
+  // quando a página passa callbacks inline.
   const onClick = cfg?.onClick;
   const label = cfg?.label;
   const Icon = cfg?.icon;
-  const stableClick = useCallback(() => onClick?.(), [onClick]);
+  const onClickRef = useRef(onClick);
+
+  useEffect(() => {
+    onClickRef.current = onClick;
+  }, [onClick]);
+
+  const stableClick = useCallback(() => onClickRef.current?.(), []);
+
   useEffect(() => {
     if (!cfg || !Icon || !label) {
       setFab(null);
