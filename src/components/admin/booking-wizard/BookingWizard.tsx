@@ -1089,6 +1089,8 @@ function ScheduleStep({ form, set, aiKeys, days, errorFields }: StepProps & { da
 
 
 function DepositStep({ form, set, aiKeys }: StepProps) {
+  void aiKeys; // mantido para futura sinalização AI
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <div>
