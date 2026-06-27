@@ -20,7 +20,8 @@ Deno.serve(async (req) => {
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY");
+    const GOOGLE_MAPS_API_KEY =
+      Deno.env.get("GOOGLE_MAPS_API_KEY_1") ?? Deno.env.get("GOOGLE_MAPS_API_KEY");
     if (!LOVABLE_API_KEY || !GOOGLE_MAPS_API_KEY) {
       return new Response(JSON.stringify({ error: "Missing connector credentials" }), {
         status: 500,
@@ -36,7 +37,7 @@ Deno.serve(async (req) => {
       locationBias: {
         circle: {
           center: { latitude: 28.5383, longitude: -81.3792 },
-          radius: 150000.0,
+          radius: 50000.0,
         },
       },
       includedRegionCodes: ["us"],
@@ -49,6 +50,7 @@ Deno.serve(async (req) => {
         "Authorization": `Bearer ${LOVABLE_API_KEY}`,
         "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
         "Content-Type": "application/json",
+        "Referer": "https://zeusrentalcar.lovable.app",
       },
       body: JSON.stringify(payload),
     });
