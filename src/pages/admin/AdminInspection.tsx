@@ -593,14 +593,22 @@ export default function AdminInspection() {
             // o overlay imediatamente (sem esperar o upload).
             if (stamped !== file) registerLocalInspectionPreview(path, stamped);
 
-            // 2) Compressão padrão antes do upload.
-            const compressed = await compressInspectionImage(
-              stamped instanceof File ? stamped : new File([stamped], file.name, { type: "image/jpeg" }),
-            );
+            // 2) Se o carimbo foi aplicado, o resultado já é um JPEG canvas-rendered
+            //    em alta qualidade — sobe DIRETO, sem recompressão (evita perda de
+            //    enquadramento e o efeito de "foto cortada"). Só comprimimos quando
+            //    o carimbo não pôde rodar (ex.: arquivo HEIC sem suporte canvas).
+            const isStamped = stamped !== file && /-stamped\.jpe?g$/i.test((stamped as File).name || "");
+            const toUpload: Blob = isStamped
+              ? stamped
+              : await compressInspectionImage(
+                  stamped instanceof File ? stamped : new File([stamped], file.name, { type: "image/jpeg" }),
+                  1920,
+                  0.85,
+                );
             const { error } = await supabase.storage
               .from("inspections")
-              .upload(path, compressed, {
-                contentType: compressed.type || stamped.type || "image/jpeg",
+              .upload(path, toUpload, {
+                contentType: toUpload.type || "image/jpeg",
                 cacheControl: "3600",
                 upsert: false,
               });
