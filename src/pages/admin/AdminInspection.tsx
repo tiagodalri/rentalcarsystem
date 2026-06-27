@@ -452,7 +452,7 @@ export default function AdminInspection() {
       const payload = {
         step, odometer, fuelLevel, photos, damages, accessories,
         notes, agentName, customerSignature, agentSignature,
-        odometerPhoto, fuelPhoto,
+        odometerPhoto, fuelPhoto, inspectionAddress,
         savedAt: Date.now(),
       };
       localStorage.setItem(draftKey, JSON.stringify(payload));
@@ -462,7 +462,7 @@ export default function AdminInspection() {
   }, [
     draftKey, step, odometer, fuelLevel, photos, damages, accessories,
     notes, agentName, customerSignature, agentSignature,
-    odometerPhoto, fuelPhoto, existingInspection?.completed_at,
+    odometerPhoto, fuelPhoto, inspectionAddress, existingInspection?.completed_at,
   ]);
 
   // Also flush a save when the tab is hidden (iOS may freeze the page).
