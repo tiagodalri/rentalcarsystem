@@ -32,26 +32,15 @@ export class RouteErrorBoundary extends Component<Props, State> {
     const isChunkError = CHUNK_ERROR_REGEX.test(error.message || "");
     if (isChunkError) {
       this.setState({ error });
-      // Auto-recover ONCE por sessão: limpa caches do SW e recarrega.
-      // Drafts já são salvos em visibilitychange/pagehide via useFormDraft,
-      // então o reload não perde dados de formulário do usuário.
+      // Auto-recover: limpa caches do SW e recarrega. Janela de 5min entre tentativas
+      // para evitar loop, mas sem travar o usuário permanentemente após a 1ª falha.
       try {
-        const KEY = "__zeus_chunk_recover__";
-        if (!sessionStorage.getItem(KEY)) {
-          sessionStorage.setItem(KEY, String(Date.now()));
-          void (async () => {
-            try {
-              if ("caches" in window) {
-                const keys = await caches.keys();
-                await Promise.all(keys.map((k) => caches.delete(k)));
-              }
-              if ("serviceWorker" in navigator) {
-                const regs = await navigator.serviceWorker.getRegistrations();
-                await Promise.all(regs.map((r) => r.unregister()));
-              }
-            } catch (_) {}
-            window.location.reload();
-          })();
+        const KEY = "__zeus_chunk_recover_at__";
+        const last = Number(sessionStorage.getItem(KEY) || 0);
+        const now = Date.now();
+        if (!last || now - last > 5 * 60 * 1000) {
+          sessionStorage.setItem(KEY, String(now));
+          void this.hardReload();
         }
       } catch (_) {}
     }
@@ -59,7 +48,27 @@ export class RouteErrorBoundary extends Component<Props, State> {
     console.error("[RouteErrorBoundary]", error);
   }
 
+  hardReload = async () => {
+    try {
+      if ("caches" in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      if ("serviceWorker" in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+    } catch (_) {}
+    window.location.reload();
+  };
+
   reset = () => {
+    const isChunkError = CHUNK_ERROR_REGEX.test(this.state.error?.message || "");
+    if (isChunkError) {
+      // chunk antigo: limpar caches e recarregar é a única forma confiável
+      void this.hardReload();
+      return;
+    }
     this.setState({ error: null });
   };
 
