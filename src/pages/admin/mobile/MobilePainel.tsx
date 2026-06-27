@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CalendarPlus, Car, ChevronRight, ClipboardCheck, LogIn,
+  Brain, CalendarPlus, Car, ChevronRight, ClipboardCheck, LogIn,
   LogOut as LogOutIcon, Phone, Radio, Sparkles, Wrench,
 } from "lucide-react";
 import { format } from "date-fns";
