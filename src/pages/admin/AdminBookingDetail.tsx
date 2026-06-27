@@ -72,6 +72,7 @@ type Booking = {
   contract_error?: string | null;
   clicksign_envelope_id?: string | null;
   booking_number?: string | null;
+  turo_reservation_code?: string | null;
   payment_status?: string | null;
   payment_method?: string | null;
   paid_at?: string | null;
