@@ -330,20 +330,33 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   const canAdvance = stepValid(currentStep.id);
   const isLast = stepIdx === WIZARD_STEPS.length - 1;
 
-  const goNext = () => {
-    if (canAdvance && !isLast) {
-      setStepIdx((i) => i + 1);
+  // Resolve race: when VehicleStep dispara "Confirmar e avançar", esperamos o state
+  // commitar para validar com o vehicle_id já presente.
+  useEffect(() => {
+    if (!pendingAdvance) return;
+    if (currentStep.id !== "vehicle") {
+      setPendingAdvance(false);
       return;
     }
-
-    const issues = getStepIssues(form, days, currentStep.id);
-    if (issues.length > 0) {
-      toast({
-        title: "Complete esta etapa antes de avançar",
-        description: `Falta preencher: ${formatIssues(issues)}.`,
-        variant: "destructive",
-      });
+    if (stepValid("vehicle") && !isLast) {
+      setPendingAdvance(false);
+      setStepIdx((i) => i + 1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingAdvance, form.vehicle_id, currentStep.id]);
+
+  const goNext = () => {
+    const issues = getStepIssues(form, days, currentStep.id);
+    if (issues.length === 0) {
+      if (!isLast) setStepIdx((i) => i + 1);
+      return;
+    }
+    flagErrors(issues);
+    toast({
+      title: "Complete esta etapa antes de avançar",
+      description: `Falta preencher: ${formatIssues(issues)}.`,
+      variant: "destructive",
+    });
   };
   const goBack = () => { if (stepIdx > 0) setStepIdx((i) => i - 1); else onCancel(); };
   const handleStepJump = (targetIdx: number) => {
@@ -360,6 +373,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       const step = WIZARD_STEPS[firstInvalidIdx];
       const issues = getStepIssues(form, days, step.id);
       setStepIdx(firstInvalidIdx);
+      flagErrors(issues);
       toast({
         title: "Existe uma etapa incompleta",
         description: `Falta preencher: ${formatIssues(issues)}.`,
@@ -380,13 +394,15 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     if (issues.length > 0) {
       const firstInvalidIdx = WIZARD_STEPS.findIndex((step) => getStepIssues(form, days, step.id).length > 0);
       if (firstInvalidIdx >= 0) setStepIdx(firstInvalidIdx);
+      flagErrors(issues);
       toast({
-        title: "Reserva incompleta",
-        description: `Nada foi apagado. Volte na etapa indicada e preencha: ${formatIssues(issues)}.`,
+        title: "Reserva incompleta — nada foi apagado",
+        description: `Te levamos para a etapa que falta. Preencha: ${formatIssues(issues)}.`,
         variant: "destructive",
       });
       return;
     }
+
     setSaving(true);
     const available = await checkAvailability(form.vehicle_id, form.pickup_date, form.return_date);
     if (!available) {
