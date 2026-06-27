@@ -499,7 +499,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
               Confirmar e criar reserva
             </Button>
           ) : (
-            <Button onClick={goNext} disabled={!canAdvance} className="h-11 px-6 rounded-xl">
+            <Button onClick={goNext} disabled={saving} className="h-11 px-6 rounded-xl">
               Avançar <ArrowRight size={14} className="ml-1.5" />
             </Button>
           )}

@@ -63,9 +63,15 @@ export function useFormDraft<T extends object>(
       const raw = localStorage.getItem(PREFIX + key);
       if (!raw) return;
       const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return;
+      const parsedEmpty = options?.isEmpty ? options.isEmpty(parsed as T) : isShallowEmpty(parsed);
+      if (parsedEmpty) {
+        localStorage.removeItem(PREFIX + key);
+        return;
+      }
       const empty = options?.isEmpty ? options.isEmpty(value) : isShallowEmpty(value);
       const shouldRestore = options?.restoreMode === "always" || empty;
-      if (shouldRestore && parsed && typeof parsed === "object") {
+      if (shouldRestore) {
         const merged = { ...value, ...(parsed as Partial<T>) } as T;
         latestValueRef.current = merged;
         setValue(merged);
