@@ -1026,7 +1026,8 @@ export default function AdminInspection() {
             inspectorName: "Equipe Zeus",
             completedAt,
             reportUrl,
-            photos: photoUrls,
+            inspectionBookingId: bookingId,
+            inspectionType: type,
           },
         });
       } catch (e) { console.error("[zeus-email] inspection dispatch failed", e); }
