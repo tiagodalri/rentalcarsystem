@@ -471,7 +471,9 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     if (created?.id) {
       try {
         const { sendZeusEmail } = await import("@/lib/emails/sendZeusEmail");
-        const vehicleLabel = form.vehicle_name || "";
+        const veh = vehicles.find((v) => v.id === form.vehicle_id);
+        const vehicleLabel = veh?.name || "";
+        const vehiclePlate = (veh as any)?.license_plate || (veh as any)?.plate || "—";
         const currencySym = form.currency === "USD" ? "USD " : (form.currency || "") + " ";
         const fmtMoney = (n: number | null | undefined) =>
           n == null ? "—" : `${currencySym}${Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -488,7 +490,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
             bookingNumber: created.booking_number || "—",
             customerName: form.customer_name,
             vehicleName: vehicleLabel,
-            vehiclePlate: form.vehicle_plate || "—",
+            vehiclePlate: vehiclePlate,
             pickupDate: form.pickup_date,
             pickupTime: form.pickup_time,
             pickupLocation: form.pickup_location || "—",
