@@ -561,20 +561,36 @@ export default function AdminInspection() {
     const path = `${bookingId}/${type}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safeTag}.${ext}`;
 
     // Register the original file immediately. This makes the thumbnail appear
-    // on the next paint; compression and network upload happen after the UI updates.
+    // on the next paint; stamping, compression and upload happen after the UI updates.
     registerLocalInspectionPreview(path, file);
     setPhotoUploadStatus((prev) => ({ ...prev, [path]: "uploading" }));
     bumpUploading(+1);
+
+    // Captura o endereço no momento da foto — não muda se o usuário editar depois.
+    const stampAddress = inspectionAddress;
+    const stampDate = new Date();
 
     const task = new Promise<void>((resolve) => {
       window.setTimeout(() => {
         void (async () => {
           try {
-            const compressed = await compressInspectionImage(file);
+            // 1) Carimba a foto com data/hora + endereço (igual app Timestamp Camera).
+            const stamped = await stampInspectionPhoto(file, {
+              address: stampAddress,
+              date: stampDate,
+            });
+            // Atualiza o preview local com a versão carimbada para o usuário ver
+            // o overlay imediatamente (sem esperar o upload).
+            if (stamped !== file) registerLocalInspectionPreview(path, stamped);
+
+            // 2) Compressão padrão antes do upload.
+            const compressed = await compressInspectionImage(
+              stamped instanceof File ? stamped : new File([stamped], file.name, { type: "image/jpeg" }),
+            );
             const { error } = await supabase.storage
               .from("inspections")
               .upload(path, compressed, {
-                contentType: compressed.type || file.type || "image/jpeg",
+                contentType: compressed.type || stamped.type || "image/jpeg",
                 cacheControl: "3600",
                 upsert: false,
               });
