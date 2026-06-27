@@ -29,6 +29,7 @@ import refRodaTE from "@/assets/inspection/roda-te.jpg";
 import refRodaTD from "@/assets/inspection/roda-td.jpg";
 import { SignedImage } from "@/components/admin/SignedImage";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
+import { ShareWhatsAppInspectionButton } from "@/components/admin/ShareWhatsAppInspectionButton";
 import { registerLocalInspectionPreview, compressInspectionImage } from "@/lib/inspectionStorage";
 import CarDamageMap from "@/components/inspection/CarDamageMap";
 import { PhotoSourceSheet } from "@/components/admin/PhotoSourceSheet";
@@ -985,6 +986,7 @@ export default function AdminInspection() {
         <div className="flex gap-2">
           {isCompleted && bookingId && (
             <>
+              <ShareWhatsAppInspectionButton bookingId={bookingId} type={type} />
               <ShareInspectionButton bookingId={bookingId} type={type} />
               <Button
                 variant="outline"
