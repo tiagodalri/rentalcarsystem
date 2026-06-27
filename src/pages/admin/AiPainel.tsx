@@ -807,15 +807,15 @@ export default function AiPainel({
         )}
 
         <div className="ai-card">
-          <CardHeader title="Pontos cegos resolvidos pela IA" sub="Underperformers persistentes" icon={Snowflake} />
+          <CardHeader title="Carros com desempenho fraco" sub="Estão na frota há mais de 2 meses e geram pouco por dia" icon={Snowflake} />
           <ul className="space-y-2">
             {underperformers.map(p => (
               <li key={p.v.id} className="flex justify-between text-[12.5px]">
                 <span className="text-white/85 truncate">{p.v.name}</span>
-                <span className="tabular-nums text-rose-300">{fmtUSD(p.revPerDayOwned)}/d · {p.occupancy.toFixed(0)}%</span>
+                <span className="tabular-nums text-rose-300">{fmtUSD(p.revPerDayOwned)}/dia · {p.occupancy.toFixed(0)}% de uso</span>
               </li>
             ))}
-            {underperformers.length === 0 && <li className="text-white/55 text-xs">Frota equilibrada.</li>}
+            {underperformers.length === 0 && <li className="text-white/55 text-xs">Frota equilibrada — nenhum carro com desempenho fraco.</li>}
           </ul>
         </div>
       </div>
