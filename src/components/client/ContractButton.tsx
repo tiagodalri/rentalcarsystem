@@ -3,6 +3,7 @@ import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { generateContractPdf } from "@/utils/contractPdf";
+import { loadContractTemplate } from "@/lib/contractTemplate";
 
 interface ContractButtonProps {
   bookingId: string;
