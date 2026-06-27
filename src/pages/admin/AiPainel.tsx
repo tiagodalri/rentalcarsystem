@@ -572,13 +572,16 @@ export default function AiPainel({
         )}
 
         {/* Tabs */}
-        <div className="ai-tabs">
-          {tabs.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} className={`ai-tab ${tab === t.key ? "ai-tab-active" : ""}`}>
-              <t.icon size={12} /> <span>{t.label}</span>
-            </button>
-          ))}
+        <div className="ai-tabs-wrap">
+          <div className="ai-tabs">
+            {tabs.map(t => (
+              <button key={t.key} onClick={() => setTab(t.key)} className={`ai-tab ${tab === t.key ? "ai-tab-active" : ""}`}>
+                <t.icon size={13} /> <span>{t.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
+
 
         {/* ───── Tab: REVENUE ───── */}
         {tab === "revenue" && (
