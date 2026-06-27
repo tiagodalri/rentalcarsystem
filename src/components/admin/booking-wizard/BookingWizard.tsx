@@ -176,6 +176,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   const STEP_KEY = `${DRAFT_KEY}-step`;
   useEffect(() => {
     if (phase !== "wizard") return;
+    if (!isWizardFormMeaningfullyEmpty(form)) return;
     try {
       const draftRaw = localStorage.getItem(DRAFT_STORAGE_KEY);
       const draft = draftRaw ? normalizeWizardForm(JSON.parse(draftRaw) as WizardFormState) : null;
