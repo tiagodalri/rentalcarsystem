@@ -46,7 +46,7 @@ export async function stampInspectionPhoto(
 
     applyExifOrientationTransform(ctx, orientation, w, h);
     ctx.drawImage(bitmap, 0, 0, drawWidth, drawHeight);
-    bitmap.close?.();
+    if ("close" in bitmap) bitmap.close();
     drawStamp(ctx, w, h, lines);
 
     const blob: Blob | null = await new Promise((resolve) =>
