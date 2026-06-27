@@ -90,7 +90,7 @@ function KpiCard({ def, current, previous, showCompare }: { def: KpiDef; current
         <p className="text-[10px] uppercase tracking-[0.16em] text-muted-foreground/80 font-medium">{def.label}</p>
         <Icon className={`h-3.5 w-3.5 ${def.iconColor} opacity-70 shrink-0`} strokeWidth={1.75} />
       </div>
-      <p className="text-[22px] leading-tight font-light text-foreground tabular-nums mt-4 break-words tracking-[-0.01em]">
+      <p className="mt-4 text-[18px] sm:text-[22px] leading-[1.15] font-light text-foreground tabular-nums tracking-[-0.015em] whitespace-nowrap overflow-hidden text-ellipsis">
         {fmt(current, def.format)}
       </p>
       {showCompare && <CompareBadge delta={delta} invert={def.invertCompare} />}
