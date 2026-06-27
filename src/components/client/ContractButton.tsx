@@ -44,7 +44,8 @@ const ContractButton = ({ bookingId }: ContractButtonProps) => {
         return;
       }
 
-      generateContractPdf(booking as any, customer as any, vehicle as any);
+      const template = await loadContractTemplate();
+      generateContractPdf(booking as any, customer as any, vehicle as any, template);
       toast.success("Contrato gerado com sucesso.");
     } catch (e) {
       console.error(e);
