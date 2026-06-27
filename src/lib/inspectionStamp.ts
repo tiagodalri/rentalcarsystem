@@ -5,6 +5,7 @@
 export interface InspectionStampOptions {
   address?: string | null; // pode conter quebras de linha (\n) — uma por linha
   date?: Date;
+  /** Opcional: só reduz se informado. Por padrão preserva os pixels originais. */
   maxDim?: number;
   quality?: number;
 }
@@ -21,17 +22,21 @@ export async function stampInspectionPhoto(
     const lines = buildLines(date, opts.address);
     if (!lines.length) return file;
 
+    const orientation = file.type === "image/jpeg" ? await readJpegOrientation(file) : 1;
     const bitmap = await loadBitmap(file);
     if (!bitmap) return file;
 
-    // Preserva a moldura original: só reduzimos se a foto for absurdamente grande.
-    // Antes usávamos 2200 + compressão posterior, o que diminuía a foto duas vezes
-    // e o usuário sentia que estava "cortada". Agora mantemos até 3200px e
-    // QUALIDADE alta — o arquivo final vai direto pro storage sem recompressão.
-    const maxDim = opts.maxDim ?? 3200;
-    const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
-    const w = Math.round(bitmap.width * scale);
-    const h = Math.round(bitmap.height * scale);
+    // Preserva a foto inteira: não recorta e não reduz por padrão. O canvas final
+    // recebe a orientação EXIF manualmente para fotos de iPhone não saírem de lado.
+    const swapsAxes = orientation >= 5 && orientation <= 8;
+    const orientedWidth = swapsAxes ? bitmap.height : bitmap.width;
+    const orientedHeight = swapsAxes ? bitmap.width : bitmap.height;
+    const maxDim = opts.maxDim ?? Number.POSITIVE_INFINITY;
+    const scale = Number.isFinite(maxDim) ? Math.min(1, maxDim / Math.max(orientedWidth, orientedHeight)) : 1;
+    const drawWidth = Math.round(bitmap.width * scale);
+    const drawHeight = Math.round(bitmap.height * scale);
+    const w = Math.round(orientedWidth * scale);
+    const h = Math.round(orientedHeight * scale);
 
     const canvas = document.createElement("canvas");
     canvas.width = w;
@@ -39,11 +44,15 @@ export async function stampInspectionPhoto(
     const ctx = canvas.getContext("2d");
     if (!ctx) return file;
 
-    ctx.drawImage(bitmap, 0, 0, w, h);
+    ctx.save();
+    applyExifOrientationTransform(ctx, orientation, w, h);
+    ctx.drawImage(bitmap, 0, 0, drawWidth, drawHeight);
+    ctx.restore();
+    if ("close" in bitmap) bitmap.close();
     drawStamp(ctx, w, h, lines);
 
     const blob: Blob | null = await new Promise((resolve) =>
-      canvas.toBlob((b) => resolve(b), "image/jpeg", opts.quality ?? 0.92),
+      canvas.toBlob((b) => resolve(b), "image/jpeg", opts.quality ?? 0.94),
     );
     if (!blob) return file;
 
@@ -95,9 +104,13 @@ export function formatStampDate(d: Date): string {
 async function loadBitmap(file: File): Promise<ImageBitmap | HTMLImageElement | null> {
   if ("createImageBitmap" in window) {
     try {
-      return await createImageBitmap(file);
+      return await createImageBitmap(file, { imageOrientation: "none" });
     } catch {
-      /* fallback */
+      try {
+        return await createImageBitmap(file);
+      } catch {
+        /* fallback */
+      }
     }
   }
   try {
@@ -116,6 +129,79 @@ async function loadBitmap(file: File): Promise<ImageBitmap | HTMLImageElement | 
     });
   } catch {
     return null;
+  }
+}
+
+async function readJpegOrientation(file: File): Promise<number> {
+  try {
+    const buffer = await file.slice(0, 64 * 1024).arrayBuffer();
+    const view = new DataView(buffer);
+    if (view.getUint16(0, false) !== 0xffd8) return 1;
+
+    let offset = 2;
+    while (offset + 4 < view.byteLength) {
+      const marker = view.getUint16(offset, false);
+      offset += 2;
+      const size = view.getUint16(offset, false);
+      offset += 2;
+      if (marker === 0xffe1 && offset + 6 < view.byteLength) {
+        const exif = String.fromCharCode(
+          view.getUint8(offset), view.getUint8(offset + 1), view.getUint8(offset + 2),
+          view.getUint8(offset + 3), view.getUint8(offset + 4), view.getUint8(offset + 5),
+        );
+        if (exif !== "Exif\0\0") return 1;
+        const tiffOffset = offset + 6;
+        const little = view.getUint16(tiffOffset, false) === 0x4949;
+        const firstIfdOffset = view.getUint32(tiffOffset + 4, little);
+        const ifdOffset = tiffOffset + firstIfdOffset;
+        if (ifdOffset + 2 >= view.byteLength) return 1;
+        const entries = view.getUint16(ifdOffset, little);
+        for (let i = 0; i < entries; i += 1) {
+          const entryOffset = ifdOffset + 2 + i * 12;
+          if (entryOffset + 10 >= view.byteLength) break;
+          if (view.getUint16(entryOffset, little) === 0x0112) {
+            const orientation = view.getUint16(entryOffset + 8, little);
+            return orientation >= 1 && orientation <= 8 ? orientation : 1;
+          }
+        }
+        return 1;
+      }
+      offset += size - 2;
+    }
+  } catch {
+    return 1;
+  }
+  return 1;
+}
+
+function applyExifOrientationTransform(
+  ctx: CanvasRenderingContext2D,
+  orientation: number,
+  width: number,
+  height: number,
+) {
+  switch (orientation) {
+    case 2:
+      ctx.transform(-1, 0, 0, 1, width, 0);
+      break;
+    case 3:
+      ctx.transform(-1, 0, 0, -1, width, height);
+      break;
+    case 4:
+      ctx.transform(1, 0, 0, -1, 0, height);
+      break;
+    case 5:
+      ctx.transform(0, 1, 1, 0, 0, 0);
+      break;
+    case 6:
+      ctx.transform(0, 1, -1, 0, width, 0);
+      break;
+    case 7:
+      ctx.transform(0, -1, -1, 0, width, height);
+      break;
+    case 8:
+      ctx.transform(0, -1, 1, 0, 0, height);
+      break;
   }
 }
 
