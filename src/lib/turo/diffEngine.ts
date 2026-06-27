@@ -135,9 +135,15 @@ function normalizeForCompare(field: string, v: any): string {
     const normalized = s.replace(/\s+/g, " ").replace(/\./g, "").toLowerCase();
     if (field === "pickup_location" || field === "return_location") {
       if (normalized === "(casa/endereço)" || normalized === "casa/endereço") return "";
+      // Qualquer variação do MCO/Orlando International colapsa para o mesmo token.
+      // Cobre: "MCO", "Aeroporto MCO - Orlando", "Orlando International Airport",
+      // "Orlando Intl Airport", "Jeff Fuqua Blvd", "MCO Orlando", "Aeroporto MCO" etc.
       if (
-        normalized === "mco orlando" ||
-        normalized === "orlando international airport" ||
+        /\bmco\b/.test(normalized) ||
+        normalized.includes("orlando international") ||
+        normalized.includes("orlando intl") ||
+        normalized.includes("orlando airport") ||
+        normalized.includes("aeroporto orlando") ||
         normalized.includes("jeff fuqua")
       ) return "mco-orlando";
     }
