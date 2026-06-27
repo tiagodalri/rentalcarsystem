@@ -54,6 +54,12 @@ export default function InstallPrompt() {
   useEffect(() => {
     if (isPreviewContext() || isStandalone() || recentlyDismissed()) return;
 
+    // Mobile não exibe popup: adicionar à tela de início precisa ser feito
+    // pelo menu nativo do navegador. Mantém PWA intacto, só esconde o prompt.
+    const isMobileViewport = window.matchMedia?.("(max-width: 768px)").matches;
+    const isCoarsePointer = window.matchMedia?.("(pointer: coarse)").matches;
+    if (isMobileViewport || isCoarsePointer || isIos()) return;
+
     const onPrompt = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BeforeInstallPromptEvent);
@@ -61,20 +67,11 @@ export default function InstallPrompt() {
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
 
-    // iOS doesn't fire beforeinstallprompt — show a manual hint after 8s.
-    let iosTimer: number | undefined;
-    if (isIos()) {
-      iosTimer = window.setTimeout(() => {
-        setShowIosHint(true);
-        setVisible(true);
-      }, 8000);
-    }
-
     return () => {
       window.removeEventListener("beforeinstallprompt", onPrompt);
-      if (iosTimer) window.clearTimeout(iosTimer);
     };
   }, []);
+
 
   const dismiss = () => {
     try {
