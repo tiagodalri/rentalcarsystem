@@ -50,6 +50,7 @@ Deno.serve(async (req) => {
         "Authorization": `Bearer ${LOVABLE_API_KEY}`,
         "X-Connection-Api-Key": GOOGLE_MAPS_API_KEY,
         "Content-Type": "application/json",
+        "Referer": "https://zeusrentalcar.lovable.app",
       },
       body: JSON.stringify(payload),
     });
