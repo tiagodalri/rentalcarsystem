@@ -290,16 +290,16 @@ export default function AdminBookingDetail() {
             </div>
             <span className="text-[10px] text-muted-foreground/50 italic">Não realizada</span>
           </div>
-          <CardContent className="p-5 flex flex-col items-center justify-center py-8 gap-2">
-            <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center">
+          <CardContent className="px-5 py-10 flex flex-col items-center justify-center text-center gap-3">
+            <div className="w-11 h-11 rounded-full bg-muted/50 flex items-center justify-center">
               <FileText size={18} className="text-muted-foreground/40" />
             </div>
-            <p className="text-xs text-muted-foreground">Inspeção pendente</p>
+            <p className="text-xs text-muted-foreground leading-none">Inspeção pendente</p>
             <button
               onClick={() => navigate(`/admin/inspection/${booking.id}?type=${type}`)}
-              className="text-xs text-primary hover:underline font-medium mt-1"
+              className="text-xs text-primary hover:underline font-medium leading-none inline-flex items-center gap-1"
             >
-              Realizar inspeção →
+              Realizar inspeção <ArrowRight size={12} />
             </button>
           </CardContent>
         </Card>
