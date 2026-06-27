@@ -133,6 +133,39 @@ export default function AiPainel({
     p.occupancy < 25 && p.daysInFleet > 90 && p.daily > 0
   ).sort((a, b) => a.occupancy - b.occupancy).slice(0, 5);
 
+  /* ───── Sugestões de troca: pareia underperformer com top-star similar ───── */
+  const swapSuggestions = useMemo(() => {
+    const stars = [...perVehicle]
+      .filter(p => p.daysInFleet > 60 && p.revPerDayOwned > 0)
+      .sort((a, b) => b.revPerDayOwned - a.revPerDayOwned)
+      .slice(0, 5);
+    const weak = [...perVehicle]
+      .filter(p => p.daysInFleet > 120 && p.occupancy < 35 && p.purchase > 0)
+      .sort((a, b) => a.revPerDayOwned - b.revPerDayOwned)
+      .slice(0, 4);
+    return weak.map(w => {
+      // Match preferido: mesma categoria; depois mesma marca; depois melhor star geral
+      const sameCat = stars.find(s => s.v.id !== w.v.id && (s.v.category || "—") === (w.v.category || "—"));
+      const sameBrand = stars.find(s => s.v.id !== w.v.id && (s.v.brand || "") === (w.v.brand || "") && (w.v.brand || ""));
+      const best = stars.find(s => s.v.id !== w.v.id);
+      const match = sameCat || sameBrand || best;
+      if (!match) return null;
+      const upliftPerDay = Math.max(match.revPerDayOwned - w.revPerDayOwned, 0);
+      const annualUplift = upliftPerDay * 365;
+      const reason = sameCat
+        ? `mesma categoria (${w.v.category || "—"})`
+        : sameBrand
+        ? `mesma marca (${w.v.brand})`
+        : "melhor desempenho da frota";
+      return { weak: w, star: match, upliftPerDay, annualUplift, reason };
+    }).filter(Boolean) as Array<{
+      weak: typeof perVehicle[number]; star: typeof perVehicle[number];
+      upliftPerDay: number; annualUplift: number; reason: string;
+    }>;
+  }, [perVehicle]);
+
+
+
   /* ───── Concentração de receita (estilo Pareto) ───── */
   const concentration = useMemo(() => {
     const totalRev = perVehicle.reduce((s, p) => s + p.revenue, 0);
