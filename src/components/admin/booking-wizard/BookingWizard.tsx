@@ -1273,7 +1273,7 @@ function ExtrasStep({ form, set, days }: StepProps & { days: number }) {
 }
 
 
-function PaymentStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
+function PaymentStep({ form, set, aiKeys, days, errorFields }: StepProps & { days: number }) {
   const total = Number(form.total_price) || 0;
   const deposit = Number(form.deposit_paid_amount) || 0;
   const remaining = Math.max(total - deposit, 0);
