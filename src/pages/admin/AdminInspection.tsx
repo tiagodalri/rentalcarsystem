@@ -967,6 +967,59 @@ export default function AdminInspection() {
       try { localStorage.removeItem(draftKey); } catch {}
     }
 
+    // Dispara e-mail Zeus com o laudo da inspeção (não bloqueia)
+    if (finalize && booking) {
+      try {
+        const { sendZeusEmail } = await import("@/lib/emails/sendZeusEmail");
+        const tpl = type === "checkin" ? "inspection-checkin" : "inspection-checkout";
+        const photosCount = (allPhotos?.length || 0) + (damages?.filter((d: any) => d?.photoUrl).length || 0);
+        const completedAt = new Date().toLocaleString("pt-BR");
+        const reportUrl = `${window.location.origin}/admin/bookings/${bookingId}`;
+
+        // Para o checkout, busca odômetro do check-in para calcular milhas rodadas
+        let odometerStart: number | null = null;
+        if (type === "checkout") {
+          try {
+            const { data: prevInsp } = await supabase
+              .from("vehicle_inspections")
+              .select("odometer_reading, inspection_type")
+              .eq("booking_id", bookingId)
+              .eq("inspection_type", "checkin")
+              .maybeSingle();
+            odometerStart = (prevInsp as any)?.odometer_reading ?? null;
+          } catch {}
+        }
+
+        const odoEnd = odometer ? parseInt(odometer) : null;
+        const miles =
+          odometerStart != null && odoEnd != null && odoEnd >= odometerStart
+            ? `${(odoEnd - odometerStart).toLocaleString("pt-BR")} mi`
+            : "—";
+
+        sendZeusEmail({
+          templateName: tpl,
+          idempotencyKey: `${tpl}:${bookingId}:${Date.now()}`,
+          templateData: {
+            bookingNumber: (booking as any).booking_number || "—",
+            customerName: (booking as any).customer_name || "—",
+            vehicleName: (vehicle as any)?.name || "—",
+            vehiclePlate: (vehicle as any)?.license_plate || (vehicle as any)?.plate || "—",
+            odometer: odoEnd != null ? `${odoEnd.toLocaleString("pt-BR")} mi` : "—",
+            odometerStart: odometerStart != null ? `${odometerStart.toLocaleString("pt-BR")} mi` : "—",
+            odometerEnd: odoEnd != null ? `${odoEnd.toLocaleString("pt-BR")} mi` : "—",
+            milesDriven: miles,
+            fuelLevel: fuelLevel || "—",
+            damagesCount: damages?.length ?? 0,
+            photosCount,
+            paymentStatus: type === "checkout" ? "Pago" : ((booking as any).payment_status || "—"),
+            inspectorName: "Equipe Zeus",
+            completedAt,
+            reportUrl,
+          },
+        });
+      } catch (e) { console.error("[zeus-email] inspection dispatch failed", e); }
+    }
+
     toast({ title: finalize ? "Inspeção finalizada com sucesso!" : "Rascunho salvo!" });
     setSaving(false);
     if (finalize) navigate("/admin/bookings");
