@@ -67,6 +67,13 @@ export default function AdminPainel() {
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [vehicles, setVehicles] = useState<VehicleRow[]>([]);
+  const [aiMode, setAiMode] = useState<boolean>(() => {
+    try { return localStorage.getItem("zeus_ai_mode") === "1"; } catch { return false; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem("zeus_ai_mode", aiMode ? "1" : "0"); } catch {}
+  }, [aiMode]);
+
 
   const load = useCallback(async () => {
     const [b, v] = await Promise.all([
