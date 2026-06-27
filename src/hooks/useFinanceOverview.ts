@@ -112,7 +112,10 @@ function computeKpis(
     return x >= start && x <= end;
   };
 
-  const bks = bookings.filter((b) => inRange(b.created_at));
+  // Regra unificada de reconhecimento de receita:
+  // - Reservas são contabilizadas pela data de RETIRADA (pickup_date), não pela data de criação.
+  // - Reservas canceladas NÃO entram em receita, ticket médio ou contagem de reservas.
+  const bks = bookings.filter((b) => inRange(b.pickup_date + "T12:00:00"));
   const activeBks = bks.filter((b) => b.status !== "cancelled");
   const revenue = activeBks.reduce((s, b) => s + (b.total_price || 0), 0);
 
@@ -123,7 +126,7 @@ function computeKpis(
   const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
   const ticket = activeBks.length > 0 ? revenue / activeBks.length : 0;
 
-  const bookingsCount = bks.filter((b) => ["confirmed", "in_progress", "completed"].includes(b.status)).length;
+  const bookingsCount = bks.filter((b) => ["confirmed", "in_progress", "completed", "active"].includes(b.status)).length;
   const cancellationRate = bks.length > 0 ? (bks.filter((b) => b.status === "cancelled").length / bks.length) * 100 : 0;
 
   // Occupancy: rented days (overlap with period) / (period days × active vehicles)
