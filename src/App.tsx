@@ -19,11 +19,9 @@ import { AccountSkeleton } from "./components/skeletons/AccountSkeleton.tsx";
 import InstallPrompt from "./components/InstallPrompt.tsx";
 import { OfflineBanner } from "./components/OfflineBanner";
 import MobileOps from "./pages/admin/mobile/MobileOps.tsx";
+import { RequireRole } from "./components/admin/RequireRole.tsx";
 // Lazy: shell admin + role guard só são baixados quando alguém entra em /admin
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout.tsx"));
-const RequireRole = lazy(() =>
-  import("./components/admin/RequireRole.tsx").then((m) => ({ default: m.RequireRole })),
-);
 import { useSwUpdateOnNavigate } from "./hooks/useSwUpdateOnNavigate.ts";
 import { useDynamicThemeColor } from "./hooks/useDynamicThemeColor.ts";
 import { useNativeFeel } from "./hooks/useNativeFeel.ts";
