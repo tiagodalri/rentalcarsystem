@@ -148,9 +148,9 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                       <span className="font-normal text-foreground whitespace-nowrap tracking-[-0.005em]">{v.name}</span>
                     </button>
                   </td>
-                  <td className="px-3 py-2.5 font-mono text-[11px] text-muted-foreground/80 uppercase tracking-wider">{v.license_plate || "—"}</td>
-                  <td className="px-3 py-2.5 text-muted-foreground">{v.category}</td>
-                  <td className="px-3 py-2">
+                  <td className="px-3 py-2.5 font-mono text-[11px] text-muted-foreground/80 uppercase tracking-wider whitespace-nowrap">{v.license_plate || "—"}</td>
+                  <td className="px-3 py-2.5 text-muted-foreground whitespace-nowrap">{v.category}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">
                     {isEditingCell("status") ? (
                       <div className="inline-flex items-center gap-1">
                         <select
