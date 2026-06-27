@@ -525,7 +525,7 @@ export default function AiPainel({
           <div className="space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card lg:col-span-2">
-                <CardHeader title="Pulso de receita · 6 meses" sub="Tendência operacional" icon={LineChart} />
+                <CardHeader title="Receita dos últimos 6 meses" sub="Como sua frota faturou mês a mês" icon={LineChart} />
                 <div className="flex items-end gap-3 h-40">
                   {monthlyTrend.map((m, i) => {
                     const h = (m.revenue / maxBar) * 100;
@@ -544,7 +544,7 @@ export default function AiPainel({
               </div>
 
               <div className="ai-card">
-                <CardHeader title="ADR vs preço de tabela" sub="Desconto silencioso" icon={DollarSign} />
+                <CardHeader title="Está cobrando menos que a tabela?" sub="Diária real recebida vs preço cadastrado" icon={DollarSign} />
                 <ul className="space-y-2.5">
                   {[...perVehicle].filter(p => p.bookingsCount > 0 && p.daily > 0).sort((a, b) => a.adrGap - b.adrGap).slice(0, 5).map(p => (
                     <li key={p.v.id} className="text-[12.5px]">
