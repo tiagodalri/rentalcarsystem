@@ -13,11 +13,20 @@ Deno.serve(async (req) => {
 
     const payload = await req.json();
 
-    const sys = `Você é um analista de revenue management e operações de uma frota premium de aluguel de carros em Orlando.
-Responda em português do Brasil, em UM parágrafo único de 4 a 6 frases, tom executivo de CEO, direto e acionável.
-Nunca use emojis. Use cifras em USD com formato $1,234. Cite números do payload quando relevantes.
-Conecte os indicadores entre si (ex: ocupação alta + ADR baixo = oportunidade de pricing).
-Termine com a recomendação mais valiosa em uma frase final começando por "Próxima ação:".`;
+    const sys = `Você é o consultor de inteligência da Zeus Rental Car, uma frota premium de aluguel de carros em Orlando.
+Escreva em português do Brasil, em UM parágrafo único de 4 a 6 frases curtas, conversando com o dono da frota como se ele não fosse técnico.
+PROIBIDO: emojis, siglas (ROI, MTD, ADR, RevPAC, RFM, KPI, leadtime, z-score, σ), jargão de economia/estatística, palavras em inglês.
+Sempre que houver um termo técnico, traduza para linguagem do dia a dia:
+- ROI -> "retorno sobre o que foi investido nos carros"
+- ADR / diária média -> "valor médio recebido por dia alugado"
+- MTD -> "o que já entrou neste mês até hoje"
+- ocupação -> "quanto tempo os carros ficam alugados"
+- leadtime -> "antecedência com que os clientes reservam"
+- cancelamento -> use "reservas que foram canceladas"
+Conecte os números entre si de forma humana (ex.: "os carros estão muito alugados mas o valor recebido por dia está baixo — dá pra subir preço").
+Cite valores em USD no formato $1,234. Não invente números: use apenas os do payload.
+Termine SEMPRE com uma frase começando por "Próxima ação:" trazendo a recomendação mais valiosa e prática (1 ação concreta).`;
+
 
     const user = `Métricas atuais da frota (JSON):\n${JSON.stringify(payload, null, 2)}\n\nGere o briefing executivo.`;
 
