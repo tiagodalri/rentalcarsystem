@@ -50,8 +50,7 @@ export async function stampInspectionPhoto(
 }
 
 function buildLines(date: Date, address?: string | null): string[] {
-  const dateLine = formatStampDate(date);
-  const lines = [dateLine];
+  const lines = [formatStampTime(date), formatStampDateOnly(date)];
   if (address && address.trim()) {
     const addr = address
       .split(/\n|,\s+/)
@@ -64,9 +63,18 @@ function buildLines(date: Date, address?: string | null): string[] {
 
 const MONTHS_PT = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
-export function formatStampDate(d: Date): string {
+export function formatStampDateOnly(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(d.getDate())}/${MONTHS_PT[d.getMonth()]}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  return `${pad(d.getDate())}/${MONTHS_PT[d.getMonth()]}/${d.getFullYear()}`;
+}
+
+export function formatStampTime(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+export function formatStampDate(d: Date): string {
+  return `${formatStampDateOnly(d)} ${formatStampTime(d)}`;
 }
 
 
