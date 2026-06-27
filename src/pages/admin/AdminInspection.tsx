@@ -194,6 +194,19 @@ const PhotoIllustration = ({ position }: { position: string }) => {
           <path d="M16 28 L32 28 M24 20 L24 36" stroke={stroke} strokeWidth="0.6" opacity="0.5"/>
         </svg>
       );
+    case "Chaves + Ticket":
+      return (
+        <svg viewBox="0 0 48 48" width={s} height={s}>
+          {/* Ticket */}
+          <rect x="22" y="12" width="20" height="26" rx="2" fill={fill} stroke={bodyStroke} strokeWidth="1.2"/>
+          <path d="M25 18 L39 18 M25 22 L37 22 M25 26 L35 26" stroke={bodyStroke} strokeWidth="0.8" opacity="0.5"/>
+          <rect x="25" y="30" width="10" height="4" rx="0.5" fill="hsl(var(--primary) / 0.2)" stroke={stroke} strokeWidth="0.8"/>
+          {/* Key */}
+          <circle cx="12" cy="20" r="5" fill="none" stroke={stroke} strokeWidth="1.4"/>
+          <circle cx="12" cy="20" r="1.6" fill={stroke}/>
+          <path d="M16.5 20 L22 20 L22 23 L20 23 M22 20 L24 20" stroke={stroke} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+        </svg>
+      );
     default:
       return carBody(null);
   }
