@@ -15,7 +15,6 @@ import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { MobileList, MobileListItem } from "@/components/mobile/MobileListItem";
 import { SwipeAction } from "@/components/mobile/SwipeAction";
-import { VEHICLE_3D_MODELS } from "@/data/vehicle3dModels";
 
 
 /* ============================================================
@@ -55,47 +54,32 @@ export default function MobileOps() {
   const [vehicles, setVehicles] = useState<Record<string, Vehicle>>({});
   const [prep, setPrep] = useState<Vehicle[]>([]);
 
-  // Pré-busca o GLB da Tiguan (modelo 3D padrão de inspeção) com prioridade baixa.
-  // Quando o Rui tocar em "Check-in"/"Check-out", o modelo já estará no cache.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const url = VEHICLE_3D_MODELS["vw-tiguan"]?.url;
-    if (!url) return;
-    const existing = document.querySelector(`link[data-prefetch-glb="tiguan"]`);
-    if (existing) return;
-    const link = document.createElement("link");
-    link.rel = "prefetch";
-    link.as = "fetch";
-    link.href = url;
-    link.crossOrigin = "anonymous";
-    link.setAttribute("data-prefetch-glb", "tiguan");
-    document.head.appendChild(link);
-  }, []);
-
-
   const load = async () => {
-    setLoading(true);
-    const dayStr = format(date, "yyyy-MM-dd");
-    const [pk, rt, vs] = await Promise.all([
-      supabase.from("bookings")
-        .select("id, customer_name, customer_phone, pickup_date, return_date, pickup_time, return_time, vehicle_id, status, booking_number")
-        .eq("pickup_date", dayStr)
-        .in("status", ["pending", "confirmed", "active", "in_progress", "completed"])
-        .order("pickup_time"),
-      supabase.from("bookings")
-        .select("id, customer_name, customer_phone, pickup_date, return_date, pickup_time, return_time, vehicle_id, status, booking_number")
-        .eq("return_date", dayStr)
-        .in("status", ["confirmed", "active", "in_progress", "completed"])
-        .order("return_time"),
-      supabase.from("vehicles").select("id, name, status").is("deleted_at", null),
-    ]);
-    const map: Record<string, Vehicle> = {};
-    (vs.data || []).forEach((v: any) => { map[v.id] = v; });
-    setVehicles(map);
-    setPickups((pk.data as Booking[]) || []);
-    setReturns((rt.data as Booking[]) || []);
-    setPrep(((vs.data as Vehicle[]) || []).filter((v) => ["maintenance", "preparing"].includes(v.status)));
-    setLoading(false);
+    try {
+      setLoading(true);
+      const dayStr = format(date, "yyyy-MM-dd");
+      const [pk, rt, vs] = await Promise.all([
+        supabase.from("bookings")
+          .select("id, customer_name, customer_phone, pickup_date, return_date, pickup_time, return_time, vehicle_id, status, booking_number")
+          .eq("pickup_date", dayStr)
+          .in("status", ["pending", "confirmed", "active", "in_progress", "completed"])
+          .order("pickup_time"),
+        supabase.from("bookings")
+          .select("id, customer_name, customer_phone, pickup_date, return_date, pickup_time, return_time, vehicle_id, status, booking_number")
+          .eq("return_date", dayStr)
+          .in("status", ["confirmed", "active", "in_progress", "completed"])
+          .order("return_time"),
+        supabase.from("vehicles").select("id, name, status").is("deleted_at", null),
+      ]);
+      const map: Record<string, Vehicle> = {};
+      (vs.data || []).forEach((v: any) => { map[v.id] = v; });
+      setVehicles(map);
+      setPickups((pk.data as Booking[]) || []);
+      setReturns((rt.data as Booking[]) || []);
+      setPrep(((vs.data as Vehicle[]) || []).filter((v) => ["maintenance", "preparing"].includes(v.status)));
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { void load(); }, [date]);
