@@ -78,7 +78,6 @@ const Navbar = () => {
   const navLinks = [
     { label: t.nav.fleet, href: "/frota", isRoute: true },
     { label: t.nav.howItWorks, href: "#como-funciona" },
-    { label: t.nav.whyZeus, href: "#por-que" },
     { label: t.nav.about, href: "/sobre-nos", isRoute: true },
     { label: t.nav.contact, href: "#contato" },
   ];
