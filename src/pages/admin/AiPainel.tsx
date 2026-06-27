@@ -693,25 +693,25 @@ export default function AiPainel({
           <div className="space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card">
-                <CardHeader title="Turnaround médio" sub="Dias entre devolução e próxima retirada" icon={Clock} />
+                <CardHeader title="Tempo parado entre uma reserva e outra" sub="Quanto tempo em média o carro fica parado entre uma devolução e a próxima retirada" icon={Clock} />
                 <div className="text-3xl font-light text-cyan-200 tabular-nums">{turnaround.avg.toFixed(1)}<span className="text-base text-white/50"> dias</span></div>
-                <div className="text-[11px] text-white/55 mt-1">Mínimo {turnaround.min}d · {turnaround.sample} transições</div>
+                <div className="text-[11px] text-white/55 mt-1">Melhor caso: {turnaround.min} dia(s) · base: {turnaround.sample} trocas</div>
               </div>
               <div className="ai-card">
-                <CardHeader title="Incidentes registrados" sub="Total + custo acumulado" icon={ShieldAlert} />
+                <CardHeader title="Total de incidentes" sub="Avarias, batidas e ocorrências registradas" icon={ShieldAlert} />
                 <div className="text-3xl font-light text-rose-200 tabular-nums">{incidents.length}</div>
-                <div className="text-[11px] text-white/55 mt-1">{fmtUSD(incidents.reduce((s, i) => s + Number(i.actual_cost ?? i.estimated_cost ?? 0), 0))} em custos</div>
+                <div className="text-[11px] text-white/55 mt-1">Custo total: {fmtUSD(incidents.reduce((s, i) => s + Number(i.actual_cost ?? i.estimated_cost ?? 0), 0))}</div>
               </div>
               <div className="ai-card">
-                <CardHeader title="Densidade de risco" sub="Veículos com mais incidentes" icon={Flame} />
+                <CardHeader title="Carros com mais problemas" sub="Quais veículos acumularam mais incidentes" icon={Flame} />
                 <ul className="space-y-1.5">
                   {incidentByVehicle.filter(x => x.count > 0).slice(0, 4).map(x => (
                     <li key={x.v.id} className="flex justify-between text-[12px]">
                       <span className="text-white/85 truncate">{x.v.name}</span>
-                      <span className="tabular-nums text-rose-300">{x.count} · {fmtUSD(x.cost)}</span>
+                      <span className="tabular-nums text-rose-300">{x.count} ocorrências · {fmtUSD(x.cost)}</span>
                     </li>
                   ))}
-                  {incidentByVehicle.filter(x => x.count > 0).length === 0 && <li className="text-white/55 text-xs">Nenhum incidente.</li>}
+                  {incidentByVehicle.filter(x => x.count > 0).length === 0 && <li className="text-white/55 text-xs">Nenhum incidente registrado.</li>}
                 </ul>
               </div>
             </div>
