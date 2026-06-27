@@ -15,6 +15,7 @@ import {
   FileSignature,
   Upload,
   GraduationCap,
+  ScrollText,
 } from "lucide-react";
 
 import zeusLogo from "@/assets/zeus-logo-mark.png";
@@ -91,6 +92,7 @@ const menuSections: MenuSection[] = [
     label: "Administração",
     items: [
       { title: "Equipe",        url: "/admin/team",     icon: UsersRound, allowedRoles: ["admin"] },
+      { title: "Logs",          url: "/admin/logs",     icon: ScrollText, allowedRoles: ["admin"] },
       { title: "Configurações", url: "/admin/settings", icon: Settings,   allowedRoles: ["admin"] },
     ],
   },
