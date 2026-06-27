@@ -35,7 +35,8 @@ const ContractButton = ({ bookingId }: ContractButtonProps) => {
         supabase.rpc("get_vehicle_for_my_booking" as never, { p_booking_id: bookingId } as never),
       ]);
 
-      const vehicle = Array.isArray(vehicleRpc.data) ? vehicleRpc.data[0] : vehicleRpc.data;
+      const vehicleData = vehicleRpc.data as unknown;
+      const vehicle = Array.isArray(vehicleData) ? vehicleData[0] : vehicleData;
 
       if (!customer || !vehicle) {
         toast.error("Dados de cliente ou veículo indisponíveis.");
