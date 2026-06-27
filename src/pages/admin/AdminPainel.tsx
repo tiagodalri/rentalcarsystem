@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import {
-  Activity, CalendarDays, CalendarRange, Car, CheckCircle2,
+  Activity, Brain, CalendarDays, CalendarRange, Car, CheckCircle2,
   ChevronRight, Clock, DollarSign, LogIn, LogOut as LogOutIcon,
   TrendingDown, TrendingUp, Wrench,
 } from "lucide-react";
@@ -14,6 +14,8 @@ import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { formatPersonName } from "@/lib/formatName";
 import MobilePainel from "./mobile/MobilePainel";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
+import AiPainel from "./AiPainel";
+
 
 
 
