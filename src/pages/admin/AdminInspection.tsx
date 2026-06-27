@@ -1170,7 +1170,13 @@ export default function AdminInspection() {
                     return (
                       <div key={pos.name} className="relative group">
                         {photo ? (
-                          <div className="relative aspect-[4/3] rounded-lg overflow-hidden border border-border/40">
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => setLightbox({ value: photo.url, label: pos.name })}
+                            onKeyDown={(e) => { if (e.key === "Enter") setLightbox({ value: photo.url, label: pos.name }); }}
+                            className="relative aspect-[4/3] rounded-lg overflow-hidden border border-border/40 cursor-zoom-in"
+                          >
                             <SignedImage value={photo.url} alt={pos.name} className="w-full h-full object-contain bg-muted/20" />
                             <PhotoUploadBadge status={photoUploadStatus[photo.url]} />
                             <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -1179,7 +1185,7 @@ export default function AdminInspection() {
                                   <Button
                                     size="sm"
                                     variant="secondary"
-                                    onClick={() => capturePhoto(pos.name)}
+                                    onClick={(e) => { e.stopPropagation(); capturePhoto(pos.name); }}
                                     className="h-7 text-xs"
                                   >
                                     <Camera size={12} /> Refazer
@@ -1187,7 +1193,7 @@ export default function AdminInspection() {
                                   <Button
                                     size="sm"
                                     variant="destructive"
-                                    onClick={() => setPhotos((prev) => prev.filter((p) => p.position !== pos.name))}
+                                    onClick={(e) => { e.stopPropagation(); setPhotos((prev) => prev.filter((p) => p.position !== pos.name)); }}
                                     className="h-7 text-xs"
                                   >
                                     <Trash2 size={12} />
