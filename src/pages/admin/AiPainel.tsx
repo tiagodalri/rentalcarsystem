@@ -1026,19 +1026,38 @@ export default function AiPainel({
         .ai-insight-icon { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center;
           background: linear-gradient(135deg, rgba(120,180,255,0.4), rgba(180,120,255,0.4));
           color: #fff; box-shadow: 0 0 18px rgba(120,180,255,0.45); }
+        .ai-tabs-wrap { position: sticky; top: 0; z-index: 20; margin: 0 -12px; padding: 6px 12px;
+          background: linear-gradient(180deg, rgba(5,8,19,0.92) 70%, rgba(5,8,19,0)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
         .ai-tabs { display: flex; gap: 6px; padding: 4px; border-radius: 12px;
-          background: rgba(10,15,30,0.5); border: 1px solid rgba(120,180,255,0.12); overflow-x: auto; }
-        .ai-tab { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px;
-          font-size: 11.5px; letter-spacing: 0.05em; color: rgba(230,240,255,0.65); white-space: nowrap;
-          border: 1px solid transparent; transition: all .2s; }
+          background: rgba(10,15,30,0.55); border: 1px solid rgba(120,180,255,0.14);
+          overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+          scrollbar-width: none; }
+        .ai-tabs::-webkit-scrollbar { display: none; }
+        .ai-tab { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 8px;
+          font-size: 12px; letter-spacing: 0.04em; color: rgba(230,240,255,0.7); white-space: nowrap;
+          border: 1px solid transparent; transition: all .2s; scroll-snap-align: start; min-height: 40px; touch-action: manipulation; }
         .ai-tab:hover { color: #fff; background: rgba(120,180,255,0.06); }
-        .ai-tab-active { color: #fff; background: linear-gradient(135deg, rgba(120,180,255,0.22), rgba(180,120,255,0.18));
-          border-color: rgba(120,180,255,0.35); box-shadow: 0 0 18px rgba(120,180,255,0.25); }
+        .ai-tab-active { color: #fff; background: linear-gradient(135deg, rgba(120,180,255,0.24), rgba(180,120,255,0.2));
+          border-color: rgba(120,180,255,0.4); box-shadow: 0 0 18px rgba(120,180,255,0.28); }
         .ai-alert { padding: 12px; border-radius: 12px; background: rgba(20,30,55,0.55);
           border: 1px solid rgba(255,255,255,0.06); }
         .ai-alert-high { border-color: rgba(255,120,140,0.35); background: linear-gradient(135deg, rgba(120,30,50,0.35), rgba(20,30,55,0.55)); }
         .ai-alert-med { border-color: rgba(255,200,90,0.3); background: linear-gradient(135deg, rgba(120,80,20,0.3), rgba(20,30,55,0.55)); }
+
+        @media (max-width: 640px) {
+          .ai-shell { overscroll-behavior-y: contain; }
+          .ai-title { font-size: 26px; }
+          .ai-subtitle { font-size: 11.5px; }
+          .ai-card { padding: 14px; border-radius: 14px; box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 30px -16px rgba(0,0,0,0.55); }
+          .ai-card::before { border-radius: 14px; }
+          .ai-insight { padding: 14px; border-radius: 14px; }
+          .ai-insight-icon { width: 28px; height: 28px; border-radius: 9px; }
+          .ai-card-title { font-size: 12.5px; }
+          .ai-bg-grid { background-size: 36px 36px; opacity: 0.7; }
+          .ai-bg-glow { opacity: 0.85; }
+        }
       `}</style>
+
     </div>
   );
 }
