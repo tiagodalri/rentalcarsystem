@@ -26,18 +26,16 @@ const ContractButton = ({ bookingId }: ContractButtonProps) => {
         return;
       }
 
-      const [{ data: customer }, { data: vehicle }] = await Promise.all([
+      const [{ data: customer }, vehicleRpc] = await Promise.all([
         supabase
           .from("customers")
           .select("full_name, email, phone, document_number, driver_license, driver_license_expiry, nationality, address, house_number, complement, zip_code")
           .eq("id", booking.customer_id!)
           .maybeSingle(),
-        supabase
-          .from("vehicles")
-          .select("name, category, license_plate, year, color, current_odometer, daily_price_usd")
-          .eq("id", booking.vehicle_id)
-          .maybeSingle(),
+        supabase.rpc("get_vehicle_for_my_booking" as never, { p_booking_id: bookingId } as never),
       ]);
+
+      const vehicle = Array.isArray(vehicleRpc.data) ? vehicleRpc.data[0] : vehicleRpc.data;
 
       if (!customer || !vehicle) {
         toast.error("Dados de cliente ou veículo indisponíveis.");
