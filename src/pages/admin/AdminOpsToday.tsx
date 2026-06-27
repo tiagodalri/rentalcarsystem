@@ -68,16 +68,25 @@ const STATUS_META: Record<OpsStatus, { label: string; bar: string; dot: string; 
   },
 };
 
-function deriveStatus(b: BookingRow, kind: "pickup" | "return", now: Date): OpsStatus {
+function deriveStatus(
+  b: BookingRow,
+  kind: "pickup" | "return",
+  now: Date,
+  inspectionDone: { checkin: boolean; checkout: boolean },
+): OpsStatus {
   if (b.status === "cancelled") return "cancelled";
   if (kind === "pickup") {
     if (["active", "in_progress", "completed"].includes(b.status)) return "completed";
+    // Defesa: se a inspeção de retirada já foi finalizada, conta como concluída
+    // mesmo que o status da reserva não tenha sido promovido por algum motivo.
+    if (inspectionDone.checkin) return "completed";
     const t = b.pickup_time ? b.pickup_time.slice(0, 5) : "23:59";
     const dt = new Date(`${b.pickup_date}T${t}:00`);
     if (dt.getTime() < now.getTime()) return "late";
     return "pending";
   } else {
     if (b.status === "completed") return "completed";
+    if (inspectionDone.checkout) return "completed";
     const t = b.return_time ? b.return_time.slice(0, 5) : "23:59";
     const dt = new Date(`${b.return_date}T${t}:00`);
     if (dt.getTime() < now.getTime()) return "late";
