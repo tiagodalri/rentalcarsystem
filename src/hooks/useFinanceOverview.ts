@@ -237,7 +237,7 @@ export function useFinanceOverview(): OverviewData {
       return k;
     };
     filteredBookings.filter((b) => b.status !== "cancelled").forEach((b) => {
-      const k = ensure(new Date(b.created_at));
+      const k = ensure(new Date(b.pickup_date + "T12:00:00"));
       map[k].revenue += b.total_price || 0;
     });
     filteredExpenses.forEach((e) => {
