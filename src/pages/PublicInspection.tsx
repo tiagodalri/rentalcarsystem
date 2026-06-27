@@ -234,7 +234,7 @@ export default function PublicInspection() {
               {damages.map((d, i) => (
                 <li key={i} className="flex gap-3 items-start rounded-xl border border-border/60 p-3 bg-background/40">
                   {d.photo_url ? (
-                    <img src={d.photo_url} alt={d.position} className="w-20 h-20 object-cover rounded-lg flex-shrink-0 border border-border" loading="lazy" />
+                    <img src={d.photo_url} alt={d.position} className="w-20 h-20 object-contain rounded-lg flex-shrink-0 border border-border bg-muted/30" loading="lazy" />
                   ) : (
                     <div className="w-20 h-20 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 border border-border">
                       <Camera size={16} className="text-muted-foreground/50" />
@@ -272,7 +272,7 @@ export default function PublicInspection() {
               {photos.map((p, i) => (
                 <figure key={i} className="rounded-xl overflow-hidden border border-border bg-muted/40">
                   {p.url ? (
-                    <img src={p.url} alt={p.position} className="w-full h-32 sm:h-36 object-cover" loading="lazy" />
+                    <img src={p.url} alt={p.position} className="w-full h-32 sm:h-36 object-contain bg-muted/30" loading="lazy" />
                   ) : (
                     <div className="w-full h-32 sm:h-36 flex items-center justify-center">
                       <Camera size={18} className="text-muted-foreground/50" />

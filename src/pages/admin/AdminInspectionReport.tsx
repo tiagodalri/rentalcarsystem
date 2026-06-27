@@ -736,12 +736,12 @@ export default function AdminInspectionReport() {
                       <div className="grid grid-cols-2 divide-x divide-border/30">
                         <div className="p-2">
                           <p className="text-[9px] uppercase tracking-wider text-primary font-medium mb-1.5">Entrega</p>
-                          <SignedImage value={ciPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded" loading="lazy" />
+                          <SignedImage value={ciPhoto.url} alt="" className="w-full aspect-[4/3] object-contain rounded bg-muted/30" loading="lazy" />
                         </div>
                         <div className="p-2">
                           <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium mb-1.5">Devolução</p>
                           {coPhoto ? (
-                            <SignedImage value={coPhoto.url} alt="" className="w-full aspect-[4/3] object-cover rounded" loading="lazy" />
+                            <SignedImage value={coPhoto.url} alt="" className="w-full aspect-[4/3] object-contain rounded bg-muted/30" loading="lazy" />
                           ) : (
                             <div className="w-full aspect-[4/3] rounded border-2 border-dashed border-border/40 flex items-center justify-center text-xs text-muted-foreground">Sem foto</div>
                           )}

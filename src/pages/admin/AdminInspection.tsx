@@ -566,9 +566,8 @@ export default function AdminInspection() {
 
   const uploadPhoto = (file: File, tag: string): string | null => {
     if (!bookingId) return null;
-    const ext = getImageExtension(file);
     const safeTag = tag.replace(/[^a-zA-Z0-9_-]/g, "_");
-    const path = `${bookingId}/${type}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safeTag}.${ext}`;
+    const path = `${bookingId}/${type}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${safeTag}.jpg`;
 
     // Register the original file immediately. This makes the thumbnail appear
     // on the next paint; stamping, compression and upload happen after the UI updates.
