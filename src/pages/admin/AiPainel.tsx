@@ -503,39 +503,41 @@ export default function AiPainel({
   ];
 
   return (
-    <div className="ai-shell relative -mx-4 lg:-mx-6 -mt-3 lg:-mt-6 px-4 lg:px-8 pt-6 pb-10 min-h-[calc(100vh-120px)]">
+    <div className="ai-shell relative -mx-4 lg:-mx-6 -mt-3 lg:-mt-6 px-3 sm:px-4 lg:px-8 pt-4 sm:pt-6 pb-[max(2.5rem,env(safe-area-inset-bottom))] min-h-[calc(100vh-120px)]">
       <div className="ai-bg-grid" />
       <div className="ai-bg-glow" />
       <div className="ai-bg-noise" />
 
-      <div className="relative z-10 space-y-6 max-w-[1600px] mx-auto">
+      <div className="relative z-10 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto">
         {/* Header */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
               <div className="ai-badge">
                 <Sparkles size={11} strokeWidth={2} />
                 <span>MODO IA ATIVADO</span>
                 <span className="ai-pulse" />
               </div>
+              <div className="ai-chip sm:hidden"><Brain size={12} /><span>Análise IA</span></div>
             </div>
             <h1 className="ai-title">Painel Inteligente</h1>
             <p className="ai-subtitle">
               {perVehicle.length} carros · {realBookings.length} reservas · {customers.length} clientes únicos
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
             <div className="ai-chip"><Brain size={12} /><span>Análise IA</span></div>
           </div>
         </div>
 
         {/* Hero KPIs */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
           <AiKpi label="Receita por carro/dia" sub="Quanto cada carro gera, na média, por dia que está na frota" value={fmtUSD2(revPAC)} icon={Rocket} hue="violet" />
           <AiKpi label="Diária média cobrada" sub="Valor médio efetivamente recebido por dia alugado" value={fmtUSD(fleetADR)} icon={DollarSign} hue="amber" />
           <AiKpi label="Margem de lucro" sub="Receita menos despesas, em %" value={`${fleetMargin.toFixed(1)}%`} icon={Target} hue={fleetMargin >= 25 ? "emerald" : "rose"} />
           <AiKpi label="Receita do mês até hoje" sub={`No mesmo dia do mês passado: ${fmtUSD(pacing.lmtd)} (${pacing.delta >= 0 ? "+" : ""}${pacing.delta.toFixed(1)}%)`} value={fmtUSD(pacing.mtd)} icon={pacing.delta >= 0 ? ArrowUpRight : ArrowDownRight} hue={pacing.delta >= 0 ? "emerald" : "rose"} />
         </div>
+
 
         {/* AI Briefing */}
         <div className="ai-insight">
@@ -570,13 +572,16 @@ export default function AiPainel({
         )}
 
         {/* Tabs */}
-        <div className="ai-tabs">
-          {tabs.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} className={`ai-tab ${tab === t.key ? "ai-tab-active" : ""}`}>
-              <t.icon size={12} /> <span>{t.label}</span>
-            </button>
-          ))}
+        <div className="ai-tabs-wrap">
+          <div className="ai-tabs">
+            {tabs.map(t => (
+              <button key={t.key} onClick={() => setTab(t.key)} className={`ai-tab ${tab === t.key ? "ai-tab-active" : ""}`}>
+                <t.icon size={13} /> <span>{t.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
+
 
         {/* ───── Tab: REVENUE ───── */}
         {tab === "revenue" && (
@@ -1021,19 +1026,38 @@ export default function AiPainel({
         .ai-insight-icon { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center;
           background: linear-gradient(135deg, rgba(120,180,255,0.4), rgba(180,120,255,0.4));
           color: #fff; box-shadow: 0 0 18px rgba(120,180,255,0.45); }
+        .ai-tabs-wrap { position: sticky; top: 0; z-index: 20; margin: 0 -12px; padding: 6px 12px;
+          background: linear-gradient(180deg, rgba(5,8,19,0.92) 70%, rgba(5,8,19,0)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
         .ai-tabs { display: flex; gap: 6px; padding: 4px; border-radius: 12px;
-          background: rgba(10,15,30,0.5); border: 1px solid rgba(120,180,255,0.12); overflow-x: auto; }
-        .ai-tab { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px;
-          font-size: 11.5px; letter-spacing: 0.05em; color: rgba(230,240,255,0.65); white-space: nowrap;
-          border: 1px solid transparent; transition: all .2s; }
+          background: rgba(10,15,30,0.55); border: 1px solid rgba(120,180,255,0.14);
+          overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+          scrollbar-width: none; }
+        .ai-tabs::-webkit-scrollbar { display: none; }
+        .ai-tab { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 8px;
+          font-size: 12px; letter-spacing: 0.04em; color: rgba(230,240,255,0.7); white-space: nowrap;
+          border: 1px solid transparent; transition: all .2s; scroll-snap-align: start; min-height: 40px; touch-action: manipulation; }
         .ai-tab:hover { color: #fff; background: rgba(120,180,255,0.06); }
-        .ai-tab-active { color: #fff; background: linear-gradient(135deg, rgba(120,180,255,0.22), rgba(180,120,255,0.18));
-          border-color: rgba(120,180,255,0.35); box-shadow: 0 0 18px rgba(120,180,255,0.25); }
+        .ai-tab-active { color: #fff; background: linear-gradient(135deg, rgba(120,180,255,0.24), rgba(180,120,255,0.2));
+          border-color: rgba(120,180,255,0.4); box-shadow: 0 0 18px rgba(120,180,255,0.28); }
         .ai-alert { padding: 12px; border-radius: 12px; background: rgba(20,30,55,0.55);
           border: 1px solid rgba(255,255,255,0.06); }
         .ai-alert-high { border-color: rgba(255,120,140,0.35); background: linear-gradient(135deg, rgba(120,30,50,0.35), rgba(20,30,55,0.55)); }
         .ai-alert-med { border-color: rgba(255,200,90,0.3); background: linear-gradient(135deg, rgba(120,80,20,0.3), rgba(20,30,55,0.55)); }
+
+        @media (max-width: 640px) {
+          .ai-shell { overscroll-behavior-y: contain; }
+          .ai-title { font-size: 26px; }
+          .ai-subtitle { font-size: 11.5px; }
+          .ai-card { padding: 14px; border-radius: 14px; box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 12px 30px -16px rgba(0,0,0,0.55); }
+          .ai-card::before { border-radius: 14px; }
+          .ai-insight { padding: 14px; border-radius: 14px; }
+          .ai-insight-icon { width: 28px; height: 28px; border-radius: 9px; }
+          .ai-card-title { font-size: 12.5px; }
+          .ai-bg-grid { background-size: 36px 36px; opacity: 0.7; }
+          .ai-bg-glow { opacity: 0.85; }
+        }
       `}</style>
+
     </div>
   );
 }
@@ -1096,14 +1120,15 @@ function AiKpi({ label, sub, value, icon: Icon, hue }: { label: string; sub?: st
     rose:    { txt: "text-rose-200",    glow: "rgba(255,140,160,0.35)"  },
   }[hue];
   return (
-    <div className="ai-card" style={{ boxShadow: `0 20px 60px -30px ${hueMap.glow}` }}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] uppercase tracking-[0.18em] text-white/55">{label}</span>
-        <Icon size={13} className={hueMap.txt} />
+    <div className="ai-card ai-kpi" style={{ boxShadow: `0 20px 60px -30px ${hueMap.glow}` }}>
+      <div className="flex items-center justify-between mb-2 sm:mb-3 gap-2">
+        <span className="text-[10px] sm:text-[10px] uppercase tracking-[0.16em] sm:tracking-[0.18em] text-white/55 leading-tight">{label}</span>
+        <Icon size={13} className={`${hueMap.txt} shrink-0`} />
       </div>
-      <div className={`text-3xl font-light tabular-nums ${hueMap.txt}`} style={{ textShadow: `0 0 24px ${hueMap.glow}` }}>{value}</div>
-      {sub && <div className="text-[10.5px] text-white/50 mt-1">{sub}</div>}
+      <div className={`text-[22px] sm:text-3xl font-light tabular-nums ${hueMap.txt}`} style={{ textShadow: `0 0 24px ${hueMap.glow}` }}>{value}</div>
+      {sub && <div className="text-[10.5px] text-white/50 mt-1 leading-snug">{sub}</div>}
     </div>
+
   );
 }
 
