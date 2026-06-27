@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Camera, RefreshCcw, X, Check, Play } from "lucide-react";
+import { Camera, RefreshCcw, X, Check, Play, MapPin } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface WebcamCaptureDialogProps {
@@ -9,25 +9,21 @@ interface WebcamCaptureDialogProps {
   onClose: () => void;
   onCapture: (file: File) => void;
   title?: string;
+  /** Endereço carimbado no preview ao vivo (e queimado na foto capturada). */
+  stampAddress?: string;
 }
 
-/**
- * Webcam capture dialog (desktop + mobile PWA).
- *
- * iOS Safari/PWA requires getUserMedia to be called within a user gesture.
- * Quando o diálogo abre via state, o useEffect roda DEPOIS do paint e o iOS
- * pode invalidar o gesto. Por isso:
- *
- * 1) Tentamos iniciar a câmera automaticamente ao abrir (funciona desktop +
- *    Android + iOS Safari fora do PWA).
- * 2) Se a auto-inicialização falhar (NotAllowedError / gesto perdido),
- *    mostramos um botão "Iniciar câmera" que roda dentro do gesto do clique.
- */
+function formatStampDate(d: Date) {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
 export function WebcamCaptureDialog({
   open,
   onClose,
   onCapture,
   title = "Capturar foto",
+  stampAddress,
 }: WebcamCaptureDialogProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -35,6 +31,14 @@ export function WebcamCaptureDialog({
   const [ready, setReady] = useState(false);
   const [needsTapToStart, setNeedsTapToStart] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
+  const [now, setNow] = useState(() => new Date());
+
+  // Relógio para o overlay do carimbo.
+  useEffect(() => {
+    if (!open) return;
+    const id = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(id);
+  }, [open]);
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
@@ -45,7 +49,6 @@ export function WebcamCaptureDialog({
   const startStream = useCallback(
     async (mode: "user" | "environment", silent = false) => {
       try {
-        // Para qualquer stream anterior antes de pedir um novo (evita conflito).
         stopStream();
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: { ideal: mode }, width: { ideal: 1920 }, height: { ideal: 1080 } },
@@ -60,7 +63,6 @@ export function WebcamCaptureDialog({
         }
       } catch (err: any) {
         const name = err?.name || "";
-        // Erros de gesto/permissão: oferecer botão "Iniciar câmera" em vez de fechar.
         if (name === "NotAllowedError" || name === "SecurityError" || name === "AbortError") {
           setNeedsTapToStart(true);
           setReady(false);
@@ -72,7 +74,6 @@ export function WebcamCaptureDialog({
           }
           return;
         }
-        // Hardware ausente, em uso, etc. → fechar.
         toast({
           title: "Não foi possível acessar a câmera",
           description: err?.message || name || "Verifique as permissões do navegador.",
@@ -84,7 +85,6 @@ export function WebcamCaptureDialog({
     [onClose, stopStream]
   );
 
-  // Tenta iniciar ao abrir; se falhar, mostra tap-to-start.
   useEffect(() => {
     if (!open) {
       stopStream();
@@ -106,6 +106,56 @@ export function WebcamCaptureDialog({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.drawImage(video, 0, 0);
+
+    // Queima carimbo no canvas (mesmo formato do overlay ao vivo) — assim a foto
+    // entregue ao caller já vem com o stamp visível, sem depender de pós-processo.
+    if (stampAddress) {
+      const W = canvas.width;
+      const H = canvas.height;
+      const pad = Math.round(W * 0.018);
+      const fontPx = Math.max(18, Math.round(W * 0.022));
+      ctx.font = `600 ${fontPx}px Inter, system-ui, sans-serif`;
+      ctx.textBaseline = "bottom";
+      const dateText = formatStampDate(new Date());
+      const addressText = stampAddress;
+      // Quebra de endereço em até 2 linhas pelo width disponível.
+      const maxLineWidth = W - pad * 2;
+      const words = addressText.split(/\s+/);
+      const lines: string[] = [];
+      let current = "";
+      for (const w of words) {
+        const test = current ? current + " " + w : w;
+        if (ctx.measureText(test).width > maxLineWidth && current) {
+          lines.push(current);
+          current = w;
+        } else {
+          current = test;
+        }
+        if (lines.length === 1 && ctx.measureText(current).width > maxLineWidth) {
+          lines.push(current);
+          current = "";
+          break;
+        }
+      }
+      if (current) lines.push(current);
+      const allLines = [dateText, ...lines.slice(0, 2)];
+      const lineHeight = Math.round(fontPx * 1.25);
+      const blockH = lineHeight * allLines.length + pad;
+      // Fundo gradiente para garantir contraste.
+      const grad = ctx.createLinearGradient(0, H - blockH * 1.4, 0, H);
+      grad.addColorStop(0, "rgba(0,0,0,0)");
+      grad.addColorStop(1, "rgba(0,0,0,0.72)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, H - blockH * 1.4, W, blockH * 1.4);
+      // Texto.
+      ctx.fillStyle = "#FFD479";
+      ctx.fillText(allLines[0], pad, H - lineHeight * (allLines.length - 1) - pad / 2);
+      ctx.fillStyle = "#ffffff";
+      for (let i = 1; i < allLines.length; i++) {
+        ctx.fillText(allLines[i], pad, H - lineHeight * (allLines.length - 1 - i) - pad / 2);
+      }
+    }
+
     setPreview(canvas.toDataURL("image/jpeg", 0.92));
   };
 
@@ -120,6 +170,8 @@ export function WebcamCaptureDialog({
 
   const retake = () => setPreview(null);
   const toggleCamera = () => setFacingMode((m) => (m === "user" ? "environment" : "user"));
+
+  const showStampOverlay = !!stampAddress && !preview && ready;
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -149,6 +201,26 @@ export function WebcamCaptureDialog({
               autoPlay
               className="w-full h-full object-contain"
             />
+          )}
+
+          {/* Carimbo ao vivo — visível na pré-visualização da câmera. */}
+          {showStampOverlay && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 px-4 pt-10 pb-3 bg-gradient-to-t from-black/75 via-black/40 to-transparent">
+              <div className="text-[#FFD479] text-xs sm:text-sm font-semibold tabular-nums tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                {formatStampDate(now)}
+              </div>
+              <div className="mt-0.5 flex items-start gap-1.5 text-white text-xs sm:text-sm font-medium leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
+                <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[#FFD479]" strokeWidth={2} />
+                <span className="line-clamp-2">{stampAddress}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Aviso quando endereço ainda não foi informado. */}
+          {!stampAddress && !preview && ready && (
+            <div className="pointer-events-none absolute top-2 right-2 bg-amber-500/90 text-black text-[10px] font-semibold px-2 py-1 rounded-md">
+              Sem endereço para carimbo
+            </div>
           )}
         </div>
 
