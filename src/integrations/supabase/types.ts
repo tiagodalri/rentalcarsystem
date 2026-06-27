@@ -283,6 +283,48 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_templates: {
+        Row: {
+          clauses: Json
+          company_address: string
+          company_ein: string
+          company_name: string
+          created_at: string
+          disclaimer: string
+          footer_text: string
+          header_subtitle: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          clauses?: Json
+          company_address?: string
+          company_ein?: string
+          company_name?: string
+          created_at?: string
+          disclaimer?: string
+          footer_text?: string
+          header_subtitle?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          clauses?: Json
+          company_address?: string
+          company_ein?: string
+          company_name?: string
+          created_at?: string
+          disclaimer?: string
+          footer_text?: string
+          header_subtitle?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       customer_notes: {
         Row: {
           author_id: string | null

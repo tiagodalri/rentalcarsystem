@@ -76,6 +76,7 @@ const AdminFleetGantt = lazy(() => import("./pages/admin/AdminFleetGantt.tsx"));
 const AdminVehicleNew = lazy(() => import("./pages/admin/AdminVehicleNew.tsx"));
 const AdminBookingNew = lazy(() => import("./pages/admin/AdminBookingNew.tsx"));
 const AdminContracts = lazy(() => import("./pages/admin/AdminContracts.tsx"));
+const AdminContractTemplate = lazy(() => import("./pages/admin/AdminContractTemplate.tsx"));
 const AdminTuroImport = lazy(() => import("./pages/admin/AdminTuroImport.tsx"));
 const AdminTutorials = lazy(() => import("./pages/admin/AdminTutorials.tsx"));
 
@@ -247,6 +248,7 @@ const App = () => (
                 <Route path="ops-today" element={<RequireRole roles={["admin","operations","support","driver"]}><AdminSuspense><AdminOpsToday /></AdminSuspense></RequireRole>} />
                 <Route path="calendar" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminFleetGantt /></AdminSuspense></RequireRole>} />
                 <Route path="contracts" element={<RequireRole roles={["admin","operations","support","finance"]}><AdminSuspense><AdminContracts /></AdminSuspense></RequireRole>} />
+                <Route path="contracts/template" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminContractTemplate /></AdminSuspense></RequireRole>} />
                 <Route path="turo-import" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminTuroImport /></AdminSuspense></RequireRole>} />
                 <Route path="tutoriais" element={<RequireRole roles={["admin","operations","support","driver","finance"]}><AdminSuspense><AdminTutorials /></AdminSuspense></RequireRole>} />
               </Route>

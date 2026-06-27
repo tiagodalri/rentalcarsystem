@@ -41,6 +41,33 @@ export type ContractVehicle = {
   daily_price_usd?: number | null;
 };
 
+export type ContractTemplate = {
+  company_name: string;
+  company_address: string;
+  company_ein: string;
+  header_subtitle: string;
+  clauses: string[];
+  disclaimer: string;
+  footer_text: string;
+};
+
+export const DEFAULT_CONTRACT_TEMPLATE: ContractTemplate = {
+  company_name: "Zeus Rental Car LLC",
+  company_address: "Orlando, FL — EUA",
+  company_ein: "—",
+  header_subtitle: "CONTRATO DE LOCAÇÃO DE VEÍCULO",
+  clauses: [
+    "1. O LOCATÁRIO declara possuir CNH válida durante toda a vigência da locação.",
+    "2. O LOCATÁRIO é responsável por danos materiais, multas de trânsito e infrações cometidas durante o período de locação.",
+    "3. A devolução deve ser feita no local e horário acordados. Atrasos podem incorrer em diária adicional.",
+    "4. O LOCATÁRIO se compromete a não conduzir o veículo sob efeito de álcool, drogas ou em condições que comprometam a segurança.",
+    "5. Em caso de sinistro, comunicar a LOCADORA imediatamente pelo WhatsApp oficial e acionar autoridades locais.",
+  ],
+  disclaimer:
+    "* As cláusulas acima são versão inicial e estão sujeitas a revisão jurídica final pela LOCADORA antes de serem consideradas vinculativas.",
+  footer_text: "Contrato gerado eletronicamente — Zeus Rental Car",
+};
+
 const fmtDate = (d?: string | null) =>
   d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : "—";
 
@@ -53,6 +80,7 @@ export function generateContractPdf(
   booking: ContractBooking,
   customer: ContractCustomer,
   vehicle: ContractVehicle,
+  template: ContractTemplate = DEFAULT_CONTRACT_TEMPLATE,
 ): void {
   const doc = new jsPDF("p", "mm", "a4");
   const pageW = 210;
@@ -78,10 +106,10 @@ export function generateContractPdf(
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text("ZEUS RENTAL CAR", margin, 15);
+  doc.text((template.company_name || "ZEUS RENTAL CAR").toUpperCase(), margin, 15);
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
-  doc.text("CONTRATO DE LOCAÇÃO DE VEÍCULO", margin, 23);
+  doc.text(template.header_subtitle || "CONTRATO DE LOCAÇÃO DE VEÍCULO", margin, 23);
   doc.setFontSize(8);
   doc.text(`Emissão: ${new Date().toLocaleDateString("pt-BR")}`, margin, 30);
 
@@ -133,9 +161,9 @@ export function generateContractPdf(
 
   // BLOCO 1 — LOCADORA
   section("LOCADORA");
-  row("Razão Social", "Zeus Rental Car LLC");
+  row("Razão Social", template.company_name);
   y += 8;
-  twoCols("Endereço", "Orlando, FL — EUA", "EIN / CNPJ", "—");
+  twoCols("Endereço", template.company_address, "EIN / CNPJ", template.company_ein);
 
   // BLOCO 2 — LOCATÁRIO
   const fullAddress = [
@@ -196,27 +224,24 @@ export function generateContractPdf(
   doc.setTextColor(40, 40, 40);
   doc.setFontSize(8.5);
   doc.setFont("helvetica", "normal");
-  const clauses = [
-    "1. O LOCATÁRIO declara possuir CNH válida durante toda a vigência da locação.",
-    "2. O LOCATÁRIO é responsável por danos materiais, multas de trânsito e infrações cometidas durante o período de locação.",
-    "3. A devolução deve ser feita no local e horário acordados. Atrasos podem incorrer em diária adicional.",
-    "4. O LOCATÁRIO se compromete a não conduzir o veículo sob efeito de álcool, drogas ou em condições que comprometam a segurança.",
-    "5. Em caso de sinistro, comunicar a LOCADORA imediatamente pelo WhatsApp oficial e acionar autoridades locais.",
-  ];
+  const clauses = template.clauses && template.clauses.length ? template.clauses : DEFAULT_CONTRACT_TEMPLATE.clauses;
   for (const c of clauses) {
     checkPage(10);
     const lines = doc.splitTextToSize(c, contentW);
     doc.text(lines, margin, y);
     y += lines.length * 4 + 2;
   }
-  checkPage(8);
-  doc.setTextColor(...gray);
-  doc.setFontSize(7);
-  doc.setFont("helvetica", "italic");
-  const disclaimer = "* As cláusulas acima são versão inicial e estão sujeitas a revisão jurídica final pela LOCADORA antes de serem consideradas vinculativas.";
-  const disclaimerLines = doc.splitTextToSize(disclaimer, contentW);
-  doc.text(disclaimerLines, margin, y);
-  y += disclaimerLines.length * 3.5 + 6;
+  if (template.disclaimer) {
+    checkPage(8);
+    doc.setTextColor(...gray);
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "italic");
+    const disclaimerLines = doc.splitTextToSize(template.disclaimer, contentW);
+    doc.text(disclaimerLines, margin, y);
+    y += disclaimerLines.length * 3.5 + 6;
+  } else {
+    y += 4;
+  }
 
   // ASSINATURAS
   checkPage(50);
@@ -235,7 +260,7 @@ export function generateContractPdf(
   doc.setFontSize(8);
   doc.text(customer.full_name, margin, y + 10);
   doc.text(`Doc.: ${customer.document_number || "—"}`, margin, y + 14);
-  doc.text("Zeus Rental Car LLC", margin + sigW + 10, y + 10);
+  doc.text(template.company_name, margin + sigW + 10, y + 10);
   y += 22;
 
   doc.setTextColor(...gray);
@@ -251,7 +276,7 @@ export function generateContractPdf(
     doc.rect(0, pageH - 7, pageW, 7, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(7);
-    doc.text(`Contrato gerado eletronicamente em ${ts} — Zeus Rental Car`, margin, pageH - 2.5);
+    doc.text(`${template.footer_text} — ${ts}`, margin, pageH - 2.5);
     doc.text(`Página ${i} de ${pageCount}`, pageW - margin - 25, pageH - 2.5);
   }
 

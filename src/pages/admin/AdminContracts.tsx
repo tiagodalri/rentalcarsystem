@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   XCircle,
   Search,
+  FileText,
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -73,6 +74,7 @@ const fmtDateTime = (iso?: string | null) =>
   iso ? new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
 
 const AdminContracts = () => {
+  const navigate = useNavigate();
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | ContractStatus>("all");
@@ -161,10 +163,20 @@ const AdminContracts = () => {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader
-        title="Contratos"
-        subtitle="Acompanhe o status de assinatura de todos os contratos de locação."
-      />
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <AdminPageHeader
+          title="Contratos"
+          subtitle="Acompanhe o status de assinatura de todos os contratos de locação."
+        />
+        <button
+          onClick={() => navigate("/admin/contracts/template")}
+          className="inline-flex items-center gap-2 h-10 px-4 rounded-md border border-border/50 bg-card hover:bg-accent text-sm font-medium transition-colors"
+        >
+          <FileText size={14} className="text-primary" />
+          Modelo de contrato
+        </button>
+      </div>
+
 
 
       <div className="admin-card p-4 space-y-4">
