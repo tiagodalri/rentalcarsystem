@@ -261,11 +261,11 @@ export default function AdminBookingDetail() {
   const sc = statusConfig[booking.status] || statusConfig.pending;
 
   const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-    <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.1em] mb-4">{children}</h2>
+    <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.1em] mb-4">{children}</h2>
   );
 
   const DetailItem = ({ label, value, highlight }: { label: string; value: string | number | null | undefined; highlight?: boolean }) => (
-    <div className="flex items-center justify-between py-2.5 border-b border-border/20 last:border-0">
+    <div className="flex items-center justify-between py-2 border-b border-border/20 last:border-0">
       <span className="text-xs text-muted-foreground">{label}</span>
       <span className={`text-sm font-medium ${highlight ? "text-primary" : "text-foreground"}`}>{value || "—"}</span>
     </div>
@@ -274,7 +274,7 @@ export default function AdminBookingDetail() {
   const MetricCard = ({ icon: Icon, label, value, color = "text-foreground" }: { icon: any; label: string; value: string | number; color?: string }) => (
     <div className="flex flex-col items-center justify-center p-3 rounded-xl border border-border/30 bg-card/80 gap-1 min-h-[80px]">
       <Icon size={14} className="text-primary/60" />
-      <span className="text-[9px] text-muted-foreground uppercase tracking-wider text-center leading-tight">{label}</span>
+      <span className="text-[10px] text-muted-foreground uppercase tracking-wider text-center leading-tight">{label}</span>
       <span className={`text-sm font-medium ${color}`}>{value}</span>
     </div>
   );
@@ -362,8 +362,8 @@ export default function AdminBookingDetail() {
                     <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <Image size={16} className="text-foreground" />
                     </div>
-                    <div className="absolute bottom-0 inset-x-0 bg-background/80 backdrop-blur-sm px-1.5 py-0.5">
-                      <span className="text-[8px] text-foreground font-medium truncate block">{positionLabel(photo.position)}</span>
+                    <div className="absolute bottom-0 inset-x-0 bg-background/80 backdrop-blur-sm px-2 py-1">
+                      <span className="text-[10px] text-foreground font-medium truncate block">{positionLabel(photo.position)}</span>
                     </div>
                   </button>
                 ))}
@@ -385,7 +385,7 @@ export default function AdminBookingDetail() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-xs font-medium text-foreground">{d.description}</span>
-                        <Badge variant="outline" className={`text-[9px] px-1.5 py-0 shrink-0 ${
+                        <Badge variant="outline" className={`text-[10px] px-2 py-0 shrink-0 ${
                           d.severity === "heavy" ? "border-red-500/30 text-red-500" :
                           d.severity === "medium" ? "border-amber-500/30 text-amber-600" :
                           "border-yellow-500/30 text-yellow-600"
@@ -413,9 +413,9 @@ export default function AdminBookingDetail() {
                 <CheckCircle2 size={12} className="text-primary/60" />
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Acessórios</span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {accessoryEntries.map(([key, val]) => (
-                  <div key={key} className={`flex items-center gap-2 rounded-md px-2.5 py-1.5 text-xs border ${
+                  <div key={key} className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs border ${
                     val ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-600" : "border-red-500/20 bg-red-500/5 text-red-500"
                   }`}>
                     {val ? <Check size={11} /> : <XIcon size={11} />}
@@ -436,13 +436,13 @@ export default function AdminBookingDetail() {
               <div className="grid grid-cols-2 gap-3">
                 {insp.customer_signature && (
                   <div className="rounded-lg border border-border/30 bg-white p-2">
-                    <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1 font-medium">Cliente</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-medium">Cliente</p>
                     <img src={insp.customer_signature} alt="Assinatura do cliente" className="w-full h-16 object-contain" />
                   </div>
                 )}
                 {insp.agent_signature && (
                   <div className="rounded-lg border border-border/30 bg-white p-2">
-                    <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1 font-medium">Agente</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1 font-medium">Agente</p>
                     <img src={insp.agent_signature} alt="Assinatura do agente" className="w-full h-16 object-contain" />
                   </div>
                 )}
@@ -476,7 +476,7 @@ export default function AdminBookingDetail() {
       )}
 
       {/* Breadcrumb */}
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <button onClick={() => navigate("/admin/bookings")} className="hover:text-foreground transition-colors">Reservas</button>
         <ChevronRight size={12} />
         <span className="text-foreground font-medium">{formatPersonName(booking.customer_name)}</span>
@@ -488,13 +488,13 @@ export default function AdminBookingDetail() {
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <PersonAvatar name={booking.customer_name} size="lg" tone="gold" />
-              <h1 className="text-[22px] sm:admin-h1 text-2xl leading-tight break-words min-w-0">
+              <h1 className="text-xl sm:admin-h1 text-2xl leading-tight break-words min-w-0">
                 {formatPersonName(booking.customer_name)}
               </h1>
             </div>
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-2">
               {booking.booking_number && (
-                <Badge variant="outline" className="text-[10px] px-2 py-0.5 font-mono tabular-nums">
+                <Badge variant="outline" className="text-[10px] px-2 py-1 font-mono tabular-nums">
                   {booking.booking_number}
                 </Badge>
               )}
@@ -505,16 +505,16 @@ export default function AdminBookingDetail() {
                   rel="noopener noreferrer"
                   title="Abrir reserva na Turo"
                 >
-                  <Badge variant="outline" className="text-[10px] px-2 py-0.5 font-mono tabular-nums border-primary/40 text-primary hover:bg-primary/10 cursor-pointer">
+                  <Badge variant="outline" className="text-[10px] px-2 py-1 font-mono tabular-nums border-primary/40 text-primary hover:bg-primary/10 cursor-pointer">
                     Turo #{booking.turo_reservation_code}
                   </Badge>
                 </a>
               )}
-              <Badge className={`${sc.color} border text-[10px] px-2.5 py-0.5 font-semibold whitespace-nowrap`}>{sc.label}</Badge>
+              <Badge className={`${sc.color} border text-[10px] px-3 py-1 font-semibold whitespace-nowrap`}>{sc.label}</Badge>
               {(() => {
                 const cs = contractStatusConfig[booking.contract_status || "not_sent"] || contractStatusConfig.not_sent;
                 const badge = (
-                  <Badge className={`${cs.cls} border text-[10px] px-2.5 py-0.5 font-semibold whitespace-nowrap`}>{cs.label}</Badge>
+                  <Badge className={`${cs.cls} border text-[10px] px-3 py-1 font-semibold whitespace-nowrap`}>{cs.label}</Badge>
                 );
                 if (booking.contract_status === "failed" && booking.contract_error) {
                   return (
@@ -534,26 +534,26 @@ export default function AdminBookingDetail() {
                   ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
                   : "bg-amber-500/10 text-amber-600 border-amber-500/30";
                 const label = ps === "paid" ? "Pagamento OK" : "Pagamento pendente";
-                return <Badge className={`${cls} border text-[10px] px-2.5 py-0.5 font-semibold whitespace-nowrap`}>{label}</Badge>;
+                return <Badge className={`${cls} border text-[10px] px-3 py-1 font-semibold whitespace-nowrap`}>{label}</Badge>;
               })()}
             </div>
           </div>
 
           <div className="grid w-full grid-cols-[1fr_auto_auto] gap-px overflow-hidden rounded-xl border border-border/40 bg-border/40 sm:inline-grid sm:w-auto sm:min-w-[430px] sm:grid-cols-[1.35fr_0.65fr_0.9fr] sm:gap-0 sm:bg-background/60">
             <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent sm:border-r sm:border-border/30">
-              <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Período</p>
-              <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums" title={`${pickup.toLocaleDateString("pt-BR")} → ${returnD.toLocaleDateString("pt-BR")}`}>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">Período</p>
+              <p className="truncate text-xs sm:text-xs font-medium text-foreground tabular-nums" title={`${pickup.toLocaleDateString("pt-BR")} → ${returnD.toLocaleDateString("pt-BR")}`}>
                 {pickup.toLocaleDateString("pt-BR")} → {returnD.toLocaleDateString("pt-BR")}
               </p>
             </div>
             <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent sm:border-r sm:border-border/30">
-              <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Dias</p>
-              <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{days}</p>
+              <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">Dias</p>
+              <p className="truncate text-xs sm:text-xs font-medium text-foreground tabular-nums">{days}</p>
             </div>
             {!hideFin && (
               <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent">
-                <p className="text-[9px] font-medium uppercase tracking-wider text-muted-foreground/70">Total</p>
-                <p className="truncate text-[11px] sm:text-xs font-medium text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
+                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">Total</p>
+                <p className="truncate text-xs sm:text-xs font-medium text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
               </div>
             )}
           </div>
@@ -568,7 +568,7 @@ export default function AdminBookingDetail() {
                 target="_blank"
                 rel="noopener noreferrer"
                 title={`WhatsApp: ${booking.customer_phone}`}
-                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-center text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400 sm:min-h-9"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-center text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400 sm:min-h-9"
               >
                 <MessageCircle size={13} />
                 <span className="leading-tight">WhatsApp Cliente</span>
@@ -576,13 +576,13 @@ export default function AdminBookingDetail() {
             )}
             <button
               onClick={() => navigate(`/admin/inspection/${booking.id}?type=checkin`)}
-              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-primary/20 sm:min-h-9"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-medium text-primary transition-colors hover:bg-primary/20 sm:min-h-9"
             >
               <LogIn size={13} /> Entrega
             </button>
             <button
               onClick={() => navigate(`/admin/inspection/${booking.id}?type=checkout`)}
-              className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg border border-border/40 bg-muted px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted/80 sm:min-h-9"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-border/40 bg-muted px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted/80 sm:min-h-9"
             >
               <LogOut size={13} /> Devolução
             </button>
@@ -590,7 +590,7 @@ export default function AdminBookingDetail() {
               <button
                 onClick={handleSendContract}
                 disabled={sendingContract}
-                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-9"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-9"
               >
                 {sendingContract ? <Loader2 size={13} className="animate-spin" /> : <Send size={13} />}
                 {sendingContract ? "Enviando..." : "Enviar Contrato"}
@@ -600,7 +600,7 @@ export default function AdminBookingDetail() {
 
           {canSendContract && ["not_sent", "failed"].includes(booking.contract_status || "not_sent") && !canActuallySendContract && (
             <div className="grid gap-2 sm:flex sm:justify-end">
-              <div className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-2 text-center text-[11px] font-medium text-amber-700 dark:text-amber-400">
+              <div className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-center text-xs font-medium text-amber-700 dark:text-amber-400">
                 <AlertTriangle size={12} className="shrink-0" />
                 <span className="min-w-0">Cliente sem {missingContractFields.join(", ")}</span>
               </div>
@@ -608,7 +608,7 @@ export default function AdminBookingDetail() {
                 onClick={handleSendContract}
                 disabled
                 title={`Preencha: ${missingContractFields.join(", ")}`}
-                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground opacity-50 disabled:cursor-not-allowed"
               >
                 <Send size={13} />
                 Enviar Contrato
@@ -619,7 +619,7 @@ export default function AdminBookingDetail() {
           <div className={`grid gap-2 sm:flex sm:justify-end ${isAdmin ? "grid-cols-3" : "grid-cols-2"}`}>
             <button
               onClick={() => navigate(`/admin/inspection/report/${booking.id}`)}
-              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-border/40 bg-muted px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:h-9 sm:min-h-0 sm:w-9 sm:px-0"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border/40 bg-muted px-3 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:h-9 sm:min-h-0 sm:w-9 sm:px-0"
               title="Ver laudo"
               aria-label="Ver laudo"
             >
@@ -628,7 +628,7 @@ export default function AdminBookingDetail() {
             </button>
             <button
               onClick={() => setIncidentOpen(true)}
-              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-destructive px-3 text-xs font-medium text-destructive-foreground shadow-sm transition-colors hover:bg-destructive/90 sm:h-9 sm:min-h-0 sm:w-9 sm:px-0"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-destructive px-3 text-xs font-medium text-destructive-foreground shadow-sm transition-colors hover:bg-destructive/90 sm:h-9 sm:min-h-0 sm:w-9 sm:px-0"
               title="Registrar ocorrência"
               aria-label="Registrar ocorrência"
             >
@@ -638,7 +638,7 @@ export default function AdminBookingDetail() {
             {isAdmin && (
               <button
                 onClick={() => setEditOpen(true)}
-                className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-foreground px-3 text-xs font-medium text-background transition-colors hover:bg-foreground/90 sm:h-9 sm:min-h-0 sm:w-9 sm:px-0"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-foreground px-3 text-xs font-medium text-background transition-colors hover:bg-foreground/90 sm:h-9 sm:min-h-0 sm:w-9 sm:px-0"
                 title="Editar reserva"
                 aria-label="Editar reserva"
               >
@@ -790,26 +790,26 @@ export default function AdminBookingDetail() {
                 <div>
                   <h2 className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-4">Veículo</h2>
                   <h3 className="admin-h1 text-2xl">{vehicle.name}</h3>
-                  <p className="text-primary font-medium mt-1 uppercase tracking-widest text-[11px]">
+                  <p className="text-primary font-medium mt-1 uppercase tracking-widest text-xs">
                     {vehicle.year ? `${vehicle.year} • ` : ""}{vehicle.category}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
-                    <p className="text-[9px] text-muted-foreground/70 font-medium uppercase tracking-wider">Transmissão</p>
+                    <p className="text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider">Transmissão</p>
                     <p className="text-xs font-semibold text-foreground mt-0.5">{vehicle.transmission}</p>
                   </div>
                   <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
-                    <p className="text-[9px] text-muted-foreground/70 font-medium uppercase tracking-wider">Combustível</p>
+                    <p className="text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider">Combustível</p>
                     <p className="text-xs font-semibold text-foreground mt-0.5">{vehicle.fuel}</p>
                   </div>
                   <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
-                    <p className="text-[9px] text-muted-foreground/70 font-medium uppercase tracking-wider">Passageiros</p>
+                    <p className="text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider">Passageiros</p>
                     <p className="text-xs font-semibold text-foreground tabular-nums mt-0.5">{vehicle.passengers}</p>
                   </div>
                   <div className="bg-muted/40 p-3 rounded-lg border border-border/30">
-                    <p className="text-[9px] text-muted-foreground/70 font-medium uppercase tracking-wider">Malas</p>
+                    <p className="text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider">Malas</p>
                     <p className="text-xs font-semibold text-foreground tabular-nums mt-0.5">{vehicle.bags}</p>
                   </div>
                 </div>
@@ -841,21 +841,21 @@ export default function AdminBookingDetail() {
 
           {!hideFin && (<>
           <div className="space-y-1">
-            <div className="flex justify-between py-2.5 border-b border-border/30">
+            <div className="flex justify-between py-2 border-b border-border/30">
               <span className="text-sm text-muted-foreground">Duração da reserva</span>
               <span className="text-sm font-semibold text-foreground tabular-nums">{days} dia{days > 1 ? "s" : ""}</span>
             </div>
-            <div className="flex justify-between py-2.5 border-b border-border/30">
+            <div className="flex justify-between py-2 border-b border-border/30">
               <span className="text-sm text-muted-foreground">Condutor adicional</span>
               <span className="text-sm font-semibold text-foreground">{booking.extra_driver ? "Sim" : "Não"}</span>
             </div>
-            <div className="flex justify-between py-2.5 border-b border-border/30">
+            <div className="flex justify-between py-2 border-b border-border/30">
               <span className="text-sm text-muted-foreground">Idade do condutor</span>
               <span className="text-sm font-semibold text-foreground tabular-nums">
                 {booking.driver_age ? `${booking.driver_age} anos` : "—"}
               </span>
             </div>
-            <div className="flex justify-between py-2.5 border-b border-border/30">
+            <div className="flex justify-between py-2 border-b border-border/30">
               <span className="text-sm text-muted-foreground">Reserva criada em</span>
               <span className="text-sm font-semibold text-foreground tabular-nums">
                 {new Date(booking.created_at).toLocaleDateString("pt-BR")}
@@ -905,44 +905,44 @@ export default function AdminBookingDetail() {
                   <h3 className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                     Detalhamento do pagamento
                   </h3>
-                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-md border ${st.tone}`}>
+                  <span className={`inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-md border ${st.tone}`}>
                     <span className={`h-1.5 w-1.5 rounded-full ${st.dot}`} />
                     {st.label}
                   </span>
                 </div>
 
                 <div className="divide-y divide-border/30">
-                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
+                  <div className="flex justify-between py-2 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Valor total</span>
                     <span className="text-sm font-semibold text-foreground tabular-nums">${total.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
+                  <div className="flex justify-between py-2 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Já pago</span>
                     <span className={`text-sm font-semibold tabular-nums ${isPaid ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
                       {isPaid ? `$${total.toFixed(2)}` : "$0.00"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
+                  <div className="flex justify-between py-2 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Forma de pagamento</span>
                     <span className="text-sm font-semibold text-foreground">
                       {booking.payment_method ? (methodMap[booking.payment_method] || booking.payment_method) : "—"}
                     </span>
                   </div>
                   {booking.paid_at && (
-                    <div className="flex justify-between py-2.5 px-4 sm:px-5">
+                    <div className="flex justify-between py-2 px-4 sm:px-5">
                       <span className="text-sm text-muted-foreground">Pago em</span>
                       <span className="text-sm font-semibold text-foreground tabular-nums">
                         {new Date(booking.paid_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
                       </span>
                     </div>
                   )}
-                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
+                  <div className="flex justify-between py-2 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Caução {deposit > 0 ? "(reter na retirada)" : ""}</span>
                     <span className={`text-sm font-semibold tabular-nums ${deposit > 0 ? "text-foreground" : "text-muted-foreground"}`}>
                       {deposit > 0 ? `$${deposit.toFixed(2)}` : "Não aplicável"}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2.5 px-4 sm:px-5">
+                  <div className="flex justify-between py-2 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Franquia (responsabilidade)</span>
                     <span className="text-sm font-semibold text-foreground tabular-nums">
                       {franchise > 0 ? `$${franchise.toFixed(2)}` : "—"}
@@ -957,7 +957,7 @@ export default function AdminBookingDetail() {
                     : "bg-emerald-500/[0.06]"
                 }`}>
                   {balanceDue > 0 ? (
-                    <div className="flex items-start gap-2.5">
+                    <div className="flex items-start gap-3">
                       <AlertTriangle size={15} className="text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
                       <div className="text-xs leading-relaxed">
                         <p className="font-medium text-amber-700 dark:text-amber-400">
@@ -970,7 +970,7 @@ export default function AdminBookingDetail() {
                       </div>
                     </div>
                   ) : isRefunded ? (
-                    <div className="flex items-start gap-2.5">
+                    <div className="flex items-start gap-3">
                       <AlertTriangle size={15} className="text-sky-600 dark:text-sky-400 mt-0.5 shrink-0" />
                       <div className="text-xs leading-relaxed">
                         <p className="font-medium text-sky-700 dark:text-sky-400">Reserva reembolsada</p>
@@ -978,7 +978,7 @@ export default function AdminBookingDetail() {
                       </div>
                     </div>
                   ) : isFailed ? (
-                    <div className="flex items-start gap-2.5">
+                    <div className="flex items-start gap-3">
                       <AlertTriangle size={15} className="text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
                       <div className="text-xs leading-relaxed">
                         <p className="font-medium text-red-700 dark:text-red-400">Pagamento falhou</p>
@@ -986,7 +986,7 @@ export default function AdminBookingDetail() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-start gap-2.5">
+                    <div className="flex items-start gap-3">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-600 dark:text-emerald-400 mt-0.5 shrink-0">
                         <path d="M20 6L9 17l-5-5" />
                       </svg>
