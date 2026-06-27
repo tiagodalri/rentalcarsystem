@@ -20,7 +20,8 @@ Deno.serve(async (req) => {
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY");
+    const GOOGLE_MAPS_API_KEY =
+      Deno.env.get("GOOGLE_MAPS_API_KEY_1") ?? Deno.env.get("GOOGLE_MAPS_API_KEY");
     if (!LOVABLE_API_KEY || !GOOGLE_MAPS_API_KEY) {
       return new Response(JSON.stringify({ error: "Missing connector credentials" }), {
         status: 500,
