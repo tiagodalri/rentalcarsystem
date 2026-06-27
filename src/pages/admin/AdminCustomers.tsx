@@ -15,6 +15,7 @@ import { buildWhatsAppUrl, defaultClientMessage } from "@/lib/whatsapp";
 import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import { formatPersonName } from "@/lib/formatName";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { CustomersSubNav } from "@/components/admin/CustomersSubNav";
 import { ensureTuroTagAssigned } from "@/lib/turoTag";
 import { uploadCnhAsStaff, getCnhViewUrl } from "@/lib/cnhStorage";
