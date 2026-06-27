@@ -58,7 +58,7 @@ const PERIOD_LABEL: Record<Period, string> = {
   evening: "Noite",
 };
 
-export default function MobilePainel({ bookings, vehicles, onRefresh }: MobilePainelProps) {
+export default function MobilePainel({ bookings, vehicles, onRefresh, aiMode, onToggleAi }: MobilePainelProps) {
   const navigate = useNavigate();
   const now = useMemo(() => new Date(), []);
   const today = todayStr();
