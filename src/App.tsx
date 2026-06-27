@@ -18,6 +18,7 @@ import { AdminShellSkeleton } from "./components/skeletons/AdminShellSkeleton.ts
 import { AccountSkeleton } from "./components/skeletons/AccountSkeleton.tsx";
 import InstallPrompt from "./components/InstallPrompt.tsx";
 import { OfflineBanner } from "./components/OfflineBanner";
+import MobileOps from "./pages/admin/mobile/MobileOps.tsx";
 // Lazy: shell admin + role guard só são baixados quando alguém entra em /admin
 const AdminLayout = lazy(() => import("./components/admin/AdminLayout.tsx"));
 const RequireRole = lazy(() =>
@@ -27,6 +28,7 @@ import { useSwUpdateOnNavigate } from "./hooks/useSwUpdateOnNavigate.ts";
 import { useDynamicThemeColor } from "./hooks/useDynamicThemeColor.ts";
 import { useNativeFeel } from "./hooks/useNativeFeel.ts";
 import { useSwipeBack } from "./hooks/useSwipeBack.ts";
+import { useIsMobileApp } from "./hooks/useIsMobileApp.ts";
 
 // Lazy-loaded: páginas públicas secundárias (reduz bundle inicial da home)
 const AboutUs = lazy(() => import("./pages/AboutUs.tsx"));
@@ -122,6 +124,27 @@ const PublicSuspense = ({ children }: { children: React.ReactNode }) => (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>{children}</Suspense>
   </RouteErrorBoundary>
 );
+
+const OpsTodayRoute = () => {
+  const { isMobile } = useIsMobileApp();
+
+  // A tela "Hoje/Operação" é crítica para o Rui no celular. Mantemos a versão
+  // mobile no bundle principal, sem import dinâmico, para não depender de chunk
+  // lazy/prefetch em iOS Safari/PWA depois de deploys.
+  if (isMobile) {
+    return (
+      <RouteErrorBoundary resetKey="mobile-ops-today">
+        <MobileOps />
+      </RouteErrorBoundary>
+    );
+  }
+
+  return (
+    <AdminSuspense>
+      <AdminOpsToday />
+    </AdminSuspense>
+  );
+};
 
 /**
  * Gerencia scroll entre navegações:
@@ -252,7 +275,7 @@ const App = () => (
 
                 <Route path="finance" element={<RequireRole roles={["admin","finance"]}><AdminSuspense><AdminFinance /></AdminSuspense></RequireRole>} />
                 <Route path="team" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminTeam /></AdminSuspense></RequireRole>} />
-                <Route path="ops-today" element={<RequireRole roles={["admin","operations","support","driver"]}><AdminSuspense><AdminOpsToday /></AdminSuspense></RequireRole>} />
+                <Route path="ops-today" element={<RequireRole roles={["admin","operations","support","driver"]}><OpsTodayRoute /></RequireRole>} />
                 <Route path="calendar" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminFleetGantt /></AdminSuspense></RequireRole>} />
                 <Route path="contracts" element={<RequireRole roles={["admin","operations","support","finance"]}><AdminSuspense><AdminContracts /></AdminSuspense></RequireRole>} />
                 <Route path="contracts/template" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminContractTemplate /></AdminSuspense></RequireRole>} />
