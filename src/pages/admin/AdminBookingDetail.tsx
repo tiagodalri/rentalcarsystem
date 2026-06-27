@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   User, FileText, LogIn, LogOut, GitCompare,
   Fuel, Gauge, CheckCircle2, AlertTriangle, ChevronRight,
-  Camera, PenTool, Image, Check, X as XIcon, Pencil, Send, Loader2, MessageCircle
+  Camera, PenTool, Image, Check, X as XIcon, Pencil, Send, Loader2, MessageCircle, ArrowRight
 } from "lucide-react";
 import { BookingDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
 import { LocationDisplay } from "@/components/admin/LocationDisplay";
