@@ -273,6 +273,31 @@ export default function MobilePainel({ bookings, vehicles, onRefresh, aiMode, on
           )}
         </section>
 
+        {/* ═══════════ Modo IA ═══════════ */}
+        {onToggleAi && (
+          <button
+            onClick={onToggleAi}
+            className={`w-full text-left rounded-2xl border p-4 flex items-center gap-3 active:scale-[0.99] transition-transform ${
+              aiMode
+                ? "border-cyan-300/40 bg-gradient-to-r from-cyan-500/15 via-violet-500/15 to-fuchsia-500/15 shadow-[0_0_20px_rgba(120,180,255,0.25)]"
+                : "border-border/40 bg-card/70 hover:bg-card"
+            }`}
+          >
+            <div className={`h-10 w-10 rounded-full flex items-center justify-center ${
+              aiMode ? "bg-cyan-500/20 text-cyan-300" : "bg-foreground/5 text-foreground"
+            }`}>
+              <Brain size={20} strokeWidth={1.75} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[14px] font-medium text-foreground">Modo IA</div>
+              <div className="text-[11px] text-muted-foreground truncate">
+                {aiMode ? "IA ativada — toque para voltar" : "Insights inteligentes da frota"}
+              </div>
+            </div>
+            <ChevronRight size={16} className="text-muted-foreground/50" />
+          </button>
+        )}
+
         {/* ═══════════ Atalhos ═══════════ */}
         <section>
           <SectionLabel>Atalhos</SectionLabel>
