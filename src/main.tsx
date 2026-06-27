@@ -31,7 +31,7 @@ window.addEventListener("error", (event) => {
 
 window.addEventListener("unhandledrejection", (event) => {
   const reason: unknown = event?.reason;
-  const msg = typeof reason === "string" ? reason : reason?.message;
+  const msg = typeof reason === "string" ? reason : reason instanceof Error ? reason.message : null;
   if (tryRecoverFromChunkError(msg)) {
     event.preventDefault();
   }
