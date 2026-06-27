@@ -1,7 +1,7 @@
 /// <reference types="npm:@types/react@18.3.1" />
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Container, Head, Heading, Html, Preview, Section, Text, Hr, Link, Row, Column,
+  Body, Container, Head, Heading, Html, Img, Preview, Section, Text, Hr, Link, Row, Column,
 } from 'npm:@react-email/components@0.0.22'
 
 // Zeus Rental Car — Private bank visual identity
@@ -182,6 +182,38 @@ export function DataCard({ title, items }: { title: string; items: KV[] }) {
           <Column style={rowValue}>{it.value ?? '—'}</Column>
         </Row>
       ))}
+    </Section>
+  )
+}
+
+export function PhotoGrid({ title, photos }: { title?: string; photos: string[] }) {
+  if (!photos || photos.length === 0) return null
+  const limited = photos.slice(0, 12)
+  const rows: string[][] = []
+  for (let i = 0; i < limited.length; i += 2) rows.push(limited.slice(i, i + 2))
+  const cell: React.CSSProperties = { padding: '4px', width: '50%', verticalAlign: 'top' }
+  const img: React.CSSProperties = {
+    width: '100%', height: '160px', objectFit: 'cover',
+    borderRadius: '10px', border: `1px solid ${zeus.border}`, display: 'block',
+  }
+  return (
+    <Section style={{ margin: '0 0 20px' }}>
+      {title ? <Text style={cardTitle}>{title}</Text> : null}
+      {rows.map((r, i) => (
+        <Row key={i}>
+          {r.map((src, j) => (
+            <Column key={j} style={cell}>
+              <Img src={src} alt={`Foto ${i * 2 + j + 1}`} style={img} />
+            </Column>
+          ))}
+          {r.length === 1 ? <Column style={cell}>&nbsp;</Column> : null}
+        </Row>
+      ))}
+      {photos.length > limited.length ? (
+        <Text style={{ ...rowLabel, textAlign: 'center', width: '100%', padding: '8px 0 0' }}>
+          + {photos.length - limited.length} fotos adicionais no laudo
+        </Text>
+      ) : null}
     </Section>
   )
 }

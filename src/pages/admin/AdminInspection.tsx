@@ -974,7 +974,18 @@ export default function AdminInspection() {
         const tpl = type === "checkin" ? "inspection-checkin" : "inspection-checkout";
         const photosCount = (allPhotos?.length || 0) + (damages?.filter((d: any) => d?.photoUrl).length || 0);
         const completedAt = new Date().toLocaleString("pt-BR");
-        const reportUrl = `${window.location.origin}/admin/bookings/${bookingId}`;
+
+        // Public share link (no login required) for the email CTA
+        let reportUrl = `${window.location.origin}/`;
+        try {
+          const { data: linkRes } = await supabase.functions.invoke("create-public-inspection-link", {
+            body: { booking_id: bookingId, type, expires_hours: 24 * 30 },
+          });
+          if ((linkRes as any)?.token) {
+            reportUrl = `${window.location.origin}/share/inspection/${(linkRes as any).token}`;
+          }
+        } catch (e) { console.warn("[zeus-email] public link failed", e); }
+
 
         // Para o checkout, busca odômetro do check-in para calcular milhas rodadas
         let odometerStart: number | null = null;
@@ -1015,6 +1026,8 @@ export default function AdminInspection() {
             inspectorName: "Equipe Zeus",
             completedAt,
             reportUrl,
+            inspectionBookingId: bookingId,
+            inspectionType: type,
           },
         });
       } catch (e) { console.error("[zeus-email] inspection dispatch failed", e); }

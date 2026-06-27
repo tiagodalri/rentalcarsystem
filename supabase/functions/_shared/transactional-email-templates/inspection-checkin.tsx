@@ -2,7 +2,7 @@
 import * as React from 'npm:react@18.3.1'
 import { Button, Section, Text } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
-import { ZeusLayout, DataCard, styles } from './_layout.tsx'
+import { ZeusLayout, DataCard, PhotoGrid, styles } from './_layout.tsx'
 
 interface Props {
   bookingNumber?: string
@@ -16,6 +16,7 @@ interface Props {
   inspectorName?: string
   completedAt?: string
   reportUrl?: string
+  photos?: string[]
 }
 
 const Email = (p: Props) => (
@@ -48,6 +49,8 @@ const Email = (p: Props) => (
         { label: 'Concluído em', value: p.completedAt ?? '—' },
       ]}
     />
+
+    <PhotoGrid title="Registro fotográfico" photos={p.photos ?? []} />
 
     {p.reportUrl && (
       <Section style={{ textAlign: 'center', padding: '12px 0 8px' }}>
