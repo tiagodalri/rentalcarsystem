@@ -19,6 +19,8 @@ type ExteriorPhoto = { id?: string; position?: string; url?: string };
 
 function buildMessage(args: {
   type: "checkin" | "checkout";
+  bookingNumber?: string | null;
+  turoReservationCode?: string | null;
   customerName: string;
   vehicleLabel: string;
   plate?: string | null;
@@ -40,6 +42,8 @@ function buildMessage(args: {
   const lines = [
     `*ZEUS RENTAL CAR — ${title}*`,
     ``,
+    `*Código Zeus:* ${args.bookingNumber || "—"}`,
+    `*Código Turo:* ${args.turoReservationCode || "—"}`,
     `*Cliente:* ${args.customerName}`,
     `*Veículo:* ${args.vehicleLabel}${args.plate ? ` (${args.plate})` : ""}`,
     `*Retirada:* ${fmtDate(args.pickupDate)}`,
@@ -122,6 +126,8 @@ export function ShareWhatsAppInspectionButton({
 
       const message = buildMessage({
         type,
+        bookingNumber: (booking as any).booking_number ?? null,
+        turoReservationCode: (booking as any).turo_reservation_code ?? null,
         customerName,
         vehicleLabel,
         plate: vehicle?.license_plate ?? null,
