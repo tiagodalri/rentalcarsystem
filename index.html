@@ -86,8 +86,10 @@
       // da aba atual; por isso, quando havia SW/cache ativo, limpamos e fazemos
       // um reload único com cache-buster ANTES do React terminar de navegar.
       var reloadParam = "__zeus_admin_fresh";
+      var recoverParam = "__zeus_admin_recover";
+      var legacyRecoverParam = "__zeus_refresh";
       var url = new URL(window.location.href);
-      var alreadyReloaded = url.searchParams.has(reloadParam);
+      var alreadyReloaded = url.searchParams.has(reloadParam) || url.searchParams.has(recoverParam) || url.searchParams.has(legacyRecoverParam);
 
       var registrationsPromise = navigator.serviceWorker.getRegistrations()
         .then(function (registrations) {
@@ -112,6 +114,8 @@
         if (!hadPwaState) {
           if (alreadyReloaded && window.history && window.history.replaceState) {
             url.searchParams.delete(reloadParam);
+            url.searchParams.delete(recoverParam);
+            url.searchParams.delete(legacyRecoverParam);
             window.history.replaceState(null, "", url.toString());
           }
           return;
