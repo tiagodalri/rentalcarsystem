@@ -176,7 +176,7 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                     )}
                   </td>
                   {(["daily_price_usd", "default_deposit_amount", "default_franchise_amount"] as const).map((f) => (
-                    <td key={f} className="px-3 py-2 text-right tabular-nums">
+                    <td key={f} className="px-3 py-2 text-right tabular-nums whitespace-nowrap">
                       {isEditingCell(f) ? (
                         <div className="inline-flex items-center gap-1">
                           <input
