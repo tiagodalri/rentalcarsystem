@@ -21,7 +21,7 @@ export function AdminMobileHeader() {
         paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)",
         paddingBottom: "10px",
         boxShadow: "inset 0 -1px 0 hsl(var(--border) / 0.6)",
-        transform: hidden ? "translateY(-110%)" : "translateY(0)",
+        transform: "translateY(0)",
       }}
     >
       <SidebarTrigger className="admin-icon-btn" aria-label="Abrir menu" />
