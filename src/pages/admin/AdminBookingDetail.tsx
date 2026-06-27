@@ -394,7 +394,7 @@ export default function AdminBookingDetail() {
                           {d.severity === "heavy" ? "Grave" : d.severity === "medium" ? "Média" : "Leve"}
                         </Badge>
                       </div>
-                      {d.position && <span className="text-[10px] text-muted-foreground">{d.position}</span>}
+                      {d.position && <span className="text-[10px] text-muted-foreground">{positionLabel(d.position)}</span>}
                     </div>
                     {d.photoUrl && (
                       <button onClick={() => setExpandedPhoto(d.photoUrl)} className="w-10 h-10 rounded-md overflow-hidden border border-border/30 shrink-0">
