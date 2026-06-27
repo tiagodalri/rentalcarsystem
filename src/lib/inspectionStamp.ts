@@ -1,4 +1,4 @@
-// Sobrepõe data/hora + endereço no canto superior-direito de uma foto da inspeção.
+// Sobrepõe data/hora + endereço no lado direito de uma foto da inspeção.
 // Estilo "câmera de segurança / Timestamp Camera": texto branco grande, com sombra
 // suave para garantir leitura em qualquer fundo. Falha = devolve o arquivo original.
 
@@ -116,6 +116,7 @@ function drawStamp(
   const lineHeight = Math.round(fontSize * 1.25);
   const marginX = Math.round(fontSize * 0.9);
   const marginY = Math.round(fontSize * 0.9);
+  const blockHeight = lines.length * lineHeight;
 
   ctx.font = `500 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
   ctx.textAlign = "right";
@@ -136,7 +137,7 @@ function drawStamp(
 
   lines.forEach((line, i) => {
     const x = w - marginX;
-    const y = marginY + i * lineHeight;
+    const y = Math.max(marginY, h - marginY - blockHeight) + i * lineHeight;
     ctx.strokeText(line, x, y);
     ctx.fillText(line, x, y);
   });
