@@ -723,19 +723,19 @@ export default function AiPainel({
           <div className="space-y-3">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card">
-                <CardHeader title="Mix de canais" sub="Receita por origem" icon={Layers} />
-                <ChannelBar label="Stripe (site)" value={channelMix.stripe} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="cyan" />
+                <CardHeader title="De onde vem a receita" sub="Quanto cada canal gerou de aluguel" icon={Layers} />
+                <ChannelBar label="Site Zeus (Stripe)" value={channelMix.stripe} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="cyan" />
                 <ChannelBar label="Turo" value={channelMix.turo} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="violet" />
-                <ChannelBar label="Outros" value={channelMix.other} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="amber" />
+                <ChannelBar label="Outros (reserva manual)" value={channelMix.other} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="amber" />
               </div>
               <div className="ai-card lg:col-span-2">
-                <CardHeader title="Break-even projetado" sub="Dias até receita líquida cobrir aquisição" icon={Target} />
+                <CardHeader title="Quando o carro se paga" sub="Previsão de quando a receita acumulada cobre o preço de compra do carro" icon={Target} />
                 <ul className="space-y-2.5">
                   {perVehicle.filter(p => p.breakEvenDate && p.purchase > 0).sort((a, b) => (a.breakEvenDays ?? 0) - (b.breakEvenDays ?? 0)).slice(0, 6).map(p => (
                     <li key={p.v.id} className="flex justify-between text-[12.5px]">
                       <span className="text-white/85 truncate">{p.v.name}</span>
                       <span className="tabular-nums text-emerald-200">
-                        {p.breakEvenDays! <= 0 ? "JÁ PAGO" : `${p.breakEvenDays}d · ${format(p.breakEvenDate!, "MMM yyyy", { locale: ptBR })}`}
+                        {p.breakEvenDays! <= 0 ? "Já se pagou" : `Em ${p.breakEvenDays} dias · ${format(p.breakEvenDate!, "MMM 'de' yyyy", { locale: ptBR })}`}
                       </span>
                     </li>
                   ))}
@@ -743,9 +743,9 @@ export default function AiPainel({
               </div>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <KpiBlock title="Investido" value={fmtUSD(fleetInvested)} sub="Total em aquisições" icon={Wallet} />
-              <KpiBlock title="Receita acumulada" value={fmtUSD(fleetRevenue)} sub={`Margem ${fleetMargin.toFixed(1)}%`} icon={DollarSign} />
-              <KpiBlock title="ROI consolidado" value={`${fleetROI.toFixed(1)}%`} sub="Receita líquida / investido" icon={Target} />
+              <KpiBlock title="Total investido em carros" value={fmtUSD(fleetInvested)} sub="Soma do preço de compra de toda a frota" icon={Wallet} />
+              <KpiBlock title="Receita total já gerada" value={fmtUSD(fleetRevenue)} sub={`Margem de lucro atual: ${fleetMargin.toFixed(1)}%`} icon={DollarSign} />
+              <KpiBlock title="Retorno sobre o investimento" value={`${fleetROI.toFixed(1)}%`} sub="Quanto a frota já devolveu do que foi investido" icon={Target} />
             </div>
           </div>
         )}
