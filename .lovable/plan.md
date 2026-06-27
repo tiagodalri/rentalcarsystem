@@ -1,59 +1,82 @@
-## Objetivo
-Criar o usuário **rui@zeusrentalcar.com** com um papel novo — **Operador de Rua (`driver`)** — que enxerga apenas o necessário para entregar/devolver carros e fazer inspeções. **Zero acesso a valores financeiros.**
+# Painel de LOGS — Monitoramento Imersivo
 
-## O que o Rui poderá ver
-- **Operação (Hoje)** — agenda de retiradas e devoluções do dia (já não mostra valores)
-- **Reservas** — lista + detalhe da reserva (cliente, carro, horários, locais, telefone, observações) — **sem coluna Valor, sem caução, sem franquia, sem totais**
-- **Inspeções pré e pós** — fluxo completo de check-in/check-out com fotos
-- **Clientes** — só nome e contato da reserva atual (sem histórico financeiro)
+Acesso restrito ao e-mail `admin@zeusrentalcar.com`. Tudo que acontece no sistema (login, navegação, cliques, ações) será registrado e visualizado num painel interativo.
 
-## O que ele NÃO poderá ver
-- Painel/Dashboard (tem KPIs financeiros)
-- Financeiro, Relatórios, Lucro da Frota
-- Frota (custos, despesas, preços)
-- Live tracking, Importar Turo, Contratos, Equipe, Configurações
-- Qualquer coluna/linha com `$`, total, caução, franquia, diária, receita, despesa
+## 1. O que vai ser registrado
 
-## Como vou implementar
-
-### 1. Banco — novo papel `driver`
-- Migration adicionando `'driver'` ao enum `app_role`
-- Atualizar trigger `sync_team_member_role` para mapear `'driver'` / `'motorista'` / `'operador'` → `driver`
-
-### 2. Criar o usuário Rui
-- Edge function pontual `create-team-user` (restrita a admin) que usa service role para `auth.admin.createUser({ email, password, email_confirm: true })`
-- Insere em `team_members` com role `driver` (o trigger cria automaticamente em `user_roles`)
-- Senha inicial **Zeus2026** já confirmada — Rui entra direto em `/admin/login`
-
-### 3. Rotas (`src/App.tsx`)
-Liberar para `driver` somente: `bookings`, `bookings/:id`, `bookings/new`, `ops-today`, `inspection/:id`, `inspection/compare/:id`, `customers/:id` (visualização). Todas as outras rotas admin permanecem bloqueadas e o `RequireRole` redireciona.
-
-### 4. Menu lateral e bottom nav
-`AdminSidebar.tsx` e `AdminBottomNav.tsx`: incluir `driver` em "Operação" e "Reservas" apenas. Painel/Live/Frota/Financeiro/etc não aparecem para ele. A landing padrão pós-login para `driver` vira `/admin/ops-today`.
-
-### 5. Esconder valores nas telas que ele acessa
-Criar helper `useHideFinancials()` que retorna `true` quando o usuário só tem papel `driver`. Aplicar em:
-- `AdminBookings.tsx` — esconder coluna **Valor**, **Caução**, **Franquia**, sumário de receita, opção de ordenar por valor, e remover esses campos do export CSV
-- `AdminBookingDetail.tsx` — esconder bloco de pricing, totais, caução, franquia, diária do veículo, "reserva quitada"
-- `MobileBookings.tsx` — esconder o `total_price` no card
-- Verificar `AdminCustomerDetail` se mostra valores (esconder se sim)
-
-Inspeção e Operação Hoje já não mostram valores — apenas garantir defensivamente.
-
-### 6. Validação
-- Login como Rui no preview → confirma que sidebar mostra só "Operação" e "Reservas"
-- Tentar acessar `/admin/finance` direto pela URL → redireciona
-- Abrir uma reserva → nenhum `$` visível em lugar nenhum
-- Abrir inspeção → fluxo completo funciona
-
-## Resumo técnico
-| Camada | Arquivo |
+| Categoria | Exemplos capturados |
 |---|---|
-| DB | nova migration (enum + trigger update) |
-| Auth | edge function `create-team-user` (one-shot) |
-| Rotas | `src/App.tsx` |
-| Navegação | `AdminSidebar.tsx`, `AdminBottomNav.tsx` |
-| Hook | `src/hooks/useHideFinancials.ts` (novo) |
-| Telas | `AdminBookings.tsx`, `AdminBookingDetail.tsx`, `MobileBookings.tsx`, `AdminCustomerDetail.tsx` |
+| **Sessão** | login, logout, falha de login, IP, user-agent, cidade/estado/país (via `ipapi.co`), device (mobile/desktop), navegador |
+| **Navegação** | toda mudança de rota com URL, timestamp, tempo gasto na página anterior |
+| **Cliques** | botões, links e elementos com `data-track` (texto/label, rota onde ocorreu) |
+| **Ações de negócio** | criar/editar/cancelar reserva, iniciar/concluir inspeção, upload de foto, alterar veículo, alterar cliente, exportar dados, importar Turo, compartilhar WhatsApp, gerar link público |
+| **Erros** | erros de runtime capturados pelo error boundary |
 
-Posso seguir?
+## 2. Estrutura de dados (Cloud)
+
+Tabela nova `public.activity_logs`:
+- `user_id`, `user_email`, `user_name`
+- `event_type` (`login`/`logout`/`page_view`/`click`/`action`/`error`)
+- `event_name` (ex.: "Cancelar reserva", "Upload foto inspeção")
+- `path` (rota), `referrer`, `target_id` (id do recurso afetado, ex.: booking_id)
+- `metadata` (jsonb com payload extra: valores antigos/novos, label do botão, etc.)
+- `ip`, `city`, `region`, `country`, `device`, `browser`, `os`
+- `session_id` (agrupa eventos de uma mesma sessão)
+- `duration_ms` (tempo na página anterior)
+- `created_at`
+
+RLS: apenas admins leem. Insert permitido a qualquer usuário autenticado (escreve só os próprios eventos).
+
+Mantemos a tabela `audit_logs` existente (mudanças de banco) — o painel agrega as duas fontes.
+
+## 3. Coleta no front
+
+- Hook global `useActivityTracker` montado no `App.tsx`:
+  - dispara `page_view` em toda navegação do React Router (com `duration_ms` da página anterior)
+  - escuta cliques em `<button>`, `<a>` e qualquer elemento com `[data-track]` (com debounce)
+  - escuta `auth.onAuthStateChange` para `login`/`logout`
+  - resolve geo via `ipapi.co/json` uma vez por sessão e cacheia em `sessionStorage`
+- Helper `logAction(event_name, metadata)` para ações de negócio chamado nos pontos críticos (reservas, inspeções, importação Turo, contratos, etc.)
+- Buffer + flush em lote (a cada 5s ou 10 eventos) via `supabase.from('activity_logs').insert([...])` — não bloqueia UI, falhas silenciosas
+
+## 4. Painel `/admin/logs`
+
+Guard: redireciona se `user.email !== 'admin@zeusrentalcar.com'`. Item de menu "LOGS" aparece só pra esse e-mail.
+
+Layout em 3 abas no estilo private-bank (admin-shell):
+
+**Aba "Usuários"** — grid de cards com avatar, nome, e-mail, último acesso (relativo + exato), cidade/país, device, total de eventos hoje/7d/30d, status (online se sessão ativa há <5min). Clique abre o drawer da sessão.
+
+**Aba "Atividade ao vivo"** — feed em tempo real (realtime channel) tipo terminal: timestamp, usuário, evento, rota, IP. Filtros por usuário, tipo de evento, data. Auto-scroll com toggle pausar.
+
+**Aba "Sessões"** — lista de sessões agrupadas (1 linha por session_id) com início/fim, duração, nº de eventos, rota inicial→final, mapa de calor das rotas visitadas. Drawer com timeline vertical imersiva: cada evento como nó (ícone Lucide por tipo, cor do private-bank), com tempo gasto entre eventos, payload expandível.
+
+**KPIs no topo**: usuários ativos agora, sessões hoje, ações críticas (cancelamentos, exclusões), erros 24h.
+
+Exportar CSV de qualquer filtro aplicado.
+
+## 5. Arquivos
+
+**Novos**
+- `supabase/migrations/...` — tabela `activity_logs` + policies + GRANTs + índices
+- `src/lib/activityLogger.ts` — buffer + flush + geo
+- `src/hooks/useActivityTracker.tsx` — montado no App
+- `src/pages/admin/AdminLogs.tsx` — painel com 3 abas
+- `src/components/admin/logs/UserCard.tsx`
+- `src/components/admin/logs/LiveFeed.tsx`
+- `src/components/admin/logs/SessionTimeline.tsx`
+- `src/components/admin/logs/LogFilters.tsx`
+
+**Editados**
+- `src/App.tsx` — montar tracker + rota `/admin/logs`
+- `src/components/admin/AdminSidebar.tsx` (ou equivalente) — item "LOGS" condicional
+- pontos-chave para `logAction()`: `AdminBookings`, `AdminInspection`, `AdminBookingDetail`, `turo` import, contratos, upload de fotos
+
+## 6. Privacidade / performance
+
+- IP nunca exibido para usuários comuns (admin master only).
+- Cliques não capturam valores de inputs sensíveis (senha, CPF, cartão) — bloqueio por seletor.
+- Eventos antigos: job de limpeza (>90 dias) via função SQL agendada manualmente quando necessário.
+- Índices em `(user_id, created_at desc)` e `(session_id)`.
+
+Posso seguir com essa estrutura?

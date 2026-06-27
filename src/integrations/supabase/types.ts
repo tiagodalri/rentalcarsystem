@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device: string | null
+          duration_ms: number | null
+          event_name: string | null
+          event_type: string
+          id: string
+          ip: string | null
+          metadata: Json | null
+          os: string | null
+          path: string | null
+          referrer: string | null
+          region: string | null
+          session_id: string | null
+          target_id: string | null
+          user_email: string | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          duration_ms?: number | null
+          event_name?: string | null
+          event_type: string
+          id?: string
+          ip?: string | null
+          metadata?: Json | null
+          os?: string | null
+          path?: string | null
+          referrer?: string | null
+          region?: string | null
+          session_id?: string | null
+          target_id?: string | null
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          duration_ms?: number | null
+          event_name?: string | null
+          event_type?: string
+          id?: string
+          ip?: string | null
+          metadata?: Json | null
+          os?: string | null
+          path?: string | null
+          referrer?: string | null
+          region?: string | null
+          session_id?: string | null
+          target_id?: string | null
+          user_email?: string | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
