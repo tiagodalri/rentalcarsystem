@@ -986,25 +986,6 @@ export default function AdminInspection() {
           }
         } catch (e) { console.warn("[zeus-email] public link failed", e); }
 
-        // Long-lived signed URLs (30d) so photos render inside the email body
-        const photoUrls: string[] = [];
-        const sourcePaths = (allPhotos || [])
-          .map((p: any) => p?.path || p?.storagePath || p?.url)
-          .filter((v: any): v is string => typeof v === "string" && v.length > 0)
-          .map((v: string) => {
-            const marker = "/inspections/";
-            const i = v.indexOf(marker);
-            return i >= 0 ? v.slice(i + marker.length).split("?")[0] : v;
-          })
-          .slice(0, 12);
-        for (const path of sourcePaths) {
-          try {
-            const { data: signed } = await supabase.storage
-              .from("inspections")
-              .createSignedUrl(path, 60 * 60 * 24 * 30);
-            if (signed?.signedUrl) photoUrls.push(signed.signedUrl);
-          } catch {}
-        }
 
         // Para o checkout, busca odômetro do check-in para calcular milhas rodadas
         let odometerStart: number | null = null;

@@ -285,6 +285,43 @@ Deno.serve(async (req) => {
     )
   }
 
+  // Optional server-side hydration of inspection photos. When triggers pass
+  // `inspectionBookingId` + `inspectionType`, the function fetches the inspection
+  // and signs up to 12 exterior photo URLs (30-day TTL) so they render inside
+  // the email body without requiring the client to mint signed URLs.
+  try {
+    const insBookingId = templateData?.inspectionBookingId
+    const insType = templateData?.inspectionType
+    if (typeof insBookingId === 'string' && (insType === 'checkin' || insType === 'checkout')) {
+      const { data: ins } = await supabase
+        .from('vehicle_inspections')
+        .select('exterior_photos')
+        .eq('booking_id', insBookingId)
+        .eq('type', insType)
+        .maybeSingle()
+      const items = Array.isArray((ins as any)?.exterior_photos) ? (ins as any).exterior_photos : []
+      const paths: string[] = items
+        .map((it: any) => (typeof it?.url === 'string' ? it.url : ''))
+        .filter((v: string) => v.length > 0)
+        .map((v: string) => {
+          const marker = '/inspections/'
+          const i = v.indexOf(marker)
+          return i >= 0 ? v.slice(i + marker.length).split('?')[0] : v
+        })
+        .slice(0, 12)
+      const urls: string[] = []
+      for (const path of paths) {
+        const { data: signed } = await supabase.storage
+          .from('inspections')
+          .createSignedUrl(path, 60 * 60 * 24 * 30)
+        if (signed?.signedUrl) urls.push(signed.signedUrl)
+      }
+      if (urls.length > 0) templateData = { ...templateData, photos: urls }
+    }
+  } catch (e) {
+    console.warn('[send-transactional-email] photo hydration failed', e)
+  }
+
   // 4. Render React Email template to HTML and plain text
   const html = await renderAsync(
     React.createElement(template.component, templateData)
