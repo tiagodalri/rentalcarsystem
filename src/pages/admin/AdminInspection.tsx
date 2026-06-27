@@ -28,6 +28,7 @@ import refRodaDD from "@/assets/inspection/roda-dd.jpg";
 import refRodaTE from "@/assets/inspection/roda-te.jpg";
 import refRodaTD from "@/assets/inspection/roda-td.jpg";
 import { SignedImage } from "@/components/admin/SignedImage";
+import { PhotoLightbox } from "@/components/admin/PhotoLightbox";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 import { ShareWhatsAppInspectionButton } from "@/components/admin/ShareWhatsAppInspectionButton";
 import { registerLocalInspectionPreview, compressInspectionImage } from "@/lib/inspectionStorage";
