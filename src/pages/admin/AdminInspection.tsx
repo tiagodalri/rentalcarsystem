@@ -490,6 +490,14 @@ export default function AdminInspection() {
     odometerPhoto, fuelPhoto, inspectionAddress, existingInspection?.completed_at,
   ]);
 
+  // Lembra o último endereço usado entre inspeções (preenchido por padrão).
+  useEffect(() => {
+    if (!inspectionAddress) return;
+    try { localStorage.setItem("zeus_inspection_last_address", inspectionAddress); } catch {}
+  }, [inspectionAddress]);
+
+
+
   const loadData = async () => {
     if (!bookingId) return;
     setLoading(true);
