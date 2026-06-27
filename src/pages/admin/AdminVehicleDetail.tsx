@@ -131,6 +131,7 @@ export default function AdminVehicleDetail() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useLanguage();
+  const confirm = useConfirm();
   const [loading, setLoading] = useState(true);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(searchParams.get("tab") ?? "agenda");
@@ -245,7 +246,8 @@ export default function AdminVehicleDetail() {
   };
 
   const deleteExpense = async (id: string) => {
-    if (!confirm("Excluir este gasto?")) return;
+    const ok = await confirm({ title: "Excluir este gasto?", confirmLabel: "Excluir", variant: "destructive" });
+    if (!ok) return;
     await supabase.from("vehicle_expenses").delete().eq("id", id);
     toast({ title: "Gasto excluído" }); loadData();
   };
@@ -272,7 +274,8 @@ export default function AdminVehicleDetail() {
   };
 
   const deleteIncident = async (id: string) => {
-    if (!confirm("Excluir esta ocorrência?")) return;
+    const ok = await confirm({ title: "Excluir esta ocorrência?", confirmLabel: "Excluir", variant: "destructive" });
+    if (!ok) return;
     await supabase.from("vehicle_incidents").delete().eq("id", id);
     toast({ title: "Ocorrência excluída" }); loadData();
   };
@@ -303,7 +306,9 @@ export default function AdminVehicleDetail() {
   };
 
   const removePhoto = async (url: string) => {
-    if (!vehicle || !confirm("Remover esta foto?")) return;
+    if (!vehicle) return;
+    const ok = await confirm({ title: "Remover esta foto?", confirmLabel: "Remover", variant: "destructive" });
+    if (!ok) return;
     const next = ((vehicle.photos as string[]) || []).filter(p => p !== url);
     const newCover = vehicle.image_url === url ? (next[0] || null) : vehicle.image_url;
     const updates: any = { photos: next, image_url: newCover };
