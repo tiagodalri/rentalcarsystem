@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
+import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 
 const Login = () => {
   const navigate = useNavigate();
