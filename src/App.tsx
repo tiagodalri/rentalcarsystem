@@ -98,10 +98,17 @@ const queryClient = new QueryClient({
 });
 
 const AdminSuspense = ({ children }: { children: React.ReactNode }) => (
-  <RouteErrorBoundary>
-    <Suspense fallback={<AdminShellSkeleton />}>{children}</Suspense>
-  </RouteErrorBoundary>
+  <AdminRouteBoundary>{children}</AdminRouteBoundary>
 );
+
+const AdminRouteBoundary = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  return (
+    <RouteErrorBoundary resetKey={`${location.pathname}${location.search}`}>
+      <Suspense fallback={<AdminShellSkeleton />}>{children}</Suspense>
+    </RouteErrorBoundary>
+  );
+};
 
 const ClientSuspense = ({ children }: { children: React.ReactNode }) => (
   <RouteErrorBoundary>

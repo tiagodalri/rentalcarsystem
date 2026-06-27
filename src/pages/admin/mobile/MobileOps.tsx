@@ -114,15 +114,15 @@ export default function MobileOps() {
     if (b.customer_phone) {
       actions.push({
         label: "Ligar",
-        color: "bg-emerald-500",
-        icon: <Phone size={18} />,
-        onClick: () => { window.location.href = callHref(b.customer_phone)!; },
+        color: "emerald" as const,
+        icon: Phone,
+        onTrigger: () => { window.location.href = callHref(b.customer_phone)!; },
       });
       actions.push({
         label: "WhatsApp",
-        color: "bg-[#25D366]",
-        icon: <MessageCircle size={18} />,
-        onClick: () => { window.open(waHref(b.customer_phone)!, "_blank"); },
+        color: "blue" as const,
+        icon: MessageCircle,
+        onTrigger: () => { window.open(waHref(b.customer_phone)!, "_blank"); },
       });
     }
     return (
