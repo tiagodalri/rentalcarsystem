@@ -95,8 +95,11 @@ export function useAdminAuth() {
       // setLoading(true) + setRoles([]) desmontaria a página inteira e
       // o usuário perderia o que estava preenchendo. Mesmo vale para
       // USER_UPDATED quando o id não mudou.
+      // TOKEN_REFRESHED / USER_UPDATED / SIGNED_IN podem disparar quando a aba
+      // volta ao foco (Supabase restaura sessão do storage). Se for o MESMO
+      // usuário já carregado, não fazemos NADA para evitar remount da página.
       if (
-        (event === "TOKEN_REFRESHED" || event === "USER_UPDATED") &&
+        (event === "TOKEN_REFRESHED" || event === "USER_UPDATED" || event === "SIGNED_IN") &&
         session?.user &&
         cachedRoles?.userId === session.user.id
       ) {
