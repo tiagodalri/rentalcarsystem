@@ -98,6 +98,16 @@ export function useAuth() {
     // Set up listener BEFORE getSession
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, sess) => {
       if (event === "INITIAL_SESSION") return;
+      // TOKEN_REFRESHED é disparado quando a aba volta ao foco. Se for o
+      // mesmo usuário já hidratado, ignoramos para NÃO setar loading=true
+      // de novo (causa remount da página e perda do formulário).
+      if (
+        (event === "TOKEN_REFRESHED" || event === "USER_UPDATED") &&
+        sess?.user &&
+        cachedCustomer?.userId === sess.user.id
+      ) {
+        return;
+      }
       cachedCustomer = null;
       hydrate(sess);
     });
