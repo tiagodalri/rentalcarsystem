@@ -919,7 +919,7 @@ function InfoRow({ icon: Icon, label, value, mono }: { icon: any; label: string;
   );
 }
 
-function ScheduleStep({ form, set, aiKeys, days }: StepProps & { days: number }) {
+function ScheduleStep({ form, set, aiKeys, days, errorFields }: StepProps & { days: number }) {
   return (
     <div className="space-y-5">
       {/* Retirada */}
