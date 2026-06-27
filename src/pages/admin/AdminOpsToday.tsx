@@ -133,9 +133,31 @@ export default function AdminOpsToday() {
       const vMap: Record<string, Vehicle> = {};
       (vs.data || []).forEach((v: any) => { vMap[v.id] = v; });
       setVehicles(vMap);
-      setPickups((pk.data as BookingRow[]) || []);
-      setReturns((rt.data as BookingRow[]) || []);
+      const pickupRows = (pk.data as BookingRow[]) || [];
+      const returnRows = (rt.data as BookingRow[]) || [];
+      setPickups(pickupRows);
+      setReturns(returnRows);
       setMaintenance(((vs.data as Vehicle[]) || []).filter(v => ["maintenance", "preparing"].includes(v.status)));
+
+      // Carrega inspeções concluídas pra esses bookings — fallback caso o status
+      // da reserva não tenha sido promovido (rede caindo no finalize etc.).
+      const ids = Array.from(new Set([...pickupRows, ...returnRows].map(b => b.id)));
+      if (ids.length) {
+        const { data: insps } = await supabase
+          .from("vehicle_inspections")
+          .select("booking_id, type, completed_at")
+          .in("booking_id", ids)
+          .not("completed_at", "is", null);
+        const map: Record<string, { checkin: boolean; checkout: boolean }> = {};
+        (insps || []).forEach((i: any) => {
+          if (!map[i.booking_id]) map[i.booking_id] = { checkin: false, checkout: false };
+          if (i.type === "checkin") map[i.booking_id].checkin = true;
+          if (i.type === "checkout") map[i.booking_id].checkout = true;
+        });
+        setInspectionMap(map);
+      } else {
+        setInspectionMap({});
+      }
       setLoading(false);
     })();
   }, [selectedDate]);
@@ -146,12 +168,12 @@ export default function AdminOpsToday() {
   const now = new Date();
 
   const pickupsWithStatus = useMemo(
-    () => pickups.map(b => ({ b, s: deriveStatus(b, "pickup", now) })),
-    [pickups, now],
+    () => pickups.map(b => ({ b, s: deriveStatus(b, "pickup", now, inspectionMap[b.id] ?? { checkin: false, checkout: false }) })),
+    [pickups, now, inspectionMap],
   );
   const returnsWithStatus = useMemo(
-    () => returns.map(b => ({ b, s: deriveStatus(b, "return", now) })),
-    [returns, now],
+    () => returns.map(b => ({ b, s: deriveStatus(b, "return", now, inspectionMap[b.id] ?? { checkin: false, checkout: false }) })),
+    [returns, now, inspectionMap],
   );
 
   const countBy = (arr: { s: OpsStatus }[]) => {
