@@ -46,7 +46,7 @@ export default function AdminTuroImport() {
 
   useEffect(() => {
     const prev = document.title;
-    document.title = "Importar Turo · Zeus Rental Car";
+    document.title = "Sincronizar Turo · Zeus Rental Car";
     return () => { document.title = prev; };
   }, []);
 
