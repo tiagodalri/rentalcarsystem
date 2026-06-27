@@ -126,6 +126,8 @@ export function ShareWhatsAppInspectionButton({
 
       const message = buildMessage({
         type,
+        bookingNumber: (booking as any).booking_number ?? null,
+        turoReservationCode: (booking as any).turo_reservation_code ?? null,
         customerName,
         vehicleLabel,
         plate: vehicle?.license_plate ?? null,
