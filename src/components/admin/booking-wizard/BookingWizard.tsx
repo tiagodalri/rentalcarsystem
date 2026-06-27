@@ -37,6 +37,7 @@ interface Props {
 }
 
 const DRAFT_KEY = "booking-wizard-v1";
+const DRAFT_STORAGE_KEY = `zeus:draft:${DRAFT_KEY}`;
 
 const PAYMENT_METHODS = [
   "Câmbio Real",
@@ -176,6 +177,13 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
   useEffect(() => {
     if (phase !== "wizard") return;
     try {
+      const draftRaw = localStorage.getItem(DRAFT_STORAGE_KEY);
+      const draft = draftRaw ? normalizeWizardForm(JSON.parse(draftRaw) as WizardFormState) : null;
+      if (!draft || isWizardFormMeaningfullyEmpty(draft)) {
+        localStorage.removeItem(STEP_KEY);
+        return;
+      }
+
       const raw = localStorage.getItem(STEP_KEY);
       if (raw !== null) {
         const n = Number(raw);
