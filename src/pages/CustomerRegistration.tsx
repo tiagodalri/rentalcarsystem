@@ -249,6 +249,18 @@ const CustomerRegistration = () => {
           </p>
         </div>
 
+        <div className="mb-6">
+          <SocialAuthButtons label="Cadastrar com" redirectTo={window.location.origin + "/minha-conta"} />
+          <div className="relative my-5">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border/40" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-background px-2 text-[10px] uppercase tracking-wider text-muted-foreground">ou preencha os dados</span>
+            </div>
+          </div>
+        </div>
+
         {error && (
           <Alert variant="destructive" className="mb-4">
             <AlertDescription className="text-xs">{error}</AlertDescription>
