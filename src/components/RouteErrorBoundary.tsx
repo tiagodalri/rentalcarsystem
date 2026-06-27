@@ -7,6 +7,7 @@ interface Props {
   children: ReactNode;
   fallback?: ReactNode;
   resetKey?: string;
+  autoRecover?: boolean;
 }
 interface State {
   error: Error | null;
@@ -29,8 +30,13 @@ export class RouteErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error) {
     const isChunkError = isRecoverableChunkLoadError(error.message || "");
-    if (isChunkError) {
+    const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+    const shouldRecover = this.props.autoRecover !== false && (isChunkError || isAdminRoute);
+    if (shouldRecover) {
       this.setState({ error });
+      // Admin no mobile não pode ficar preso em uma boundary por cache/chunk antigo.
+      // Mesmo quando o Safari reporta o erro com mensagem genérica, fazemos uma
+      // recuperação única com cooldown: limpa SW/caches e reabre a rota atual.
       void recoverFromStaleApp();
     }
     // eslint-disable-next-line no-console
@@ -45,8 +51,9 @@ export class RouteErrorBoundary extends Component<Props, State> {
 
   reset = () => {
     const isChunkError = isRecoverableChunkLoadError(this.state.error?.message || "");
-    if (isChunkError) {
-      // chunk antigo: limpar caches e recarregar é a única forma confiável
+    const isAdminRoute = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+    if (isChunkError || isAdminRoute) {
+      // Admin/chunk antigo: limpar caches e recarregar é a única forma confiável.
       void recoverFromStaleApp({ force: true });
       return;
     }

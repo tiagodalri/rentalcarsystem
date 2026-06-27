@@ -80,14 +80,50 @@
     (function () {
       var isAdmin = (window.location.pathname || "").indexOf("/admin") === 0;
       if (!isAdmin || !("serviceWorker" in navigator)) return;
-      navigator.serviceWorker.getRegistrations().then(function (registrations) {
-        registrations.forEach(function (registration) { registration.unregister(); });
+
+      // Back-office não pode ficar preso em app-shell/chunks antigos do PWA.
+      // Em iOS/Safari, unregister sozinho NÃO tira o service worker do controle
+      // da aba atual; por isso, quando havia SW/cache ativo, limpamos e fazemos
+      // um reload único com cache-buster ANTES do React terminar de navegar.
+      var reloadParam = "__zeus_admin_fresh";
+      var recoverParam = "__zeus_admin_recover";
+      var legacyRecoverParam = "__zeus_refresh";
+      var url = new URL(window.location.href);
+      var alreadyReloaded = url.searchParams.has(reloadParam) || url.searchParams.has(recoverParam) || url.searchParams.has(legacyRecoverParam);
+
+      var registrationsPromise = navigator.serviceWorker.getRegistrations()
+        .then(function (registrations) {
+          return Promise.all(registrations.map(function (registration) {
+            return registration.unregister().catch(function () {});
+          })).then(function () { return registrations.length; });
+        })
+        .catch(function () { return 0; });
+
+      var cachesPromise = ("caches" in window)
+        ? caches.keys()
+            .then(function (keys) {
+              return Promise.all(keys.map(function (key) {
+                return caches.delete(key).catch(function () {});
+              })).then(function () { return keys.length; });
+            })
+            .catch(function () { return 0; })
+        : Promise.resolve(0);
+
+      Promise.all([registrationsPromise, cachesPromise]).then(function (results) {
+        var hadPwaState = !!navigator.serviceWorker.controller || results[0] > 0 || results[1] > 0;
+        if (!hadPwaState) {
+          if (alreadyReloaded && window.history && window.history.replaceState) {
+            url.searchParams.delete(reloadParam);
+            url.searchParams.delete(recoverParam);
+            url.searchParams.delete(legacyRecoverParam);
+            window.history.replaceState(null, "", url.toString());
+          }
+          return;
+        }
+        if (alreadyReloaded) return;
+        url.searchParams.set(reloadParam, String(Date.now()));
+        window.location.replace(url.toString());
       }).catch(function () {});
-      if ("caches" in window) {
-        caches.keys().then(function (keys) {
-          keys.forEach(function (key) { caches.delete(key); });
-        }).catch(function () {});
-      }
     })();
   </script>
 
