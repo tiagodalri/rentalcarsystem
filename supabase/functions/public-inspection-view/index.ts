@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
         return_location: booking.return_location,
       },
       vehicle: vehicle ? {
-        name: vehicle.name, plate: vehicle.plate, color: vehicle.color, year: vehicle.year,
+        name: vehicle.name, plate: vehicle.license_plate, color: vehicle.color, year: vehicle.year,
       } : null,
       inspection: {
         odometer_reading: inspection.odometer_reading,
