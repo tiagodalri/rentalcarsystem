@@ -485,10 +485,10 @@ export default function AiPainel({
             <div className="ai-insight-icon"><Brain size={16} /></div>
             <div className="flex-1">
               <div className="text-[10px] uppercase tracking-[0.2em] text-cyan-300/80 mb-1">
-                {briefingLoading ? "Gerando análise neural..." : "Briefing executivo · IA"}
+                {briefingLoading ? "Analisando dados da sua frota..." : "O que a IA está vendo agora"}
               </div>
               <p className="text-[13.5px] text-white/90 leading-relaxed whitespace-pre-line">
-                {briefing ?? "Sintetizando dados..."}
+                {briefing ?? "Carregando análise..."}
               </p>
             </div>
           </div>
