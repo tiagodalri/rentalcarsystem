@@ -457,26 +457,26 @@ export default function AiPainel({
             <div className="flex items-center gap-2 mb-2">
               <div className="ai-badge">
                 <Sparkles size={11} strokeWidth={2} />
-                <span>ZEUS INTELLIGENCE</span>
+                <span>MODO IA ATIVADO</span>
                 <span className="ai-pulse" />
               </div>
             </div>
-            <h1 className="ai-title">Cockpit Inteligente</h1>
+            <h1 className="ai-title">Painel Inteligente</h1>
             <p className="ai-subtitle">
-              {perVehicle.length} veículos · {realBookings.length} reservas · {customers.length} clientes únicos
+              {perVehicle.length} carros · {realBookings.length} reservas · {customers.length} clientes únicos
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <div className="ai-chip"><Brain size={12} /><span>Neural v3.0</span></div>
+            <div className="ai-chip"><Brain size={12} /><span>Análise IA</span></div>
           </div>
         </div>
 
         {/* Hero KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <AiKpi label="RevPAC" sub="Receita / carro-dia disponível" value={fmtUSD2(revPAC)} icon={Rocket} hue="violet" />
-          <AiKpi label="ADR efetivo" sub="Diária média realizada" value={fmtUSD(fleetADR)} icon={DollarSign} hue="amber" />
-          <AiKpi label="Margem operacional" value={`${fleetMargin.toFixed(1)}%`} icon={Target} hue={fleetMargin >= 25 ? "emerald" : "rose"} />
-          <AiKpi label="Pacing MTD" sub={`vs ${fmtUSD(pacing.lmtd)} mês passado`} value={fmtUSD(pacing.mtd)} icon={pacing.delta >= 0 ? ArrowUpRight : ArrowDownRight} hue={pacing.delta >= 0 ? "emerald" : "rose"} />
+          <AiKpi label="Receita por carro/dia" sub="Quanto cada carro gera, na média, por dia que está na frota" value={fmtUSD2(revPAC)} icon={Rocket} hue="violet" />
+          <AiKpi label="Diária média cobrada" sub="Valor médio efetivamente recebido por dia alugado" value={fmtUSD(fleetADR)} icon={DollarSign} hue="amber" />
+          <AiKpi label="Margem de lucro" sub="Receita menos despesas, em %" value={`${fleetMargin.toFixed(1)}%`} icon={Target} hue={fleetMargin >= 25 ? "emerald" : "rose"} />
+          <AiKpi label="Receita do mês até hoje" sub={`No mesmo dia do mês passado: ${fmtUSD(pacing.lmtd)} (${pacing.delta >= 0 ? "+" : ""}${pacing.delta.toFixed(1)}%)`} value={fmtUSD(pacing.mtd)} icon={pacing.delta >= 0 ? ArrowUpRight : ArrowDownRight} hue={pacing.delta >= 0 ? "emerald" : "rose"} />
         </div>
 
         {/* AI Briefing */}
