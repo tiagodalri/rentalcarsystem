@@ -13,8 +13,9 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     const stored = localStorage.getItem("zeus-theme");
-    return (stored === "light" || stored === "dark") ? stored : "dark";
+    return (stored === "light" || stored === "dark") ? stored : "light";
   });
+
 
   useEffect(() => {
     localStorage.setItem("zeus-theme", theme);
