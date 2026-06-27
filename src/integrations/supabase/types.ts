@@ -1464,6 +1464,7 @@ export type Database = {
           exterior_photos: Json | null
           fuel_level: string | null
           id: string
+          location_address: string | null
           notes: string | null
           odometer_reading: number | null
           type: string
@@ -1481,6 +1482,7 @@ export type Database = {
           exterior_photos?: Json | null
           fuel_level?: string | null
           id?: string
+          location_address?: string | null
           notes?: string | null
           odometer_reading?: number | null
           type: string
@@ -1498,6 +1500,7 @@ export type Database = {
           exterior_photos?: Json | null
           fuel_level?: string | null
           id?: string
+          location_address?: string | null
           notes?: string | null
           odometer_reading?: number | null
           type?: string

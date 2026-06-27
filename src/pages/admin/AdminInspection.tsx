@@ -840,6 +840,7 @@ export default function AdminInspection() {
       damages,
       accessories_check: accessories,
       notes,
+      location_address: inspectionAddress || null,
       customer_signature: customerSignature,
       agent_signature: agentSignature,
       agent_name: agentName,

@@ -1,0 +1,2 @@
+ALTER TABLE public.vehicle_inspections ADD COLUMN IF NOT EXISTS location_address text;
+UPDATE public.vehicle_inspections SET location_address = '8810 Albury Drive, Orlando, FL 32829' WHERE id = 'a1388bfc-e319-4cd5-b637-e18412525458' AND location_address IS NULL;
