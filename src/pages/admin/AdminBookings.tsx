@@ -727,12 +727,66 @@ function AdminBookingsDesktop() {
   ].filter(Boolean).length;
 
   const updateStatus = async (id: string, status: string) => {
+    // Captura estado anterior para incluir no e-mail
+    const prev = bookings.find((b) => b.id === id);
     const { error } = await supabase.from("bookings").update({ status }).eq("id", id);
     if (error) {
       toast({ title: "Falha ao atualizar status", description: error.message, variant: "destructive" });
       return;
     }
     toast({ title: "Status atualizado" });
+
+    // Dispara e-mail Zeus (não bloqueia a UI)
+    try {
+      const { sendZeusEmail } = await import("@/lib/emails/sendZeusEmail");
+      const statusLabel: Record<string, string> = {
+        pending: "Pendente",
+        confirmed: "Confirmada",
+        active: "Ativa",
+        in_progress: "Em andamento",
+        completed: "Concluída",
+        cancelled: "Cancelada",
+      };
+      const fmtMoney = (n: any) =>
+        n == null ? "—" : `USD ${Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const vehicleName = (prev as any)?.vehicle?.name || (prev as any)?.vehicle_name || "—";
+      const baseUrl = `${window.location.origin}/admin/bookings/${id}`;
+      const stamp = new Date().toISOString();
+      if (status === "cancelled") {
+        sendZeusEmail({
+          templateName: "booking-cancelled",
+          idempotencyKey: `booking-cancelled:${id}:${stamp.slice(0, 16)}`,
+          templateData: {
+            bookingNumber: (prev as any)?.booking_number || "—",
+            customerName: (prev as any)?.customer_name || "—",
+            vehicleName,
+            pickupDate: `${(prev as any)?.pickup_date ?? "—"} · ${(prev as any)?.pickup_time ?? ""}`.trim(),
+            returnDate: `${(prev as any)?.return_date ?? "—"} · ${(prev as any)?.return_time ?? ""}`.trim(),
+            totalPrice: fmtMoney((prev as any)?.total_price),
+            cancelledAt: new Date().toLocaleString("pt-BR"),
+            bookingUrl: baseUrl,
+          },
+        });
+      } else if (prev && (prev as any).status !== status) {
+        sendZeusEmail({
+          templateName: "booking-updated",
+          idempotencyKey: `booking-updated:${id}:${(prev as any).status}->${status}:${stamp.slice(0, 16)}`,
+          templateData: {
+            bookingNumber: (prev as any).booking_number || "—",
+            customerName: (prev as any).customer_name || "—",
+            vehicleName,
+            changeSummary: "Status alterado",
+            previousStatus: statusLabel[(prev as any).status] || (prev as any).status,
+            newStatus: statusLabel[status] || status,
+            pickupDate: `${(prev as any).pickup_date ?? "—"} · ${(prev as any).pickup_time ?? ""}`.trim(),
+            returnDate: `${(prev as any).return_date ?? "—"} · ${(prev as any).return_time ?? ""}`.trim(),
+            totalPrice: fmtMoney((prev as any).total_price),
+            bookingUrl: baseUrl,
+          },
+        });
+      }
+    } catch (e) { console.error("[zeus-email] status change dispatch failed", e); }
+
     load();
   };
 
