@@ -210,8 +210,16 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
     .toUpperCase();
 
   // Filter sections by role; drop empty sections after filtering.
+  // Painel de Logs é visível somente para o super-admin.
   const visibleSections = menuSections
-    .map((s) => ({ ...s, items: s.items.filter((it) => hasAny(it.allowedRoles)) }))
+    .map((s) => ({
+      ...s,
+      items: s.items.filter((it) => {
+        if (!hasAny(it.allowedRoles)) return false;
+        if (it.url === "/admin/logs" && email.toLowerCase() !== "admin@zeusrentalcar.com") return false;
+        return true;
+      }),
+    }))
     .filter((s) => s.items.length > 0);
 
   return (
