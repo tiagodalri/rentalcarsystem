@@ -1318,9 +1318,10 @@ function PaymentStep({ form, set, aiKeys, days, errorFields }: StepProps & { day
             </SelectContent>
           </Select>
         </div>
-        <div className="sm:col-span-2">
+        <div className="sm:col-span-2" data-field="total_price">
           <FieldLabel ai={aiKeys.has("total_price")}>Valor total *</FieldLabel>
-          <Input type="number" min="0" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} placeholder="0.00" className="h-11 tabular-nums text-lg" />
+          <Input type="number" min="0" step="0.01" value={form.total_price} onChange={(e) => set("total_price", e.target.value)} placeholder="0.00" className={`h-11 tabular-nums text-lg ${errorClass(errorFields, "total_price")}`} />
+
           {days > 0 && form.total_price && (
             <p className="text-[11px] text-muted-foreground mt-1">
               Equivale a <span className="tabular-nums">{currencySymbol}{(total / days).toFixed(2)}</span>/dia × {days} dia{days > 1 ? "s" : ""}
