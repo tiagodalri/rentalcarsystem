@@ -444,6 +444,7 @@ function CalendarLegend() {
 
 // Format full names: capitalize each word, lowercase particles (da, de, do, das, dos, e)
 import { formatPersonName } from "@/lib/formatName";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
 const formatName = (raw: string | null | undefined): string => formatPersonName(raw) || "—";
 
 
