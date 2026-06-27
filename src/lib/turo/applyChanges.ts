@@ -48,6 +48,7 @@ function buildInsertPayload(row: TuroRow, vehicleId: string) {
     status,
     payment_status,
     contract_status: "not_sent",
+    turo_reservation_code: row.reservationId,
     addons: {
       turo_reservation_id: row.reservationId,
       turo_vehicle_name: row.vehicleModel,
