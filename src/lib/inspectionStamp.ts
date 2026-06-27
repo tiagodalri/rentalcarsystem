@@ -234,18 +234,19 @@ function drawStamp(
   ctx.textAlign = "right";
   ctx.textBaseline = "top";
 
-  // Sombra forte para garantir contraste em qualquer fundo (céu claro, etc.).
-  ctx.shadowColor = "rgba(0,0,0,0.9)";
-  ctx.shadowBlur = Math.max(6, Math.round(fontSize * 0.4));
+  // SEM shadowBlur do canvas (criava halo borrado atrás do texto sobre a foto).
+  // Contraste = stroke escuro nítido em volta de cada letra + preenchimento branco.
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = Math.round(fontSize * 0.1);
+  ctx.shadowOffsetY = 0;
 
-  // Stroke escuro reforça a borda das letras.
-  ctx.strokeStyle = "rgba(0,0,0,0.7)";
-  ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.11));
+  ctx.strokeStyle = "rgba(0,0,0,0.95)";
+  ctx.lineWidth = Math.max(3, Math.round(fontSize * 0.18));
   ctx.lineJoin = "round";
+  ctx.miterLimit = 2;
 
-  ctx.fillStyle = "rgba(255,255,255,0.98)";
+  ctx.fillStyle = "#ffffff";
 
   lines.forEach((line, i) => {
     const x = w - marginX;
@@ -253,9 +254,4 @@ function drawStamp(
     ctx.strokeText(line, x, y);
     ctx.fillText(line, x, y);
   });
-
-  // Reset
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur = 0;
-  ctx.shadowOffsetY = 0;
 }
