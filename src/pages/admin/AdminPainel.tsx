@@ -148,21 +148,7 @@ export default function AdminPainel() {
 
   if (loading) return <DashboardSkeleton />;
 
-  // ───── Mobile-first layout ─────
-  if (isMobile) {
-    if (aiMode) {
-      return (
-        <div className="space-y-3">
-          <div className="flex items-center justify-end px-1">{AiToggle}</div>
-          <AiPainel bookings={bookings as any} vehicles={vehicles as any} />
-        </div>
-      );
-    }
-    return <MobilePainel bookings={bookings} vehicles={vehicles} onRefresh={load} onToggleAi={() => setAiMode(v => !v)} aiMode={aiMode} />;
-  }
-
-
-  // ───── AI Mode ─────
+  // ───── AI Mode toggle (used by both mobile & desktop) ─────
   const AiToggle = (
     <button
       onClick={() => setAiMode(v => !v)}
@@ -181,6 +167,19 @@ export default function AdminPainel() {
       )}
     </button>
   );
+
+  // ───── Mobile-first layout ─────
+  if (isMobile) {
+    if (aiMode) {
+      return (
+        <div className="space-y-3">
+          <div className="flex items-center justify-end px-1">{AiToggle}</div>
+          <AiPainel bookings={bookings as any} vehicles={vehicles as any} />
+        </div>
+      );
+    }
+    return <MobilePainel bookings={bookings} vehicles={vehicles} onRefresh={load} onToggleAi={() => setAiMode(v => !v)} aiMode={aiMode} />;
+  }
 
   if (aiMode) {
     return (
