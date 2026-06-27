@@ -1,0 +1,1 @@
+UPDATE vehicle_inspections SET accessories_check = '{"jack":true,"antenna":true,"first_aid":true,"spare_tire":true,"triangle":true,"floor_mats":true,"fire_extinguisher":true}'::jsonb WHERE id = 'a1388bfc-e319-4cd5-b637-e18412525458';
