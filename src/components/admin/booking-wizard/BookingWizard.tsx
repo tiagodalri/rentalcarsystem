@@ -931,15 +931,16 @@ function ScheduleStep({ form, set, aiKeys, days, errorFields }: StepProps & { da
           <h3 className="text-sm font-semibold">Retirada</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
+          <div data-field="pickup_date" className={`rounded-lg ${errorFields?.has("pickup_date") ? "ring-2 ring-destructive/40 p-1 -m-1" : ""}`}>
             <FieldLabel ai={aiKeys.has("pickup_date")}>Data *</FieldLabel>
             <BookingDateField value={form.pickup_date} onChange={(v) => set("pickup_date", v)} />
           </div>
-          <div>
+          <div data-field="pickup_time">
             <FieldLabel ai={aiKeys.has("pickup_time")}>Horário *</FieldLabel>
-            <Input type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} className="h-11" />
+            <Input type="time" value={form.pickup_time} onChange={(e) => set("pickup_time", e.target.value)} className={`h-11 ${errorClass(errorFields, "pickup_time")}`} />
           </div>
         </div>
+
         <div className="space-y-2">
           <FieldLabel>Onde será a retirada?</FieldLabel>
           <div className="flex flex-wrap gap-2">
