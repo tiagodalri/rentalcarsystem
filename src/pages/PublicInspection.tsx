@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import {
   Loader2, ShieldAlert, Calendar, MapPin, User, Car, Gauge, Fuel,
   Camera, AlertTriangle, ClipboardCheck, CheckCircle2, XCircle, Hash,
-  FileSignature, Printer,
+  FileSignature, Printer, Download,
 } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 
@@ -260,10 +260,16 @@ export default function PublicInspection() {
         {/* Fotos */}
         {photos.length > 0 && (
           <section className="rounded-2xl border border-border bg-card p-5">
-            <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-3 flex items-center gap-1.5">
-              <Camera size={11} /> Registro Fotográfico
-              <span className="ml-1 text-foreground font-medium">{photos.length}</span>
-            </p>
+            <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
+              <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold flex items-center gap-1.5">
+                <Camera size={11} /> Registro Fotográfico
+                <span className="ml-1 text-foreground font-medium">{photos.length}</span>
+              </p>
+              <DownloadAllPhotosButton
+                photos={photos}
+                prefix={`zeus-${booking.booking_number || "inspecao"}-${isCheckin ? "entrega" : "devolucao"}`}
+              />
+            </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
               {photos.map((p, i) => (
                 <figure key={i} className="rounded-xl overflow-hidden border border-border bg-muted/40">
@@ -319,5 +325,64 @@ export default function PublicInspection() {
         </footer>
       </div>
     </div>
+  );
+}
+
+function DownloadAllPhotosButton({ photos, prefix }: { photos: any[]; prefix: string }) {
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+
+  const handleDownload = async () => {
+    const valid = photos.filter((p) => p?.url);
+    if (valid.length === 0) return;
+    setBusy(true);
+    setProgress({ done: 0, total: valid.length });
+    try {
+      for (let i = 0; i < valid.length; i++) {
+        const p = valid[i];
+        try {
+          const res = await fetch(p.url);
+          const blob = await res.blob();
+          const safePos = String(p.position || `foto-${i + 1}`).replace(/[^a-zA-Z0-9_-]/g, "_");
+          const filename = `${prefix}-${String(i + 1).padStart(2, "0")}-${safePos}.jpg`;
+          const u = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = u;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(() => URL.revokeObjectURL(u), 1500);
+          // pequena pausa para o navegador não engasgar com muitos downloads simultâneos
+          await new Promise((r) => setTimeout(r, 250));
+        } catch {
+          // ignora falha individual e segue
+        }
+        setProgress({ done: i + 1, total: valid.length });
+      }
+    } finally {
+      setBusy(false);
+      setTimeout(() => setProgress(null), 1500);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleDownload}
+      disabled={busy}
+      className="inline-flex items-center gap-1.5 text-[11px] font-medium rounded-md border border-border bg-background px-3 py-1.5 hover:bg-muted transition disabled:opacity-60 print:hidden"
+    >
+      {busy ? (
+        <>
+          <Loader2 size={12} className="animate-spin" />
+          Baixando {progress?.done}/{progress?.total}
+        </>
+      ) : (
+        <>
+          <Download size={12} /> Baixar todas as fotos
+        </>
+      )}
+    </button>
   );
 }
