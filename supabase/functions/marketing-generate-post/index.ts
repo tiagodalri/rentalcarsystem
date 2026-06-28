@@ -13,7 +13,9 @@ type Body = {
   customPrompt?: string;
 };
 
-const ZEUS_LOGO_URL = "https://zeusrentalcar.lovable.app/zeus-z-mark.png";
+// Logotipo oficial da Zeus (mesmo usado na home do site) — versão alta resolução.
+const ZEUS_LOGO_URL = "https://zeusrentalcar.lovable.app/zeus-logo-full.png";
+const ZEUS_MARK_URL = "https://zeusrentalcar.lovable.app/zeus-z-mark.png";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
