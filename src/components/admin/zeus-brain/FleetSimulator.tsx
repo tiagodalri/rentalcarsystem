@@ -156,8 +156,11 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
   const [outIds, setOutIds] = useState<string[]>([]);
   const [inIds, setInIds] = useState<string[]>([]);
+  const [inQty, setInQty] = useState<Record<string, number>>({});
   const [queryOut, setQueryOut] = useState("");
   const [queryIn, setQueryIn] = useState("");
+
+  const qtyOf = (id: string) => inQty[id] ?? 1;
 
   const sortedByPerf = useMemo(
     () => [...eligible].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
@@ -185,9 +188,12 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
   const outList = outIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
   const inList = inIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
 
+  // Unidades totais a comprar (soma das qtds)
+  const inTotalUnits = inList.reduce((s, p) => s + qtyOf(p.v.id), 0);
+
   // Totalizadores ao vivo (independentes do resultado completo)
   const sellCapitalLive = outList.reduce((s, p) => s + (p.purchase || 0), 0);
-  const buyCapitalLive = inList.reduce((s, p) => s + (p.purchase || 0), 0);
+  const buyCapitalLive = inList.reduce((s, p) => s + (p.purchase || 0) * qtyOf(p.v.id), 0);
   const balanceLive = sellCapitalLive - buyCapitalLive;
 
 
@@ -196,11 +202,15 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
     const outRev = outList.reduce((s, p) => s + p.revPerDayOwned, 0);
     const outOcc = outList.reduce((s, p) => s + p.occupancy, 0) / outList.length;
     const outCapital = outList.reduce((s, p) => s + p.purchase, 0);
-    const inAvgRev = inList.reduce((s, p) => s + p.revPerDayOwned, 0) / inList.length;
-    const inAvgOcc = inList.reduce((s, p) => s + p.occupancy, 0) / inList.length;
-    const inCapital = inList.reduce((s, p) => s + p.purchase, 0) / inList.length * outList.length;
 
-    const projectedRevPerDay = inAvgRev * outList.length;
+    // Cada compra entra ponderada pela quantidade selecionada
+    const totalUnits = inList.reduce((s, p) => s + qtyOf(p.v.id), 0);
+    const inRevTotal = inList.reduce((s, p) => s + p.revPerDayOwned * qtyOf(p.v.id), 0);
+    const inOccWeighted = inList.reduce((s, p) => s + p.occupancy * qtyOf(p.v.id), 0) / Math.max(1, totalUnits);
+    const inCapital = inList.reduce((s, p) => s + p.purchase * qtyOf(p.v.id), 0);
+    const inAvgRev = inRevTotal / Math.max(1, totalUnits);
+
+    const projectedRevPerDay = inRevTotal; // já é a soma com qtd
     const deltaPerDay = projectedRevPerDay - outRev;
 
     const inPayback = inList.filter(p => p.paybackMonths !== null).map(p => p.paybackMonths!);
@@ -208,24 +218,34 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
     return {
       outRev, outOcc, outCapital,
-      inAvgRev, inAvgOcc, inCapital,
+      inAvgRev, inAvgOcc: inOccWeighted, inCapital,
       deltaPerDay,
       delta90: deltaPerDay * 90,
       delta180: deltaPerDay * 180,
       delta365: deltaPerDay * 365,
       capitalDelta: inCapital - outCapital,
-      capitalEfficiency: outCapital > 0 ? ((projectedRevPerDay / inCapital) / (outRev / outCapital) - 1) * 100 : 0,
+      capitalEfficiency: outCapital > 0 && inCapital > 0 ? ((projectedRevPerDay / inCapital) / (outRev / outCapital) - 1) * 100 : 0,
       avgInPayback,
       count: outList.length,
+      buyUnits: totalUnits,
     };
-  }, [outList, inList]);
+  }, [outList, inList, inQty]);
 
   const toggleOut = (id: string) =>
     setOutIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const toggleIn = (id: string) =>
-    setInIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setInIds(prev => {
+      if (prev.includes(id)) {
+        setInQty(q => { const n = { ...q }; delete n[id]; return n; });
+        return prev.filter(x => x !== id);
+      }
+      setInQty(q => ({ ...q, [id]: q[id] ?? 1 }));
+      return [...prev, id];
+    });
+  const incQty = (id: string) => setInQty(q => ({ ...q, [id]: Math.min(99, (q[id] ?? 1) + 1) }));
+  const decQty = (id: string) => setInQty(q => ({ ...q, [id]: Math.max(1, (q[id] ?? 1) - 1) }));
 
-  const reset = () => { setOutIds([]); setInIds([]); };
+  const reset = () => { setOutIds([]); setInIds([]); setInQty({}); };
 
   return (
     <div className="ai-card relative overflow-hidden">
