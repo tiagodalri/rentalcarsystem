@@ -997,10 +997,10 @@ export default function AiPainel({
                   const pri = d.prioridade;
                   const priCfg =
                     pri === "alta"
-                      ? { label: "Prioridade alta", bg: "#fdecec", border: "rgba(180,40,40,0.30)", text: "#8a1f1f", dot: "#b42828" }
+                      ? { label: "Alta", bg: "#fdecec", border: "rgba(180,40,40,0.30)", text: "#8a1f1f", dot: "#b42828" }
                       : pri === "media"
-                      ? { label: "Prioridade média", bg: "#fbf1d8", border: "rgba(154,122,58,0.40)", text: "#6b4f1d", dot: "#9a7a3a" }
-                      : { label: "Prioridade baixa", bg: "#e8efe7", border: "rgba(30,90,60,0.30)", text: "#2c5a3d", dot: "#2c5a3d" };
+                      ? { label: "Média", bg: "#fbf1d8", border: "rgba(154,122,58,0.40)", text: "#6b4f1d", dot: "#9a7a3a" }
+                      : { label: "Baixa", bg: "#e8efe7", border: "rgba(30,90,60,0.30)", text: "#2c5a3d", dot: "#2c5a3d" };
 
                   // Classifica o tipo de impacto a partir do texto bruto vindo do gerador
                   const raw = d.impacto || "";
