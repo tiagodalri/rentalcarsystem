@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { parseDateOnly } from "@/lib/dateOnly";
 
 export type ContractBooking = {
   id: string;
@@ -186,8 +187,8 @@ export function generateContractPdf(
   twoCols("Categoria", vehicle.category || "—", "Odômetro inicial (mi)", vehicle.current_odometer?.toLocaleString("pt-BR") || "—");
 
   // BLOCO 4 — LOCAÇÃO
-  const pickupMs = new Date(booking.pickup_date).getTime();
-  const returnMs = new Date(booking.return_date).getTime();
+  const pickupMs = parseDateOnly(booking.pickup_date).getTime();
+  const returnMs = parseDateOnly(booking.return_date).getTime();
   const days = Math.max(1, Math.round((returnMs - pickupMs) / (1000 * 60 * 60 * 24)));
 
   section("LOCAÇÃO");

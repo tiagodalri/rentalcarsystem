@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { Navigate, useNavigate } from "react-router-dom";
 import {
   Activity, Brain, CalendarDays, CalendarRange, Car, CheckCircle2,
@@ -139,8 +140,8 @@ export default function AdminPainel() {
      Considera reservas com pickup dentro do mês e exclui canceladas
      (a métrica reflete operação efetiva, não data de criação). */
   const isRealBooking = (b: BookingRow) => b.status !== "cancelled";
-  const monthBookings = bookings.filter(b => isRealBooking(b) && inMonth(new Date(b.pickup_date), monthAnchor));
-  const prevBookings  = bookings.filter(b => isRealBooking(b) && inMonth(new Date(b.pickup_date), prevMonthAnchor));
+  const monthBookings = bookings.filter(b => isRealBooking(b) && inMonth(parseDateOnly(b.pickup_date), monthAnchor));
+  const prevBookings  = bookings.filter(b => isRealBooking(b) && inMonth(parseDateOnly(b.pickup_date), prevMonthAnchor));
   const monthRevenue  = monthBookings.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
   const prevRevenue   = prevBookings.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
   const monthCount    = monthBookings.length;

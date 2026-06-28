@@ -1,4 +1,5 @@
 import type { Booking, BookingStatus } from "@/data/bookingTypes";
+import { parseDateOnly } from "@/lib/dateOnly";
 import type { DbBookingWithVehicle } from "@/hooks/useUserBookings";
 import { getCoverImage } from "@/data/vehicleImages";
 
@@ -16,8 +17,8 @@ export function adaptBookingFromDb(db: DbBookingWithVehicle): Booking {
   const totalPrice = db.total_price ?? 0;
 
   // Try to compute rental days from dates
-  const pickupMs = new Date(db.pickup_date).getTime();
-  const returnMs = new Date(db.return_date).getTime();
+  const pickupMs = parseDateOnly(db.pickup_date).getTime();
+  const returnMs = parseDateOnly(db.return_date).getTime();
   const rentalDays = Math.max(1, Math.round((returnMs - pickupMs) / (1000 * 60 * 60 * 24)));
   const dailyRate = rentalDays > 0 ? Math.round(totalPrice / rentalDays) : 0;
 

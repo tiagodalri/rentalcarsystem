@@ -1,4 +1,5 @@
 import { formatPersonName } from "@/lib/formatName";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -52,9 +53,9 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
     const date = new Date(year, month, day);
     date.setHours(0, 0, 0, 0);
     return activeBookings.filter((b) => {
-      const pickup = new Date(b.pickup_date);
+      const pickup = parseDateOnly(b.pickup_date);
       pickup.setHours(0, 0, 0, 0);
-      const returnD = new Date(b.return_date);
+      const returnD = parseDateOnly(b.return_date);
       returnD.setHours(0, 0, 0, 0);
       return date >= pickup && date <= returnD;
     });
@@ -89,8 +90,8 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     return activeBookings
-      .filter((b) => new Date(b.return_date) >= now)
-      .sort((a, b) => new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime())
+      .filter((b) => parseDateOnly(b.return_date) >= now)
+      .sort((a, b) => parseDateOnly(a.pickup_date).getTime() - parseDateOnly(b.pickup_date).getTime())
       .slice(0, 8);
   }, [activeBookings]);
 
@@ -196,9 +197,9 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
                             <div className="flex items-center gap-1 text-muted-foreground">
                               <Clock size={8} className="shrink-0" />
                               <span>
-                                {new Date(b.pickup_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                                {parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
                                 {b.pickup_time ? ` ${b.pickup_time}` : ""} →{" "}
-                                {new Date(b.return_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                                {parseDateOnly(b.return_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
                                 {b.return_time ? ` ${b.return_time}` : ""}
                               </span>
                             </div>
@@ -250,8 +251,8 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
             <div className="space-y-2">
               {upcoming.map((b) => {
                 const sc = statusColors[b.status] || statusColors.pending;
-                const pickup = new Date(b.pickup_date);
-                const returnD = new Date(b.return_date);
+                const pickup = parseDateOnly(b.pickup_date);
+                const returnD = parseDateOnly(b.return_date);
                 const days = Math.ceil((returnD.getTime() - pickup.getTime()) / 86400000);
                 return (
                   <div key={b.id} className="p-2.5 rounded-lg border border-border/30 bg-muted/30 hover:bg-muted/50 transition-colors">

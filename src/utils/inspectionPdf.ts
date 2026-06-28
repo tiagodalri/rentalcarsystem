@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { getSignedInspectionUrl } from "@/lib/inspectionStorage";
 
 type InspectionData = {
@@ -119,9 +120,9 @@ export async function generateInspectionPDF(data: InspectionData): Promise<void>
   labelValue("Telefone", booking.customer_phone || "—");
   labelValue("Veículo", vehicle?.name || "Não vinculado", contentW / 2);
   y += 12;
-  labelValue("Retirada", `${new Date(booking.pickup_date).toLocaleDateString("pt-BR")} — ${booking.pickup_location || "—"}`);
+  labelValue("Retirada", `${parseDateOnly(booking.pickup_date).toLocaleDateString("pt-BR")} — ${booking.pickup_location || "—"}`);
   y += 7;
-  labelValue("Devolução", `${new Date(booking.return_date).toLocaleDateString("pt-BR")} — ${booking.return_location || "—"}`);
+  labelValue("Devolução", `${parseDateOnly(booking.return_date).toLocaleDateString("pt-BR")} — ${booking.return_location || "—"}`);
   y += 12;
 
   // Odometer & Fuel

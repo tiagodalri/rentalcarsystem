@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 import MobileBookings from "./mobile/MobileBookings";
 import { supabase } from "@/integrations/supabase/client";
@@ -96,8 +97,8 @@ function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (
   const bookingsByDay = useMemo(() => {
     const map: Record<number, Booking[]> = {};
     bookings.forEach((b) => {
-      const pickup = new Date(b.pickup_date);
-      const ret = new Date(b.return_date);
+      const pickup = parseDateOnly(b.pickup_date);
+      const ret = parseDateOnly(b.return_date);
       for (let d = 1; d <= daysInMonth; d++) {
         const date = new Date(year, month, d);
         if (date >= new Date(pickup.getFullYear(), pickup.getMonth(), pickup.getDate()) &&
@@ -177,8 +178,8 @@ function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (
                       <div className="space-y-1">
                         {dayBookings.slice(0, showMax).map((b) => {
                           const sc = statusConfig[b.status] || statusConfig.pending;
-                          const isPickup = new Date(b.pickup_date).getDate() === day && new Date(b.pickup_date).getMonth() === month;
-                          const isReturn = new Date(b.return_date).getDate() === day && new Date(b.return_date).getMonth() === month;
+                          const isPickup = parseDateOnly(b.pickup_date).getDate() === day && parseDateOnly(b.pickup_date).getMonth() === month;
+                          const isReturn = parseDateOnly(b.return_date).getDate() === day && parseDateOnly(b.return_date).getMonth() === month;
                           const vehicleShort = b.vehicle_name ? b.vehicle_name.split(" ").slice(0, 2).join(" ") : "";
                           const customerFirst = formatName(b.customer_name).split(" ")[0];
                           const time = isPickup ? b.pickup_time : isReturn ? b.return_time : null;
@@ -649,11 +650,11 @@ function AdminBookingsDesktop() {
       let matchDateFrom = true;
       let matchDateTo = true;
       if (filters.dateFrom) {
-        const returnDate = new Date(b.return_date);
+        const returnDate = parseDateOnly(b.return_date);
         matchDateFrom = returnDate >= filters.dateFrom;
       }
       if (filters.dateTo) {
-        const pickupDate = new Date(b.pickup_date);
+        const pickupDate = parseDateOnly(b.pickup_date);
         matchDateTo = pickupDate <= filters.dateTo;
       }
 
@@ -680,19 +681,19 @@ function AdminBookingsDesktop() {
 
       // Dentro do mesmo grupo de status: futuras/ativas pela data de retirada mais próxima primeiro
       if (pa <= 3) {
-        const diff = new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime();
+        const diff = parseDateOnly(a.pickup_date).getTime() - parseDateOnly(b.pickup_date).getTime();
         if (diff !== 0) return diff;
       } else {
         // concluídas e canceladas: mais recentes primeiro
-        const diff = new Date(b.pickup_date).getTime() - new Date(a.pickup_date).getTime();
+        const diff = parseDateOnly(b.pickup_date).getTime() - parseDateOnly(a.pickup_date).getTime();
         if (diff !== 0) return diff;
       }
 
       // Desempate pelo sort selecionado pelo usuário
       const dir = filters.sortDir === "asc" ? 1 : -1;
       switch (filters.sortBy) {
-        case "pickup_date": return dir * (new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime());
-        case "return_date": return dir * (new Date(a.return_date).getTime() - new Date(b.return_date).getTime());
+        case "pickup_date": return dir * (parseDateOnly(a.pickup_date).getTime() - parseDateOnly(b.pickup_date).getTime());
+        case "return_date": return dir * (parseDateOnly(a.return_date).getTime() - parseDateOnly(b.return_date).getTime());
         case "total_price": return dir * ((a.total_price || 0) - (b.total_price || 0));
         case "customer_name": return dir * a.customer_name.localeCompare(b.customer_name);
         default: return dir * (new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
@@ -819,9 +820,9 @@ function AdminBookingsDesktop() {
       b.customer_name,
       b.customer_email || "",
       b.vehicle_name || "",
-      new Date(b.pickup_date).toLocaleDateString("pt-BR"),
+      parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR"),
       b.pickup_time || "",
-      new Date(b.return_date).toLocaleDateString("pt-BR"),
+      parseDateOnly(b.return_date).toLocaleDateString("pt-BR"),
       b.return_time || "",
       b.pickup_location || "",
       b.return_location || "",
@@ -931,9 +932,9 @@ function AdminBookingsDesktop() {
       const vals = [
         b.customer_name,
         b.vehicle_name || "—",
-        new Date(b.pickup_date).toLocaleDateString("pt-BR"),
+        parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR"),
         b.pickup_time || "—",
-        new Date(b.return_date).toLocaleDateString("pt-BR"),
+        parseDateOnly(b.return_date).toLocaleDateString("pt-BR"),
         b.return_time || "—",
         b.pickup_location || "—",
         b.return_location || "—",
@@ -1501,7 +1502,7 @@ function AdminBookingsDesktop() {
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
                             <span className="inline-flex items-center gap-1.5">
                               <span className="text-emerald-500 text-[10px]">→</span>
-                              {new Date(b.pickup_date).toLocaleDateString("pt-BR")}
+                              {parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR")}
                             </span>
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
@@ -1510,7 +1511,7 @@ function AdminBookingsDesktop() {
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
                             <span className="inline-flex items-center gap-1.5">
                               <span className="text-orange-500 text-[10px]">←</span>
-                              {new Date(b.return_date).toLocaleDateString("pt-BR")}
+                              {parseDateOnly(b.return_date).toLocaleDateString("pt-BR")}
                             </span>
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">

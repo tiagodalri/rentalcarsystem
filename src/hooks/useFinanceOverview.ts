@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { supabase } from "@/integrations/supabase/client";
 
 export type Period = "3m" | "6m" | "12m" | "all";
@@ -293,7 +294,7 @@ export function useFinanceOverview(): OverviewData {
     const completed = filteredBookings.filter((b) => b.status === "completed");
     if (completed.length === 0) return 0;
     const total = completed.reduce((s, b) => {
-      const d = daysBetween(new Date(b.pickup_date), new Date(b.return_date)) + 1;
+      const d = daysBetween(parseDateOnly(b.pickup_date), parseDateOnly(b.return_date)) + 1;
       return s + d;
     }, 0);
     return total / completed.length;

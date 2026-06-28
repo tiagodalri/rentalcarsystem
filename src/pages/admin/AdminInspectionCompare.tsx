@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -152,8 +153,8 @@ export default function AdminInspectionCompare() {
           <h1 className="admin-h1 text-2xl">Comparar Inspeções</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {booking?.customer_name} • {vehicle?.name || "—"} •{" "}
-            {booking && new Date(booking.pickup_date).toLocaleDateString("pt-BR")} →{" "}
-            {booking && new Date(booking.return_date).toLocaleDateString("pt-BR")}
+            {booking && parseDateOnly(booking.pickup_date).toLocaleDateString("pt-BR")} →{" "}
+            {booking && parseDateOnly(booking.return_date).toLocaleDateString("pt-BR")}
           </p>
         </div>
         <div className="flex gap-2">

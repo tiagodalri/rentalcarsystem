@@ -1,4 +1,5 @@
 import { formatPersonName } from "@/lib/formatName";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -255,8 +256,8 @@ export default function AdminBookingDetail() {
 
   const checkin = inspections.find(i => i.type === "checkin");
   const checkout = inspections.find(i => i.type === "checkout");
-  const pickup = new Date(booking.pickup_date);
-  const returnD = new Date(booking.return_date);
+  const pickup = parseDateOnly(booking.pickup_date);
+  const returnD = parseDateOnly(booking.return_date);
   const days = Math.max(1, Math.ceil((returnD.getTime() - pickup.getTime()) / (1000 * 60 * 60 * 24)));
   const sc = statusConfig[booking.status] || statusConfig.pending;
 
