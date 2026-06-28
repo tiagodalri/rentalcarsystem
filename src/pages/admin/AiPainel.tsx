@@ -940,41 +940,88 @@ export default function AiPainel({
           </div>
         </div>
 
-        {/* CONSELHOS DA SEMANA — O Cérebro decidindo por você */}
+        {/* CONSELHOS DA SEMANA — Private bank palette */}
         {weeklyDecisions.length > 0 && (
-          <div className="ai-card relative overflow-hidden">
-            <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full bg-cyan-400/10 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-12 -left-12 w-64 h-64 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
-            <div className="relative">
-              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                <div className="flex items-center gap-2">
-                  <Lightbulb size={16} className="text-cyan-300" />
-                  <span className="text-[11px] uppercase tracking-[0.18em] text-cyan-200/80">Conselhos da Semana</span>
+          <div
+            className="relative overflow-hidden rounded-2xl"
+            style={{
+              background: "linear-gradient(180deg, #fbf7ee 0%, #f6f1e6 100%)",
+              border: "1px solid rgba(13,29,46,0.10)",
+              boxShadow: "0 10px 30px -18px rgba(13,29,46,0.25), 0 0 0 1px rgba(255,255,255,0.6) inset",
+            }}
+          >
+            {/* hairline gold accent on top */}
+            <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: "linear-gradient(90deg, transparent, #c8a86b 30%, #9a7a3a 50%, #c8a86b 70%, transparent)" }} />
+            <div className="relative p-4 sm:p-6">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3 flex-wrap mb-4 sm:mb-5">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="inline-flex items-center justify-center h-7 w-7 rounded-full shrink-0" style={{ background: "#0d1d2e" }}>
+                    <Lightbulb size={14} style={{ color: "#d6bf86" }} />
+                  </span>
+                  <span className="text-[10.5px] sm:text-[11px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#0d1d2e" }}>
+                    Conselhos da semana
+                  </span>
                 </div>
-                <span className="text-[10.5px] text-white/50">As {weeklyDecisions.length} decisões com maior impacto agora</span>
+                <span className="text-[10.5px] uppercase tracking-[0.16em] font-medium shrink-0" style={{ color: "rgba(13,29,46,0.55)" }}>
+                  {weeklyDecisions.length} decisões com maior impacto
+                </span>
               </div>
-              <h3 className="text-base md:text-lg font-light text-white leading-snug mb-4">
+
+              {/* Headline */}
+              <h3 className="text-[15px] sm:text-[17px] leading-[1.35] font-medium mb-5 max-w-[60ch]" style={{ color: "#0d1d2e", letterSpacing: "-0.005em" }}>
                 Se você fizer só essas ações esta semana, é onde está o maior retorno.
               </h3>
-              <ul className="space-y-2.5">
+
+              {/* Decisions list — divided rows for clear separation */}
+              <ul className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(13,29,46,0.08)", background: "rgba(255,255,255,0.55)" }}>
                 {weeklyDecisions.map((d, i) => {
-                  const priColor = d.prioridade === "alta" ? "rose" : d.prioridade === "media" ? "amber" : "cyan";
-                  const priClasses: Record<string, string> = {
-                    rose: "bg-rose-400/15 border-rose-300/30 text-rose-200",
-                    amber: "bg-amber-400/15 border-amber-300/30 text-amber-200",
-                    cyan: "bg-cyan-400/15 border-cyan-300/30 text-cyan-200",
-                  };
+                  const isLast = i === weeklyDecisions.length - 1;
+                  const pri = d.prioridade;
+                  const priStyle =
+                    pri === "alta"
+                      ? { bg: "#fdecec", border: "rgba(180,40,40,0.25)", text: "#8a1f1f" }
+                      : pri === "media"
+                      ? { bg: "#fbf1d8", border: "rgba(154,122,58,0.35)", text: "#6b4f1d" }
+                      : { bg: "#e8efe7", border: "rgba(30,90,60,0.25)", text: "#2c5a3d" };
+                  const impactColor = pri === "alta" ? "#8a1f1f" : "#2c5a3d";
                   return (
-                    <li key={i} className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
-                      <div className="flex items-start justify-between gap-3 flex-wrap mb-1.5">
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <span className={`text-[9.5px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${priClasses[priColor]} shrink-0`}>{d.prioridade}</span>
-                          <span className="text-[10px] uppercase tracking-wider text-white/45 shrink-0">{d.categoria}</span>
-                          <span className="text-[13px] text-white/95 font-medium leading-snug">{d.titulo}</span>
+                    <li
+                      key={i}
+                      className="grid grid-cols-[auto_1fr_auto] gap-x-3 sm:gap-x-4 gap-y-1 items-start px-3.5 sm:px-5 py-3.5 sm:py-4"
+                      style={!isLast ? { borderBottom: "1px solid rgba(13,29,46,0.07)" } : undefined}
+                    >
+                      {/* Priority chip */}
+                      <span
+                        className="text-[9.5px] font-semibold uppercase tracking-[0.16em] px-2 py-[3px] rounded-md self-start"
+                        style={{ background: priStyle.bg, border: `1px solid ${priStyle.border}`, color: priStyle.text }}
+                      >
+                        {pri}
+                      </span>
+
+                      {/* Title + meta */}
+                      <div className="min-w-0">
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span className="text-[9.5px] font-medium uppercase tracking-[0.18em]" style={{ color: "rgba(13,29,46,0.45)" }}>
+                            {d.categoria}
+                          </span>
+                          <span className="hidden sm:inline" style={{ color: "rgba(13,29,46,0.20)" }}>·</span>
+                          <span className="text-[14px] sm:text-[14.5px] font-semibold leading-snug" style={{ color: "#0d1d2e", letterSpacing: "-0.005em" }}>
+                            {d.titulo}
+                          </span>
                         </div>
-                        <span className="text-[11px] tabular-nums text-emerald-200 shrink-0">{d.impacto}</span>
+                        <p className="text-[12.5px] sm:text-[13px] leading-[1.55] mt-1.5" style={{ color: "rgba(13,29,46,0.68)" }}>
+                          {d.descricao}
+                        </p>
                       </div>
-                      <p className="text-[12px] text-white/65 leading-relaxed pl-1">{d.descricao}</p>
+
+                      {/* Impact */}
+                      <span
+                        className="text-[11.5px] sm:text-[12px] tabular-nums font-semibold whitespace-nowrap text-right self-start pt-[2px] col-span-3 sm:col-span-1 sm:text-right"
+                        style={{ color: impactColor }}
+                      >
+                        {d.impacto}
+                      </span>
                     </li>
                   );
                 })}
