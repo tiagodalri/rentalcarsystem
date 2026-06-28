@@ -647,6 +647,14 @@ function AdminTeamDesktop() {
       )}
 
       <ManageJobTitlesDialog open={manageOpen} onOpenChange={setManageOpen} />
+
+      <TeamMemberProfileSheet
+        open={profileOpen}
+        onOpenChange={(v) => { setProfileOpen(v); if (!v) setProfileMember(null); }}
+        member={profileMember as any}
+        canEdit={isAdmin}
+        onChanged={load}
+      />
     </div>
   );
 }
