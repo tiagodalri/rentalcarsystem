@@ -85,7 +85,11 @@ export default function MobileTeam() {
           ) : filtered.length === 0 ? (
             <div className="py-10 text-center text-sm text-muted-foreground">Nenhum membro.</div>
           ) : filtered.map((m) => (
-            <div key={m.id} className={`p-3.5 rounded-xl bg-card border border-border/50 ${!m.is_active ? "opacity-50" : ""}`}>
+            <button
+              key={m.id}
+              onClick={() => openProfile(m.id)}
+              className={`w-full text-left p-3.5 rounded-xl bg-card border border-border/50 active:scale-[0.99] transition-transform ${!m.is_active ? "opacity-50" : ""}`}
+            >
               <div className="flex items-start gap-3">
                 <div className="h-11 w-11 rounded-full bg-primary/15 text-primary flex items-center justify-center text-xs font-semibold shrink-0">
                   {initials(m.full_name) || "?"}
@@ -96,13 +100,16 @@ export default function MobileTeam() {
                       <div className="text-sm font-medium truncate">{formatPersonName(m.full_name)}</div>
                       <div className="text-xs text-muted-foreground truncate">{m.position || "—"}</div>
                     </div>
-                    {m.role === "admin" && (
-                      <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                        <Shield size={10} /> Admin
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {m.role === "admin" && (
+                        <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                          <Shield size={10} /> Admin
+                        </span>
+                      )}
+                      <ChevronRight size={14} className="text-muted-foreground/60" />
+                    </div>
                   </div>
-                  <div className="mt-2 flex items-center gap-2">
+                  <div className="mt-2 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {m.phone && (
                       <a href={`tel:${onlyDigits(m.phone)}`} className="h-8 px-2.5 rounded-lg bg-emerald-500/10 text-emerald-600 inline-flex items-center gap-1.5 text-xs font-medium">
                         <Phone size={12} /> Ligar
@@ -116,10 +123,17 @@ export default function MobileTeam() {
                   </div>
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
+
+      <TeamMemberProfileSheet
+        open={profileOpen}
+        onOpenChange={(v) => { setProfileOpen(v); if (!v) { setSelectedId(null); setFullMember(null); } }}
+        member={fullMember}
+        onChanged={load}
+      />
     </PullToRefresh>
   );
 }
