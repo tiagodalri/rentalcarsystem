@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { parseDateOnly } from "@/lib/dateOnly";
 import {
   Brain, Sparkles, TrendingUp, AlertTriangle, Target, Zap, DollarSign,
@@ -8,7 +9,7 @@ import {
   CircleDollarSign, Lightbulb, Gamepad2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import FleetSimulator from "@/components/admin/zeus-brain/FleetSimulator";
+import { computePerVehicle } from "@/lib/zeusBrain/perVehicle";
 import { AiBriefingCard } from "@/components/admin/zeus-brain/AiBriefingCard";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
@@ -36,15 +37,16 @@ type FinTx = { type: string; amount: number; transaction_date: string; vehicle_i
 const fmtUSD = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 const fmtUSD2 = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
-type TabKey = "simulator" | "revenue" | "demand" | "operations" | "financial" | "strategy";
+type TabKey = "revenue" | "demand" | "operations" | "financial" | "strategy";
 
 export default function AiPainel({
   bookings, vehicles,
 }: { bookings: Booking[]; vehicles: Vehicle[] }) {
+  const navigate = useNavigate();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [transactions, setTransactions] = useState<FinTx[]>([]);
-  const [tab, setTab] = useState<TabKey>("simulator");
+  const [tab, setTab] = useState<TabKey>("revenue");
   const [briefing, setBriefing] = useState<string | null>(null);
   const [briefingLoading, setBriefingLoading] = useState(false);
 
@@ -67,81 +69,11 @@ export default function AiPainel({
     [bookings],
   );
 
-  /* ───── Per-vehicle analytics ─────
-   * Regras de coerência:
-   * - daysInFleet = max(1, dias desde acquired_date até hoje). Se sem acquired_date,
-   *   usamos a 1ª reserva como proxy (ou 90 dias fallback) — nunca 1 dia.
-   * - daysBookedHistorical = soma dos dias de reserva CLIPADOS à janela [aquisição, hoje].
-   *   Isso impede que reservas futuras inflem ocupação > 100%.
-   * - occupancy = clamp(0, 100) — métrica é taxa, não pode passar de 100%.
-   * - daysBookedTotal (incluindo futuro) é mantido só para receita / pipeline.
-   */
-  const perVehicle = useMemo(() => {
-    const dayMs = 86400000;
-    const todayMs = today.getTime();
-    return vehicles.map(v => {
-      const vb = realBookings.filter(b => b.vehicle_id === v.id);
-      const revenue = vb.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
-      const exp = expenses.filter(e => e.vehicle_id === v.id)
-        .reduce((s, e) => s + Number(e.amount || 0), 0);
-
-      // Anchor de aquisição: data informada ou 1ª reserva conhecida
-      const acquiredDate = v.acquired_date
-        ? new Date(v.acquired_date)
-        : (vb.length
-            ? new Date(Math.min(...vb.map(b => parseDateOnly(b.pickup_date).getTime())))
-            : null);
-      const acquiredMs = acquiredDate ? acquiredDate.getTime() : null;
-
-      const daysInFleet = acquiredMs
-        ? Math.max(Math.round((todayMs - acquiredMs) / dayMs), 1)
-        : 90; // fallback prudente
-
-      // Dias reservados — total e clipados à janela histórica
-      let daysBookedTotal = 0;
-      let daysBookedHistorical = 0;
-      vb.forEach(b => {
-        const pk = parseDateOnly(b.pickup_date).getTime();
-        const rt = parseDateOnly(b.return_date).getTime();
-        const rawDays = Math.max(Math.round((rt - pk) / dayMs), 1);
-        daysBookedTotal += rawDays;
-        // Clip ao intervalo [acquired, today]
-        const lo = acquiredMs ? Math.max(pk, acquiredMs) : pk;
-        const hi = Math.min(rt, todayMs);
-        if (hi > lo) daysBookedHistorical += Math.round((hi - lo) / dayMs);
-      });
-
-      const rawOccupancy = (daysBookedHistorical / daysInFleet) * 100;
-      const occupancy = Math.max(0, Math.min(100, rawOccupancy));
-      const purchase = Number(v.purchase_price) || 0;
-      const profit = revenue - exp;
-      const roi = purchase > 0 ? (profit / purchase) * 100 : 0;
-      const revPerDayOwned = revenue / daysInFleet;
-      const daily = Number(v.daily_price_usd) || 0;
-      const adr = daysBookedTotal > 0 ? revenue / daysBookedTotal : 0;
-      const adrGap = daily > 0 ? ((adr - daily) / daily) * 100 : 0;
-      const paybackMonths = daily > 0 && purchase > 0
-        ? Math.ceil(purchase / (daily * 20)) : null;
-      const dailyRevRate = daysInFleet > 0 ? revenue / daysInFleet : 0;
-      const breakEvenDays = purchase > 0 && dailyRevRate > 0
-        ? Math.ceil((purchase - (revenue - exp)) / dailyRevRate) : null;
-      const breakEvenDate = breakEvenDays !== null && breakEvenDays > 0
-        ? addDays(today, breakEvenDays) : null;
-      const customerCount = new Set(vb.map(b => b.customer_id || b.customer_name).filter(Boolean)).size;
-      return {
-        v, revenue, exp, profit,
-        daysBooked: daysBookedHistorical, // usado em ocupação/ranking
-        daysBookedTotal,                  // inclui futuro (pipeline)
-        daysInFleet, occupancy, roi,
-        revPerDayOwned, paybackMonths, purchase, daily, adr, adrGap, customerCount,
-        breakEvenDate, breakEvenDays,
-        bookingsCount: vb.length,
-        // Sinalizadores de qualidade do dado
-        hasAcquiredDate: !!v.acquired_date,
-        isNewToFleet: daysInFleet < 30,
-      };
-    });
-  }, [vehicles, realBookings, expenses, today]);
+  /* ───── Per-vehicle analytics — centralizado em src/lib/zeusBrain/perVehicle.ts ───── */
+  const perVehicle = useMemo(
+    () => computePerVehicle(vehicles as any, realBookings as any, expenses as any, today),
+    [vehicles, realBookings, expenses, today],
+  );
 
 
   const fleetRevenue = perVehicle.reduce((s, p) => s + p.revenue, 0);
@@ -846,8 +778,7 @@ export default function AiPainel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [perVehicle.length]);
 
-  const tabs: { key: TabKey; label: string; icon: typeof Brain; highlight?: boolean }[] = [
-    { key: "simulator", label: "Simulador", icon: Gamepad2, highlight: true },
+  const tabs: { key: TabKey; label: string; icon: typeof Brain }[] = [
     { key: "revenue", label: "Receita", icon: DollarSign },
     { key: "demand", label: "Reservas", icon: Activity },
     { key: "operations", label: "Operação", icon: Gauge },
@@ -862,15 +793,13 @@ export default function AiPainel({
       <div className="ai-bg-noise" />
 
       <div className="relative z-10 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto">
-        {/* Header — Simulador à esquerda, contagem à direita; espaçamento generoso pra não brigar com o X do overlay */}
+        {/* Header — Simulador (rota dedicada) à esquerda, contagem à direita */}
         <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
           <button
-            onClick={() => setTab(tab === "simulator" ? "revenue" : "simulator")}
+            onClick={() => navigate("/admin/zeus-brain/simulador")}
             className="relative inline-flex items-center gap-2.5 pl-3.5 pr-2 py-2 rounded-full text-[11px] font-semibold transition-all active:scale-[0.98] min-h-[40px]"
             style={{
-              background: tab === "simulator"
-                ? "linear-gradient(180deg, #14283d 0%, #0d1d2e 100%)"
-                : "linear-gradient(180deg, #1a3047 0%, #0d1d2e 100%)",
+              background: "linear-gradient(180deg, #1a3047 0%, #0d1d2e 100%)",
               border: "1px solid rgba(154,122,58,0.45)",
               boxShadow: "0 8px 20px -12px rgba(13,29,46,0.45), 0 0 0 1px rgba(255,255,255,0.04) inset",
               color: "#fbf7ee",
@@ -894,7 +823,7 @@ export default function AiPainel({
                 color: "#d6bf86",
               }}
             >
-              Novo
+              Abrir
             </span>
           </button>
           <p className="ai-subtitle m-0 shrink-0 text-right">
@@ -1053,30 +982,6 @@ export default function AiPainel({
           <div className="ai-tabs">
             {tabs.map(t => {
               const active = tab === t.key;
-              if (t.highlight) {
-                return (
-                  <button
-                    key={t.key}
-                    onClick={() => setTab(t.key)}
-                    className={`ai-tab relative overflow-visible group ${
-                      active
-                        ? "!bg-gradient-to-r !from-amber-400/25 !via-amber-300/15 !to-emerald-400/20 !border-amber-300/60 !text-white shadow-[0_0_25px_rgba(251,191,36,0.35)]"
-                        : "!bg-gradient-to-r !from-amber-400/10 !to-emerald-400/10 !border-amber-300/40 !text-amber-100 hover:!from-amber-400/20 hover:!to-emerald-400/20"
-                    }`}
-                  >
-                    <span className="absolute -top-1.5 -right-1.5 flex h-2.5 w-2.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400 border border-amber-200" />
-                    </span>
-                    <Sparkles size={11} className="text-amber-300" />
-                    <t.icon size={13} />
-                    <span className="font-medium">{t.label}</span>
-                    <span className="text-[8.5px] uppercase tracking-[0.18em] px-1.5 py-[1px] rounded-sm bg-amber-300/20 border border-amber-300/40 text-amber-100 ml-0.5">
-                      Novo
-                    </span>
-                  </button>
-                );
-              }
               return (
                 <button key={t.key} onClick={() => setTab(t.key)} className={`ai-tab ${active ? "ai-tab-active" : ""}`}>
                   <t.icon size={13} /> <span>{t.label}</span>
@@ -1086,12 +991,6 @@ export default function AiPainel({
           </div>
         </div>
 
-        {/* ───── Tab: SIMULATOR ───── */}
-        {tab === "simulator" && (
-          <div className="space-y-3">
-            <FleetSimulator perVehicle={perVehicle as any} />
-          </div>
-        )}
 
 
         {/* ───── Tab: REVENUE ───── */}
