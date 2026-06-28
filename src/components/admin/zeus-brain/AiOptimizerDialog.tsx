@@ -167,8 +167,8 @@ export default function AiOptimizerDialog({
               Zeus Brain · Otimizador
             </span>
           </div>
-          <h2 className="text-[20px] sm:text-[22px] font-medium leading-snug" style={{ color: IVORY, letterSpacing: "-0.01em" }}>
-            Diga quantos carros quer vender. A IA encontra a melhor combinação possível.
+          <h2 className="text-[15px] sm:text-[17px] font-medium leading-snug pr-8" style={{ color: IVORY, letterSpacing: "-0.01em" }}>
+            Diga quantos carros quer vender. A IA encontra a melhor combinação.
           </h2>
         </div>
 
