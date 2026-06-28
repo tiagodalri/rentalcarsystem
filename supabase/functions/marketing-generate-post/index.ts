@@ -17,11 +17,12 @@ type Body = {
   vehiclePhotoUrl?: string | null;
   logoDataUrl?: string | null;
   format: "feed" | "story";
-  tone: "luxo" | "aventura" | "familia" | "promocao" | "lancamento";
+  tone: "luxo" | "aventura" | "familia" | "promocao" | "lancamento" | "sazonal";
   mode?: Mode;
   customPrompt?: string;
   promo?: Promo;
   referenceImageDataUrl?: string | null;
+  seasonalTheme?: { key: string; label: string; palette: string; motifs: string; copyHint: string };
 };
 
 const ZEUS_LOGO_URL = "https://zeusrentalcar.com/zeus-logo-full.png";
