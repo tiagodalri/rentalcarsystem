@@ -1570,7 +1570,7 @@ export default function AiPainel({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <RecCard title="Carros para considerar vender" subtitle="Mais de 6 meses na frota com pouco uso e retorno baixo" icon={AlertTriangle} hue="rose" empty="Frota saudável. Nenhum carro nessa situação."
                 items={sellCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Já devolveu ${p.roi.toFixed(1)}% do investido · ${p.daysInFleet} dias na frota` }))} />
-              <RecCard title="Carros que aguentam preço maior" subtitle="Estão sempre alugados — dá pra cobrar 12% a 18% a mais" icon={Flame} hue="amber" empty="Nenhum carro com demanda excedente."
+              <RecCard title="Carros que aguentam preço maior" subtitle="Estão sempre alugados. Dá pra cobrar 12% a 18% a mais" icon={Flame} hue="amber" empty="Nenhum carro com demanda excedente."
                 items={priceUpCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 1.15)}/dia` }))} />
               <RecCard title="Carros parados — testar promo" subtitle="Pouco alugados há mais de 90 dias" icon={Snowflake} hue="amber" empty="Nenhum carro nessa situação."
                 items={priceDownCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 0.85)}/dia em promo` }))} />
