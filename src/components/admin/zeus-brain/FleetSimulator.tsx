@@ -388,7 +388,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-[13px] font-semibold mb-1" style={{ color: NAVY }}>
-                  {missingPrice.length} carro{missingPrice.length === 1 ? "" : "s"} fora do simulador — sem valor pago cadastrado
+                  {missingPrice.length} carro{missingPrice.length === 1 ? "" : "s"} fora do simulador. Sem valor pago cadastrado
                 </div>
                 <div className="text-[12px] leading-[1.6] mb-2" style={{ color: NAVY_70 }}>
                   Para entrar na simulação, o veículo precisa ter o <span className="font-semibold" style={{ color: NAVY }}>valor pago na aquisição</span> registrado na ficha da frota. Sem esse dado não é possível calcular capital, ROI nem payback.
