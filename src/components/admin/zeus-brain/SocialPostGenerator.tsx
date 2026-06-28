@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -15,6 +15,7 @@ type Vehicle = {
 
 type Format = "feed" | "story";
 type Tone = "luxo" | "aventura" | "familia" | "promocao" | "lancamento";
+type Mode = "promo" | "free" | "reference";
 
 const TONES: { v: Tone; label: string; hint: string }[] = [
   { v: "luxo", label: "Luxo", hint: "exclusivo, premium, status" },
@@ -37,7 +38,20 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
   const [vehicleId, setVehicleId] = useState<string>("");
   const [format, setFormat] = useState<Format>("feed");
   const [tone, setTone] = useState<Tone>("luxo");
+  const [mode, setMode] = useState<Mode>("promo");
   const [customPrompt, setCustomPrompt] = useState("");
+
+  // Promo fields
+  const [priceDaily, setPriceDaily] = useState("");
+  const [dateStart, setDateStart] = useState("");
+  const [dateEnd, setDateEnd] = useState("");
+  const [promoHook, setPromoHook] = useState("");
+
+  // Reference image
+  const [refDataUrl, setRefDataUrl] = useState<string | null>(null);
+  const [refName, setRefName] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
 
@@ -81,8 +95,33 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
     }
   }
 
+  function onPickReference(file: File) {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Envie uma imagem (PNG, JPG, WEBP).");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("Imagem grande demais. Maximo 8MB.");
+      return;
+    }
+    const r = new FileReader();
+    r.onload = () => {
+      setRefDataUrl(r.result as string);
+      setRefName(file.name);
+    };
+    r.readAsDataURL(file);
+  }
+
   async function generate() {
     if (!selected) return;
+    if (mode === "promo" && (!priceDaily || !dateStart || !dateEnd)) {
+      toast.error("Preencha valor da diaria e periodo da promocao.");
+      return;
+    }
+    if (mode === "reference" && !refDataUrl) {
+      toast.error("Anexe uma imagem de referencia.");
+      return;
+    }
     setLoading(true);
     setResult(null);
     try {
@@ -95,7 +134,15 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           logoDataUrl,
           format,
           tone,
+          mode,
           customPrompt: customPrompt.trim() || undefined,
+          promo: mode === "promo" ? {
+            priceDaily: priceDaily.trim(),
+            dateStart,
+            dateEnd,
+            hook: promoHook.trim() || undefined,
+          } : undefined,
+          referenceImageDataUrl: mode === "reference" ? refDataUrl : undefined,
         },
       });
       if (error) throw error;
@@ -128,7 +175,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
   }
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-10">
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-10">
       <button
         onClick={onBack}
         className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.22em] font-semibold mb-4"
@@ -153,29 +200,136 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] gap-4 sm:gap-6">
         {/* Form */}
         <div
           className="rounded-[20px] p-4 sm:p-6"
           style={{ background: "#fbf7ee", border: "1px solid rgba(13,29,46,0.10)" }}
         >
-          <Label>Carro</Label>
-          <select
-            value={vehicleId}
-            onChange={(e) => setVehicleId(e.target.value)}
-            className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[14px] bg-white"
-            style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
-          >
-            {vehicles.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.name || `${v.brand || ""} ${v.model || ""}`.trim()}
-              </option>
-            ))}
-          </select>
-          {!photoUrl && (
-            <p className="text-[11px] mt-1.5" style={{ color: "#a05a2c" }}>
-              Este carro nao tem foto cadastrada. A arte sera gerada apenas com a marca.
-            </p>
+          {/* Mode selector */}
+          <Label>Tipo de arte</Label>
+          <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <ModePill active={mode === "promo"} onClick={() => setMode("promo")} icon={<Tag size={14} />} label="Promocao" sub="carro + data + valor" />
+            <ModePill active={mode === "free"} onClick={() => setMode("free")} icon={<MessageSquare size={14} />} label="Livre" sub="so com instrucao" />
+            <ModePill active={mode === "reference"} onClick={() => setMode("reference")} icon={<ImageIcon size={14} />} label="Com referencia" sub="anexar arte base" />
+          </div>
+
+          <div className="mt-5">
+            <Label>Carro</Label>
+            <select
+              value={vehicleId}
+              onChange={(e) => setVehicleId(e.target.value)}
+              className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[14px] bg-white"
+              style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
+            >
+              {vehicles.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name || `${v.brand || ""} ${v.model || ""}`.trim()}
+                </option>
+              ))}
+            </select>
+            {!photoUrl && (
+              <p className="text-[11px] mt-1.5" style={{ color: "#a05a2c" }}>
+                Este carro nao tem foto cadastrada. A arte sera gerada apenas com a marca.
+              </p>
+            )}
+          </div>
+
+          {/* Promo fields */}
+          {mode === "promo" && (
+            <div className="mt-5 rounded-xl p-3.5" style={{ background: "white", border: "1px dashed rgba(154,122,58,0.45)" }}>
+              <div className="text-[10px] uppercase tracking-[0.32em] font-semibold mb-2" style={{ color: "#9a7a3a" }}>
+                Detalhes da promocao
+              </div>
+              <Label>Valor da diaria (USD)</Label>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={priceDaily}
+                onChange={(e) => setPriceDaily(e.target.value)}
+                placeholder="Ex: 129"
+                className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[14px] bg-white"
+                style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
+              />
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <div>
+                  <Label>De</Label>
+                  <input
+                    type="date"
+                    value={dateStart}
+                    onChange={(e) => setDateStart(e.target.value)}
+                    className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[13px] bg-white"
+                    style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
+                  />
+                </div>
+                <div>
+                  <Label>Ate</Label>
+                  <input
+                    type="date"
+                    value={dateEnd}
+                    onChange={(e) => setDateEnd(e.target.value)}
+                    className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[13px] bg-white"
+                    style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
+                  />
+                </div>
+              </div>
+              <div className="mt-3">
+                <Label>Gancho da oferta (opcional)</Label>
+                <input
+                  type="text"
+                  value={promoHook}
+                  onChange={(e) => setPromoHook(e.target.value)}
+                  placeholder="Ex: Fim de semana especial em Orlando"
+                  className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[13px] bg-white"
+                  style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Reference upload */}
+          {mode === "reference" && (
+            <div className="mt-5">
+              <Label>Imagem de referencia</Label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) onPickReference(f);
+                }}
+              />
+              {!refDataUrl ? (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full mt-1.5 rounded-lg px-3 py-6 text-center transition-all"
+                  style={{ background: "white", border: "1.5px dashed rgba(13,29,46,0.30)", color: "#0d1d2e", minHeight: 110 }}
+                >
+                  <Upload size={20} className="mx-auto mb-1.5" style={{ color: "#9a7a3a" }} />
+                  <div className="text-[13px] font-semibold">Anexar imagem inspiracao</div>
+                  <div className="text-[11px] opacity-65 mt-0.5">PNG, JPG ou WEBP ate 8MB</div>
+                </button>
+              ) : (
+                <div className="mt-1.5 rounded-lg overflow-hidden relative" style={{ border: "1px solid rgba(13,29,46,0.18)" }}>
+                  <img src={refDataUrl} alt="referencia" className="w-full max-h-[200px] object-contain bg-white" />
+                  <div className="flex items-center justify-between px-3 py-2 bg-white">
+                    <span className="text-[11px] truncate" style={{ color: "rgba(13,29,46,0.65)" }}>{refName}</span>
+                    <button
+                      onClick={() => { setRefDataUrl(null); setRefName(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                      className="h-7 w-7 rounded-full inline-flex items-center justify-center"
+                      style={{ background: "rgba(13,29,46,0.06)", color: "#0d1d2e" }}
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                </div>
+              )}
+              <p className="text-[10.5px] mt-1.5" style={{ color: "rgba(13,29,46,0.55)" }}>
+                A IA usa essa arte como inspiracao de estilo, composicao e paleta. O carro e a marca Zeus continuam sendo os herois.
+              </p>
+            </div>
           )}
 
           <div className="mt-5">
@@ -209,12 +363,16 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           <div className="mt-5">
-            <Label>Direcionamento extra (opcional)</Label>
+            <Label>{mode === "free" ? "Sua instrucao" : "Direcionamento extra (opcional)"}</Label>
             <textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
               rows={3}
-              placeholder="Ex: destaque que esta com diaria promocional este fim de semana"
+              placeholder={
+                mode === "free"
+                  ? "Ex: arte com clima de fim de tarde em Miami Beach, frase sobre liberdade"
+                  : "Ex: destaque o teto solar panoramico"
+              }
               className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[13px] bg-white resize-none"
               style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e" }}
             />
@@ -235,18 +393,18 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             {loading ? "Gerando arte..." : "Gerar com IA"}
           </button>
           <p className="text-[10.5px] text-center mt-2" style={{ color: "rgba(13,29,46,0.5)" }}>
-            A geracao leva de 15 a 40 segundos. Cada gera uma arte unica.
+            A geracao leva de 15 a 40 segundos. Cada vez gera uma arte unica.
           </p>
         </div>
 
         {/* Preview */}
         <div
-          className="rounded-[20px] p-4 sm:p-6"
+          className="rounded-[20px] p-4 sm:p-6 lg:sticky lg:top-4 self-start"
           style={{ background: "#0d1d2e", border: "1px solid rgba(214,191,134,0.20)" }}
         >
           <div className="flex items-center justify-between mb-3">
             <span className="text-[10px] uppercase tracking-[0.32em] font-semibold" style={{ color: "#d6bf86" }}>
-              Pre-visualizacao
+              Pre-visualizacao completa
             </span>
             {result && (
               <div className="flex gap-2">
@@ -257,11 +415,12 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           <div
-            className="relative w-full rounded-xl overflow-hidden flex items-center justify-center"
+            className="relative w-full rounded-xl overflow-hidden flex items-center justify-center mx-auto"
             style={{
               aspectRatio: format === "feed" ? "1 / 1" : "9 / 16",
-              maxHeight: format === "story" ? 640 : undefined,
-              background: "rgba(255,255,255,0.03)",
+              maxWidth: format === "story" ? 380 : "100%",
+              background:
+                "repeating-conic-gradient(rgba(255,255,255,0.03) 0deg 90deg, rgba(255,255,255,0.06) 90deg 180deg) 0 0/24px 24px",
               border: "1px solid rgba(214,191,134,0.15)",
             }}
           >
@@ -274,14 +433,14 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             {!loading && !result && (
               <div className="text-center px-6" style={{ color: "rgba(214,191,134,0.55)" }}>
                 <ImageIcon size={28} className="mx-auto mb-3" />
-                <div className="text-[12px] tracking-wide">A arte gerada aparece aqui.</div>
+                <div className="text-[12px] tracking-wide">A arte gerada aparece aqui inteira, sem cortes.</div>
               </div>
             )}
             {!loading && result && (
               <img
                 src={`data:image/png;base64,${result.imageBase64}`}
                 alt={result.phrase}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             )}
           </div>
@@ -340,6 +499,26 @@ function FormatPill({
         color: active ? "#d6bf86" : "#0d1d2e",
         border: "1px solid " + (active ? "rgba(214,191,134,0.40)" : "rgba(13,29,46,0.15)"),
         minHeight: 52,
+      }}
+    >
+      <div className="flex items-center gap-2 text-[13px] font-semibold">{icon} {label}</div>
+      <div className="text-[10.5px] opacity-75 mt-0.5">{sub}</div>
+    </button>
+  );
+}
+
+function ModePill({
+  active, onClick, icon, label, sub,
+}: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; sub: string }) {
+  return (
+    <button
+      onClick={onClick}
+      className="rounded-lg px-3 py-2.5 text-left transition-all"
+      style={{
+        background: active ? "linear-gradient(180deg,#14283d,#0d1d2e)" : "white",
+        color: active ? "#d6bf86" : "#0d1d2e",
+        border: "1px solid " + (active ? "rgba(214,191,134,0.40)" : "rgba(13,29,46,0.15)"),
+        minHeight: 60,
       }}
     >
       <div className="flex items-center gap-2 text-[13px] font-semibold">{icon} {label}</div>
