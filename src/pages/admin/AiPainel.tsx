@@ -879,7 +879,7 @@ export default function AiPainel({
               revenue: p.revenue,
               roiPct: p.roi,
               status: "destaque" as const,
-              nota: "Bom desempenho — devolveu uma boa parte do que foi investido.",
+              nota: "Bom desempenho. Devolveu uma boa parte do que foi investido.",
             }));
           const highlightBad: BriefingHighlight[] = [...perVehicle]
             .filter(p => p.purchase > 0 && p.daysInFleet > 60 && (p.revenue === 0 || p.roi < 5))
