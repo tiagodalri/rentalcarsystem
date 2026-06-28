@@ -1,9 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, LayoutDashboard, Gamepad2, Megaphone, Sparkles } from "lucide-react";
-import hallImg from "@/assets/zeus-brain/hall-estrategico.jpg";
-import simImg from "@/assets/zeus-brain/simulador.jpg";
-import mktImg from "@/assets/zeus-brain/marketing-studio.jpg";
-import iaImg from "@/assets/zeus-brain/zeus-ia.jpg";
+import hallImg from "@/assets/zeus-brain/hall-estrategico.jpg?url";
+import simImg from "@/assets/zeus-brain/simulador.jpg?url";
+import mktImg from "@/assets/zeus-brain/marketing-studio.jpg?url";
+import iaImg from "@/assets/zeus-brain/zeus-ia.jpg?url";
+
+// Pre-cache as soon as module loads so cards aparecem instant.
+if (typeof window !== "undefined") {
+  [hallImg, simImg, mktImg, iaImg].forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+}
 
 export type HubModule = "painel" | "marketing" | "ia";
 
