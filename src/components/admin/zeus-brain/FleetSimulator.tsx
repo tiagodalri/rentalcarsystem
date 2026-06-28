@@ -357,9 +357,9 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               </>
             )}
 
-            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Disponíveis (pior desempenho primeiro)</div>
+            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Frota completa (pior desempenho primeiro)</div>
             <div className="space-y-1.5 max-h-[420px] overflow-y-auto pr-1">
-              {sellList.filter(p => !outIds.includes(p.v.id)).slice(0, 40).map(p => (
+              {sellList.filter(p => !outIds.includes(p.v.id)).map(p => (
                 <VehicleRow
                   key={p.v.id}
                   p={p}
