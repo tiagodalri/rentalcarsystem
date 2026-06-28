@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     const {
       vehicleName, vehicleBrand, vehiclePhotoUrl, logoDataUrl,
       format, tone, customPrompt,
-      mode = "free", promo, referenceImageDataUrl,
+      mode = "free", promo, referenceImageDataUrl, seasonalTheme,
     } = body;
     const logoUrl = logoDataUrl && logoDataUrl.startsWith("data:image") ? logoDataUrl : ZEUS_LOGO_URL;
     if (!vehicleName) {
@@ -66,6 +66,9 @@ Deno.serve(async (req) => {
       familia: "acolhedor, seguro, perfeito para criar memorias em familia",
       promocao: "urgencia leve, oportunidade unica, sem soar apelativo",
       lancamento: "novidade, exclusividade, primeira chance de experimentar",
+      sazonal: seasonalTheme
+        ? `tema sazonal "${seasonalTheme.label}" — ${seasonalTheme.copyHint}. Mantenha a sofisticacao Zeus, jamais kitsch.`
+        : "tema sazonal contextual da data atual, sofisticado",
     };
 
     const promoBlock = mode === "promo" && promo
