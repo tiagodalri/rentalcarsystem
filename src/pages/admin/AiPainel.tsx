@@ -891,7 +891,7 @@ export default function AiPainel({
             </div>
             <h1 className="ai-title">Painel Inteligente</h1>
             <p className="ai-subtitle">
-              {perVehicle.length} carros · {realBookings.length} reservas · {customers.length} clientes únicos
+              {perVehicle.length} carros · {realBookings.length} reservas
             </p>
           </div>
           <div className="hidden sm:flex items-center gap-2">
