@@ -41,6 +41,8 @@ type BookingRow = {
   created_at: string;
   vehicle_id: string | null;
   customer_name: string | null;
+  stripe_session_id: string | null;
+  turo_reservation_code: string | null;
 };
 type VehicleRow = { id: string; name: string | null; status: string | null; color: string | null };
 
