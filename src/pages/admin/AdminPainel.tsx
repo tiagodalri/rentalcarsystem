@@ -346,7 +346,10 @@ export default function AdminPainel() {
         )}
       </div>
     );
-    return createPortal(overlay, document.body);
+    return createPortal(
+      <BrainAccessGate onCancel={() => setAiMode(false)}>{overlay}</BrainAccessGate>,
+      document.body
+    );
   }
 
   // ───── Mobile-first layout (classic painel) ─────
