@@ -277,9 +277,14 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
     };
   }, [outList, inList, inQty]);
 
-  const toggleOut = (id: string) =>
+  const toggleOut = (id: string) => {
+    const target = perVehicle.find(p => p.v.id === id);
+    if (!target || !(target.purchase > 0)) return;
     setOutIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  const toggleIn = (id: string) =>
+  };
+  const toggleIn = (id: string) => {
+    const target = perVehicle.find(p => p.v.id === id);
+    if (!target || !(target.purchase > 0)) return;
     setInIds(prev => {
       if (prev.includes(id)) {
         setInQty(q => { const n = { ...q }; delete n[id]; return n; });
@@ -288,6 +293,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
       setInQty(q => ({ ...q, [id]: q[id] ?? 1 }));
       return [...prev, id];
     });
+  };
   const incQty = (id: string) => setInQty(q => ({ ...q, [id]: Math.min(99, (q[id] ?? 1) + 1) }));
   const decQty = (id: string) => setInQty(q => ({ ...q, [id]: Math.max(1, (q[id] ?? 1) - 1) }));
 
