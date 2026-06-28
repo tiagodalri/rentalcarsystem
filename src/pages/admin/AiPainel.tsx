@@ -365,12 +365,6 @@ export default function AiPainel({
     return { rodandoAgora: rodandoAgora.length, saemHoje: saemHoje.length, voltamHoje: voltamHoje.length, saemAmanha: saemAmanha.length, receitaHoje, paradosAgora: paradosAgora.length };
   }, [realBookings, vehicles, today]);
 
-  /* ───── RECEITA PERDIDA — cancelamentos + janelas ociosas ───── */
-  const lostRevenue = useMemo(() => {
-    const cancelado = bookings.filter(b => b.status === "cancelled").reduce((s, b) => s + (Number(b.total_price) || 0), 0);
-    const janelas = opportunityWindows.reduce((s, w) => s + w.estLoss, 0);
-    return { cancelado, janelas, total: cancelado + janelas };
-  }, [bookings, opportunityWindows]);
 
   /* ───── PAYBACK MÉDIO & FIDELIDADE ───── */
   const paybackAvg = useMemo(() => {
