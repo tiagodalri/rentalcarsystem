@@ -1395,7 +1395,7 @@ export default function AiPainel({
                   <div className="rounded-lg bg-white/[0.03] border border-white/10 p-3 mb-3">
                     <div className="text-[10.5px] uppercase tracking-wider text-white/50 mb-2">Por que essa projeção faz sentido</div>
                     <ul className="space-y-1.5 text-[12px] text-white/70 leading-relaxed">
-                      <li>• Comparamos só carros com pelo menos 60 dias de histórico real — sem chutar em cima de carro novo.</li>
+                      <li>• Comparamos só carros com pelo menos 60 dias de histórico real. Sem chutar em cima de carro novo.</li>
                       <li>• A média de uso dos seus campeões ({fleetProjection.starAvgOccupancy.toFixed(0)}%) já foi atingida na vida real, não é meta inventada.</li>
                       {fleetProjection.avgStarPayback !== null && (
                         <li>• Carros como os campeões pagam o investimento em cerca de <span className="text-amber-200 tabular-nums">{fleetProjection.avgStarPayback.toFixed(0)} meses</span>, em média.</li>
