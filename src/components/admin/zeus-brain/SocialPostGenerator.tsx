@@ -451,12 +451,15 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             }}
           >
             {loading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
-            {loading ? "Gerando arte..." : "Gerar com IA"}
+            {loading ? (kind === "carousel" ? `Gerando ${slidesCount} slides...` : "Gerando arte...") : (kind === "carousel" ? `Gerar carrossel (${slidesCount} slides)` : "Gerar com IA")}
           </button>
           <p className="text-[10px] text-center mt-1.5" style={{ color: "rgba(13,29,46,0.5)" }}>
-            A geracao leva de 15 a 40 segundos. Cada vez gera uma arte unica.
+            {kind === "carousel"
+              ? `Carrossel leva cerca de ${slidesCount * 25}s. Os slides mantem o mesmo estilo visual.`
+              : "A geracao leva de 15 a 40 segundos. Cada vez gera uma arte unica."}
           </p>
         </div>
+
 
         {/* Preview */}
         <div
