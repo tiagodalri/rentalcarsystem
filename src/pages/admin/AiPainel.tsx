@@ -1400,7 +1400,7 @@ export default function AiPainel({
                       {fleetProjection.avgStarPayback !== null && (
                         <li>• Carros como os campeões pagam o investimento em cerca de <span className="text-amber-200 tabular-nums">{fleetProjection.avgStarPayback.toFixed(0)} meses</span>, em média.</li>
                       )}
-                      <li>• O capital parado nos carros fracos hoje é de <span className="text-white/85 tabular-nums">{fmtUSD(fleetProjection.weakCapital)}</span> — é esse dinheiro que estaria rendendo mais.</li>
+                      <li>• O capital parado nos carros fracos hoje é de <span className="text-white/85 tabular-nums">{fmtUSD(fleetProjection.weakCapital)}</span>. É esse dinheiro que estaria rendendo mais.</li>
                     </ul>
                   </div>
 
