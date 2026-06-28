@@ -148,7 +148,7 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
         >
           {/* ═════════ STAGE (cinema) ═════════ */}
           {hasImage && (
-            <section className="relative min-w-0 overflow-hidden bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.08),transparent_55%),radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.05),transparent_50%),linear-gradient(135deg,hsl(var(--muted)/0.4),hsl(var(--background)))]">
+            <section onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="relative min-w-0 overflow-hidden bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.08),transparent_55%),radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.05),transparent_50%),linear-gradient(135deg,hsl(var(--muted)/0.4),hsl(var(--background)))]">
               {/* grid texture */}
               <div
                 aria-hidden
@@ -197,8 +197,8 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
                       alt={`Tela — ${current.title}`}
                       hotspots={current.hotspots}
                       activeN={activeHotspot}
-                      onHotspotEnter={setActiveHotspot}
-                      onHotspotLeave={() => setActiveHotspot(null)}
+                      onHotspotEnter={(n) => setHotspotSafe(n)}
+                      onHotspotLeave={() => setHotspotSafe(null)}
                     />
                   </div>
                 </div>
@@ -253,8 +253,8 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
                       return (
                         <li
                           key={hs.n}
-                          onMouseEnter={() => setActiveHotspot(hs.n)}
-                          onMouseLeave={() => setActiveHotspot(null)}
+                          onPointerEnter={() => setHotspotSafe(hs.n)}
+                          onPointerLeave={() => setHotspotSafe(null)}
                           className={cn(
                             "group flex items-start gap-3 rounded-xl px-3 py-2.5 cursor-default transition-all border",
                             isActive
