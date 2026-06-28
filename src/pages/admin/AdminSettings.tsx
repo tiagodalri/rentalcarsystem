@@ -1,12 +1,22 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock } from "lucide-react";
+import { Lock, UsersRound, ScrollText, ChevronRight } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import ChangePasswordDialog from "@/components/admin/ChangePasswordDialog";
 
 export default function AdminSettings() {
   const { user } = useAdminAuth();
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  const email = user?.email || "";
+  const isSuperAdmin = email.toLowerCase() === "admin@zeusrentalcar.com";
+
+  const managementItems = [
+    { title: "Equipe", url: "/admin/team", icon: UsersRound, desc: "Gerencie permissões e membros da equipe" },
+    ...(isSuperAdmin ? [{ title: "Logs", url: "/admin/logs", icon: ScrollText, desc: "Visualize logs do sistema e auditoria" }] : []),
+  ];
 
   return (
     <div className="space-y-6 max-w-xl">
@@ -44,6 +54,30 @@ export default function AdminSettings() {
           </div>
         </CardContent>
       </Card>
+
+      {managementItems.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Gestão</h2>
+          <div className="space-y-2">
+            {managementItems.map((item) => (
+              <button
+                key={item.url}
+                onClick={() => navigate(item.url)}
+                className="w-full flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-card/40 hover:bg-card/70 transition-colors text-left"
+              >
+                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <item.icon className="h-4.5 w-4.5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">{item.title}</p>
+                  <p className="text-xs text-muted-foreground truncate">{item.desc}</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground/50 shrink-0" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <ChangePasswordDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
