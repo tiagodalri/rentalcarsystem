@@ -157,7 +157,7 @@ Importante: EXTRAIA o tema e conceito reais — nao se limite a 'estilo'. Se a r
 - Elementos visuais marcantes: ${refBrief.elementosVisuais.join(", ")}
 - Paleta: ${refBrief.paleta}
 - Mood: ${refBrief.mood}
-ADAPTE o tema, conceito e tom para a marca Zeus Rental Car (premium, sofisticada, Orlando). Nao copie a marca da referencia.`
+ADAPTE o tema, conceito e tom para a marca Zeus Rental Car (premium, sofisticada, Orlando). Nao copie a marca da referencia. Se houver qualquer nome de concorrente no briefing acima, IGNORE e substitua por Zeus Rental Car.`
       : "";
 
     // ── 1) Copywriting ────────────────────────────────────────────
@@ -187,6 +187,7 @@ Os slides devem fluir narrativamente, NUNCA repetir a mesma headline.` : "";
     const copySys = `Voce e copywriter senior de uma agencia premium (Wieden+Kennedy / Mother) trabalhando para a Zeus Rental Car, locadora premium em Orlando.
 Escreva em portugues do Brasil impecavel (zero erros), voz humana, calorosa, confiante, cinematografica.
 PROIBIDO: emojis, ponto-e-virgula, travessao, jargao publicitario ("imperdivel", "incrivel", "nao perca").
+PROIBIDO MENCIONAR nomes, marcas ou logotipos de concorrentes (locadoras, automotivas ou outras empresas). Qualquer referencia externa deve ser substituida por Zeus Rental Car.
 Devolva SOMENTE JSON valido:
 ${copyJsonShape}
 Tom: ${toneMap[tone] || toneMap.luxo}.
@@ -295,9 +296,11 @@ REGRAS:
 - INCORPORE os elementos visuais marcantes (bandeiras, motivos, cenario etc) de forma elegante.
 - SUBSTITUA a marca/logo da referencia pelo logo oficial Zeus fornecido na ultima imagem.
 - NAO copie pessoas, fotos especificas, nem o logotipo da referencia.
-- O carro heroi DEVE ser o ${vehicleBrand || ""} ${vehicleName} da foto fornecida (cor, modelo e identidade EXATAS).` : `
+- O carro heroi DEVE ser o ${vehicleBrand || ""} ${vehicleName} da foto fornecida (cor, modelo e identidade EXATAS).
+- PROIBIDO renderizar nomes, logotipos ou identidade visual de concorrentes (locadoras, marcas automotivas, empresas). Remova ou substitua genericamente antes de compor.` : `
 Capture tema, conceito, paleta, composicao e elementos visuais marcantes — adapte para a Zeus.
-NAO copie pessoas, logos nem textos literais da referencia.`}`
+NAO copie pessoas, logos nem textos literais da referencia.
+PROIBIDO renderizar nomes, logotipos ou identidade visual de concorrentes.`}`
       : "";
 
     const seasonalBlock = tone === "sazonal" && seasonalTheme
