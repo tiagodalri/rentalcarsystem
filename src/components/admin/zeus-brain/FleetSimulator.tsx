@@ -875,7 +875,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               })()}
 
               <p className="md:col-span-12 text-[11px] leading-relaxed" style={{ color: NAVY_55 }}>
-                Cenário hipotético — assume que cada carro novo atinge a média histórica do grupo de referência. Apenas carros com 60+ dias de uso real estão disponíveis.
+                Cenário hipotético. Assume que cada carro novo atinge a média histórica do grupo de referência. Apenas carros com 60+ dias de uso real estão disponíveis.
               </p>
             </div>
           )}
