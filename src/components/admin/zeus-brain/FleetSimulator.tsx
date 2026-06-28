@@ -236,8 +236,12 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
         {/* Header */}
         <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
           <div className="flex items-center gap-2">
-            <Gamepad2 className="w-4 h-4 text-cyan-300" />
-            <span className="text-[11px] uppercase tracking-[0.18em] text-cyan-200/80">Simulador Inteligente</span>
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <Gamepad2 className="w-4 h-4 text-emerald-300" />
+            <span className="text-[11px] uppercase tracking-[0.22em] text-emerald-200/90 font-semibold">Simulador Inteligente</span>
           </div>
           {(outIds.length > 0 || inIds.length > 0) && (
             <button
@@ -248,12 +252,45 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
             </button>
           )}
         </div>
-        <h3 className="text-lg md:text-xl font-light text-white leading-snug mb-1">
+        <h3 className="text-xl md:text-2xl font-light text-white leading-snug mb-1 tracking-tight">
           Renovação de Frota
         </h3>
         <p className="text-[12px] text-white/55 mb-4 leading-relaxed max-w-3xl">
-          Escolha quais carros <span className="text-rose-200">vender</span> e quais <span className="text-emerald-200">comprar</span> (como referência de desempenho). A IA projeta o impacto financeiro assumindo que os novos carros vão render igual à média do grupo escolhido.
+          Escolha quais carros <span className="text-rose-300 font-medium">vender</span> e quais <span className="text-emerald-300 font-medium">comprar</span>. O simulador soma o valor investido em tempo real e projeta o impacto financeiro da troca.
         </p>
+
+        {/* BALANÇO DE CAPITAL — ticker ao vivo */}
+        {(outList.length > 0 || inList.length > 0) && (
+          <div className="mb-3 rounded-xl border border-white/10 bg-gradient-to-r from-rose-500/[0.06] via-white/[0.02] to-emerald-500/[0.06] p-3 grid grid-cols-3 gap-2">
+            <div>
+              <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/45 mb-1">Capital recuperado</div>
+              <div className="text-xl md:text-2xl font-semibold text-rose-300 tabular-nums leading-none">
+                {fmtUSD(sellCapitalLive)}
+              </div>
+              <div className="text-[10px] text-white/40 tabular-nums mt-1">{outList.length} carro{outList.length === 1 ? "" : "s"} vendendo</div>
+            </div>
+            <div className="border-x border-white/10 px-2">
+              <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/45 mb-1">Capital reinvestido</div>
+              <div className="text-xl md:text-2xl font-semibold text-emerald-300 tabular-nums leading-none">
+                {fmtUSD(buyCapitalLive)}
+              </div>
+              <div className="text-[10px] text-white/40 tabular-nums mt-1">{inList.length} carro{inList.length === 1 ? "" : "s"} comprando</div>
+            </div>
+            <div>
+              <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/45 mb-1">Saldo</div>
+              <div className={`text-xl md:text-2xl font-semibold tabular-nums leading-none ${
+                balanceLive >= 0 ? "text-emerald-400" : "text-amber-400"
+              }`}>
+                {fmtUSDsigned(balanceLive)}
+              </div>
+              <div className="text-[10px] text-white/40 mt-1">
+                {balanceLive >= 0 ? "sobra em caixa" : "precisa aportar"}
+              </div>
+            </div>
+          </div>
+        )}
+
+
 
         {/* Duas colunas: VENDER | COMPRAR */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
