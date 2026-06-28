@@ -560,9 +560,106 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                 </div>
               </div>
 
+              {/* ───── Conclusão estruturada da análise ───── */}
+              {(() => {
+                const nameOf = (p: SimVehicle) =>
+                  p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "carro";
+                const listNames = (arr: string[]) => {
+                  if (arr.length === 0) return "";
+                  if (arr.length === 1) return arr[0];
+                  if (arr.length === 2) return `${arr[0]} e ${arr[1]}`;
+                  return `${arr.slice(0, -1).join(", ")} e ${arr[arr.length - 1]}`;
+                };
+                const sellNames = listNames(outList.map(nameOf));
+                const buyParts = inList.map(p => {
+                  const q = qtyOf(p.v.id);
+                  return q > 1 ? `${q}× ${nameOf(p)}` : nameOf(p);
+                });
+                const buyNames = listNames(buyParts);
+                const sign = result.deltaPerDay >= 0 ? "+" : "−";
+                const abs = (n: number) => fmtUSD(Math.abs(n));
+                const deltaWord = result.deltaPerDay >= 0 ? "subiria" : "cairia";
+                const capWord = result.capitalDelta <= 0 ? "sobrando" : "exigindo aporte de";
+                const capValue = abs(result.capitalDelta);
+                const effWord = result.capitalEfficiency >= 0 ? "mais eficiente" : "menos eficiente";
+
+                return (
+                  <div className="md:col-span-12 rounded-lg border border-emerald-300/15 bg-gradient-to-br from-emerald-500/[0.05] via-white/[0.02] to-amber-500/[0.04] p-4">
+                    <div className="flex items-center gap-1.5 mb-2.5">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
+                      <span className="text-[10.5px] uppercase tracking-[0.18em] text-emerald-200/85 font-medium">
+                        Conclusão da análise
+                      </span>
+                    </div>
+
+                    <p
+                      className="text-white/88"
+                      style={{
+                        fontFamily: '"Söhne", "Inter", ui-sans-serif, system-ui, sans-serif',
+                        fontSize: "13.5px",
+                        lineHeight: 1.72,
+                        letterSpacing: "-0.005em",
+                        fontWeight: 380,
+                      }}
+                    >
+                      <span className="text-white font-medium">Bruno,</span>{" "}
+                      se você vender{" "}
+                      <span className="text-rose-200 font-medium">
+                        {outList.length} carro{outList.length === 1 ? "" : "s"}
+                      </span>{" "}
+                      ({sellNames}) e comprar{" "}
+                      <span className="text-emerald-200 font-medium">
+                        {result.buyUnits} unidade{result.buyUnits === 1 ? "" : "s"}
+                      </span>{" "}
+                      de {buyNames}, o seu resultado mudaria desta forma: a receita diária{" "}
+                      <span className={`font-medium tabular-nums ${result.deltaPerDay >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                        {deltaWord} {sign}{abs(result.deltaPerDay)}
+                      </span>{" "}
+                      (de {fmtUSD(result.outRev)} para {fmtUSD(result.outRev + result.deltaPerDay)} por dia), o que se traduz em{" "}
+                      <span className={`font-medium tabular-nums ${result.delta365 >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                        {sign}{abs(result.delta365)} em 12 meses
+                      </span>
+                      . O capital reciclado pela venda ({fmtUSD(result.outCapital)}) seria reinvestido em {fmtUSD(result.inCapital)},{" "}
+                      {result.capitalDelta === 0 ? (
+                        <>sem variação líquida de caixa</>
+                      ) : (
+                        <>
+                          {capWord}{" "}
+                          <span className={`font-medium tabular-nums ${result.capitalDelta <= 0 ? "text-emerald-200" : "text-amber-200"}`}>
+                            {capValue}
+                          </span>
+                        </>
+                      )}
+                      . O capital empregado ficaria{" "}
+                      <span className={`font-medium tabular-nums ${result.capitalEfficiency >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                        {Math.abs(result.capitalEfficiency).toFixed(0)}% {effWord}
+                      </span>
+                      {result.avgInPayback !== null && (
+                        <>
+                          , com payback médio de{" "}
+                          <span className="text-amber-200 font-medium tabular-nums">
+                            {result.avgInPayback.toFixed(0)} meses
+                          </span>{" "}
+                          nos carros novos
+                        </>
+                      )}
+                      .
+                    </p>
+
+                    <div className="mt-3 pt-3 border-t border-white/8 flex items-start gap-2">
+                      <span className="mt-[5px] w-1 h-1 rounded-full bg-amber-300/80 shrink-0" />
+                      <p className="text-[10.5px] leading-relaxed text-white/55">
+                        <span className="text-amber-200/90 font-medium">Aviso:</span> resultados passados não garantem resultados futuros. Esta análise é construída sobre o histórico real de locações, ocupação, receita e custo de aquisição da sua frota — portanto carrega valor analítico real para decisão, mas não substitui o julgamento operacional de mercado, sazonalidade e contexto do momento.
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
+
               <p className="md:col-span-12 text-[10.5px] text-white/40 leading-relaxed">
                 Cenário hipotético — assume que cada carro novo atinge a média histórica do grupo de referência. Apenas carros com 60+ dias de uso real estão disponíveis.
               </p>
+
             </div>
           )}
         </div>
