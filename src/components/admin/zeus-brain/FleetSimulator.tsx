@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Gamepad2, X, ArrowRight, Sparkles, TrendingUp, TrendingDown, Trophy, Search, ShoppingCart, Tag } from "lucide-react";
+import { Gamepad2, X, ArrowRight, Sparkles, TrendingUp, TrendingDown, Trophy, Search, ShoppingCart, Tag, Plus, Minus } from "lucide-react";
 import { findBrandByName, carLogoUrl } from "@/data/carBrands";
 
 export type SimVehicle = {
