@@ -187,8 +187,6 @@ function VehicleRow({
 
 
 export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[] }) {
-  // Carros sem valor pago cadastrado são excluídos do simulador.
-  // O cálculo de capital, ROI, payback e balanço depende desse valor.
   const missingPrice = useMemo(
     () => perVehicle.filter(p => !(p.purchase > 0)),
     [perVehicle]
@@ -211,9 +209,14 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
   const qtyOf = (id: string) => inQty[id] ?? 1;
 
+  /* Todos os carros aparecem; os sem valor pago ficam por último */
   const sortedByPerf = useMemo(
-    () => [...priced].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
-    [priced]
+    () => {
+      const withPrice = [...priced].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned);
+      const withoutPrice = [...missingPrice].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned);
+      return [...withPrice, ...withoutPrice];
+    },
+    [priced, missingPrice]
   );
 
   const matches = (p: SimVehicle, q: string) => {
