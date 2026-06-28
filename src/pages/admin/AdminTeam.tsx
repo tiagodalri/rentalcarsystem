@@ -145,6 +145,13 @@ function AdminTeamDesktop() {
   const [form, setForm] = useState<FormData>(emptyForm);
   const [permTab, setPermTab] = useState<"menus" | "capabilities">("menus");
   const [manageOpen, setManageOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileMember, setProfileMember] = useState<TeamMember | null>(null);
+
+  const openProfile = (m: TeamMember) => {
+    setProfileMember(m);
+    setProfileOpen(true);
+  };
 
   const load = async () => {
     setLoading(true);
