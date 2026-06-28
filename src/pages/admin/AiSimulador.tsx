@@ -10,6 +10,13 @@ import {
   type PvBooking,
   type PvExpense,
 } from "@/lib/zeusBrain/perVehicle";
+import {
+  type BookingSource,
+  readBookingSource,
+  writeBookingSource,
+  filterBookingsBySource,
+  SOURCE_LABEL,
+} from "@/lib/zeusBrain/bookingSource";
 
 export default function AiSimulador() {
   const navigate = useNavigate();
@@ -17,11 +24,13 @@ export default function AiSimulador() {
   const [vehicles, setVehicles] = useState<PvVehicle[]>([]);
   const [expenses, setExpenses] = useState<PvExpense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bookingSource, setBookingSource] = useState<BookingSource>(() => readBookingSource());
+  useEffect(() => { writeBookingSource(bookingSource); }, [bookingSource]);
 
   const load = useCallback(async () => {
     const [b, v, e] = await Promise.all([
       supabase.from("bookings")
-        .select("id, status, pickup_date, return_date, total_price, vehicle_id, customer_name, customer_id")
+        .select("id, status, pickup_date, return_date, total_price, vehicle_id, customer_name, customer_id, stripe_session_id, turo_reservation_code")
         .limit(2000),
       supabase.from("vehicles")
         .select("id, name, status, color, daily_price_usd, purchase_price, acquired_date, category, brand, model")
@@ -38,14 +47,19 @@ export default function AiSimulador() {
   useEffect(() => { void load(); }, [load]);
 
   const today = useMemo(() => startOfDay(new Date()), []);
+  const sourceFiltered = useMemo(
+    () => filterBookingsBySource(bookings, bookingSource),
+    [bookings, bookingSource],
+  );
   const realBookings = useMemo(
-    () => bookings.filter(b => b.status !== "cancelled"),
-    [bookings],
+    () => sourceFiltered.filter(b => b.status !== "cancelled"),
+    [sourceFiltered],
   );
   const perVehicle = useMemo(
     () => computePerVehicle(vehicles, realBookings, expenses, today),
     [vehicles, realBookings, expenses, today],
   );
+
 
   return (
     <div
