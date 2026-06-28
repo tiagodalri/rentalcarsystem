@@ -362,43 +362,84 @@ export default function AiOptimizerDialog({
 
               {/* Dados analisados */}
               <div className="rounded-xl p-4 sm:p-5" style={{ background: "#fff", border: `1px solid ${NAVY_10}` }}>
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center gap-2 mb-4">
                   <Brain className="w-3.5 h-3.5" style={{ color: GOLD }} />
                   <span className="text-[10.5px] uppercase tracking-[0.22em] font-semibold" style={{ color: NAVY }}>
                     Dados analisados
                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1">
-                  {[
-                    { k: "Carros analisados", v: `${eligibleCount}`, hint: "Apenas com 60+ dias de histórico real" },
-                    { k: "Cenários testados pela IA", v: scenario.combinationsEvaluated.toLocaleString("pt-BR"), hint: "Combinações de compra avaliadas" },
-                    { k: "Quanto a frota atual gera por dia", v: fmtUSD(scenario.currentRevPerDay), hint: `Carros que a IA sugere vender . ocupação média ${scenario.avgOccupancySell.toFixed(0)}%` },
-                    { k: "Quanto a nova frota geraria por dia", v: fmtUSD(scenario.projectedRevPerDay), hint: `Carros que a IA sugere comprar . ocupação média ${scenario.avgOccupancyBuy.toFixed(0)}%` },
-                    { k: "Dinheiro recuperado com as vendas", v: fmtUSD(scenario.recoveredCapital), hint: `Soma do valor pago dos ${scenario.sell.length} carro${scenario.sell.length === 1 ? "" : "s"} vendido${scenario.sell.length === 1 ? "" : "s"}` },
-                    { k: "Dinheiro necessário para comprar", v: fmtUSD(scenario.spentCapital), hint: `Total para adquirir ${scenario.buy.reduce((s, b) => s + b.qty, 0)} unidade${scenario.buy.reduce((s, b) => s + b.qty, 0) === 1 ? "" : "s"}` },
-                    { k: "Retorno sobre o capital movimentado", v: `${scenario.capitalEfficiency >= 0 ? "+" : ""}${scenario.capitalEfficiency.toFixed(0)}%`, hint: "Receita extra gerada para cada dólar investido" },
-                    { k: "Precisão da simulação", v: "$1.000", hint: "Passo de busca. Até 5 unidades por modelo" },
-                  ].map((d, i) => (
-                    <div
-                      key={d.k}
-                      className="flex items-start justify-between gap-3 py-3"
-                      style={{ borderTop: i === 0 ? "none" : `1px solid ${NAVY_06}` }}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <div className="text-[12.5px] font-medium leading-snug" style={{ color: NAVY }}>
-                          {d.k}
-                        </div>
-                        <div className="text-[10.5px] mt-0.5 leading-snug" style={{ color: NAVY_40 }}>
-                          {d.hint}
-                        </div>
-                      </div>
-                      <div className="text-[15px] font-semibold tabular-nums whitespace-nowrap pt-px" style={{ color: NAVY, letterSpacing: "-0.01em" }}>
-                        {d.v}
-                      </div>
+
+                {/* Bloco 1 . Comparativo de receita */}
+                <div className="mb-3 text-[9.5px] uppercase tracking-[0.18em] font-semibold" style={{ color: NAVY_40 }}>
+                  Comparativo de receita
+                </div>
+                <div className="grid grid-cols-2 gap-3 mb-5">
+                  <div className="rounded-lg p-3.5" style={{ background: IVORY_SOFT, border: `1px solid ${SELL}25` }}>
+                    <div className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: SELL }}>
+                      Frota atual
                     </div>
-                  ))}
+                    <div className="text-[22px] font-semibold tabular-nums leading-none" style={{ color: NAVY, letterSpacing: "-0.02em" }}>
+                      {fmtUSD(scenario.currentRevPerDay)}
+                    </div>
+                    <div className="text-[10.5px] mt-1.5" style={{ color: NAVY_55 }}>por dia . {scenario.avgOccupancySell.toFixed(0)}% de ocupação</div>
+                  </div>
+                  <div className="rounded-lg p-3.5" style={{ background: IVORY_SOFT, border: `1px solid ${BUY}25` }}>
+                    <div className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-2" style={{ color: BUY }}>
+                      Frota proposta
+                    </div>
+                    <div className="text-[22px] font-semibold tabular-nums leading-none" style={{ color: NAVY, letterSpacing: "-0.02em" }}>
+                      {fmtUSD(scenario.projectedRevPerDay)}
+                    </div>
+                    <div className="text-[10.5px] mt-1.5" style={{ color: NAVY_55 }}>por dia . {scenario.avgOccupancyBuy.toFixed(0)}% de ocupação</div>
+                  </div>
+                </div>
+
+                {/* Bloco 2 . Movimento de capital */}
+                <div className="mb-3 text-[9.5px] uppercase tracking-[0.18em] font-semibold" style={{ color: NAVY_40 }}>
+                  Movimento de capital
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                  <div className="rounded-lg p-3.5" style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_06}` }}>
+                    <div className="text-[10px] uppercase tracking-[0.14em] font-medium mb-2" style={{ color: NAVY_55 }}>
+                      Entra no caixa
+                    </div>
+                    <div className="text-[18px] font-semibold tabular-nums leading-none" style={{ color: NAVY, letterSpacing: "-0.02em" }}>
+                      {fmtUSD(scenario.recoveredCapital)}
+                    </div>
+                    <div className="text-[10.5px] mt-1.5" style={{ color: NAVY_55 }}>vendendo {scenario.sell.length} carro{scenario.sell.length === 1 ? "" : "s"}</div>
+                  </div>
+                  <div className="rounded-lg p-3.5" style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_06}` }}>
+                    <div className="text-[10px] uppercase tracking-[0.14em] font-medium mb-2" style={{ color: NAVY_55 }}>
+                      Sai do caixa
+                    </div>
+                    <div className="text-[18px] font-semibold tabular-nums leading-none" style={{ color: NAVY, letterSpacing: "-0.02em" }}>
+                      {fmtUSD(scenario.spentCapital)}
+                    </div>
+                    <div className="text-[10.5px] mt-1.5" style={{ color: NAVY_55 }}>comprando {scenario.buy.reduce((s, b) => s + b.qty, 0)} unidade{scenario.buy.reduce((s, b) => s + b.qty, 0) === 1 ? "" : "s"}</div>
+                  </div>
+                  <div className="rounded-lg p-3.5" style={{ background: IVORY_SOFT, border: `1px solid ${GOLD}30` }}>
+                    <div className="text-[10px] uppercase tracking-[0.14em] font-medium mb-2" style={{ color: NAVY_55 }}>
+                      Retorno do capital
+                    </div>
+                    <div className="text-[18px] font-semibold tabular-nums leading-none" style={{ color: scenario.capitalEfficiency >= 0 ? BUY : SELL, letterSpacing: "-0.02em" }}>
+                      {scenario.capitalEfficiency >= 0 ? "+" : ""}{scenario.capitalEfficiency.toFixed(0)}%
+                    </div>
+                    <div className="text-[10.5px] mt-1.5" style={{ color: NAVY_55 }}>receita extra por dólar investido</div>
+                  </div>
+                </div>
+
+                {/* Bloco 3 . Escopo */}
+                <div className="mb-3 text-[9.5px] uppercase tracking-[0.18em] font-semibold" style={{ color: NAVY_40 }}>
+                  Escopo da análise
+                </div>
+                <div className="flex flex-wrap gap-x-5 gap-y-2 text-[11.5px]" style={{ color: NAVY_55 }}>
+                  <span><span className="font-semibold tabular-nums" style={{ color: NAVY }}>{eligibleCount}</span> carros analisados</span>
+                  <span><span className="font-semibold tabular-nums" style={{ color: NAVY }}>{scenario.combinationsEvaluated.toLocaleString("pt-BR")}</span> cenários testados</span>
+                  <span>histórico de <span className="font-semibold" style={{ color: NAVY }}>60+ dias</span> por carro</span>
+                  <span>precisão de <span className="font-semibold tabular-nums" style={{ color: NAVY }}>$1.000</span></span>
                 </div>
               </div>
+
 
               {/* Conclusão narrativa */}
               <div className="rounded-xl p-5" style={{ background: IVORY_SOFT, border: `1px solid ${GOLD}30` }}>
