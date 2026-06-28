@@ -12,7 +12,6 @@ import {
   Sparkles,
   CalendarDays,
   ChevronDown,
-  FileSignature,
   Upload,
   GraduationCap,
   ScrollText,
@@ -68,7 +67,7 @@ const menuSections: MenuSection[] = [
     items: [
       { title: "Reservas",   url: "/admin/bookings",  icon: CalendarRange, allowedRoles: ["admin","operations","support","driver"] },
       { title: "Sincronizar Turo", url: "/admin/turo-import", icon: Upload, allowedRoles: ["admin","operations"] },
-      { title: "Contratos",  url: "/admin/contracts", icon: FileSignature, allowedRoles: ["admin","operations","support","finance"] },
+      
       { title: "Agenda", url: "/admin/calendar",  icon: CalendarDays,  allowedRoles: ["admin","operations","support"] },
       { title: "Frota",      url: "/admin/fleet",     icon: Car,           allowedRoles: ["admin","operations"] },
       { title: "Clientes",   url: "/admin/customers", icon: Users,         allowedRoles: ["admin","operations","support"] },
