@@ -143,7 +143,7 @@ function VehicleRow({
           {p.purchase > 0 && (
             <>
               <span style={{ color: NAVY_40 }}>•</span>
-              <span className="font-semibold" style={{ color: GOLD }}>pago {fmtUSD(p.purchase)}</span>
+              <span className="font-semibold" style={{ color: GOLD }}>Pago {fmtUSD(p.purchase)}</span>
             </>
           )}
         </div>
@@ -174,9 +174,20 @@ function VehicleRow({
 
 
 export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[] }) {
-  const eligible = useMemo(
-    () => perVehicle.filter(p => p.hasAcquiredDate && p.daysInFleet >= 60 && p.bookingsCount > 0),
+  // Carros sem valor pago cadastrado são excluídos do simulador.
+  // O cálculo de capital, ROI, payback e balanço depende desse valor.
+  const missingPrice = useMemo(
+    () => perVehicle.filter(p => !(p.purchase > 0)),
     [perVehicle]
+  );
+  const priced = useMemo(
+    () => perVehicle.filter(p => p.purchase > 0),
+    [perVehicle]
+  );
+
+  const eligible = useMemo(
+    () => priced.filter(p => p.hasAcquiredDate && p.daysInFleet >= 60 && p.bookingsCount > 0),
+    [priced]
   );
 
   const [outIds, setOutIds] = useState<string[]>([]);
@@ -188,8 +199,8 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
   const qtyOf = (id: string) => inQty[id] ?? 1;
 
   const sortedByPerf = useMemo(
-    () => [...perVehicle].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
-    [perVehicle]
+    () => [...priced].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
+    [priced]
   );
 
   const matches = (p: SimVehicle, q: string) => {
@@ -335,6 +346,58 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
           da sua frota — ocupação, receita, custo de aquisição e dias rodados de cada carro.
           Não são estimativas genéricas: são os seus próprios números trabalhando para projetar o futuro.
         </p>
+
+        {missingPrice.length > 0 && (
+          <div
+            className="mb-5 rounded-xl p-4"
+            style={{
+              background: "#fff8ec",
+              border: `1px solid ${GOLD}40`,
+              boxShadow: "0 4px 14px -10px rgba(154,122,58,0.25)",
+            }}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold"
+                style={{ background: GOLD, color: IVORY }}
+                aria-hidden
+              >
+                !
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] font-semibold mb-1" style={{ color: NAVY }}>
+                  {missingPrice.length} carro{missingPrice.length === 1 ? "" : "s"} fora do simulador — sem valor pago cadastrado
+                </div>
+                <div className="text-[12px] leading-[1.6] mb-2" style={{ color: NAVY_70 }}>
+                  Para entrar na simulação, o veículo precisa ter o <span className="font-semibold" style={{ color: NAVY }}>valor pago na aquisição</span> registrado na ficha da frota. Sem esse dado não é possível calcular capital, ROI nem payback.
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {missingPrice.slice(0, 12).map(p => (
+                    <span
+                      key={p.v.id}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium"
+                      style={{ background: IVORY, color: NAVY, border: `1px solid ${NAVY_10}` }}
+                    >
+                      {p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}
+                    </span>
+                  ))}
+                  {missingPrice.length > 12 && (
+                    <span className="text-[11px] self-center" style={{ color: NAVY_55 }}>
+                      +{missingPrice.length - 12}
+                    </span>
+                  )}
+                </div>
+                <a
+                  href="/admin/fleet"
+                  className="inline-flex items-center gap-1 text-[11.5px] font-semibold uppercase tracking-wider"
+                  style={{ color: GOLD }}
+                >
+                  Cadastrar valor na frota <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* BALANÇO DE CAPITAL */}
         {(outList.length > 0 || inList.length > 0) && (
@@ -526,7 +589,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                               <>
                                 <span style={{ color: NAVY_40 }}>•</span>
                                 <span className="font-semibold" style={{ color: GOLD }}>
-                                  {q > 1 ? `${q}× ${fmtUSD(p.purchase)} = ${fmtUSD(p.purchase * q)}` : `pago ${fmtUSD(p.purchase)}`}
+                                  {q > 1 ? `${q}× ${fmtUSD(p.purchase)} = ${fmtUSD(p.purchase * q)}` : `Pago ${fmtUSD(p.purchase)}`}
                                 </span>
                               </>
                             )}
