@@ -274,13 +274,6 @@ export type Database = {
             foreignKeyName: "bookings_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bookings_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -335,13 +328,6 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: true
             referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bouncie_backfill_progress_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: true
-            referencedRelation: "vehicles_finance_safe"
             referencedColumns: ["id"]
           },
           {
@@ -905,13 +891,6 @@ export type Database = {
             foreignKeyName: "financial_transactions_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "financial_transactions_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -1132,13 +1111,6 @@ export type Database = {
             foreignKeyName: "public_track_links_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "public_track_links_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -1289,13 +1261,6 @@ export type Database = {
             foreignKeyName: "trip_events_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "trip_events_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -1329,13 +1294,6 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "turo_vehicle_mapping_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
             referencedColumns: ["id"]
           },
           {
@@ -1420,13 +1378,6 @@ export type Database = {
             foreignKeyName: "vehicle_diagnostics_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_diagnostics_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -1490,13 +1441,6 @@ export type Database = {
             foreignKeyName: "vehicle_documents_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_documents_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -1554,13 +1498,6 @@ export type Database = {
             foreignKeyName: "vehicle_events_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_events_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -1612,13 +1549,6 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_expenses_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
             referencedColumns: ["id"]
           },
           {
@@ -1701,13 +1631,6 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_incidents_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
             referencedColumns: ["id"]
           },
           {
@@ -1824,13 +1747,6 @@ export type Database = {
             foreignKeyName: "vehicle_price_overrides_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_price_overrides_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -1882,13 +1798,6 @@ export type Database = {
             foreignKeyName: "vehicle_price_seasons_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_price_seasons_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -1928,13 +1837,6 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: true
             referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_pricing_rules_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: true
-            referencedRelation: "vehicles_finance_safe"
             referencedColumns: ["id"]
           },
           {
@@ -2013,13 +1915,6 @@ export type Database = {
             foreignKeyName: "vehicle_telemetry_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: true
-            referencedRelation: "vehicles_finance_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_telemetry_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: true
             referencedRelation: "vehicles_public"
             referencedColumns: ["id"]
           },
@@ -2068,13 +1963,6 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_telemetry_history_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
             referencedColumns: ["id"]
           },
           {
@@ -2180,13 +2068,6 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vehicle_trips_vehicle_id_fkey"
-            columns: ["vehicle_id"]
-            isOneToOne: false
-            referencedRelation: "vehicles_finance_safe"
             referencedColumns: ["id"]
           },
           {
@@ -2362,72 +2243,6 @@ export type Database = {
       }
     }
     Views: {
-      vehicles_finance_safe: {
-        Row: {
-          acquired_date: string | null
-          bags: number | null
-          brand: string | null
-          category: string | null
-          color: string | null
-          daily_price_usd: number | null
-          default_deposit_amount: number | null
-          default_franchise_amount: number | null
-          deleted_at: string | null
-          id: string | null
-          image_url: string | null
-          model: string | null
-          name: string | null
-          passengers: number | null
-          photos: Json | null
-          published: boolean | null
-          status: string | null
-          transmission: string | null
-          year: number | null
-        }
-        Insert: {
-          acquired_date?: string | null
-          bags?: number | null
-          brand?: string | null
-          category?: string | null
-          color?: string | null
-          daily_price_usd?: number | null
-          default_deposit_amount?: number | null
-          default_franchise_amount?: number | null
-          deleted_at?: string | null
-          id?: string | null
-          image_url?: string | null
-          model?: string | null
-          name?: string | null
-          passengers?: number | null
-          photos?: Json | null
-          published?: boolean | null
-          status?: string | null
-          transmission?: string | null
-          year?: number | null
-        }
-        Update: {
-          acquired_date?: string | null
-          bags?: number | null
-          brand?: string | null
-          category?: string | null
-          color?: string | null
-          daily_price_usd?: number | null
-          default_deposit_amount?: number | null
-          default_franchise_amount?: number | null
-          deleted_at?: string | null
-          id?: string | null
-          image_url?: string | null
-          model?: string | null
-          name?: string | null
-          passengers?: number | null
-          photos?: Json | null
-          published?: boolean | null
-          status?: string | null
-          transmission?: string | null
-          year?: number | null
-        }
-        Relationships: []
-      }
       vehicles_public: {
         Row: {
           bags: number | null
