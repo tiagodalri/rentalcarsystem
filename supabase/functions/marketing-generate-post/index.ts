@@ -267,8 +267,8 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
     const isFeed = format === "feed";
     const aspect = isFeed ? "quadrado 1:1 (1024x1024)" : "vertical 9:16 (1024x1792)";
     const logoPosition = isFeed
-      ? "logotipo oficial Zeus no topo central, cerca de 18% da largura, respiro generoso"
-      : "logotipo oficial Zeus no topo central, cerca de 22% da largura, respiro generoso";
+      ? "logotipo oficial Zeus no topo central, cerca de 18% da largura, respiro generoso, DIRETAMENTE sobre o fundo escuro da arte (SEM faixa, SEM card, SEM retangulo branco ou claro atras do logo)"
+      : "logotipo oficial Zeus no topo central, cerca de 22% da largura, respiro generoso, DIRETAMENTE sobre o fundo escuro da arte (SEM faixa, SEM card, SEM retangulo branco ou claro atras do logo)";
 
     const promoVisualBlock = mode === "promo" && promo
       ? `\n\n═══ BLOCO DE OFERTA (OBRIGATORIO NA ARTE) ═══
