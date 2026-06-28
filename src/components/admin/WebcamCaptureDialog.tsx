@@ -156,16 +156,15 @@ export function WebcamCaptureDialog({
 
           {/* Carimbo ao vivo — visível na pré-visualização da câmera. */}
           {showStampOverlay && (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 px-4 pt-10 pb-3 bg-gradient-to-t from-black/75 via-black/40 to-transparent text-right">
-              <div className="text-[#FFD479] text-sm sm:text-base font-semibold tabular-nums tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-                {formatStampTime(now)}
-              </div>
-              <div className="text-white text-xs sm:text-sm font-semibold tabular-nums tracking-wide drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-                {formatStampDateOnly(now)}
-              </div>
-              <div className="mt-0.5 flex items-start justify-end gap-1.5 text-white text-xs sm:text-sm font-medium leading-snug drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-                <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-[#FFD479]" strokeWidth={2} />
-                <span className="line-clamp-2 max-w-[78%]">{stampAddress}</span>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-3 text-right sm:px-5 sm:pb-5">
+              <div className="ml-auto max-w-[94%] rounded-md bg-black/70 px-3 py-2 shadow-2xl ring-1 ring-white/15 sm:max-w-[82%] sm:px-5 sm:py-4">
+                <div className="text-xl font-extrabold tabular-nums tracking-normal text-white drop-shadow-[0_2px_2px_rgba(0,0,0,1)] sm:text-3xl">
+                  {formatStampTime(now)} • {formatStampDateOnly(now)}
+                </div>
+                <div className="mt-1 flex items-start justify-end gap-2 text-lg font-extrabold leading-tight text-white drop-shadow-[0_2px_2px_rgba(0,0,0,1)] sm:text-2xl">
+                  <MapPin className="mt-1 h-5 w-5 shrink-0 text-white sm:h-7 sm:w-7" strokeWidth={3} />
+                  <span className="line-clamp-2 max-w-[92%]">{stampAddress}</span>
+                </div>
               </div>
             </div>
           )}
