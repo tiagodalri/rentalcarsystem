@@ -176,27 +176,38 @@ export default function AdminPainel() {
     const overlay = (
       <div
         className="fixed inset-0 z-[120] overflow-y-auto overscroll-contain"
-        style={{ background: "radial-gradient(ellipse at top, #0b1830 0%, #050813 55%, #02030a 100%)" }}
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(200,168,107,0.07), transparent 60%), linear-gradient(180deg, #0a0a0c 0%, #08080a 60%, #060608 100%)",
+        }}
       >
         <div
           className="sticky top-0 z-[5] flex items-center justify-between gap-3 px-4 py-3 backdrop-blur-xl"
           style={{
             paddingTop: "max(12px, env(safe-area-inset-top))",
-            background: "linear-gradient(180deg, rgba(5,8,19,0.92), rgba(5,8,19,0.55))",
-            borderBottom: "1px solid rgba(120,180,255,0.12)",
+            background:
+              "linear-gradient(180deg, rgba(6,6,8,0.94), rgba(6,6,8,0.55))",
+            borderBottom: "1px solid rgba(200,168,107,0.16)",
           }}
         >
           <div className="flex-1" />
-          <div className="text-[15px] sm:text-[17px] font-light tracking-[0.32em] text-white/95 text-center select-none">
+          <div
+            className="text-[15px] sm:text-[17px] font-light tracking-[0.42em] text-center select-none"
+            style={{
+              color: "#f4ecd9",
+              textShadow: "0 0 24px rgba(200,168,107,0.25)",
+            }}
+          >
             ZEUS BRAIN
           </div>
           <div className="flex-1 flex justify-end">
             <button
               onClick={() => setAiMode(false)}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full text-white/85 transition-all hover:text-white"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full transition-all"
               style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.14)",
+                background: "rgba(244,236,217,0.04)",
+                border: "1px solid rgba(244,236,217,0.14)",
+                color: "rgba(244,236,217,0.85)",
               }}
               aria-label="Sair"
             >
