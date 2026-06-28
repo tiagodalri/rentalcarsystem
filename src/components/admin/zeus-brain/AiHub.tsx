@@ -117,7 +117,9 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
               <img
                 src={image}
                 alt=""
-                loading="lazy"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
                 width={1024}
                 height={640}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
