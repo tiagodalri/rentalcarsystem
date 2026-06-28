@@ -1209,24 +1209,27 @@ export default function AiPainel({
             <div className="ai-card">
               <CardHeader title="Buracos entre reservas. Dinheiro na mesa" sub="Períodos curtos em que o carro fica parado entre duas reservas confirmadas. Oferecer promo de última hora pode capturar essa receita." icon={Sparkles} />
               {opportunityWindows.length === 0 ? (
-                <p className="text-white/55 text-xs">Sem buracos relevantes no momento. Agenda bem encaixada.</p>
+                <p className="ai-card-sub">Sem buracos relevantes no momento. Agenda bem encaixada.</p>
               ) : (
-                <ul className="space-y-2.5">
+                <div className="ai-oppor-list">
                   {opportunityWindows.map((o, i) => (
-                    <li key={i} className="flex items-center justify-between gap-3 text-[12.5px]">
-                      <div className="min-w-0">
-                        <div className="text-white/90 truncate">{o.vehicle}</div>
-                        <div className="text-[10.5px] text-white/55">
-                          Livre de {format(o.gapStart, "dd MMM", { locale: ptBR })} até {format(o.gapEnd, "dd MMM", { locale: ptBR })} · {o.nights} noites paradas
+                    <div key={i} className="ai-oppor-row">
+                      <div className="ai-oppor-rank">{String(i + 1).padStart(2, "0")}</div>
+                      <div className="ai-oppor-main">
+                        <div className="ai-oppor-vehicle">{o.vehicle}</div>
+                        <div className="ai-oppor-window">
+                          {format(o.gapStart, "dd MMM", { locale: ptBR })} <span className="ai-oppor-sep">até</span> {format(o.gapEnd, "dd MMM", { locale: ptBR })}
+                          <span className="ai-oppor-dot">•</span>
+                          <span>{o.nights} {o.nights === 1 ? "noite parada" : "noites paradas"}</span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="tabular-nums text-emerald-200/95">{fmtUSD(o.estLoss)}</div>
-                        <div className="text-[10px] text-white/50">possível recuperar</div>
+                      <div className="ai-oppor-amount">
+                        <div className="ai-oppor-value tabular-nums">{fmtUSD(o.estLoss)}</div>
+                        <div className="ai-oppor-label">Possível recuperar</div>
                       </div>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           </div>
