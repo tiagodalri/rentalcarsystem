@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import FleetSimulator from "@/components/admin/zeus-brain/FleetSimulator";
+import { AiBriefingCard } from "@/components/admin/zeus-brain/AiBriefingCard";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
   startOfDay, addDays, isSameDay,
