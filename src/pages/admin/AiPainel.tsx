@@ -3,12 +3,13 @@ import {
   Brain, Sparkles, TrendingUp, AlertTriangle, Target, Zap, DollarSign,
   Activity, Gauge, Award, Flame, Snowflake, Layers, Rocket, Users,
   Clock, ShieldAlert, Calendar, LineChart, Wallet, ArrowDownRight,
-  ArrowUpRight, Repeat, Wand2,
+  ArrowUpRight, Repeat, Wand2, Sun, HeartHandshake, TimerReset, CalendarDays,
+  CircleDollarSign, Lightbulb,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
-  startOfDay, addDays,
+  startOfDay, addDays, isSameDay,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
