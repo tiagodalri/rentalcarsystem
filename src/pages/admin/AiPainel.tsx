@@ -1178,7 +1178,7 @@ export default function AiPainel({
         {/* ───── Tab: DEMAND ───── */}
         {tab === "demand" && (
           <div className="space-y-3">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <div className="ai-card">
                 <CardHeader title="Com quanto tempo o cliente reserva" sub="Antecedência média entre fazer a reserva e retirar o carro" icon={Clock} />
                 <div className="text-3xl font-light text-cyan-200 tabular-nums">{leadTime.avg.toFixed(0)}<span className="text-base text-white/50"> dias</span></div>
@@ -1191,18 +1191,6 @@ export default function AiPainel({
                 <FunnelBar label="Em viagem agora ou já viajou" value={funnel.inProg} max={funnel.total} hue="amber" />
                 <FunnelBar label="Concluídas" value={funnel.completed} max={funnel.total} hue="emerald" />
                 <FunnelBar label="Canceladas" value={funnel.cancelled} max={funnel.total} hue="rose" />
-              </div>
-              <div className="ai-card">
-                <CardHeader title="Quais dias da semana saem mais carros" sub="Dias mais movimentados na retirada" icon={Calendar} />
-                <div className="grid grid-cols-7 gap-1.5">
-                  {dowHeat.map(d => (
-                    <div key={d.label} className="flex flex-col items-center gap-1">
-                      <div className="w-full rounded-md ai-heat" style={{ height: 56, opacity: 0.25 + (d.pct / 100) * 0.75 }} />
-                      <div className="text-[9.5px] uppercase tracking-wider text-white/60">{d.label}</div>
-                      <div className="text-[10.5px] tabular-nums text-white/85">{d.v}</div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
 
@@ -1342,9 +1330,8 @@ export default function AiPainel({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <KpiBlock title="Total investido em carros" value={fmtUSD(fleetInvested)} sub="Soma do preço de compra de toda a frota" icon={Wallet} />
-              <KpiBlock title="Receita total já gerada" value={fmtUSD(fleetRevenue)} sub={`Margem de lucro atual: ${fleetMargin.toFixed(1)}%`} icon={DollarSign} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <KpiBlock title="Total investido em carros" value={fmtUSD(fleetInvested)} sub={`Margem de lucro atual: ${fleetMargin.toFixed(1)}%`} icon={Wallet} />
               <KpiBlock title="Retorno sobre o investimento" value={`${fleetROI.toFixed(1)}%`} sub="Quanto a frota já devolveu do que foi investido" icon={Target} />
             </div>
 
@@ -1578,34 +1565,18 @@ export default function AiPainel({
               <RecCard title="Carros parados. Testar promo" subtitle="Pouco alugados há mais de 90 dias" icon={Snowflake} hue="amber" empty="Nenhum carro nessa situação."
                 items={priceDownCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 0.85)}/dia em promo` }))} />
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <div className="ai-card">
-                <CardHeader title="Os carros que mais geram dinheiro" sub="Quem mais retorna por dia que está na sua frota. Vale a pena comprar parecidos" icon={Award} />
-                <ul className="space-y-2.5">
-                  {topStars.map(p => (
-                    <li key={p.v.id} className="flex justify-between text-[12.5px]">
-                      <div className="min-w-0">
-                        <div className="text-white/90 truncate">{p.v.name}</div>
-                        <div className="text-[10.5px] text-white/55">{p.bookingsCount} reservas</div>
-                      </div>
-                      <span className="tabular-nums text-emerald-200">{fmtUSD(p.revPerDayOwned)}/dia</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="ai-card">
-                <CardHeader title="Categorias que mais dão dinheiro" sub="Receita por dia que o carro está na sua frota" icon={TrendingUp} />
-                <ul className="space-y-2.5">
-                  {byCategory.slice(0, 6).map(c => (
-                    <li key={c.cat} className="text-[12.5px]">
-                      <div className="flex justify-between"><span className="text-white/85">{c.cat}</span><span className="tabular-nums text-amber-200">{fmtUSD(c.rpd)}/dia</span></div>
-                      <div className="mt-1 h-1 rounded-full bg-white/10 overflow-hidden">
-                        <div className="h-full ai-bar-emerald" style={{ width: `${Math.min(c.avgOcc, 100)}%` }} />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div className="ai-card">
+              <CardHeader title="Categorias que mais dão dinheiro" sub="Receita por dia que o carro está na sua frota" icon={TrendingUp} />
+              <ul className="space-y-2.5">
+                {byCategory.slice(0, 6).map(c => (
+                  <li key={c.cat} className="text-[12.5px]">
+                    <div className="flex justify-between"><span className="text-white/85">{c.cat}</span><span className="tabular-nums text-amber-200">{fmtUSD(c.rpd)}/dia</span></div>
+                    <div className="mt-1 h-1 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-full ai-bar-emerald" style={{ width: `${Math.min(c.avgOcc, 100)}%` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
             <div className="ai-card">
               <CardHeader title="Marcas com melhor desempenho" sub="Receita total e taxa de uso média" icon={Zap} />
@@ -1623,18 +1594,6 @@ export default function AiPainel({
           </div>
         )}
 
-        <div className="ai-card">
-          <CardHeader title="Carros com desempenho fraco" sub="Estão na frota há mais de 2 meses e geram pouco por dia" icon={Snowflake} />
-          <ul className="space-y-2">
-            {underperformers.map(p => (
-              <li key={p.v.id} className="flex justify-between text-[12.5px]">
-                <span className="text-white/85 truncate">{p.v.name}</span>
-                <span className="tabular-nums text-rose-300">{fmtUSD(p.revPerDayOwned)}/dia · {p.occupancy.toFixed(0)}% de uso</span>
-              </li>
-            ))}
-            {underperformers.length === 0 && <li className="text-white/55 text-xs">Frota equilibrada. Nenhum carro com desempenho fraco.</li>}
-          </ul>
-        </div>
       </div>
 
       <style>{`
