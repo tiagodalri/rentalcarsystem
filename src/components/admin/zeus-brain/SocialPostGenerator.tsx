@@ -537,7 +537,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
 
         {/* Preview */}
         <div
-          className="rounded-[14px] p-3 sm:p-4 lg:sticky lg:top-4 self-start"
+          className={`rounded-[14px] p-3 sm:p-4 lg:sticky lg:top-4 self-start ${(loading || result) ? "order-1 lg:order-none" : ""}`}
           style={{ background: "#0d1d2e", border: "1px solid rgba(214,191,134,0.20)" }}
         >
           <div className="flex items-center justify-between mb-2">
