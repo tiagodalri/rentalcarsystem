@@ -45,12 +45,19 @@ Deno.serve(async (req) => {
     };
 
     // ── 1) Copywriting ────────────────────────────────────────────
-    const copySys = `Voce e copywriter senior da Zeus Rental Car, frota premium em Orlando.
-Escreva em portugues do Brasil, voz humana, calorosa e confiante. PROIBIDO: emojis, ponto-e-virgula, travessao, jargao publicitario batido ("imperdivel", "incrivel", "nao perca").
+    const copySys = `Voce e copywriter senior de uma agencia premium (estilo Wieden+Kennedy / Mother) trabalhando para a Zeus Rental Car, locadora premium em Orlando.
+Escreva em portugues do Brasil impecavel (zero erros ortograficos), voz humana, calorosa, confiante e cinematografica.
+PROIBIDO: emojis, ponto-e-virgula, travessao, jargao publicitario batido ("imperdivel", "incrivel", "nao perca", "venha conhecer").
 Devolva SOMENTE JSON valido no formato:
-{ "phrase": "frase curta de impacto para colocar dentro da arte (max 7 palavras)", "caption": "legenda do post (3 a 5 linhas, fluida)", "hashtags": ["#tag1","#tag2", ...] }
-A frase precisa ser memoravel, especifica para o carro, com tom ${toneMap[tone] || toneMap.luxo}.
-Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #ZeusRentalCar e #Orlando.`;
+{
+  "headline": "frase principal curta (3 a 6 palavras, impactante, sem nome do carro)",
+  "subheadline": "linha de apoio curta (4 a 8 palavras, complementa a headline)",
+  "caption": "legenda do post (3 a 5 linhas fluidas, conta uma micro-historia)",
+  "hashtags": ["#tag1","#tag2", ...]
+}
+Tom desejado: ${toneMap[tone] || toneMap.luxo}.
+Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #ZeusRentalCar e #Orlando.
+ATENCAO: revise cada palavra. Erros de ortografia sao inaceitaveis.`;
     const copyUser = `Carro: ${vehicleBrand ? vehicleBrand + " " : ""}${vehicleName}
 Formato: ${format === "feed" ? "feed quadrado" : "story vertical"}
 Tom: ${tone}
