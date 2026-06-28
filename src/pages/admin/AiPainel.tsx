@@ -869,22 +869,32 @@ export default function AiPainel({
           </p>
           <button
             onClick={() => setTab(tab === "simulator" ? "revenue" : "simulator")}
-            className="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[12px] font-medium text-white transition-all hover:scale-[1.02]"
+            className="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] font-medium transition-all hover:scale-[1.02]"
             style={{
               background: tab === "simulator"
-                ? "linear-gradient(135deg, rgba(251,191,36,0.35), rgba(16,185,129,0.30))"
-                : "linear-gradient(135deg, rgba(251,191,36,0.18), rgba(16,185,129,0.16))",
-              border: "1px solid rgba(251,191,36,0.55)",
-              boxShadow: "0 0 22px rgba(251,191,36,0.30)",
+                ? "linear-gradient(180deg, rgba(200,168,107,0.28), rgba(200,168,107,0.10))"
+                : "linear-gradient(180deg, rgba(200,168,107,0.14), rgba(200,168,107,0.05))",
+              border: "1px solid rgba(200,168,107,0.45)",
+              boxShadow: "0 0 22px rgba(200,168,107,0.22), 0 1px 0 rgba(244,236,217,0.06) inset",
+              color: "#f4ecd9",
+              letterSpacing: "0.10em",
+              textTransform: "uppercase",
             }}
           >
             <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70" style={{ background: "#c8a86b" }} />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: "#d8bd7f" }} />
             </span>
-            <Gamepad2 size={14} className="text-amber-200" />
+            <Gamepad2 size={13} style={{ color: "#e8d9b0" }} />
             <span>Simulador</span>
-            <span className="text-[8.5px] uppercase tracking-[0.18em] px-1.5 py-[1px] rounded-sm bg-amber-300/25 border border-amber-300/40 text-amber-100">
+            <span
+              className="text-[8.5px] tracking-[0.22em] px-1.5 py-[1px] rounded-sm"
+              style={{
+                background: "rgba(200,168,107,0.18)",
+                border: "1px solid rgba(200,168,107,0.40)",
+                color: "#f4ecd9",
+              }}
+            >
               Novo
             </span>
           </button>
