@@ -718,6 +718,19 @@ export default function AiPainel({
           trocasSugeridas,
           alertas: anomalies.map(a => a.msg),
           funilReservas: funnel,
+          hojeNaFrota: todayStats,
+          receitaPerdida: {
+            cancelamentos: Math.round(lostRevenue.cancelado),
+            janelasOciosas: Math.round(lostRevenue.janelas),
+            total: Math.round(lostRevenue.total),
+          },
+          velocidadePagamentoMesesMedia: paybackAvg,
+          receitaPorDiaDaSemana: dowRevenue.data.map(d => ({ dia: d.label, receita: Math.round(d.rev), reservas: d.cnt })),
+          melhorDiaSemana: dowRevenue.best?.label,
+          piorDiaSemana: dowRevenue.worst?.label,
+          conselhosLocais: weeklyDecisions.map(d => ({
+            titulo: d.titulo, descricao: d.descricao, impacto: d.impacto, prioridade: d.prioridade,
+          })),
         };
         const { data, error } = await supabase.functions.invoke("intelligence-summary", { body: payload });
         if (!error && (data as any)?.text) setBriefing((data as any).text as string);
