@@ -227,8 +227,12 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
   };
 
   const sellList = useMemo(
-    () => [...sortedByPerf].reverse().filter(p => matches(p, queryOut) && !inIds.includes(p.v.id)),
-    [sortedByPerf, queryOut, inIds]
+    () => {
+      const withPriceAsc = [...priced].sort((a, b) => a.revPerDayOwned - b.revPerDayOwned);
+      const withoutPriceAsc = [...missingPrice].sort((a, b) => a.revPerDayOwned - b.revPerDayOwned);
+      return [...withPriceAsc, ...withoutPriceAsc].filter(p => matches(p, queryOut) && !inIds.includes(p.v.id));
+    },
+    [priced, missingPrice, queryOut, inIds]
   );
   const buyList = useMemo(
     () => sortedByPerf.filter(p => matches(p, queryIn) && !outIds.includes(p.v.id)),
