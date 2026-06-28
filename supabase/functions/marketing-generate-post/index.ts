@@ -84,33 +84,74 @@ ${customPrompt ? `Direcionamento extra: ${customPrompt}` : ""}`;
       });
     }
     const copyJson = await copyRes.json();
-    let copy: { phrase: string; caption: string; hashtags: string[] };
+    let copy: { headline: string; subheadline: string; caption: string; hashtags: string[] };
     try {
-      copy = JSON.parse(copyJson.choices[0].message.content);
+      const parsed = JSON.parse(copyJson.choices[0].message.content);
+      copy = {
+        headline: parsed.headline || parsed.phrase || `${vehicleName}`,
+        subheadline: parsed.subheadline || "",
+        caption: parsed.caption || `${vehicleName} disponivel agora.`,
+        hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : ["#ZeusRentalCar", "#Orlando"],
+      };
     } catch {
-      copy = { phrase: `${vehicleName} esta na Zeus`, caption: `${vehicleName} disponivel agora.`, hashtags: ["#ZeusRentalCar", "#Orlando"] };
+      copy = {
+        headline: vehicleName,
+        subheadline: "Premium em Orlando",
+        caption: `${vehicleName} disponivel na Zeus Rental Car.`,
+        hashtags: ["#ZeusRentalCar", "#Orlando"],
+      };
     }
 
     // ── 2) Image composition ──────────────────────────────────────
-    const aspect = format === "feed" ? "quadrado 1:1 (1024x1024)" : "vertical 9:16 (1024x1792)";
-    const imagePrompt = `Crie uma arte profissional de social media no formato ${aspect} para a Zeus Rental Car (locadora premium em Orlando).
+    const isFeed = format === "feed";
+    const aspect = isFeed ? "quadrado 1:1 (1024x1024)" : "vertical 9:16 (1024x1792)";
+    const logoPosition = isFeed
+      ? "logotipo oficial da Zeus posicionado no topo central, ocupando cerca de 18% da largura, com respiro generoso ao redor"
+      : "logotipo oficial da Zeus posicionado no topo central, ocupando cerca de 22% da largura, com respiro generoso ao redor";
 
-Use a PRIMEIRA imagem (o carro ${vehicleBrand || ""} ${vehicleName}) como elemento central, tratada com look cinematografico: iluminacao premium, contraste alto, cores ricas, sombras suaves, fundo desfocado em tons escuros elegantes (preto/azul-marinho profundo) com sutil iluminacao dourada.
+    const imagePrompt = `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Zeus Rental Car — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (estilo Mr Porter, Robb Report, Architectural Digest Automotive).
 
-Use a SEGUNDA imagem (logotipo da Zeus, simbolo do "Z" dourado) posicionada de forma estrategica e elegante: no canto superior direito do feed, ou no topo central no story. Tamanho discreto mas legivel. Mantenha as cores originais do logo intactas.
+═══ COMPOSICAO ═══
+1. CARRO (imagem 1): ${vehicleBrand || ""} ${vehicleName} como heroi absoluto da arte. Tratamento color grading cinematografico:
+   - Iluminacao tipo studio Peter Lik (rim light dourado nas bordas da carroceria, key light suave acima)
+   - Contraste alto controlado, pretos profundos preservando detalhes
+   - Reflexos sutis na pintura sugerindo um chao de marmore polido
+   - Particulas douradas finas no ar, bokeh dourado discreto ao fundo
+   - Angulo ligeiramente baixo (hero shot), carro ocupando 55-65% da composicao
+   - Fundo: gradiente de preto absoluto (#000) para azul-marinho profundo (#0a1628) com vinheta dourada quente
 
-Adicione a frase em destaque (texto bem renderizado, tipografia serif elegante tipo Cormorant Garamond, cor branco puro com leve sombra dourada): "${copy.phrase}"
-Posicione a frase na parte inferior da arte, com bastante respiro.
+2. LOGOTIPO (imagem 2): ${logoPosition}. Use o logotipo EXATAMENTE como fornecido, sem reinterpretar, sem trocar fontes, sem mudar cores, sem adicionar elementos. Preserve transparencia.
 
-Inclua um detalhe minimalista dourado: uma linha fina horizontal acima da frase OU um pequeno texto em caixa alta "ZEUS RENTAL CAR · ORLANDO" em letterspacing largo, cor dourado #c9a861.
+3. TIPOGRAFIA — REGRA CRITICA:
+   - HEADLINE (parte inferior, centralizado): "${copy.headline}"
+     -> Fonte serif display de luxo (estilo Didot, Bodoni 72, Playfair Display Black)
+     -> Cor branco puro #ffffff
+     -> Tamanho grande, peso regular, tracking levemente apertado
+   - SUBHEADLINE (logo abaixo da headline, menor): "${copy.subheadline}"
+     -> Fonte sans-serif fina em caixa alta (estilo Futura Light, Avenir Light)
+     -> Cor dourado champagne #c9a861
+     -> Letter-spacing largo (tracking +200)
+   - ASSINATURA (rodape, bem pequena, caixa alta): "ZEUS RENTAL CAR  ·  ORLANDO"
+     -> Sans-serif fina, dourado #c9a861, letter-spacing extra largo
 
-Estetica final: private bank meets automotive luxury. Sofisticado, escuro, dourado, atemporal. SEM clichês de propaganda, SEM emojis, SEM stickers. Apenas o carro, a frase, o logo e o detalhe dourado.`;
+═══ ORTOGRAFIA — OBRIGATORIO ═══
+Renderize o texto EXATAMENTE como fornecido entre aspas. NAO invente, NAO traduza, NAO altere letras. Cada caractere conta. Se houver duvida sobre uma letra, prefira renderizar a frase mais limpa a errar.
+
+═══ ELEMENTOS GRAFICOS ═══
+- Uma linha fina horizontal dourada (1px, #c9a861) separando headline da assinatura
+- Cantos da arte: respiro generoso (padding minimo 8% das bordas)
+- Opcional: monograma "Z" muito sutil em marca d'agua no canto, opacidade 5%
+
+═══ PROIBIDO ═══
+SEM emojis, SEM stickers, SEM badges, SEM "Save", SEM precos, SEM CTA agressivo, SEM gradientes neon, SEM texturas de papel rasgado, SEM frames de polaroide, SEM clipart, SEM aspas decorativas grandes, SEM swooshes/curvas decorativas.
+
+Resultado final: uma pagina de revista de luxo automotivo. Silencio visual, sofisticacao, peso editorial. Atemporal.`;
 
     const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
+        model: "google/gemini-3-pro-image",
         modalities: ["image", "text"],
         messages: [
           {
