@@ -1,7 +1,7 @@
 import { Brain, FileDown, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CAR_BRANDS, carLogoUrl, findBrandByName } from "@/data/carBrands";
-import { exportBriefingToPdf } from "@/lib/briefingPdf";
+import { exportPainelPdf } from "@/lib/exportPainelPdf";
 
 type Props = {
   briefing: string | null;
