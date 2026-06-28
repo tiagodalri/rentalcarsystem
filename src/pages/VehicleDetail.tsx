@@ -170,9 +170,28 @@ const VehicleDetail = () => {
     );
   }
 
+  const seoTitle = `${decodedName} | Aluguel em Orlando — Zeus Rental Car`;
+  const seoDescription = `Alugue ${decodedName} em Orlando com a Zeus Rental Car. Diária a partir de US$ ${basePrice}. Atendimento em português, retirada no aeroporto.`;
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: decodedName,
+    image: cover,
+    brand: { "@type": "Brand", name: (decodedName || "").split(" ")[0] },
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "USD",
+      price: basePrice,
+      availability: "https://schema.org/InStock",
+      url: `https://zeusrentalcar.com/veiculo/${encodeURIComponent(decodedName)}`,
+    },
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col overflow-x-hidden w-full max-w-[100vw] [overflow-anchor:none]">
+      <Seo title={seoTitle} description={seoDescription} path={`/veiculo/${encodeURIComponent(decodedName)}`} image={cover} jsonLd={productJsonLd} />
       <Navbar />
+
 
       <main className="flex-1 pt-24 sm:pt-28 w-full max-w-full overflow-x-hidden">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10 w-full min-w-0">
