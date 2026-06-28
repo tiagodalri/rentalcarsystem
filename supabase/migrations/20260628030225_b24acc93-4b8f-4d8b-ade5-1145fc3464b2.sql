@@ -1,0 +1,1 @@
+DROP VIEW IF EXISTS public.vehicles_finance_safe;
