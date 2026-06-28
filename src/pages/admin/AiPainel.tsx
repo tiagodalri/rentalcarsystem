@@ -1987,7 +1987,7 @@ function localBriefing(p: any): string {
     else if (p.avgOccupancy > 70) parts.push(`Os carros estão alugados ${p.avgOccupancy.toFixed(0)}% do tempo. É o momento certo de aumentar preço.`);
     else parts.push(`Ocupação está em ${p.avgOccupancy.toFixed(0)}%. Saudável, com espaço para ajustes pontuais.`);
   }
-  if (p.revPAC) parts.push(`Cada carro está gerando em média ${fmtUSD2(p.revPAC)} por dia que está na sua frota — use isso como referência ao avaliar a compra de um carro novo.`);
+  if (p.revPAC) parts.push(`Cada carro está gerando em média ${fmtUSD2(p.revPAC)} por dia que está na sua frota. Use isso como referência ao avaliar a compra de um carro novo.`);
   if (p.sellCandidatesCount) parts.push(`Existem ${p.sellCandidatesCount} carro(s) com pouco uso e baixo retorno que valem ser considerados para venda.`);
   if (p.priceUpCount) parts.push(`${p.priceUpCount} carro(s) estão sempre alugados e aguentam um aumento de preço entre 12% e 18%.`);
   if (p.opportunityWindows) parts.push(`Encontrei ${p.opportunityWindows} períodos curtos de carros parados entre reservas — uma promo de última hora pode capturar essa receita.`);
