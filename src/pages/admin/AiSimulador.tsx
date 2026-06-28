@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { startOfDay } from "date-fns";
-import { ArrowLeft, Gamepad2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import FleetSimulator from "@/components/admin/zeus-brain/FleetSimulator";
 import {
