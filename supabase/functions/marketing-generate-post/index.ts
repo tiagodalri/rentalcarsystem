@@ -1,5 +1,6 @@
 // Marketing Studio - Social Post Generator
 // Generates a polished social media image (feed or story) using Lovable AI.
+// Supports single post or carousel (3-5 slides) with cover / content / CTA structure.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 type Mode = "promo" | "free" | "reference";
@@ -23,6 +24,9 @@ type Body = {
   promo?: Promo;
   referenceImageDataUrl?: string | null;
   seasonalTheme?: { key: string; label: string; palette: string; motifs: string; copyHint: string };
+  // NEW
+  carousel?: boolean;
+  slidesCount?: number; // 3..5 when carousel
 };
 
 const ZEUS_LOGO_URL = "https://zeusrentalcar.com/zeus-logo-full.png";
@@ -35,6 +39,13 @@ function fmtDate(iso?: string): string {
     return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }).replace(".", "");
   } catch { return iso; }
 }
+
+type SlidePlan = {
+  role: "cover" | "content" | "cta";
+  headline: string;
+  subheadline: string;
+  body?: string;
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -52,7 +63,9 @@ Deno.serve(async (req) => {
       vehicleName, vehicleBrand, vehiclePhotoUrl, logoDataUrl,
       format, tone, customPrompt,
       mode = "free", promo, referenceImageDataUrl, seasonalTheme,
+      carousel = false,
     } = body;
+    const slidesCount = carousel ? Math.min(5, Math.max(3, body.slidesCount || 3)) : 1;
     const logoUrl = logoDataUrl && logoDataUrl.startsWith("data:image") ? logoDataUrl : ZEUS_LOGO_URL;
     if (!vehicleName) {
       return new Response(JSON.stringify({ error: "vehicleName required" }), {
@@ -76,21 +89,39 @@ Deno.serve(async (req) => {
       : "";
 
     // ── 1) Copywriting ────────────────────────────────────────────
-    const copySys = `Voce e copywriter senior de uma agencia premium (Wieden+Kennedy / Mother) trabalhando para a Zeus Rental Car, locadora premium em Orlando.
-Escreva em portugues do Brasil impecavel (zero erros), voz humana, calorosa, confiante, cinematografica.
-PROIBIDO: emojis, ponto-e-virgula, travessao, jargao publicitario ("imperdivel", "incrivel", "nao perca").
-Devolva SOMENTE JSON valido:
-{
+    const carouselCopyInstructions = carousel ? `
+Este post e um CARROSSEL de ${slidesCount} slides. Devolva tambem o array "slides" com EXATAMENTE ${slidesCount} itens, na ordem:
+- Slide 1: "cover" (capa impactante, headline curta de 2-4 palavras, subheadline curta).
+- Slides 2 a ${slidesCount - 1}: "content" (cada um com uma ideia/beneficio diferente — conforto, performance, lugares para visitar em Orlando, experiencia, etc).
+- Slide ${slidesCount}: "cta" (chamada final, ex: "Reserve agora", "Garanta sua data") — sem soar apelativo.
+Cada slide tem: { "role", "headline" (3-6 palavras), "subheadline" (4-8 palavras), "body" (opcional, 1 frase curta de apoio) }.
+Os slides devem fluir narrativamente, NUNCA repetir a mesma headline.` : "";
+
+    const copyJsonShape = carousel
+      ? `{
+  "headline": "frase principal do post (capa)",
+  "subheadline": "linha de apoio curta",
+  "caption": "legenda unica do carrossel (3 a 5 linhas)",
+  "hashtags": ["#tag1","#tag2"],
+  "slides": [{ "role":"cover|content|cta", "headline":"...", "subheadline":"...", "body":"..." }]
+}`
+      : `{
   "headline": "frase principal curta (3 a 6 palavras)",
   "subheadline": "linha de apoio curta (4 a 8 palavras)",
   "caption": "legenda do post (3 a 5 linhas, micro-historia)",
   "hashtags": ["#tag1","#tag2"]
-}
+}`;
+
+    const copySys = `Voce e copywriter senior de uma agencia premium (Wieden+Kennedy / Mother) trabalhando para a Zeus Rental Car, locadora premium em Orlando.
+Escreva em portugues do Brasil impecavel (zero erros), voz humana, calorosa, confiante, cinematografica.
+PROIBIDO: emojis, ponto-e-virgula, travessao, jargao publicitario ("imperdivel", "incrivel", "nao perca").
+Devolva SOMENTE JSON valido:
+${copyJsonShape}
 Tom: ${toneMap[tone] || toneMap.luxo}.
-Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #ZeusRentalCar e #Orlando.`;
+Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #ZeusRentalCar e #Orlando.${carouselCopyInstructions}`;
 
     const copyUser = `Carro: ${vehicleBrand ? vehicleBrand + " " : ""}${vehicleName}
-Formato: ${format === "feed" ? "feed quadrado" : "story vertical"}
+Formato: ${format === "feed" ? "feed quadrado" : "story vertical"}${carousel ? ` em CARROSSEL de ${slidesCount} slides` : ""}
 Tom: ${tone}
 Modo: ${mode}${promoBlock}
 ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
@@ -116,7 +147,10 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
       });
     }
     const copyJson = await copyRes.json();
-    let copy: { headline: string; subheadline: string; caption: string; hashtags: string[] };
+    let copy: {
+      headline: string; subheadline: string; caption: string; hashtags: string[];
+      slides?: SlidePlan[];
+    };
     try {
       const parsed = JSON.parse(copyJson.choices[0].message.content);
       copy = {
@@ -124,6 +158,7 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
         subheadline: parsed.subheadline || "",
         caption: parsed.caption || `${vehicleName} disponivel agora.`,
         hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : ["#ZeusRentalCar", "#Orlando"],
+        slides: Array.isArray(parsed.slides) ? parsed.slides : undefined,
       };
     } catch {
       copy = {
@@ -134,7 +169,28 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
       };
     }
 
-    // ── 2) Image composition ──────────────────────────────────────
+    // Build plan list
+    let plan: SlidePlan[];
+    if (carousel) {
+      if (copy.slides && copy.slides.length === slidesCount) {
+        plan = copy.slides;
+      } else {
+        // Fallback synthetic plan
+        plan = [];
+        for (let i = 0; i < slidesCount; i++) {
+          const role: SlidePlan["role"] = i === 0 ? "cover" : i === slidesCount - 1 ? "cta" : "content";
+          plan.push({
+            role,
+            headline: i === 0 ? copy.headline : role === "cta" ? "Reserve agora" : `Detalhe ${i}`,
+            subheadline: i === 0 ? copy.subheadline : "",
+          });
+        }
+      }
+    } else {
+      plan = [{ role: "cover", headline: copy.headline, subheadline: copy.subheadline }];
+    }
+
+    // ── 2) Image composition (per slide) ──────────────────────────
     const isFeed = format === "feed";
     const aspect = isFeed ? "quadrado 1:1 (1024x1024)" : "vertical 9:16 (1024x1792)";
     const logoPosition = isFeed
@@ -143,118 +199,157 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
 
     const promoVisualBlock = mode === "promo" && promo
       ? `\n\n═══ BLOCO DE OFERTA (OBRIGATORIO NA ARTE) ═══
-- Renderize um bloco discreto e elegante na arte com:
+- Renderize um bloco discreto e elegante com:
   -> Valor "USD ${promo.priceDaily} /dia" em fonte serif media, cor dourado #c9a861
-  -> Periodo "${fmtDate(promo.dateStart)} - ${fmtDate(promo.dateEnd)}" em sans-serif fina caixa alta, cor branco
-- Posicione o bloco no terco inferior, alinhado com a headline. NUNCA como badge circular ou sticker. Trate como linha editorial de revista.
-- NAO use a palavra "PROMO", "OFERTA", "SALE", "DESCONTO". Apenas o valor e o periodo falam por si.`
+  -> Periodo "${fmtDate(promo.dateStart)} - ${fmtDate(promo.dateEnd)}" em sans-serif fina caixa alta, branco
+- Trate como linha editorial de revista. Nunca como badge circular ou sticker.
+- NAO use as palavras "PROMO", "OFERTA", "SALE", "DESCONTO".`
       : "";
 
     const referenceBlock = mode === "reference"
-      ? `\n\n═══ REFERENCIA VISUAL (imagem extra fornecida) ═══
-A ultima imagem anexada e APENAS uma referencia de estilo: capture paleta de cores, mood, tipo de iluminacao, ritmo da composicao e tratamento tipografico. NAO copie o logo da referencia. NAO inclua textos da referencia. O carro Zeus continua sendo o heroi e o logo OFICIAL da Zeus e obrigatorio.`
+      ? `\n\n═══ REFERENCIA VISUAL ═══
+A ultima imagem anexada e APENAS referencia de estilo (paleta, mood, iluminacao, tipografia). NAO copie logo nem textos dela.`
       : "";
 
     const seasonalBlock = tone === "sazonal" && seasonalTheme
-      ? `\n\n═══ TEMA SAZONAL — ${seasonalTheme.label.toUpperCase()} (OBRIGATORIO) ═══
-- Paleta auxiliar: ${seasonalTheme.palette}. Aplique como detalhes (vinheta, particulas, reflexos) SEM dominar o carro.
-- Motivos visuais: ${seasonalTheme.motifs}. Sempre sutis, sofisticados, atmosfericos — NUNCA stickers, ilustracoes, clipart ou icones literais.
-- Mantenha o padrao editorial Zeus: silencio visual, atemporal, premium. Nada de kitsch, nada caricato.`
+      ? `\n\n═══ TEMA SAZONAL — ${seasonalTheme.label.toUpperCase()} ═══
+- Paleta auxiliar: ${seasonalTheme.palette}. Apenas detalhes sutis.
+- Motivos: ${seasonalTheme.motifs}. Sempre sofisticados, nunca clipart.`
       : "";
 
-    const imagePrompt = `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Zeus Rental Car — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (Mr Porter, Robb Report, Architectural Digest Automotive).
+    function buildPrompt(slide: SlidePlan, idx: number): string {
+      const carouselHeader = carousel
+        ? `\n═══ CARROSSEL — SLIDE ${idx + 1} de ${slidesCount} (${slide.role.toUpperCase()}) ═══
+Este slide faz parte de um carrossel coeso. Mantenha IDENTICOS: paleta, tipografia, grade, iluminacao, tratamento de cor, posicao do logo, linha dourada. Variacao APENAS no conteudo e no enquadramento do carro.`
+        : "";
+
+      const roleDirective = !carousel
+        ? `\n3. TIPOGRAFIA:
+   - HEADLINE: "${slide.headline}" (serif display, branco, tracking apertado, parte inferior centralizada)
+   - SUBHEADLINE: "${slide.subheadline}" (sans-serif fina caixa alta, dourado #c9a861)
+   - ASSINATURA RODAPE: "ZEUS RENTAL CAR  ·  ORLANDO"`
+        : slide.role === "cover"
+          ? `\n3. TIPOGRAFIA (CAPA):
+   - HEADLINE GRANDE: "${slide.headline}" (serif display Didot/Bodoni, branco, dominante)
+   - SUBHEADLINE: "${slide.subheadline}" (sans-serif fina dourada caixa alta)
+   - Pequeno indicador "01 / ${slidesCount}" no canto inferior em dourado discreto
+   - O carro e o heroi visual.`
+          : slide.role === "cta"
+            ? `\n3. TIPOGRAFIA (CTA — slide final):
+   - CHAMADA: "${slide.headline}" centralizada, serif display branco
+   - APOIO: "${slide.subheadline}" sans-serif fina dourada caixa alta
+   - Indicador "${String(idx + 1).padStart(2, "0")} / ${slidesCount}" no canto inferior dourado
+   - "ZEUS RENTAL CAR  ·  ORLANDO" no rodape em dourado tracking largo
+   - Composicao mais limpa: o carro pode aparecer em silhueta lateral ou parcial, dando peso ao texto.`
+            : `\n3. TIPOGRAFIA (CONTEUDO):
+   - TITULO: "${slide.headline}" (serif display branco, alinhado a esquerda ou centro)
+   - APOIO: "${slide.subheadline}" (sans-serif fina dourada caixa alta)
+   ${slide.body ? `- TEXTO CURTO: "${slide.body}" (sans-serif fina branca, 1-2 linhas)` : ""}
+   - Indicador "${String(idx + 1).padStart(2, "0")} / ${slidesCount}" no canto inferior dourado
+   - Enquadre o carro com detalhe diferente da capa (faro, lateral, interior em sugestao, traseira).`;
+
+      return `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Zeus Rental Car — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (Mr Porter, Robb Report, Architectural Digest Automotive).${carouselHeader}
 
 ═══ COMPOSICAO ═══
-1. CARRO (imagem 1): ${vehicleBrand || ""} ${vehicleName} como heroi absoluto:
-   - Iluminacao tipo studio Peter Lik (rim light dourado nas bordas, key light suave acima)
+1. CARRO (imagem 1): ${vehicleBrand || ""} ${vehicleName} como heroi:
+   - Iluminacao tipo studio Peter Lik (rim light dourado, key light suave acima)
    - Contraste alto controlado, pretos profundos com detalhes preservados
-   - Reflexos sutis na pintura sugerindo chao de marmore polido
-   - Particulas douradas finas, bokeh dourado discreto ao fundo
-   - Angulo ligeiramente baixo (hero shot), 55-65% da composicao
+   - Reflexos sutis na pintura, particulas douradas finas, bokeh dourado discreto
    - Fundo: gradiente preto absoluto (#000) para azul-marinho (#0a1628) com vinheta dourada
 
-2. LOGOTIPO (imagem 2): ${logoPosition}. Use EXATAMENTE como fornecido, sem reinterpretar.
-
-3. TIPOGRAFIA:
-   - HEADLINE (parte inferior centralizada): "${copy.headline}"
-     Fonte serif display (Didot, Bodoni 72, Playfair Display Black), branco #ffffff, tracking apertado
-   - SUBHEADLINE (abaixo): "${copy.subheadline}"
-     Sans-serif fina caixa alta (Futura Light, Avenir Light), dourado #c9a861, tracking +200
-   - ASSINATURA (rodape): "ZEUS RENTAL CAR  ·  ORLANDO"
-     Sans-serif fina, dourado #c9a861, tracking extra largo${promoVisualBlock}
+2. LOGOTIPO (imagem 2): ${logoPosition}. Use EXATAMENTE como fornecido.${roleDirective}${promoVisualBlock}
 
 ═══ ORTOGRAFIA — OBRIGATORIO ═══
 Renderize textos EXATAMENTE como entre aspas. NAO invente, NAO traduza.
 
 ═══ ELEMENTOS GRAFICOS ═══
-- Linha fina horizontal dourada (1px, #c9a861) separando headline da assinatura
+- Linha fina horizontal dourada (1px, #c9a861) como separador editorial
 - Respiro generoso (padding minimo 8% das bordas)
 
 ═══ PROIBIDO ═══
-SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, aspas decorativas grandes, swooshes.${referenceBlock}${seasonalBlock}
+SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, swooshes.${referenceBlock}${seasonalBlock}
 
 Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, atemporal.`;
-
-    const contentParts: any[] = [{ type: "text", text: imagePrompt }];
-    if (vehiclePhotoUrl) contentParts.push({ type: "image_url", image_url: { url: vehiclePhotoUrl } });
-    contentParts.push({ type: "image_url", image_url: { url: logoUrl } });
-    if (mode === "reference" && referenceImageDataUrl && referenceImageDataUrl.startsWith("data:image")) {
-      contentParts.push({ type: "image_url", image_url: { url: referenceImageDataUrl } });
     }
 
-    const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model: "google/gemini-3-pro-image",
-        modalities: ["image", "text"],
-        messages: [{ role: "user", content: contentParts }],
-      }),
-    });
-
-    if (!imgRes.ok) {
-      const t = await imgRes.text();
-      console.error("image error", imgRes.status, t);
-      return new Response(JSON.stringify({ error: `image_${imgRes.status}`, detail: t, copy }), {
-        status: imgRes.status === 402 || imgRes.status === 429 ? imgRes.status : 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const imgJson = await imgRes.json();
-    const msg = imgJson.choices?.[0]?.message;
-    let imageBase64: string | null = null;
-    const images = msg?.images;
-    if (Array.isArray(images) && images.length > 0) {
-      const u = images[0]?.image_url?.url || images[0]?.url || "";
-      if (typeof u === "string" && u.startsWith("data:image")) {
-        imageBase64 = u.split(",")[1] || null;
+    async function renderSlide(slide: SlidePlan, idx: number): Promise<string | null> {
+      const prompt = buildPrompt(slide, idx);
+      const contentParts: any[] = [{ type: "text", text: prompt }];
+      if (vehiclePhotoUrl) contentParts.push({ type: "image_url", image_url: { url: vehiclePhotoUrl } });
+      contentParts.push({ type: "image_url", image_url: { url: logoUrl } });
+      if (mode === "reference" && referenceImageDataUrl && referenceImageDataUrl.startsWith("data:image")) {
+        contentParts.push({ type: "image_url", image_url: { url: referenceImageDataUrl } });
       }
-    }
-    if (!imageBase64 && Array.isArray(msg?.content)) {
-      for (const part of msg.content) {
-        const u = part?.image_url?.url;
-        if (typeof u === "string" && u.startsWith("data:image")) {
-          imageBase64 = u.split(",")[1] || null;
-          break;
+      const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: "google/gemini-3-pro-image",
+          modalities: ["image", "text"],
+          messages: [{ role: "user", content: contentParts }],
+        }),
+      });
+      if (!imgRes.ok) {
+        const t = await imgRes.text();
+        console.error("image error slide", idx, imgRes.status, t);
+        throw new Error(`image_${imgRes.status}:${t.slice(0, 200)}`);
+      }
+      const imgJson = await imgRes.json();
+      const msg = imgJson.choices?.[0]?.message;
+      const images = msg?.images;
+      if (Array.isArray(images) && images.length > 0) {
+        const u = images[0]?.image_url?.url || images[0]?.url || "";
+        if (typeof u === "string" && u.startsWith("data:image")) return u.split(",")[1] || null;
+      }
+      if (Array.isArray(msg?.content)) {
+        for (const part of msg.content) {
+          const u = part?.image_url?.url;
+          if (typeof u === "string" && u.startsWith("data:image")) return u.split(",")[1] || null;
         }
       }
+      return null;
     }
 
-    if (!imageBase64) {
-      return new Response(JSON.stringify({ error: "no_image_returned", raw: imgJson, copy }), {
-        status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Render sequentially to keep visual continuity and avoid rate-limits.
+    const renderedSlides: { role: SlidePlan["role"]; imageBase64: string; headline: string; subheadline: string }[] = [];
+    for (let i = 0; i < plan.length; i++) {
+      try {
+        const b64 = await renderSlide(plan[i], i);
+        if (!b64) throw new Error("no_image_returned");
+        renderedSlides.push({
+          role: plan[i].role,
+          imageBase64: b64,
+          headline: plan[i].headline,
+          subheadline: plan[i].subheadline,
+        });
+      } catch (e: any) {
+        const msg = String(e?.message || e);
+        if (msg.startsWith("image_402") || msg.startsWith("image_429")) {
+          const status = msg.startsWith("image_402") ? 402 : 429;
+          return new Response(JSON.stringify({ error: `image_${status}`, detail: msg }), {
+            status, headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        return new Response(JSON.stringify({ error: "slide_failed", detail: msg, slideIndex: i, copy }), {
+          status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     return new Response(
       JSON.stringify({
-        imageBase64,
+        // legacy single-image shape (kept for compatibility)
+        imageBase64: renderedSlides[0].imageBase64,
         phrase: copy.headline,
         headline: copy.headline,
         subheadline: copy.subheadline,
         caption: copy.caption,
         hashtags: copy.hashtags,
         format,
+        // NEW carousel shape
+        carousel,
+        slidesCount: renderedSlides.length,
+        slides: renderedSlides,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
