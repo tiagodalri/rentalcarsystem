@@ -1361,7 +1361,7 @@ export default function AiPainel({
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-2">
                     <Rocket className="w-4 h-4 text-amber-300" />
-                    <span className="text-[11px] uppercase tracking-[0.18em] text-amber-200/80">Projeção de frota — e se você trocasse?</span>
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-amber-200/80">Projeção de frota. E se você trocasse?</span>
                   </div>
                   <h3 className="text-base md:text-lg font-light text-white leading-snug mb-1">
                     Se você tivesse{" "}
