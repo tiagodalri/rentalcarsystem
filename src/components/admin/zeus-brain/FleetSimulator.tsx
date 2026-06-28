@@ -295,19 +295,19 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
         {/* Duas colunas: VENDER | COMPRAR */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {/* VENDER */}
-          <div className="rounded-xl bg-rose-500/[0.04] border border-rose-400/20 p-3">
+          <div className="rounded-xl bg-rose-500/[0.05] border border-rose-400/25 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
             <div className="flex items-center justify-between mb-2.5">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-md bg-rose-500/15 border border-rose-400/30 flex items-center justify-center">
-                  <Tag className="w-3.5 h-3.5 text-rose-200" />
+                <div className="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-400/40 flex items-center justify-center shadow-[0_0_15px_rgba(244,63,94,0.25)]">
+                  <Tag className="w-4 h-4 text-rose-300" />
                 </div>
                 <div>
-                  <div className="text-[12px] uppercase tracking-wider text-rose-100 font-medium leading-none">Vender</div>
-                  <div className="text-[10px] text-white/45 mt-0.5">Carros que saem da frota</div>
+                  <div className="text-[12px] uppercase tracking-[0.18em] text-rose-100 font-semibold leading-none">Vender</div>
+                  <div className="text-[10px] text-white/45 mt-0.5">{outList.length} carro{outList.length === 1 ? "" : "s"} · recupera <span className="text-rose-200 font-medium tabular-nums">{fmtUSD(sellCapitalLive)}</span></div>
                 </div>
               </div>
-              <span className="text-[10px] text-white/40 tabular-nums">{outList.length} selecionado{outList.length === 1 ? "" : "s"}</span>
             </div>
+
 
             <div className="flex items-center gap-2 flex-1 rounded-md bg-white/[0.04] border border-white/10 px-2.5 py-1.5 mb-2.5">
               <Search className="w-3.5 h-3.5 text-white/40" />
