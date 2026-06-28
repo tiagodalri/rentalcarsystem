@@ -65,32 +65,61 @@ export default function AiPainel({
     [bookings],
   );
 
-  /* ───── Per-vehicle analytics ───── */
+  /* ───── Per-vehicle analytics ─────
+   * Regras de coerência:
+   * - daysInFleet = max(1, dias desde acquired_date até hoje). Se sem acquired_date,
+   *   usamos a 1ª reserva como proxy (ou 90 dias fallback) — nunca 1 dia.
+   * - daysBookedHistorical = soma dos dias de reserva CLIPADOS à janela [aquisição, hoje].
+   *   Isso impede que reservas futuras inflem ocupação > 100%.
+   * - occupancy = clamp(0, 100) — métrica é taxa, não pode passar de 100%.
+   * - daysBookedTotal (incluindo futuro) é mantido só para receita / pipeline.
+   */
   const perVehicle = useMemo(() => {
+    const dayMs = 86400000;
+    const todayMs = today.getTime();
     return vehicles.map(v => {
       const vb = realBookings.filter(b => b.vehicle_id === v.id);
       const revenue = vb.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
       const exp = expenses.filter(e => e.vehicle_id === v.id)
         .reduce((s, e) => s + Number(e.amount || 0), 0);
-      const daysBooked = vb.reduce((s, b) => {
-        const d = differenceInDays(parseDateOnly(b.return_date), parseDateOnly(b.pickup_date));
-        return s + Math.max(d, 1);
-      }, 0);
-      const daysInFleet = v.acquired_date
-        ? Math.max(differenceInDays(today, new Date(v.acquired_date)), 1)
-        : 1;
-      const occupancy = (daysBooked / daysInFleet) * 100;
+
+      // Anchor de aquisição: data informada ou 1ª reserva conhecida
+      const acquiredDate = v.acquired_date
+        ? new Date(v.acquired_date)
+        : (vb.length
+            ? new Date(Math.min(...vb.map(b => parseDateOnly(b.pickup_date).getTime())))
+            : null);
+      const acquiredMs = acquiredDate ? acquiredDate.getTime() : null;
+
+      const daysInFleet = acquiredMs
+        ? Math.max(Math.round((todayMs - acquiredMs) / dayMs), 1)
+        : 90; // fallback prudente
+
+      // Dias reservados — total e clipados à janela histórica
+      let daysBookedTotal = 0;
+      let daysBookedHistorical = 0;
+      vb.forEach(b => {
+        const pk = parseDateOnly(b.pickup_date).getTime();
+        const rt = parseDateOnly(b.return_date).getTime();
+        const rawDays = Math.max(Math.round((rt - pk) / dayMs), 1);
+        daysBookedTotal += rawDays;
+        // Clip ao intervalo [acquired, today]
+        const lo = acquiredMs ? Math.max(pk, acquiredMs) : pk;
+        const hi = Math.min(rt, todayMs);
+        if (hi > lo) daysBookedHistorical += Math.round((hi - lo) / dayMs);
+      });
+
+      const rawOccupancy = (daysBookedHistorical / daysInFleet) * 100;
+      const occupancy = Math.max(0, Math.min(100, rawOccupancy));
       const purchase = Number(v.purchase_price) || 0;
       const profit = revenue - exp;
       const roi = purchase > 0 ? (profit / purchase) * 100 : 0;
       const revPerDayOwned = revenue / daysInFleet;
       const daily = Number(v.daily_price_usd) || 0;
-      // ADR efetivo realizado
-      const adr = daysBooked > 0 ? revenue / daysBooked : 0;
+      const adr = daysBookedTotal > 0 ? revenue / daysBookedTotal : 0;
       const adrGap = daily > 0 ? ((adr - daily) / daily) * 100 : 0;
       const paybackMonths = daily > 0 && purchase > 0
         ? Math.ceil(purchase / (daily * 20)) : null;
-      // Break-even date
       const dailyRevRate = daysInFleet > 0 ? revenue / daysInFleet : 0;
       const breakEvenDays = purchase > 0 && dailyRevRate > 0
         ? Math.ceil((purchase - (revenue - exp)) / dailyRevRate) : null;
@@ -98,13 +127,20 @@ export default function AiPainel({
         ? addDays(today, breakEvenDays) : null;
       const customerCount = new Set(vb.map(b => b.customer_id || b.customer_name).filter(Boolean)).size;
       return {
-        v, revenue, exp, profit, daysBooked, daysInFleet, occupancy, roi,
+        v, revenue, exp, profit,
+        daysBooked: daysBookedHistorical, // usado em ocupação/ranking
+        daysBookedTotal,                  // inclui futuro (pipeline)
+        daysInFleet, occupancy, roi,
         revPerDayOwned, paybackMonths, purchase, daily, adr, adrGap, customerCount,
         breakEvenDate, breakEvenDays,
         bookingsCount: vb.length,
+        // Sinalizadores de qualidade do dado
+        hasAcquiredDate: !!v.acquired_date,
+        isNewToFleet: daysInFleet < 30,
       };
     });
   }, [vehicles, realBookings, expenses, today]);
+
 
   const fleetRevenue = perVehicle.reduce((s, p) => s + p.revenue, 0);
   const fleetExpenses = perVehicle.reduce((s, p) => s + p.exp, 0);
@@ -126,14 +162,17 @@ export default function AiPainel({
     .filter(p => p.daysInFleet > 60)
     .sort((a, b) => a.revPerDayOwned - b.revPerDayOwned).slice(0, 3);
   const sellCandidates = perVehicle.filter(p =>
-    p.daysInFleet > 180 && p.occupancy < 35 && p.purchase > 0 && p.roi < 15
+    p.daysInFleet > 180 && p.occupancy < 35 && p.purchase > 0 && p.roi < 15 && p.hasAcquiredDate
   ).sort((a, b) => a.roi - b.roi).slice(0, 5);
+  // Subir preço: precisa de histórico real (>= 60 dias) e ocupação alta validada
   const priceUpCandidates = perVehicle.filter(p =>
-    p.occupancy > 70 && p.bookingsCount >= 3
+    p.occupancy >= 70 && p.occupancy <= 100 && p.bookingsCount >= 3 &&
+    p.daysInFleet >= 60 && p.hasAcquiredDate && p.daily > 0
   ).sort((a, b) => b.occupancy - a.occupancy).slice(0, 5);
   const priceDownCandidates = perVehicle.filter(p =>
-    p.occupancy < 25 && p.daysInFleet > 90 && p.daily > 0
+    p.occupancy < 25 && p.daysInFleet > 90 && p.daily > 0 && p.hasAcquiredDate
   ).sort((a, b) => a.occupancy - b.occupancy).slice(0, 5);
+
 
   /* ───── Sugestões de troca: pareia underperformer com top-star similar ───── */
   const swapSuggestions = useMemo(() => {
