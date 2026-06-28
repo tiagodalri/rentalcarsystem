@@ -267,8 +267,8 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
     const isFeed = format === "feed";
     const aspect = isFeed ? "quadrado 1:1 (1024x1024)" : "vertical 9:16 (1024x1792)";
     const logoPosition = isFeed
-      ? "logotipo oficial Zeus no topo central, cerca de 18% da largura, respiro generoso"
-      : "logotipo oficial Zeus no topo central, cerca de 22% da largura, respiro generoso";
+      ? "logotipo oficial Zeus no topo central, cerca de 18% da largura, respiro generoso, DIRETAMENTE sobre o fundo escuro da arte (SEM faixa, SEM card, SEM retangulo branco ou claro atras do logo)"
+      : "logotipo oficial Zeus no topo central, cerca de 22% da largura, respiro generoso, DIRETAMENTE sobre o fundo escuro da arte (SEM faixa, SEM card, SEM retangulo branco ou claro atras do logo)";
 
     const promoVisualBlock = mode === "promo" && promo
       ? `\n\n═══ BLOCO DE OFERTA (OBRIGATORIO NA ARTE) ═══
@@ -324,20 +324,17 @@ Este slide faz parte de um carrossel coeso. Mantenha IDENTICOS: paleta, tipograf
           ? `\n3. TIPOGRAFIA (CAPA):
    - HEADLINE GRANDE: "${slide.headline}" (serif display Didot/Bodoni, branco, dominante)
    - SUBHEADLINE: "${slide.subheadline}" (sans-serif fina dourada caixa alta)
-   - Pequeno indicador "01 / ${slidesCount}" no canto inferior em dourado discreto
    - O carro e o heroi visual.`
           : slide.role === "cta"
             ? `\n3. TIPOGRAFIA (CTA — slide final):
    - CHAMADA: "${slide.headline}" centralizada, serif display branco
    - APOIO: "${slide.subheadline}" sans-serif fina dourada caixa alta
-   - Indicador "${String(idx + 1).padStart(2, "0")} / ${slidesCount}" no canto inferior dourado
    - "ZEUS RENTAL CAR  ·  ORLANDO" no rodape em dourado tracking largo
    - Composicao mais limpa: o carro pode aparecer em silhueta lateral ou parcial, dando peso ao texto.`
             : `\n3. TIPOGRAFIA (CONTEUDO):
    - TITULO: "${slide.headline}" (serif display branco, alinhado a esquerda ou centro)
    - APOIO: "${slide.subheadline}" (sans-serif fina dourada caixa alta)
    ${slide.body ? `- TEXTO CURTO: "${slide.body}" (sans-serif fina branca, 1-2 linhas)` : ""}
-   - Indicador "${String(idx + 1).padStart(2, "0")} / ${slidesCount}" no canto inferior dourado
    - Enquadre o carro com detalhe diferente da capa (faro, lateral, interior em sugestao, traseira).`;
 
       return `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Zeus Rental Car — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (Mr Porter, Robb Report, Architectural Digest Automotive).${carouselHeader}
@@ -359,7 +356,7 @@ Renderize textos EXATAMENTE como entre aspas. NAO invente, NAO traduza.
 - Respiro generoso (padding minimo 8% das bordas)
 
 ═══ PROIBIDO ═══
-SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, swooshes.${referenceBlock}${seasonalBlock}
+SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, swooshes. SEM faixa/barra/retangulo branco ou claro atras do logotipo (o logo deve ficar diretamente sobre o fundo escuro da arte). SEM numeracao de slide / indicador de pagina (NAO renderize "01 / 03", "02/3", "Slide 1", paginacao ou similares em lugar nenhum da arte).${referenceBlock}${seasonalBlock}
 
 Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, atemporal.`;
     }
