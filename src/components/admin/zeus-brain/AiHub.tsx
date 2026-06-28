@@ -70,11 +70,11 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
   ];
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 pb-[max(3rem,env(safe-area-inset-bottom))]">
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-4">
       {/* Hero */}
-      <div className="text-center mb-10 sm:mb-14">
+      <div className="text-center mb-4 sm:mb-5">
         <div
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] uppercase font-semibold tracking-[0.32em]"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] uppercase font-semibold tracking-[0.32em]"
           style={{
             background: "rgba(13,29,46,0.04)",
             border: "1px solid rgba(13,29,46,0.10)",
@@ -85,13 +85,13 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
           Central de inteligência
         </div>
         <h1
-          className="mt-4 text-[28px] sm:text-[36px] lg:text-[44px] leading-[1.05] font-light tracking-[-0.01em]"
+          className="mt-2 text-[22px] sm:text-[26px] lg:text-[32px] leading-[1.1] font-light tracking-[-0.01em]"
           style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
         >
           Para onde vamos hoje?
         </h1>
         <p
-          className="mt-3 max-w-[640px] mx-auto text-[13.5px] sm:text-[15px] leading-relaxed"
+          className="mt-1.5 max-w-[520px] mx-auto text-[12px] sm:text-[13px] leading-relaxed"
           style={{ color: "rgba(13,29,46,0.62)" }}
         >
           Escolha um módulo do Zeus Brain. Cada espaço foi desenhado para uma frente da operação.
@@ -99,7 +99,7 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
       </div>
 
       {/* Grid de cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 lg:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {cards.map(({ key, eyebrow, title, description, image, Icon, badge, action }) => (
           <button
             key={key}
