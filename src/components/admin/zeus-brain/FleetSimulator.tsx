@@ -317,7 +317,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
       <div className="relative p-4 sm:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+        <div className="relative flex items-center justify-center gap-3 mb-3 flex-wrap">
           <div className="flex items-center gap-2.5">
             <span
               className="inline-flex items-center justify-center h-7 w-7 rounded-full shrink-0"
@@ -335,7 +335,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
           {(outIds.length > 0 || inIds.length > 0) && (
             <button
               onClick={reset}
-              className="text-[10.5px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-md transition-colors min-h-[32px]"
+              className="absolute right-0 top-0 text-[10.5px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-md transition-colors min-h-[32px]"
               style={{ background: "#ffffff", color: NAVY_70, border: `1px solid ${NAVY_10}` }}
             >
               Limpar tudo
@@ -344,13 +344,13 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
         </div>
 
         <h3
-          className="text-[20px] sm:text-[22px] font-medium leading-snug mb-2"
+          className="text-[20px] sm:text-[22px] font-medium leading-snug mb-2 text-center"
           style={{ color: NAVY, letterSpacing: "-0.01em" }}
         >
           Quanto sua frota renderia se você trocasse alguns carros?
         </h3>
         <p
-          className="text-[13px] sm:text-[13.5px] mb-5 leading-[1.65] max-w-3xl"
+          className="text-[13px] sm:text-[13.5px] mb-5 leading-[1.65] max-w-3xl text-center mx-auto"
           style={{ color: NAVY_70 }}
         >
           Marque carros para{" "}
@@ -360,7 +360,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
           (reinvestir). O simulador calcula em tempo real o impacto financeiro da troca.
         </p>
         <p
-          className="text-[12.5px] sm:text-[13px] mb-5 leading-[1.65] max-w-3xl"
+          className="text-[12.5px] sm:text-[13px] mb-5 leading-[1.65] max-w-3xl text-center mx-auto"
           style={{ color: NAVY_55 }}
         >
           Essa simulação é construída a partir do{" "}
