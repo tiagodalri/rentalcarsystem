@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Gamepad2, X, ArrowRight, Sparkles, TrendingUp, TrendingDown, Trophy, Search, ShoppingCart, Tag } from "lucide-react";
+import { Gamepad2, X, ArrowRight, Sparkles, TrendingUp, TrendingDown, Trophy, Search, ShoppingCart, Tag, Plus, Minus } from "lucide-react";
 import { findBrandByName, carLogoUrl } from "@/data/carBrands";
 
 export type SimVehicle = {
@@ -156,8 +156,11 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
   const [outIds, setOutIds] = useState<string[]>([]);
   const [inIds, setInIds] = useState<string[]>([]);
+  const [inQty, setInQty] = useState<Record<string, number>>({});
   const [queryOut, setQueryOut] = useState("");
   const [queryIn, setQueryIn] = useState("");
+
+  const qtyOf = (id: string) => inQty[id] ?? 1;
 
   const sortedByPerf = useMemo(
     () => [...eligible].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
@@ -185,9 +188,12 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
   const outList = outIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
   const inList = inIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
 
+  // Unidades totais a comprar (soma das qtds)
+  const inTotalUnits = inList.reduce((s, p) => s + qtyOf(p.v.id), 0);
+
   // Totalizadores ao vivo (independentes do resultado completo)
   const sellCapitalLive = outList.reduce((s, p) => s + (p.purchase || 0), 0);
-  const buyCapitalLive = inList.reduce((s, p) => s + (p.purchase || 0), 0);
+  const buyCapitalLive = inList.reduce((s, p) => s + (p.purchase || 0) * qtyOf(p.v.id), 0);
   const balanceLive = sellCapitalLive - buyCapitalLive;
 
 
@@ -196,11 +202,15 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
     const outRev = outList.reduce((s, p) => s + p.revPerDayOwned, 0);
     const outOcc = outList.reduce((s, p) => s + p.occupancy, 0) / outList.length;
     const outCapital = outList.reduce((s, p) => s + p.purchase, 0);
-    const inAvgRev = inList.reduce((s, p) => s + p.revPerDayOwned, 0) / inList.length;
-    const inAvgOcc = inList.reduce((s, p) => s + p.occupancy, 0) / inList.length;
-    const inCapital = inList.reduce((s, p) => s + p.purchase, 0) / inList.length * outList.length;
 
-    const projectedRevPerDay = inAvgRev * outList.length;
+    // Cada compra entra ponderada pela quantidade selecionada
+    const totalUnits = inList.reduce((s, p) => s + qtyOf(p.v.id), 0);
+    const inRevTotal = inList.reduce((s, p) => s + p.revPerDayOwned * qtyOf(p.v.id), 0);
+    const inOccWeighted = inList.reduce((s, p) => s + p.occupancy * qtyOf(p.v.id), 0) / Math.max(1, totalUnits);
+    const inCapital = inList.reduce((s, p) => s + p.purchase * qtyOf(p.v.id), 0);
+    const inAvgRev = inRevTotal / Math.max(1, totalUnits);
+
+    const projectedRevPerDay = inRevTotal; // já é a soma com qtd
     const deltaPerDay = projectedRevPerDay - outRev;
 
     const inPayback = inList.filter(p => p.paybackMonths !== null).map(p => p.paybackMonths!);
@@ -208,24 +218,34 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
     return {
       outRev, outOcc, outCapital,
-      inAvgRev, inAvgOcc, inCapital,
+      inAvgRev, inAvgOcc: inOccWeighted, inCapital,
       deltaPerDay,
       delta90: deltaPerDay * 90,
       delta180: deltaPerDay * 180,
       delta365: deltaPerDay * 365,
       capitalDelta: inCapital - outCapital,
-      capitalEfficiency: outCapital > 0 ? ((projectedRevPerDay / inCapital) / (outRev / outCapital) - 1) * 100 : 0,
+      capitalEfficiency: outCapital > 0 && inCapital > 0 ? ((projectedRevPerDay / inCapital) / (outRev / outCapital) - 1) * 100 : 0,
       avgInPayback,
       count: outList.length,
+      buyUnits: totalUnits,
     };
-  }, [outList, inList]);
+  }, [outList, inList, inQty]);
 
   const toggleOut = (id: string) =>
     setOutIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const toggleIn = (id: string) =>
-    setInIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setInIds(prev => {
+      if (prev.includes(id)) {
+        setInQty(q => { const n = { ...q }; delete n[id]; return n; });
+        return prev.filter(x => x !== id);
+      }
+      setInQty(q => ({ ...q, [id]: q[id] ?? 1 }));
+      return [...prev, id];
+    });
+  const incQty = (id: string) => setInQty(q => ({ ...q, [id]: Math.min(99, (q[id] ?? 1) + 1) }));
+  const decQty = (id: string) => setInQty(q => ({ ...q, [id]: Math.max(1, (q[id] ?? 1) - 1) }));
 
-  const reset = () => { setOutIds([]); setInIds([]); };
+  const reset = () => { setOutIds([]); setInIds([]); setInQty({}); };
 
   return (
     <div className="ai-card relative overflow-hidden">
@@ -274,7 +294,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               <div className="text-xl md:text-2xl font-semibold text-emerald-300 tabular-nums leading-none">
                 {fmtUSD(buyCapitalLive)}
               </div>
-              <div className="text-[10px] text-white/40 tabular-nums mt-1">{inList.length} carro{inList.length === 1 ? "" : "s"} comprando</div>
+              <div className="text-[10px] text-white/40 tabular-nums mt-1">{inTotalUnits} unidade{inTotalUnits === 1 ? "" : "s"} · {inList.length} modelo{inList.length === 1 ? "" : "s"}</div>
             </div>
             <div>
               <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/45 mb-1">Saldo</div>
@@ -358,7 +378,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                 </div>
                 <div>
                   <div className="text-[12px] uppercase tracking-[0.18em] text-emerald-100 font-semibold leading-none">Comprar</div>
-                  <div className="text-[10px] text-white/45 mt-0.5">{inList.length} carro{inList.length === 1 ? "" : "s"} · investe <span className="text-emerald-200 font-medium tabular-nums">{fmtUSD(buyCapitalLive)}</span></div>
+                  <div className="text-[10px] text-white/45 mt-0.5">{inTotalUnits} unidade{inTotalUnits === 1 ? "" : "s"} · investe <span className="text-emerald-200 font-medium tabular-nums">{fmtUSD(buyCapitalLive)}</span></div>
                 </div>
               </div>
             </div>
@@ -380,15 +400,68 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                   <Trophy className="w-3 h-3" /> Referência
                 </div>
                 <div className="space-y-1.5 mb-3">
-                  {inList.map(p => (
-                    <VehicleRow
-                      key={p.v.id}
-                      p={p}
-                      side="in"
-                      selected
-                      action={{ label: "✕", onClick: () => toggleIn(p.v.id) }}
-                    />
-                  ))}
+                  {inList.map(p => {
+                    const q = qtyOf(p.v.id);
+                    const year = (p.v as any).year || (p.v as any).model_year;
+                    return (
+                      <div
+                        key={p.v.id}
+                        className="flex items-center gap-2.5 rounded-lg border border-emerald-400/50 bg-emerald-500/[0.07] px-2.5 py-2"
+                      >
+                        <BrandLogo v={p.v} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 text-[13px] text-white truncate">
+                            <span className="truncate font-medium">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}</span>
+                            <ColorDot color={p.v.color} />
+                          </div>
+                          <div className="text-[10.5px] text-white/50 tabular-nums truncate flex items-center gap-1.5">
+                            <span className="truncate">{[p.v.brand, p.v.model, year].filter(Boolean).join(" · ")}</span>
+                            {p.purchase > 0 && (
+                              <>
+                                <span className="text-white/20">•</span>
+                                <span className="text-amber-300/80 font-medium">
+                                  {q > 1 ? `${q}× ${fmtUSD(p.purchase)} = ${fmtUSD(p.purchase * q)}` : `pago ${fmtUSD(p.purchase)}`}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Stepper de quantidade */}
+                        <div className="shrink-0 flex items-center rounded-md border border-emerald-400/40 bg-emerald-500/[0.08] overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => decQty(p.v.id)}
+                            disabled={q <= 1}
+                            className="h-7 w-7 flex items-center justify-center text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                            aria-label="Diminuir quantidade"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <div className="min-w-[28px] text-center text-[12px] font-semibold text-white tabular-nums px-1 select-none">
+                            {q}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => incQty(p.v.id)}
+                            disabled={q >= 99}
+                            className="h-7 w-7 flex items-center justify-center text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-30 transition-colors"
+                            aria-label="Aumentar quantidade"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => toggleIn(p.v.id)}
+                          className="shrink-0 h-7 w-7 flex items-center justify-center rounded-md bg-white/5 hover:bg-rose-500/20 hover:text-rose-200 border border-white/10 text-white/70 transition-colors"
+                          aria-label="Remover"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </>
             )}
