@@ -154,8 +154,8 @@ export default function AdminPainel() {
   const AiToggle = (
     <button
       onClick={() => setAiMode(v => !v)}
-      title={aiMode ? "Voltar ao painel clássico" : "Ativar modo IA"}
-      aria-label={aiMode ? "Voltar ao painel clássico" : "Ativar modo IA"}
+      title={aiMode ? "Voltar ao painel clássico" : "Ativar 🧠 Zeus Brain"}
+      aria-label={aiMode ? "Voltar ao painel clássico" : "Ativar 🧠 Zeus Brain"}
       className={`group relative inline-flex items-center gap-2 px-3 py-2 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium transition-all ${
         aiMode
           ? "bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-fuchsia-500/20 text-white border border-cyan-300/40 shadow-[0_0_24px_rgba(120,180,255,0.35)]"
@@ -163,7 +163,7 @@ export default function AdminPainel() {
       }`}
     >
       <Brain size={14} strokeWidth={1.75} className={aiMode ? "text-cyan-200" : ""} />
-      <span>{aiMode ? "IA Ativada" : "Modo IA"}</span>
+      <span>{aiMode ? "🧠 Zeus Brain Ativado" : "🧠 Zeus Brain"}</span>
       {aiMode && (
         <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(92,255,176,0.8)] animate-pulse" />
       )}
@@ -197,7 +197,7 @@ export default function AdminPainel() {
             </div>
             <div className="min-w-0">
               <div className="text-[9.5px] uppercase tracking-[0.22em] text-cyan-200/80">Zeus Intelligence</div>
-              <div className="text-[12px] text-white/90 truncate">Modo IA ativado</div>
+              <div className="text-[12px] text-white/90 truncate">🧠 Zeus Brain ativado</div>
             </div>
           </div>
           <button
