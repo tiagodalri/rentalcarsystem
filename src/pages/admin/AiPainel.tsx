@@ -864,35 +864,35 @@ export default function AiPainel({
       <div className="relative z-10 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto">
         {/* Header — minimal: contagem + botão simulador em destaque */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <p className="ai-subtitle m-0">
+          <p className="ai-subtitle m-0 shrink-0">
             {perVehicle.length} carros · {realBookings.length} reservas
           </p>
           <button
             onClick={() => setTab(tab === "simulator" ? "revenue" : "simulator")}
-            className="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] font-medium transition-all hover:scale-[1.02]"
+            className="relative inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-[11px] font-semibold transition-all active:scale-[0.98] min-h-[44px]"
             style={{
               background: tab === "simulator"
-                ? "linear-gradient(180deg, rgba(200,168,107,0.28), rgba(200,168,107,0.10))"
-                : "linear-gradient(180deg, rgba(200,168,107,0.14), rgba(200,168,107,0.05))",
-              border: "1px solid rgba(200,168,107,0.45)",
-              boxShadow: "0 0 22px rgba(200,168,107,0.22), 0 1px 0 rgba(244,236,217,0.06) inset",
-              color: "#f4ecd9",
-              letterSpacing: "0.10em",
+                ? "linear-gradient(180deg, #14283d 0%, #0d1d2e 100%)"
+                : "linear-gradient(180deg, #1a3047 0%, #0d1d2e 100%)",
+              border: "1px solid rgba(154,122,58,0.55)",
+              boxShadow: "0 10px 24px -12px rgba(13,29,46,0.55), 0 0 0 1px rgba(255,255,255,0.04) inset",
+              color: "#fbf7ee",
+              letterSpacing: "0.14em",
               textTransform: "uppercase",
             }}
           >
             <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70" style={{ background: "#c8a86b" }} />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: "#d8bd7f" }} />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70" style={{ background: "#d6bf86" }} />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ background: "#d6bf86" }} />
             </span>
-            <Gamepad2 size={13} style={{ color: "#e8d9b0" }} />
+            <Gamepad2 size={14} style={{ color: "#d6bf86" }} />
             <span>Simulador</span>
             <span
-              className="text-[8.5px] tracking-[0.22em] px-1.5 py-[1px] rounded-sm"
+              className="text-[9px] tracking-[0.22em] px-1.5 py-[2px] rounded"
               style={{
-                background: "rgba(200,168,107,0.18)",
-                border: "1px solid rgba(200,168,107,0.40)",
-                color: "#f4ecd9",
+                background: "rgba(214,191,134,0.18)",
+                border: "1px solid rgba(214,191,134,0.45)",
+                color: "#d6bf86",
               }}
             >
               Novo
