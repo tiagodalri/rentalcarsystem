@@ -1983,7 +1983,7 @@ function localBriefing(p: any): string {
     parts.push(`Este mês você já faturou ${fmtUSD(p.pacing.mtd)}, ficando ${Math.abs(p.pacing.delta).toFixed(0)}% ${sinal} do mesmo dia do mês passado (${fmtUSD(p.pacing.lmtd)}).`);
   }
   if (p.avgOccupancy !== undefined) {
-    if (p.avgOccupancy < 40) parts.push(`A frota está alugada apenas ${p.avgOccupancy.toFixed(0)}% do tempo — o foco agora deve ser atrair mais clientes antes de comprar carros novos.`);
+    if (p.avgOccupancy < 40) parts.push(`A frota está alugada apenas ${p.avgOccupancy.toFixed(0)}% do tempo. O foco agora deve ser atrair mais clientes antes de comprar carros novos.`);
     else if (p.avgOccupancy > 70) parts.push(`Os carros estão alugados ${p.avgOccupancy.toFixed(0)}% do tempo — é o momento certo de aumentar preço.`);
     else parts.push(`Ocupação está em ${p.avgOccupancy.toFixed(0)}% — saudável, com espaço para ajustes pontuais.`);
   }
