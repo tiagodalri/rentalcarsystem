@@ -365,7 +365,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
         >
           Essa simulação é construída a partir do{" "}
           <span className="font-semibold" style={{ color: NAVY }}>histórico real das locações</span>{" "}
-          da sua frota — ocupação, receita, custo de aquisição e dias rodados de cada carro.
+          da sua frota: ocupação, receita, custo de aquisição e dias rodados de cada carro.
           Não são estimativas genéricas: são os seus próprios números trabalhando para projetar o futuro.
         </p>
 
@@ -388,7 +388,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               </div>
               <div className="min-w-0 flex-1">
                 <div className="text-[13px] font-semibold mb-1" style={{ color: NAVY }}>
-                  {missingPrice.length} carro{missingPrice.length === 1 ? "" : "s"} fora do simulador — sem valor pago cadastrado
+                  {missingPrice.length} carro{missingPrice.length === 1 ? "" : "s"} fora do simulador. Sem valor pago cadastrado
                 </div>
                 <div className="text-[12px] leading-[1.6] mb-2" style={{ color: NAVY_70 }}>
                   Para entrar na simulação, o veículo precisa ter o <span className="font-semibold" style={{ color: NAVY }}>valor pago na aquisição</span> registrado na ficha da frota. Sem esse dado não é possível calcular capital, ROI nem payback.
@@ -761,8 +761,8 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                 style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_10}` }}
               >
                 {[
-                  ["Uso médio — vendidos", `${result.outOcc.toFixed(0)}%`, SELL],
-                  ["Uso médio — comprados", `${result.inAvgOcc.toFixed(0)}%`, BUY],
+                  ["Uso médio (vendidos)", `${result.outOcc.toFixed(0)}%`, SELL],
+                  ["Uso médio (comprados)", `${result.inAvgOcc.toFixed(0)}%`, BUY],
                   ["Capital reciclado (venda)", fmtUSD(result.outCapital), NAVY],
                   ["Capital p/ comprar", `${fmtUSD(result.inCapital)} (${result.capitalDelta >= 0 ? "+" : "−"}${fmtUSD(Math.abs(result.capitalDelta))})`, result.capitalDelta > 0 ? GOLD : BUY],
                   ...(result.avgInPayback !== null ? [["Payback médio da compra", `${result.avgInPayback.toFixed(0)} meses`, GOLD] as [string, string, string]] : []),
@@ -867,7 +867,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                     <div className="mt-4 pt-4 flex items-start gap-2.5" style={{ borderTop: `1px solid ${NAVY_10}` }}>
                       <span className="mt-[6px] w-1 h-1 rounded-full shrink-0" style={{ background: GOLD }} />
                       <p className="text-[11.5px] leading-[1.65]" style={{ color: NAVY_55 }}>
-                        <span className="font-semibold" style={{ color: GOLD }}>Aviso:</span> resultados passados não garantem resultados futuros. Esta análise é construída sobre o histórico real de locações, ocupação, receita e custo de aquisição da sua frota — portanto carrega valor analítico real para decisão, mas não substitui o julgamento operacional de mercado, sazonalidade e contexto do momento.
+                        <span className="font-semibold" style={{ color: GOLD }}>Aviso:</span> resultados passados não garantem resultados futuros. Esta análise é construída sobre o histórico real de locações, ocupação, receita e custo de aquisição da sua frota. Portanto carrega valor analítico real para decisão, mas não substitui o julgamento operacional de mercado, sazonalidade e contexto do momento.
                       </p>
                     </div>
                   </div>
@@ -875,7 +875,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               })()}
 
               <p className="md:col-span-12 text-[11px] leading-relaxed" style={{ color: NAVY_55 }}>
-                Cenário hipotético — assume que cada carro novo atinge a média histórica do grupo de referência. Apenas carros com 60+ dias de uso real estão disponíveis.
+                Cenário hipotético. Assume que cada carro novo atinge a média histórica do grupo de referência. Apenas carros com 60+ dias de uso real estão disponíveis.
               </p>
             </div>
           )}

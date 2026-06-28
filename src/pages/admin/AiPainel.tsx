@@ -638,12 +638,12 @@ export default function AiPainel({
       if (sd > 0) {
         const z = (cur.revenue - mean) / sd;
         if (z < -1.5) list.push({ label: "Receita do mês", severity: "high", msg: `Receita ${Math.abs(((cur.revenue - mean) / mean) * 100).toFixed(0)}% abaixo da média dos últimos 3 meses (z=${z.toFixed(1)}σ).` });
-        else if (z > 1.5) list.push({ label: "Receita do mês", severity: "med", msg: `Receita ${(((cur.revenue - mean) / mean) * 100).toFixed(0)}% acima da média — momento de capturar mais demanda.` });
+        else if (z > 1.5) list.push({ label: "Receita do mês", severity: "med", msg: `Receita ${(((cur.revenue - mean) / mean) * 100).toFixed(0)}% acima da média. Momento de capturar mais demanda.` });
       }
     }
     const cancelRate = funnel.total > 0 ? (funnel.cancelled / funnel.total) * 100 : 0;
-    if (cancelRate > 20) list.push({ label: "Cancelamentos", severity: "high", msg: `Taxa de cancelamento em ${cancelRate.toFixed(1)}% — investigar causas operacionais.` });
-    if (avgOccupancy < 30) list.push({ label: "Ocupação", severity: "high", msg: `Ocupação média em ${avgOccupancy.toFixed(0)}% — frota com capacidade ociosa significativa.` });
+    if (cancelRate > 20) list.push({ label: "Cancelamentos", severity: "high", msg: `Taxa de cancelamento em ${cancelRate.toFixed(1)}%. Investigar causas operacionais.` });
+    if (avgOccupancy < 30) list.push({ label: "Ocupação", severity: "high", msg: `Ocupação média em ${avgOccupancy.toFixed(0)}%. Frota com capacidade ociosa significativa.` });
     sellCandidates.slice(0, 1).forEach(c => list.push({ label: "Ativo improdutivo", severity: "med", msg: `${c.v.name} está há ${c.daysInFleet} dias na frota com ROI de ${c.roi.toFixed(1)}%.` }));
     return list.slice(0, 4);
   }, [monthlyTrend, funnel, avgOccupancy, sellCandidates]);
@@ -879,7 +879,7 @@ export default function AiPainel({
               revenue: p.revenue,
               roiPct: p.roi,
               status: "destaque" as const,
-              nota: "Bom desempenho — devolveu uma boa parte do que foi investido.",
+              nota: "Bom desempenho. Devolveu uma boa parte do que foi investido.",
             }));
           const highlightBad: BriefingHighlight[] = [...perVehicle]
             .filter(p => p.purchase > 0 && p.daysInFleet > 60 && (p.revenue === 0 || p.roi < 5))
@@ -893,7 +893,7 @@ export default function AiPainel({
               revenue: p.revenue,
               roiPct: p.roi,
               status: (p.revenue === 0 ? "critico" : "atencao") as "critico" | "atencao",
-              nota: p.revenue === 0 ? "Sem receita ainda — capital parado." : "Receita baixa — exige atenção.",
+              nota: p.revenue === 0 ? "Sem receita ainda. Capital parado." : "Receita baixa. Exige atenção.",
             }));
           const highlights = [...highlightTop, ...highlightBad].slice(0, 4);
 
@@ -1169,7 +1169,7 @@ export default function AiPainel({
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <KpiBlock title="Receita total acumulada" value={fmtUSD(fleetRevenue)} sub={`Despesas registradas: ${fmtUSD(fleetExpenses)}`} icon={DollarSign} />
-              <KpiBlock title="Receita confirmada — próximos 30 dias" value={fmtUSD(next30)} sub={`Em 60 dias: ${fmtUSD(next60)}`} icon={Rocket} />
+              <KpiBlock title="Receita confirmada nos próximos 30 dias" value={fmtUSD(next30)} sub={`Em 60 dias: ${fmtUSD(next60)}`} icon={Rocket} />
               <KpiBlock title="Ocupação média da frota" value={`${avgOccupancy.toFixed(1)}%`} sub={`${totalDaysBooked} dias alugados no total`} icon={Gauge} />
             </div>
           </div>
@@ -1207,9 +1207,9 @@ export default function AiPainel({
             </div>
 
             <div className="ai-card">
-              <CardHeader title="Buracos entre reservas — dinheiro na mesa" sub="Períodos curtos em que o carro fica parado entre duas reservas confirmadas. Oferecer promo de última hora pode capturar essa receita." icon={Sparkles} />
+              <CardHeader title="Buracos entre reservas. Dinheiro na mesa" sub="Períodos curtos em que o carro fica parado entre duas reservas confirmadas. Oferecer promo de última hora pode capturar essa receita." icon={Sparkles} />
               {opportunityWindows.length === 0 ? (
-                <p className="text-white/55 text-xs">Sem buracos relevantes no momento — agenda bem encaixada.</p>
+                <p className="text-white/55 text-xs">Sem buracos relevantes no momento. Agenda bem encaixada.</p>
               ) : (
                 <ul className="space-y-2.5">
                   {opportunityWindows.map((o, i) => (
@@ -1361,7 +1361,7 @@ export default function AiPainel({
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-2">
                     <Rocket className="w-4 h-4 text-amber-300" />
-                    <span className="text-[11px] uppercase tracking-[0.18em] text-amber-200/80">Projeção de frota — e se você trocasse?</span>
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-amber-200/80">Projeção de frota. E se você trocasse?</span>
                   </div>
                   <h3 className="text-base md:text-lg font-light text-white leading-snug mb-1">
                     Se você tivesse{" "}
@@ -1395,12 +1395,12 @@ export default function AiPainel({
                   <div className="rounded-lg bg-white/[0.03] border border-white/10 p-3 mb-3">
                     <div className="text-[10.5px] uppercase tracking-wider text-white/50 mb-2">Por que essa projeção faz sentido</div>
                     <ul className="space-y-1.5 text-[12px] text-white/70 leading-relaxed">
-                      <li>• Comparamos só carros com pelo menos 60 dias de histórico real — sem chutar em cima de carro novo.</li>
+                      <li>• Comparamos só carros com pelo menos 60 dias de histórico real. Sem chutar em cima de carro novo.</li>
                       <li>• A média de uso dos seus campeões ({fleetProjection.starAvgOccupancy.toFixed(0)}%) já foi atingida na vida real, não é meta inventada.</li>
                       {fleetProjection.avgStarPayback !== null && (
                         <li>• Carros como os campeões pagam o investimento em cerca de <span className="text-amber-200 tabular-nums">{fleetProjection.avgStarPayback.toFixed(0)} meses</span>, em média.</li>
                       )}
-                      <li>• O capital parado nos carros fracos hoje é de <span className="text-white/85 tabular-nums">{fmtUSD(fleetProjection.weakCapital)}</span> — é esse dinheiro que estaria rendendo mais.</li>
+                      <li>• O capital parado nos carros fracos hoje é de <span className="text-white/85 tabular-nums">{fmtUSD(fleetProjection.weakCapital)}</span>. É esse dinheiro que estaria rendendo mais.</li>
                     </ul>
                   </div>
 
@@ -1430,7 +1430,7 @@ export default function AiPainel({
                   </div>
 
                   <p className="text-[10.5px] text-white/40 mt-3 leading-relaxed">
-                    Projeção baseada no desempenho histórico dos seus próprios carros — não em previsão de mercado. Assume que um carro novo do perfil dos campeões mantém a mesma média.
+                    Projeção baseada no desempenho histórico dos seus próprios carros, não em previsão de mercado. Assume que um carro novo do perfil dos campeões mantém a mesma média.
                   </p>
                 </div>
               </div>
@@ -1447,7 +1447,7 @@ export default function AiPainel({
                     <span className="text-[11px] uppercase tracking-[0.18em] text-cyan-200/80">Sugestões de troca da IA</span>
                   </div>
                   <h3 className="text-base md:text-lg font-light text-white leading-snug mb-1">
-                    Carros que estão dando pouco retorno — e qual carro da sua frota provou render mais no lugar.
+                    Carros que estão dando pouco retorno e qual carro da sua frota provou render mais no lugar.
                   </h3>
                   <p className="text-[12px] text-white/55 mb-4 leading-relaxed">
                     A IA pareou cada carro parado com um carro parecido (mesma categoria ou marca) que está performando bem. O valor mostra quanto a mais por ano você poderia ganhar trocando um pelo outro.
@@ -1561,23 +1561,23 @@ export default function AiPainel({
                   <p className="text-[12px] text-white/60 mt-2 leading-relaxed">
                     {concentration.topBrand.share > 50
                       ? "Concentração alta. Se essa marca tiver um problema (recall, manutenção, demanda fria), o impacto no caixa é grande. Vale diversificar nas próximas compras."
-                      : "Distribuição saudável entre marcas — risco diluído."}
+                      : "Distribuição saudável entre marcas. Risco diluído."}
                   </p>
                 </div>
               </div>
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <RecCard title="Carros para considerar vender" subtitle="Mais de 6 meses na frota com pouco uso e retorno baixo" icon={AlertTriangle} hue="rose" empty="Frota saudável — nenhum carro nessa situação."
+              <RecCard title="Carros para considerar vender" subtitle="Mais de 6 meses na frota com pouco uso e retorno baixo" icon={AlertTriangle} hue="rose" empty="Frota saudável. Nenhum carro nessa situação."
                 items={sellCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Já devolveu ${p.roi.toFixed(1)}% do investido · ${p.daysInFleet} dias na frota` }))} />
-              <RecCard title="Carros que aguentam preço maior" subtitle="Estão sempre alugados — dá pra cobrar 12% a 18% a mais" icon={Flame} hue="amber" empty="Nenhum carro com demanda excedente."
+              <RecCard title="Carros que aguentam preço maior" subtitle="Estão sempre alugados. Dá pra cobrar 12% a 18% a mais" icon={Flame} hue="amber" empty="Nenhum carro com demanda excedente."
                 items={priceUpCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 1.15)}/dia` }))} />
-              <RecCard title="Carros parados — testar promo" subtitle="Pouco alugados há mais de 90 dias" icon={Snowflake} hue="amber" empty="Nenhum carro nessa situação."
+              <RecCard title="Carros parados. Testar promo" subtitle="Pouco alugados há mais de 90 dias" icon={Snowflake} hue="amber" empty="Nenhum carro nessa situação."
                 items={priceDownCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 0.85)}/dia em promo` }))} />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <div className="ai-card">
-                <CardHeader title="Os carros que mais geram dinheiro" sub="Quem mais retorna por dia que está na sua frota — vale a pena comprar parecidos" icon={Award} />
+                <CardHeader title="Os carros que mais geram dinheiro" sub="Quem mais retorna por dia que está na sua frota. Vale a pena comprar parecidos" icon={Award} />
                 <ul className="space-y-2.5">
                   {topStars.map(p => (
                     <li key={p.v.id} className="flex justify-between text-[12.5px]">
@@ -1629,7 +1629,7 @@ export default function AiPainel({
                 <span className="tabular-nums text-rose-300">{fmtUSD(p.revPerDayOwned)}/dia · {p.occupancy.toFixed(0)}% de uso</span>
               </li>
             ))}
-            {underperformers.length === 0 && <li className="text-white/55 text-xs">Frota equilibrada — nenhum carro com desempenho fraco.</li>}
+            {underperformers.length === 0 && <li className="text-white/55 text-xs">Frota equilibrada. Nenhum carro com desempenho fraco.</li>}
           </ul>
         </div>
       </div>
@@ -1983,14 +1983,14 @@ function localBriefing(p: any): string {
     parts.push(`Este mês você já faturou ${fmtUSD(p.pacing.mtd)}, ficando ${Math.abs(p.pacing.delta).toFixed(0)}% ${sinal} do mesmo dia do mês passado (${fmtUSD(p.pacing.lmtd)}).`);
   }
   if (p.avgOccupancy !== undefined) {
-    if (p.avgOccupancy < 40) parts.push(`A frota está alugada apenas ${p.avgOccupancy.toFixed(0)}% do tempo — o foco agora deve ser atrair mais clientes antes de comprar carros novos.`);
-    else if (p.avgOccupancy > 70) parts.push(`Os carros estão alugados ${p.avgOccupancy.toFixed(0)}% do tempo — é o momento certo de aumentar preço.`);
-    else parts.push(`Ocupação está em ${p.avgOccupancy.toFixed(0)}% — saudável, com espaço para ajustes pontuais.`);
+    if (p.avgOccupancy < 40) parts.push(`A frota está alugada apenas ${p.avgOccupancy.toFixed(0)}% do tempo. O foco agora deve ser atrair mais clientes antes de comprar carros novos.`);
+    else if (p.avgOccupancy > 70) parts.push(`Os carros estão alugados ${p.avgOccupancy.toFixed(0)}% do tempo. É o momento certo de aumentar preço.`);
+    else parts.push(`Ocupação está em ${p.avgOccupancy.toFixed(0)}%. Saudável, com espaço para ajustes pontuais.`);
   }
-  if (p.revPAC) parts.push(`Cada carro está gerando em média ${fmtUSD2(p.revPAC)} por dia que está na sua frota — use isso como referência ao avaliar a compra de um carro novo.`);
+  if (p.revPAC) parts.push(`Cada carro está gerando em média ${fmtUSD2(p.revPAC)} por dia que está na sua frota. Use isso como referência ao avaliar a compra de um carro novo.`);
   if (p.sellCandidatesCount) parts.push(`Existem ${p.sellCandidatesCount} carro(s) com pouco uso e baixo retorno que valem ser considerados para venda.`);
   if (p.priceUpCount) parts.push(`${p.priceUpCount} carro(s) estão sempre alugados e aguentam um aumento de preço entre 12% e 18%.`);
-  if (p.opportunityWindows) parts.push(`Encontrei ${p.opportunityWindows} períodos curtos de carros parados entre reservas — uma promo de última hora pode capturar essa receita.`);
+  if (p.opportunityWindows) parts.push(`Encontrei ${p.opportunityWindows} períodos curtos de carros parados entre reservas. Uma promo de última hora pode capturar essa receita.`);
   
   if (p.topCategory) parts.push(`A categoria que mais rende hoje é ${p.topCategory}.`);
   return parts.join(" ");

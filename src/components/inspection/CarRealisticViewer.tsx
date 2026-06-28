@@ -530,7 +530,7 @@ export default function CarRealisticViewer({
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <p className="admin-label text-[10px] flex items-center gap-2 shrink-0">
             <span className="w-1 h-1 rounded-full bg-primary" />
-            <span className="hidden sm:inline">Modelo 3D — Arraste · Scroll para zoom</span>
+            <span className="hidden sm:inline">Modelo 3D. Arraste · Scroll para zoom</span>
             <span className="sm:hidden">Modelo 3D</span>
           </p>
           <span className="hidden md:inline text-[10px] tracking-[0.18em] uppercase text-muted-foreground/60 truncate">

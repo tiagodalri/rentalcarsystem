@@ -223,7 +223,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         {!embedded ? (
           <div>
-            <h1 className="admin-h1 text-2xl">Relatório de Frota — Lucro por Veículo</h1>
+            <h1 className="admin-h1 text-2xl">Relatório de Frota. Lucro por Veículo</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Compra, gastos, receitas e lucro operacional de cada carro desde a aquisição
             </p>
