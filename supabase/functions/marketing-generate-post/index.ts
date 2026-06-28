@@ -356,7 +356,7 @@ Renderize textos EXATAMENTE como entre aspas. NAO invente, NAO traduza.
 - Respiro generoso (padding minimo 8% das bordas)
 
 ═══ PROIBIDO ═══
-SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, swooshes.${referenceBlock}${seasonalBlock}
+SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, swooshes. SEM faixa/barra/retangulo branco ou claro atras do logotipo (o logo deve ficar diretamente sobre o fundo escuro da arte). SEM numeracao de slide / indicador de pagina (NAO renderize "01 / 03", "02/3", "Slide 1", paginacao ou similares em lugar nenhum da arte).${referenceBlock}${seasonalBlock}
 
 Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, atemporal.`;
     }
