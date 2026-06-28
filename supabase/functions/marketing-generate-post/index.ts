@@ -207,7 +207,9 @@ Resultado final: uma pagina de revista de luxo automotivo. Silencio visual, sofi
     return new Response(
       JSON.stringify({
         imageBase64,
-        phrase: copy.phrase,
+        phrase: copy.headline,
+        headline: copy.headline,
+        subheadline: copy.subheadline,
         caption: copy.caption,
         hashtags: copy.hashtags,
         format,
