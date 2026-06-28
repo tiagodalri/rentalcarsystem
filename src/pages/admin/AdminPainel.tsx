@@ -21,6 +21,7 @@ import AiPainel from "./AiPainel";
 import AiHub from "@/components/admin/zeus-brain/AiHub";
 import ComingSoonModule from "@/components/admin/zeus-brain/ComingSoonModule";
 import MarketingStudio from "@/components/admin/zeus-brain/MarketingStudio";
+import BrainAccessGate from "@/components/admin/zeus-brain/BrainAccessGate";
 import {
   type BookingSource,
   readBookingSource,
