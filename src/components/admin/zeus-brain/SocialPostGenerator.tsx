@@ -230,6 +230,8 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
     navigator.clipboard.writeText(text).then(() => toast.success("Legenda copiada."));
   }
 
+  // Need imports: Shuffle, Lock icons used below.
+
   return (
     <div className="max-w-[1100px] mx-auto px-3 sm:px-5 lg:px-6 pt-2 sm:pt-4 pb-6">
       <button
