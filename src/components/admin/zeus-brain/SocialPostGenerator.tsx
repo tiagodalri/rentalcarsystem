@@ -339,9 +339,9 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           {mode === "promo" && (
             <div className="mt-3 rounded-lg p-2.5" style={{ background: "white", border: "1px dashed rgba(154,122,58,0.45)" }}>
               <div className="text-[9px] uppercase tracking-[0.28em] font-semibold mb-1.5" style={{ color: "#9a7a3a" }}>
-                Detalhes da promocao
+                Detalhes da promoção
               </div>
-              <Label>Valor da diaria (USD)</Label>
+              <Label>Valor da diária (USD)</Label>
               <input
                 type="text"
                 inputMode="decimal"
@@ -363,7 +363,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                   />
                 </div>
                 <div>
-                  <Label>Ate</Label>
+                  <Label>Até</Label>
                   <input
                     type="date"
                     value={dateEnd}
