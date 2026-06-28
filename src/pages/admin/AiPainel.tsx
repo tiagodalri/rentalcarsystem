@@ -1447,7 +1447,7 @@ export default function AiPainel({
                     <span className="text-[11px] uppercase tracking-[0.18em] text-cyan-200/80">Sugestões de troca da IA</span>
                   </div>
                   <h3 className="text-base md:text-lg font-light text-white leading-snug mb-1">
-                    Carros que estão dando pouco retorno — e qual carro da sua frota provou render mais no lugar.
+                    Carros que estão dando pouco retorno e qual carro da sua frota provou render mais no lugar.
                   </h3>
                   <p className="text-[12px] text-white/55 mb-4 leading-relaxed">
                     A IA pareou cada carro parado com um carro parecido (mesma categoria ou marca) que está performando bem. O valor mostra quanto a mais por ano você poderia ganhar trocando um pelo outro.
