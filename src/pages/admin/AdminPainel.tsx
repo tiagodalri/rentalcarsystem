@@ -4,7 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import {
   Activity, Brain, CalendarDays, CalendarRange, Car, CheckCircle2,
   ChevronRight, Clock, DollarSign, LogIn, LogOut as LogOutIcon,
-  TrendingDown, TrendingUp, Wrench, X,
+  TrendingDown, TrendingUp, Wrench, X, ArrowLeft,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 
