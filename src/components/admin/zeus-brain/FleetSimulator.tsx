@@ -761,8 +761,8 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                 style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_10}` }}
               >
                 {[
-                  ["Uso médio — vendidos", `${result.outOcc.toFixed(0)}%`, SELL],
-                  ["Uso médio — comprados", `${result.inAvgOcc.toFixed(0)}%`, BUY],
+                  ["Uso médio (vendidos)", `${result.outOcc.toFixed(0)}%`, SELL],
+                  ["Uso médio (comprados)", `${result.inAvgOcc.toFixed(0)}%`, BUY],
                   ["Capital reciclado (venda)", fmtUSD(result.outCapital), NAVY],
                   ["Capital p/ comprar", `${fmtUSD(result.inCapital)} (${result.capitalDelta >= 0 ? "+" : "−"}${fmtUSD(Math.abs(result.capitalDelta))})`, result.capitalDelta > 0 ? GOLD : BUY],
                   ...(result.avgInPayback !== null ? [["Payback médio da compra", `${result.avgInPayback.toFixed(0)} meses`, GOLD] as [string, string, string]] : []),
