@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X, Layers, Square, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X, Layers, Square, ChevronLeft, ChevronRight, Shuffle, Car } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { detectSeasonalTheme } from "@/lib/zeusBrain/seasonalTheme";
@@ -22,12 +22,12 @@ type PostKind = "single" | "carousel";
 const SEASONAL_NOW = detectSeasonalTheme();
 
 const TONES: { v: Tone; label: string; hint: string }[] = [
-  { v: "luxo", label: "Luxo", hint: "exclusivo, premium, status" },
-  { v: "aventura", label: "Aventura", hint: "viagem, liberdade, Orlando" },
-  { v: "familia", label: "Familia", hint: "memorias, conforto, seguranca" },
-  { v: "promocao", label: "Oportunidade", hint: "oferta sem apelar" },
-  { v: "lancamento", label: "Lancamento", hint: "novidade, primeira vez" },
-  { v: "sazonal", label: `Sazonal · ${SEASONAL_NOW.label}`, hint: "tema da data atual, automatico" },
+  { v: "luxo", label: "Luxo", hint: "Exclusivo, premium, status" },
+  { v: "aventura", label: "Aventura", hint: "Viagem, liberdade, Orlando" },
+  { v: "familia", label: "Família", hint: "Memórias, conforto, segurança" },
+  { v: "promocao", label: "Oportunidade", hint: "Oferta sem apelar" },
+  { v: "lancamento", label: "Lançamento", hint: "Novidade, primeira vez" },
+  { v: "sazonal", label: `Sazonal · ${SEASONAL_NOW.label}`, hint: "Tema da data atual, automático" },
 ];
 
 type SlideOut = { role: "cover" | "content" | "cta"; imageBase64: string; headline: string; subheadline: string };
@@ -45,6 +45,7 @@ type Result = {
 export default function SocialPostGenerator({ onBack }: { onBack: () => void }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [vehicleId, setVehicleId] = useState<string>("");
+  const [randomVehicle, setRandomVehicle] = useState<boolean>(false);
   const [format, setFormat] = useState<Format>("feed");
   const [tone, setTone] = useState<Tone>("luxo");
   const [mode, setMode] = useState<Mode>("promo");
@@ -127,25 +128,52 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
   }
 
   async function generate() {
-    if (!selected) return;
+    // Pick vehicle: random (AI escolhe) or selected.
+    let vehicleForRun = selected;
+    if (randomVehicle) {
+      const pool = vehicles.filter((v) => {
+        if (v.image_url) return true;
+        const arr = Array.isArray(v.photos) ? v.photos : [];
+        return arr.length > 0;
+      });
+      const finalPool = pool.length > 0 ? pool : vehicles;
+      if (finalPool.length === 0) {
+        toast.error("Nenhum carro disponível para gerar a arte.");
+        return;
+      }
+      vehicleForRun = finalPool[Math.floor(Math.random() * finalPool.length)];
+      toast.success(`A IA escolheu: ${vehicleForRun.name || `${vehicleForRun.brand || ""} ${vehicleForRun.model || ""}`.trim()}`);
+    }
+    if (!vehicleForRun) {
+      toast.error("Selecione um carro ou ative o modo aleatório.");
+      return;
+    }
     if (mode === "promo" && (!priceDaily || !dateStart || !dateEnd)) {
-      toast.error("Preencha valor da diaria e periodo da promocao.");
+      toast.error("Preencha o valor da diária e o período da promoção.");
       return;
     }
     if (mode === "reference" && !refDataUrl) {
-      toast.error("Anexe uma imagem de referencia.");
+      toast.error("Anexe uma imagem de referência.");
       return;
     }
     setLoading(true);
     setResult(null);
     setActiveSlide(0);
     try {
+      const runPhotoUrl = (() => {
+        if (vehicleForRun!.image_url) return vehicleForRun!.image_url;
+        const arr = Array.isArray(vehicleForRun!.photos) ? vehicleForRun!.photos : [];
+        const first = arr[0];
+        if (typeof first === "string") return first;
+        if (first && typeof first === "object") return first.url || first.src || null;
+        return null;
+      })();
       const logoDataUrl = await urlToDataUrl(`${window.location.origin}/zeus-logo-full.png`);
       const { data, error } = await supabase.functions.invoke("marketing-generate-post", {
         body: {
-          vehicleName: selected.name || `${selected.brand || ""} ${selected.model || ""}`.trim(),
-          vehicleBrand: selected.brand,
-          vehiclePhotoUrl: photoUrl,
+          vehicleName: vehicleForRun!.name || `${vehicleForRun!.brand || ""} ${vehicleForRun!.model || ""}`.trim(),
+          vehicleBrand: vehicleForRun!.brand,
+          vehiclePhotoUrl: runPhotoUrl,
           logoDataUrl,
           format,
           tone,
@@ -170,8 +198,8 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
       console.error(e);
       const msg = String(e?.message || e);
       if (msg.includes("429")) toast.error("Limite de uso atingido. Tente novamente em instantes.");
-      else if (msg.includes("402")) toast.error("Creditos esgotados. Adicione mais creditos para continuar.");
-      else toast.error("Nao foi possivel gerar o post. " + msg);
+      else if (msg.includes("402")) toast.error("Créditos esgotados. Adicione mais créditos para continuar.");
+      else toast.error("Não foi possível gerar o post. " + msg);
     } finally {
       setLoading(false);
     }
@@ -201,6 +229,8 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
     const text = `${result.caption}\n\n${result.hashtags.join(" ")}`;
     navigator.clipboard.writeText(text).then(() => toast.success("Legenda copiada."));
   }
+
+  
 
   return (
     <div className="max-w-[1100px] mx-auto px-3 sm:px-5 lg:px-6 pt-2 sm:pt-4 pb-6">
@@ -237,29 +267,71 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           {/* Mode selector */}
           <Label>Tipo de arte</Label>
           <div className="mt-1 grid grid-cols-1 sm:grid-cols-3 gap-1.5">
-            <ModePill active={mode === "promo"} onClick={() => setMode("promo")} icon={<Tag size={12} />} label="Promocao" sub="carro + data + valor" />
-            <ModePill active={mode === "free"} onClick={() => setMode("free")} icon={<MessageSquare size={12} />} label="Livre" sub="so com instrucao" />
-            <ModePill active={mode === "reference"} onClick={() => setMode("reference")} icon={<ImageIcon size={12} />} label="Com referencia" sub="anexar arte base" />
+            <ModePill active={mode === "promo"} onClick={() => setMode("promo")} icon={<Tag size={12} />} label="Promoção" sub="Carro + data + valor" />
+            <ModePill active={mode === "free"} onClick={() => setMode("free")} icon={<MessageSquare size={12} />} label="Livre" sub="Só com instrução" />
+            <ModePill active={mode === "reference"} onClick={() => setMode("reference")} icon={<ImageIcon size={12} />} label="Com referência" sub="Anexar arte base" />
           </div>
 
           <div className="mt-3">
-            <Label>Carro</Label>
-            <select
-              value={vehicleId}
-              onChange={(e) => setVehicleId(e.target.value)}
-              className="w-full mt-1 px-2.5 py-2 rounded-lg text-[13px] bg-white"
-              style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 40 }}
-            >
-              {vehicles.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.name || `${v.brand || ""} ${v.model || ""}`.trim()}
-                </option>
-              ))}
-            </select>
-            {!photoUrl && (
-              <p className="text-[10px] mt-1" style={{ color: "#a05a2c" }}>
-                Este carro nao tem foto cadastrada. A arte sera gerada apenas com a marca.
-              </p>
+            <div className="flex items-center justify-between gap-2">
+              <Label>Carro</Label>
+              <div className="flex rounded-md overflow-hidden" style={{ border: "1px solid rgba(13,29,46,0.18)" }}>
+                <button
+                  onClick={() => setRandomVehicle(false)}
+                  className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-semibold transition-all"
+                  style={{
+                    background: !randomVehicle ? "linear-gradient(180deg,#14283d,#0d1d2e)" : "white",
+                    color: !randomVehicle ? "#d6bf86" : "#0d1d2e",
+                  }}
+                >
+                  <Car size={10} /> Manual
+                </button>
+                <button
+                  onClick={() => setRandomVehicle(true)}
+                  className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-semibold transition-all"
+                  style={{
+                    background: randomVehicle ? "linear-gradient(180deg,#14283d,#0d1d2e)" : "white",
+                    color: randomVehicle ? "#d6bf86" : "#0d1d2e",
+                    borderLeft: "1px solid rgba(13,29,46,0.18)",
+                  }}
+                >
+                  <Shuffle size={10} /> Aleatório
+                </button>
+              </div>
+            </div>
+            {!randomVehicle ? (
+              <>
+                <select
+                  value={vehicleId}
+                  onChange={(e) => setVehicleId(e.target.value)}
+                  className="w-full mt-1 px-2.5 py-2 rounded-lg text-[13px] bg-white"
+                  style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 40 }}
+                >
+                  {vehicles.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.name || `${v.brand || ""} ${v.model || ""}`.trim()}
+                    </option>
+                  ))}
+                </select>
+                {!photoUrl && (
+                  <p className="text-[10px] mt-1" style={{ color: "#a05a2c" }}>
+                    Este carro não tem foto cadastrada. A arte será gerada apenas com a marca.
+                  </p>
+                )}
+              </>
+            ) : (
+              <div
+                className="mt-1 rounded-lg px-3 py-2.5 flex items-center gap-2"
+                style={{ background: "white", border: "1px dashed rgba(154,122,58,0.45)" }}
+              >
+                <Shuffle size={14} style={{ color: "#9a7a3a" }} />
+                <div className="flex-1">
+                  <div className="text-[12px] font-semibold" style={{ color: "#0d1d2e" }}>A IA escolhe o carro</div>
+                  <div className="text-[10px]" style={{ color: "rgba(13,29,46,0.62)" }}>
+                    Sorteia um veículo da frota com foto cadastrada na hora de gerar.
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
@@ -267,9 +339,9 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           {mode === "promo" && (
             <div className="mt-3 rounded-lg p-2.5" style={{ background: "white", border: "1px dashed rgba(154,122,58,0.45)" }}>
               <div className="text-[9px] uppercase tracking-[0.28em] font-semibold mb-1.5" style={{ color: "#9a7a3a" }}>
-                Detalhes da promocao
+                Detalhes da promoção
               </div>
-              <Label>Valor da diaria (USD)</Label>
+              <Label>Valor da diária (USD)</Label>
               <input
                 type="text"
                 inputMode="decimal"
@@ -291,7 +363,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                   />
                 </div>
                 <div>
-                  <Label>Ate</Label>
+                  <Label>Até</Label>
                   <input
                     type="date"
                     value={dateEnd}
@@ -318,7 +390,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           {/* Reference upload */}
           {mode === "reference" && (
             <div className="mt-3">
-              <Label>Imagem de referencia</Label>
+              <Label>Imagem de referência</Label>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -336,12 +408,12 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                   style={{ background: "white", border: "1.5px dashed rgba(13,29,46,0.30)", color: "#0d1d2e", minHeight: 80 }}
                 >
                   <Upload size={16} className="mx-auto mb-1" style={{ color: "#9a7a3a" }} />
-                  <div className="text-[12px] font-semibold">Anexar imagem inspiracao</div>
-                  <div className="text-[10px] opacity-65 mt-0.5">PNG, JPG ou WEBP ate 8MB</div>
+                  <div className="text-[12px] font-semibold">Anexar imagem de inspiração</div>
+                  <div className="text-[10px] opacity-65 mt-0.5">PNG, JPG ou WEBP até 8MB</div>
                 </button>
               ) : (
                 <div className="mt-1 rounded-lg overflow-hidden relative" style={{ border: "1px solid rgba(13,29,46,0.18)" }}>
-                  <img src={refDataUrl} alt="referencia" className="w-full max-h-[140px] object-contain bg-white" />
+                  <img src={refDataUrl} alt="Referência" className="w-full max-h-[140px] object-contain bg-white" />
                   <div className="flex items-center justify-between px-2.5 py-1.5 bg-white">
                     <span className="text-[10px] truncate" style={{ color: "rgba(13,29,46,0.65)" }}>{refName}</span>
                     <button
@@ -355,7 +427,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                 </div>
               )}
               <p className="text-[10px] mt-1" style={{ color: "rgba(13,29,46,0.55)" }}>
-                A IA usa essa arte como inspiracao de estilo, composicao e paleta. O carro e a marca Zeus continuam sendo os herois.
+                A IA usa essa arte como inspiração de estilo, composição e paleta. O carro e a marca Zeus continuam sendo os protagonistas.
               </p>
             </div>
           )}
@@ -369,9 +441,9 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           <div className="mt-3">
-            <Label>Tipo de publicacao</Label>
+            <Label>Tipo de publicação</Label>
             <div className="mt-1 grid grid-cols-2 gap-1.5">
-              <FormatPill active={kind === "single"} onClick={() => setKind("single")} icon={<Square size={12} />} label="Unico" sub="1 arte" />
+              <FormatPill active={kind === "single"} onClick={() => setKind("single")} icon={<Square size={12} />} label="Único" sub="1 arte" />
               <FormatPill active={kind === "carousel"} onClick={() => setKind("carousel")} icon={<Layers size={12} />} label="Carrossel" sub={`${slidesCount} slides`} />
             </div>
             {kind === "carousel" && (
@@ -394,7 +466,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                   ))}
                 </div>
                 <span className="text-[10px]" style={{ color: "rgba(13,29,46,0.55)" }}>
-                  capa + conteudo + chamada final
+                  Capa + conteúdo + chamada final
                 </span>
               </div>
             )}
@@ -424,7 +496,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           <div className="mt-3">
-            <Label>{mode === "free" ? "Sua instrucao" : "Direcionamento extra (opcional)"}</Label>
+            <Label>{mode === "free" ? "Sua instrução" : "Direcionamento extra (opcional)"}</Label>
             <textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
@@ -432,7 +504,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
               placeholder={
                 mode === "free"
                   ? "Ex: arte com clima de fim de tarde em Miami Beach, frase sobre liberdade"
-                  : "Ex: destaque o teto solar panoramico"
+                  : "Ex: destaque o teto solar panorâmico"
               }
               className="w-full mt-1 px-2.5 py-2 rounded-lg text-[12px] bg-white resize-none"
               style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e" }}
@@ -441,7 +513,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
 
           <button
             onClick={generate}
-            disabled={loading || !vehicleId}
+            disabled={loading || (!randomVehicle && !vehicleId)}
             className="w-full mt-3 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[13px] font-semibold tracking-wide transition-all disabled:opacity-60"
             style={{
               background: "linear-gradient(180deg,#14283d,#0d1d2e)",
@@ -451,12 +523,12 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             }}
           >
             {loading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
-            {loading ? (kind === "carousel" ? `Gerando ${slidesCount} slides...` : "Gerando arte...") : (kind === "carousel" ? `Gerar carrossel (${slidesCount} slides)` : "Gerar com IA")}
+            {loading ? (kind === "carousel" ? `Gerando ${slidesCount} slides…` : "Gerando arte…") : (kind === "carousel" ? `Gerar carrossel (${slidesCount} slides)` : "Gerar com IA")}
           </button>
           <p className="text-[10px] text-center mt-1.5" style={{ color: "rgba(13,29,46,0.5)" }}>
             {kind === "carousel"
-              ? `Carrossel leva cerca de ${slidesCount * 25}s. Os slides mantem o mesmo estilo visual.`
-              : "A geracao leva de 15 a 40 segundos. Cada vez gera uma arte unica."}
+              ? `O carrossel leva cerca de ${slidesCount * 25}s. Os slides mantêm o mesmo estilo visual.`
+              : "A geração leva de 15 a 40 segundos. Cada execução produz uma arte única."}
           </p>
         </div>
 
@@ -470,7 +542,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             <span className="text-[9px] uppercase tracking-[0.28em] font-semibold" style={{ color: "#d6bf86" }}>
               {result?.slides && result.slides.length > 1
                 ? `Carrossel · ${activeSlide + 1} / ${result.slides.length}`
-                : "Pre-visualizacao completa"}
+                : "Pré-visualização completa"}
             </span>
             {result && (
               <div className="flex gap-1.5">
@@ -497,7 +569,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
               <div className="text-center px-6" style={{ color: "rgba(214,191,134,0.85)" }}>
                 <Loader2 size={24} className="animate-spin mx-auto mb-2" />
                 <div className="text-[11px] tracking-wide">
-                  {kind === "carousel" ? `Compondo ${slidesCount} slides do carrossel...` : "A inteligencia esta compondo a arte..."}
+                  {kind === "carousel" ? `Compondo ${slidesCount} slides do carrossel…` : "A inteligência está compondo a arte…"}
                 </div>
               </div>
             )}
@@ -534,7 +606,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                         onClick={() => setActiveSlide((safeIdx + 1) % slides.length)}
                         className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full inline-flex items-center justify-center"
                         style={{ background: "rgba(13,29,46,0.65)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.35)" }}
-                        title="Proximo slide"
+                        title="Próximo slide"
                       >
                         <ChevronRight size={14} />
                       </button>
@@ -572,7 +644,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                     width: format === "feed" ? 48 : 32,
                     height: 48,
                   }}
-                  title={`${s.role === "cover" ? "Capa" : s.role === "cta" ? "Chamada" : "Conteudo"} · ${i + 1}`}
+                  title={`${s.role === "cover" ? "Capa" : s.role === "cta" ? "Chamada" : "Conteúdo"} · ${i + 1}`}
                 >
                   <img
                     src={`data:image/png;base64,${s.imageBase64}`}
