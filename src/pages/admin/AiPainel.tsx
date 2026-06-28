@@ -982,7 +982,7 @@ export default function AiPainel({
 
               {/* Legenda — explica o que significa cada coluna */}
               <div
-                className="hidden sm:grid grid-cols-[120px_1fr_220px] gap-x-5 px-5 pb-2 mb-2 text-[9.5px] font-semibold uppercase tracking-[0.18em]"
+                className="hidden sm:grid grid-cols-[140px_1fr_220px] gap-x-5 px-5 pb-2 mb-2 text-[9.5px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: "rgba(13,29,46,0.40)", borderBottom: "1px solid rgba(13,29,46,0.06)" }}
               >
                 <span>Prioridade</span>
@@ -997,10 +997,10 @@ export default function AiPainel({
                   const pri = d.prioridade;
                   const priCfg =
                     pri === "alta"
-                      ? { label: "Prioridade alta", bg: "#fdecec", border: "rgba(180,40,40,0.30)", text: "#8a1f1f", dot: "#b42828" }
+                      ? { label: "Alta", bg: "#fdecec", border: "rgba(180,40,40,0.30)", text: "#8a1f1f", dot: "#b42828" }
                       : pri === "media"
-                      ? { label: "Prioridade média", bg: "#fbf1d8", border: "rgba(154,122,58,0.40)", text: "#6b4f1d", dot: "#9a7a3a" }
-                      : { label: "Prioridade baixa", bg: "#e8efe7", border: "rgba(30,90,60,0.30)", text: "#2c5a3d", dot: "#2c5a3d" };
+                      ? { label: "Média", bg: "#fbf1d8", border: "rgba(154,122,58,0.40)", text: "#6b4f1d", dot: "#9a7a3a" }
+                      : { label: "Baixa", bg: "#e8efe7", border: "rgba(30,90,60,0.30)", text: "#2c5a3d", dot: "#2c5a3d" };
 
                   // Classifica o tipo de impacto a partir do texto bruto vindo do gerador
                   const raw = d.impacto || "";
@@ -1031,7 +1031,7 @@ export default function AiPainel({
                   return (
                     <li
                       key={i}
-                      className="grid grid-cols-1 sm:grid-cols-[120px_1fr_220px] gap-x-5 gap-y-3 items-start px-4 sm:px-5 py-4 sm:py-5"
+                      className="grid grid-cols-1 sm:grid-cols-[140px_1fr_220px] gap-x-5 gap-y-3 items-start px-4 sm:px-5 py-4 sm:py-5"
                       style={!isLast ? { borderBottom: "1px solid rgba(13,29,46,0.07)" } : undefined}
                     >
                       {/* Coluna 1 — Prioridade + Categoria */}
