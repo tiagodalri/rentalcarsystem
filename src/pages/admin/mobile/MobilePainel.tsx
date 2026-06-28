@@ -291,7 +291,7 @@ export default function MobilePainel({ bookings, vehicles, onRefresh, aiMode, on
             <div className="flex-1 min-w-0">
               <div className="text-[14px] font-medium text-foreground">🧠 Zeus Brain</div>
               <div className="text-[11px] text-muted-foreground truncate">
-                {aiMode ? "🧠 Zeus Brain ativado — toque para voltar" : "Insights inteligentes da frota"}
+                {aiMode ? "🧠 Zeus Brain ativado. Toque para voltar" : "Insights inteligentes da frota"}
               </div>
             </div>
             <ChevronRight size={16} className="text-muted-foreground/50" />
