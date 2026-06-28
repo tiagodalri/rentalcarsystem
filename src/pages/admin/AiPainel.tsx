@@ -1437,34 +1437,19 @@ export default function AiPainel({
               </div>
             )}
 
-            {(concentration?.topBrand || (concentration && concentration.topCustomers.share > 0)) && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {concentration?.topBrand && (
-                  <div className="ai-card">
-                    <CardHeader title="Dependência de uma marca" sub="Quanto da sua receita depende de uma única marca" icon={Layers} />
-                    <div className="text-2xl font-light text-white tabular-nums">
-                      {concentration.topBrand.share.toFixed(0)}% <span className="text-base text-white/50">vem de {concentration.topBrand.name}</span>
-                    </div>
-                    <p className="text-[12px] text-white/60 mt-2 leading-relaxed">
-                      {concentration.topBrand.share > 50
-                        ? "Concentração alta. Se essa marca tiver um problema (recall, manutenção, demanda fria), o impacto no caixa é grande. Vale diversificar nas próximas compras."
-                        : "Distribuição saudável entre marcas — risco diluído."}
-                    </p>
+            {concentration?.topBrand && (
+              <div className="grid grid-cols-1 gap-3">
+                <div className="ai-card">
+                  <CardHeader title="Dependência de uma marca" sub="Quanto da sua receita depende de uma única marca" icon={Layers} />
+                  <div className="text-2xl font-light text-white tabular-nums">
+                    {concentration.topBrand.share.toFixed(0)}% <span className="text-base text-white/50">vem de {concentration.topBrand.name}</span>
                   </div>
-                )}
-                {concentration && concentration.topCustomers.share > 0 && (
-                  <div className="ai-card">
-                    <CardHeader title="Dependência de poucos clientes" sub="Quanto vem dos seus melhores clientes" icon={Users} />
-                    <div className="text-2xl font-light text-white tabular-nums">
-                      {concentration.topCustomers.share.toFixed(0)}% <span className="text-base text-white/50">vem dos top {concentration.topCustomers.count} clientes</span>
-                    </div>
-                    <p className="text-[12px] text-white/60 mt-2 leading-relaxed">
-                      {concentration.topCustomers.share > 50
-                        ? `Os 10% melhores clientes (${concentration.topCustomers.count} de ${concentration.topCustomers.total}) sustentam mais da metade da receita. Programa de fidelidade e atendimento VIP aqui é prioridade — perder um desses dói no caixa.`
-                        : "Base de clientes bem distribuída — risco baixo de perder um cliente grande."}
-                    </p>
-                  </div>
-                )}
+                  <p className="text-[12px] text-white/60 mt-2 leading-relaxed">
+                    {concentration.topBrand.share > 50
+                      ? "Concentração alta. Se essa marca tiver um problema (recall, manutenção, demanda fria), o impacto no caixa é grande. Vale diversificar nas próximas compras."
+                      : "Distribuição saudável entre marcas — risco diluído."}
+                  </p>
+                </div>
               </div>
             )}
 
