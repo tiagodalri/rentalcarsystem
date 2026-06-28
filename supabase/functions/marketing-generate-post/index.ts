@@ -191,7 +191,7 @@ Renderize textos EXATAMENTE como entre aspas. NAO invente, NAO traduza.
 - Respiro generoso (padding minimo 8% das bordas)
 
 ═══ PROIBIDO ═══
-SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, aspas decorativas grandes, swooshes.${referenceBlock}
+SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, aspas decorativas grandes, swooshes.${referenceBlock}${seasonalBlock}
 
 Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, atemporal.`;
 
