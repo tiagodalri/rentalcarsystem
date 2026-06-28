@@ -1430,7 +1430,7 @@ export default function AiPainel({
                   </div>
 
                   <p className="text-[10.5px] text-white/40 mt-3 leading-relaxed">
-                    Projeção baseada no desempenho histórico dos seus próprios carros — não em previsão de mercado. Assume que um carro novo do perfil dos campeões mantém a mesma média.
+                    Projeção baseada no desempenho histórico dos seus próprios carros, não em previsão de mercado. Assume que um carro novo do perfil dos campeões mantém a mesma média.
                   </p>
                 </div>
               </div>
