@@ -205,6 +205,79 @@ export default function AiPainel({
     }>;
   }, [perVehicle]);
 
+  /* ───── Projeção Futura: e se você trocasse os fracos pelos campeões? ─────
+     Usa SOMENTE carros com histórico real (>= 60 dias na frota e dado de aquisição)
+     para evitar projeções em cima de ruído. */
+  const fleetProjection = useMemo(() => {
+    const eligible = perVehicle.filter(p => p.hasAcquiredDate && p.daysInFleet >= 60);
+    if (eligible.length < 4) return null;
+
+    // Top 25% (mín 2) viram referência de "estrela"
+    const sorted = [...eligible].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned);
+    const starCount = Math.max(2, Math.ceil(sorted.length * 0.25));
+    const stars = sorted.slice(0, starCount);
+    const starAvgRevPerDay = stars.reduce((s, p) => s + p.revPerDayOwned, 0) / stars.length;
+    const starAvgOccupancy = stars.reduce((s, p) => s + p.occupancy, 0) / stars.length;
+    const starAvgROIAnnualized = stars.reduce((s, p) => {
+      // ROI anualizado pela base de dias na frota
+      const yrs = Math.max(p.daysInFleet / 365, 0.25);
+      return s + (p.roi / yrs);
+    }, 0) / stars.length;
+
+    // Carros fracos = bottom 25% (mín 2) com ocupação < 45%
+    const weakAll = [...sorted].reverse().filter(p => p.occupancy < 45);
+    const weakCount = Math.min(weakAll.length, Math.max(2, Math.ceil(sorted.length * 0.25)));
+    const weak = weakAll.slice(0, weakCount);
+    if (weak.length === 0) return null;
+
+    const weakCapital = weak.reduce((s, p) => s + p.purchase, 0);
+    const weakRevPerDay = weak.reduce((s, p) => s + p.revPerDayOwned, 0);
+    const weakAvgOccupancy = weak.reduce((s, p) => s + p.occupancy, 0) / weak.length;
+
+    // Cenário: substituir cada fraco por um carro com performance média das estrelas
+    const projectedRevPerDay = starAvgRevPerDay * weak.length;
+    const upliftPerDay = Math.max(projectedRevPerDay - weakRevPerDay, 0);
+
+    const horizons = [
+      { label: "90 dias",     days: 90  },
+      { label: "6 meses",     days: 180 },
+      { label: "12 meses",    days: 365 },
+    ].map(h => ({
+      label: h.label,
+      days: h.days,
+      currentRevenue:    weakRevPerDay      * h.days,
+      projectedRevenue:  projectedRevPerDay * h.days,
+      uplift:            upliftPerDay       * h.days,
+    }));
+
+    // Aproveitamento de capital: quanto a mais o mesmo dinheiro investido rende
+    const currentAnnualOnWeak    = weakRevPerDay      * 365;
+    const projectedAnnualOnWeak  = projectedRevPerDay * 365;
+    const capitalEfficiencyGain  = currentAnnualOnWeak > 0
+      ? ((projectedAnnualOnWeak - currentAnnualOnWeak) / currentAnnualOnWeak) * 100
+      : 0;
+
+    // Payback médio do "carro estrela" — referência pra trocar com segurança
+    const starPaybacks = stars
+      .map(p => p.paybackMonths)
+      .filter((x): x is number => typeof x === "number" && x > 0);
+    const avgStarPayback = starPaybacks.length
+      ? starPaybacks.reduce((a, b) => a + b, 0) / starPaybacks.length
+      : null;
+
+    return {
+      stars, weak, weakCapital,
+      starAvgRevPerDay, starAvgOccupancy, starAvgROIAnnualized,
+      weakRevPerDay, weakAvgOccupancy,
+      upliftPerDay, horizons,
+      capitalEfficiencyGain,
+      avgStarPayback,
+    };
+  }, [perVehicle]);
+
+
+
+
 
 
   /* ───── Concentração de receita (estilo Pareto) ───── */
@@ -1241,7 +1314,90 @@ export default function AiPainel({
         {/* ───── Tab: STRATEGY ───── */}
         {tab === "strategy" && (
           <div className="space-y-3">
+            {fleetProjection && fleetProjection.upliftPerDay > 0 && (
+              <div className="ai-card relative overflow-hidden">
+                <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-12 -left-12 w-72 h-72 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none" />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Rocket className="w-4 h-4 text-amber-300" />
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-amber-200/80">Projeção de frota — e se você trocasse?</span>
+                  </div>
+                  <h3 className="text-base md:text-lg font-light text-white leading-snug mb-1">
+                    Se você tivesse{" "}
+                    <span className="text-amber-200 font-medium tabular-nums">{fleetProjection.weak.length} carro{fleetProjection.weak.length > 1 ? "s" : ""}</span>
+                    {" "}com o desempenho dos seus campeões no lugar dos que rendem pouco hoje,
+                    em <span className="text-emerald-200 font-medium">12 meses</span> você faria{" "}
+                    <span className="text-emerald-200 font-medium tabular-nums">+{fmtUSD(fleetProjection.horizons[2].uplift)}</span>{" "}
+                    a mais.
+                  </h3>
+                  <p className="text-[12px] text-white/55 mb-4 leading-relaxed">
+                    Hoje esses {fleetProjection.weak.length} carro{fleetProjection.weak.length > 1 ? "s" : ""} rendem em média{" "}
+                    <span className="text-white/80 tabular-nums">{fmtUSD(fleetProjection.weakRevPerDay / fleetProjection.weak.length)}/dia</span> cada
+                    {" "}({fleetProjection.weakAvgOccupancy.toFixed(0)}% de uso). Os seus campeões rendem{" "}
+                    <span className="text-emerald-200 tabular-nums">{fmtUSD(fleetProjection.starAvgRevPerDay)}/dia</span>
+                    {" "}({fleetProjection.starAvgOccupancy.toFixed(0)}% de uso). O mesmo capital investido passaria a render{" "}
+                    <span className="text-amber-200 tabular-nums">{fleetProjection.capitalEfficiencyGain.toFixed(0)}%</span> a mais.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
+                    {fleetProjection.horizons.map(h => (
+                      <div key={h.label} className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
+                        <div className="text-[10.5px] uppercase tracking-wider text-white/50 mb-1">Em {h.label}</div>
+                        <div className="text-lg font-light text-emerald-200 tabular-nums">+{fmtUSD(h.uplift)}</div>
+                        <div className="text-[11px] text-white/55 mt-0.5 tabular-nums">
+                          Hoje {fmtUSD(h.currentRevenue)} → {fmtUSD(h.projectedRevenue)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="rounded-lg bg-white/[0.03] border border-white/10 p-3 mb-3">
+                    <div className="text-[10.5px] uppercase tracking-wider text-white/50 mb-2">Por que essa projeção faz sentido</div>
+                    <ul className="space-y-1.5 text-[12px] text-white/70 leading-relaxed">
+                      <li>• Comparamos só carros com pelo menos 60 dias de histórico real — sem chutar em cima de carro novo.</li>
+                      <li>• A média de uso dos seus campeões ({fleetProjection.starAvgOccupancy.toFixed(0)}%) já foi atingida na vida real, não é meta inventada.</li>
+                      {fleetProjection.avgStarPayback !== null && (
+                        <li>• Carros como os campeões pagam o investimento em cerca de <span className="text-amber-200 tabular-nums">{fleetProjection.avgStarPayback.toFixed(0)} meses</span>, em média.</li>
+                      )}
+                      <li>• O capital parado nos carros fracos hoje é de <span className="text-white/85 tabular-nums">{fmtUSD(fleetProjection.weakCapital)}</span> — é esse dinheiro que estaria rendendo mais.</li>
+                    </ul>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <div className="rounded-lg bg-rose-500/5 border border-rose-400/20 p-3">
+                      <div className="text-[10.5px] uppercase tracking-wider text-rose-200/80 mb-2">Saem da frota (hipótese)</div>
+                      <ul className="space-y-1">
+                        {fleetProjection.weak.slice(0, 5).map(p => (
+                          <li key={p.v.id} className="flex items-center justify-between gap-2 text-[12px]">
+                            <span className="text-white/85 truncate">{p.v.name || "—"}</span>
+                            <span className="text-rose-200 tabular-nums shrink-0">{fmtUSD(p.revPerDayOwned)}/dia · {p.occupancy.toFixed(0)}%</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="rounded-lg bg-emerald-500/5 border border-emerald-400/20 p-3">
+                      <div className="text-[10.5px] uppercase tracking-wider text-emerald-200/80 mb-2">Referência de campeão</div>
+                      <ul className="space-y-1">
+                        {fleetProjection.stars.slice(0, 5).map(p => (
+                          <li key={p.v.id} className="flex items-center justify-between gap-2 text-[12px]">
+                            <span className="text-white/85 truncate">{p.v.name || "—"}</span>
+                            <span className="text-emerald-200 tabular-nums shrink-0">{fmtUSD(p.revPerDayOwned)}/dia · {p.occupancy.toFixed(0)}%</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <p className="text-[10.5px] text-white/40 mt-3 leading-relaxed">
+                    Projeção baseada no desempenho histórico dos seus próprios carros — não em previsão de mercado. Assume que um carro novo do perfil dos campeões mantém a mesma média.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {swapSuggestions.length > 0 && (
+
               <div className="ai-card relative overflow-hidden">
                 <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-cyan-400/10 blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-12 -left-12 w-64 h-64 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none" />
