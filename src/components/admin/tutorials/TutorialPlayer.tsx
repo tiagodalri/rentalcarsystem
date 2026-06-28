@@ -347,7 +347,7 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
               <div className="flex items-center justify-between gap-3">
                 <button
                   type="button"
-                  onClick={prev}
+                  onClick={goPrev}
                   disabled={step === 0}
                   className="h-10 px-4 rounded-full inline-flex items-center gap-1.5 text-[13px] font-medium text-foreground/70 hover:text-foreground hover:bg-muted/60 transition-all disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed"
                 >
@@ -364,7 +364,7 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
 
                 <button
                   type="button"
-                  onClick={next}
+                  onClick={goNext}
                   className="h-10 px-5 rounded-full inline-flex items-center gap-1.5 text-[13px] font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-[0_4px_16px_-4px_hsl(var(--primary)/0.55)]"
                 >
                   {isLast ? "Concluir tutorial" : "Próximo passo"}
