@@ -1031,7 +1031,7 @@ export default function AiPainel({
                   return (
                     <li
                       key={i}
-                      className="grid grid-cols-1 sm:grid-cols-[120px_1fr_220px] gap-x-5 gap-y-3 items-start px-4 sm:px-5 py-4 sm:py-5"
+                      className="grid grid-cols-1 sm:grid-cols-[140px_1fr_220px] gap-x-5 gap-y-3 items-start px-4 sm:px-5 py-4 sm:py-5"
                       style={!isLast ? { borderBottom: "1px solid rgba(13,29,46,0.07)" } : undefined}
                     >
                       {/* Coluna 1 — Prioridade + Categoria */}
