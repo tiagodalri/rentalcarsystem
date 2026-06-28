@@ -22,6 +22,8 @@ export type PvBooking = {
   vehicle_id: string | null;
   customer_name?: string | null;
   customer_id?: string | null;
+  stripe_session_id?: string | null;
+  turo_reservation_code?: string | null;
 };
 export type PvExpense = { vehicle_id: string; amount: number; expense_date: string; type?: string | null };
 
