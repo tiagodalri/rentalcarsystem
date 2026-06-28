@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, UsersRound, Shield, X, Phone, Mail } from "lucide-react";
+import { Search, UsersRound, Shield, X, Phone, Mail, ChevronRight } from "lucide-react";
 import { formatPersonName } from "@/lib/formatName";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
+import { TeamMemberProfileSheet, type TeamMember as ProfileMember } from "@/components/admin/TeamMemberProfileSheet";
 
 /* ============================================================
    EQUIPE — Mobile-first
