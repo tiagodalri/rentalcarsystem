@@ -862,25 +862,32 @@ export default function AiPainel({
       <div className="ai-bg-noise" />
 
       <div className="relative z-10 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-3 flex-wrap">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <div className="ai-badge">
-                <Sparkles size={11} strokeWidth={2} />
-                <span>🧠 ZEUS BRAIN ATIVADO</span>
-                <span className="ai-pulse" />
-              </div>
-              <div className="ai-chip sm:hidden"><Brain size={12} /><span>Análise IA</span></div>
-            </div>
-            <h1 className="ai-title">Painel Inteligente</h1>
-            <p className="ai-subtitle">
-              {perVehicle.length} carros · {realBookings.length} reservas
-            </p>
-          </div>
-          <div className="hidden sm:flex items-center gap-2">
-            <div className="ai-chip"><Brain size={12} /><span>Análise IA</span></div>
-          </div>
+        {/* Header — minimal: contagem + botão simulador em destaque */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <p className="ai-subtitle m-0">
+            {perVehicle.length} carros · {realBookings.length} reservas
+          </p>
+          <button
+            onClick={() => setTab(tab === "simulator" ? "revenue" : "simulator")}
+            className="relative inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[12px] font-medium text-white transition-all hover:scale-[1.02]"
+            style={{
+              background: tab === "simulator"
+                ? "linear-gradient(135deg, rgba(251,191,36,0.35), rgba(16,185,129,0.30))"
+                : "linear-gradient(135deg, rgba(251,191,36,0.18), rgba(16,185,129,0.16))",
+              border: "1px solid rgba(251,191,36,0.55)",
+              boxShadow: "0 0 22px rgba(251,191,36,0.30)",
+            }}
+          >
+            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400" />
+            </span>
+            <Gamepad2 size={14} className="text-amber-200" />
+            <span>Simulador</span>
+            <span className="text-[8.5px] uppercase tracking-[0.18em] px-1.5 py-[1px] rounded-sm bg-amber-300/25 border border-amber-300/40 text-amber-100">
+              Novo
+            </span>
+          </button>
         </div>
 
         {/* Hero KPIs */}

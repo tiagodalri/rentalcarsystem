@@ -1,7 +1,7 @@
 import { Brain, FileDown, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { CAR_BRANDS, carLogoUrl, findBrandByName } from "@/data/carBrands";
-import { exportBriefingToPdf } from "@/lib/briefingPdf";
+import { exportPainelPdf } from "@/lib/exportPainelPdf";
 
 type Props = {
   briefing: string | null;
@@ -81,10 +81,12 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
   }, [briefing]);
 
   const handlePdf = async () => {
-    if (!briefing) return;
     setExporting(true);
     try {
-      await exportBriefingToPdf({ briefing, contextLabel });
+      const target =
+        (document.querySelector(".ai-shell") as HTMLElement | null) ??
+        (document.body as HTMLElement);
+      await exportPainelPdf({ target, filename: "zeus-brain-painel.pdf" });
     } finally {
       setExporting(false);
     }
@@ -135,7 +137,7 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
               >
                 {loading ? "Analisando dados da sua frota..." : "O que a IA está vendo agora"}
               </div>
-              {briefing && !loading && (
+              {!loading && (
                 <button
                   onClick={handlePdf}
                   disabled={exporting}
@@ -145,9 +147,10 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
                     borderColor: "rgba(255,255,255,0.10)",
                     color: "rgba(255,255,255,0.82)",
                   }}
+                  title="Salvar o painel completo como PDF (réplica fiel da tela)"
                 >
                   {exporting ? <Loader2 size={11} className="animate-spin" /> : <FileDown size={11} />}
-                  <span>{exporting ? "Gerando..." : "Salvar PDF"}</span>
+                  <span>{exporting ? "Gerando PDF..." : "Salvar painel em PDF"}</span>
                 </button>
               )}
             </div>

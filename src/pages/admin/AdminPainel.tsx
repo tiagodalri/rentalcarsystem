@@ -186,34 +186,23 @@ export default function AdminPainel() {
             borderBottom: "1px solid rgba(120,180,255,0.12)",
           }}
         >
-          <div className="flex items-center gap-2 min-w-0">
-            <div
-              className="grid place-items-center w-8 h-8 rounded-xl shrink-0"
-              style={{
-                background: "linear-gradient(135deg, rgba(120,180,255,0.35), rgba(180,120,255,0.35))",
-                boxShadow: "0 0 18px rgba(120,180,255,0.4)",
-              }}
-            >
-              <Brain size={15} className="text-white" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-[9.5px] uppercase tracking-[0.22em] text-cyan-200/80">Zeus Intelligence</div>
-              <div className="text-[12px] text-white/90 truncate">🧠 Zeus Brain ativado</div>
-            </div>
+          <div className="flex-1" />
+          <div className="text-[15px] sm:text-[17px] font-light tracking-[0.32em] text-white/95 text-center select-none">
+            ZEUS BRAIN
           </div>
-          <button
-            onClick={() => setAiMode(false)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[10.5px] uppercase tracking-[0.16em] font-medium text-white/90 transition-all"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.14)",
-              minHeight: 40,
-            }}
-          >
-            <X size={14} />
-            <span>Sair</span>
-
-          </button>
+          <div className="flex-1 flex justify-end">
+            <button
+              onClick={() => setAiMode(false)}
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full text-white/85 transition-all hover:text-white"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.14)",
+              }}
+              aria-label="Sair"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
         <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
           <AiPainel bookings={bookings as any} vehicles={vehicles as any} />
