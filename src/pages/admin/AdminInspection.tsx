@@ -35,6 +35,7 @@ import { registerLocalInspectionPreview, compressInspectionImage } from "@/lib/i
 import CarDamageMap from "@/components/inspection/CarDamageMap";
 import { PhotoSourceSheet } from "@/components/admin/PhotoSourceSheet";
 import { stampInspectionPhoto } from "@/lib/inspectionStamp";
+import { normalizeDamageText } from "@/lib/damageTextNormalizer";
 import { AddressAutocompleteInput } from "@/components/admin/AddressAutocompleteInput";
 import { MapPin } from "lucide-react";
 
@@ -1665,6 +1666,10 @@ export default function AdminInspection() {
                                 placeholder="Descreva a avaria — localização exata, tamanho aproximado, profundidade, observações relevantes..."
                                 value={d.description}
                                 onChange={(e) => updateDamage(d.id, "description", e.target.value)}
+                                onBlur={(e) => {
+                                  const normalized = normalizeDamageText(e.target.value);
+                                  if (normalized !== e.target.value) updateDamage(d.id, "description", normalized);
+                                }}
                                 disabled={isCompleted}
                                 maxLength={280}
                                 rows={2}
