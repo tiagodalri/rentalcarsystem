@@ -138,6 +138,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
     }
     setLoading(true);
     setResult(null);
+    setActiveSlide(0);
     try {
       const logoDataUrl = await urlToDataUrl(`${window.location.origin}/zeus-logo-full.png`);
       const { data, error } = await supabase.functions.invoke("marketing-generate-post", {
@@ -158,6 +159,8 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             hook: promoHook.trim() || undefined,
           } : undefined,
           referenceImageDataUrl: mode === "reference" ? refDataUrl : undefined,
+          carousel: kind === "carousel",
+          slidesCount: kind === "carousel" ? slidesCount : 1,
         },
       });
       if (error) throw error;
@@ -176,11 +179,21 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
 
   function download() {
     if (!result) return;
-    const a = document.createElement("a");
-    a.href = `data:image/png;base64,${result.imageBase64}`;
     const safeName = (selected?.name || "post").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-    a.download = `zeus-${safeName}-${result.format}.png`;
-    a.click();
+    const list = result.slides && result.slides.length > 0
+      ? result.slides.map((s, i) => ({ b64: s.imageBase64, name: `zeus-${safeName}-${result.format}-slide-${String(i + 1).padStart(2, "0")}.png` }))
+      : [{ b64: result.imageBase64, name: `zeus-${safeName}-${result.format}.png` }];
+    list.forEach((it, idx) => {
+      setTimeout(() => {
+        const a = document.createElement("a");
+        a.href = `data:image/png;base64,${it.b64}`;
+        a.download = it.name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }, idx * 250);
+    });
+    if (list.length > 1) toast.success(`Baixando ${list.length} artes do carrossel.`);
   }
 
   function copyCaption() {
