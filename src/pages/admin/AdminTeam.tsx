@@ -9,6 +9,7 @@ import { CardGridSkeleton } from "@/components/skeletons/CardGridSkeleton";
 import { JobTitleSelect } from "@/components/admin/JobTitleSelect";
 import { ManageJobTitlesDialog } from "@/components/admin/ManageJobTitlesDialog";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { TeamMemberProfileSheet } from "@/components/admin/TeamMemberProfileSheet";
 import {
   UsersRound, Plus, X, Search, Pencil, Trash2, Phone, Mail, Shield, Briefcase, Settings2,
   CheckCircle2, XCircle, Eye, Edit3, Check,
