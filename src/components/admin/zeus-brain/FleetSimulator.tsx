@@ -378,7 +378,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                 </div>
                 <div>
                   <div className="text-[12px] uppercase tracking-[0.18em] text-emerald-100 font-semibold leading-none">Comprar</div>
-                  <div className="text-[10px] text-white/45 mt-0.5">{inList.length} carro{inList.length === 1 ? "" : "s"} · investe <span className="text-emerald-200 font-medium tabular-nums">{fmtUSD(buyCapitalLive)}</span></div>
+                  <div className="text-[10px] text-white/45 mt-0.5">{inTotalUnits} unidade{inTotalUnits === 1 ? "" : "s"} · investe <span className="text-emerald-200 font-medium tabular-nums">{fmtUSD(buyCapitalLive)}</span></div>
                 </div>
               </div>
             </div>
