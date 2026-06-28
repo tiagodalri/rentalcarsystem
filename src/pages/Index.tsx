@@ -8,9 +8,15 @@ import RequirementsSection from "@/components/RequirementsSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import Footer from "@/components/Footer";
 import WhatsAppBubble from "@/components/WhatsAppBubble";
+import Seo from "@/components/Seo";
 
 const Index = () => (
   <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <Seo
+      title="Zeus Rental Car — Aluguel Premium em Orlando"
+      description="Locadora de carros premium para brasileiros em Orlando. Corvette, Mustang, Escalade, BMW X5 e mais. Atendimento 100% em português."
+      path="/"
+    />
     <Navbar />
     <HeroSection />
     <AboutSection />
