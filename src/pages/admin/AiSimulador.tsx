@@ -107,20 +107,6 @@ export default function AiSimulador() {
             >
               Zeus Brain
             </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span
-                className="inline-flex items-center justify-center h-6 w-6 rounded-full shrink-0"
-                style={{ background: "#0d1d2e" }}
-              >
-                <Gamepad2 size={12} style={{ color: "#d6bf86" }} />
-              </span>
-              <h1
-                className="text-[18px] sm:text-[20px] font-semibold leading-none truncate"
-                style={{ color: "#0d1d2e", letterSpacing: "-0.01em" }}
-              >
-                Simulador de Frota
-              </h1>
-            </div>
           </div>
 
           <div
