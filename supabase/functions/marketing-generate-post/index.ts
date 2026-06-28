@@ -88,6 +88,78 @@ Deno.serve(async (req) => {
       ? `\nPROMOCAO ATIVA:\n- Valor diaria: USD ${promo.priceDaily}\n- Periodo: ${fmtDate(promo.dateStart)} ate ${fmtDate(promo.dateEnd)}${promo.hook ? `\n- Gancho: ${promo.hook}` : ""}\nA headline DEVE comunicar oportunidade sem soar apelativa. A caption deve mencionar o valor e o periodo de forma elegante.`
       : "";
 
+    // ── 0) Reference brief extraction ─────────────────────────────
+    // When the user uploads a reference, FIRST analyze it with vision to extract
+    // theme, concept, copy ideas, promo info and key visual elements. Without this
+    // step the image model only mimics palette/mood and ignores the actual idea.
+    let refBrief: {
+      tema: string;
+      conceito: string;
+      headlinesSugeridas: string[];
+      promo?: string;
+      elementosVisuais: string[];
+      paleta: string;
+      mood: string;
+    } | null = null;
+
+    if (mode === "reference" && referenceImageDataUrl?.startsWith("data:image")) {
+      try {
+        const refRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              {
+                role: "system",
+                content: `Voce e diretor de arte. Analise a imagem de referencia que o usuario envia e devolva SOMENTE JSON valido com esta estrutura:
+{
+  "tema": "tema/conceito central em 1 frase (ex: 'campanha rumo ao hexa da Copa do Mundo')",
+  "conceito": "ideia criativa central em 1-2 frases",
+  "headlinesSugeridas": ["3 a 5 headlines no espirito da referencia, adaptaveis para a marca Zeus Rental Car em Orlando"],
+  "promo": "se houver desconto/oferta/condicao, descreva (ex: '60% OFF condicional'), caso contrario string vazia",
+  "elementosVisuais": ["lista de elementos visuais marcantes — ex: 'bandeiras do Brasil', 'familia no carro', 'beira-mar com palmeiras', 'tipografia 3D dourada'"],
+  "paleta": "paleta dominante em palavras (ex: 'verde-amarelo Brasil + dourado + branco')",
+  "mood": "mood/sentimento em 1 frase (ex: 'celebracao patriotica calorosa e familiar')"
+}
+Importante: EXTRAIA o tema e conceito reais — nao se limite a 'estilo'. Se a referencia comunica uma campanha (ex: Copa, Natal, Black Friday), o tema deve refletir isso.`,
+              },
+              {
+                role: "user",
+                content: [
+                  { type: "text", text: `Analise esta referencia para uma campanha da Zeus Rental Car com o carro "${vehicleBrand || ""} ${vehicleName}" em Orlando.` },
+                  { type: "image_url", image_url: { url: referenceImageDataUrl } },
+                ],
+              },
+            ],
+            response_format: { type: "json_object" },
+          }),
+        });
+        if (refRes.ok) {
+          const j = await refRes.json();
+          try {
+            refBrief = JSON.parse(j.choices[0].message.content);
+          } catch { /* fallthrough */ }
+        } else {
+          console.error("ref brief error", refRes.status, await refRes.text());
+        }
+      } catch (e) {
+        console.error("ref brief exception", e);
+      }
+    }
+
+    const refBriefBlock = refBrief
+      ? `\n\nBRIEFING EXTRAIDO DA REFERENCIA (use como base criativa):
+- Tema: ${refBrief.tema}
+- Conceito: ${refBrief.conceito}
+- Headlines sugeridas: ${refBrief.headlinesSugeridas.join(" | ")}
+- Promo/oferta: ${refBrief.promo || "nenhuma"}
+- Elementos visuais marcantes: ${refBrief.elementosVisuais.join(", ")}
+- Paleta: ${refBrief.paleta}
+- Mood: ${refBrief.mood}
+ADAPTE o tema, conceito e tom para a marca Zeus Rental Car (premium, sofisticada, Orlando). Nao copie a marca da referencia.`
+      : "";
+
     // ── 1) Copywriting ────────────────────────────────────────────
     const carouselCopyInstructions = carousel ? `
 Este post e um CARROSSEL de ${slidesCount} slides. Devolva tambem o array "slides" com EXATAMENTE ${slidesCount} itens, na ordem:
