@@ -50,7 +50,7 @@ const WhyZeusSection = () => {
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-6xl mx-auto">
           {benefits.map((b, i) => (
             <motion.div
               key={i}
@@ -62,23 +62,23 @@ const WhyZeusSection = () => {
             >
               {/* Ambient gold glow */}
               <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.06] via-transparent to-transparent pointer-events-none" aria-hidden />
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-40 h-40 bg-primary/10 rounded-full blur-[60px] opacity-60 group-hover:opacity-100 transition-opacity" aria-hidden />
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-24 h-24 bg-primary/10 rounded-full blur-[40px] opacity-60 group-hover:opacity-100 transition-opacity" aria-hidden />
 
-              <div className="relative aspect-[16/10] flex items-center justify-center px-6 pt-6 sm:px-8 sm:pt-8">
+              <div className="relative flex items-center justify-center px-4 pt-5 pb-2 sm:px-5 sm:pt-6">
                 <img
                   src={b.img}
                   alt={b.alt}
                   loading="lazy"
                   width={512}
                   height={512}
-                  className="max-h-[55%] w-auto object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,0.18)] transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-[-2deg]"
+                  className="h-16 sm:h-20 w-auto object-contain drop-shadow-[0_8px_14px_rgba(0,0,0,0.14)] transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-[-2deg]"
                 />
               </div>
 
-              <div className="relative px-5 pb-6 pt-2 sm:px-6 sm:pb-7 text-center">
-                <p className="card-eyebrow">0{i + 1}</p>
-                <h3 className="card-title mt-2 mb-2.5">{b.title}</h3>
-                <p className="card-body">{b.desc}</p>
+              <div className="relative px-3 pb-5 pt-1 sm:px-4 sm:pb-6 text-center">
+                <p className="card-eyebrow text-[10px] sm:text-xs">0{i + 1}</p>
+                <h3 className="card-title text-xs sm:text-sm mt-1.5 mb-1.5 leading-tight">{b.title}</h3>
+                <p className="card-body text-[11px] sm:text-xs leading-relaxed">{b.desc}</p>
               </div>
             </motion.div>
           ))}
