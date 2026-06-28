@@ -652,17 +652,42 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
           </div>
 
           {!result ? (
-            <div className="flex flex-col items-center justify-center text-center py-10">
+            <div className="flex flex-col items-center justify-center text-center py-8">
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
                 style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_10}` }}
               >
                 <ArrowRight className="w-5 h-5" style={{ color: NAVY_55 }} />
               </div>
-              <p className="text-[13px] max-w-[320px] leading-[1.6]" style={{ color: NAVY_70 }}>
+              <p className="text-[13px] max-w-[360px] leading-[1.6] mb-5" style={{ color: NAVY_70 }}>
                 Escolha pelo menos 1 carro para{" "}
                 <span className="font-semibold" style={{ color: SELL }}>vender</span> e 1 para{" "}
                 <span className="font-semibold" style={{ color: BUY }}>comprar</span> para ver os números.
+              </p>
+
+              <div className="flex items-center gap-2 mb-3">
+                <span className="h-px w-10" style={{ background: NAVY_10 }} />
+                <span className="text-[9.5px] uppercase tracking-[0.22em] font-semibold" style={{ color: NAVY_40 }}>
+                  ou deixe a IA decidir por você
+                </span>
+                <span className="h-px w-10" style={{ background: NAVY_10 }} />
+              </div>
+
+              <button
+                onClick={() => setAiOpen(true)}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg text-[12.5px] font-semibold uppercase tracking-wider min-h-[48px] transition-all hover:scale-[1.02]"
+                style={{
+                  background: `linear-gradient(135deg, ${NAVY} 0%, #1a2d44 100%)`,
+                  color: IVORY,
+                  boxShadow: `0 10px 28px -14px rgba(13,29,46,0.55), 0 0 0 1px ${GOLD}30`,
+                }}
+              >
+                <Brain className="w-4 h-4" style={{ color: GOLD_SOFT }} />
+                Simular com IA
+                <Sparkles className="w-3.5 h-3.5" style={{ color: GOLD_SOFT }} />
+              </button>
+              <p className="text-[10.5px] mt-3 max-w-[320px]" style={{ color: NAVY_40 }}>
+                A IA estuda todas as combinações possíveis e devolve o melhor cenário com os números do seu próprio histórico.
               </p>
             </div>
           ) : (
