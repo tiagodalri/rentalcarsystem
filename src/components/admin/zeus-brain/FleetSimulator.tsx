@@ -326,6 +326,15 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
           <span className="font-semibold" style={{ color: BUY }}>comprar</span>{" "}
           (reinvestir). O simulador calcula em tempo real o impacto financeiro da troca.
         </p>
+        <p
+          className="text-[12.5px] sm:text-[13px] mb-5 leading-[1.65] max-w-3xl"
+          style={{ color: NAVY_55 }}
+        >
+          Essa simulação é construída a partir do{" "}
+          <span className="font-semibold" style={{ color: NAVY }}>histórico real das locações</span>{" "}
+          da sua frota — ocupação, receita, custo de aquisição e dias rodados de cada carro.
+          Não são estimativas genéricas: são os seus próprios números trabalhando para projetar o futuro.
+        </p>
 
         {/* BALANÇO DE CAPITAL */}
         {(outList.length > 0 || inList.length > 0) && (
