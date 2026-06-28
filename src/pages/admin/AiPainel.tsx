@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { computePerVehicle } from "@/lib/zeusBrain/perVehicle";
-import { AiBriefingCard } from "@/components/admin/zeus-brain/AiBriefingCard";
+import { AiBriefingCard, type BriefingSnapshot, type BriefingHighlight, type BriefingAction } from "@/components/admin/zeus-brain/AiBriefingCard";
+import { findBrandByName } from "@/data/carBrands";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
   startOfDay, addDays, isSameDay,
