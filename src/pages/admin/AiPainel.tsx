@@ -35,7 +35,7 @@ type FinTx = { type: string; amount: number; transaction_date: string; vehicle_i
 const fmtUSD = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 const fmtUSD2 = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
-type TabKey = "revenue" | "demand" | "customers" | "operations" | "financial" | "strategy";
+type TabKey = "revenue" | "demand" | "operations" | "financial" | "strategy";
 
 export default function AiPainel({
   bookings, vehicles,
