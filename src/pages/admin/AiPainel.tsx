@@ -345,6 +345,59 @@ export default function AiPainel({
     return arr.map((v, i) => ({ label: labels[i], v, pct: (v / max) * 100 }));
   }, [realBookings]);
 
+  /* ───── HOJE NA SUA FROTA ───── */
+  const todayStats = useMemo(() => {
+    const tomorrow = addDays(today, 1);
+    const rodandoAgora = realBookings.filter(b => {
+      const p = startOfDay(new Date(b.pickup_date));
+      const r = startOfDay(new Date(b.return_date));
+      return p <= today && r >= today && ["confirmed", "active", "in_progress"].includes(b.status);
+    });
+    const saemHoje = realBookings.filter(b => isSameDay(startOfDay(new Date(b.pickup_date)), today));
+    const voltamHoje = realBookings.filter(b => isSameDay(startOfDay(new Date(b.return_date)), today));
+    const saemAmanha = realBookings.filter(b => isSameDay(startOfDay(new Date(b.pickup_date)), tomorrow));
+    const receitaHoje = rodandoAgora.reduce((s, b) => {
+      const nights = Math.max(differenceInDays(new Date(b.return_date), new Date(b.pickup_date)), 1);
+      const daily = (Number(b.total_price) || 0) / nights;
+      return s + daily;
+    }, 0);
+    const paradosAgora = vehicles.filter(v => v.status !== "sold" && !rodandoAgora.some(b => b.vehicle_id === v.id));
+    return { rodandoAgora: rodandoAgora.length, saemHoje: saemHoje.length, voltamHoje: voltamHoje.length, saemAmanha: saemAmanha.length, receitaHoje, paradosAgora: paradosAgora.length };
+  }, [realBookings, vehicles, today]);
+
+  /* ───── RECEITA PERDIDA — cancelamentos + janelas ociosas ───── */
+  const lostRevenue = useMemo(() => {
+    const cancelado = bookings.filter(b => b.status === "cancelled").reduce((s, b) => s + (Number(b.total_price) || 0), 0);
+    const janelas = opportunityWindows.reduce((s, w) => s + w.estLoss, 0);
+    return { cancelado, janelas, total: cancelado + janelas };
+  }, [bookings, opportunityWindows]);
+
+  /* ───── PAYBACK MÉDIO & FIDELIDADE ───── */
+  const paybackAvg = useMemo(() => {
+    const list = perVehicle.filter(p => p.paybackMonths !== null && p.paybackMonths > 0);
+    if (!list.length) return null;
+    return Math.round(list.reduce((s, p) => s + (p.paybackMonths || 0), 0) / list.length);
+  }, [perVehicle]);
+
+  /* ───── RECEITA POR DIA DA SEMANA ───── */
+  const dowRevenue = useMemo(() => {
+    const arr = [0, 0, 0, 0, 0, 0, 0];
+    const cnt = [0, 0, 0, 0, 0, 0, 0];
+    realBookings.forEach(b => {
+      const d = new Date(b.pickup_date);
+      const idx = d.getDay();
+      arr[idx] += Number(b.total_price) || 0;
+      cnt[idx] += 1;
+    });
+    const labels = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
+    const data = arr.map((v, i) => ({ label: labels[i], rev: v, cnt: cnt[i], avg: cnt[i] ? v / cnt[i] : 0 }));
+    const max = Math.max(...data.map(d => d.rev), 1);
+    const best = [...data].sort((a, b) => b.rev - a.rev)[0];
+    const worst = [...data].filter(d => d.cnt > 0).sort((a, b) => a.rev - b.rev)[0];
+    return { data, max, best, worst };
+  }, [realBookings]);
+
+
   /* ───── Funnel ───── */
   const funnel = useMemo(() => {
     const total = bookings.length;
