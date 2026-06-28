@@ -642,7 +642,7 @@ export default function AiPainel({
       }
     }
     const cancelRate = funnel.total > 0 ? (funnel.cancelled / funnel.total) * 100 : 0;
-    if (cancelRate > 20) list.push({ label: "Cancelamentos", severity: "high", msg: `Taxa de cancelamento em ${cancelRate.toFixed(1)}% — investigar causas operacionais.` });
+    if (cancelRate > 20) list.push({ label: "Cancelamentos", severity: "high", msg: `Taxa de cancelamento em ${cancelRate.toFixed(1)}%. Investigar causas operacionais.` });
     if (avgOccupancy < 30) list.push({ label: "Ocupação", severity: "high", msg: `Ocupação média em ${avgOccupancy.toFixed(0)}% — frota com capacidade ociosa significativa.` });
     sellCandidates.slice(0, 1).forEach(c => list.push({ label: "Ativo improdutivo", severity: "med", msg: `${c.v.name} está há ${c.daysInFleet} dias na frota com ROI de ${c.roi.toFixed(1)}%.` }));
     return list.slice(0, 4);
