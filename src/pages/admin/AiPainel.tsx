@@ -846,7 +846,8 @@ export default function AiPainel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [perVehicle.length]);
 
-  const tabs: { key: TabKey; label: string; icon: typeof Brain }[] = [
+  const tabs: { key: TabKey; label: string; icon: typeof Brain; highlight?: boolean }[] = [
+    { key: "simulator", label: "Simulador", icon: Gamepad2, highlight: true },
     { key: "revenue", label: "Receita", icon: DollarSign },
     { key: "demand", label: "Reservas", icon: Activity },
     { key: "operations", label: "Operação", icon: Gauge },
