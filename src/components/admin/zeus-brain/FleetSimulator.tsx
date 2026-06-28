@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { Gamepad2, X, ArrowRight, Sparkles, Trophy, Search, ShoppingCart, Tag, Plus, Minus } from "lucide-react";
+import { Gamepad2, X, ArrowRight, Sparkles, Trophy, Search, ShoppingCart, Tag, Plus, Minus, Brain } from "lucide-react";
 import { findBrandByName, carLogoUrl } from "@/data/carBrands";
+import AiOptimizerDialog from "./AiOptimizerDialog";
 
 export type SimVehicle = {
   v: {
