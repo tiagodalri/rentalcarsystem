@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { startOfDay } from "date-fns";
-import { ArrowLeft, Gamepad2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import FleetSimulator from "@/components/admin/zeus-brain/FleetSimulator";
 import {
@@ -107,20 +107,6 @@ export default function AiSimulador() {
             >
               Zeus Brain
             </div>
-            <div className="flex items-center gap-2 mt-1">
-              <span
-                className="inline-flex items-center justify-center h-6 w-6 rounded-full shrink-0"
-                style={{ background: "#0d1d2e" }}
-              >
-                <Gamepad2 size={12} style={{ color: "#d6bf86" }} />
-              </span>
-              <h1
-                className="text-[18px] sm:text-[20px] font-semibold leading-none truncate"
-                style={{ color: "#0d1d2e", letterSpacing: "-0.01em" }}
-              >
-                Simulador de Frota
-              </h1>
-            </div>
           </div>
 
           <div
@@ -132,7 +118,7 @@ export default function AiSimulador() {
         </div>
 
         {/* Source selector — espelha o do painel principal */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-2">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-3 pt-1 flex justify-center">
           <div
             role="tablist"
             aria-label="Origem das reservas"
