@@ -28,6 +28,9 @@ export default function MobileTeam() {
   const [items, setItems] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [fullMember, setFullMember] = useState<ProfileMember | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -39,6 +42,13 @@ export default function MobileTeam() {
     setLoading(false);
   };
   useEffect(() => { void load(); }, []);
+
+  const openProfile = async (id: string) => {
+    setSelectedId(id);
+    setProfileOpen(true);
+    const { data } = await supabase.from("team_members").select("*").eq("id", id).maybeSingle();
+    if (data) setFullMember(data as unknown as ProfileMember);
+  };
 
   const filtered = useMemo(() => items.filter((m) => {
     if (!search) return true;
