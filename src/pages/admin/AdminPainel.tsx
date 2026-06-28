@@ -210,8 +210,8 @@ export default function AdminPainel() {
             }}
           >
             <X size={14} />
-            <span className="hidden xs:inline sm:inline">Sair do modo IA</span>
-            <span className="xs:hidden sm:hidden">Sair</span>
+            <span>Sair</span>
+
           </button>
         </div>
         <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
