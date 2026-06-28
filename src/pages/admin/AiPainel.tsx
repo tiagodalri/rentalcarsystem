@@ -1209,7 +1209,7 @@ export default function AiPainel({
             <div className="ai-card">
               <CardHeader title="Buracos entre reservas. Dinheiro na mesa" sub="Períodos curtos em que o carro fica parado entre duas reservas confirmadas. Oferecer promo de última hora pode capturar essa receita." icon={Sparkles} />
               {opportunityWindows.length === 0 ? (
-                <p className="text-white/55 text-xs">Sem buracos relevantes no momento — agenda bem encaixada.</p>
+                <p className="text-white/55 text-xs">Sem buracos relevantes no momento. Agenda bem encaixada.</p>
               ) : (
                 <ul className="space-y-2.5">
                   {opportunityWindows.map((o, i) => (
