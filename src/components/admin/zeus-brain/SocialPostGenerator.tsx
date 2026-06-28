@@ -491,8 +491,9 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                     minHeight: 44,
                   }}
                 >
-                  <div className="text-[12px] font-semibold">{t.label}</div>
-                  <div className="text-[9.5px] opacity-75 leading-tight mt-0.5">{t.hint}</div>
+                  <div className="text-[12px] font-semibold leading-tight truncate">{t.label}</div>
+                  <div className="text-[9.5px] opacity-75 leading-tight mt-0.5 truncate">{t.hint}</div>
+
                 </button>
               ))}
             </div>
