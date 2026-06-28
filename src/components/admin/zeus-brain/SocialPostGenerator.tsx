@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X, Layers, Square, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X, Layers, Square, ChevronLeft, ChevronRight, Shuffle, Car } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { detectSeasonalTheme } from "@/lib/zeusBrain/seasonalTheme";
