@@ -369,6 +369,39 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           <div className="mt-3">
+            <Label>Tipo de publicacao</Label>
+            <div className="mt-1 grid grid-cols-2 gap-1.5">
+              <FormatPill active={kind === "single"} onClick={() => setKind("single")} icon={<Square size={12} />} label="Unico" sub="1 arte" />
+              <FormatPill active={kind === "carousel"} onClick={() => setKind("carousel")} icon={<Layers size={12} />} label="Carrossel" sub={`${slidesCount} slides`} />
+            </div>
+            {kind === "carousel" && (
+              <div className="mt-1.5 flex items-center gap-1.5">
+                <Label>Slides</Label>
+                <div className="flex gap-1">
+                  {[3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setSlidesCount(n)}
+                      className="h-7 w-7 rounded-md text-[11px] font-semibold transition-all"
+                      style={{
+                        background: slidesCount === n ? "linear-gradient(180deg,#14283d,#0d1d2e)" : "white",
+                        color: slidesCount === n ? "#d6bf86" : "#0d1d2e",
+                        border: "1px solid " + (slidesCount === n ? "rgba(214,191,134,0.40)" : "rgba(13,29,46,0.15)"),
+                      }}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[10px]" style={{ color: "rgba(13,29,46,0.55)" }}>
+                  capa + conteudo + chamada final
+                </span>
+              </div>
+            )}
+          </div>
+
+
+          <div className="mt-3">
             <Label>Tom da mensagem</Label>
             <div className="mt-1 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
               {TONES.map((t) => (
