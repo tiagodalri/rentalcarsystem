@@ -157,7 +157,7 @@ Importante: EXTRAIA o tema e conceito reais — nao se limite a 'estilo'. Se a r
 - Elementos visuais marcantes: ${refBrief.elementosVisuais.join(", ")}
 - Paleta: ${refBrief.paleta}
 - Mood: ${refBrief.mood}
-ADAPTE o tema, conceito e tom para a marca Zeus Rental Car (premium, sofisticada, Orlando). Nao copie a marca da referencia.`
+ADAPTE o tema, conceito e tom para a marca Zeus Rental Car (premium, sofisticada, Orlando). Nao copie a marca da referencia. Se houver qualquer nome de concorrente no briefing acima, IGNORE e substitua por Zeus Rental Car.`
       : "";
 
     // ── 1) Copywriting ────────────────────────────────────────────
