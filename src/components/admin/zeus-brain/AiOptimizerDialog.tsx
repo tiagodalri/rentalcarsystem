@@ -283,7 +283,7 @@ export default function AiOptimizerDialog({
                     <div className="text-[10px] uppercase tracking-[0.18em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
                       Receita por dia
                     </div>
-                    <div className="text-[26px] sm:text-[30px] font-semibold tabular-nums leading-none truncate"
+                    <div className="text-[20px] sm:text-[22px] font-semibold tabular-nums leading-none truncate"
                          style={{ color: scenario.deltaPerDay >= 0 ? BUY : SELL, letterSpacing: "-0.02em" }}>
                       {fmtUSDsigned(scenario.deltaPerDay)}
                     </div>
@@ -295,7 +295,7 @@ export default function AiOptimizerDialog({
                     <div className="text-[10px] uppercase tracking-[0.18em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
                       Em 12 meses
                     </div>
-                    <div className="text-[22px] sm:text-[26px] font-semibold tabular-nums leading-none truncate"
+                    <div className="text-[18px] sm:text-[20px] font-semibold tabular-nums leading-none truncate"
                          style={{ color: scenario.delta365 >= 0 ? BUY : SELL, letterSpacing: "-0.02em" }}>
                       {fmtUSDsigned(scenario.delta365)}
                     </div>
@@ -307,7 +307,7 @@ export default function AiOptimizerDialog({
                     <div className="text-[10px] uppercase tracking-[0.18em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
                       Saldo em caixa
                     </div>
-                    <div className="text-[22px] sm:text-[26px] font-semibold tabular-nums leading-none truncate"
+                    <div className="text-[18px] sm:text-[20px] font-semibold tabular-nums leading-none truncate"
                          style={{ color: scenario.cashBalance >= 0 ? BUY : GOLD, letterSpacing: "-0.02em" }}>
                       {fmtUSDsigned(scenario.cashBalance)}
                     </div>
@@ -357,6 +357,40 @@ export default function AiOptimizerDialog({
                       <VehicleLine key={b.vehicle.v.id} v={b.vehicle} qty={b.qty} side="buy" />
                     ))}
                   </div>
+                </div>
+              </div>
+
+              {/* Dados analisados */}
+              <div className="rounded-xl p-4 sm:p-5" style={{ background: "#fff", border: `1px solid ${NAVY_10}` }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <Brain className="w-3.5 h-3.5" style={{ color: GOLD }} />
+                  <span className="text-[10.5px] uppercase tracking-[0.22em] font-semibold" style={{ color: NAVY }}>
+                    Dados analisados
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { k: "Universo elegível", v: `${eligibleCount} carros`, hint: "60+ dias, com reservas" },
+                    { k: "Combinações testadas", v: scenario.combinationsEvaluated.toLocaleString("pt-BR"), hint: "Busca determinística" },
+                    { k: "Receita/dia atual (vendidos)", v: fmtUSD(scenario.currentRevPerDay), hint: `${scenario.avgOccupancySell.toFixed(0)}% ocupação média` },
+                    { k: "Receita/dia projetada (comprados)", v: fmtUSD(scenario.projectedRevPerDay), hint: `${scenario.avgOccupancyBuy.toFixed(0)}% ocupação média` },
+                    { k: "Capital recuperado", v: fmtUSD(scenario.recoveredCapital), hint: `${scenario.sell.length} venda${scenario.sell.length === 1 ? "" : "s"}` },
+                    { k: "Capital investido", v: fmtUSD(scenario.spentCapital), hint: `${scenario.buy.reduce((s, b) => s + b.qty, 0)} unidade${scenario.buy.reduce((s, b) => s + b.qty, 0) === 1 ? "" : "s"}` },
+                    { k: "Eficiência do capital", v: `${scenario.capitalEfficiency >= 0 ? "+" : ""}${scenario.capitalEfficiency.toFixed(0)}%`, hint: "Receita por $ empregado" },
+                    { k: "Granularidade", v: "$1.000", hint: "Até 5 un. por modelo" },
+                  ].map((d) => (
+                    <div key={d.k} className="rounded-lg p-2.5 min-w-0" style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_06}` }}>
+                      <div className="text-[9.5px] uppercase tracking-[0.14em] font-semibold mb-1 truncate" style={{ color: NAVY_55 }}>
+                        {d.k}
+                      </div>
+                      <div className="text-[14px] font-semibold tabular-nums truncate" style={{ color: NAVY, letterSpacing: "-0.01em" }}>
+                        {d.v}
+                      </div>
+                      <div className="text-[10px] mt-0.5 truncate" style={{ color: NAVY_40 }}>
+                        {d.hint}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
