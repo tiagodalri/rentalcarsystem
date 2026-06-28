@@ -162,9 +162,10 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
   const qtyOf = (id: string) => inQty[id] ?? 1;
 
+  // Frota completa, ordenada por desempenho (melhor → pior)
   const sortedByPerf = useMemo(
-    () => [...eligible].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
-    [eligible]
+    () => [...perVehicle].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
+    [perVehicle]
   );
 
   const matches = (p: SimVehicle, q: string) => {
@@ -174,19 +175,19 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
       .filter(Boolean).join(" ").toLowerCase().includes(s);
   };
 
-  // Para VENDER: mostra do pior pro melhor
+  // Para VENDER: mostra a frota inteira do pior pro melhor (escondendo o que já está marcado para comprar)
   const sellList = useMemo(
-    () => [...sortedByPerf].reverse().filter(p => matches(p, queryOut)),
-    [sortedByPerf, queryOut]
+    () => [...sortedByPerf].reverse().filter(p => matches(p, queryOut) && !inIds.includes(p.v.id)),
+    [sortedByPerf, queryOut, inIds]
   );
-  // Para COMPRAR (referência): top desempenho
+  // Para COMPRAR: frota inteira do melhor pro pior (escondendo o que já está marcado para vender)
   const buyList = useMemo(
-    () => sortedByPerf.filter(p => matches(p, queryIn)),
-    [sortedByPerf, queryIn]
+    () => sortedByPerf.filter(p => matches(p, queryIn) && !outIds.includes(p.v.id)),
+    [sortedByPerf, queryIn, outIds]
   );
 
-  const outList = outIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
-  const inList = inIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
+  const outList = outIds.map(id => perVehicle.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
+  const inList = inIds.map(id => perVehicle.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
 
   // Unidades totais a comprar (soma das qtds)
   const inTotalUnits = inList.reduce((s, p) => s + qtyOf(p.v.id), 0);
