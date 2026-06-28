@@ -12,7 +12,6 @@ import {
   Sparkles,
   CalendarDays,
   ChevronDown,
-  FileSignature,
   Upload,
   GraduationCap,
   ScrollText,
