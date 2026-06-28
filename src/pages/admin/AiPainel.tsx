@@ -133,6 +133,39 @@ export default function AiPainel({
     p.occupancy < 25 && p.daysInFleet > 90 && p.daily > 0
   ).sort((a, b) => a.occupancy - b.occupancy).slice(0, 5);
 
+  /* ───── Sugestões de troca: pareia underperformer com top-star similar ───── */
+  const swapSuggestions = useMemo(() => {
+    const stars = [...perVehicle]
+      .filter(p => p.daysInFleet > 60 && p.revPerDayOwned > 0)
+      .sort((a, b) => b.revPerDayOwned - a.revPerDayOwned)
+      .slice(0, 5);
+    const weak = [...perVehicle]
+      .filter(p => p.daysInFleet > 120 && p.occupancy < 35 && p.purchase > 0)
+      .sort((a, b) => a.revPerDayOwned - b.revPerDayOwned)
+      .slice(0, 4);
+    return weak.map(w => {
+      // Match preferido: mesma categoria; depois mesma marca; depois melhor star geral
+      const sameCat = stars.find(s => s.v.id !== w.v.id && (s.v.category || "—") === (w.v.category || "—"));
+      const sameBrand = stars.find(s => s.v.id !== w.v.id && (s.v.brand || "") === (w.v.brand || "") && (w.v.brand || ""));
+      const best = stars.find(s => s.v.id !== w.v.id);
+      const match = sameCat || sameBrand || best;
+      if (!match) return null;
+      const upliftPerDay = Math.max(match.revPerDayOwned - w.revPerDayOwned, 0);
+      const annualUplift = upliftPerDay * 365;
+      const reason = sameCat
+        ? `mesma categoria (${w.v.category || "—"})`
+        : sameBrand
+        ? `mesma marca (${w.v.brand})`
+        : "melhor desempenho da frota";
+      return { weak: w, star: match, upliftPerDay, annualUplift, reason };
+    }).filter(Boolean) as Array<{
+      weak: typeof perVehicle[number]; star: typeof perVehicle[number];
+      upliftPerDay: number; annualUplift: number; reason: string;
+    }>;
+  }, [perVehicle]);
+
+
+
   /* ───── Concentração de receita (estilo Pareto) ───── */
   const concentration = useMemo(() => {
     const totalRev = perVehicle.reduce((s, p) => s + p.revenue, 0);
@@ -816,6 +849,50 @@ export default function AiPainel({
         {/* ───── Tab: STRATEGY ───── */}
         {tab === "strategy" && (
           <div className="space-y-3">
+            {swapSuggestions.length > 0 && (
+              <div className="ai-card relative overflow-hidden">
+                <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-cyan-400/10 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-12 -left-12 w-64 h-64 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none" />
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Wand2 className="w-4 h-4 text-cyan-300" />
+                    <span className="text-[11px] uppercase tracking-[0.18em] text-cyan-200/80">Sugestões de troca da IA</span>
+                  </div>
+                  <h3 className="text-base md:text-lg font-light text-white leading-snug mb-1">
+                    Carros que estão dando pouco retorno — e qual carro da sua frota provou render mais no lugar.
+                  </h3>
+                  <p className="text-[12px] text-white/55 mb-4 leading-relaxed">
+                    A IA pareou cada carro parado com um carro parecido (mesma categoria ou marca) que está performando bem. O valor mostra quanto a mais por ano você poderia ganhar trocando um pelo outro.
+                  </p>
+                  <ul className="space-y-2.5">
+                    {swapSuggestions.map((s, i) => (
+                      <li key={i} className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
+                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-[10px] uppercase tracking-wider text-rose-300/80 shrink-0">Trocar</span>
+                            <span className="text-[13px] text-white/90 truncate">{s.weak.v.name}</span>
+                          </div>
+                          <span className="text-[11px] tabular-nums text-rose-300 shrink-0">{fmtUSD(s.weak.revPerDayOwned)}/dia</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-[10px] uppercase tracking-wider text-emerald-300/80 shrink-0">Por algo como</span>
+                            <span className="text-[13px] text-white/90 truncate">{s.star.v.name}</span>
+                          </div>
+                          <span className="text-[11px] tabular-nums text-emerald-300 shrink-0">{fmtUSD(s.star.revPerDayOwned)}/dia</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 text-[10.5px] text-white/55">
+                          <span>Critério: {s.reason} · {s.weak.occupancy.toFixed(0)}% de uso vs {s.star.occupancy.toFixed(0)}%</span>
+                          <span className="text-amber-200/95 tabular-nums">+{fmtUSD(s.annualUplift)}/ano</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+
             {concentration && concentration.topForRev.length > 0 && (
               <div className="ai-card relative overflow-hidden">
                 <div className="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />

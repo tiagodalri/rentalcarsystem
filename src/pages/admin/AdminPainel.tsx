@@ -3,8 +3,10 @@ import { Navigate, useNavigate } from "react-router-dom";
 import {
   Activity, Brain, CalendarDays, CalendarRange, Car, CheckCircle2,
   ChevronRight, Clock, DollarSign, LogIn, LogOut as LogOutIcon,
-  TrendingDown, TrendingUp, Wrench,
+  TrendingDown, TrendingUp, Wrench, X,
 } from "lucide-react";
+import { createPortal } from "react-dom";
+
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -168,27 +170,63 @@ export default function AdminPainel() {
     </button>
   );
 
-  // ───── Mobile-first layout ─────
-  if (isMobile) {
-    if (aiMode) {
-      return (
-        <div className="space-y-3">
-          <div className="flex items-center justify-end px-1">{AiToggle}</div>
+  // ───── AI immersive overlay (mobile + desktop) ─────
+  if (aiMode) {
+    const overlay = (
+      <div
+        className="fixed inset-0 z-[120] overflow-y-auto overscroll-contain"
+        style={{ background: "radial-gradient(ellipse at top, #0b1830 0%, #050813 55%, #02030a 100%)" }}
+      >
+        <div
+          className="sticky top-0 z-[5] flex items-center justify-between gap-3 px-4 py-3 backdrop-blur-xl"
+          style={{
+            paddingTop: "max(12px, env(safe-area-inset-top))",
+            background: "linear-gradient(180deg, rgba(5,8,19,0.92), rgba(5,8,19,0.55))",
+            borderBottom: "1px solid rgba(120,180,255,0.12)",
+          }}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <div
+              className="grid place-items-center w-8 h-8 rounded-xl shrink-0"
+              style={{
+                background: "linear-gradient(135deg, rgba(120,180,255,0.35), rgba(180,120,255,0.35))",
+                boxShadow: "0 0 18px rgba(120,180,255,0.4)",
+              }}
+            >
+              <Brain size={15} className="text-white" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-[9.5px] uppercase tracking-[0.22em] text-cyan-200/80">Zeus Intelligence</div>
+              <div className="text-[12px] text-white/90 truncate">Modo IA ativado</div>
+            </div>
+          </div>
+          <button
+            onClick={() => setAiMode(false)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[10.5px] uppercase tracking-[0.16em] font-medium text-white/90 transition-all"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.14)",
+              minHeight: 40,
+            }}
+          >
+            <X size={14} />
+            <span>Sair</span>
+
+          </button>
+        </div>
+        <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
           <AiPainel bookings={bookings as any} vehicles={vehicles as any} />
         </div>
-      );
-    }
+      </div>
+    );
+    return createPortal(overlay, document.body);
+  }
+
+  // ───── Mobile-first layout (classic painel) ─────
+  if (isMobile) {
     return <MobilePainel bookings={bookings} vehicles={vehicles} onRefresh={load} onToggleAi={() => setAiMode(v => !v)} aiMode={aiMode} />;
   }
 
-  if (aiMode) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-end">{AiToggle}</div>
-        <AiPainel bookings={bookings as any} vehicles={vehicles as any} />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
