@@ -1299,6 +1299,8 @@ export default function AiPainel({
         {/* ───── Tab: STRATEGY ───── */}
         {tab === "strategy" && (
           <div className="space-y-3">
+            <FleetSimulator perVehicle={perVehicle as any} />
+
             {fleetProjection && fleetProjection.upliftPerDay > 0 && (
               <div className="ai-card relative overflow-hidden">
                 <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" />
