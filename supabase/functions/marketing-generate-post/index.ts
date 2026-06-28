@@ -279,8 +279,25 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
       : "";
 
     const referenceBlock = mode === "reference"
-      ? `\n\n═══ REFERENCIA VISUAL ═══
-A ultima imagem anexada e APENAS referencia de estilo (paleta, mood, iluminacao, tipografia). NAO copie logo nem textos dela.`
+      ? `\n\n═══ REFERENCIA CRIATIVA (OBRIGATORIO RESPEITAR) ═══
+A primeira imagem anexada e a REFERENCIA criativa. Use-a como base de TEMA, CONCEITO, COMPOSICAO, paleta, mood, iluminacao, tipografia e elementos visuais marcantes.${refBrief ? `
+
+Briefing extraido da referencia:
+- Tema/campanha: ${refBrief.tema}
+- Conceito: ${refBrief.conceito}
+- Elementos visuais a incorporar (adaptados): ${refBrief.elementosVisuais.join(", ")}
+- Paleta: ${refBrief.paleta}
+- Mood: ${refBrief.mood}
+${refBrief.promo ? `- Oferta a comunicar visualmente: ${refBrief.promo} (renderize como bloco editorial, fonte serif dourada elegante)` : ""}
+
+REGRAS:
+- TRADUZA o tema/campanha para a identidade Zeus Rental Car (premium, sofisticada, Orlando).
+- INCORPORE os elementos visuais marcantes (bandeiras, motivos, cenario etc) de forma elegante.
+- SUBSTITUA a marca/logo da referencia pelo logo oficial Zeus fornecido na ultima imagem.
+- NAO copie pessoas, fotos especificas, nem o logotipo da referencia.
+- O carro heroi DEVE ser o ${vehicleBrand || ""} ${vehicleName} da foto fornecida (cor, modelo e identidade EXATAS).` : `
+Capture tema, conceito, paleta, composicao e elementos visuais marcantes — adapte para a Zeus.
+NAO copie pessoas, logos nem textos literais da referencia.`}`
       : "";
 
     const seasonalBlock = tone === "sazonal" && seasonalTheme
