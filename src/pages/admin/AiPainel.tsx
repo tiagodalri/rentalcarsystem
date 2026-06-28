@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { parseDateOnly } from "@/lib/dateOnly";
 import {
   Brain, Sparkles, TrendingUp, AlertTriangle, Target, Zap, DollarSign,
@@ -8,7 +9,7 @@ import {
   CircleDollarSign, Lightbulb, Gamepad2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import FleetSimulator from "@/components/admin/zeus-brain/FleetSimulator";
+import { computePerVehicle } from "@/lib/zeusBrain/perVehicle";
 import { AiBriefingCard } from "@/components/admin/zeus-brain/AiBriefingCard";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
