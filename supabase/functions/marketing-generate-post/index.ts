@@ -324,20 +324,17 @@ Este slide faz parte de um carrossel coeso. Mantenha IDENTICOS: paleta, tipograf
           ? `\n3. TIPOGRAFIA (CAPA):
    - HEADLINE GRANDE: "${slide.headline}" (serif display Didot/Bodoni, branco, dominante)
    - SUBHEADLINE: "${slide.subheadline}" (sans-serif fina dourada caixa alta)
-   - Pequeno indicador "01 / ${slidesCount}" no canto inferior em dourado discreto
    - O carro e o heroi visual.`
           : slide.role === "cta"
             ? `\n3. TIPOGRAFIA (CTA — slide final):
    - CHAMADA: "${slide.headline}" centralizada, serif display branco
    - APOIO: "${slide.subheadline}" sans-serif fina dourada caixa alta
-   - Indicador "${String(idx + 1).padStart(2, "0")} / ${slidesCount}" no canto inferior dourado
    - "ZEUS RENTAL CAR  ·  ORLANDO" no rodape em dourado tracking largo
    - Composicao mais limpa: o carro pode aparecer em silhueta lateral ou parcial, dando peso ao texto.`
             : `\n3. TIPOGRAFIA (CONTEUDO):
    - TITULO: "${slide.headline}" (serif display branco, alinhado a esquerda ou centro)
    - APOIO: "${slide.subheadline}" (sans-serif fina dourada caixa alta)
    ${slide.body ? `- TEXTO CURTO: "${slide.body}" (sans-serif fina branca, 1-2 linhas)` : ""}
-   - Indicador "${String(idx + 1).padStart(2, "0")} / ${slidesCount}" no canto inferior dourado
    - Enquadre o carro com detalhe diferente da capa (faro, lateral, interior em sugestao, traseira).`;
 
       return `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Zeus Rental Car — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (Mr Porter, Robb Report, Architectural Digest Automotive).${carouselHeader}
