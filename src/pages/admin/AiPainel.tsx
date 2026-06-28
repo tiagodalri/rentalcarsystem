@@ -1178,7 +1178,7 @@ export default function AiPainel({
         {/* ───── Tab: DEMAND ───── */}
         {tab === "demand" && (
           <div className="space-y-3">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <div className="ai-card">
                 <CardHeader title="Com quanto tempo o cliente reserva" sub="Antecedência média entre fazer a reserva e retirar o carro" icon={Clock} />
                 <div className="text-3xl font-light text-cyan-200 tabular-nums">{leadTime.avg.toFixed(0)}<span className="text-base text-white/50"> dias</span></div>
@@ -1191,18 +1191,6 @@ export default function AiPainel({
                 <FunnelBar label="Em viagem agora ou já viajou" value={funnel.inProg} max={funnel.total} hue="amber" />
                 <FunnelBar label="Concluídas" value={funnel.completed} max={funnel.total} hue="emerald" />
                 <FunnelBar label="Canceladas" value={funnel.cancelled} max={funnel.total} hue="rose" />
-              </div>
-              <div className="ai-card">
-                <CardHeader title="Quais dias da semana saem mais carros" sub="Dias mais movimentados na retirada" icon={Calendar} />
-                <div className="grid grid-cols-7 gap-1.5">
-                  {dowHeat.map(d => (
-                    <div key={d.label} className="flex flex-col items-center gap-1">
-                      <div className="w-full rounded-md ai-heat" style={{ height: 56, opacity: 0.25 + (d.pct / 100) * 0.75 }} />
-                      <div className="text-[9.5px] uppercase tracking-wider text-white/60">{d.label}</div>
-                      <div className="text-[10.5px] tabular-nums text-white/85">{d.v}</div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
 
