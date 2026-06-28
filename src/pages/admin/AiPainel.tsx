@@ -1834,6 +1834,28 @@ export default function AiPainel({
             0 22px 40px -28px rgba(13,29,46,0.28) !important; }
         .ai-shell .ai-kpi [style*="textShadow"] { text-shadow: none !important; }
 
+        /* Lista de oportunidades (buracos entre reservas) */
+        .ai-oppor-list { display: flex; flex-direction: column; gap: 2px; margin-top: 2px;
+          border-top: 1px solid var(--zb-hairline); }
+        .ai-oppor-row { display: grid; grid-template-columns: 36px 1fr auto; align-items: center;
+          gap: 14px; padding: 14px 6px; border-bottom: 1px solid var(--zb-hairline);
+          transition: background .18s ease; }
+        .ai-oppor-row:hover { background: rgba(154,122,58,0.05); }
+        .ai-oppor-rank { font-family: "Söhne","Inter",sans-serif; font-size: 11px; font-weight: 600;
+          color: var(--zb-gold); letter-spacing: 0.12em; text-align: center; }
+        .ai-oppor-main { min-width: 0; }
+        .ai-oppor-vehicle { font-size: 13.5px; font-weight: 600; color: var(--zb-ink);
+          letter-spacing: -0.005em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ai-oppor-window { font-size: 11.5px; color: var(--zb-ink-soft); margin-top: 3px;
+          display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .ai-oppor-sep { color: var(--zb-muted); font-size: 10.5px; }
+        .ai-oppor-dot { color: var(--zb-faint); margin: 0 2px; }
+        .ai-oppor-amount { text-align: right; }
+        .ai-oppor-value { font-family: "Söhne","Inter",sans-serif; font-size: 17px; font-weight: 600;
+          color: var(--zb-emerald); letter-spacing: -0.01em; line-height: 1.1; }
+        .ai-oppor-label { font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
+          color: var(--zb-muted); margin-top: 4px; font-weight: 600; }
+
         @media (max-width: 640px) {
           .ai-shell { overscroll-behavior-y: contain; }
           .ai-title { font-size: 26px; }
