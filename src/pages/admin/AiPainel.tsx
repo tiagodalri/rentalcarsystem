@@ -162,14 +162,17 @@ export default function AiPainel({
     .filter(p => p.daysInFleet > 60)
     .sort((a, b) => a.revPerDayOwned - b.revPerDayOwned).slice(0, 3);
   const sellCandidates = perVehicle.filter(p =>
-    p.daysInFleet > 180 && p.occupancy < 35 && p.purchase > 0 && p.roi < 15
+    p.daysInFleet > 180 && p.occupancy < 35 && p.purchase > 0 && p.roi < 15 && p.hasAcquiredDate
   ).sort((a, b) => a.roi - b.roi).slice(0, 5);
+  // Subir preço: precisa de histórico real (>= 60 dias) e ocupação alta validada
   const priceUpCandidates = perVehicle.filter(p =>
-    p.occupancy > 70 && p.bookingsCount >= 3
+    p.occupancy >= 70 && p.occupancy <= 100 && p.bookingsCount >= 3 &&
+    p.daysInFleet >= 60 && p.hasAcquiredDate && p.daily > 0
   ).sort((a, b) => b.occupancy - a.occupancy).slice(0, 5);
   const priceDownCandidates = perVehicle.filter(p =>
-    p.occupancy < 25 && p.daysInFleet > 90 && p.daily > 0
+    p.occupancy < 25 && p.daysInFleet > 90 && p.daily > 0 && p.hasAcquiredDate
   ).sort((a, b) => a.occupancy - b.occupancy).slice(0, 5);
+
 
   /* ───── Sugestões de troca: pareia underperformer com top-star similar ───── */
   const swapSuggestions = useMemo(() => {
