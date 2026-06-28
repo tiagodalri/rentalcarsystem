@@ -390,7 +390,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           {/* Reference upload */}
           {mode === "reference" && (
             <div className="mt-3">
-              <Label>Imagem de referencia</Label>
+              <Label>Imagem de referência</Label>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -408,12 +408,12 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                   style={{ background: "white", border: "1.5px dashed rgba(13,29,46,0.30)", color: "#0d1d2e", minHeight: 80 }}
                 >
                   <Upload size={16} className="mx-auto mb-1" style={{ color: "#9a7a3a" }} />
-                  <div className="text-[12px] font-semibold">Anexar imagem inspiracao</div>
-                  <div className="text-[10px] opacity-65 mt-0.5">PNG, JPG ou WEBP ate 8MB</div>
+                  <div className="text-[12px] font-semibold">Anexar imagem de inspiração</div>
+                  <div className="text-[10px] opacity-65 mt-0.5">PNG, JPG ou WEBP até 8MB</div>
                 </button>
               ) : (
                 <div className="mt-1 rounded-lg overflow-hidden relative" style={{ border: "1px solid rgba(13,29,46,0.18)" }}>
-                  <img src={refDataUrl} alt="referencia" className="w-full max-h-[140px] object-contain bg-white" />
+                  <img src={refDataUrl} alt="Referência" className="w-full max-h-[140px] object-contain bg-white" />
                   <div className="flex items-center justify-between px-2.5 py-1.5 bg-white">
                     <span className="text-[10px] truncate" style={{ color: "rgba(13,29,46,0.65)" }}>{refName}</span>
                     <button
@@ -427,7 +427,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                 </div>
               )}
               <p className="text-[10px] mt-1" style={{ color: "rgba(13,29,46,0.55)" }}>
-                A IA usa essa arte como inspiracao de estilo, composicao e paleta. O carro e a marca Zeus continuam sendo os herois.
+                A IA usa essa arte como inspiração de estilo, composição e paleta. O carro e a marca Zeus continuam sendo os protagonistas.
               </p>
             </div>
           )}
