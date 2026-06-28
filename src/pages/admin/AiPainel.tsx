@@ -1209,24 +1209,27 @@ export default function AiPainel({
             <div className="ai-card">
               <CardHeader title="Buracos entre reservas. Dinheiro na mesa" sub="Períodos curtos em que o carro fica parado entre duas reservas confirmadas. Oferecer promo de última hora pode capturar essa receita." icon={Sparkles} />
               {opportunityWindows.length === 0 ? (
-                <p className="text-white/55 text-xs">Sem buracos relevantes no momento. Agenda bem encaixada.</p>
+                <p className="ai-card-sub">Sem buracos relevantes no momento. Agenda bem encaixada.</p>
               ) : (
-                <ul className="space-y-2.5">
+                <div className="ai-oppor-list">
                   {opportunityWindows.map((o, i) => (
-                    <li key={i} className="flex items-center justify-between gap-3 text-[12.5px]">
-                      <div className="min-w-0">
-                        <div className="text-white/90 truncate">{o.vehicle}</div>
-                        <div className="text-[10.5px] text-white/55">
-                          Livre de {format(o.gapStart, "dd MMM", { locale: ptBR })} até {format(o.gapEnd, "dd MMM", { locale: ptBR })} · {o.nights} noites paradas
+                    <div key={i} className="ai-oppor-row">
+                      <div className="ai-oppor-rank">{String(i + 1).padStart(2, "0")}</div>
+                      <div className="ai-oppor-main">
+                        <div className="ai-oppor-vehicle">{o.vehicle}</div>
+                        <div className="ai-oppor-window">
+                          {format(o.gapStart, "dd MMM", { locale: ptBR })} <span className="ai-oppor-sep">até</span> {format(o.gapEnd, "dd MMM", { locale: ptBR })}
+                          <span className="ai-oppor-dot">•</span>
+                          <span>{o.nights} {o.nights === 1 ? "noite parada" : "noites paradas"}</span>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="tabular-nums text-emerald-200/95">{fmtUSD(o.estLoss)}</div>
-                        <div className="text-[10px] text-white/50">possível recuperar</div>
+                      <div className="ai-oppor-amount">
+                        <div className="ai-oppor-value tabular-nums">{fmtUSD(o.estLoss)}</div>
+                        <div className="ai-oppor-label">Possível recuperar</div>
                       </div>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
           </div>
@@ -1788,48 +1791,70 @@ export default function AiPainel({
           background: linear-gradient(135deg, #faf0d6, #fbf7ee);
         }
 
-        /* ─── Overrides p/ componentes legados que usavam text-white/X e bg-*-400/10 ─── */
-        .ai-shell .text-white,
-        .ai-shell [class*="text-white/"] { color: var(--zb-ink) !important; }
-        .ai-shell .text-white\\/95 { color: var(--zb-ink) !important; }
-        .ai-shell .text-white\\/90,
-        .ai-shell .text-white\\/85,
-        .ai-shell .text-white\\/80 { color: var(--zb-ink-2) !important; }
-        .ai-shell .text-white\\/70,
-        .ai-shell .text-white\\/65,
-        .ai-shell .text-white\\/60,
-        .ai-shell .text-white\\/55,
-        .ai-shell .text-white\\/50 { color: var(--zb-ink-soft) !important; }
-        .ai-shell .text-white\\/45,
-        .ai-shell .text-white\\/40,
-        .ai-shell .text-white\\/35,
-        .ai-shell .text-white\\/30 { color: var(--zb-muted) !important; }
+        /* ─── Overrides p/ componentes legados que usavam text-white/X e bg-*-400/10 ───
+           Usamos attribute selectors p/ pegar TODAS variações de opacidade (/95, /80, /70, /50, etc.) */
+        .ai-shell [class*="text-white"]   { color: var(--zb-ink-2) !important; }
+        .ai-shell [class*="text-white/9"],
+        .ai-shell [class*="text-white/8"] { color: var(--zb-ink) !important; }
+        .ai-shell [class*="text-white/7"],
+        .ai-shell [class*="text-white/6"],
+        .ai-shell [class*="text-white/5"] { color: var(--zb-ink-soft) !important; }
+        .ai-shell [class*="text-white/4"],
+        .ai-shell [class*="text-white/3"] { color: var(--zb-muted) !important; }
 
-        /* hue text classes → navy/gold institucional */
-        .ai-shell .text-cyan-200,    .ai-shell .text-cyan-300,    .ai-shell .text-cyan-300\\/70   { color: var(--zb-gold) !important; }
-        .ai-shell .text-violet-200,  .ai-shell .text-violet-300                                     { color: #4a3a78 !important; }
-        .ai-shell .text-amber-200,   .ai-shell .text-amber-300                                      { color: var(--zb-gold) !important; }
-        .ai-shell .text-emerald-200, .ai-shell .text-emerald-300                                    { color: var(--zb-emerald) !important; }
-        .ai-shell .text-rose-200,    .ai-shell .text-rose-300                                       { color: var(--zb-rose) !important; }
+        /* hue text classes → navy/gold institucional (cobre /70, /80, /95 etc) */
+        .ai-shell [class*="text-cyan-"]    { color: var(--zb-gold) !important; }
+        .ai-shell [class*="text-violet-"]  { color: #4a3a78 !important; }
+        .ai-shell [class*="text-amber-"]   { color: var(--zb-gold) !important; }
+        .ai-shell [class*="text-emerald-"] { color: var(--zb-emerald) !important; }
+        .ai-shell [class*="text-rose-"]    { color: var(--zb-rose) !important; }
+        .ai-shell [class*="text-sky-"]     { color: #2d5a8a !important; }
 
         /* superfícies coloridas → champagne discreto */
-        .ai-shell [class*="bg-cyan-400/10"],
-        .ai-shell [class*="bg-violet-400/10"],
-        .ai-shell [class*="bg-violet-500/10"],
-        .ai-shell [class*="bg-amber-300/10"],
-        .ai-shell [class*="bg-amber-400/10"],
-        .ai-shell [class*="bg-rose-400/10"],
-        .ai-shell [class*="bg-emerald-400/10"] {
-          background-color: rgba(154,122,58,0.08) !important;
-          border-color: rgba(154,122,58,0.22) !important;
+        .ai-shell [class*="bg-cyan-"],
+        .ai-shell [class*="bg-violet-"],
+        .ai-shell [class*="bg-amber-"],
+        .ai-shell [class*="bg-sky-"] {
+          background-color: rgba(154,122,58,0.10) !important;
+          border-color: rgba(154,122,58,0.24) !important;
         }
-        .ai-shell .bg-white\\/10 { background-color: rgba(13,29,46,0.06) !important; }
+        .ai-shell [class*="bg-emerald-"] {
+          background-color: rgba(47,106,78,0.10) !important;
+          border-color: rgba(47,106,78,0.26) !important;
+        }
+        .ai-shell [class*="bg-rose-"] {
+          background-color: rgba(154,59,59,0.08) !important;
+          border-color: rgba(154,59,59,0.26) !important;
+        }
+        .ai-shell [class*="bg-white"] { background-color: rgba(13,29,46,0.04) !important; }
 
         /* KPI card glow legado → sombra navy discreta */
         .ai-shell .ai-kpi { box-shadow:
             0 1px 0 rgba(255,255,255,0.7) inset,
             0 22px 40px -28px rgba(13,29,46,0.28) !important; }
         .ai-shell .ai-kpi [style*="textShadow"] { text-shadow: none !important; }
+
+        /* Lista de oportunidades (buracos entre reservas) */
+        .ai-oppor-list { display: flex; flex-direction: column; gap: 2px; margin-top: 2px;
+          border-top: 1px solid var(--zb-hairline); }
+        .ai-oppor-row { display: grid; grid-template-columns: 36px 1fr auto; align-items: center;
+          gap: 14px; padding: 14px 6px; border-bottom: 1px solid var(--zb-hairline);
+          transition: background .18s ease; }
+        .ai-oppor-row:hover { background: rgba(154,122,58,0.05); }
+        .ai-oppor-rank { font-family: "Söhne","Inter",sans-serif; font-size: 11px; font-weight: 600;
+          color: var(--zb-gold); letter-spacing: 0.12em; text-align: center; }
+        .ai-oppor-main { min-width: 0; }
+        .ai-oppor-vehicle { font-size: 13.5px; font-weight: 600; color: var(--zb-ink);
+          letter-spacing: -0.005em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ai-oppor-window { font-size: 11.5px; color: var(--zb-ink-soft); margin-top: 3px;
+          display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .ai-oppor-sep { color: var(--zb-muted); font-size: 10.5px; }
+        .ai-oppor-dot { color: var(--zb-faint); margin: 0 2px; }
+        .ai-oppor-amount { text-align: right; }
+        .ai-oppor-value { font-family: "Söhne","Inter",sans-serif; font-size: 17px; font-weight: 600;
+          color: var(--zb-emerald); letter-spacing: -0.01em; line-height: 1.1; }
+        .ai-oppor-label { font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
+          color: var(--zb-muted); margin-top: 4px; font-weight: 600; }
 
         @media (max-width: 640px) {
           .ai-shell { overscroll-behavior-y: contain; }
