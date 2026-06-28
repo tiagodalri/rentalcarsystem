@@ -262,7 +262,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-3 sm:gap-4">
         {/* Form */}
         <div
-          className="rounded-[14px] p-3 sm:p-4"
+          className={`rounded-[14px] p-3 sm:p-4 ${(loading || result) ? "order-2 lg:order-none" : ""}`}
           style={{ background: "#fbf7ee", border: "1px solid rgba(13,29,46,0.10)" }}
         >
           {/* Mode selector */}
