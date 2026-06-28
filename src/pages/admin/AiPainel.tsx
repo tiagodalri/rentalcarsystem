@@ -35,7 +35,7 @@ type FinTx = { type: string; amount: number; transaction_date: string; vehicle_i
 const fmtUSD = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 const fmtUSD2 = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
-type TabKey = "revenue" | "demand" | "customers" | "operations" | "financial" | "strategy";
+type TabKey = "revenue" | "demand" | "operations" | "financial" | "strategy";
 
 export default function AiPainel({
   bookings, vehicles,
@@ -621,14 +621,6 @@ export default function AiPainel({
         prioridade: "media", categoria: "Oportunidade",
       });
     });
-    churnRisks.slice(0, 2).forEach(c => {
-      out.push({
-        titulo: `Reative ${c.name}`,
-        descricao: `Cliente já gastou ${fmtUSD(c.revenue)} em ${c.trips} viagens. Está sem alugar há ${c.recency} dias — fora do padrão dele.`,
-        impacto: `Ticket médio ${fmtUSD(c.revenue / c.trips)}`, impactoValor: c.revenue / c.trips,
-        prioridade: "media", categoria: "Cliente",
-      });
-    });
     priceDownCandidates.slice(0, 1).forEach(p => {
       out.push({
         titulo: `Teste promo na ${p.v.name}`,
@@ -790,7 +782,6 @@ export default function AiPainel({
             ocupacaoMediaDessesCarros: Math.round(concentration.topAvgOcc),
             ocupacaoMediaDosOutros: Math.round(concentration.tailAvgOcc),
             marcaQueMaisGera: concentration.topBrand,
-            top10PctClientesGeram: Math.round(concentration.topCustomers.share),
           } : null,
           mesAtual: {
             entrouAteHoje: Math.round(pacing.mtd),
@@ -803,14 +794,6 @@ export default function AiPainel({
           pipelineFuturo: {
             proximos30Dias: Math.round(next30),
             proximos60Dias: Math.round(next60),
-          },
-          clientes: {
-            unicos: customers.length,
-            taxaRecompraPct: Math.round(repeatRate),
-            fielVip: segmentCounts.Champion,
-            recorrente: segmentCounts.Loyal,
-            emRisco: segmentCounts["At Risk"],
-            novos: segmentCounts.New,
           },
           comportamento: {
             antecedenciaMediaDias: Math.round(leadTime.avg),
@@ -851,11 +834,10 @@ export default function AiPainel({
         else setBriefing(localBriefing(payload));
       } catch {
         setBriefing(localBriefing({
-          fleetROI, avgOccupancy, revPAC, fleetADR, fleetMargin, repeatRate,
+          fleetROI, avgOccupancy, revPAC, fleetADR, fleetMargin,
           pacing, sellCandidatesCount: sellCandidates.length,
           priceUpCount: priceUpCandidates.length,
           opportunityWindows: opportunityWindows.length,
-          champions: segmentCounts.Champion, atRisk: segmentCounts["At Risk"],
           topCategory: byCategory[0]?.cat, topStar: topStars[0]?.v.name,
         }));
       } finally { setBriefingLoading(false); }
@@ -866,7 +848,6 @@ export default function AiPainel({
   const tabs: { key: TabKey; label: string; icon: typeof Brain }[] = [
     { key: "revenue", label: "Receita", icon: DollarSign },
     { key: "demand", label: "Reservas", icon: Activity },
-    { key: "customers", label: "Clientes", icon: Users },
     { key: "operations", label: "Operação", icon: Gauge },
     { key: "financial", label: "Dinheiro", icon: Wallet },
     { key: "strategy", label: "Recomendações", icon: Wand2 },
@@ -892,7 +873,7 @@ export default function AiPainel({
             </div>
             <h1 className="ai-title">Painel Inteligente</h1>
             <p className="ai-subtitle">
-              {perVehicle.length} carros · {realBookings.length} reservas · {customers.length} clientes únicos
+              {perVehicle.length} carros · {realBookings.length} reservas
             </p>
           </div>
           <div className="hidden sm:flex items-center gap-2">
@@ -1109,67 +1090,7 @@ export default function AiPainel({
           </div>
         )}
 
-        {/* ───── Tab: CUSTOMERS ───── */}
-        {tab === "customers" && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
-              {([
-                { k: "Champion", pt: "Fiéis VIP", help: "4+ reservas, voltaram nos últimos 90 dias" },
-                { k: "Loyal", pt: "Recorrentes", help: "2+ reservas, ativos nos últimos 6 meses" },
-                { k: "At Risk", pt: "Em risco", help: "Já voltaram antes, mas sumiram há mais de 6 meses" },
-                { k: "Hibernating", pt: "Adormecidos", help: "Alugaram uma vez e nunca mais voltaram" },
-                { k: "New", pt: "Novos", help: "Primeira reserva recente" },
-              ] as const).map(s => (
-                <div key={s.k} className="ai-card text-center py-4">
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-white/55">{s.pt}</div>
-                  <div className="text-2xl font-light text-white/90 tabular-nums mt-1">{segmentCounts[s.k] || 0}</div>
-                  <div className="text-[9.5px] text-white/45 mt-1 px-1 leading-tight">{s.help}</div>
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <div className="ai-card">
-                <CardHeader title="Clientes que voltaram" sub="% de clientes com 2 ou mais reservas" icon={Repeat} />
-                <div className="text-3xl font-light text-emerald-200 tabular-nums">{repeatRate.toFixed(1)}%</div>
-                <div className="text-[11px] text-white/55 mt-1">{customers.filter(c => c.trips >= 2).length} clientes voltaram, de {customers.length} no total</div>
-              </div>
-              <div className="ai-card lg:col-span-2">
-                <CardHeader title="Clientes valiosos que estão sumindo" sub="Já gastaram bem na sua frota e estão demorando mais do que o normal para voltar — vale uma mensagem" icon={ShieldAlert} />
-                {churnRisks.length === 0 ? <p className="text-white/55 text-xs">Nenhum cliente importante em zona de risco.</p> : (
-                  <ul className="space-y-2.5">
-                    {churnRisks.map((c, i) => (
-                      <li key={i} className="flex items-center justify-between gap-2 text-[12.5px]">
-                        <div className="min-w-0">
-                          <div className="text-white/90 truncate">{c.name}</div>
-                          <div className="text-[10.5px] text-white/55">{c.trips} reservas · sem alugar há {c.recency} dias (costuma voltar a cada {c.avgInterval.toFixed(0)} dias)</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="tabular-nums text-rose-300">{c.churnRisk.toFixed(0)}%</div>
-                          <div className="text-[10px] text-white/50">já gastou {fmtUSD(c.revenue)}</div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
 
-            <div className="ai-card">
-              <CardHeader title="Top 5 clientes que mais gastaram" sub="Receita total acumulada na sua frota" icon={Award} />
-              <ul className="space-y-2.5">
-                {topCustomers.map((c, i) => (
-                  <li key={i} className="flex items-center justify-between gap-2 text-[12.5px]">
-                    <div className="min-w-0">
-                      <div className="text-white/90 truncate">{c.name}</div>
-                      <div className="text-[10.5px] text-white/55">{c.trips} reservas · {ptSegment(c.segment)}</div>
-                    </div>
-                    <span className="tabular-nums text-amber-200/95">{fmtUSD(c.revenue)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
 
         {/* ───── Tab: OPERATIONS ───── */}
         {tab === "operations" && (
@@ -1227,7 +1148,7 @@ export default function AiPainel({
             </div>
 
             {/* Receita Perdida & Velocidade de Pagamento */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <div className="ai-card relative overflow-hidden">
                 <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-rose-400/10 blur-3xl pointer-events-none" />
                 <div className="relative">
@@ -1250,17 +1171,6 @@ export default function AiPainel({
                 ) : (
                   <p className="text-white/55 text-xs">Sem dados de preço de compra suficientes ainda.</p>
                 )}
-              </div>
-              <div className="ai-card">
-                <CardHeader title="Índice de fidelidade" sub="Quantos clientes voltaram pelo menos uma segunda vez" icon={HeartHandshake} />
-                <div className="text-3xl font-light text-emerald-200 tabular-nums">{repeatRate.toFixed(0)}%</div>
-                <p className="text-[11px] text-white/55 mt-3 leading-relaxed">
-                  {repeatRate >= 30
-                    ? "Acima da média do setor — sua experiência está fidelizando."
-                    : repeatRate >= 15
-                    ? "Na média do setor — há espaço para programa de fidelidade gerar mais retorno."
-                    : "Abaixo do esperado — investir em relacionamento pós-aluguel pode multiplicar a recompra."}
-                </p>
               </div>
             </div>
 
@@ -1498,34 +1408,19 @@ export default function AiPainel({
               </div>
             )}
 
-            {(concentration?.topBrand || (concentration && concentration.topCustomers.share > 0)) && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {concentration?.topBrand && (
-                  <div className="ai-card">
-                    <CardHeader title="Dependência de uma marca" sub="Quanto da sua receita depende de uma única marca" icon={Layers} />
-                    <div className="text-2xl font-light text-white tabular-nums">
-                      {concentration.topBrand.share.toFixed(0)}% <span className="text-base text-white/50">vem de {concentration.topBrand.name}</span>
-                    </div>
-                    <p className="text-[12px] text-white/60 mt-2 leading-relaxed">
-                      {concentration.topBrand.share > 50
-                        ? "Concentração alta. Se essa marca tiver um problema (recall, manutenção, demanda fria), o impacto no caixa é grande. Vale diversificar nas próximas compras."
-                        : "Distribuição saudável entre marcas — risco diluído."}
-                    </p>
+            {concentration?.topBrand && (
+              <div className="grid grid-cols-1 gap-3">
+                <div className="ai-card">
+                  <CardHeader title="Dependência de uma marca" sub="Quanto da sua receita depende de uma única marca" icon={Layers} />
+                  <div className="text-2xl font-light text-white tabular-nums">
+                    {concentration.topBrand.share.toFixed(0)}% <span className="text-base text-white/50">vem de {concentration.topBrand.name}</span>
                   </div>
-                )}
-                {concentration && concentration.topCustomers.share > 0 && (
-                  <div className="ai-card">
-                    <CardHeader title="Dependência de poucos clientes" sub="Quanto vem dos seus melhores clientes" icon={Users} />
-                    <div className="text-2xl font-light text-white tabular-nums">
-                      {concentration.topCustomers.share.toFixed(0)}% <span className="text-base text-white/50">vem dos top {concentration.topCustomers.count} clientes</span>
-                    </div>
-                    <p className="text-[12px] text-white/60 mt-2 leading-relaxed">
-                      {concentration.topCustomers.share > 50
-                        ? `Os 10% melhores clientes (${concentration.topCustomers.count} de ${concentration.topCustomers.total}) sustentam mais da metade da receita. Programa de fidelidade e atendimento VIP aqui é prioridade — perder um desses dói no caixa.`
-                        : "Base de clientes bem distribuída — risco baixo de perder um cliente grande."}
-                    </p>
-                  </div>
-                )}
+                  <p className="text-[12px] text-white/60 mt-2 leading-relaxed">
+                    {concentration.topBrand.share > 50
+                      ? "Concentração alta. Se essa marca tiver um problema (recall, manutenção, demanda fria), o impacto no caixa é grande. Vale diversificar nas próximas compras."
+                      : "Distribuição saudável entre marcas — risco diluído."}
+                  </p>
+                </div>
               </div>
             )}
 
@@ -1545,7 +1440,7 @@ export default function AiPainel({
                     <li key={p.v.id} className="flex justify-between text-[12.5px]">
                       <div className="min-w-0">
                         <div className="text-white/90 truncate">{p.v.name}</div>
-                        <div className="text-[10.5px] text-white/55">{p.bookingsCount} reservas · {p.customerCount} clientes diferentes</div>
+                        <div className="text-[10.5px] text-white/55">{p.bookingsCount} reservas</div>
                       </div>
                       <span className="tabular-nums text-emerald-200">{fmtUSD(p.revPerDayOwned)}/dia</span>
                     </li>
@@ -1816,7 +1711,7 @@ function localBriefing(p: any): string {
   if (p.sellCandidatesCount) parts.push(`Existem ${p.sellCandidatesCount} carro(s) com pouco uso e baixo retorno que valem ser considerados para venda.`);
   if (p.priceUpCount) parts.push(`${p.priceUpCount} carro(s) estão sempre alugados e aguentam um aumento de preço entre 12% e 18%.`);
   if (p.opportunityWindows) parts.push(`Encontrei ${p.opportunityWindows} períodos curtos de carros parados entre reservas — uma promo de última hora pode capturar essa receita.`);
-  if (p.champions || p.atRisk) parts.push(`Você tem ${p.champions ?? 0} clientes Fiéis VIP que sustentam a recorrência${p.atRisk ? ` e ${p.atRisk} cliente(s) Em risco que merecem uma mensagem` : ""}.`);
+  
   if (p.topCategory) parts.push(`A categoria que mais rende hoje é ${p.topCategory}.`);
   return parts.join(" ");
 }
