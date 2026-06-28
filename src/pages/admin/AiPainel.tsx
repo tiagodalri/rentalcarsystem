@@ -1984,7 +1984,7 @@ function localBriefing(p: any): string {
   }
   if (p.avgOccupancy !== undefined) {
     if (p.avgOccupancy < 40) parts.push(`A frota está alugada apenas ${p.avgOccupancy.toFixed(0)}% do tempo. O foco agora deve ser atrair mais clientes antes de comprar carros novos.`);
-    else if (p.avgOccupancy > 70) parts.push(`Os carros estão alugados ${p.avgOccupancy.toFixed(0)}% do tempo — é o momento certo de aumentar preço.`);
+    else if (p.avgOccupancy > 70) parts.push(`Os carros estão alugados ${p.avgOccupancy.toFixed(0)}% do tempo. É o momento certo de aumentar preço.`);
     else parts.push(`Ocupação está em ${p.avgOccupancy.toFixed(0)}% — saudável, com espaço para ajustes pontuais.`);
   }
   if (p.revPAC) parts.push(`Cada carro está gerando em média ${fmtUSD2(p.revPAC)} por dia que está na sua frota — use isso como referência ao avaliar a compra de um carro novo.`);
