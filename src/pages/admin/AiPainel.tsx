@@ -985,13 +985,47 @@ export default function AiPainel({
         {/* Tabs */}
         <div className="ai-tabs-wrap">
           <div className="ai-tabs">
-            {tabs.map(t => (
-              <button key={t.key} onClick={() => setTab(t.key)} className={`ai-tab ${tab === t.key ? "ai-tab-active" : ""}`}>
-                <t.icon size={13} /> <span>{t.label}</span>
-              </button>
-            ))}
+            {tabs.map(t => {
+              const active = tab === t.key;
+              if (t.highlight) {
+                return (
+                  <button
+                    key={t.key}
+                    onClick={() => setTab(t.key)}
+                    className={`ai-tab relative overflow-visible group ${
+                      active
+                        ? "!bg-gradient-to-r !from-amber-400/25 !via-amber-300/15 !to-emerald-400/20 !border-amber-300/60 !text-white shadow-[0_0_25px_rgba(251,191,36,0.35)]"
+                        : "!bg-gradient-to-r !from-amber-400/10 !to-emerald-400/10 !border-amber-300/40 !text-amber-100 hover:!from-amber-400/20 hover:!to-emerald-400/20"
+                    }`}
+                  >
+                    <span className="absolute -top-1.5 -right-1.5 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-400 border border-amber-200" />
+                    </span>
+                    <Sparkles size={11} className="text-amber-300" />
+                    <t.icon size={13} />
+                    <span className="font-medium">{t.label}</span>
+                    <span className="text-[8.5px] uppercase tracking-[0.18em] px-1.5 py-[1px] rounded-sm bg-amber-300/20 border border-amber-300/40 text-amber-100 ml-0.5">
+                      Novo
+                    </span>
+                  </button>
+                );
+              }
+              return (
+                <button key={t.key} onClick={() => setTab(t.key)} className={`ai-tab ${active ? "ai-tab-active" : ""}`}>
+                  <t.icon size={13} /> <span>{t.label}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
+
+        {/* ───── Tab: SIMULATOR ───── */}
+        {tab === "simulator" && (
+          <div className="space-y-3">
+            <FleetSimulator perVehicle={perVehicle as any} />
+          </div>
+        )}
 
 
         {/* ───── Tab: REVENUE ───── */}
