@@ -174,9 +174,20 @@ function VehicleRow({
 
 
 export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[] }) {
-  const eligible = useMemo(
-    () => perVehicle.filter(p => p.hasAcquiredDate && p.daysInFleet >= 60 && p.bookingsCount > 0),
+  // Carros sem valor pago cadastrado são excluídos do simulador.
+  // O cálculo de capital, ROI, payback e balanço depende desse valor.
+  const missingPrice = useMemo(
+    () => perVehicle.filter(p => !(p.purchase > 0)),
     [perVehicle]
+  );
+  const priced = useMemo(
+    () => perVehicle.filter(p => p.purchase > 0),
+    [perVehicle]
+  );
+
+  const eligible = useMemo(
+    () => priced.filter(p => p.hasAcquiredDate && p.daysInFleet >= 60 && p.bookingsCount > 0),
+    [priced]
   );
 
   const [outIds, setOutIds] = useState<string[]>([]);
@@ -188,8 +199,8 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
   const qtyOf = (id: string) => inQty[id] ?? 1;
 
   const sortedByPerf = useMemo(
-    () => [...perVehicle].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
-    [perVehicle]
+    () => [...priced].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
+    [priced]
   );
 
   const matches = (p: SimVehicle, q: string) => {
