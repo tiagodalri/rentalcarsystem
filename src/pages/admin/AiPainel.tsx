@@ -1169,7 +1169,7 @@ export default function AiPainel({
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <KpiBlock title="Receita total acumulada" value={fmtUSD(fleetRevenue)} sub={`Despesas registradas: ${fmtUSD(fleetExpenses)}`} icon={DollarSign} />
-              <KpiBlock title="Receita confirmada — próximos 30 dias" value={fmtUSD(next30)} sub={`Em 60 dias: ${fmtUSD(next60)}`} icon={Rocket} />
+              <KpiBlock title="Receita confirmada nos próximos 30 dias" value={fmtUSD(next30)} sub={`Em 60 dias: ${fmtUSD(next60)}`} icon={Rocket} />
               <KpiBlock title="Ocupação média da frota" value={`${avgOccupancy.toFixed(1)}%`} sub={`${totalDaysBooked} dias alugados no total`} icon={Gauge} />
             </div>
           </div>
