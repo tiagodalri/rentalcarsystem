@@ -10,6 +10,13 @@ import {
   type PvBooking,
   type PvExpense,
 } from "@/lib/zeusBrain/perVehicle";
+import {
+  type BookingSource,
+  readBookingSource,
+  writeBookingSource,
+  filterBookingsBySource,
+  SOURCE_LABEL,
+} from "@/lib/zeusBrain/bookingSource";
 
 export default function AiSimulador() {
   const navigate = useNavigate();
@@ -17,11 +24,13 @@ export default function AiSimulador() {
   const [vehicles, setVehicles] = useState<PvVehicle[]>([]);
   const [expenses, setExpenses] = useState<PvExpense[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bookingSource, setBookingSource] = useState<BookingSource>(() => readBookingSource());
+  useEffect(() => { writeBookingSource(bookingSource); }, [bookingSource]);
 
   const load = useCallback(async () => {
     const [b, v, e] = await Promise.all([
       supabase.from("bookings")
-        .select("id, status, pickup_date, return_date, total_price, vehicle_id, customer_name, customer_id")
+        .select("id, status, pickup_date, return_date, total_price, vehicle_id, customer_name, customer_id, stripe_session_id, turo_reservation_code")
         .limit(2000),
       supabase.from("vehicles")
         .select("id, name, status, color, daily_price_usd, purchase_price, acquired_date, category, brand, model")
@@ -38,14 +47,19 @@ export default function AiSimulador() {
   useEffect(() => { void load(); }, [load]);
 
   const today = useMemo(() => startOfDay(new Date()), []);
+  const sourceFiltered = useMemo(
+    () => filterBookingsBySource(bookings, bookingSource),
+    [bookings, bookingSource],
+  );
   const realBookings = useMemo(
-    () => bookings.filter(b => b.status !== "cancelled"),
-    [bookings],
+    () => sourceFiltered.filter(b => b.status !== "cancelled"),
+    [sourceFiltered],
   );
   const perVehicle = useMemo(
     () => computePerVehicle(vehicles, realBookings, expenses, today),
     [vehicles, realBookings, expenses, today],
   );
+
 
   return (
     <div
@@ -107,6 +121,44 @@ export default function AiSimulador() {
             style={{ color: "rgba(13,29,46,0.55)" }}
           >
             {perVehicle.length} carros · {realBookings.length} reservas
+          </div>
+        </div>
+
+        {/* Source selector — espelha o do painel principal */}
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-2">
+          <div
+            role="tablist"
+            aria-label="Origem das reservas"
+            className="inline-flex items-center gap-1 p-1 rounded-full"
+            style={{
+              background: "rgba(13,29,46,0.05)",
+              border: "1px solid rgba(13,29,46,0.10)",
+              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)",
+            }}
+          >
+            {(["all", "zeus", "turo"] as const).map((s) => {
+              const active = bookingSource === s;
+              return (
+                <button
+                  key={s}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setBookingSource(s)}
+                  className="relative inline-flex items-center justify-center px-3.5 sm:px-4 h-8 rounded-full text-[10.5px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] transition-all whitespace-nowrap"
+                  style={
+                    active
+                      ? {
+                          background: "linear-gradient(180deg, #14283d, #0d1d2e)",
+                          color: "#f3e6c4",
+                          boxShadow: "0 6px 14px -8px rgba(13,29,46,0.55), 0 0 0 1px rgba(154,122,58,0.45)",
+                        }
+                      : { color: "rgba(13,29,46,0.60)" }
+                  }
+                >
+                  {SOURCE_LABEL[s]}
+                </button>
+              );
+            })}
           </div>
         </div>
         {/* hairline gold accent */}

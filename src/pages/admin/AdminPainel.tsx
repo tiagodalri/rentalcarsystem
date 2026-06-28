@@ -18,6 +18,13 @@ import { formatPersonName } from "@/lib/formatName";
 import MobilePainel from "./mobile/MobilePainel";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import AiPainel from "./AiPainel";
+import {
+  type BookingSource,
+  readBookingSource,
+  writeBookingSource,
+  filterBookingsBySource,
+  SOURCE_LABEL,
+} from "@/lib/zeusBrain/bookingSource";
 
 
 
@@ -41,6 +48,8 @@ type BookingRow = {
   created_at: string;
   vehicle_id: string | null;
   customer_name: string | null;
+  stripe_session_id: string | null;
+  turo_reservation_code: string | null;
 };
 type VehicleRow = { id: string; name: string | null; status: string | null; color: string | null };
 
@@ -77,11 +86,23 @@ export default function AdminPainel() {
     try { localStorage.setItem("zeus_ai_mode", aiMode ? "1" : "0"); } catch {}
   }, [aiMode]);
 
+  const [bookingSource, setBookingSource] = useState<BookingSource>(() => readBookingSource());
+  useEffect(() => { writeBookingSource(bookingSource); }, [bookingSource]);
+
+  const filteredBookings = useMemo(
+    () => filterBookingsBySource(bookings, bookingSource),
+    [bookings, bookingSource],
+  );
+
+
+
+
+
 
   const load = useCallback(async () => {
     const [b, v] = await Promise.all([
       supabase.from("bookings")
-        .select("id, status, pickup_date, return_date, pickup_time, return_time, total_price, created_at, vehicle_id, customer_name")
+        .select("id, status, pickup_date, return_date, pickup_time, return_time, total_price, created_at, vehicle_id, customer_name, stripe_session_id, turo_reservation_code")
         .order("created_at", { ascending: false })
         .limit(800),
       supabase.from("vehicles")
@@ -186,7 +207,7 @@ export default function AdminPainel() {
         }}
       >
         <div
-          className="sticky top-0 z-[5] flex items-center justify-between gap-3 px-4 py-3 backdrop-blur-xl"
+          className="sticky top-0 z-[5] flex flex-col gap-2.5 px-4 py-3 backdrop-blur-xl"
           style={{
             paddingTop: "max(12px, env(safe-area-inset-top))",
             background:
@@ -194,34 +215,75 @@ export default function AdminPainel() {
             borderBottom: "1px solid rgba(13,29,46,0.10)",
           }}
         >
-          <div className="flex-1" />
-          <div
-            className="text-[15px] sm:text-[17px] font-light tracking-[0.42em] text-center select-none"
-            style={{
-              color: "#0d1d2e",
-              textShadow: "0 1px 0 rgba(255,255,255,0.6)",
-            }}
-          >
-            ZEUS BRAIN
-          </div>
-          <div className="flex-1 flex justify-end">
-            <button
-              onClick={() => setAiMode(false)}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full transition-all hover:opacity-90"
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1" />
+            <div
+              className="text-[15px] sm:text-[17px] font-light tracking-[0.42em] text-center select-none"
               style={{
-                background: "#fbf7ee",
-                border: "1px solid rgba(13,29,46,0.14)",
                 color: "#0d1d2e",
-                boxShadow: "0 4px 10px -6px rgba(13,29,46,0.25)",
+                textShadow: "0 1px 0 rgba(255,255,255,0.6)",
               }}
-              aria-label="Sair"
             >
-              <X size={16} />
-            </button>
+              ZEUS BRAIN
+            </div>
+            <div className="flex-1 flex justify-end">
+              <button
+                onClick={() => setAiMode(false)}
+                className="inline-flex items-center justify-center w-9 h-9 rounded-full transition-all hover:opacity-90"
+                style={{
+                  background: "#fbf7ee",
+                  border: "1px solid rgba(13,29,46,0.14)",
+                  color: "#0d1d2e",
+                  boxShadow: "0 4px 10px -6px rgba(13,29,46,0.25)",
+                }}
+                aria-label="Sair"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* Source selector — Private bank segmented control */}
+          <div className="flex justify-center">
+            <div
+              role="tablist"
+              aria-label="Origem das reservas"
+              className="inline-flex items-center gap-1 p-1 rounded-full"
+              style={{
+                background: "rgba(13,29,46,0.05)",
+                border: "1px solid rgba(13,29,46,0.10)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)",
+              }}
+            >
+              {(["all", "zeus", "turo"] as const).map((s) => {
+                const active = bookingSource === s;
+                return (
+                  <button
+                    key={s}
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setBookingSource(s)}
+                    className="relative inline-flex items-center justify-center px-3.5 sm:px-4 h-8 rounded-full text-[10.5px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] transition-all whitespace-nowrap"
+                    style={
+                      active
+                        ? {
+                            background: "linear-gradient(180deg, #14283d, #0d1d2e)",
+                            color: "#f3e6c4",
+                            boxShadow: "0 6px 14px -8px rgba(13,29,46,0.55), 0 0 0 1px rgba(154,122,58,0.45)",
+                          }
+                        : { color: "rgba(13,29,46,0.60)" }
+                    }
+                  >
+                    {SOURCE_LABEL[s]}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
         <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
-          <AiPainel bookings={bookings as any} vehicles={vehicles as any} />
+          <AiPainel bookings={filteredBookings as any} vehicles={vehicles as any} />
+
         </div>
       </div>
     );
