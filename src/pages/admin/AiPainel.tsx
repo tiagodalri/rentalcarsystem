@@ -5,7 +5,7 @@ import {
   Activity, Gauge, Award, Flame, Snowflake, Layers, Rocket, Users,
   Clock, ShieldAlert, Calendar, LineChart, Wallet, ArrowDownRight,
   ArrowUpRight, Repeat, Wand2, Sun, HeartHandshake, TimerReset, CalendarDays,
-  CircleDollarSign, Lightbulb,
+  CircleDollarSign, Lightbulb, Gamepad2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import FleetSimulator from "@/components/admin/zeus-brain/FleetSimulator";
