@@ -294,7 +294,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               <div className="text-xl md:text-2xl font-semibold text-emerald-300 tabular-nums leading-none">
                 {fmtUSD(buyCapitalLive)}
               </div>
-              <div className="text-[10px] text-white/40 tabular-nums mt-1">{inList.length} carro{inList.length === 1 ? "" : "s"} comprando</div>
+              <div className="text-[10px] text-white/40 tabular-nums mt-1">{inTotalUnits} unidade{inTotalUnits === 1 ? "" : "s"} · {inList.length} modelo{inList.length === 1 ? "" : "s"}</div>
             </div>
             <div>
               <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/45 mb-1">Saldo</div>
