@@ -207,6 +207,13 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
   const [inQty, setInQty] = useState<Record<string, number>>({});
   const [queryOut, setQueryOut] = useState("");
   const [queryIn, setQueryIn] = useState("");
+  const [aiOpen, setAiOpen] = useState(false);
+
+  const applyAiScenario = (sellIds: string[], buyIds: string[], qty: Record<string, number>) => {
+    setOutIds(sellIds);
+    setInIds(buyIds);
+    setInQty(qty);
+  };
 
   const qtyOf = (id: string) => inQty[id] ?? 1;
 
