@@ -309,7 +309,7 @@ export function AiBriefingCard({ briefing, loading, snapshot, highlights, action
                     className="text-[12px] mt-1"
                     style={{ color: MUTED, letterSpacing: "0.01em" }}
                   >
-                    Leitura rápida da semana — números, destaques e o que fazer.
+                    Leitura rápida da semana. Números, destaques e o que fazer.
                   </div>
                 )}
               </div>
