@@ -163,7 +163,7 @@ Resultado final: uma pagina de revista de luxo automotivo. Silencio visual, sofi
               ...(vehiclePhotoUrl
                 ? [{ type: "image_url", image_url: { url: vehiclePhotoUrl } }]
                 : []),
-              { type: "image_url", image_url: { url: ZEUS_LOGO_URL } },
+              { type: "image_url", image_url: { url: logoUrl } },
             ],
           },
         ],
