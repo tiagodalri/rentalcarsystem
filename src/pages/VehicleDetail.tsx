@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 import { useLanguage } from "@/i18n/LanguageContext";
 import { useVehiclesDB, categoryToKey } from "@/hooks/useVehiclesDB";
 import { useVehiclePricing } from "@/hooks/useVehiclePricing";
