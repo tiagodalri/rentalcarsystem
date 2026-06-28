@@ -902,55 +902,129 @@ export default function AiPainel({
                 Se você fizer só essas ações esta semana, é onde está o maior retorno.
               </h3>
 
+              {/* Legenda — explica o que significa cada coluna */}
+              <div
+                className="hidden sm:grid grid-cols-[120px_1fr_220px] gap-x-5 px-5 pb-2 mb-2 text-[9.5px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: "rgba(13,29,46,0.40)", borderBottom: "1px solid rgba(13,29,46,0.06)" }}
+              >
+                <span>Prioridade</span>
+                <span>O que fazer e por quê</span>
+                <span className="text-right">Impacto estimado</span>
+              </div>
+
               {/* Decisions list — divided rows for clear separation */}
               <ul className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(13,29,46,0.08)", background: "rgba(255,255,255,0.55)" }}>
                 {weeklyDecisions.map((d, i) => {
                   const isLast = i === weeklyDecisions.length - 1;
                   const pri = d.prioridade;
-                  const priStyle =
+                  const priCfg =
                     pri === "alta"
-                      ? { bg: "#fdecec", border: "rgba(180,40,40,0.25)", text: "#8a1f1f" }
+                      ? { label: "Prioridade alta", bg: "#fdecec", border: "rgba(180,40,40,0.30)", text: "#8a1f1f", dot: "#b42828" }
                       : pri === "media"
-                      ? { bg: "#fbf1d8", border: "rgba(154,122,58,0.35)", text: "#6b4f1d" }
-                      : { bg: "#e8efe7", border: "rgba(30,90,60,0.25)", text: "#2c5a3d" };
-                  const impactColor = pri === "alta" ? "#8a1f1f" : "#2c5a3d";
+                      ? { label: "Prioridade média", bg: "#fbf1d8", border: "rgba(154,122,58,0.40)", text: "#6b4f1d", dot: "#9a7a3a" }
+                      : { label: "Prioridade baixa", bg: "#e8efe7", border: "rgba(30,90,60,0.30)", text: "#2c5a3d", dot: "#2c5a3d" };
+
+                  // Classifica o tipo de impacto a partir do texto bruto vindo do gerador
+                  const raw = d.impacto || "";
+                  const isLoss = /^Diferença/i.test(raw);
+                  const isGain = /^\+/.test(raw);
+                  const isRecover = /^Recupere/i.test(raw);
+                  const isCost = /^Cada dia/i.test(raw);
+
+                  const impactLabel = isLoss
+                    ? "Receita em risco"
+                    : isGain
+                    ? "Ganho potencial"
+                    : isRecover
+                    ? "Recuperação possível"
+                    : isCost
+                    ? "Custo se nada for feito"
+                    : "Impacto estimado";
+
+                  // Valor já formatado, limpo do texto auxiliar
+                  const impactValue = raw
+                    .replace(/^Diferença atual:\s*/i, "")
+                    .replace(/^Recupere até\s*/i, "")
+                    .replace(/^Cada dia parado custa\s*/i, "")
+                    .replace(/\s*estimado$/i, "");
+
+                  const impactColor = isLoss || isCost ? "#8a1f1f" : isGain || isRecover ? "#2c5a3d" : "#0d1d2e";
+
                   return (
                     <li
                       key={i}
-                      className="grid grid-cols-[auto_1fr_auto] gap-x-3 sm:gap-x-4 gap-y-1 items-start px-3.5 sm:px-5 py-3.5 sm:py-4"
+                      className="grid grid-cols-1 sm:grid-cols-[120px_1fr_220px] gap-x-5 gap-y-3 items-start px-4 sm:px-5 py-4 sm:py-5"
                       style={!isLast ? { borderBottom: "1px solid rgba(13,29,46,0.07)" } : undefined}
                     >
-                      {/* Priority chip */}
-                      <span
-                        className="text-[9.5px] font-semibold uppercase tracking-[0.16em] px-2 py-[3px] rounded-md self-start"
-                        style={{ background: priStyle.bg, border: `1px solid ${priStyle.border}`, color: priStyle.text }}
-                      >
-                        {pri}
-                      </span>
-
-                      {/* Title + meta */}
-                      <div className="min-w-0">
-                        <div className="flex items-baseline gap-2 flex-wrap">
-                          <span className="text-[9.5px] font-medium uppercase tracking-[0.18em]" style={{ color: "rgba(13,29,46,0.45)" }}>
-                            {d.categoria}
-                          </span>
-                          <span className="hidden sm:inline" style={{ color: "rgba(13,29,46,0.20)" }}>·</span>
-                          <span className="text-[14px] sm:text-[14.5px] font-semibold leading-snug" style={{ color: "#0d1d2e", letterSpacing: "-0.005em" }}>
-                            {d.titulo}
-                          </span>
-                        </div>
-                        <p className="text-[12.5px] sm:text-[13px] leading-[1.55] mt-1.5" style={{ color: "rgba(13,29,46,0.68)" }}>
-                          {d.descricao}
-                        </p>
+                      {/* Coluna 1 — Prioridade + Categoria */}
+                      <div className="flex sm:flex-col items-start gap-2 sm:gap-1.5">
+                        <span
+                          className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] px-2 py-[4px] rounded-md whitespace-nowrap"
+                          style={{ background: priCfg.bg, border: `1px solid ${priCfg.border}`, color: priCfg.text }}
+                        >
+                          <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: priCfg.dot }} />
+                          {priCfg.label}
+                        </span>
+                        <span
+                          className="text-[9.5px] font-medium uppercase tracking-[0.20em]"
+                          style={{ color: "rgba(13,29,46,0.50)" }}
+                        >
+                          {d.categoria}
+                        </span>
                       </div>
 
-                      {/* Impact */}
-                      <span
-                        className="text-[11.5px] sm:text-[12px] tabular-nums font-semibold whitespace-nowrap text-right self-start pt-[2px] col-span-3 sm:col-span-1 sm:text-right"
-                        style={{ color: impactColor }}
+                      {/* Coluna 2 — Ação + contexto */}
+                      <div className="min-w-0">
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-1" style={{ color: "rgba(13,29,46,0.45)" }}>
+                          Ação sugerida
+                        </div>
+                        <h4 className="text-[15px] sm:text-[16px] font-semibold leading-snug mb-2" style={{ color: "#0d1d2e", letterSpacing: "-0.005em" }}>
+                          {d.titulo}
+                        </h4>
+                        <div className="flex gap-2">
+                          <span
+                            className="shrink-0 mt-[7px] inline-block h-[3px] w-[3px] rounded-full"
+                            style={{ background: "rgba(13,29,46,0.35)" }}
+                          />
+                          <p className="text-[13px] sm:text-[13.5px] leading-[1.6]" style={{ color: "rgba(13,29,46,0.72)" }}>
+                            <span className="font-semibold" style={{ color: "rgba(13,29,46,0.85)" }}>Por quê: </span>
+                            {d.descricao}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Coluna 3 — Impacto em "caixinha" clara */}
+                      <div
+                        className="rounded-lg px-3.5 py-3 sm:py-3.5 sm:text-right"
+                        style={{ background: "rgba(13,29,46,0.035)", border: "1px solid rgba(13,29,46,0.08)" }}
                       >
-                        {d.impacto}
-                      </span>
+                        <div className="text-[9.5px] font-semibold uppercase tracking-[0.18em] mb-1" style={{ color: "rgba(13,29,46,0.55)" }}>
+                          {impactLabel}
+                        </div>
+                        <div className="text-[17px] sm:text-[18px] tabular-nums font-semibold leading-tight" style={{ color: impactColor, letterSpacing: "-0.01em" }}>
+                          {impactValue}
+                        </div>
+                        {isGain && (
+                          <div className="text-[10.5px] mt-1" style={{ color: "rgba(13,29,46,0.50)" }}>
+                            projeção em 12 meses
+                          </div>
+                        )}
+                        {isLoss && (
+                          <div className="text-[10.5px] mt-1" style={{ color: "rgba(13,29,46,0.50)" }}>
+                            vs. mesmo período do mês passado
+                          </div>
+                        )}
+                        {isRecover && (
+                          <div className="text-[10.5px] mt-1" style={{ color: "rgba(13,29,46,0.50)" }}>
+                            se o carro for alugado no período
+                          </div>
+                        )}
+                        {isCost && (
+                          <div className="text-[10.5px] mt-1" style={{ color: "rgba(13,29,46,0.50)" }}>
+                            por cada dia sem ação
+                          </div>
+                        )}
+                      </div>
                     </li>
                   );
                 })}
