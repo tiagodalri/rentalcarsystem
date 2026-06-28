@@ -18,6 +18,13 @@ import { formatPersonName } from "@/lib/formatName";
 import MobilePainel from "./mobile/MobilePainel";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import AiPainel from "./AiPainel";
+import {
+  type BookingSource,
+  readBookingSource,
+  writeBookingSource,
+  filterBookingsBySource,
+  SOURCE_LABEL,
+} from "@/lib/zeusBrain/bookingSource";
 
 
 
