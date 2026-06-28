@@ -368,31 +368,31 @@ export default function AiOptimizerDialog({
                     Dados analisados
                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1">
                   {[
-                    { k: "Universo elegível", v: `${eligibleCount} carros`, hint: "60+ dias, com reservas" },
-                    { k: "Combinações testadas", v: scenario.combinationsEvaluated.toLocaleString("pt-BR"), hint: "Busca determinística" },
-                    { k: "Receita/dia atual", v: fmtUSD(scenario.currentRevPerDay), hint: `Vendidos . ${scenario.avgOccupancySell.toFixed(0)}% ocup. média` },
-                    { k: "Receita/dia projetada", v: fmtUSD(scenario.projectedRevPerDay), hint: `Comprados . ${scenario.avgOccupancyBuy.toFixed(0)}% ocup. média` },
-                    { k: "Capital recuperado", v: fmtUSD(scenario.recoveredCapital), hint: `${scenario.sell.length} venda${scenario.sell.length === 1 ? "" : "s"}` },
-                    { k: "Capital investido", v: fmtUSD(scenario.spentCapital), hint: `${scenario.buy.reduce((s, b) => s + b.qty, 0)} unidade${scenario.buy.reduce((s, b) => s + b.qty, 0) === 1 ? "" : "s"}` },
-                    { k: "Eficiência do capital", v: `${scenario.capitalEfficiency >= 0 ? "+" : ""}${scenario.capitalEfficiency.toFixed(0)}%`, hint: "Receita por $ empregado" },
-                    { k: "Granularidade", v: "$1.000", hint: "Até 5 un. por modelo" },
+                    { k: "Carros analisados", v: `${eligibleCount}`, hint: "Apenas com 60+ dias de histórico real" },
+                    { k: "Cenários testados pela IA", v: scenario.combinationsEvaluated.toLocaleString("pt-BR"), hint: "Combinações de compra avaliadas" },
+                    { k: "Quanto a frota atual gera por dia", v: fmtUSD(scenario.currentRevPerDay), hint: `Carros que a IA sugere vender . ocupação média ${scenario.avgOccupancySell.toFixed(0)}%` },
+                    { k: "Quanto a nova frota geraria por dia", v: fmtUSD(scenario.projectedRevPerDay), hint: `Carros que a IA sugere comprar . ocupação média ${scenario.avgOccupancyBuy.toFixed(0)}%` },
+                    { k: "Dinheiro recuperado com as vendas", v: fmtUSD(scenario.recoveredCapital), hint: `Soma do valor pago dos ${scenario.sell.length} carro${scenario.sell.length === 1 ? "" : "s"} vendido${scenario.sell.length === 1 ? "" : "s"}` },
+                    { k: "Dinheiro necessário para comprar", v: fmtUSD(scenario.spentCapital), hint: `Total para adquirir ${scenario.buy.reduce((s, b) => s + b.qty, 0)} unidade${scenario.buy.reduce((s, b) => s + b.qty, 0) === 1 ? "" : "s"}` },
+                    { k: "Retorno sobre o capital movimentado", v: `${scenario.capitalEfficiency >= 0 ? "+" : ""}${scenario.capitalEfficiency.toFixed(0)}%`, hint: "Receita extra gerada para cada dólar investido" },
+                    { k: "Precisão da simulação", v: "$1.000", hint: "Passo de busca. Até 5 unidades por modelo" },
                   ].map((d, i) => (
                     <div
                       key={d.k}
-                      className="flex items-baseline justify-between gap-4 py-2.5"
+                      className="flex items-start justify-between gap-3 py-3"
                       style={{ borderTop: i === 0 ? "none" : `1px solid ${NAVY_06}` }}
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="text-[12px] font-medium truncate" style={{ color: NAVY }}>
+                        <div className="text-[12.5px] font-medium leading-snug" style={{ color: NAVY }}>
                           {d.k}
                         </div>
-                        <div className="text-[10.5px] truncate" style={{ color: NAVY_40 }}>
+                        <div className="text-[10.5px] mt-0.5 leading-snug" style={{ color: NAVY_40 }}>
                           {d.hint}
                         </div>
                       </div>
-                      <div className="text-[14px] font-semibold tabular-nums whitespace-nowrap" style={{ color: NAVY, letterSpacing: "-0.01em" }}>
+                      <div className="text-[15px] font-semibold tabular-nums whitespace-nowrap pt-px" style={{ color: NAVY, letterSpacing: "-0.01em" }}>
                         {d.v}
                       </div>
                     </div>
