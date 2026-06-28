@@ -1127,11 +1127,74 @@ export default function AiPainel({
                 </ul>
               </div>
             </div>
+
+            {/* Receita Perdida & Velocidade de Pagamento */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              <div className="ai-card relative overflow-hidden">
+                <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-rose-400/10 blur-3xl pointer-events-none" />
+                <div className="relative">
+                  <CardHeader title="Quanto você deixou na mesa" sub="Soma de cancelamentos e janelas de carro parado entre reservas" icon={CircleDollarSign} />
+                  <div className="text-3xl font-light text-rose-200 tabular-nums">{fmtUSD(lostRevenue.total)}</div>
+                  <div className="mt-3 space-y-1.5 text-[11.5px] text-white/65">
+                    <div className="flex justify-between"><span>Cancelamentos</span><span className="tabular-nums text-white/85">{fmtUSD(lostRevenue.cancelado)}</span></div>
+                    <div className="flex justify-between"><span>Carros parados entre reservas</span><span className="tabular-nums text-white/85">{fmtUSD(lostRevenue.janelas)}</span></div>
+                  </div>
+                  <p className="text-[11px] text-white/50 mt-3 leading-relaxed">Essa é a receita que existiria se cada cancelamento tivesse virado aluguel e cada janela curta tivesse sido preenchida com promo.</p>
+                </div>
+              </div>
+              <div className="ai-card">
+                <CardHeader title="Velocidade de pagamento da frota" sub="Em quantos meses, na média, um carro paga o que custou" icon={TimerReset} />
+                {paybackAvg !== null ? (
+                  <>
+                    <div className="text-3xl font-light text-cyan-200 tabular-nums">{paybackAvg} <span className="text-base text-white/55">meses</span></div>
+                    <p className="text-[11px] text-white/55 mt-3 leading-relaxed">Considera o preço pago pelo carro dividido pela receita média mensal projetada. Quanto menor, mais rápido o capital volta pra você.</p>
+                  </>
+                ) : (
+                  <p className="text-white/55 text-xs">Sem dados de preço de compra suficientes ainda.</p>
+                )}
+              </div>
+              <div className="ai-card">
+                <CardHeader title="Índice de fidelidade" sub="Quantos clientes voltaram pelo menos uma segunda vez" icon={HeartHandshake} />
+                <div className="text-3xl font-light text-emerald-200 tabular-nums">{repeatRate.toFixed(0)}%</div>
+                <p className="text-[11px] text-white/55 mt-3 leading-relaxed">
+                  {repeatRate >= 30
+                    ? "Acima da média do setor — sua experiência está fidelizando."
+                    : repeatRate >= 15
+                    ? "Na média do setor — há espaço para programa de fidelidade gerar mais retorno."
+                    : "Abaixo do esperado — investir em relacionamento pós-aluguel pode multiplicar a recompra."}
+                </p>
+              </div>
+            </div>
+
+            {/* Receita por dia da semana */}
+            <div className="ai-card">
+              <CardHeader title="Em que dia da semana você fatura mais" sub={`Receita histórica por dia da semana de retirada · melhor dia: ${dowRevenue.best?.label || "—"}`} icon={CalendarDays} />
+              <div className="flex items-end gap-2 h-32">
+                {dowRevenue.data.map((d, i) => {
+                  const h = (d.rev / dowRevenue.max) * 100;
+                  const isMax = d.label === dowRevenue.best?.label;
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                      <div className="text-[9.5px] tabular-nums text-white/60">{fmtUSD(d.rev)}</div>
+                      <div className="w-full relative" style={{ height: "80px" }}>
+                        <div className={`absolute bottom-0 left-0 right-0 rounded-t-md ${isMax ? "ai-bar-hot" : "ai-bar"}`} style={{ height: `${Math.max(h, 4)}%` }} />
+                      </div>
+                      <div className="text-[10px] uppercase tracking-wider text-white/55">{d.label}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-white/55 mt-3 leading-relaxed">
+                A IA detectou que <span className="text-amber-200">{dowRevenue.best?.label}</span> é seu dia mais forte. Considere reservar a melhor frota e preços levemente mais altos para esse dia, e oferecer promo para o <span className="text-white/75">{dowRevenue.worst?.label || "—"}</span>.
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <KpiBlock title="Total investido em carros" value={fmtUSD(fleetInvested)} sub="Soma do preço de compra de toda a frota" icon={Wallet} />
               <KpiBlock title="Receita total já gerada" value={fmtUSD(fleetRevenue)} sub={`Margem de lucro atual: ${fleetMargin.toFixed(1)}%`} icon={DollarSign} />
               <KpiBlock title="Retorno sobre o investimento" value={`${fleetROI.toFixed(1)}%`} sub="Quanto a frota já devolveu do que foi investido" icon={Target} />
             </div>
+
           </div>
         )}
 
