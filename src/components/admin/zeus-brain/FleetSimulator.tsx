@@ -229,9 +229,10 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
   return (
     <div className="ai-card relative overflow-hidden">
-      <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-cyan-400/15 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-16 -left-16 w-80 h-80 rounded-full bg-fuchsia-400/10 blur-3xl pointer-events-none" />
+      <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-emerald-400/12 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-16 -left-16 w-80 h-80 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
       <div className="relative">
+
         {/* Header */}
         <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
           <div className="flex items-center gap-2">
