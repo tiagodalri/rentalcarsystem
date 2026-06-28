@@ -212,21 +212,21 @@ function drawStamp(
   lines: string[],
 ) {
   // Tamanho proporcional e com limite de largura/altura para nunca sobrepor linhas.
-  const marginX = Math.max(28, Math.round(Math.min(w, h) * 0.040));
-  const marginY = marginX;
-  const maxWidth = Math.round(w * 0.52);
-  const maxHeight = Math.round(h * 0.38);
-  let fontSize = Math.max(52, Math.round(Math.min(w, h) * 0.075));
-  let lineHeight = Math.round(fontSize * 1.12);
+  const marginX = Math.max(24, Math.round(Math.min(w, h) * 0.030));
+  const marginY = Math.max(28, Math.round(Math.min(w, h) * 0.038));
+  const maxWidth = Math.round(w * 0.82);
+  const maxHeight = Math.round(h * 0.50);
+  let fontSize = Math.max(82, Math.round(Math.min(w, h) * 0.115));
+  let lineHeight = Math.round(fontSize * 1.04);
 
   const measure = () => {
     ctx.font = `650 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
     return Math.max(...lines.map((line) => ctx.measureText(line).width));
   };
 
-  while (fontSize > 28 && (measure() > maxWidth || lines.length * lineHeight > maxHeight)) {
+  while (fontSize > 54 && (measure() > maxWidth || lines.length * lineHeight > maxHeight)) {
     fontSize -= 1;
-    lineHeight = Math.round(fontSize * 1.18);
+    lineHeight = Math.round(fontSize * 1.05);
   }
   const blockHeight = lines.length * lineHeight;
 
@@ -242,7 +242,7 @@ function drawStamp(
   ctx.shadowOffsetY = 0;
 
   ctx.strokeStyle = "rgba(0,0,0,0.95)";
-  ctx.lineWidth = Math.max(3, Math.round(fontSize * 0.18));
+  ctx.lineWidth = Math.max(5, Math.round(fontSize * 0.16));
   ctx.lineJoin = "round";
   ctx.miterLimit = 2;
 
