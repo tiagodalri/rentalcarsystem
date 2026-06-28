@@ -180,52 +180,52 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
   }
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-10">
+    <div className="max-w-[1100px] mx-auto px-3 sm:px-5 lg:px-6 pt-2 sm:pt-4 pb-6">
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.22em] font-semibold mb-4"
+        className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.2em] font-semibold mb-2"
         style={{ color: "rgba(13,29,46,0.62)" }}
       >
-        <ArrowLeft size={14} /> Voltar ao Marketing Studio
+        <ArrowLeft size={12} /> Voltar ao Marketing Studio
       </button>
 
-      <div className="text-center mb-6">
+      <div className="text-center mb-4">
         <div
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] uppercase font-semibold tracking-[0.32em]"
+          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] uppercase font-semibold tracking-[0.28em]"
           style={{ background: "rgba(13,29,46,0.04)", border: "1px solid rgba(13,29,46,0.10)", color: "rgba(13,29,46,0.62)" }}
         >
-          <ImageIcon size={11} style={{ color: "#9a7a3a" }} />
+          <ImageIcon size={10} style={{ color: "#9a7a3a" }} />
           Posts para redes sociais
         </div>
         <h1
-          className="mt-2 text-[24px] sm:text-[30px] font-light tracking-[-0.01em]"
+          className="mt-1.5 text-[20px] sm:text-[26px] font-light tracking-[-0.01em]"
           style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
         >
           Crie uma arte com a marca Zeus em segundos
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-3 sm:gap-4">
         {/* Form */}
         <div
-          className="rounded-[20px] p-4 sm:p-6"
+          className="rounded-[14px] p-3 sm:p-4"
           style={{ background: "#fbf7ee", border: "1px solid rgba(13,29,46,0.10)" }}
         >
           {/* Mode selector */}
           <Label>Tipo de arte</Label>
-          <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <ModePill active={mode === "promo"} onClick={() => setMode("promo")} icon={<Tag size={14} />} label="Promocao" sub="carro + data + valor" />
-            <ModePill active={mode === "free"} onClick={() => setMode("free")} icon={<MessageSquare size={14} />} label="Livre" sub="so com instrucao" />
-            <ModePill active={mode === "reference"} onClick={() => setMode("reference")} icon={<ImageIcon size={14} />} label="Com referencia" sub="anexar arte base" />
+          <div className="mt-1 grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+            <ModePill active={mode === "promo"} onClick={() => setMode("promo")} icon={<Tag size={12} />} label="Promocao" sub="carro + data + valor" />
+            <ModePill active={mode === "free"} onClick={() => setMode("free")} icon={<MessageSquare size={12} />} label="Livre" sub="so com instrucao" />
+            <ModePill active={mode === "reference"} onClick={() => setMode("reference")} icon={<ImageIcon size={12} />} label="Com referencia" sub="anexar arte base" />
           </div>
 
-          <div className="mt-5">
+          <div className="mt-3">
             <Label>Carro</Label>
             <select
               value={vehicleId}
               onChange={(e) => setVehicleId(e.target.value)}
-              className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[14px] bg-white"
-              style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
+              className="w-full mt-1 px-2.5 py-2 rounded-lg text-[13px] bg-white"
+              style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 40 }}
             >
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id}>
@@ -234,7 +234,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
               ))}
             </select>
             {!photoUrl && (
-              <p className="text-[11px] mt-1.5" style={{ color: "#a05a2c" }}>
+              <p className="text-[10px] mt-1" style={{ color: "#a05a2c" }}>
                 Este carro nao tem foto cadastrada. A arte sera gerada apenas com a marca.
               </p>
             )}
@@ -242,8 +242,8 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
 
           {/* Promo fields */}
           {mode === "promo" && (
-            <div className="mt-5 rounded-xl p-3.5" style={{ background: "white", border: "1px dashed rgba(154,122,58,0.45)" }}>
-              <div className="text-[10px] uppercase tracking-[0.32em] font-semibold mb-2" style={{ color: "#9a7a3a" }}>
+            <div className="mt-3 rounded-lg p-2.5" style={{ background: "white", border: "1px dashed rgba(154,122,58,0.45)" }}>
+              <div className="text-[9px] uppercase tracking-[0.28em] font-semibold mb-1.5" style={{ color: "#9a7a3a" }}>
                 Detalhes da promocao
               </div>
               <Label>Valor da diaria (USD)</Label>
@@ -253,18 +253,18 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                 value={priceDaily}
                 onChange={(e) => setPriceDaily(e.target.value)}
                 placeholder="Ex: 129"
-                className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[14px] bg-white"
-                style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
+                className="w-full mt-1 px-2.5 py-2 rounded-lg text-[13px] bg-white"
+                style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 40 }}
               />
-              <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="mt-2 grid grid-cols-2 gap-1.5">
                 <div>
                   <Label>De</Label>
                   <input
                     type="date"
                     value={dateStart}
                     onChange={(e) => setDateStart(e.target.value)}
-                    className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[13px] bg-white"
-                    style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
+                    className="w-full mt-1 px-2.5 py-2 rounded-lg text-[12px] bg-white"
+                    style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 40 }}
                   />
                 </div>
                 <div>
@@ -273,20 +273,20 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                     type="date"
                     value={dateEnd}
                     onChange={(e) => setDateEnd(e.target.value)}
-                    className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[13px] bg-white"
-                    style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
+                    className="w-full mt-1 px-2.5 py-2 rounded-lg text-[12px] bg-white"
+                    style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 40 }}
                   />
                 </div>
               </div>
-              <div className="mt-3">
+              <div className="mt-2">
                 <Label>Gancho da oferta (opcional)</Label>
                 <input
                   type="text"
                   value={promoHook}
                   onChange={(e) => setPromoHook(e.target.value)}
                   placeholder="Ex: Fim de semana especial em Orlando"
-                  className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[13px] bg-white"
-                  style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 44 }}
+                  className="w-full mt-1 px-2.5 py-2 rounded-lg text-[12px] bg-white"
+                  style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 40 }}
                 />
               </div>
             </div>
@@ -294,7 +294,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
 
           {/* Reference upload */}
           {mode === "reference" && (
-            <div className="mt-5">
+            <div className="mt-3">
               <Label>Imagem de referencia</Label>
               <input
                 ref={fileInputRef}
@@ -309,76 +309,76 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
               {!refDataUrl ? (
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full mt-1.5 rounded-lg px-3 py-6 text-center transition-all"
-                  style={{ background: "white", border: "1.5px dashed rgba(13,29,46,0.30)", color: "#0d1d2e", minHeight: 110 }}
+                  className="w-full mt-1 rounded-lg px-3 py-4 text-center transition-all"
+                  style={{ background: "white", border: "1.5px dashed rgba(13,29,46,0.30)", color: "#0d1d2e", minHeight: 80 }}
                 >
-                  <Upload size={20} className="mx-auto mb-1.5" style={{ color: "#9a7a3a" }} />
-                  <div className="text-[13px] font-semibold">Anexar imagem inspiracao</div>
-                  <div className="text-[11px] opacity-65 mt-0.5">PNG, JPG ou WEBP ate 8MB</div>
+                  <Upload size={16} className="mx-auto mb-1" style={{ color: "#9a7a3a" }} />
+                  <div className="text-[12px] font-semibold">Anexar imagem inspiracao</div>
+                  <div className="text-[10px] opacity-65 mt-0.5">PNG, JPG ou WEBP ate 8MB</div>
                 </button>
               ) : (
-                <div className="mt-1.5 rounded-lg overflow-hidden relative" style={{ border: "1px solid rgba(13,29,46,0.18)" }}>
-                  <img src={refDataUrl} alt="referencia" className="w-full max-h-[200px] object-contain bg-white" />
-                  <div className="flex items-center justify-between px-3 py-2 bg-white">
-                    <span className="text-[11px] truncate" style={{ color: "rgba(13,29,46,0.65)" }}>{refName}</span>
+                <div className="mt-1 rounded-lg overflow-hidden relative" style={{ border: "1px solid rgba(13,29,46,0.18)" }}>
+                  <img src={refDataUrl} alt="referencia" className="w-full max-h-[140px] object-contain bg-white" />
+                  <div className="flex items-center justify-between px-2.5 py-1.5 bg-white">
+                    <span className="text-[10px] truncate" style={{ color: "rgba(13,29,46,0.65)" }}>{refName}</span>
                     <button
                       onClick={() => { setRefDataUrl(null); setRefName(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
-                      className="h-7 w-7 rounded-full inline-flex items-center justify-center"
+                      className="h-6 w-6 rounded-full inline-flex items-center justify-center"
                       style={{ background: "rgba(13,29,46,0.06)", color: "#0d1d2e" }}
                     >
-                      <X size={14} />
+                      <X size={12} />
                     </button>
                   </div>
                 </div>
               )}
-              <p className="text-[10.5px] mt-1.5" style={{ color: "rgba(13,29,46,0.55)" }}>
+              <p className="text-[10px] mt-1" style={{ color: "rgba(13,29,46,0.55)" }}>
                 A IA usa essa arte como inspiracao de estilo, composicao e paleta. O carro e a marca Zeus continuam sendo os herois.
               </p>
             </div>
           )}
 
-          <div className="mt-5">
+          <div className="mt-3">
             <Label>Formato</Label>
-            <div className="mt-1.5 grid grid-cols-2 gap-2">
-              <FormatPill active={format === "feed"} onClick={() => setFormat("feed")} icon={<ImageIcon size={14} />} label="Feed" sub="1:1" />
-              <FormatPill active={format === "story"} onClick={() => setFormat("story")} icon={<Smartphone size={14} />} label="Story" sub="9:16" />
+            <div className="mt-1 grid grid-cols-2 gap-1.5">
+              <FormatPill active={format === "feed"} onClick={() => setFormat("feed")} icon={<ImageIcon size={12} />} label="Feed" sub="1:1" />
+              <FormatPill active={format === "story"} onClick={() => setFormat("story")} icon={<Smartphone size={12} />} label="Story" sub="9:16" />
             </div>
           </div>
 
-          <div className="mt-5">
+          <div className="mt-3">
             <Label>Tom da mensagem</Label>
-            <div className="mt-1.5 grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div className="mt-1 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
               {TONES.map((t) => (
                 <button
                   key={t.v}
                   onClick={() => setTone(t.v)}
-                  className="text-left rounded-lg px-3 py-2 transition-all"
+                  className="text-left rounded-lg px-2.5 py-1.5 transition-all"
                   style={{
                     background: tone === t.v ? "linear-gradient(180deg,#14283d,#0d1d2e)" : "white",
                     color: tone === t.v ? "#d6bf86" : "#0d1d2e",
                     border: "1px solid " + (tone === t.v ? "rgba(214,191,134,0.40)" : "rgba(13,29,46,0.15)"),
-                    minHeight: 56,
+                    minHeight: 44,
                   }}
                 >
-                  <div className="text-[13px] font-semibold">{t.label}</div>
-                  <div className="text-[10.5px] opacity-75 leading-tight mt-0.5">{t.hint}</div>
+                  <div className="text-[12px] font-semibold">{t.label}</div>
+                  <div className="text-[9.5px] opacity-75 leading-tight mt-0.5">{t.hint}</div>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="mt-5">
+          <div className="mt-3">
             <Label>{mode === "free" ? "Sua instrucao" : "Direcionamento extra (opcional)"}</Label>
             <textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
-              rows={3}
+              rows={2}
               placeholder={
                 mode === "free"
                   ? "Ex: arte com clima de fim de tarde em Miami Beach, frase sobre liberdade"
                   : "Ex: destaque o teto solar panoramico"
               }
-              className="w-full mt-1.5 px-3 py-2.5 rounded-lg text-[13px] bg-white resize-none"
+              className="w-full mt-1 px-2.5 py-2 rounded-lg text-[12px] bg-white resize-none"
               style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e" }}
             />
           </div>
@@ -386,59 +386,60 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           <button
             onClick={generate}
             disabled={loading || !vehicleId}
-            className="w-full mt-5 inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-[14px] font-semibold tracking-wide transition-all disabled:opacity-60"
+            className="w-full mt-3 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[13px] font-semibold tracking-wide transition-all disabled:opacity-60"
             style={{
               background: "linear-gradient(180deg,#14283d,#0d1d2e)",
               color: "#d6bf86",
               border: "1px solid rgba(214,191,134,0.40)",
-              minHeight: 48,
+              minHeight: 42,
             }}
           >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
+            {loading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
             {loading ? "Gerando arte..." : "Gerar com IA"}
           </button>
-          <p className="text-[10.5px] text-center mt-2" style={{ color: "rgba(13,29,46,0.5)" }}>
+          <p className="text-[10px] text-center mt-1.5" style={{ color: "rgba(13,29,46,0.5)" }}>
             A geracao leva de 15 a 40 segundos. Cada vez gera uma arte unica.
           </p>
         </div>
 
         {/* Preview */}
         <div
-          className="rounded-[20px] p-4 sm:p-6 lg:sticky lg:top-4 self-start"
+          className="rounded-[14px] p-3 sm:p-4 lg:sticky lg:top-4 self-start"
           style={{ background: "#0d1d2e", border: "1px solid rgba(214,191,134,0.20)" }}
         >
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[10px] uppercase tracking-[0.32em] font-semibold" style={{ color: "#d6bf86" }}>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[9px] uppercase tracking-[0.28em] font-semibold" style={{ color: "#d6bf86" }}>
               Pre-visualizacao completa
             </span>
             {result && (
-              <div className="flex gap-2">
-                <IconBtn onClick={copyCaption} title="Copiar legenda"><Copy size={14} /></IconBtn>
-                <IconBtn onClick={download} title="Baixar imagem"><Download size={14} /></IconBtn>
+              <div className="flex gap-1.5">
+                <IconBtn onClick={copyCaption} title="Copiar legenda"><Copy size={12} /></IconBtn>
+                <IconBtn onClick={download} title="Baixar imagem"><Download size={12} /></IconBtn>
               </div>
             )}
           </div>
 
           <div
-            className="relative w-full rounded-xl overflow-hidden flex items-center justify-center mx-auto"
+            className="relative w-full rounded-lg overflow-hidden flex items-center justify-center mx-auto"
             style={{
               aspectRatio: format === "feed" ? "1 / 1" : "9 / 16",
-              maxWidth: format === "story" ? 380 : "100%",
+              maxHeight: "60vh",
+              maxWidth: format === "story" ? 320 : "100%",
               background:
-                "repeating-conic-gradient(rgba(255,255,255,0.03) 0deg 90deg, rgba(255,255,255,0.06) 90deg 180deg) 0 0/24px 24px",
+                "repeating-conic-gradient(rgba(255,255,255,0.03) 0deg 90deg, rgba(255,255,255,0.06) 90deg 180deg) 0 0/20px 20px",
               border: "1px solid rgba(214,191,134,0.15)",
             }}
           >
             {loading && (
               <div className="text-center px-6" style={{ color: "rgba(214,191,134,0.85)" }}>
-                <Loader2 size={28} className="animate-spin mx-auto mb-3" />
-                <div className="text-[12px] tracking-wide">A inteligencia esta compondo a arte...</div>
+                <Loader2 size={24} className="animate-spin mx-auto mb-2" />
+                <div className="text-[11px] tracking-wide">A inteligencia esta compondo a arte...</div>
               </div>
             )}
             {!loading && !result && (
               <div className="text-center px-6" style={{ color: "rgba(214,191,134,0.55)" }}>
-                <ImageIcon size={28} className="mx-auto mb-3" />
-                <div className="text-[12px] tracking-wide">A arte gerada aparece aqui inteira, sem cortes.</div>
+                <ImageIcon size={24} className="mx-auto mb-2" />
+                <div className="text-[11px] tracking-wide">A arte gerada aparece aqui inteira, sem cortes.</div>
               </div>
             )}
             {!loading && result && (
@@ -451,28 +452,28 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           {result && (
-            <div className="mt-4 space-y-3">
+            <div className="mt-3 space-y-2">
               <div>
-                <span className="text-[9px] uppercase tracking-[0.32em]" style={{ color: "rgba(214,191,134,0.75)" }}>
+                <span className="text-[9px] uppercase tracking-[0.28em]" style={{ color: "rgba(214,191,134,0.75)" }}>
                   Frase
                 </span>
-                <p className="text-[15px] mt-1" style={{ color: "#fbf7ee", fontFamily: "'Cormorant Garamond', serif" }}>
+                <p className="text-[13px] mt-0.5" style={{ color: "#fbf7ee", fontFamily: "'Cormorant Garamond', serif" }}>
                   {result.phrase}
                 </p>
               </div>
               <div>
-                <span className="text-[9px] uppercase tracking-[0.32em]" style={{ color: "rgba(214,191,134,0.75)" }}>
+                <span className="text-[9px] uppercase tracking-[0.28em]" style={{ color: "rgba(214,191,134,0.75)" }}>
                   Legenda
                 </span>
-                <p className="text-[12.5px] mt-1 whitespace-pre-line" style={{ color: "rgba(251,247,238,0.85)" }}>
+                <p className="text-[11.5px] mt-0.5 whitespace-pre-line" style={{ color: "rgba(251,247,238,0.85)" }}>
                   {result.caption}
                 </p>
               </div>
               <div>
-                <span className="text-[9px] uppercase tracking-[0.32em]" style={{ color: "rgba(214,191,134,0.75)" }}>
+                <span className="text-[9px] uppercase tracking-[0.28em]" style={{ color: "rgba(214,191,134,0.75)" }}>
                   Hashtags
                 </span>
-                <p className="text-[12px] mt-1" style={{ color: "#d6bf86" }}>
+                <p className="text-[11px] mt-0.5" style={{ color: "#d6bf86" }}>
                   {result.hashtags.join(" ")}
                 </p>
               </div>
@@ -486,7 +487,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
 
 function Label({ children }: { children: React.ReactNode }) {
   return (
-    <label className="text-[10px] uppercase tracking-[0.32em] font-semibold" style={{ color: "rgba(13,29,46,0.55)" }}>
+    <label className="text-[9px] uppercase tracking-[0.28em] font-semibold" style={{ color: "rgba(13,29,46,0.55)" }}>
       {children}
     </label>
   );
@@ -498,16 +499,16 @@ function FormatPill({
   return (
     <button
       onClick={onClick}
-      className="rounded-lg px-3 py-2.5 text-left transition-all"
+      className="rounded-lg px-2.5 py-2 text-left transition-all"
       style={{
         background: active ? "linear-gradient(180deg,#14283d,#0d1d2e)" : "white",
         color: active ? "#d6bf86" : "#0d1d2e",
         border: "1px solid " + (active ? "rgba(214,191,134,0.40)" : "rgba(13,29,46,0.15)"),
-        minHeight: 52,
+        minHeight: 44,
       }}
     >
-      <div className="flex items-center gap-2 text-[13px] font-semibold">{icon} {label}</div>
-      <div className="text-[10.5px] opacity-75 mt-0.5">{sub}</div>
+      <div className="flex items-center gap-1.5 text-[12px] font-semibold">{icon} {label}</div>
+      <div className="text-[10px] opacity-75 mt-0.5">{sub}</div>
     </button>
   );
 }
@@ -518,16 +519,16 @@ function ModePill({
   return (
     <button
       onClick={onClick}
-      className="rounded-lg px-3 py-2.5 text-left transition-all"
+      className="rounded-lg px-2.5 py-2 text-left transition-all"
       style={{
         background: active ? "linear-gradient(180deg,#14283d,#0d1d2e)" : "white",
         color: active ? "#d6bf86" : "#0d1d2e",
         border: "1px solid " + (active ? "rgba(214,191,134,0.40)" : "rgba(13,29,46,0.15)"),
-        minHeight: 60,
+        minHeight: 50,
       }}
     >
-      <div className="flex items-center gap-2 text-[13px] font-semibold">{icon} {label}</div>
-      <div className="text-[10.5px] opacity-75 mt-0.5">{sub}</div>
+      <div className="flex items-center gap-1.5 text-[12px] font-semibold">{icon} {label}</div>
+      <div className="text-[10px] opacity-75 mt-0.5">{sub}</div>
     </button>
   );
 }
@@ -537,7 +538,7 @@ function IconBtn({ children, onClick, title }: { children: React.ReactNode; onCl
     <button
       onClick={onClick}
       title={title}
-      className="h-8 w-8 rounded-full inline-flex items-center justify-center transition-all"
+      className="h-7 w-7 rounded-full inline-flex items-center justify-center transition-all"
       style={{ background: "rgba(214,191,134,0.12)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.30)" }}
     >
       {children}
