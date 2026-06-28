@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X } from "lucide-react";
+import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X, Layers, Square, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { detectSeasonalTheme } from "@/lib/zeusBrain/seasonalTheme";
@@ -17,6 +17,7 @@ type Vehicle = {
 type Format = "feed" | "story";
 type Tone = "luxo" | "aventura" | "familia" | "promocao" | "lancamento" | "sazonal";
 type Mode = "promo" | "free" | "reference";
+type PostKind = "single" | "carousel";
 
 const SEASONAL_NOW = detectSeasonalTheme();
 
@@ -29,12 +30,16 @@ const TONES: { v: Tone; label: string; hint: string }[] = [
   { v: "sazonal", label: `Sazonal · ${SEASONAL_NOW.label}`, hint: "tema da data atual, automatico" },
 ];
 
+type SlideOut = { role: "cover" | "content" | "cta"; imageBase64: string; headline: string; subheadline: string };
 type Result = {
   imageBase64: string;
   phrase: string;
   caption: string;
   hashtags: string[];
   format: Format;
+  carousel?: boolean;
+  slidesCount?: number;
+  slides?: SlideOut[];
 };
 
 export default function SocialPostGenerator({ onBack }: { onBack: () => void }) {
@@ -44,6 +49,11 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
   const [tone, setTone] = useState<Tone>("luxo");
   const [mode, setMode] = useState<Mode>("promo");
   const [customPrompt, setCustomPrompt] = useState("");
+
+  // NEW: single vs carousel
+  const [kind, setKind] = useState<PostKind>("single");
+  const [slidesCount, setSlidesCount] = useState<number>(3);
+  const [activeSlide, setActiveSlide] = useState<number>(0);
 
   // Promo fields
   const [priceDaily, setPriceDaily] = useState("");
@@ -128,6 +138,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
     }
     setLoading(true);
     setResult(null);
+    setActiveSlide(0);
     try {
       const logoDataUrl = await urlToDataUrl(`${window.location.origin}/zeus-logo-full.png`);
       const { data, error } = await supabase.functions.invoke("marketing-generate-post", {
@@ -148,6 +159,8 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             hook: promoHook.trim() || undefined,
           } : undefined,
           referenceImageDataUrl: mode === "reference" ? refDataUrl : undefined,
+          carousel: kind === "carousel",
+          slidesCount: kind === "carousel" ? slidesCount : 1,
         },
       });
       if (error) throw error;
@@ -166,11 +179,21 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
 
   function download() {
     if (!result) return;
-    const a = document.createElement("a");
-    a.href = `data:image/png;base64,${result.imageBase64}`;
     const safeName = (selected?.name || "post").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
-    a.download = `zeus-${safeName}-${result.format}.png`;
-    a.click();
+    const list = result.slides && result.slides.length > 0
+      ? result.slides.map((s, i) => ({ b64: s.imageBase64, name: `zeus-${safeName}-${result.format}-slide-${String(i + 1).padStart(2, "0")}.png` }))
+      : [{ b64: result.imageBase64, name: `zeus-${safeName}-${result.format}.png` }];
+    list.forEach((it, idx) => {
+      setTimeout(() => {
+        const a = document.createElement("a");
+        a.href = `data:image/png;base64,${it.b64}`;
+        a.download = it.name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }, idx * 250);
+    });
+    if (list.length > 1) toast.success(`Baixando ${list.length} artes do carrossel.`);
   }
 
   function copyCaption() {
@@ -346,6 +369,39 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           <div className="mt-3">
+            <Label>Tipo de publicacao</Label>
+            <div className="mt-1 grid grid-cols-2 gap-1.5">
+              <FormatPill active={kind === "single"} onClick={() => setKind("single")} icon={<Square size={12} />} label="Unico" sub="1 arte" />
+              <FormatPill active={kind === "carousel"} onClick={() => setKind("carousel")} icon={<Layers size={12} />} label="Carrossel" sub={`${slidesCount} slides`} />
+            </div>
+            {kind === "carousel" && (
+              <div className="mt-1.5 flex items-center gap-1.5">
+                <Label>Slides</Label>
+                <div className="flex gap-1">
+                  {[3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setSlidesCount(n)}
+                      className="h-7 w-7 rounded-md text-[11px] font-semibold transition-all"
+                      style={{
+                        background: slidesCount === n ? "linear-gradient(180deg,#14283d,#0d1d2e)" : "white",
+                        color: slidesCount === n ? "#d6bf86" : "#0d1d2e",
+                        border: "1px solid " + (slidesCount === n ? "rgba(214,191,134,0.40)" : "rgba(13,29,46,0.15)"),
+                      }}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[10px]" style={{ color: "rgba(13,29,46,0.55)" }}>
+                  capa + conteudo + chamada final
+                </span>
+              </div>
+            )}
+          </div>
+
+
+          <div className="mt-3">
             <Label>Tom da mensagem</Label>
             <div className="mt-1 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
               {TONES.map((t) => (
@@ -395,12 +451,15 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             }}
           >
             {loading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
-            {loading ? "Gerando arte..." : "Gerar com IA"}
+            {loading ? (kind === "carousel" ? `Gerando ${slidesCount} slides...` : "Gerando arte...") : (kind === "carousel" ? `Gerar carrossel (${slidesCount} slides)` : "Gerar com IA")}
           </button>
           <p className="text-[10px] text-center mt-1.5" style={{ color: "rgba(13,29,46,0.5)" }}>
-            A geracao leva de 15 a 40 segundos. Cada vez gera uma arte unica.
+            {kind === "carousel"
+              ? `Carrossel leva cerca de ${slidesCount * 25}s. Os slides mantem o mesmo estilo visual.`
+              : "A geracao leva de 15 a 40 segundos. Cada vez gera uma arte unica."}
           </p>
         </div>
+
 
         {/* Preview */}
         <div
@@ -409,12 +468,16 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
         >
           <div className="flex items-center justify-between mb-2">
             <span className="text-[9px] uppercase tracking-[0.28em] font-semibold" style={{ color: "#d6bf86" }}>
-              Pre-visualizacao completa
+              {result?.slides && result.slides.length > 1
+                ? `Carrossel · ${activeSlide + 1} / ${result.slides.length}`
+                : "Pre-visualizacao completa"}
             </span>
             {result && (
               <div className="flex gap-1.5">
                 <IconBtn onClick={copyCaption} title="Copiar legenda"><Copy size={12} /></IconBtn>
-                <IconBtn onClick={download} title="Baixar imagem"><Download size={12} /></IconBtn>
+                <IconBtn onClick={download} title={result.slides && result.slides.length > 1 ? "Baixar todas as artes" : "Baixar imagem"}>
+                  <Download size={12} />
+                </IconBtn>
               </div>
             )}
           </div>
@@ -433,7 +496,9 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             {loading && (
               <div className="text-center px-6" style={{ color: "rgba(214,191,134,0.85)" }}>
                 <Loader2 size={24} className="animate-spin mx-auto mb-2" />
-                <div className="text-[11px] tracking-wide">A inteligencia esta compondo a arte...</div>
+                <div className="text-[11px] tracking-wide">
+                  {kind === "carousel" ? `Compondo ${slidesCount} slides do carrossel...` : "A inteligencia esta compondo a arte..."}
+                </div>
               </div>
             )}
             {!loading && !result && (
@@ -442,14 +507,83 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                 <div className="text-[11px] tracking-wide">A arte gerada aparece aqui inteira, sem cortes.</div>
               </div>
             )}
-            {!loading && result && (
-              <img
-                src={`data:image/png;base64,${result.imageBase64}`}
-                alt={result.phrase}
-                className="w-full h-full object-contain"
-              />
-            )}
+            {!loading && result && (() => {
+              const slides = result.slides && result.slides.length > 0
+                ? result.slides
+                : [{ role: "cover" as const, imageBase64: result.imageBase64, headline: result.phrase, subheadline: "" }];
+              const safeIdx = Math.min(activeSlide, slides.length - 1);
+              const current = slides[safeIdx];
+              return (
+                <>
+                  <img
+                    src={`data:image/png;base64,${current.imageBase64}`}
+                    alt={current.headline || result.phrase}
+                    className="w-full h-full object-contain"
+                  />
+                  {slides.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setActiveSlide((safeIdx - 1 + slides.length) % slides.length)}
+                        className="absolute left-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full inline-flex items-center justify-center"
+                        style={{ background: "rgba(13,29,46,0.65)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.35)" }}
+                        title="Slide anterior"
+                      >
+                        <ChevronLeft size={14} />
+                      </button>
+                      <button
+                        onClick={() => setActiveSlide((safeIdx + 1) % slides.length)}
+                        className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full inline-flex items-center justify-center"
+                        style={{ background: "rgba(13,29,46,0.65)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.35)" }}
+                        title="Proximo slide"
+                      >
+                        <ChevronRight size={14} />
+                      </button>
+                      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1">
+                        {slides.map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setActiveSlide(i)}
+                            className="h-1.5 rounded-full transition-all"
+                            style={{
+                              width: i === safeIdx ? 16 : 6,
+                              background: i === safeIdx ? "#d6bf86" : "rgba(214,191,134,0.35)",
+                            }}
+                            aria-label={`Slide ${i + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </>
+              );
+            })()}
           </div>
+
+          {result?.slides && result.slides.length > 1 && (
+            <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
+              {result.slides.map((s, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveSlide(i)}
+                  className="flex-shrink-0 rounded-md overflow-hidden transition-all"
+                  style={{
+                    border: i === activeSlide ? "1.5px solid #d6bf86" : "1px solid rgba(214,191,134,0.20)",
+                    opacity: i === activeSlide ? 1 : 0.7,
+                    width: format === "feed" ? 48 : 32,
+                    height: 48,
+                  }}
+                  title={`${s.role === "cover" ? "Capa" : s.role === "cta" ? "Chamada" : "Conteudo"} · ${i + 1}`}
+                >
+                  <img
+                    src={`data:image/png;base64,${s.imageBase64}`}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+
 
           {result && (
             <div className="mt-3 space-y-2">
