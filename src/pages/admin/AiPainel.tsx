@@ -834,11 +834,10 @@ export default function AiPainel({
         else setBriefing(localBriefing(payload));
       } catch {
         setBriefing(localBriefing({
-          fleetROI, avgOccupancy, revPAC, fleetADR, fleetMargin, repeatRate,
+          fleetROI, avgOccupancy, revPAC, fleetADR, fleetMargin,
           pacing, sellCandidatesCount: sellCandidates.length,
           priceUpCount: priceUpCandidates.length,
           opportunityWindows: opportunityWindows.length,
-          champions: segmentCounts.Champion, atRisk: segmentCounts["At Risk"],
           topCategory: byCategory[0]?.cat, topStar: topStars[0]?.v.name,
         }));
       } finally { setBriefingLoading(false); }
