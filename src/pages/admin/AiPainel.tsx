@@ -1561,7 +1561,7 @@ export default function AiPainel({
                   <p className="text-[12px] text-white/60 mt-2 leading-relaxed">
                     {concentration.topBrand.share > 50
                       ? "Concentração alta. Se essa marca tiver um problema (recall, manutenção, demanda fria), o impacto no caixa é grande. Vale diversificar nas próximas compras."
-                      : "Distribuição saudável entre marcas — risco diluído."}
+                      : "Distribuição saudável entre marcas. Risco diluído."}
                   </p>
                 </div>
               </div>
