@@ -598,19 +598,19 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                     <>
                       <button
                         onClick={() => setActiveSlide((safeIdx - 1 + slides.length) % slides.length)}
-                        className="absolute left-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full inline-flex items-center justify-center"
-                        style={{ background: "rgba(13,29,46,0.65)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.35)" }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 h-11 w-11 sm:h-9 sm:w-9 rounded-full inline-flex items-center justify-center active:scale-95 transition-transform"
+                        style={{ background: "rgba(13,29,46,0.78)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.40)", backdropFilter: "blur(6px)" }}
                         title="Slide anterior"
                       >
-                        <ChevronLeft size={14} />
+                        <ChevronLeft size={18} />
                       </button>
                       <button
                         onClick={() => setActiveSlide((safeIdx + 1) % slides.length)}
-                        className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full inline-flex items-center justify-center"
-                        style={{ background: "rgba(13,29,46,0.65)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.35)" }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-11 w-11 sm:h-9 sm:w-9 rounded-full inline-flex items-center justify-center active:scale-95 transition-transform"
+                        style={{ background: "rgba(13,29,46,0.78)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.40)", backdropFilter: "blur(6px)" }}
                         title="Próximo slide"
                       >
-                        <ChevronRight size={14} />
+                        <ChevronRight size={18} />
                       </button>
                       <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1">
                         {slides.map((_, i) => (
