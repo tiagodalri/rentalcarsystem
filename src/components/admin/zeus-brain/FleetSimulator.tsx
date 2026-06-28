@@ -835,6 +835,58 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
             Você ainda tem poucos carros com 60+ dias de histórico ({eligible.length}). O simulador fica mais preciso conforme a frota acumula dados.
           </p>
         )}
+
+        {missingPrice.length > 0 && (
+          <div
+            className="mt-6 rounded-xl p-4"
+            style={{
+              background: "#fff8ec",
+              border: `1px solid ${GOLD}40`,
+              boxShadow: "0 4px 14px -10px rgba(154,122,58,0.25)",
+            }}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-[13px] font-semibold"
+                style={{ background: GOLD, color: IVORY }}
+                aria-hidden
+              >
+                !
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] font-semibold mb-1" style={{ color: NAVY }}>
+                  {missingPrice.length} carro{missingPrice.length === 1 ? "" : "s"} fora do simulador. Sem valor pago cadastrado
+                </div>
+                <div className="text-[12px] leading-[1.6] mb-2" style={{ color: NAVY_70 }}>
+                  Para entrar na simulação, o veículo precisa ter o <span className="font-semibold" style={{ color: NAVY }}>valor pago na aquisição</span> registrado na ficha da frota. Sem esse dado não é possível calcular capital, ROI nem payback.
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {missingPrice.slice(0, 12).map(p => (
+                    <span
+                      key={p.v.id}
+                      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium"
+                      style={{ background: IVORY, color: NAVY, border: `1px solid ${NAVY_10}` }}
+                    >
+                      {p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}
+                    </span>
+                  ))}
+                  {missingPrice.length > 12 && (
+                    <span className="text-[11px] self-center" style={{ color: NAVY_55 }}>
+                      +{missingPrice.length - 12}
+                    </span>
+                  )}
+                </div>
+                <a
+                  href="/admin/fleet"
+                  className="inline-flex items-center gap-1 text-[11.5px] font-semibold uppercase tracking-wider"
+                  style={{ color: GOLD }}
+                >
+                  Cadastrar valor na frota <ArrowRight className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
