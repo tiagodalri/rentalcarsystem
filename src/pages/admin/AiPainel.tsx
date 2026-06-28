@@ -621,14 +621,6 @@ export default function AiPainel({
         prioridade: "media", categoria: "Oportunidade",
       });
     });
-    churnRisks.slice(0, 2).forEach(c => {
-      out.push({
-        titulo: `Reative ${c.name}`,
-        descricao: `Cliente já gastou ${fmtUSD(c.revenue)} em ${c.trips} viagens. Está sem alugar há ${c.recency} dias — fora do padrão dele.`,
-        impacto: `Ticket médio ${fmtUSD(c.revenue / c.trips)}`, impactoValor: c.revenue / c.trips,
-        prioridade: "media", categoria: "Cliente",
-      });
-    });
     priceDownCandidates.slice(0, 1).forEach(p => {
       out.push({
         titulo: `Teste promo na ${p.v.name}`,
