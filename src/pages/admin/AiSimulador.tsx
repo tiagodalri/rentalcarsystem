@@ -27,6 +27,13 @@ export default function AiSimulador() {
   const [bookingSource, setBookingSource] = useState<BookingSource>(() => readBookingSource());
   useEffect(() => { writeBookingSource(bookingSource); }, [bookingSource]);
 
+  // Pinta o topo do admin shell (tabs + header + barra de utilitários) com o mesmo
+  // ivory do simulador, eliminando a faixa branca acima da página.
+  useEffect(() => {
+    document.body.classList.add("simulator-immersive-top");
+    return () => { document.body.classList.remove("simulator-immersive-top"); };
+  }, []);
+
   const load = useCallback(async () => {
     const [b, v, e] = await Promise.all([
       supabase.from("bookings")

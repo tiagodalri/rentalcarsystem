@@ -767,3 +767,15 @@ img:not([data-allow-save] img):not([data-allow-save]) {
 
 
 
+
+/* Simulador Zeus Brain: estende o ivory por trás da barra de utilitários do admin */
+body.simulator-immersive-top .admin-shell header,
+body.simulator-immersive-top .admin-shell [class*="AdminTabsBar"],
+body.simulator-immersive-top .admin-shell > div > div > div > div:has(> button[aria-label*="modo"]),
+body.simulator-immersive-top .admin-shell main {
+  background: transparent !important;
+  border-bottom-color: transparent !important;
+}
+body.simulator-immersive-top .admin-shell {
+  background: linear-gradient(180deg, #f6f1e6 0%, #efe9dc 220px, #efe9dc 100%) !important;
+}
