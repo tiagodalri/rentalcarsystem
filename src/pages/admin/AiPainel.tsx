@@ -638,7 +638,7 @@ export default function AiPainel({
       if (sd > 0) {
         const z = (cur.revenue - mean) / sd;
         if (z < -1.5) list.push({ label: "Receita do mês", severity: "high", msg: `Receita ${Math.abs(((cur.revenue - mean) / mean) * 100).toFixed(0)}% abaixo da média dos últimos 3 meses (z=${z.toFixed(1)}σ).` });
-        else if (z > 1.5) list.push({ label: "Receita do mês", severity: "med", msg: `Receita ${(((cur.revenue - mean) / mean) * 100).toFixed(0)}% acima da média — momento de capturar mais demanda.` });
+        else if (z > 1.5) list.push({ label: "Receita do mês", severity: "med", msg: `Receita ${(((cur.revenue - mean) / mean) * 100).toFixed(0)}% acima da média. Momento de capturar mais demanda.` });
       }
     }
     const cancelRate = funnel.total > 0 ? (funnel.cancelled / funnel.total) * 100 : 0;
