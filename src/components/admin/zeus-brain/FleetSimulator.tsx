@@ -350,19 +350,19 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
           </div>
 
           {/* COMPRAR */}
-          <div className="rounded-xl bg-emerald-500/[0.04] border border-emerald-400/20 p-3">
+          <div className="rounded-xl bg-emerald-500/[0.05] border border-emerald-400/25 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
             <div className="flex items-center justify-between mb-2.5">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-md bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center">
-                  <ShoppingCart className="w-3.5 h-3.5 text-emerald-200" />
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.25)]">
+                  <ShoppingCart className="w-4 h-4 text-emerald-300" />
                 </div>
                 <div>
-                  <div className="text-[12px] uppercase tracking-wider text-emerald-100 font-medium leading-none">Comprar</div>
-                  <div className="text-[10px] text-white/45 mt-0.5">Referência de desempenho da nova frota</div>
+                  <div className="text-[12px] uppercase tracking-[0.18em] text-emerald-100 font-semibold leading-none">Comprar</div>
+                  <div className="text-[10px] text-white/45 mt-0.5">{inList.length} carro{inList.length === 1 ? "" : "s"} · investe <span className="text-emerald-200 font-medium tabular-nums">{fmtUSD(buyCapitalLive)}</span></div>
                 </div>
               </div>
-              <span className="text-[10px] text-white/40 tabular-nums">{inList.length} selecionado{inList.length === 1 ? "" : "s"}</span>
             </div>
+
 
             <div className="flex items-center gap-2 flex-1 rounded-md bg-white/[0.04] border border-white/10 px-2.5 py-1.5 mb-2.5">
               <Search className="w-3.5 h-3.5 text-white/40" />
