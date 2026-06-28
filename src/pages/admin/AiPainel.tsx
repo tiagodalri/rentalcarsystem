@@ -778,8 +778,7 @@ export default function AiPainel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [perVehicle.length]);
 
-  const tabs: { key: TabKey; label: string; icon: typeof Brain; highlight?: boolean }[] = [
-    { key: "simulator", label: "Simulador", icon: Gamepad2, highlight: true },
+  const tabs: { key: TabKey; label: string; icon: typeof Brain }[] = [
     { key: "revenue", label: "Receita", icon: DollarSign },
     { key: "demand", label: "Reservas", icon: Activity },
     { key: "operations", label: "Operação", icon: Gauge },
@@ -794,15 +793,13 @@ export default function AiPainel({
       <div className="ai-bg-noise" />
 
       <div className="relative z-10 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto">
-        {/* Header — Simulador à esquerda, contagem à direita; espaçamento generoso pra não brigar com o X do overlay */}
+        {/* Header — Simulador (rota dedicada) à esquerda, contagem à direita */}
         <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
           <button
-            onClick={() => setTab(tab === "simulator" ? "revenue" : "simulator")}
+            onClick={() => navigate("/admin/zeus-brain/simulador")}
             className="relative inline-flex items-center gap-2.5 pl-3.5 pr-2 py-2 rounded-full text-[11px] font-semibold transition-all active:scale-[0.98] min-h-[40px]"
             style={{
-              background: tab === "simulator"
-                ? "linear-gradient(180deg, #14283d 0%, #0d1d2e 100%)"
-                : "linear-gradient(180deg, #1a3047 0%, #0d1d2e 100%)",
+              background: "linear-gradient(180deg, #1a3047 0%, #0d1d2e 100%)",
               border: "1px solid rgba(154,122,58,0.45)",
               boxShadow: "0 8px 20px -12px rgba(13,29,46,0.45), 0 0 0 1px rgba(255,255,255,0.04) inset",
               color: "#fbf7ee",
@@ -826,7 +823,7 @@ export default function AiPainel({
                 color: "#d6bf86",
               }}
             >
-              Novo
+              Abrir
             </span>
           </button>
           <p className="ai-subtitle m-0 shrink-0 text-right">
