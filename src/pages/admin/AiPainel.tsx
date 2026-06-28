@@ -794,43 +794,13 @@ export default function AiPainel({
       <div className="ai-bg-noise" />
 
       <div className="relative z-10 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto">
-        {/* Header — Simulador (rota dedicada) à esquerda, contagem à direita */}
-        <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
-          <button
-            onClick={() => navigate("/admin/zeus-brain/simulador")}
-            className="relative inline-flex items-center gap-2.5 pl-3.5 pr-2 py-2 rounded-full text-[11px] font-semibold transition-all active:scale-[0.98] min-h-[40px]"
-            style={{
-              background: "linear-gradient(180deg, #1a3047 0%, #0d1d2e 100%)",
-              border: "1px solid rgba(154,122,58,0.45)",
-              boxShadow: "0 8px 20px -12px rgba(13,29,46,0.45), 0 0 0 1px rgba(255,255,255,0.04) inset",
-              color: "#fbf7ee",
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-            }}
-          >
-            <span className="relative inline-flex items-center justify-center h-5 w-5 rounded-full" style={{ background: "rgba(214,191,134,0.16)" }}>
-              <Gamepad2 size={12} style={{ color: "#d6bf86" }} />
-              <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70" style={{ background: "#d6bf86" }} />
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ background: "#d6bf86" }} />
-              </span>
-            </span>
-            <span>Simulador</span>
-            <span
-              className="text-[9px] tracking-[0.22em] px-1.5 py-[3px] rounded-full ml-0.5"
-              style={{
-                background: "rgba(214,191,134,0.16)",
-                border: "1px solid rgba(214,191,134,0.40)",
-                color: "#d6bf86",
-              }}
-            >
-              Abrir
-            </span>
-          </button>
+        {/* Header — apenas contagem de carros/reservas (Simulador agora vive no Hub Zeus Brain) */}
+        <div className="flex items-center justify-end gap-3 flex-wrap pt-1">
           <p className="ai-subtitle m-0 shrink-0 text-right">
             {perVehicle.length} carros · {realBookings.length} reservas
           </p>
         </div>
+
 
         {/* Hero KPIs */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">

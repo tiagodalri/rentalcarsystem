@@ -4,7 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import {
   Activity, Brain, CalendarDays, CalendarRange, Car, CheckCircle2,
   ChevronRight, Clock, DollarSign, LogIn, LogOut as LogOutIcon,
-  TrendingDown, TrendingUp, Wrench, X,
+  TrendingDown, TrendingUp, Wrench, X, ArrowLeft,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 
@@ -18,6 +18,8 @@ import { formatPersonName } from "@/lib/formatName";
 import MobilePainel from "./mobile/MobilePainel";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import AiPainel from "./AiPainel";
+import AiHub from "@/components/admin/zeus-brain/AiHub";
+import ComingSoonModule from "@/components/admin/zeus-brain/ComingSoonModule";
 import {
   type BookingSource,
   readBookingSource,
@@ -86,6 +88,12 @@ export default function AdminPainel() {
     try { localStorage.setItem("zeus_ai_mode", aiMode ? "1" : "0"); } catch {}
   }, [aiMode]);
 
+  // hub | painel | marketing | ia — view interna do overlay Zeus Brain
+  type HubView = "hub" | "painel" | "marketing" | "ia";
+  const [hubView, setHubView] = useState<HubView>("hub");
+  // Sempre que abre o Brain, volta ao hub
+  useEffect(() => { if (aiMode) setHubView("hub"); }, [aiMode]);
+
   const [bookingSource, setBookingSource] = useState<BookingSource>(() => readBookingSource());
   useEffect(() => { writeBookingSource(bookingSource); }, [bookingSource]);
 
@@ -93,6 +101,8 @@ export default function AdminPainel() {
     () => filterBookingsBySource(bookings, bookingSource),
     [bookings, bookingSource],
   );
+
+
 
 
 
@@ -216,7 +226,24 @@ export default function AdminPainel() {
           }}
         >
           <div className="flex items-center justify-between gap-3">
-            <div className="flex-1" />
+            <div className="flex-1 flex justify-start">
+              {hubView !== "hub" && (
+                <button
+                  onClick={() => setHubView("hub")}
+                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-full transition-all hover:opacity-90 text-[11px] uppercase font-semibold tracking-[0.22em]"
+                  style={{
+                    background: "#fbf7ee",
+                    border: "1px solid rgba(13,29,46,0.14)",
+                    color: "rgba(13,29,46,0.72)",
+                    boxShadow: "0 4px 10px -6px rgba(13,29,46,0.25)",
+                  }}
+                  aria-label="Voltar ao menu Zeus Brain"
+                >
+                  <ArrowLeft size={13} />
+                  <span className="hidden sm:inline">Menu</span>
+                </button>
+              )}
+            </div>
             <div
               className="text-[15px] sm:text-[17px] font-light tracking-[0.42em] text-center select-none"
               style={{
@@ -243,48 +270,88 @@ export default function AdminPainel() {
             </div>
           </div>
 
-          {/* Source selector — Private bank segmented control */}
-          <div className="flex justify-center">
-            <div
-              role="tablist"
-              aria-label="Origem das reservas"
-              className="inline-flex items-center gap-1 p-1 rounded-full"
-              style={{
-                background: "rgba(13,29,46,0.05)",
-                border: "1px solid rgba(13,29,46,0.10)",
-                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)",
-              }}
-            >
-              {(["all", "zeus", "turo"] as const).map((s) => {
-                const active = bookingSource === s;
-                return (
-                  <button
-                    key={s}
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => setBookingSource(s)}
-                    className="relative inline-flex items-center justify-center px-3.5 sm:px-4 h-8 rounded-full text-[10.5px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] transition-all whitespace-nowrap"
-                    style={
-                      active
-                        ? {
-                            background: "linear-gradient(180deg, #14283d, #0d1d2e)",
-                            color: "#f3e6c4",
-                            boxShadow: "0 6px 14px -8px rgba(13,29,46,0.55), 0 0 0 1px rgba(154,122,58,0.45)",
-                          }
-                        : { color: "rgba(13,29,46,0.60)" }
-                    }
-                  >
-                    {SOURCE_LABEL[s]}
-                  </button>
-                );
-              })}
+          {/* Source selector — só aparece dentro do Hall Estratégico */}
+          {hubView === "painel" && (
+            <div className="flex justify-center">
+              <div
+                role="tablist"
+                aria-label="Origem das reservas"
+                className="inline-flex items-center gap-1 p-1 rounded-full"
+                style={{
+                  background: "rgba(13,29,46,0.05)",
+                  border: "1px solid rgba(13,29,46,0.10)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)",
+                }}
+              >
+                {(["all", "zeus", "turo"] as const).map((s) => {
+                  const active = bookingSource === s;
+                  return (
+                    <button
+                      key={s}
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setBookingSource(s)}
+                      className="relative inline-flex items-center justify-center px-3.5 sm:px-4 h-8 rounded-full text-[10.5px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] transition-all whitespace-nowrap"
+                      style={
+                        active
+                          ? {
+                              background: "linear-gradient(180deg, #14283d, #0d1d2e)",
+                              color: "#f3e6c4",
+                              boxShadow: "0 6px 14px -8px rgba(13,29,46,0.55), 0 0 0 1px rgba(154,122,58,0.45)",
+                            }
+                          : { color: "rgba(13,29,46,0.60)" }
+                      }
+                    >
+                      {SOURCE_LABEL[s]}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
         </div>
-        <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
-          <AiPainel bookings={filteredBookings as any} vehicles={vehicles as any} />
 
-        </div>
+        {hubView === "hub" && (
+          <AiHub
+            onOpenPainel={() => setHubView("painel")}
+            onOpenMarketing={() => setHubView("marketing")}
+            onOpenIa={() => setHubView("ia")}
+          />
+        )}
+
+        {hubView === "painel" && (
+          <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
+            <AiPainel bookings={filteredBookings as any} vehicles={vehicles as any} />
+          </div>
+        )}
+
+        {hubView === "marketing" && (
+          <ComingSoonModule
+            title="Marketing Studio"
+            description="O estúdio criativo da Zeus está sendo construído. Aqui você vai produzir campanhas, posts, e-mails e materiais com a mesma identidade premium da marca."
+            bullets={[
+              "Templates de e-mail e WhatsApp prontos para disparo",
+              "Geração de posts e legendas com a voz da Zeus",
+              "Banco de imagens, vídeos e provas sociais da frota",
+              "Calendário editorial integrado às temporadas de Orlando",
+            ]}
+            onBack={() => setHubView("hub")}
+          />
+        )}
+
+        {hubView === "ia" && (
+          <ComingSoonModule
+            title="Zeus IA"
+            description="Sua assistente cognitiva dedicada. Pergunte sobre a operação, peça análises, gere relatórios e tome decisões com apoio em tempo real."
+            bullets={[
+              "Chat com a inteligência da Zeus, treinada nos seus dados",
+              "Resumos executivos, comparativos e respostas em segundos",
+              "Sugestões proativas com base no que está acontecendo agora",
+              "Memória persistente do contexto da sua frota",
+            ]}
+            onBack={() => setHubView("hub")}
+          />
+        )}
       </div>
     );
     return createPortal(overlay, document.body);
@@ -294,6 +361,8 @@ export default function AdminPainel() {
   if (isMobile) {
     return <MobilePainel bookings={bookings} vehicles={vehicles} onRefresh={load} onToggleAi={() => setAiMode(v => !v)} aiMode={aiMode} />;
   }
+
+
 
 
   return (
