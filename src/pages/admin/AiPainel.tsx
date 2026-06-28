@@ -495,19 +495,109 @@ export default function AiPainel({
     void (async () => {
       setBriefingLoading(true);
       try {
+        const topRevCars = [...perVehicle]
+          .sort((a, b) => b.revenue - a.revenue)
+          .slice(0, 5)
+          .map(p => ({
+            nome: p.v.name,
+            categoria: p.v.category,
+            marca: p.v.brand,
+            adquiridoEm: p.v.acquired_date,
+            diasNaFrota: p.daysInFleet,
+            investido: Math.round(p.purchase),
+            receita: Math.round(p.revenue),
+            despesas: Math.round(p.exp),
+            lucro: Math.round(p.profit),
+            retornoPct: Math.round(p.roi),
+            ocupacaoPct: Math.round(p.occupancy),
+            receitaPorDiaDePosse: Math.round(p.revPerDayOwned),
+            diariaMedia: Math.round(p.adr),
+          }));
+        const piorRetorno = [...perVehicle]
+          .filter(p => p.purchase > 0 && p.daysInFleet > 60)
+          .sort((a, b) => a.roi - b.roi)
+          .slice(0, 5)
+          .map(p => ({
+            nome: p.v.name,
+            adquiridoEm: p.v.acquired_date,
+            diasNaFrota: p.daysInFleet,
+            investido: Math.round(p.purchase),
+            receita: Math.round(p.revenue),
+            retornoPct: Math.round(p.roi),
+            ocupacaoPct: Math.round(p.occupancy),
+          }));
+        const trocasSugeridas = swapSuggestions.slice(0, 3).map(s => ({
+          trocar: s.weak.v.name,
+          por: `algo como ${s.star.v.name}`,
+          ganhoAnualEstimado: Math.round(s.annualUplift),
+          motivo: s.reason,
+        }));
         const payload = {
-          fleetSize: perVehicle.length,
-          fleetRevenue, fleetROI, avgOccupancy, revPAC, fleetADR, fleetMargin,
-          repeatRate, leadTime: leadTime.avg, turnaround: turnaround.avg,
-          pacing,
-          topCategory: byCategory[0]?.cat,
-          topStar: topStars[0]?.v.name,
-          sellCandidatesCount: sellCandidates.length,
-          priceUpCount: priceUpCandidates.length,
-          opportunityWindows: opportunityWindows.length,
-          champions: segmentCounts.Champion,
-          atRisk: segmentCounts["At Risk"],
-          anomalies: anomalies.map(a => a.msg),
+          frota: {
+            tamanho: perVehicle.length,
+            totalInvestido: Math.round(fleetInvested),
+            receitaTotal: Math.round(fleetRevenue),
+            despesasTotal: Math.round(fleetExpenses),
+            lucroTotal: Math.round(fleetRevenue - fleetExpenses),
+            retornoMedioPct: Math.round(fleetROI),
+            diariaMedia: Math.round(fleetADR),
+            receitaPorCarroDia: Math.round(revPAC),
+            ocupacaoMediaPct: Math.round(avgOccupancy),
+            margemPct: Math.round(fleetMargin),
+            idadeMediaDias: perVehicle.length
+              ? Math.round(perVehicle.reduce((s, p) => s + p.daysInFleet, 0) / perVehicle.length)
+              : 0,
+          },
+          concentracaoReceita: concentration ? {
+            carrosQueGeram80Pct: concentration.topForRev.length,
+            totalDeCarros: concentration.totalCount,
+            percentualDosCarros: Math.round(concentration.topCountShare),
+            percentualDoInvestimento: Math.round(concentration.topInvShare),
+            ocupacaoMediaDessesCarros: Math.round(concentration.topAvgOcc),
+            ocupacaoMediaDosOutros: Math.round(concentration.tailAvgOcc),
+            marcaQueMaisGera: concentration.topBrand,
+            top10PctClientesGeram: Math.round(concentration.topCustomers.share),
+          } : null,
+          mesAtual: {
+            entrouAteHoje: Math.round(pacing.mtd),
+            mesmoDiaMesPassado: Math.round(pacing.lmtd),
+            variacaoPct: Math.round(pacing.delta),
+          },
+          tendencia6Meses: monthlyTrend.map(m => ({
+            mes: m.label, receita: Math.round(m.revenue), reservas: m.bookings,
+          })),
+          pipelineFuturo: {
+            proximos30Dias: Math.round(next30),
+            proximos60Dias: Math.round(next60),
+          },
+          clientes: {
+            unicos: customers.length,
+            taxaRecompraPct: Math.round(repeatRate),
+            fielVip: segmentCounts.Champion,
+            recorrente: segmentCounts.Loyal,
+            emRisco: segmentCounts["At Risk"],
+            novos: segmentCounts.New,
+          },
+          comportamento: {
+            antecedenciaMediaDias: Math.round(leadTime.avg),
+            tempoMedioParado: Math.round(turnaround.avg),
+            diaMaisForte: dowHeat.reduce((a, b) => a.v > b.v ? a : b).label,
+          },
+          categoriasTop: byCategory.slice(0, 3).map(c => ({
+            categoria: c.cat, receita: Math.round(c.revenue),
+            ocupacaoMediaPct: Math.round(c.avgOcc),
+          })),
+          top5GeradoresDeReceita: topRevCars,
+          piorRetorno,
+          janelasOciosas: opportunityWindows.slice(0, 3).map(w => ({
+            carro: w.vehicle, dias: w.nights, perdaEstimada: Math.round(w.estLoss),
+          })),
+          candidatosParaVender: sellCandidates.length,
+          candidatosSubirPreco: priceUpCandidates.length,
+          candidatosBaixarPreco: priceDownCandidates.length,
+          trocasSugeridas,
+          alertas: anomalies.map(a => a.msg),
+          funilReservas: funnel,
         };
         const { data, error } = await supabase.functions.invoke("intelligence-summary", { body: payload });
         if (!error && (data as any)?.text) setBriefing((data as any).text as string);
