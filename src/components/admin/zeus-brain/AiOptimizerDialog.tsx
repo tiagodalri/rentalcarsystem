@@ -283,7 +283,7 @@ export default function AiOptimizerDialog({
                     <div className="text-[10px] uppercase tracking-[0.18em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
                       Receita por dia
                     </div>
-                    <div className="text-[26px] sm:text-[30px] font-semibold tabular-nums leading-none truncate"
+                    <div className="text-[20px] sm:text-[22px] font-semibold tabular-nums leading-none truncate"
                          style={{ color: scenario.deltaPerDay >= 0 ? BUY : SELL, letterSpacing: "-0.02em" }}>
                       {fmtUSDsigned(scenario.deltaPerDay)}
                     </div>
@@ -295,7 +295,7 @@ export default function AiOptimizerDialog({
                     <div className="text-[10px] uppercase tracking-[0.18em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
                       Em 12 meses
                     </div>
-                    <div className="text-[22px] sm:text-[26px] font-semibold tabular-nums leading-none truncate"
+                    <div className="text-[18px] sm:text-[20px] font-semibold tabular-nums leading-none truncate"
                          style={{ color: scenario.delta365 >= 0 ? BUY : SELL, letterSpacing: "-0.02em" }}>
                       {fmtUSDsigned(scenario.delta365)}
                     </div>
@@ -307,7 +307,7 @@ export default function AiOptimizerDialog({
                     <div className="text-[10px] uppercase tracking-[0.18em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
                       Saldo em caixa
                     </div>
-                    <div className="text-[22px] sm:text-[26px] font-semibold tabular-nums leading-none truncate"
+                    <div className="text-[18px] sm:text-[20px] font-semibold tabular-nums leading-none truncate"
                          style={{ color: scenario.cashBalance >= 0 ? BUY : GOLD, letterSpacing: "-0.02em" }}>
                       {fmtUSDsigned(scenario.cashBalance)}
                     </div>
