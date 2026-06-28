@@ -365,7 +365,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
         >
           Essa simulação é construída a partir do{" "}
           <span className="font-semibold" style={{ color: NAVY }}>histórico real das locações</span>{" "}
-          da sua frota — ocupação, receita, custo de aquisição e dias rodados de cada carro.
+          da sua frota: ocupação, receita, custo de aquisição e dias rodados de cada carro.
           Não são estimativas genéricas: são os seus próprios números trabalhando para projetar o futuro.
         </p>
 
