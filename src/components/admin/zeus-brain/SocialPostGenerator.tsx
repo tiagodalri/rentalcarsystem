@@ -128,25 +128,52 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
   }
 
   async function generate() {
-    if (!selected) return;
+    // Pick vehicle: random (AI escolhe) or selected.
+    let vehicleForRun = selected;
+    if (randomVehicle) {
+      const pool = vehicles.filter((v) => {
+        if (v.image_url) return true;
+        const arr = Array.isArray(v.photos) ? v.photos : [];
+        return arr.length > 0;
+      });
+      const finalPool = pool.length > 0 ? pool : vehicles;
+      if (finalPool.length === 0) {
+        toast.error("Nenhum carro disponível para gerar a arte.");
+        return;
+      }
+      vehicleForRun = finalPool[Math.floor(Math.random() * finalPool.length)];
+      toast.success(`A IA escolheu: ${vehicleForRun.name || `${vehicleForRun.brand || ""} ${vehicleForRun.model || ""}`.trim()}`);
+    }
+    if (!vehicleForRun) {
+      toast.error("Selecione um carro ou ative o modo aleatório.");
+      return;
+    }
     if (mode === "promo" && (!priceDaily || !dateStart || !dateEnd)) {
-      toast.error("Preencha valor da diaria e periodo da promocao.");
+      toast.error("Preencha o valor da diária e o período da promoção.");
       return;
     }
     if (mode === "reference" && !refDataUrl) {
-      toast.error("Anexe uma imagem de referencia.");
+      toast.error("Anexe uma imagem de referência.");
       return;
     }
     setLoading(true);
     setResult(null);
     setActiveSlide(0);
     try {
+      const runPhotoUrl = (() => {
+        if (vehicleForRun!.image_url) return vehicleForRun!.image_url;
+        const arr = Array.isArray(vehicleForRun!.photos) ? vehicleForRun!.photos : [];
+        const first = arr[0];
+        if (typeof first === "string") return first;
+        if (first && typeof first === "object") return first.url || first.src || null;
+        return null;
+      })();
       const logoDataUrl = await urlToDataUrl(`${window.location.origin}/zeus-logo-full.png`);
       const { data, error } = await supabase.functions.invoke("marketing-generate-post", {
         body: {
-          vehicleName: selected.name || `${selected.brand || ""} ${selected.model || ""}`.trim(),
-          vehicleBrand: selected.brand,
-          vehiclePhotoUrl: photoUrl,
+          vehicleName: vehicleForRun!.name || `${vehicleForRun!.brand || ""} ${vehicleForRun!.model || ""}`.trim(),
+          vehicleBrand: vehicleForRun!.brand,
+          vehiclePhotoUrl: runPhotoUrl,
           logoDataUrl,
           format,
           tone,
@@ -171,8 +198,8 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
       console.error(e);
       const msg = String(e?.message || e);
       if (msg.includes("429")) toast.error("Limite de uso atingido. Tente novamente em instantes.");
-      else if (msg.includes("402")) toast.error("Creditos esgotados. Adicione mais creditos para continuar.");
-      else toast.error("Nao foi possivel gerar o post. " + msg);
+      else if (msg.includes("402")) toast.error("Créditos esgotados. Adicione mais créditos para continuar.");
+      else toast.error("Não foi possível gerar o post. " + msg);
     } finally {
       setLoading(false);
     }
