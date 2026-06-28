@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { ArrowLeft, ArrowRight, Check, Sparkles, Loader2, Car, Users, MapPin, Shield, Wrench, CreditCard, FileCheck2, Pencil, Search, Fuel, Cog, Palette, Calendar, Hash, Plus, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -196,7 +197,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
         const n = Number(raw);
         if (Number.isInteger(n) && n >= 0 && n < WIZARD_STEPS.length) {
           const restoredDays = draft.pickup_date && draft.return_date
-            ? Math.max(0, Math.round((new Date(draft.return_date).getTime() - new Date(draft.pickup_date).getTime()) / 86400000))
+            ? Math.max(0, Math.round((parseDateOnly(draft.return_date).getTime() - parseDateOnly(draft.pickup_date).getTime()) / 86400000))
             : 0;
           const firstInvalidIdx = WIZARD_STEPS
             .slice(0, n)
@@ -306,7 +307,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
     const daily = Number(form.daily_price_override) || Number(veh.daily_price_usd) || 0;
     setForm((p) => {
       if (!p.pickup_date || !p.return_date) return p;
-      const d = Math.max(1, Math.round((new Date(p.return_date).getTime() - new Date(p.pickup_date).getTime()) / 86400000));
+      const d = Math.max(1, Math.round((parseDateOnly(p.return_date).getTime() - parseDateOnly(p.pickup_date).getTime()) / 86400000));
       const next = { ...p };
       if (!p.total_price || Number(p.total_price) === 0) {
         next.total_price = (daily * d).toFixed(2);
@@ -319,7 +320,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
 
   const days = useMemo(() => {
     if (!form.pickup_date || !form.return_date) return 0;
-    return Math.max(0, Math.round((new Date(form.return_date).getTime() - new Date(form.pickup_date).getTime()) / 86400000));
+    return Math.max(0, Math.round((parseDateOnly(form.return_date).getTime() - parseDateOnly(form.pickup_date).getTime()) / 86400000));
   }, [form.pickup_date, form.return_date]);
 
   const stepValid = (id: StepId): boolean => {

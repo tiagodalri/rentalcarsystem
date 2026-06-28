@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { InspectionSkeleton } from "@/components/skeletons/MinorPageSkeletons";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -1125,7 +1126,7 @@ export default function AdminInspection() {
           </div>
           <p className="text-sm text-muted-foreground mt-1">
             {booking.customer_name} • {vehicle?.name || "Veículo não vinculado"} •{" "}
-            {new Date(booking.pickup_date).toLocaleDateString("pt-BR")} → {new Date(booking.return_date).toLocaleDateString("pt-BR")}
+            {parseDateOnly(booking.pickup_date).toLocaleDateString("pt-BR")} → {parseDateOnly(booking.return_date).toLocaleDateString("pt-BR")}
           </p>
         </div>
         <div className="flex gap-2">

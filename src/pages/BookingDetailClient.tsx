@@ -1,5 +1,6 @@
 // auth handled by RequireAuth wrapper
 import { useState } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import { motion } from "framer-motion";
@@ -136,7 +137,7 @@ const BookingDetailClient = () => {
         setCancelling(false);
         return;
       }
-      if (new Date(dbBooking.pickup_date) <= new Date()) {
+      if (parseDateOnly(dbBooking.pickup_date) <= new Date()) {
         toast.error("Não é possível cancelar reservas com data de retirada passada.");
         setCancelling(false);
         return;

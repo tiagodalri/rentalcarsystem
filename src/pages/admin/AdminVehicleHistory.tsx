@@ -1,4 +1,5 @@
 import { formatPersonName } from "@/lib/formatName";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -88,7 +89,7 @@ export default function AdminVehicleHistory() {
   const avgRevenue = completedBookings.length > 0 ? totalRevenue / completedBookings.length : 0;
   const totalDays = bookings.reduce((sum, b) => {
     const days = Math.ceil(
-      (new Date(b.return_date).getTime() - new Date(b.pickup_date).getTime()) / (1000 * 60 * 60 * 24)
+      (parseDateOnly(b.return_date).getTime() - parseDateOnly(b.pickup_date).getTime()) / (1000 * 60 * 60 * 24)
     );
     return sum + Math.max(days, 1);
   }, 0);
@@ -96,7 +97,7 @@ export default function AdminVehicleHistory() {
   // Mileage tracking from inspections
   const inspectionsWithOdometer = bookings
     .filter((b) => b.checkin?.odometer_reading || b.checkout?.odometer_reading)
-    .sort((a, b) => new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime());
+    .sort((a, b) => parseDateOnly(a.pickup_date).getTime() - parseDateOnly(b.pickup_date).getTime());
 
   const firstOdometer = inspectionsWithOdometer[0]?.checkin?.odometer_reading;
   const lastOdometer = inspectionsWithOdometer[inspectionsWithOdometer.length - 1]?.checkout?.odometer_reading
@@ -181,7 +182,7 @@ export default function AdminVehicleHistory() {
           <div className="space-y-3">
             {bookings.map((b) => {
               const days = Math.ceil(
-                (new Date(b.return_date).getTime() - new Date(b.pickup_date).getTime()) / (1000 * 60 * 60 * 24)
+                (parseDateOnly(b.return_date).getTime() - parseDateOnly(b.pickup_date).getTime()) / (1000 * 60 * 60 * 24)
               );
               const sc = statusConfig[b.status] || { label: b.status, color: "bg-muted text-muted-foreground" };
               const kmDriven = b.checkin?.odometer_reading && b.checkout?.odometer_reading
@@ -202,7 +203,7 @@ export default function AdminVehicleHistory() {
                         <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
                           <span className="flex items-center gap-1">
                             <Calendar size={11} />
-                            {new Date(b.pickup_date).toLocaleDateString("pt-BR")} → {new Date(b.return_date).toLocaleDateString("pt-BR")}
+                            {parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR")} → {parseDateOnly(b.return_date).toLocaleDateString("pt-BR")}
                           </span>
                           <span>{days} dia(s)</span>
                           {b.customer_email && <span>{b.customer_email}</span>}

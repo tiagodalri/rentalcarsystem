@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import {
   Brain, Sparkles, TrendingUp, AlertTriangle, Target, Zap, DollarSign,
   Activity, Gauge, Award, Flame, Snowflake, Layers, Rocket, Users,
@@ -72,7 +73,7 @@ export default function AiPainel({
       const exp = expenses.filter(e => e.vehicle_id === v.id)
         .reduce((s, e) => s + Number(e.amount || 0), 0);
       const daysBooked = vb.reduce((s, b) => {
-        const d = differenceInDays(new Date(b.return_date), new Date(b.pickup_date));
+        const d = differenceInDays(parseDateOnly(b.return_date), parseDateOnly(b.pickup_date));
         return s + Math.max(d, 1);
       }, 0);
       const daysInFleet = v.acquired_date
@@ -268,7 +269,7 @@ export default function AiPainel({
       const anchor = startOfMonth(subMonths(today, i));
       const end = endOfMonth(anchor);
       const inM = realBookings.filter(b => {
-        const d = new Date(b.pickup_date);
+        const d = parseDateOnly(b.pickup_date);
         return d >= anchor && d <= end;
       });
       out.push({
@@ -289,11 +290,11 @@ export default function AiPainel({
     const lastMonthStart = startOfMonth(subMonths(today, 1));
     const lastMonthSameDay = addDays(lastMonthStart, dayOfMonth);
     const mtd = realBookings.filter(b => {
-      const d = new Date(b.pickup_date);
+      const d = parseDateOnly(b.pickup_date);
       return d >= mtdStart && d <= today;
     }).reduce((s, b) => s + (Number(b.total_price) || 0), 0);
     const lmtd = realBookings.filter(b => {
-      const d = new Date(b.pickup_date);
+      const d = parseDateOnly(b.pickup_date);
       return d >= lastMonthStart && d <= lastMonthSameDay;
     }).reduce((s, b) => s + (Number(b.total_price) || 0), 0);
     const delta = lmtd > 0 ? ((mtd - lmtd) / lmtd) * 100 : 0;
@@ -304,14 +305,14 @@ export default function AiPainel({
   const next30 = useMemo(() => {
     const horizon = addDays(today, 30);
     return realBookings.filter(b => {
-      const d = new Date(b.pickup_date);
+      const d = parseDateOnly(b.pickup_date);
       return d >= today && d <= horizon;
     }).reduce((s, b) => s + (Number(b.total_price) || 0), 0);
   }, [realBookings, today]);
   const next60 = useMemo(() => {
     const horizon = addDays(today, 60);
     return realBookings.filter(b => {
-      const d = new Date(b.pickup_date);
+      const d = parseDateOnly(b.pickup_date);
       return d >= today && d <= horizon;
     }).reduce((s, b) => s + (Number(b.total_price) || 0), 0);
   }, [realBookings, today]);
@@ -321,7 +322,7 @@ export default function AiPainel({
     const ds: number[] = [];
     realBookings.forEach(b => {
       if (!b.created_at) return;
-      const lt = differenceInDays(new Date(b.pickup_date), new Date(b.created_at));
+      const lt = differenceInDays(parseDateOnly(b.pickup_date), new Date(b.created_at));
       if (lt >= 0 && lt < 365) ds.push(lt);
     });
     if (!ds.length) return { avg: 0, median: 0, sample: 0 };
@@ -337,7 +338,7 @@ export default function AiPainel({
   const dowHeat = useMemo(() => {
     const arr = [0, 0, 0, 0, 0, 0, 0]; // dom..sab
     realBookings.forEach(b => {
-      const d = new Date(b.pickup_date);
+      const d = parseDateOnly(b.pickup_date);
       arr[d.getDay()] += 1;
     });
     const max = Math.max(...arr, 1);
@@ -349,15 +350,15 @@ export default function AiPainel({
   const todayStats = useMemo(() => {
     const tomorrow = addDays(today, 1);
     const rodandoAgora = realBookings.filter(b => {
-      const p = startOfDay(new Date(b.pickup_date));
-      const r = startOfDay(new Date(b.return_date));
+      const p = startOfDay(parseDateOnly(b.pickup_date));
+      const r = startOfDay(parseDateOnly(b.return_date));
       return p <= today && r >= today && ["confirmed", "active", "in_progress"].includes(b.status);
     });
-    const saemHoje = realBookings.filter(b => isSameDay(startOfDay(new Date(b.pickup_date)), today));
-    const voltamHoje = realBookings.filter(b => isSameDay(startOfDay(new Date(b.return_date)), today));
-    const saemAmanha = realBookings.filter(b => isSameDay(startOfDay(new Date(b.pickup_date)), tomorrow));
+    const saemHoje = realBookings.filter(b => isSameDay(startOfDay(parseDateOnly(b.pickup_date)), today));
+    const voltamHoje = realBookings.filter(b => isSameDay(startOfDay(parseDateOnly(b.return_date)), today));
+    const saemAmanha = realBookings.filter(b => isSameDay(startOfDay(parseDateOnly(b.pickup_date)), tomorrow));
     const receitaHoje = rodandoAgora.reduce((s, b) => {
-      const nights = Math.max(differenceInDays(new Date(b.return_date), new Date(b.pickup_date)), 1);
+      const nights = Math.max(differenceInDays(parseDateOnly(b.return_date), parseDateOnly(b.pickup_date)), 1);
       const daily = (Number(b.total_price) || 0) / nights;
       return s + daily;
     }, 0);
@@ -378,7 +379,7 @@ export default function AiPainel({
     const arr = [0, 0, 0, 0, 0, 0, 0];
     const cnt = [0, 0, 0, 0, 0, 0, 0];
     realBookings.forEach(b => {
-      const d = new Date(b.pickup_date);
+      const d = parseDateOnly(b.pickup_date);
       const idx = d.getDay();
       arr[idx] += Number(b.total_price) || 0;
       cnt[idx] += 1;
@@ -407,8 +408,8 @@ export default function AiPainel({
     const out: { vehicle: string; vehicleId: string; gapStart: Date; gapEnd: Date; nights: number; estLoss: number }[] = [];
     vehicles.forEach(v => {
       const future = realBookings
-        .filter(b => b.vehicle_id === v.id && new Date(b.return_date) >= today)
-        .sort((a, b) => new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime());
+        .filter(b => b.vehicle_id === v.id && parseDateOnly(b.return_date) >= today)
+        .sort((a, b) => parseDateOnly(a.pickup_date).getTime() - parseDateOnly(b.pickup_date).getTime());
       for (let i = 0; i < future.length - 1; i++) {
         const aEnd = new Date(future[i].return_date);
         const bStart = new Date(future[i + 1].pickup_date);
@@ -444,7 +445,7 @@ export default function AiPainel({
       const cur = map.get(key) || { name: b.customer_name || "—", trips: 0, revenue: 0, lastDate: null, firstDate: null };
       cur.trips += 1;
       cur.revenue += Number(b.total_price) || 0;
-      const d = new Date(b.pickup_date);
+      const d = parseDateOnly(b.pickup_date);
       if (!cur.lastDate || d > cur.lastDate) cur.lastDate = d;
       if (!cur.firstDate || d < cur.firstDate) cur.firstDate = d;
       map.set(key, cur);
@@ -544,7 +545,7 @@ export default function AiPainel({
     const gaps: number[] = [];
     vehicles.forEach(v => {
       const list = realBookings.filter(b => b.vehicle_id === v.id)
-        .sort((a, b) => new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime());
+        .sort((a, b) => parseDateOnly(a.pickup_date).getTime() - parseDateOnly(b.pickup_date).getTime());
       for (let i = 0; i < list.length - 1; i++) {
         const g = differenceInDays(new Date(list[i + 1].pickup_date), new Date(list[i].return_date));
         if (g >= 0 && g < 60) gaps.push(g);

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -356,7 +357,7 @@ export default function AdminVehicleDetail() {
   const netProfit = totalRevenue - totalExpenses - totalIncidentCost;
   const completedBookings = bookings.filter(b => b.status === "completed");
   const totalDays = bookings.reduce((s, b) => {
-    const d = Math.ceil((new Date(b.return_date).getTime() - new Date(b.pickup_date).getTime()) / 86400000);
+    const d = Math.ceil((parseDateOnly(b.return_date).getTime() - parseDateOnly(b.pickup_date).getTime()) / 86400000);
     return s + Math.max(d, 1);
   }, 0);
   const daysSinceAcquired = vehicle.acquired_date ? Math.ceil((Date.now() - new Date(vehicle.acquired_date).getTime()) / 86400000) : null;
@@ -364,7 +365,7 @@ export default function AdminVehicleDetail() {
 
   const inspectionsWithOdometer = bookings
     .filter(b => b.checkin?.odometer_reading || b.checkout?.odometer_reading)
-    .sort((a, b) => new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime());
+    .sort((a, b) => parseDateOnly(a.pickup_date).getTime() - parseDateOnly(b.pickup_date).getTime());
   const lastOdometer = inspectionsWithOdometer.length > 0
     ? inspectionsWithOdometer[inspectionsWithOdometer.length - 1]?.checkout?.odometer_reading || inspectionsWithOdometer[inspectionsWithOdometer.length - 1]?.checkin?.odometer_reading
     : vehicle.current_odometer;
@@ -390,10 +391,10 @@ export default function AdminVehicleDetail() {
       desc: `Entrou na frota com ${vehicle.initial_odometer?.toLocaleString("pt-BR") || 0} mi${vehicle.purchase_price ? ` • $${vehicle.purchase_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : ""}`,
       color: "text-primary" });
   }
-  bookings.sort((a, b) => new Date(a.pickup_date).getTime() - new Date(b.pickup_date).getTime()).forEach(b => {
+  bookings.sort((a, b) => parseDateOnly(a.pickup_date).getTime() - parseDateOnly(b.pickup_date).getTime()).forEach(b => {
     const sc = statusConfig[b.status] || statusConfig.pending;
     timelineEvents.push({ date: b.pickup_date, icon: Calendar, title: `Locação — ${b.customer_name}`,
-      desc: `${new Date(b.pickup_date).toLocaleDateString("pt-BR")} → ${new Date(b.return_date).toLocaleDateString("pt-BR")}${b.total_price ? ` • $${b.total_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : ""} • ${sc.label}`,
+      desc: `${parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR")} → ${parseDateOnly(b.return_date).toLocaleDateString("pt-BR")}${b.total_price ? ` • $${b.total_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : ""} • ${sc.label}`,
       color: b.status === "completed" ? "text-emerald-500" : b.status === "active" || b.status === "in_progress" ? "text-blue-500" : "text-muted-foreground" });
   });
   expenses.forEach(e => {
@@ -1096,7 +1097,7 @@ export default function AdminVehicleDetail() {
           ) : (
             <div className="space-y-3">
               {bookings.map(b => {
-                const days = Math.ceil((new Date(b.return_date).getTime() - new Date(b.pickup_date).getTime()) / 86400000);
+                const days = Math.ceil((parseDateOnly(b.return_date).getTime() - parseDateOnly(b.pickup_date).getTime()) / 86400000);
                 const sc = statusConfig[b.status] || statusConfig.pending;
                 const kmDriven = b.checkin?.odometer_reading && b.checkout?.odometer_reading ? b.checkout.odometer_reading - b.checkin.odometer_reading : null;
                 return (
@@ -1109,7 +1110,7 @@ export default function AdminVehicleDetail() {
                             <Badge variant="outline" className={`text-[10px] ${sc.color}`}>{sc.label}</Badge>
                           </div>
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1"><Calendar size={11} />{new Date(b.pickup_date).toLocaleDateString("pt-BR")} → {new Date(b.return_date).toLocaleDateString("pt-BR")}</span>
+                            <span className="flex items-center gap-1"><Calendar size={11} />{parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR")} → {parseDateOnly(b.return_date).toLocaleDateString("pt-BR")}</span>
                             <span>{days} dia(s)</span>
                           </div>
                         </div>

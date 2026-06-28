@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, SlidersHorizontal, Plus, Car, Calendar, X } from "lucide-react";
@@ -193,7 +194,7 @@ export default function MobileBookings() {
                     <div className="mt-3 flex items-center justify-between text-xs">
                       <span className="text-muted-foreground inline-flex items-center gap-1.5 tabular-nums">
                         <Calendar size={11} />
-                        {format(new Date(b.pickup_date), "dd MMM", { locale: ptBR })} → {format(new Date(b.return_date), "dd MMM", { locale: ptBR })}
+                        {format(parseDateOnly(b.pickup_date), "dd MMM", { locale: ptBR })} → {format(parseDateOnly(b.return_date), "dd MMM", { locale: ptBR })}
                       </span>
                       {!hideFin && b.total_price != null && (
                         <span className="text-sm font-semibold tabular-nums">${Math.round(b.total_price).toLocaleString("en-US")}</span>

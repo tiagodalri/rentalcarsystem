@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,7 +101,7 @@ export function EditBookingDialog({ open, onOpenChange, booking, onSaved }: Prop
       toast({ title: "Campos obrigatórios", description: "Nome, retirada e devolução são obrigatórios.", variant: "destructive" });
       return;
     }
-    if (new Date(form.return_date) < new Date(form.pickup_date)) {
+    if (parseDateOnly(form.return_date) < parseDateOnly(form.pickup_date)) {
       toast({ title: "Datas inválidas", description: "A devolução deve ser depois da retirada.", variant: "destructive" });
       return;
     }

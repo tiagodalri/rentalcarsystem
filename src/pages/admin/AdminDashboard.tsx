@@ -1,4 +1,5 @@
 import { formatPersonName } from "@/lib/formatName";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
@@ -223,8 +224,8 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
                         className="border-b border-border/10 hover:bg-muted/30 transition-colors cursor-pointer"
                       >
                         <td className="px-5 py-3.5 text-foreground font-medium">{formatPersonName(b.customer_name)}</td>
-                        <td className="px-5 py-3.5 text-muted-foreground tabular-nums">{new Date(b.pickup_date).toLocaleDateString("pt-BR")}</td>
-                        <td className="px-5 py-3.5 text-muted-foreground tabular-nums">{new Date(b.return_date).toLocaleDateString("pt-BR")}</td>
+                        <td className="px-5 py-3.5 text-muted-foreground tabular-nums">{parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR")}</td>
+                        <td className="px-5 py-3.5 text-muted-foreground tabular-nums">{parseDateOnly(b.return_date).toLocaleDateString("pt-BR")}</td>
                         <td className="px-5 py-3.5 text-foreground font-medium text-right tabular-nums">${b.total_price?.toFixed(2) || "—"}</td>
                         <td className="px-5 py-3.5">
                           <span className={`text-[10px] px-2 py-1 rounded-md font-semibold ${st.className}`}>{st.label}</span>

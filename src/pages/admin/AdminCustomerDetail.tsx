@@ -1,4 +1,5 @@
 import { formatPersonName } from "@/lib/formatName";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -378,7 +379,7 @@ export default function AdminCustomerDetail() {
                       <div key={bid} className="rounded-lg bg-muted/30 border border-border/20 p-3 space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-medium text-foreground">{veh?.name || "Veículo"}</span>
-                          <span className="text-[10px] text-muted-foreground">{bk ? new Date(bk.pickup_date).toLocaleDateString("pt-BR") : ""}</span>
+                          <span className="text-[10px] text-muted-foreground">{bk ? parseDateOnly(bk.pickup_date).toLocaleDateString("pt-BR") : ""}</span>
                         </div>
                         {damages.map((d: any, i: number) => (
                           <div key={i} className="flex items-start gap-2 text-xs pl-1">
@@ -412,8 +413,8 @@ export default function AdminCustomerDetail() {
                   {bookings.map((b) => {
                     const sc = statusConfig[b.status] || statusConfig.pending;
                     const veh = b.vehicle_id ? vehicles[b.vehicle_id] : null;
-                    const pickup = new Date(b.pickup_date);
-                    const returnD = new Date(b.return_date);
+                    const pickup = parseDateOnly(b.pickup_date);
+                    const returnD = parseDateOnly(b.return_date);
                     const days = Math.max(1, Math.ceil((returnD.getTime() - pickup.getTime()) / (1000 * 60 * 60 * 24)));
                     const checkin = inspections.find(i => i.booking_id === b.id && i.type === "checkin");
                     const checkout = inspections.find(i => i.booking_id === b.id && i.type === "checkout");

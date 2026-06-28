@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -309,7 +310,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
     const days = Math.max(
       1,
       Math.round(
-        (new Date(form.return_date).getTime() - new Date(form.pickup_date).getTime()) /
+        (parseDateOnly(form.return_date).getTime() - parseDateOnly(form.pickup_date).getTime()) /
           (1000 * 60 * 60 * 24)
       )
     );
