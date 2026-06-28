@@ -69,81 +69,11 @@ export default function AiPainel({
     [bookings],
   );
 
-  /* ───── Per-vehicle analytics ─────
-   * Regras de coerência:
-   * - daysInFleet = max(1, dias desde acquired_date até hoje). Se sem acquired_date,
-   *   usamos a 1ª reserva como proxy (ou 90 dias fallback) — nunca 1 dia.
-   * - daysBookedHistorical = soma dos dias de reserva CLIPADOS à janela [aquisição, hoje].
-   *   Isso impede que reservas futuras inflem ocupação > 100%.
-   * - occupancy = clamp(0, 100) — métrica é taxa, não pode passar de 100%.
-   * - daysBookedTotal (incluindo futuro) é mantido só para receita / pipeline.
-   */
-  const perVehicle = useMemo(() => {
-    const dayMs = 86400000;
-    const todayMs = today.getTime();
-    return vehicles.map(v => {
-      const vb = realBookings.filter(b => b.vehicle_id === v.id);
-      const revenue = vb.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
-      const exp = expenses.filter(e => e.vehicle_id === v.id)
-        .reduce((s, e) => s + Number(e.amount || 0), 0);
-
-      // Anchor de aquisição: data informada ou 1ª reserva conhecida
-      const acquiredDate = v.acquired_date
-        ? new Date(v.acquired_date)
-        : (vb.length
-            ? new Date(Math.min(...vb.map(b => parseDateOnly(b.pickup_date).getTime())))
-            : null);
-      const acquiredMs = acquiredDate ? acquiredDate.getTime() : null;
-
-      const daysInFleet = acquiredMs
-        ? Math.max(Math.round((todayMs - acquiredMs) / dayMs), 1)
-        : 90; // fallback prudente
-
-      // Dias reservados — total e clipados à janela histórica
-      let daysBookedTotal = 0;
-      let daysBookedHistorical = 0;
-      vb.forEach(b => {
-        const pk = parseDateOnly(b.pickup_date).getTime();
-        const rt = parseDateOnly(b.return_date).getTime();
-        const rawDays = Math.max(Math.round((rt - pk) / dayMs), 1);
-        daysBookedTotal += rawDays;
-        // Clip ao intervalo [acquired, today]
-        const lo = acquiredMs ? Math.max(pk, acquiredMs) : pk;
-        const hi = Math.min(rt, todayMs);
-        if (hi > lo) daysBookedHistorical += Math.round((hi - lo) / dayMs);
-      });
-
-      const rawOccupancy = (daysBookedHistorical / daysInFleet) * 100;
-      const occupancy = Math.max(0, Math.min(100, rawOccupancy));
-      const purchase = Number(v.purchase_price) || 0;
-      const profit = revenue - exp;
-      const roi = purchase > 0 ? (profit / purchase) * 100 : 0;
-      const revPerDayOwned = revenue / daysInFleet;
-      const daily = Number(v.daily_price_usd) || 0;
-      const adr = daysBookedTotal > 0 ? revenue / daysBookedTotal : 0;
-      const adrGap = daily > 0 ? ((adr - daily) / daily) * 100 : 0;
-      const paybackMonths = daily > 0 && purchase > 0
-        ? Math.ceil(purchase / (daily * 20)) : null;
-      const dailyRevRate = daysInFleet > 0 ? revenue / daysInFleet : 0;
-      const breakEvenDays = purchase > 0 && dailyRevRate > 0
-        ? Math.ceil((purchase - (revenue - exp)) / dailyRevRate) : null;
-      const breakEvenDate = breakEvenDays !== null && breakEvenDays > 0
-        ? addDays(today, breakEvenDays) : null;
-      const customerCount = new Set(vb.map(b => b.customer_id || b.customer_name).filter(Boolean)).size;
-      return {
-        v, revenue, exp, profit,
-        daysBooked: daysBookedHistorical, // usado em ocupação/ranking
-        daysBookedTotal,                  // inclui futuro (pipeline)
-        daysInFleet, occupancy, roi,
-        revPerDayOwned, paybackMonths, purchase, daily, adr, adrGap, customerCount,
-        breakEvenDate, breakEvenDays,
-        bookingsCount: vb.length,
-        // Sinalizadores de qualidade do dado
-        hasAcquiredDate: !!v.acquired_date,
-        isNewToFleet: daysInFleet < 30,
-      };
-    });
-  }, [vehicles, realBookings, expenses, today]);
+  /* ───── Per-vehicle analytics — centralizado em src/lib/zeusBrain/perVehicle.ts ───── */
+  const perVehicle = useMemo(
+    () => computePerVehicle(vehicles as any, realBookings as any, expenses as any, today),
+    [vehicles, realBookings, expenses, today],
+  );
 
 
   const fleetRevenue = perVehicle.reduce((s, p) => s + p.revenue, 0);
