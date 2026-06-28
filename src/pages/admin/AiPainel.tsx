@@ -37,15 +37,16 @@ type FinTx = { type: string; amount: number; transaction_date: string; vehicle_i
 const fmtUSD = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 const fmtUSD2 = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
 
-type TabKey = "simulator" | "revenue" | "demand" | "operations" | "financial" | "strategy";
+type TabKey = "revenue" | "demand" | "operations" | "financial" | "strategy";
 
 export default function AiPainel({
   bookings, vehicles,
 }: { bookings: Booking[]; vehicles: Vehicle[] }) {
+  const navigate = useNavigate();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [transactions, setTransactions] = useState<FinTx[]>([]);
-  const [tab, setTab] = useState<TabKey>("simulator");
+  const [tab, setTab] = useState<TabKey>("revenue");
   const [briefing, setBriefing] = useState<string | null>(null);
   const [briefingLoading, setBriefingLoading] = useState(false);
 
