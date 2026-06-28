@@ -91,7 +91,7 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
           Para onde vamos hoje?
         </h1>
         <p
-          className="mt-1.5 max-w-[520px] mx-auto text-[12px] sm:text-[13px] leading-relaxed"
+          className="mt-1.5 mx-auto text-[11px] sm:text-[12.5px] leading-relaxed whitespace-nowrap"
           style={{ color: "rgba(13,29,46,0.62)" }}
         >
           Escolha um módulo do Zeus Brain. Cada espaço foi desenhado para uma frente da operação.
