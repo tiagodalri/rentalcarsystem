@@ -810,6 +810,72 @@ export default function AiPainel({
           </div>
         </div>
 
+        {/* HOJE NA SUA FROTA */}
+        <div className="ai-card relative overflow-hidden">
+          <div className="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-amber-300/10 blur-3xl pointer-events-none" />
+          <div className="relative">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Sun size={16} className="text-amber-300" />
+                <h3 className="text-sm font-medium text-white/95">Hoje na sua frota</h3>
+                <span className="text-[10px] uppercase tracking-wider text-white/45">{format(today, "EEEE, dd 'de' MMMM", { locale: ptBR })}</span>
+              </div>
+              <span className="text-[10.5px] text-white/50 tabular-nums">Receita rodando hoje: <span className="text-amber-200">{fmtUSD(todayStats.receitaHoje)}</span></span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+              <MiniStat label="Carros rodando" value={todayStats.rodandoAgora} icon={Activity} hue="emerald" />
+              <MiniStat label="Saem hoje" value={todayStats.saemHoje} icon={ArrowUpRight} hue="cyan" />
+              <MiniStat label="Voltam hoje" value={todayStats.voltamHoje} icon={ArrowDownRight} hue="violet" />
+              <MiniStat label="Saem amanhã" value={todayStats.saemAmanha} icon={Calendar} hue="amber" />
+              <MiniStat label="Parados" value={todayStats.paradosAgora} icon={Snowflake} hue={todayStats.paradosAgora > vehicles.length / 2 ? "rose" : "amber"} />
+            </div>
+          </div>
+        </div>
+
+        {/* CONSELHOS DA SEMANA — O Cérebro decidindo por você */}
+        {weeklyDecisions.length > 0 && (
+          <div className="ai-card relative overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full bg-cyan-400/10 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-12 -left-12 w-64 h-64 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <Lightbulb size={16} className="text-cyan-300" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-cyan-200/80">Conselhos da Semana</span>
+                </div>
+                <span className="text-[10.5px] text-white/50">As {weeklyDecisions.length} decisões com maior impacto agora</span>
+              </div>
+              <h3 className="text-base md:text-lg font-light text-white leading-snug mb-4">
+                Se você fizer só essas ações esta semana, é onde está o maior retorno.
+              </h3>
+              <ul className="space-y-2.5">
+                {weeklyDecisions.map((d, i) => {
+                  const priColor = d.prioridade === "alta" ? "rose" : d.prioridade === "media" ? "amber" : "cyan";
+                  const priClasses: Record<string, string> = {
+                    rose: "bg-rose-400/15 border-rose-300/30 text-rose-200",
+                    amber: "bg-amber-400/15 border-amber-300/30 text-amber-200",
+                    cyan: "bg-cyan-400/15 border-cyan-300/30 text-cyan-200",
+                  };
+                  return (
+                    <li key={i} className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
+                      <div className="flex items-start justify-between gap-3 flex-wrap mb-1.5">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <span className={`text-[9.5px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${priClasses[priColor]} shrink-0`}>{d.prioridade}</span>
+                          <span className="text-[10px] uppercase tracking-wider text-white/45 shrink-0">{d.categoria}</span>
+                          <span className="text-[13px] text-white/95 font-medium leading-snug">{d.titulo}</span>
+                        </div>
+                        <span className="text-[11px] tabular-nums text-emerald-200 shrink-0">{d.impacto}</span>
+                      </div>
+                      <p className="text-[12px] text-white/65 leading-relaxed pl-1">{d.descricao}</p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        )}
+
+
         {/* Anomaly alerts */}
         {anomalies.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
