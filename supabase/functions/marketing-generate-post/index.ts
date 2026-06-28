@@ -370,7 +370,7 @@ Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, 
       if (mode === "reference" && referenceImageDataUrl && referenceImageDataUrl.startsWith("data:image")) {
         contentParts.push({
           type: "text",
-          text: "IMAGEM A SEGUIR = REFERENCIA DE ESTILO. Use APENAS como inspiracao para paleta, iluminacao, composicao, mood e tratamento tipografico. NAO copie textos, logos, pessoas ou marcas de terceiros vistas nela.",
+          text: "IMAGEM A SEGUIR = REFERENCIA CRIATIVA principal. Inspire-se em TEMA, CONCEITO, COMPOSICAO, paleta, iluminacao, tipografia E elementos visuais marcantes (bandeiras, cenarios, motivos, ofertas). Adapte tudo para a Zeus Rental Car. NAO copie pessoas, logos de terceiros, nem fotos literais — recrie o espirito.",
         });
         contentParts.push({ type: "image_url", image_url: { url: referenceImageDataUrl } });
       }
