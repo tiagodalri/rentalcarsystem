@@ -400,15 +400,68 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                   <Trophy className="w-3 h-3" /> Referência
                 </div>
                 <div className="space-y-1.5 mb-3">
-                  {inList.map(p => (
-                    <VehicleRow
-                      key={p.v.id}
-                      p={p}
-                      side="in"
-                      selected
-                      action={{ label: "✕", onClick: () => toggleIn(p.v.id) }}
-                    />
-                  ))}
+                  {inList.map(p => {
+                    const q = qtyOf(p.v.id);
+                    const year = (p.v as any).year || (p.v as any).model_year;
+                    return (
+                      <div
+                        key={p.v.id}
+                        className="flex items-center gap-2.5 rounded-lg border border-emerald-400/50 bg-emerald-500/[0.07] px-2.5 py-2"
+                      >
+                        <BrandLogo v={p.v} />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 text-[13px] text-white truncate">
+                            <span className="truncate font-medium">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}</span>
+                            <ColorDot color={p.v.color} />
+                          </div>
+                          <div className="text-[10.5px] text-white/50 tabular-nums truncate flex items-center gap-1.5">
+                            <span className="truncate">{[p.v.brand, p.v.model, year].filter(Boolean).join(" · ")}</span>
+                            {p.purchase > 0 && (
+                              <>
+                                <span className="text-white/20">•</span>
+                                <span className="text-amber-300/80 font-medium">
+                                  {q > 1 ? `${q}× ${fmtUSD(p.purchase)} = ${fmtUSD(p.purchase * q)}` : `pago ${fmtUSD(p.purchase)}`}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Stepper de quantidade */}
+                        <div className="shrink-0 flex items-center rounded-md border border-emerald-400/40 bg-emerald-500/[0.08] overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => decQty(p.v.id)}
+                            disabled={q <= 1}
+                            className="h-7 w-7 flex items-center justify-center text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                            aria-label="Diminuir quantidade"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <div className="min-w-[28px] text-center text-[12px] font-semibold text-white tabular-nums px-1 select-none">
+                            {q}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => incQty(p.v.id)}
+                            disabled={q >= 99}
+                            className="h-7 w-7 flex items-center justify-center text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-30 transition-colors"
+                            aria-label="Aumentar quantidade"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+
+                        <button
+                          onClick={() => toggleIn(p.v.id)}
+                          className="shrink-0 h-7 w-7 flex items-center justify-center rounded-md bg-white/5 hover:bg-rose-500/20 hover:text-rose-200 border border-white/10 text-white/70 transition-colors"
+                          aria-label="Remover"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </>
             )}
