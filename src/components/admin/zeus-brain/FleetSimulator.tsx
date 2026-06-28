@@ -354,23 +354,16 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
           Quanto sua frota renderia se você trocasse alguns carros?
         </h3>
         <p
-          className="text-[13px] sm:text-[13.5px] mb-5 leading-[1.65] max-w-3xl text-center mx-auto"
+          className="text-[13px] sm:text-[13.5px] mb-4 leading-[1.55] max-w-2xl text-center mx-auto"
           style={{ color: NAVY_70 }}
         >
-          Marque carros para{" "}
+          Selecione carros para{" "}
           <span className="font-semibold" style={{ color: SELL }}>vender</span>{" "}
-          (recuperar capital) e carros para{" "}
-          <span className="font-semibold" style={{ color: BUY }}>comprar</span>{" "}
-          (reinvestir). O simulador calcula em tempo real o impacto financeiro da troca.
-        </p>
-        <p
-          className="text-[12.5px] sm:text-[13px] mb-5 leading-[1.65] max-w-3xl text-center mx-auto"
-          style={{ color: NAVY_55 }}
-        >
-          Essa simulação é construída a partir do{" "}
-          <span className="font-semibold" style={{ color: NAVY }}>histórico real das locações</span>{" "}
-          da sua frota: ocupação, receita, custo de aquisição e dias rodados de cada carro.
-          Não são estimativas genéricas: são os seus próprios números trabalhando para projetar o futuro.
+          e outros para{" "}
+          <span className="font-semibold" style={{ color: BUY }}>comprar</span>.
+          O simulador projeta o impacto financeiro em tempo real a partir do{" "}
+          <span className="font-semibold" style={{ color: NAVY }}>histórico real de locações</span>{" "}
+          da sua frota. Não são estimativas genéricas — são os seus próprios números.
         </p>
 
 
