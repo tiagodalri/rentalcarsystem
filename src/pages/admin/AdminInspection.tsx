@@ -1665,6 +1665,10 @@ export default function AdminInspection() {
                                 placeholder="Descreva a avaria — localização exata, tamanho aproximado, profundidade, observações relevantes..."
                                 value={d.description}
                                 onChange={(e) => updateDamage(d.id, "description", e.target.value)}
+                                onBlur={(e) => {
+                                  const normalized = normalizeDamageText(e.target.value);
+                                  if (normalized !== e.target.value) updateDamage(d.id, "description", normalized);
+                                }}
                                 disabled={isCompleted}
                                 maxLength={280}
                                 rows={2}
