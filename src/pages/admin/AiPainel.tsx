@@ -3,12 +3,13 @@ import {
   Brain, Sparkles, TrendingUp, AlertTriangle, Target, Zap, DollarSign,
   Activity, Gauge, Award, Flame, Snowflake, Layers, Rocket, Users,
   Clock, ShieldAlert, Calendar, LineChart, Wallet, ArrowDownRight,
-  ArrowUpRight, Repeat, Wand2,
+  ArrowUpRight, Repeat, Wand2, Sun, HeartHandshake, TimerReset, CalendarDays,
+  CircleDollarSign, Lightbulb,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
-  startOfDay, addDays,
+  startOfDay, addDays, isSameDay,
 } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -344,6 +345,53 @@ export default function AiPainel({
     return arr.map((v, i) => ({ label: labels[i], v, pct: (v / max) * 100 }));
   }, [realBookings]);
 
+  /* ───── HOJE NA SUA FROTA ───── */
+  const todayStats = useMemo(() => {
+    const tomorrow = addDays(today, 1);
+    const rodandoAgora = realBookings.filter(b => {
+      const p = startOfDay(new Date(b.pickup_date));
+      const r = startOfDay(new Date(b.return_date));
+      return p <= today && r >= today && ["confirmed", "active", "in_progress"].includes(b.status);
+    });
+    const saemHoje = realBookings.filter(b => isSameDay(startOfDay(new Date(b.pickup_date)), today));
+    const voltamHoje = realBookings.filter(b => isSameDay(startOfDay(new Date(b.return_date)), today));
+    const saemAmanha = realBookings.filter(b => isSameDay(startOfDay(new Date(b.pickup_date)), tomorrow));
+    const receitaHoje = rodandoAgora.reduce((s, b) => {
+      const nights = Math.max(differenceInDays(new Date(b.return_date), new Date(b.pickup_date)), 1);
+      const daily = (Number(b.total_price) || 0) / nights;
+      return s + daily;
+    }, 0);
+    const paradosAgora = vehicles.filter(v => v.status !== "sold" && !rodandoAgora.some(b => b.vehicle_id === v.id));
+    return { rodandoAgora: rodandoAgora.length, saemHoje: saemHoje.length, voltamHoje: voltamHoje.length, saemAmanha: saemAmanha.length, receitaHoje, paradosAgora: paradosAgora.length };
+  }, [realBookings, vehicles, today]);
+
+
+  /* ───── PAYBACK MÉDIO & FIDELIDADE ───── */
+  const paybackAvg = useMemo(() => {
+    const list = perVehicle.filter(p => p.paybackMonths !== null && p.paybackMonths > 0);
+    if (!list.length) return null;
+    return Math.round(list.reduce((s, p) => s + (p.paybackMonths || 0), 0) / list.length);
+  }, [perVehicle]);
+
+  /* ───── RECEITA POR DIA DA SEMANA ───── */
+  const dowRevenue = useMemo(() => {
+    const arr = [0, 0, 0, 0, 0, 0, 0];
+    const cnt = [0, 0, 0, 0, 0, 0, 0];
+    realBookings.forEach(b => {
+      const d = new Date(b.pickup_date);
+      const idx = d.getDay();
+      arr[idx] += Number(b.total_price) || 0;
+      cnt[idx] += 1;
+    });
+    const labels = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"];
+    const data = arr.map((v, i) => ({ label: labels[i], rev: v, cnt: cnt[i], avg: cnt[i] ? v / cnt[i] : 0 }));
+    const max = Math.max(...data.map(d => d.rev), 1);
+    const best = [...data].sort((a, b) => b.rev - a.rev)[0];
+    const worst = [...data].filter(d => d.cnt > 0).sort((a, b) => a.rev - b.rev)[0];
+    return { data, max, best, worst };
+  }, [realBookings]);
+
+
   /* ───── Funnel ───── */
   const funnel = useMemo(() => {
     const total = bookings.length;
@@ -379,6 +427,14 @@ export default function AiPainel({
     });
     return out.sort((a, b) => b.estLoss - a.estLoss).slice(0, 6);
   }, [vehicles, realBookings, today]);
+
+  /* ───── RECEITA PERDIDA — cancelamentos + janelas ociosas ───── */
+  const lostRevenue = useMemo(() => {
+    const cancelado = bookings.filter(b => b.status === "cancelled").reduce((s, b) => s + (Number(b.total_price) || 0), 0);
+    const janelas = opportunityWindows.reduce((s, w) => s + w.estLoss, 0);
+    return { cancelado, janelas, total: cancelado + janelas };
+  }, [bookings, opportunityWindows]);
+
 
   /* ───── Customers: RFM-like ───── */
   const customers = useMemo(() => {
@@ -418,6 +474,70 @@ export default function AiPainel({
   const churnRisks = [...customers].filter(c => c.churnRisk >= 60 && c.revenue > 500).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
   const repeatRate = customers.length
     ? (customers.filter(c => c.trips >= 2).length / customers.length) * 100 : 0;
+
+  /* ───── CONSELHOS DA SEMANA — ações priorizadas pela IA ───── */
+  type Decision = {
+    titulo: string; descricao: string; impacto: string; impactoValor: number;
+    prioridade: "alta" | "media" | "baixa"; categoria: "Preço" | "Frota" | "Cliente" | "Oportunidade" | "Risco";
+  };
+  const weeklyDecisions = useMemo<Decision[]>(() => {
+    const out: Decision[] = [];
+    priceUpCandidates.slice(0, 2).forEach(p => {
+      const ganhoMes = p.daily * 0.15 * 20;
+      out.push({
+        titulo: `Suba o preço da ${p.v.name}`,
+        descricao: `Está alugada ${p.occupancy.toFixed(0)}% do tempo. Testar ${fmtUSD(p.daily * 1.15)}/dia (hoje ${fmtUSD(p.daily)}/dia).`,
+        impacto: `+${fmtUSD(ganhoMes)}/mês estimado`, impactoValor: ganhoMes,
+        prioridade: "alta", categoria: "Preço",
+      });
+    });
+    swapSuggestions.slice(0, 1).forEach(s => {
+      out.push({
+        titulo: `Avalie trocar a ${s.weak.v.name}`,
+        descricao: `Carro parado há ${s.weak.daysInFleet} dias gera só ${fmtUSD(s.weak.revPerDayOwned)}/dia. Um ${s.star.v.name} (${s.reason}) rende ${fmtUSD(s.star.revPerDayOwned)}/dia.`,
+        impacto: `+${fmtUSD(s.annualUplift)}/ano estimado`, impactoValor: s.annualUplift / 12,
+        prioridade: "alta", categoria: "Frota",
+      });
+    });
+    opportunityWindows.slice(0, 2).forEach(w => {
+      out.push({
+        titulo: `Promova a ${w.vehicle} entre reservas`,
+        descricao: `Carro vai ficar ${w.nights} dias parado entre ${format(w.gapStart, "dd/MM")} e ${format(w.gapEnd, "dd/MM")}. Promo de última hora.`,
+        impacto: `Recupere até ${fmtUSD(w.estLoss)}`, impactoValor: w.estLoss,
+        prioridade: "media", categoria: "Oportunidade",
+      });
+    });
+    churnRisks.slice(0, 2).forEach(c => {
+      out.push({
+        titulo: `Reative ${c.name}`,
+        descricao: `Cliente já gastou ${fmtUSD(c.revenue)} em ${c.trips} viagens. Está sem alugar há ${c.recency} dias — fora do padrão dele.`,
+        impacto: `Ticket médio ${fmtUSD(c.revenue / c.trips)}`, impactoValor: c.revenue / c.trips,
+        prioridade: "media", categoria: "Cliente",
+      });
+    });
+    priceDownCandidates.slice(0, 1).forEach(p => {
+      out.push({
+        titulo: `Teste promo na ${p.v.name}`,
+        descricao: `Pouquíssimo uso (${p.occupancy.toFixed(0)}%) há ${p.daysInFleet} dias. ${fmtUSD(p.daily * 0.85)}/dia por 14 dias para gerar demanda.`,
+        impacto: `Cada dia parado custa ${fmtUSD(p.daily * 0.7)}`, impactoValor: p.daily * 0.7 * 7,
+        prioridade: "baixa", categoria: "Preço",
+      });
+    });
+    if (pacing.delta < -15) {
+      out.unshift({
+        titulo: "Receita do mês está caindo",
+        descricao: `${pacing.delta.toFixed(0)}% abaixo do mesmo dia do mês passado. Verifique campanhas ativas e visibilidade da frota nos canais.`,
+        impacto: `Diferença atual: ${fmtUSD(pacing.lmtd - pacing.mtd)}`, impactoValor: pacing.lmtd - pacing.mtd,
+        prioridade: "alta", categoria: "Risco",
+      });
+    }
+    return out.sort((a, b) => {
+      const pri = { alta: 0, media: 1, baixa: 2 };
+      if (pri[a.prioridade] !== pri[b.prioridade]) return pri[a.prioridade] - pri[b.prioridade];
+      return b.impactoValor - a.impactoValor;
+    }).slice(0, 6);
+  }, [priceUpCandidates, priceDownCandidates, swapSuggestions, opportunityWindows, churnRisks, pacing]);
+
 
   /* ───── Operations ───── */
   const turnaround = useMemo(() => {
@@ -598,6 +718,19 @@ export default function AiPainel({
           trocasSugeridas,
           alertas: anomalies.map(a => a.msg),
           funilReservas: funnel,
+          hojeNaFrota: todayStats,
+          receitaPerdida: {
+            cancelamentos: Math.round(lostRevenue.cancelado),
+            janelasOciosas: Math.round(lostRevenue.janelas),
+            total: Math.round(lostRevenue.total),
+          },
+          velocidadePagamentoMesesMedia: paybackAvg,
+          receitaPorDiaDaSemana: dowRevenue.data.map(d => ({ dia: d.label, receita: Math.round(d.rev), reservas: d.cnt })),
+          melhorDiaSemana: dowRevenue.best?.label,
+          piorDiaSemana: dowRevenue.worst?.label,
+          conselhosLocais: weeklyDecisions.map(d => ({
+            titulo: d.titulo, descricao: d.descricao, impacto: d.impacto, prioridade: d.prioridade,
+          })),
         };
         const { data, error } = await supabase.functions.invoke("intelligence-summary", { body: payload });
         if (!error && (data as any)?.text) setBriefing((data as any).text as string);
@@ -676,6 +809,72 @@ export default function AiPainel({
             </div>
           </div>
         </div>
+
+        {/* HOJE NA SUA FROTA */}
+        <div className="ai-card relative overflow-hidden">
+          <div className="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-amber-300/10 blur-3xl pointer-events-none" />
+          <div className="relative">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Sun size={16} className="text-amber-300" />
+                <h3 className="text-sm font-medium text-white/95">Hoje na sua frota</h3>
+                <span className="text-[10px] uppercase tracking-wider text-white/45">{format(today, "EEEE, dd 'de' MMMM", { locale: ptBR })}</span>
+              </div>
+              <span className="text-[10.5px] text-white/50 tabular-nums">Receita rodando hoje: <span className="text-amber-200">{fmtUSD(todayStats.receitaHoje)}</span></span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+              <MiniStat label="Carros rodando" value={todayStats.rodandoAgora} icon={Activity} hue="emerald" />
+              <MiniStat label="Saem hoje" value={todayStats.saemHoje} icon={ArrowUpRight} hue="cyan" />
+              <MiniStat label="Voltam hoje" value={todayStats.voltamHoje} icon={ArrowDownRight} hue="violet" />
+              <MiniStat label="Saem amanhã" value={todayStats.saemAmanha} icon={Calendar} hue="amber" />
+              <MiniStat label="Parados" value={todayStats.paradosAgora} icon={Snowflake} hue={todayStats.paradosAgora > vehicles.length / 2 ? "rose" : "amber"} />
+            </div>
+          </div>
+        </div>
+
+        {/* CONSELHOS DA SEMANA — O Cérebro decidindo por você */}
+        {weeklyDecisions.length > 0 && (
+          <div className="ai-card relative overflow-hidden">
+            <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full bg-cyan-400/10 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-12 -left-12 w-64 h-64 rounded-full bg-violet-500/10 blur-3xl pointer-events-none" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <Lightbulb size={16} className="text-cyan-300" />
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-cyan-200/80">Conselhos da Semana</span>
+                </div>
+                <span className="text-[10.5px] text-white/50">As {weeklyDecisions.length} decisões com maior impacto agora</span>
+              </div>
+              <h3 className="text-base md:text-lg font-light text-white leading-snug mb-4">
+                Se você fizer só essas ações esta semana, é onde está o maior retorno.
+              </h3>
+              <ul className="space-y-2.5">
+                {weeklyDecisions.map((d, i) => {
+                  const priColor = d.prioridade === "alta" ? "rose" : d.prioridade === "media" ? "amber" : "cyan";
+                  const priClasses: Record<string, string> = {
+                    rose: "bg-rose-400/15 border-rose-300/30 text-rose-200",
+                    amber: "bg-amber-400/15 border-amber-300/30 text-amber-200",
+                    cyan: "bg-cyan-400/15 border-cyan-300/30 text-cyan-200",
+                  };
+                  return (
+                    <li key={i} className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
+                      <div className="flex items-start justify-between gap-3 flex-wrap mb-1.5">
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <span className={`text-[9.5px] uppercase tracking-wider px-1.5 py-0.5 rounded border ${priClasses[priColor]} shrink-0`}>{d.prioridade}</span>
+                          <span className="text-[10px] uppercase tracking-wider text-white/45 shrink-0">{d.categoria}</span>
+                          <span className="text-[13px] text-white/95 font-medium leading-snug">{d.titulo}</span>
+                        </div>
+                        <span className="text-[11px] tabular-nums text-emerald-200 shrink-0">{d.impacto}</span>
+                      </div>
+                      <p className="text-[12px] text-white/65 leading-relaxed pl-1">{d.descricao}</p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        )}
+
 
         {/* Anomaly alerts */}
         {anomalies.length > 0 && (
@@ -928,11 +1127,74 @@ export default function AiPainel({
                 </ul>
               </div>
             </div>
+
+            {/* Receita Perdida & Velocidade de Pagamento */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              <div className="ai-card relative overflow-hidden">
+                <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-rose-400/10 blur-3xl pointer-events-none" />
+                <div className="relative">
+                  <CardHeader title="Quanto você deixou na mesa" sub="Soma de cancelamentos e janelas de carro parado entre reservas" icon={CircleDollarSign} />
+                  <div className="text-3xl font-light text-rose-200 tabular-nums">{fmtUSD(lostRevenue.total)}</div>
+                  <div className="mt-3 space-y-1.5 text-[11.5px] text-white/65">
+                    <div className="flex justify-between"><span>Cancelamentos</span><span className="tabular-nums text-white/85">{fmtUSD(lostRevenue.cancelado)}</span></div>
+                    <div className="flex justify-between"><span>Carros parados entre reservas</span><span className="tabular-nums text-white/85">{fmtUSD(lostRevenue.janelas)}</span></div>
+                  </div>
+                  <p className="text-[11px] text-white/50 mt-3 leading-relaxed">Essa é a receita que existiria se cada cancelamento tivesse virado aluguel e cada janela curta tivesse sido preenchida com promo.</p>
+                </div>
+              </div>
+              <div className="ai-card">
+                <CardHeader title="Velocidade de pagamento da frota" sub="Em quantos meses, na média, um carro paga o que custou" icon={TimerReset} />
+                {paybackAvg !== null ? (
+                  <>
+                    <div className="text-3xl font-light text-cyan-200 tabular-nums">{paybackAvg} <span className="text-base text-white/55">meses</span></div>
+                    <p className="text-[11px] text-white/55 mt-3 leading-relaxed">Considera o preço pago pelo carro dividido pela receita média mensal projetada. Quanto menor, mais rápido o capital volta pra você.</p>
+                  </>
+                ) : (
+                  <p className="text-white/55 text-xs">Sem dados de preço de compra suficientes ainda.</p>
+                )}
+              </div>
+              <div className="ai-card">
+                <CardHeader title="Índice de fidelidade" sub="Quantos clientes voltaram pelo menos uma segunda vez" icon={HeartHandshake} />
+                <div className="text-3xl font-light text-emerald-200 tabular-nums">{repeatRate.toFixed(0)}%</div>
+                <p className="text-[11px] text-white/55 mt-3 leading-relaxed">
+                  {repeatRate >= 30
+                    ? "Acima da média do setor — sua experiência está fidelizando."
+                    : repeatRate >= 15
+                    ? "Na média do setor — há espaço para programa de fidelidade gerar mais retorno."
+                    : "Abaixo do esperado — investir em relacionamento pós-aluguel pode multiplicar a recompra."}
+                </p>
+              </div>
+            </div>
+
+            {/* Receita por dia da semana */}
+            <div className="ai-card">
+              <CardHeader title="Em que dia da semana você fatura mais" sub={`Receita histórica por dia da semana de retirada · melhor dia: ${dowRevenue.best?.label || "—"}`} icon={CalendarDays} />
+              <div className="flex items-end gap-2 h-32">
+                {dowRevenue.data.map((d, i) => {
+                  const h = (d.rev / dowRevenue.max) * 100;
+                  const isMax = d.label === dowRevenue.best?.label;
+                  return (
+                    <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                      <div className="text-[9.5px] tabular-nums text-white/60">{fmtUSD(d.rev)}</div>
+                      <div className="w-full relative" style={{ height: "80px" }}>
+                        <div className={`absolute bottom-0 left-0 right-0 rounded-t-md ${isMax ? "ai-bar-hot" : "ai-bar"}`} style={{ height: `${Math.max(h, 4)}%` }} />
+                      </div>
+                      <div className="text-[10px] uppercase tracking-wider text-white/55">{d.label}</div>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-white/55 mt-3 leading-relaxed">
+                A IA detectou que <span className="text-amber-200">{dowRevenue.best?.label}</span> é seu dia mais forte. Considere reservar a melhor frota e preços levemente mais altos para esse dia, e oferecer promo para o <span className="text-white/75">{dowRevenue.worst?.label || "—"}</span>.
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <KpiBlock title="Total investido em carros" value={fmtUSD(fleetInvested)} sub="Soma do preço de compra de toda a frota" icon={Wallet} />
               <KpiBlock title="Receita total já gerada" value={fmtUSD(fleetRevenue)} sub={`Margem de lucro atual: ${fleetMargin.toFixed(1)}%`} icon={DollarSign} />
               <KpiBlock title="Retorno sobre o investimento" value={`${fleetROI.toFixed(1)}%`} sub="Quanto a frota já devolveu do que foi investido" icon={Target} />
             </div>
+
           </div>
         )}
 
@@ -1251,6 +1513,26 @@ function KpiBlock({ title, value, sub, icon: Icon }: { title: string; value: str
     </div>
   );
 }
+
+function MiniStat({ label, value, icon: Icon, hue }: { label: string; value: number; icon: typeof Brain; hue: "emerald" | "cyan" | "violet" | "amber" | "rose" }) {
+  const hueMap = {
+    emerald: { txt: "text-emerald-200", bg: "bg-emerald-400/10 border-emerald-300/20" },
+    cyan: { txt: "text-cyan-200", bg: "bg-cyan-400/10 border-cyan-300/20" },
+    violet: { txt: "text-violet-200", bg: "bg-violet-400/10 border-violet-300/20" },
+    amber: { txt: "text-amber-200", bg: "bg-amber-400/10 border-amber-300/20" },
+    rose: { txt: "text-rose-200", bg: "bg-rose-400/10 border-rose-300/20" },
+  }[hue];
+  return (
+    <div className={`rounded-lg border p-2.5 ${hueMap.bg}`}>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] uppercase tracking-wider text-white/55 leading-tight">{label}</span>
+        <Icon size={12} className={`${hueMap.txt} shrink-0`} />
+      </div>
+      <div className={`text-xl font-light tabular-nums ${hueMap.txt}`}>{value}</div>
+    </div>
+  );
+}
+
 
 function FunnelBar({ label, value, max, hue }: { label: string; value: number; max: number; hue: "violet" | "cyan" | "amber" | "emerald" | "rose" }) {
   const bg = { violet: "rgba(180,120,255,0.7)", cyan: "rgba(120,220,255,0.7)", amber: "rgba(255,200,120,0.7)", emerald: "rgba(120,255,180,0.7)", rose: "rgba(255,140,160,0.7)" }[hue];
