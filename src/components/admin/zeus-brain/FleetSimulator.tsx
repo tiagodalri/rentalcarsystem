@@ -929,6 +929,13 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
           </div>
         )}
       </div>
+
+      <AiOptimizerDialog
+        perVehicle={perVehicle}
+        open={aiOpen}
+        onOpenChange={setAiOpen}
+        onApply={applyAiScenario}
+      />
     </div>
   );
 }
