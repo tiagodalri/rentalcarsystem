@@ -118,7 +118,7 @@ export default function AiSimulador() {
         </div>
 
         {/* Source selector — espelha o do painel principal */}
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-2">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pb-3 pt-1 flex justify-center">
           <div
             role="tablist"
             aria-label="Origem das reservas"
