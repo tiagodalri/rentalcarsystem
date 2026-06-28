@@ -606,7 +606,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                         onClick={() => setActiveSlide((safeIdx + 1) % slides.length)}
                         className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full inline-flex items-center justify-center"
                         style={{ background: "rgba(13,29,46,0.65)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.35)" }}
-                        title="Proximo slide"
+                        title="Próximo slide"
                       >
                         <ChevronRight size={14} />
                       </button>
