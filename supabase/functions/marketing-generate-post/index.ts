@@ -30,7 +30,8 @@ Deno.serve(async (req) => {
     }
 
     const body = (await req.json()) as Body;
-    const { vehicleName, vehicleBrand, vehiclePhotoUrl, format, tone, customPrompt } = body;
+    const { vehicleName, vehicleBrand, vehiclePhotoUrl, logoDataUrl, format, tone, customPrompt } = body;
+    const logoUrl = logoDataUrl && logoDataUrl.startsWith("data:image") ? logoDataUrl : ZEUS_LOGO_URL;
     if (!vehicleName) {
       return new Response(JSON.stringify({ error: "vehicleName required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
