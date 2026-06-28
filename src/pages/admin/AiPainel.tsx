@@ -1577,7 +1577,7 @@ export default function AiPainel({
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <div className="ai-card">
-                <CardHeader title="Os carros que mais geram dinheiro" sub="Quem mais retorna por dia que está na sua frota — vale a pena comprar parecidos" icon={Award} />
+                <CardHeader title="Os carros que mais geram dinheiro" sub="Quem mais retorna por dia que está na sua frota. Vale a pena comprar parecidos" icon={Award} />
                 <ul className="space-y-2.5">
                   {topStars.map(p => (
                     <li key={p.v.id} className="flex justify-between text-[12.5px]">
