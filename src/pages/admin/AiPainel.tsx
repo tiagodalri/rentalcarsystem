@@ -44,7 +44,7 @@ export default function AiPainel({
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [transactions, setTransactions] = useState<FinTx[]>([]);
-  const [tab, setTab] = useState<TabKey>("revenue");
+  const [tab, setTab] = useState<TabKey>("simulator");
   const [briefing, setBriefing] = useState<string | null>(null);
   const [briefingLoading, setBriefingLoading] = useState(false);
 
