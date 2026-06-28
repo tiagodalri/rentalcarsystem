@@ -51,6 +51,11 @@ const values = [
 const AboutUs = () => {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      <Seo
+        title="Sobre Nós | Zeus Rental Car Orlando"
+        description="Conheça a Zeus Rental Car: locadora premium em Orlando que une hospitalidade brasileira e padrão de serviço internacional. Confiança, transparência e excelência em cada detalhe."
+        path="/sobre-nos"
+      />
       <Navbar />
 
       {/* Hero */}
