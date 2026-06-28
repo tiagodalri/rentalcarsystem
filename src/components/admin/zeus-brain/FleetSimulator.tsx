@@ -378,11 +378,9 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
         >
           Escolha carros para{" "}
           <span className="font-semibold" style={{ color: SELL }}>vender</span>{" "}
-          e para{" "}
+          e{" "}
           <span className="font-semibold" style={{ color: BUY }}>comprar</span>.
-          O simulador projeta o impacto financeiro em tempo real a partir do{" "}
-          <span className="font-semibold" style={{ color: NAVY }}>histórico real de locações</span>{" "}
-          da frota. Nada de estimativas genéricas: são os seus próprios números.
+          O simulador calcula o impacto em tempo real a partir do histórico real da frota.
         </p>
 
 
