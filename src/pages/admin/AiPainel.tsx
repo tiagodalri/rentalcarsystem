@@ -1041,22 +1041,6 @@ export default function AiPainel({
                 </div>
               </div>
 
-              <div className="ai-card">
-                <CardHeader title="Está cobrando menos que a tabela?" sub="Diária real recebida vs preço cadastrado" icon={DollarSign} />
-                <ul className="space-y-2.5">
-                  {[...perVehicle].filter(p => p.bookingsCount > 0 && p.daily > 0).sort((a, b) => a.adrGap - b.adrGap).slice(0, 5).map(p => (
-                    <li key={p.v.id} className="text-[12.5px]">
-                      <div className="flex justify-between gap-2">
-                        <span className="text-white/85 truncate">{p.v.name}</span>
-                        <span className={`tabular-nums ${p.adrGap < -10 ? "text-rose-300" : p.adrGap > 5 ? "text-emerald-300" : "text-white/70"}`}>
-                          {p.adrGap >= 0 ? "+" : ""}{p.adrGap.toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="text-[10.5px] text-white/50">Recebido {fmtUSD(p.adr)}/dia · tabela {fmtUSD(p.daily)}/dia</div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
