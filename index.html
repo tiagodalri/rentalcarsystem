@@ -58,13 +58,22 @@
     <!-- Inter via <link> (não @import CSS) — não bloqueia o First Paint. -->
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <!-- Default OG/Twitter (per-route values override via react-helmet-async). -->
     <meta property="og:title" content="Zeus Rental Car — Aluguel Premium em Orlando">
-  <meta name="twitter:title" content="Zeus Rental Car — Aluguel Premium em Orlando">
-  <meta property="og:description" content="Locadora de carros premium para brasileiros em Orlando. Corvette, Mustang, Escalade, BMW X5 e mais. Atendimento 100% em português.">
-  <meta name="twitter:description" content="Locadora de carros premium para brasileiros em Orlando. Corvette, Mustang, Escalade, BMW X5 e mais. Atendimento 100% em português.">
-  <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/eJRDSYFo9SVAiVDZ22i9nrIZiHm1/social-images/social-1774539847105-Captura_de_Tela_2026-03-26_às_12.43.49.webp">
-  <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/eJRDSYFo9SVAiVDZ22i9nrIZiHm1/social-images/social-1774539847105-Captura_de_Tela_2026-03-26_às_12.43.49.webp">
-  <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Zeus Rental Car — Aluguel Premium em Orlando">
+    <meta property="og:description" content="Locadora de carros premium para brasileiros em Orlando. Corvette, Mustang, Escalade, BMW X5 e mais. Atendimento 100% em português.">
+    <meta name="twitter:description" content="Locadora de carros premium para brasileiros em Orlando. Corvette, Mustang, Escalade, BMW X5 e mais. Atendimento 100% em português.">
+    <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/eJRDSYFo9SVAiVDZ22i9nrIZiHm1/social-images/social-1774539847105-Captura_de_Tela_2026-03-26_%C3%A0s_12.43.49.webp">
+    <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/eJRDSYFo9SVAiVDZ22i9nrIZiHm1/social-images/social-1774539847105-Captura_de_Tela_2026-03-26_%C3%A0s_12.43.49.webp">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Brand / LocalBusiness structured data (sitewide). -->
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":["AutoRental","LocalBusiness"],"name":"Zeus Rental Car","url":"https://zeusrentalcar.com","logo":"https://zeusrentalcar.com/zeus-z-mark.png","image":"https://zeusrentalcar.com/zeus-z-mark.png","description":"Locadora premium em Orlando focada em brasileiros, com atendimento 100% em portugues.","areaServed":"Orlando, FL","address":{"@type":"PostalAddress","addressLocality":"Orlando","addressRegion":"FL","addressCountry":"US"},"sameAs":["https://www.instagram.com/zeusrentalcar"]}
+    </script>
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebSite","name":"Zeus Rental Car","url":"https://zeusrentalcar.com","inLanguage":["pt-BR","en","es"]}
+    </script>
 
   <!-- Google Tag Manager (apenas site público — exclui /admin e /minha-conta) -->
   <script>
