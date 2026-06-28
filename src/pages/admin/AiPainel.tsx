@@ -1158,7 +1158,7 @@ export default function AiPainel({
             </div>
 
             {/* Receita Perdida & Velocidade de Pagamento */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <div className="ai-card relative overflow-hidden">
                 <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-rose-400/10 blur-3xl pointer-events-none" />
                 <div className="relative">
@@ -1181,17 +1181,6 @@ export default function AiPainel({
                 ) : (
                   <p className="text-white/55 text-xs">Sem dados de preço de compra suficientes ainda.</p>
                 )}
-              </div>
-              <div className="ai-card">
-                <CardHeader title="Índice de fidelidade" sub="Quantos clientes voltaram pelo menos uma segunda vez" icon={HeartHandshake} />
-                <div className="text-3xl font-light text-emerald-200 tabular-nums">{repeatRate.toFixed(0)}%</div>
-                <p className="text-[11px] text-white/55 mt-3 leading-relaxed">
-                  {repeatRate >= 30
-                    ? "Acima da média do setor — sua experiência está fidelizando."
-                    : repeatRate >= 15
-                    ? "Na média do setor — há espaço para programa de fidelidade gerar mais retorno."
-                    : "Abaixo do esperado — investir em relacionamento pós-aluguel pode multiplicar a recompra."}
-                </p>
               </div>
             </div>
 
