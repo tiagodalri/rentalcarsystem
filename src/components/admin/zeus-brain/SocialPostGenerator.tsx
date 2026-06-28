@@ -612,15 +612,15 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                       >
                         <ChevronRight size={18} />
                       </button>
-                      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1">
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 px-2 py-1 rounded-full" style={{ background: "rgba(13,29,46,0.55)", backdropFilter: "blur(6px)" }}>
                         {slides.map((_, i) => (
                           <button
                             key={i}
                             onClick={() => setActiveSlide(i)}
-                            className="h-1.5 rounded-full transition-all"
+                            className="h-2 rounded-full transition-all"
                             style={{
-                              width: i === safeIdx ? 16 : 6,
-                              background: i === safeIdx ? "#d6bf86" : "rgba(214,191,134,0.35)",
+                              width: i === safeIdx ? 20 : 8,
+                              background: i === safeIdx ? "#d6bf86" : "rgba(214,191,134,0.45)",
                             }}
                             aria-label={`Slide ${i + 1}`}
                           />
