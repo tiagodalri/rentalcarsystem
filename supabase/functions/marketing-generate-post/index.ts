@@ -155,6 +155,13 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
 A ultima imagem anexada e APENAS uma referencia de estilo: capture paleta de cores, mood, tipo de iluminacao, ritmo da composicao e tratamento tipografico. NAO copie o logo da referencia. NAO inclua textos da referencia. O carro Zeus continua sendo o heroi e o logo OFICIAL da Zeus e obrigatorio.`
       : "";
 
+    const seasonalBlock = tone === "sazonal" && seasonalTheme
+      ? `\n\n═══ TEMA SAZONAL — ${seasonalTheme.label.toUpperCase()} (OBRIGATORIO) ═══
+- Paleta auxiliar: ${seasonalTheme.palette}. Aplique como detalhes (vinheta, particulas, reflexos) SEM dominar o carro.
+- Motivos visuais: ${seasonalTheme.motifs}. Sempre sutis, sofisticados, atmosfericos — NUNCA stickers, ilustracoes, clipart ou icones literais.
+- Mantenha o padrao editorial Zeus: silencio visual, atemporal, premium. Nada de kitsch, nada caricato.`
+      : "";
+
     const imagePrompt = `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Zeus Rental Car — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (Mr Porter, Robb Report, Architectural Digest Automotive).
 
 ═══ COMPOSICAO ═══
