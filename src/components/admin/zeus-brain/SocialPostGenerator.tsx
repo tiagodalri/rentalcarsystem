@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X, Layers, Square, ChevronLeft, ChevronRight, Shuffle, Car } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { detectSeasonalTheme } from "@/lib/zeusBrain/seasonalTheme";
+import { pickRandomSeasonalTheme } from "@/lib/zeusBrain/seasonalTheme";
 
 type Vehicle = {
   id: string;
@@ -19,15 +19,13 @@ type Tone = "luxo" | "aventura" | "familia" | "promocao" | "lancamento" | "sazon
 type Mode = "promo" | "free" | "reference";
 type PostKind = "single" | "carousel";
 
-const SEASONAL_NOW = detectSeasonalTheme();
-
 const TONES: { v: Tone; label: string; hint: string }[] = [
   { v: "luxo", label: "Luxo", hint: "Exclusivo, premium, status" },
   { v: "aventura", label: "Aventura", hint: "Viagem, liberdade, Orlando" },
   { v: "familia", label: "Família", hint: "Memórias, conforto, segurança" },
   { v: "promocao", label: "Oportunidade", hint: "Oferta sem apelar" },
   { v: "lancamento", label: "Lançamento", hint: "Novidade, primeira vez" },
-  { v: "sazonal", label: "Sazonal", hint: SEASONAL_NOW.label },
+  { v: "sazonal", label: "Sazonal", hint: "Periodo aleatorio: Natal, Verao, Ano Novo, feriados..." },
 ];
 
 type SlideOut = { role: "cover" | "content" | "cta"; imageBase64: string; headline: string; subheadline: string };
@@ -182,7 +180,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           tone,
           mode,
           customPrompt: customPrompt.trim() || undefined,
-          seasonalTheme: tone === "sazonal" ? detectSeasonalTheme() : undefined,
+          seasonalTheme: tone === "sazonal" ? pickRandomSeasonalTheme() : undefined,
           promo: mode === "promo" ? {
             priceDaily: priceDaily.trim(),
             dateStart,
