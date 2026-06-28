@@ -64,10 +64,10 @@ export async function stampInspectionPhoto(
 }
 
 function buildLines(date: Date, address?: string | null): string[] {
-  const lines = [formatStampTime(date), formatStampDateOnly(date)];
+  const lines = [`${formatStampTime(date)}  •  ${formatStampDateOnly(date)}`];
   if (address && address.trim()) {
     const addr = normalizeAddressLines(address);
-    lines.push(...addr.slice(0, 5));
+    lines.push(...addr.slice(0, 2));
   }
   return lines;
 }
@@ -78,8 +78,11 @@ function normalizeAddressLines(address: string): string[] {
     .map((s) => s.trim())
     .filter(Boolean);
 
+  if (parts.length >= 4) {
+    return [parts[0], `${parts[1]}, ${parts[2]} ${parts[3]}`];
+  }
   if (parts.length >= 3) {
-    return [parts[0], parts.slice(1).join(", ")];
+    return [parts[0], `${parts[1]}, ${parts[2]}`];
   }
   return parts;
 }
@@ -211,26 +214,40 @@ function drawStamp(
   h: number,
   lines: string[],
 ) {
-  // Tamanho proporcional e com limite de largura/altura para nunca sobrepor linhas.
-  const marginX = Math.max(24, Math.round(Math.min(w, h) * 0.030));
-  const marginY = Math.max(28, Math.round(Math.min(w, h) * 0.038));
-  const maxWidth = Math.round(w * 0.82);
-  const maxHeight = Math.round(h * 0.50);
-  let fontSize = Math.max(82, Math.round(Math.min(w, h) * 0.115));
-  let lineHeight = Math.round(fontSize * 1.04);
+  // Carimbo intencionalmente grande: precisa ser lido até quando a foto aparece em miniatura no mobile.
+  const shortSide = Math.min(w, h);
+  const marginX = Math.max(18, Math.round(shortSide * 0.020));
+  const marginY = Math.max(18, Math.round(shortSide * 0.022));
+  const maxWidth = Math.round(w * 0.94);
+  const maxHeight = Math.round(h * 0.68);
+  let fontSize = Math.max(132, Math.round(shortSide * 0.172));
+  let lineHeight = Math.round(fontSize * 1.02);
 
   const measure = () => {
-    ctx.font = `650 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
+    ctx.font = `760 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
     return Math.max(...lines.map((line) => ctx.measureText(line).width));
   };
 
-  while (fontSize > 54 && (measure() > maxWidth || lines.length * lineHeight > maxHeight)) {
+  while (fontSize > 92 && (measure() > maxWidth || lines.length * lineHeight > maxHeight)) {
     fontSize -= 1;
-    lineHeight = Math.round(fontSize * 1.05);
+    lineHeight = Math.round(fontSize * 1.02);
   }
   const blockHeight = lines.length * lineHeight;
+  const widestLine = measure();
+  const bgPadX = Math.round(fontSize * 0.34);
+  const bgPadY = Math.round(fontSize * 0.22);
+  const bgWidth = Math.min(w - marginX * 2, widestLine + bgPadX * 2);
+  const bgHeight = blockHeight + bgPadY * 2;
+  const bgX = w - marginX - bgWidth;
+  const bgY = Math.max(marginY, h - marginY - bgHeight);
 
-  ctx.font = `650 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
+  ctx.save();
+  ctx.fillStyle = "rgba(0,0,0,0.58)";
+  roundRect(ctx, bgX, bgY, bgWidth, bgHeight, Math.round(fontSize * 0.22));
+  ctx.fill();
+  ctx.restore();
+
+  ctx.font = `760 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
   ctx.textAlign = "right";
   ctx.textBaseline = "top";
 
@@ -241,17 +258,35 @@ function drawStamp(
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
 
-  ctx.strokeStyle = "rgba(0,0,0,0.95)";
-  ctx.lineWidth = Math.max(5, Math.round(fontSize * 0.16));
+  ctx.strokeStyle = "rgba(0,0,0,0.98)";
+  ctx.lineWidth = Math.max(8, Math.round(fontSize * 0.18));
   ctx.lineJoin = "round";
   ctx.miterLimit = 2;
 
   ctx.fillStyle = "#ffffff";
 
   lines.forEach((line, i) => {
-    const x = w - marginX;
-    const y = Math.max(marginY, h - marginY - blockHeight) + i * lineHeight;
+    const x = w - marginX - bgPadX;
+    const y = bgY + bgPadY + i * lineHeight;
     ctx.strokeText(line, x, y);
     ctx.fillText(line, x, y);
   });
+}
+
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + width, y, x + width, y + height, r);
+  ctx.arcTo(x + width, y + height, x, y + height, r);
+  ctx.arcTo(x, y + height, x, y, r);
+  ctx.arcTo(x, y, x + width, y, r);
+  ctx.closePath();
 }
