@@ -1,9 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, LayoutDashboard, Gamepad2, Megaphone, Sparkles } from "lucide-react";
-import hallImg from "@/assets/zeus-brain/hall-estrategico.jpg";
-import simImg from "@/assets/zeus-brain/simulador.jpg";
-import mktImg from "@/assets/zeus-brain/marketing-studio.jpg";
-import iaImg from "@/assets/zeus-brain/zeus-ia.jpg";
+import hallImg from "@/assets/zeus-brain/hall-estrategico.jpg?url";
+import simImg from "@/assets/zeus-brain/simulador.jpg?url";
+import mktImg from "@/assets/zeus-brain/marketing-studio.jpg?url";
+import iaImg from "@/assets/zeus-brain/zeus-ia.jpg?url";
+
+// Pre-cache as soon as module loads so cards aparecem instant.
+if (typeof window !== "undefined") {
+  [hallImg, simImg, mktImg, iaImg].forEach((src) => {
+    const img = new Image();
+    img.src = src;
+  });
+}
 
 export type HubModule = "painel" | "marketing" | "ia";
 
@@ -117,7 +125,9 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
               <img
                 src={image}
                 alt=""
-                loading="lazy"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
                 width={1024}
                 height={640}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
