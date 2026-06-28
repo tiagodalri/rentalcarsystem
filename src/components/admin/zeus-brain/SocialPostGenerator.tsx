@@ -140,6 +140,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           tone,
           mode,
           customPrompt: customPrompt.trim() || undefined,
+          seasonalTheme: tone === "sazonal" ? detectSeasonalTheme() : undefined,
           promo: mode === "promo" ? {
             priceDaily: priceDaily.trim(),
             dateStart,
