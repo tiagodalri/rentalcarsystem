@@ -267,29 +267,71 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           {/* Mode selector */}
           <Label>Tipo de arte</Label>
           <div className="mt-1 grid grid-cols-1 sm:grid-cols-3 gap-1.5">
-            <ModePill active={mode === "promo"} onClick={() => setMode("promo")} icon={<Tag size={12} />} label="Promocao" sub="carro + data + valor" />
-            <ModePill active={mode === "free"} onClick={() => setMode("free")} icon={<MessageSquare size={12} />} label="Livre" sub="so com instrucao" />
-            <ModePill active={mode === "reference"} onClick={() => setMode("reference")} icon={<ImageIcon size={12} />} label="Com referencia" sub="anexar arte base" />
+            <ModePill active={mode === "promo"} onClick={() => setMode("promo")} icon={<Tag size={12} />} label="Promoção" sub="Carro + data + valor" />
+            <ModePill active={mode === "free"} onClick={() => setMode("free")} icon={<MessageSquare size={12} />} label="Livre" sub="Só com instrução" />
+            <ModePill active={mode === "reference"} onClick={() => setMode("reference")} icon={<ImageIcon size={12} />} label="Com referência" sub="Anexar arte base" />
           </div>
 
           <div className="mt-3">
-            <Label>Carro</Label>
-            <select
-              value={vehicleId}
-              onChange={(e) => setVehicleId(e.target.value)}
-              className="w-full mt-1 px-2.5 py-2 rounded-lg text-[13px] bg-white"
-              style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 40 }}
-            >
-              {vehicles.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.name || `${v.brand || ""} ${v.model || ""}`.trim()}
-                </option>
-              ))}
-            </select>
-            {!photoUrl && (
-              <p className="text-[10px] mt-1" style={{ color: "#a05a2c" }}>
-                Este carro nao tem foto cadastrada. A arte sera gerada apenas com a marca.
-              </p>
+            <div className="flex items-center justify-between gap-2">
+              <Label>Carro</Label>
+              <div className="flex rounded-md overflow-hidden" style={{ border: "1px solid rgba(13,29,46,0.18)" }}>
+                <button
+                  onClick={() => setRandomVehicle(false)}
+                  className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-semibold transition-all"
+                  style={{
+                    background: !randomVehicle ? "linear-gradient(180deg,#14283d,#0d1d2e)" : "white",
+                    color: !randomVehicle ? "#d6bf86" : "#0d1d2e",
+                  }}
+                >
+                  <Car size={10} /> Manual
+                </button>
+                <button
+                  onClick={() => setRandomVehicle(true)}
+                  className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-semibold transition-all"
+                  style={{
+                    background: randomVehicle ? "linear-gradient(180deg,#14283d,#0d1d2e)" : "white",
+                    color: randomVehicle ? "#d6bf86" : "#0d1d2e",
+                    borderLeft: "1px solid rgba(13,29,46,0.18)",
+                  }}
+                >
+                  <Shuffle size={10} /> Aleatório
+                </button>
+              </div>
+            </div>
+            {!randomVehicle ? (
+              <>
+                <select
+                  value={vehicleId}
+                  onChange={(e) => setVehicleId(e.target.value)}
+                  className="w-full mt-1 px-2.5 py-2 rounded-lg text-[13px] bg-white"
+                  style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e", minHeight: 40 }}
+                >
+                  {vehicles.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.name || `${v.brand || ""} ${v.model || ""}`.trim()}
+                    </option>
+                  ))}
+                </select>
+                {!photoUrl && (
+                  <p className="text-[10px] mt-1" style={{ color: "#a05a2c" }}>
+                    Este carro não tem foto cadastrada. A arte será gerada apenas com a marca.
+                  </p>
+                )}
+              </>
+            ) : (
+              <div
+                className="mt-1 rounded-lg px-3 py-2.5 flex items-center gap-2"
+                style={{ background: "white", border: "1px dashed rgba(154,122,58,0.45)" }}
+              >
+                <Shuffle size={14} style={{ color: "#9a7a3a" }} />
+                <div className="flex-1">
+                  <div className="text-[12px] font-semibold" style={{ color: "#0d1d2e" }}>A IA escolhe o carro</div>
+                  <div className="text-[10px]" style={{ color: "rgba(13,29,46,0.62)" }}>
+                    Sorteia um veículo da frota com foto cadastrada na hora de gerar.
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
