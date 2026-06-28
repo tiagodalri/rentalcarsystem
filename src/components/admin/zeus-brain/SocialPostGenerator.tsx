@@ -560,8 +560,8 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             className="relative w-full rounded-lg overflow-hidden flex items-center justify-center mx-auto"
             style={{
               aspectRatio: format === "feed" ? "1 / 1" : "9 / 16",
-              maxHeight: "60vh",
-              maxWidth: format === "story" ? 320 : "100%",
+              maxHeight: format === "story" ? "75vh" : "65vh",
+              maxWidth: format === "story" ? 360 : "100%",
               background:
                 "repeating-conic-gradient(rgba(255,255,255,0.03) 0deg 90deg, rgba(255,255,255,0.06) 90deg 180deg) 0 0/20px 20px",
               border: "1px solid rgba(214,191,134,0.15)",
