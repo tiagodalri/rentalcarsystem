@@ -866,7 +866,6 @@ export default function AiPainel({
   const tabs: { key: TabKey; label: string; icon: typeof Brain }[] = [
     { key: "revenue", label: "Receita", icon: DollarSign },
     { key: "demand", label: "Reservas", icon: Activity },
-    { key: "customers", label: "Clientes", icon: Users },
     { key: "operations", label: "Operação", icon: Gauge },
     { key: "financial", label: "Dinheiro", icon: Wallet },
     { key: "strategy", label: "Recomendações", icon: Wand2 },
