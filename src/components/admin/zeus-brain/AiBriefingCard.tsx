@@ -137,7 +137,7 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
               >
                 {loading ? "Analisando dados da sua frota..." : "O que a IA está vendo agora"}
               </div>
-              {briefing && !loading && (
+              {!loading && (
                 <button
                   onClick={handlePdf}
                   disabled={exporting}
@@ -147,9 +147,10 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
                     borderColor: "rgba(255,255,255,0.10)",
                     color: "rgba(255,255,255,0.82)",
                   }}
+                  title="Salvar o painel completo como PDF (réplica fiel da tela)"
                 >
                   {exporting ? <Loader2 size={11} className="animate-spin" /> : <FileDown size={11} />}
-                  <span>{exporting ? "Gerando..." : "Salvar PDF"}</span>
+                  <span>{exporting ? "Gerando PDF..." : "Salvar painel em PDF"}</span>
                 </button>
               )}
             </div>
