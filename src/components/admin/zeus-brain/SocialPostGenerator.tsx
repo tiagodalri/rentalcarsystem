@@ -169,11 +169,14 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
         return null;
       })();
       const logoDataUrl = await urlToDataUrl(`${window.location.origin}/zeus-logo-full.png`);
+      // Convert the vehicle photo to data URL too — edge functions may fail to fetch
+      // arbitrary CDN/storage URLs reliably, and Gemini needs guaranteed access.
+      const vehiclePhotoDataUrl = runPhotoUrl ? await urlToDataUrl(runPhotoUrl) : null;
       const { data, error } = await supabase.functions.invoke("marketing-generate-post", {
         body: {
           vehicleName: vehicleForRun!.name || `${vehicleForRun!.brand || ""} ${vehicleForRun!.model || ""}`.trim(),
           vehicleBrand: vehicleForRun!.brand,
-          vehiclePhotoUrl: runPhotoUrl,
+          vehiclePhotoUrl: vehiclePhotoDataUrl || runPhotoUrl,
           logoDataUrl,
           format,
           tone,
