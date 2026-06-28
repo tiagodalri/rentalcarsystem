@@ -344,15 +344,26 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               Simulador de renovação
             </span>
           </div>
-          {(outIds.length > 0 || inIds.length > 0) && (
+          <div className="absolute right-0 top-0 flex items-center gap-1.5">
             <button
-              onClick={reset}
-              className="absolute right-0 top-0 text-[10.5px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-md transition-colors min-h-[32px]"
-              style={{ background: "#ffffff", color: NAVY_70, border: `1px solid ${NAVY_10}` }}
+              onClick={() => setAiOpen(true)}
+              className="inline-flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-md transition-colors min-h-[32px]"
+              style={{ background: NAVY, color: IVORY, border: `1px solid ${NAVY}` }}
+              title="Deixe a IA escolher o melhor cenário"
             >
-              Limpar tudo
+              <Brain className="w-3 h-3" style={{ color: GOLD_SOFT }} />
+              Simular com IA
             </button>
-          )}
+            {(outIds.length > 0 || inIds.length > 0) && (
+              <button
+                onClick={reset}
+                className="text-[10.5px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-md transition-colors min-h-[32px]"
+                style={{ background: "#ffffff", color: NAVY_70, border: `1px solid ${NAVY_10}` }}
+              >
+                Limpar
+              </button>
+            )}
+          </div>
         </div>
 
         <h3
