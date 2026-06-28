@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { computePerVehicle } from "@/lib/zeusBrain/perVehicle";
-import { AiBriefingCard } from "@/components/admin/zeus-brain/AiBriefingCard";
+import { AiBriefingCard, type BriefingSnapshot, type BriefingHighlight, type BriefingAction } from "@/components/admin/zeus-brain/AiBriefingCard";
+import { findBrandByName } from "@/data/carBrands";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
   startOfDay, addDays, isSameDay,
@@ -841,11 +842,88 @@ export default function AiPainel({
 
 
         {/* AI Briefing */}
-        <AiBriefingCard
-          briefing={briefing}
-          loading={briefingLoading}
-          contextLabel={`${perVehicle.length} carros · ${realBookings.length} reservas`}
-        />
+        {(() => {
+          const slugFor = (name?: string | null): string | undefined => {
+            if (!name) return undefined;
+            // try first 1-2 tokens
+            const tokens = name.split(/\s+/);
+            for (let n = Math.min(3, tokens.length); n >= 1; n--) {
+              const try1 = tokens.slice(0, n).join(" ");
+              const b = findBrandByName(try1);
+              if (b) return b.slug;
+            }
+            return undefined;
+          };
+          const snapshot: BriefingSnapshot = {
+            rodandoAgora: todayStats.rodandoAgora,
+            paradosAgora: todayStats.paradosAgora,
+            receitaHoje: todayStats.receitaHoje,
+            receitaMtd: pacing.mtd,
+            receitaLmtd: pacing.lmtd,
+            deltaPct: pacing.delta,
+            paybackMeses: paybackAvg,
+            paretoCarros: concentration?.topForRev.length ?? 0,
+            paretoTotal: concentration?.totalCount ?? 0,
+            paretoFrotaPct: concentration?.topCountShare ?? 0,
+            receitaPerdida: lostRevenue.total,
+          };
+          const highlightTop: BriefingHighlight[] = [...perVehicle]
+            .filter(p => p.purchase > 0 && p.daysInFleet > 30)
+            .sort((a, b) => b.roi - a.roi)
+            .slice(0, 2)
+            .map(p => ({
+              vehicleName: p.v.name || "—",
+              brandSlug: slugFor(p.v.brand || p.v.name),
+              invested: p.purchase,
+              days: p.daysInFleet,
+              revenue: p.revenue,
+              roiPct: p.roi,
+              status: "destaque" as const,
+              nota: "Bom desempenho — devolveu uma boa parte do que foi investido.",
+            }));
+          const highlightBad: BriefingHighlight[] = [...perVehicle]
+            .filter(p => p.purchase > 0 && p.daysInFleet > 60 && (p.revenue === 0 || p.roi < 5))
+            .sort((a, b) => a.roi - b.roi)
+            .slice(0, 2)
+            .map(p => ({
+              vehicleName: p.v.name || "—",
+              brandSlug: slugFor(p.v.brand || p.v.name),
+              invested: p.purchase,
+              days: p.daysInFleet,
+              revenue: p.revenue,
+              roiPct: p.roi,
+              status: (p.revenue === 0 ? "critico" : "atencao") as "critico" | "atencao",
+              nota: p.revenue === 0 ? "Sem receita ainda — capital parado." : "Receita baixa — exige atenção.",
+            }));
+          const highlights = [...highlightTop, ...highlightBad].slice(0, 4);
+
+          const actionList: BriefingAction[] = weeklyDecisions.slice(0, 3).map(d => {
+            // try to extract a vehicle from the title (find first known brand in title)
+            const slug = slugFor(d.titulo.replace(/^(Suba o preço da|Avalie trocar a|Promova a|Teste promo na)\s+/i, ""));
+            // find vehicle name in title — strip leading verb phrase
+            const vehMatch = d.titulo.replace(/^(Suba o preço da|Avalie trocar a|Promova a|Teste promo na)\s+/i, "").split(/\s+entre|\s+por/)[0];
+            return {
+              vehicleName: vehMatch && vehMatch !== d.titulo ? vehMatch : undefined,
+              brandSlug: slug,
+              titulo: d.titulo,
+              detalhe: d.descricao,
+              impacto: d.impacto,
+              impactoTipo: d.impactoValor >= 0 ? "ganho" as const : "risco" as const,
+              prioridade: d.prioridade,
+            };
+          });
+
+          return (
+            <AiBriefingCard
+              briefing={briefing}
+              loading={briefingLoading}
+              contextLabel={`${perVehicle.length} carros · ${realBookings.length} reservas`}
+              snapshot={snapshot}
+              highlights={highlights}
+              actions={actionList}
+            />
+          );
+        })()}
 
         {/* HOJE NA SUA FROTA */}
         <div className="ai-card relative overflow-hidden">
