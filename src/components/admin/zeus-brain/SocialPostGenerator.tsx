@@ -166,7 +166,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
         if (first && typeof first === "object") return first.url || first.src || null;
         return null;
       })();
-      const logoDataUrl = await urlToDataUrl(`${window.location.origin}/zeus-logo-full.png`);
+      const logoDataUrl = await urlToDataUrl(`${window.location.origin}/zeus-logo-wordmark.png`);
       // Convert the vehicle photo to data URL too — edge functions may fail to fetch
       // arbitrary CDN/storage URLs reliably, and Gemini needs guaranteed access.
       const vehiclePhotoDataUrl = runPhotoUrl ? await urlToDataUrl(runPhotoUrl) : null;
