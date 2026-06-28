@@ -526,7 +526,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                               <>
                                 <span style={{ color: NAVY_40 }}>•</span>
                                 <span className="font-semibold" style={{ color: GOLD }}>
-                                  {q > 1 ? `${q}× ${fmtUSD(p.purchase)} = ${fmtUSD(p.purchase * q)}` : `pago ${fmtUSD(p.purchase)}`}
+                                  {q > 1 ? `${q}× ${fmtUSD(p.purchase)} = ${fmtUSD(p.purchase * q)}` : `Pago ${fmtUSD(p.purchase)}`}
                                 </span>
                               </>
                             )}
