@@ -262,7 +262,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-3 sm:gap-4">
         {/* Form */}
         <div
-          className="rounded-[14px] p-3 sm:p-4"
+          className={`rounded-[14px] p-3 sm:p-4 ${(loading || result) ? "order-2 lg:order-none" : ""}`}
           style={{ background: "#fbf7ee", border: "1px solid rgba(13,29,46,0.10)" }}
         >
           {/* Mode selector */}
@@ -513,20 +513,23 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             />
           </div>
 
-          <button
-            onClick={generate}
-            disabled={loading || (!randomVehicle && !vehicleId)}
-            className="w-full mt-3 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[13px] font-semibold tracking-wide transition-all disabled:opacity-60"
-            style={{
-              background: "linear-gradient(180deg,#14283d,#0d1d2e)",
-              color: "#d6bf86",
-              border: "1px solid rgba(214,191,134,0.40)",
-              minHeight: 42,
-            }}
-          >
-            {loading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
-            {loading ? (kind === "carousel" ? `Gerando ${slidesCount} slides…` : "Gerando arte…") : (kind === "carousel" ? `Gerar carrossel (${slidesCount} slides)` : "Gerar com IA")}
-          </button>
+          <div className="mt-3 sticky bottom-2 lg:static z-10">
+            <button
+              onClick={generate}
+              disabled={loading || (!randomVehicle && !vehicleId)}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-3 rounded-lg text-[13px] font-semibold tracking-wide transition-all disabled:opacity-60 active:scale-[0.99]"
+              style={{
+                background: "linear-gradient(180deg,#14283d,#0d1d2e)",
+                color: "#d6bf86",
+                border: "1px solid rgba(214,191,134,0.40)",
+                minHeight: 48,
+                boxShadow: "0 14px 30px -16px rgba(13,29,46,0.6)",
+              }}
+            >
+              {loading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
+              {loading ? (kind === "carousel" ? `Gerando ${slidesCount} slides…` : "Gerando arte…") : (kind === "carousel" ? `Gerar carrossel (${slidesCount} slides)` : "Gerar com IA")}
+            </button>
+          </div>
           <p className="text-[10px] text-center mt-1.5" style={{ color: "rgba(13,29,46,0.5)" }}>
             {kind === "carousel"
               ? `O carrossel leva cerca de ${slidesCount * 25}s. Os slides mantêm o mesmo estilo visual.`
@@ -537,7 +540,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
 
         {/* Preview */}
         <div
-          className="rounded-[14px] p-3 sm:p-4 lg:sticky lg:top-4 self-start"
+          className={`rounded-[14px] p-3 sm:p-4 lg:sticky lg:top-4 self-start ${(loading || result) ? "order-1 lg:order-none" : ""}`}
           style={{ background: "#0d1d2e", border: "1px solid rgba(214,191,134,0.20)" }}
         >
           <div className="flex items-center justify-between mb-2">
@@ -560,8 +563,8 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             className="relative w-full rounded-lg overflow-hidden flex items-center justify-center mx-auto"
             style={{
               aspectRatio: format === "feed" ? "1 / 1" : "9 / 16",
-              maxHeight: "60vh",
-              maxWidth: format === "story" ? 320 : "100%",
+              maxHeight: format === "story" ? "75vh" : "65vh",
+              maxWidth: format === "story" ? 360 : "100%",
               background:
                 "repeating-conic-gradient(rgba(255,255,255,0.03) 0deg 90deg, rgba(255,255,255,0.06) 90deg 180deg) 0 0/20px 20px",
               border: "1px solid rgba(214,191,134,0.15)",
@@ -598,29 +601,29 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                     <>
                       <button
                         onClick={() => setActiveSlide((safeIdx - 1 + slides.length) % slides.length)}
-                        className="absolute left-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full inline-flex items-center justify-center"
-                        style={{ background: "rgba(13,29,46,0.65)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.35)" }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 h-11 w-11 sm:h-9 sm:w-9 rounded-full inline-flex items-center justify-center active:scale-95 transition-transform"
+                        style={{ background: "rgba(13,29,46,0.78)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.40)", backdropFilter: "blur(6px)" }}
                         title="Slide anterior"
                       >
-                        <ChevronLeft size={14} />
+                        <ChevronLeft size={18} />
                       </button>
                       <button
                         onClick={() => setActiveSlide((safeIdx + 1) % slides.length)}
-                        className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full inline-flex items-center justify-center"
-                        style={{ background: "rgba(13,29,46,0.65)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.35)" }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-11 w-11 sm:h-9 sm:w-9 rounded-full inline-flex items-center justify-center active:scale-95 transition-transform"
+                        style={{ background: "rgba(13,29,46,0.78)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.40)", backdropFilter: "blur(6px)" }}
                         title="Próximo slide"
                       >
-                        <ChevronRight size={14} />
+                        <ChevronRight size={18} />
                       </button>
-                      <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1">
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 px-2 py-1 rounded-full" style={{ background: "rgba(13,29,46,0.55)", backdropFilter: "blur(6px)" }}>
                         {slides.map((_, i) => (
                           <button
                             key={i}
                             onClick={() => setActiveSlide(i)}
-                            className="h-1.5 rounded-full transition-all"
+                            className="h-2 rounded-full transition-all"
                             style={{
-                              width: i === safeIdx ? 16 : 6,
-                              background: i === safeIdx ? "#d6bf86" : "rgba(214,191,134,0.35)",
+                              width: i === safeIdx ? 20 : 8,
+                              background: i === safeIdx ? "#d6bf86" : "rgba(214,191,134,0.45)",
                             }}
                             aria-label={`Slide ${i + 1}`}
                           />
@@ -634,17 +637,17 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           {result?.slides && result.slides.length > 1 && (
-            <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
+            <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 snap-x snap-mandatory">
               {result.slides.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveSlide(i)}
-                  className="flex-shrink-0 rounded-md overflow-hidden transition-all"
+                  className="flex-shrink-0 rounded-md overflow-hidden transition-all snap-start"
                   style={{
                     border: i === activeSlide ? "1.5px solid #d6bf86" : "1px solid rgba(214,191,134,0.20)",
                     opacity: i === activeSlide ? 1 : 0.7,
-                    width: format === "feed" ? 48 : 32,
-                    height: 48,
+                    width: format === "feed" ? 60 : 40,
+                    height: 60,
                   }}
                   title={`${s.role === "cover" ? "Capa" : s.role === "cta" ? "Chamada" : "Conteúdo"} · ${i + 1}`}
                 >
@@ -746,8 +749,9 @@ function IconBtn({ children, onClick, title }: { children: React.ReactNode; onCl
     <button
       onClick={onClick}
       title={title}
-      className="h-7 w-7 rounded-full inline-flex items-center justify-center transition-all"
-      style={{ background: "rgba(214,191,134,0.12)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.30)" }}
+      aria-label={title}
+      className="h-10 w-10 sm:h-8 sm:w-8 rounded-full inline-flex items-center justify-center transition-all active:scale-95"
+      style={{ background: "rgba(214,191,134,0.14)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.35)" }}
     >
       {children}
     </button>
