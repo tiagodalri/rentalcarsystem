@@ -81,10 +81,12 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
   }, [briefing]);
 
   const handlePdf = async () => {
-    if (!briefing) return;
     setExporting(true);
     try {
-      await exportBriefingToPdf({ briefing, contextLabel });
+      const target =
+        (document.querySelector(".ai-shell") as HTMLElement | null) ??
+        (document.body as HTMLElement);
+      await exportPainelPdf({ target, filename: "zeus-brain-painel.pdf" });
     } finally {
       setExporting(false);
     }
