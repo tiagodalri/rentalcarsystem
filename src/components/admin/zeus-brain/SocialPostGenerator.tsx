@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { detectSeasonalTheme } from "@/lib/zeusBrain/seasonalTheme";
 
 type Vehicle = {
   id: string;
@@ -14,8 +15,10 @@ type Vehicle = {
 };
 
 type Format = "feed" | "story";
-type Tone = "luxo" | "aventura" | "familia" | "promocao" | "lancamento";
+type Tone = "luxo" | "aventura" | "familia" | "promocao" | "lancamento" | "sazonal";
 type Mode = "promo" | "free" | "reference";
+
+const SEASONAL_NOW = detectSeasonalTheme();
 
 const TONES: { v: Tone; label: string; hint: string }[] = [
   { v: "luxo", label: "Luxo", hint: "exclusivo, premium, status" },
@@ -23,6 +26,7 @@ const TONES: { v: Tone; label: string; hint: string }[] = [
   { v: "familia", label: "Familia", hint: "memorias, conforto, seguranca" },
   { v: "promocao", label: "Oportunidade", hint: "oferta sem apelar" },
   { v: "lancamento", label: "Lancamento", hint: "novidade, primeira vez" },
+  { v: "sazonal", label: `Sazonal · ${SEASONAL_NOW.label}`, hint: "tema da data atual, automatico" },
 ];
 
 type Result = {
