@@ -115,22 +115,27 @@ function ColorDot({ color }: { color: string | null }) {
 }
 
 function VehicleRow({
-  p, side, action, selected,
+  p, side, action, selected, disabled,
 }: {
   p: SimVehicle;
   side: "out" | "in";
   action: { label: string; onClick: () => void };
   selected?: boolean;
+  disabled?: boolean;
 }) {
   const year = (p.v as any).year || (p.v as any).model_year;
   const accent = side === "out" ? SELL : BUY;
   const accentBg = side === "out" ? SELL_BG : BUY_BG;
-  const rowBg = selected ? accentBg : "#ffffff";
+  const rowBg = selected ? accentBg : disabled ? IVORY_SOFT : "#ffffff";
   const rowBorder = selected ? `1px solid ${accent}55` : `1px solid ${NAVY_10}`;
   return (
     <div
-      className="flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors hover:shadow-[0_2px_8px_-4px_rgba(13,29,46,0.15)]"
-      style={{ background: rowBg, border: rowBorder }}
+      className="flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors"
+      style={{
+        background: rowBg,
+        border: rowBorder,
+        opacity: disabled ? 0.65 : 1,
+      }}
     >
       <BrandLogo v={p.v} />
       <div className="min-w-0 flex-1">
@@ -140,10 +145,15 @@ function VehicleRow({
         </div>
         <div className="text-[10.5px] tabular-nums truncate flex items-center gap-1.5 mt-0.5" style={{ color: NAVY_55 }}>
           <span className="truncate">{[p.v.brand, p.v.model, year].filter(Boolean).join(" · ")}</span>
-          {p.purchase > 0 && (
+          {p.purchase > 0 ? (
             <>
               <span style={{ color: NAVY_40 }}>•</span>
               <span className="font-semibold" style={{ color: GOLD }}>Pago {fmtUSD(p.purchase)}</span>
+            </>
+          ) : (
+            <>
+              <span style={{ color: NAVY_40 }}>•</span>
+              <span className="font-semibold" style={{ color: GOLD }}>Sem valor pago</span>
             </>
           )}
         </div>
@@ -157,16 +167,19 @@ function VehicleRow({
         </div>
       </div>
       <button
-        onClick={action.onClick}
-        className="shrink-0 ml-1 text-[10.5px] font-semibold uppercase tracking-wider px-2.5 py-1.5 rounded-md transition-colors min-h-[32px]"
+        onClick={disabled ? undefined : action.onClick}
+        disabled={disabled}
+        className="shrink-0 ml-1 text-[10.5px] font-semibold uppercase tracking-wider px-2.5 py-1.5 rounded-md transition-colors min-h-[32px] disabled:opacity-40 disabled:cursor-not-allowed"
         style={
           selected
             ? { background: NAVY, color: IVORY, border: `1px solid ${NAVY}` }
+            : disabled
+            ? { background: "#f0efe9", color: NAVY_55, border: `1px solid ${NAVY_10}` }
             : { background: accentBg, color: accent, border: `1px solid ${accent}40` }
         }
         aria-label={action.label}
       >
-        {action.label}
+        {disabled ? "Bloqueado" : action.label}
       </button>
     </div>
   );
