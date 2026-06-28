@@ -795,14 +795,6 @@ export default function AiPainel({
             proximos30Dias: Math.round(next30),
             proximos60Dias: Math.round(next60),
           },
-          clientes: {
-            unicos: customers.length,
-            taxaRecompraPct: Math.round(repeatRate),
-            fielVip: segmentCounts.Champion,
-            recorrente: segmentCounts.Loyal,
-            emRisco: segmentCounts["At Risk"],
-            novos: segmentCounts.New,
-          },
           comportamento: {
             antecedenciaMediaDias: Math.round(leadTime.avg),
             tempoMedioParado: Math.round(turnaround.avg),
