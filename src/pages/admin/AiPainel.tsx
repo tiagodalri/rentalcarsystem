@@ -205,6 +205,79 @@ export default function AiPainel({
     }>;
   }, [perVehicle]);
 
+  /* ───── Projeção Futura: e se você trocasse os fracos pelos campeões? ─────
+     Usa SOMENTE carros com histórico real (>= 60 dias na frota e dado de aquisição)
+     para evitar projeções em cima de ruído. */
+  const fleetProjection = useMemo(() => {
+    const eligible = perVehicle.filter(p => p.hasAcquiredDate && p.daysInFleet >= 60);
+    if (eligible.length < 4) return null;
+
+    // Top 25% (mín 2) viram referência de "estrela"
+    const sorted = [...eligible].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned);
+    const starCount = Math.max(2, Math.ceil(sorted.length * 0.25));
+    const stars = sorted.slice(0, starCount);
+    const starAvgRevPerDay = stars.reduce((s, p) => s + p.revPerDayOwned, 0) / stars.length;
+    const starAvgOccupancy = stars.reduce((s, p) => s + p.occupancy, 0) / stars.length;
+    const starAvgROIAnnualized = stars.reduce((s, p) => {
+      // ROI anualizado pela base de dias na frota
+      const yrs = Math.max(p.daysInFleet / 365, 0.25);
+      return s + (p.roi / yrs);
+    }, 0) / stars.length;
+
+    // Carros fracos = bottom 25% (mín 2) com ocupação < 45%
+    const weakAll = [...sorted].reverse().filter(p => p.occupancy < 45);
+    const weakCount = Math.min(weakAll.length, Math.max(2, Math.ceil(sorted.length * 0.25)));
+    const weak = weakAll.slice(0, weakCount);
+    if (weak.length === 0) return null;
+
+    const weakCapital = weak.reduce((s, p) => s + p.purchase, 0);
+    const weakRevPerDay = weak.reduce((s, p) => s + p.revPerDayOwned, 0);
+    const weakAvgOccupancy = weak.reduce((s, p) => s + p.occupancy, 0) / weak.length;
+
+    // Cenário: substituir cada fraco por um carro com performance média das estrelas
+    const projectedRevPerDay = starAvgRevPerDay * weak.length;
+    const upliftPerDay = Math.max(projectedRevPerDay - weakRevPerDay, 0);
+
+    const horizons = [
+      { label: "90 dias",     days: 90  },
+      { label: "6 meses",     days: 180 },
+      { label: "12 meses",    days: 365 },
+    ].map(h => ({
+      label: h.label,
+      days: h.days,
+      currentRevenue:    weakRevPerDay      * h.days,
+      projectedRevenue:  projectedRevPerDay * h.days,
+      uplift:            upliftPerDay       * h.days,
+    }));
+
+    // Aproveitamento de capital: quanto a mais o mesmo dinheiro investido rende
+    const currentAnnualOnWeak    = weakRevPerDay      * 365;
+    const projectedAnnualOnWeak  = projectedRevPerDay * 365;
+    const capitalEfficiencyGain  = currentAnnualOnWeak > 0
+      ? ((projectedAnnualOnWeak - currentAnnualOnWeak) / currentAnnualOnWeak) * 100
+      : 0;
+
+    // Payback médio do "carro estrela" — referência pra trocar com segurança
+    const starPaybacks = stars
+      .map(p => p.paybackMonths)
+      .filter((x): x is number => typeof x === "number" && x > 0);
+    const avgStarPayback = starPaybacks.length
+      ? starPaybacks.reduce((a, b) => a + b, 0) / starPaybacks.length
+      : null;
+
+    return {
+      stars, weak, weakCapital,
+      starAvgRevPerDay, starAvgOccupancy, starAvgROIAnnualized,
+      weakRevPerDay, weakAvgOccupancy,
+      upliftPerDay, horizons,
+      capitalEfficiencyGain,
+      avgStarPayback,
+    };
+  }, [perVehicle]);
+
+
+
+
 
 
   /* ───── Concentração de receita (estilo Pareto) ───── */
