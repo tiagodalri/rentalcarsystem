@@ -441,9 +441,9 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           <div className="mt-3">
-            <Label>Tipo de publicacao</Label>
+            <Label>Tipo de publicação</Label>
             <div className="mt-1 grid grid-cols-2 gap-1.5">
-              <FormatPill active={kind === "single"} onClick={() => setKind("single")} icon={<Square size={12} />} label="Unico" sub="1 arte" />
+              <FormatPill active={kind === "single"} onClick={() => setKind("single")} icon={<Square size={12} />} label="Único" sub="1 arte" />
               <FormatPill active={kind === "carousel"} onClick={() => setKind("carousel")} icon={<Layers size={12} />} label="Carrossel" sub={`${slidesCount} slides`} />
             </div>
             {kind === "carousel" && (
@@ -466,7 +466,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                   ))}
                 </div>
                 <span className="text-[10px]" style={{ color: "rgba(13,29,46,0.55)" }}>
-                  capa + conteudo + chamada final
+                  Capa + conteúdo + chamada final
                 </span>
               </div>
             )}
