@@ -274,12 +274,34 @@ Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, 
 
     async function renderSlide(slide: SlidePlan, idx: number): Promise<string | null> {
       const prompt = buildPrompt(slide, idx);
-      const contentParts: any[] = [{ type: "text", text: prompt }];
-      if (vehiclePhotoUrl) contentParts.push({ type: "image_url", image_url: { url: vehiclePhotoUrl } });
-      contentParts.push({ type: "image_url", image_url: { url: logoUrl } });
+      // Interleave text labels + images so Gemini understands the role of each image.
+      const contentParts: any[] = [];
+
+      // For "reference" mode, put the reference image FIRST and label it strongly.
       if (mode === "reference" && referenceImageDataUrl && referenceImageDataUrl.startsWith("data:image")) {
+        contentParts.push({
+          type: "text",
+          text: "IMAGEM A SEGUIR = REFERENCIA DE ESTILO. Use APENAS como inspiracao para paleta, iluminacao, composicao, mood e tratamento tipografico. NAO copie textos, logos, pessoas ou marcas de terceiros vistas nela.",
+        });
         contentParts.push({ type: "image_url", image_url: { url: referenceImageDataUrl } });
       }
+
+      if (vehiclePhotoUrl) {
+        contentParts.push({
+          type: "text",
+          text: `IMAGEM A SEGUIR = FOTO REAL do carro "${vehicleBrand || ""} ${vehicleName}". Este e o produto que deve aparecer como heroi da arte. Mantenha cor, modelo e identidade visual EXATAMENTE como na foto.`,
+        });
+        contentParts.push({ type: "image_url", image_url: { url: vehiclePhotoUrl } });
+      }
+
+      contentParts.push({
+        type: "text",
+        text: "IMAGEM A SEGUIR = LOGOTIPO OFICIAL Zeus Rental Car. Use EXATAMENTE como fornecido, sem deformar, recolorir ou recriar. Posicione conforme instrucoes do briefing principal.",
+      });
+      contentParts.push({ type: "image_url", image_url: { url: logoUrl } });
+
+      contentParts.push({ type: "text", text: prompt });
+
       const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
@@ -307,33 +329,37 @@ Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, 
           if (typeof u === "string" && u.startsWith("data:image")) return u.split(",")[1] || null;
         }
       }
+      console.error("image no_data slide", idx, JSON.stringify(imgJson).slice(0, 500));
       return null;
     }
 
-    // Render sequentially to keep visual continuity and avoid rate-limits.
+    // Render slides in PARALLEL to fit edge-function timeout for carousels.
+    // Each gemini-3-pro-image call takes 15-40s; sequential 5x would risk timeout.
     const renderedSlides: { role: SlidePlan["role"]; imageBase64: string; headline: string; subheadline: string }[] = [];
-    for (let i = 0; i < plan.length; i++) {
-      try {
-        const b64 = await renderSlide(plan[i], i);
-        if (!b64) throw new Error("no_image_returned");
-        renderedSlides.push({
-          role: plan[i].role,
-          imageBase64: b64,
-          headline: plan[i].headline,
-          subheadline: plan[i].subheadline,
-        });
-      } catch (e: any) {
-        const msg = String(e?.message || e);
-        if (msg.startsWith("image_402") || msg.startsWith("image_429")) {
-          const status = msg.startsWith("image_402") ? 402 : 429;
-          return new Response(JSON.stringify({ error: `image_${status}`, detail: msg }), {
-            status, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
-        return new Response(JSON.stringify({ error: "slide_failed", detail: msg, slideIndex: i, copy }), {
-          status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    try {
+      const results = await Promise.all(
+        plan.map(async (p, i) => {
+          const b64 = await renderSlide(p, i);
+          if (!b64) throw new Error(`slide_${i}_no_image`);
+          return { role: p.role, imageBase64: b64, headline: p.headline, subheadline: p.subheadline };
+        }),
+      );
+      renderedSlides.push(...results);
+    } catch (e: any) {
+      const msg = String(e?.message || e);
+      if (msg.startsWith("image_402") || msg.includes(":402")) {
+        return new Response(JSON.stringify({ error: "image_402", detail: msg }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+      if (msg.startsWith("image_429") || msg.includes(":429")) {
+        return new Response(JSON.stringify({ error: "image_429", detail: msg }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ error: "slide_failed", detail: msg, copy }), {
+        status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     return new Response(
