@@ -893,7 +893,7 @@ export default function AiPainel({
               revenue: p.revenue,
               roiPct: p.roi,
               status: (p.revenue === 0 ? "critico" : "atencao") as "critico" | "atencao",
-              nota: p.revenue === 0 ? "Sem receita ainda — capital parado." : "Receita baixa — exige atenção.",
+              nota: p.revenue === 0 ? "Sem receita ainda. Capital parado." : "Receita baixa. Exige atenção.",
             }));
           const highlights = [...highlightTop, ...highlightBad].slice(0, 4);
 
