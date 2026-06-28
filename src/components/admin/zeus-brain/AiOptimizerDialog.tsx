@@ -368,26 +368,32 @@ export default function AiOptimizerDialog({
                     Dados analisados
                   </span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
                   {[
                     { k: "Universo elegível", v: `${eligibleCount} carros`, hint: "60+ dias, com reservas" },
                     { k: "Combinações testadas", v: scenario.combinationsEvaluated.toLocaleString("pt-BR"), hint: "Busca determinística" },
-                    { k: "Receita/dia atual (vendidos)", v: fmtUSD(scenario.currentRevPerDay), hint: `${scenario.avgOccupancySell.toFixed(0)}% ocup. média` },
-                    { k: "Receita/dia projetada (comprados)", v: fmtUSD(scenario.projectedRevPerDay), hint: `${scenario.avgOccupancyBuy.toFixed(0)}% ocup. média` },
+                    { k: "Receita/dia atual", v: fmtUSD(scenario.currentRevPerDay), hint: `Vendidos . ${scenario.avgOccupancySell.toFixed(0)}% ocup. média` },
+                    { k: "Receita/dia projetada", v: fmtUSD(scenario.projectedRevPerDay), hint: `Comprados . ${scenario.avgOccupancyBuy.toFixed(0)}% ocup. média` },
                     { k: "Capital recuperado", v: fmtUSD(scenario.recoveredCapital), hint: `${scenario.sell.length} venda${scenario.sell.length === 1 ? "" : "s"}` },
                     { k: "Capital investido", v: fmtUSD(scenario.spentCapital), hint: `${scenario.buy.reduce((s, b) => s + b.qty, 0)} unidade${scenario.buy.reduce((s, b) => s + b.qty, 0) === 1 ? "" : "s"}` },
                     { k: "Eficiência do capital", v: `${scenario.capitalEfficiency >= 0 ? "+" : ""}${scenario.capitalEfficiency.toFixed(0)}%`, hint: "Receita por $ empregado" },
                     { k: "Granularidade", v: "$1.000", hint: "Até 5 un. por modelo" },
-                  ].map((d) => (
-                    <div key={d.k} className="rounded-lg p-3 min-w-0" style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_06}` }}>
-                      <div className="text-[9.5px] uppercase tracking-[0.14em] font-semibold mb-1 leading-tight" style={{ color: NAVY_55 }}>
-                        {d.k}
+                  ].map((d, i) => (
+                    <div
+                      key={d.k}
+                      className="flex items-baseline justify-between gap-4 py-2.5"
+                      style={{ borderTop: i === 0 ? "none" : `1px solid ${NAVY_06}` }}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[12px] font-medium truncate" style={{ color: NAVY }}>
+                          {d.k}
+                        </div>
+                        <div className="text-[10.5px] truncate" style={{ color: NAVY_40 }}>
+                          {d.hint}
+                        </div>
                       </div>
-                      <div className="text-[14px] font-semibold tabular-nums leading-snug break-words" style={{ color: NAVY, letterSpacing: "-0.01em" }}>
+                      <div className="text-[14px] font-semibold tabular-nums whitespace-nowrap" style={{ color: NAVY, letterSpacing: "-0.01em" }}>
                         {d.v}
-                      </div>
-                      <div className="text-[10px] mt-1 leading-snug break-words" style={{ color: NAVY_40 }}>
-                        {d.hint}
                       </div>
                     </div>
                   ))}
