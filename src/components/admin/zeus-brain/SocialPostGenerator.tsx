@@ -644,7 +644,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                     width: format === "feed" ? 48 : 32,
                     height: 48,
                   }}
-                  title={`${s.role === "cover" ? "Capa" : s.role === "cta" ? "Chamada" : "Conteudo"} · ${i + 1}`}
+                  title={`${s.role === "cover" ? "Capa" : s.role === "cta" ? "Chamada" : "Conteúdo"} · ${i + 1}`}
                 >
                   <img
                     src={`data:image/png;base64,${s.imageBase64}`}
