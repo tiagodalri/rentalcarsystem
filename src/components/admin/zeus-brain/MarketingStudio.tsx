@@ -1,16 +1,20 @@
 import { useState } from "react";
-import { ArrowLeft, Megaphone, Image as ImageIcon, Sparkles } from "lucide-react";
+import { ArrowLeft, Megaphone, Image as ImageIcon, Sparkles, FolderOpen } from "lucide-react";
 import SocialPostGenerator from "./SocialPostGenerator";
+import MarketingHistory from "./MarketingHistory";
 
 type Props = { onBack: () => void };
 
-type Tool = "social";
+type Tool = "social" | "history";
 
 export default function MarketingStudio({ onBack }: Props) {
   const [tool, setTool] = useState<Tool | null>(null);
 
   if (tool === "social") {
     return <SocialPostGenerator onBack={() => setTool(null)} />;
+  }
+  if (tool === "history") {
+    return <MarketingHistory onBack={() => setTool(null)} />;
   }
 
   return (
@@ -46,7 +50,7 @@ export default function MarketingStudio({ onBack }: Props) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <button
           onClick={() => setTool("social")}
           className="group text-left rounded-[20px] overflow-hidden p-5 sm:p-6 transition-all hover:-translate-y-0.5"
@@ -82,6 +86,44 @@ export default function MarketingStudio({ onBack }: Props) {
           </h3>
           <p className="mt-1 text-[12.5px] leading-relaxed" style={{ color: "rgba(13,29,46,0.65)" }}>
             Gere artes em formato feed e story usando IA. Foto do carro tratada com tom cinematografico, logotipo da Zeus aplicado de forma estrategica e frases de impacto humanizadas.
+          </p>
+        </button>
+
+        <button
+          onClick={() => setTool("history")}
+          className="group text-left rounded-[20px] overflow-hidden p-5 sm:p-6 transition-all hover:-translate-y-0.5"
+          style={{
+            background: "#fbf7ee",
+            border: "1px solid rgba(13,29,46,0.10)",
+            boxShadow: "0 18px 40px -28px rgba(13,29,46,0.35)",
+          }}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <span
+              className="inline-flex items-center justify-center h-10 w-10 rounded-full"
+              style={{ background: "linear-gradient(180deg,#14283d,#0d1d2e)", color: "#d6bf86" }}
+            >
+              <FolderOpen size={18} strokeWidth={1.75} />
+            </span>
+            <span
+              className="text-[9px] uppercase font-semibold tracking-[0.22em] px-2 py-0.5 rounded-full"
+              style={{
+                background: "rgba(13,29,46,0.06)",
+                color: "rgba(13,29,46,0.62)",
+                border: "1px solid rgba(13,29,46,0.12)",
+              }}
+            >
+              Arquivo
+            </span>
+          </div>
+          <h3
+            className="mt-3 text-[20px] font-light"
+            style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+          >
+            Histórico de artes
+          </h3>
+          <p className="mt-1 text-[12.5px] leading-relaxed" style={{ color: "rgba(13,29,46,0.65)" }}>
+            Galeria com todas as artes ja geradas neste navegador. Reveja, baixe novamente ou copie a legenda quando quiser.
           </p>
         </button>
 

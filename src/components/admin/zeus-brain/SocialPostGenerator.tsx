@@ -3,6 +3,7 @@ import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartpho
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { pickRandomSeasonalTheme } from "@/lib/zeusBrain/seasonalTheme";
+import { savePost } from "@/lib/marketing/postHistory";
 
 type Vehicle = {
   id: string;
@@ -194,7 +195,27 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
-      setResult(data as Result);
+      const res = data as Result;
+      setResult(res);
+      // Persist to local history (IndexedDB) so the user can revisit later.
+      try {
+        await savePost({
+          vehicleName: vehicleForRun!.name || `${vehicleForRun!.brand || ""} ${vehicleForRun!.model || ""}`.trim() || null,
+          vehicleBrand: vehicleForRun!.brand || null,
+          format: res.format,
+          tone,
+          mode,
+          carousel: !!res.carousel,
+          slidesCount: res.slidesCount || (res.slides?.length ?? 1),
+          phrase: res.phrase,
+          caption: res.caption,
+          hashtags: res.hashtags,
+          imageBase64: res.imageBase64,
+          slides: res.slides,
+        });
+      } catch (saveErr) {
+        console.warn("Falha ao salvar histórico local:", saveErr);
+      }
     } catch (e: any) {
       console.error(e);
       const msg = String(e?.message || e);
