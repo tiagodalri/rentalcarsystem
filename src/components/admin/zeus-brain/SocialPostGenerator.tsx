@@ -22,12 +22,12 @@ type PostKind = "single" | "carousel";
 const SEASONAL_NOW = detectSeasonalTheme();
 
 const TONES: { v: Tone; label: string; hint: string }[] = [
-  { v: "luxo", label: "Luxo", hint: "exclusivo, premium, status" },
-  { v: "aventura", label: "Aventura", hint: "viagem, liberdade, Orlando" },
-  { v: "familia", label: "Familia", hint: "memorias, conforto, seguranca" },
-  { v: "promocao", label: "Oportunidade", hint: "oferta sem apelar" },
-  { v: "lancamento", label: "Lancamento", hint: "novidade, primeira vez" },
-  { v: "sazonal", label: `Sazonal · ${SEASONAL_NOW.label}`, hint: "tema da data atual, automatico" },
+  { v: "luxo", label: "Luxo", hint: "Exclusivo, premium, status" },
+  { v: "aventura", label: "Aventura", hint: "Viagem, liberdade, Orlando" },
+  { v: "familia", label: "Família", hint: "Memórias, conforto, segurança" },
+  { v: "promocao", label: "Oportunidade", hint: "Oferta sem apelar" },
+  { v: "lancamento", label: "Lançamento", hint: "Novidade, primeira vez" },
+  { v: "sazonal", label: `Sazonal · ${SEASONAL_NOW.label}`, hint: "Tema da data atual, automático" },
 ];
 
 type SlideOut = { role: "cover" | "content" | "cta"; imageBase64: string; headline: string; subheadline: string };
