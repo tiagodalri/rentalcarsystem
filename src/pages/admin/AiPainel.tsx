@@ -891,19 +891,11 @@ export default function AiPainel({
 
 
         {/* AI Briefing */}
-        <div className="ai-insight">
-          <div className="flex items-start gap-3">
-            <div className="ai-insight-icon"><Brain size={16} /></div>
-            <div className="flex-1">
-              <div className="text-[10px] uppercase tracking-[0.2em] text-cyan-300/80 mb-1">
-                {briefingLoading ? "Analisando dados da sua frota..." : "O que a IA está vendo agora"}
-              </div>
-              <p className="text-[13.5px] text-white/90 leading-relaxed whitespace-pre-line">
-                {briefing ?? "Carregando análise..."}
-              </p>
-            </div>
-          </div>
-        </div>
+        <AiBriefingCard
+          briefing={briefing}
+          loading={briefingLoading}
+          contextLabel={`${perVehicle.length} carros · ${realBookings.length} reservas`}
+        />
 
         {/* HOJE NA SUA FROTA */}
         <div className="ai-card relative overflow-hidden">
