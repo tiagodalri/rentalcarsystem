@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Gamepad2, Plus, X, ArrowRight, Sparkles, TrendingUp, TrendingDown, Trophy, Search } from "lucide-react";
+import { Gamepad2, X, ArrowRight, Sparkles, TrendingUp, TrendingDown, Trophy, Search, ShoppingCart, Tag } from "lucide-react";
+import { findBrandByName, carLogoUrl } from "@/data/carBrands";
 
 export type SimVehicle = {
   v: {
@@ -30,51 +31,6 @@ const fmtUSD = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 const fmtUSDsigned = (n: number) =>
   `${n >= 0 ? "+" : "−"}$${Math.abs(Math.round(n)).toLocaleString("en-US")}`;
 
-// Marca → domínio (Clearbit / Logo.dev fallback)
-const BRAND_DOMAIN: Record<string, string> = {
-  volkswagen: "vw.com",
-  vw: "vw.com",
-  chevrolet: "chevrolet.com",
-  chevy: "chevrolet.com",
-  cadillac: "cadillac.com",
-  ford: "ford.com",
-  toyota: "toyota.com",
-  honda: "honda.com",
-  hyundai: "hyundai.com",
-  kia: "kia.com",
-  nissan: "nissanusa.com",
-  mazda: "mazdausa.com",
-  bmw: "bmwusa.com",
-  audi: "audiusa.com",
-  mercedes: "mercedes-benz.com",
-  "mercedes-benz": "mercedes-benz.com",
-  lexus: "lexus.com",
-  acura: "acura.com",
-  infiniti: "infinitiusa.com",
-  porsche: "porsche.com",
-  tesla: "tesla.com",
-  jeep: "jeep.com",
-  dodge: "dodge.com",
-  ram: "ramtrucks.com",
-  chrysler: "chrysler.com",
-  gmc: "gmc.com",
-  buick: "buick.com",
-  lincoln: "lincoln.com",
-  jaguar: "jaguarusa.com",
-  landrover: "landroverusa.com",
-  "land rover": "landroverusa.com",
-  subaru: "subaru.com",
-  mitsubishi: "mitsubishicars.com",
-  volvo: "volvocars.com",
-  mini: "miniusa.com",
-  fiat: "fiatusa.com",
-  alfa: "alfaromeousa.com",
-  maserati: "maserati.com",
-  ferrari: "ferrari.com",
-  lamborghini: "lamborghini.com",
-  bentley: "bentleymotors.com",
-};
-
 const COLOR_HEX: Record<string, string> = {
   preto: "#0a0a0a", black: "#0a0a0a",
   branco: "#f5f5f5", white: "#f5f5f5",
@@ -90,30 +46,34 @@ const COLOR_HEX: Record<string, string> = {
   dourado: "#b8860b", gold: "#b8860b",
 };
 
-function brandKey(v: SimVehicle["v"]) {
-  const raw = (v.brand || v.name?.split(" ")[0] || "").toLowerCase().trim();
-  return raw;
+function brandLogoUrl(v: SimVehicle["v"]): string | null {
+  const raw = (v.brand || v.name?.split(" ")[0] || "").trim();
+  if (!raw) return null;
+  const match = findBrandByName(raw);
+  if (match) return match.logoUrl;
+  // tentativa direta por slug
+  const slug = raw.toLowerCase().replace(/\s+/g, "-");
+  return carLogoUrl(slug);
 }
 
 function BrandLogo({ v }: { v: SimVehicle["v"] }) {
-  const key = brandKey(v);
-  const domain = BRAND_DOMAIN[key];
+  const url = brandLogoUrl(v);
   const initials = (v.brand || v.name || "?").slice(0, 2).toUpperCase();
   const [err, setErr] = useState(false);
 
-  if (!domain || err) {
+  if (!url || err) {
     return (
-      <div className="w-9 h-9 rounded-md bg-white/10 border border-white/15 flex items-center justify-center text-[10px] font-semibold text-white/80 tracking-wider">
+      <div className="w-10 h-10 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-[10px] font-semibold text-white/80 tracking-wider shrink-0">
         {initials}
       </div>
     );
   }
   return (
-    <div className="w-9 h-9 rounded-md bg-white flex items-center justify-center overflow-hidden border border-white/10">
+    <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center overflow-hidden border border-white/15 shrink-0 shadow-sm">
       <img
-        src={`https://logo.clearbit.com/${domain}`}
+        src={url}
         alt={v.brand || ""}
-        className="w-7 h-7 object-contain"
+        className="w-8 h-8 object-contain"
         onError={() => setErr(true)}
         loading="lazy"
       />
@@ -134,23 +94,29 @@ function ColorDot({ color }: { color: string | null }) {
 }
 
 function VehicleRow({
-  p, side, action,
+  p, side, action, selected,
 }: {
   p: SimVehicle;
   side: "out" | "in";
   action: { label: string; onClick: () => void };
+  selected?: boolean;
 }) {
   const year = (p.v as any).year || (p.v as any).model_year;
   const tone = side === "out" ? "text-rose-200" : "text-emerald-200";
+  const ring = selected
+    ? side === "out"
+      ? "border-rose-400/50 bg-rose-500/[0.07]"
+      : "border-emerald-400/50 bg-emerald-500/[0.07]"
+    : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]";
   return (
-    <div className="flex items-center gap-3 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/10 px-2.5 py-2 transition-colors">
+    <div className={`flex items-center gap-3 rounded-lg border px-2.5 py-2 transition-colors ${ring}`}>
       <BrandLogo v={p.v} />
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5 text-[12.5px] text-white truncate">
-          <span className="truncate font-medium">{p.v.name || "—"}</span>
+        <div className="flex items-center gap-1.5 text-[13px] text-white truncate">
+          <span className="truncate font-medium">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}</span>
           <ColorDot color={p.v.color} />
         </div>
-        <div className="text-[10.5px] text-white/50 tabular-nums">
+        <div className="text-[10.5px] text-white/50 tabular-nums truncate">
           {[p.v.brand, p.v.model, year].filter(Boolean).join(" · ")}
         </div>
       </div>
@@ -160,7 +126,13 @@ function VehicleRow({
       </div>
       <button
         onClick={action.onClick}
-        className="shrink-0 ml-1 text-[10px] uppercase tracking-wider px-2 py-1 rounded-md bg-white/5 hover:bg-white/15 border border-white/10 text-white/80 transition-colors"
+        className={`shrink-0 ml-1 text-[10px] uppercase tracking-wider px-2 py-1 rounded-md border transition-colors ${
+          selected
+            ? "bg-white/10 hover:bg-white/20 border-white/20 text-white"
+            : side === "out"
+              ? "bg-rose-500/10 hover:bg-rose-500/20 border-rose-400/30 text-rose-100"
+              : "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-400/30 text-emerald-100"
+        }`}
         aria-label={action.label}
       >
         {action.label}
@@ -177,21 +149,31 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
   const [outIds, setOutIds] = useState<string[]>([]);
   const [inIds, setInIds] = useState<string[]>([]);
-  const [query, setQuery] = useState("");
+  const [queryOut, setQueryOut] = useState("");
+  const [queryIn, setQueryIn] = useState("");
 
   const sortedByPerf = useMemo(
     () => [...eligible].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
     [eligible]
   );
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return sortedByPerf;
-    return sortedByPerf.filter(p =>
-      [(p.v as any).name, (p.v as any).brand, (p.v as any).model]
-        .filter(Boolean).join(" ").toLowerCase().includes(q)
-    );
-  }, [sortedByPerf, query]);
+  const matches = (p: SimVehicle, q: string) => {
+    const s = q.trim().toLowerCase();
+    if (!s) return true;
+    return [(p.v as any).name, (p.v as any).brand, (p.v as any).model]
+      .filter(Boolean).join(" ").toLowerCase().includes(s);
+  };
+
+  // Para VENDER: mostra do pior pro melhor
+  const sellList = useMemo(
+    () => [...sortedByPerf].reverse().filter(p => matches(p, queryOut)),
+    [sortedByPerf, queryOut]
+  );
+  // Para COMPRAR (referência): top desempenho
+  const buyList = useMemo(
+    () => sortedByPerf.filter(p => matches(p, queryIn)),
+    [sortedByPerf, queryIn]
+  );
 
   const outList = outIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
   const inList = inIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
@@ -205,7 +187,6 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
     const inAvgOcc = inList.reduce((s, p) => s + p.occupancy, 0) / inList.length;
     const inCapital = inList.reduce((s, p) => s + p.purchase, 0) / inList.length * outList.length;
 
-    // projetar uma frota com `outList.length` carros do perfil do `inList`
     const projectedRevPerDay = inAvgRev * outList.length;
     const deltaPerDay = projectedRevPerDay - outRev;
 
@@ -238,194 +219,228 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
       <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-cyan-400/15 blur-3xl pointer-events-none" />
       <div className="absolute -bottom-16 -left-16 w-80 h-80 rounded-full bg-fuchsia-400/10 blur-3xl pointer-events-none" />
       <div className="relative">
-        <div className="flex items-center gap-2 mb-2">
-          <Gamepad2 className="w-4 h-4 text-cyan-300" />
-          <span className="text-[11px] uppercase tracking-[0.18em] text-cyan-200/80">Simulador interativo de frota</span>
-        </div>
-        <h3 className="text-base md:text-lg font-light text-white leading-snug mb-1">
-          Monte um cenário: tire carros da frota, escolha referências, e veja o impacto em USD.
-        </h3>
-        <p className="text-[12px] text-white/55 mb-4 leading-relaxed">
-          Coluna da esquerda: carros que você quer <span className="text-rose-200">tirar</span>. Coluna do meio: carros da sua frota que servem de <span className="text-emerald-200">referência de desempenho</span> (a IA assume que os novos carros vão render igual à média desse grupo). À direita, o resultado.
-        </p>
-
-        {/* Buscador */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex items-center gap-2 flex-1 rounded-md bg-white/[0.04] border border-white/10 px-2.5 py-1.5">
-            <Search className="w-3.5 h-3.5 text-white/40" />
-            <input
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Buscar por marca, modelo ou placa…"
-              className="flex-1 bg-transparent text-[12.5px] text-white placeholder:text-white/30 outline-none"
-            />
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Gamepad2 className="w-4 h-4 text-cyan-300" />
+            <span className="text-[11px] uppercase tracking-[0.18em] text-cyan-200/80">Simulador Inteligente</span>
           </div>
           {(outIds.length > 0 || inIds.length > 0) && (
             <button
               onClick={reset}
-              className="text-[10.5px] uppercase tracking-wider px-2.5 py-1.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-white/70"
+              className="text-[10.5px] uppercase tracking-wider px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-white/70"
             >
-              Limpar
+              Limpar tudo
             </button>
           )}
         </div>
+        <h3 className="text-lg md:text-xl font-light text-white leading-snug mb-1">
+          Renovação de Frota
+        </h3>
+        <p className="text-[12px] text-white/55 mb-4 leading-relaxed max-w-3xl">
+          Escolha quais carros <span className="text-rose-200">vender</span> e quais <span className="text-emerald-200">comprar</span> (como referência de desempenho). A IA projeta o impacto financeiro assumindo que os novos carros vão render igual à média do grupo escolhido.
+        </p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
-          {/* SAIR */}
-          <div className="lg:col-span-4 rounded-xl bg-rose-500/[0.04] border border-rose-400/20 p-3">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5">
-                <TrendingDown className="w-3.5 h-3.5 text-rose-300" />
-                <span className="text-[10.5px] uppercase tracking-wider text-rose-200/85">Sair da frota</span>
+        {/* Duas colunas: VENDER | COMPRAR */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          {/* VENDER */}
+          <div className="rounded-xl bg-rose-500/[0.04] border border-rose-400/20 p-3">
+            <div className="flex items-center justify-between mb-2.5">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-md bg-rose-500/15 border border-rose-400/30 flex items-center justify-center">
+                  <Tag className="w-3.5 h-3.5 text-rose-200" />
+                </div>
+                <div>
+                  <div className="text-[12px] uppercase tracking-wider text-rose-100 font-medium leading-none">Vender</div>
+                  <div className="text-[10px] text-white/45 mt-0.5">Carros que saem da frota</div>
+                </div>
               </div>
               <span className="text-[10px] text-white/40 tabular-nums">{outList.length} selecionado{outList.length === 1 ? "" : "s"}</span>
             </div>
 
+            <div className="flex items-center gap-2 flex-1 rounded-md bg-white/[0.04] border border-white/10 px-2.5 py-1.5 mb-2.5">
+              <Search className="w-3.5 h-3.5 text-white/40" />
+              <input
+                value={queryOut}
+                onChange={e => setQueryOut(e.target.value)}
+                placeholder="Buscar carro para vender…"
+                className="flex-1 bg-transparent text-[12.5px] text-white placeholder:text-white/30 outline-none"
+              />
+            </div>
+
             {outList.length > 0 && (
-              <div className="space-y-1.5 mb-3">
-                {outList.map(p => (
-                  <VehicleRow
-                    key={p.v.id}
-                    p={p}
-                    side="out"
-                    action={{ label: "✕", onClick: () => toggleOut(p.v.id) }}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="text-[10px] uppercase tracking-wider text-rose-200/70 mb-1.5">Saindo</div>
+                <div className="space-y-1.5 mb-3">
+                  {outList.map(p => (
+                    <VehicleRow
+                      key={p.v.id}
+                      p={p}
+                      side="out"
+                      selected
+                      action={{ label: "✕", onClick: () => toggleOut(p.v.id) }}
+                    />
+                  ))}
+                </div>
+              </>
             )}
 
-            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Disponíveis</div>
-            <div className="space-y-1.5 max-h-[280px] overflow-y-auto pr-1">
-              {filtered.filter(p => !outIds.includes(p.v.id)).slice().reverse().slice(0, 30).map(p => (
+            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Disponíveis (pior desempenho primeiro)</div>
+            <div className="space-y-1.5 max-h-[420px] overflow-y-auto pr-1">
+              {sellList.filter(p => !outIds.includes(p.v.id)).slice(0, 40).map(p => (
                 <VehicleRow
                   key={p.v.id}
                   p={p}
                   side="out"
-                  action={{ label: "+ Sair", onClick: () => toggleOut(p.v.id) }}
+                  action={{ label: "+ Vender", onClick: () => toggleOut(p.v.id) }}
                 />
               ))}
             </div>
           </div>
 
-          {/* ENTRAR / REFERÊNCIA */}
-          <div className="lg:col-span-4 rounded-xl bg-emerald-500/[0.04] border border-emerald-400/20 p-3">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5">
-                <Trophy className="w-3.5 h-3.5 text-emerald-300" />
-                <span className="text-[10.5px] uppercase tracking-wider text-emerald-200/85">Referência de desempenho</span>
+          {/* COMPRAR */}
+          <div className="rounded-xl bg-emerald-500/[0.04] border border-emerald-400/20 p-3">
+            <div className="flex items-center justify-between mb-2.5">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-md bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center">
+                  <ShoppingCart className="w-3.5 h-3.5 text-emerald-200" />
+                </div>
+                <div>
+                  <div className="text-[12px] uppercase tracking-wider text-emerald-100 font-medium leading-none">Comprar</div>
+                  <div className="text-[10px] text-white/45 mt-0.5">Referência de desempenho da nova frota</div>
+                </div>
               </div>
               <span className="text-[10px] text-white/40 tabular-nums">{inList.length} selecionado{inList.length === 1 ? "" : "s"}</span>
             </div>
 
+            <div className="flex items-center gap-2 flex-1 rounded-md bg-white/[0.04] border border-white/10 px-2.5 py-1.5 mb-2.5">
+              <Search className="w-3.5 h-3.5 text-white/40" />
+              <input
+                value={queryIn}
+                onChange={e => setQueryIn(e.target.value)}
+                placeholder="Buscar carro de referência…"
+                className="flex-1 bg-transparent text-[12.5px] text-white placeholder:text-white/30 outline-none"
+              />
+            </div>
+
             {inList.length > 0 && (
-              <div className="space-y-1.5 mb-3">
-                {inList.map(p => (
-                  <VehicleRow
-                    key={p.v.id}
-                    p={p}
-                    side="in"
-                    action={{ label: "✕", onClick: () => toggleIn(p.v.id) }}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="text-[10px] uppercase tracking-wider text-emerald-200/70 mb-1.5 flex items-center gap-1">
+                  <Trophy className="w-3 h-3" /> Referência
+                </div>
+                <div className="space-y-1.5 mb-3">
+                  {inList.map(p => (
+                    <VehicleRow
+                      key={p.v.id}
+                      p={p}
+                      side="in"
+                      selected
+                      action={{ label: "✕", onClick: () => toggleIn(p.v.id) }}
+                    />
+                  ))}
+                </div>
+              </>
             )}
 
-            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Top desempenho</div>
-            <div className="space-y-1.5 max-h-[280px] overflow-y-auto pr-1">
-              {filtered.filter(p => !inIds.includes(p.v.id)).slice(0, 30).map(p => (
+            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Top desempenho da frota</div>
+            <div className="space-y-1.5 max-h-[420px] overflow-y-auto pr-1">
+              {buyList.filter(p => !inIds.includes(p.v.id)).slice(0, 40).map(p => (
                 <VehicleRow
                   key={p.v.id}
                   p={p}
                   side="in"
-                  action={{ label: "+ Ref", onClick: () => toggleIn(p.v.id) }}
+                  action={{ label: "+ Comprar", onClick: () => toggleIn(p.v.id) }}
                 />
               ))}
             </div>
           </div>
+        </div>
 
-          {/* RESULTADO */}
-          <div className="lg:col-span-4 rounded-xl bg-gradient-to-br from-amber-500/[0.05] via-white/[0.02] to-emerald-500/[0.06] border border-amber-300/20 p-3 relative overflow-hidden">
-            <div className="flex items-center gap-1.5 mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span className="text-[10.5px] uppercase tracking-wider text-amber-200/85">Resultado da simulação</span>
-            </div>
-
-            {!result ? (
-              <div className="flex flex-col items-center justify-center text-center py-10 text-white/40">
-                <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-3">
-                  <ArrowRight className="w-5 h-5 text-white/30" />
-                </div>
-                <p className="text-[12px] max-w-[200px] leading-relaxed">
-                  Escolha pelo menos 1 carro para sair e 1 referência para ver os números.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div>
-                  <div className="text-[10.5px] uppercase tracking-wider text-white/50 mb-1">Diferença por dia</div>
-                  <div className={`text-2xl font-light tabular-nums ${result.deltaPerDay >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
-                    {fmtUSDsigned(result.deltaPerDay)}
-                  </div>
-                  <div className="text-[10.5px] text-white/45 tabular-nums">
-                    Hoje {fmtUSD(result.outRev)}/dia → projetado {fmtUSD(result.outRev + result.deltaPerDay)}/dia
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-1.5">
-                  {[
-                    { label: "90 dias", value: result.delta90 },
-                    { label: "6 meses", value: result.delta180 },
-                    { label: "12 meses", value: result.delta365 },
-                  ].map(h => (
-                    <div key={h.label} className="rounded-md bg-white/[0.04] border border-white/10 p-2">
-                      <div className="text-[9.5px] uppercase tracking-wider text-white/45">{h.label}</div>
-                      <div className={`text-[13px] font-medium tabular-nums leading-tight ${h.value >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
-                        {fmtUSDsigned(h.value)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="rounded-lg bg-white/[0.03] border border-white/10 p-2.5 space-y-1.5">
-                  <div className="flex items-center justify-between text-[11.5px]">
-                    <span className="text-white/55">Uso médio — saem</span>
-                    <span className="text-rose-200 tabular-nums">{result.outOcc.toFixed(0)}%</span>
-                  </div>
-                  <div className="flex items-center justify-between text-[11.5px]">
-                    <span className="text-white/55">Uso médio — referência</span>
-                    <span className="text-emerald-200 tabular-nums">{result.inAvgOcc.toFixed(0)}%</span>
-                  </div>
-                  <div className="flex items-center justify-between text-[11.5px]">
-                    <span className="text-white/55">Capital reciclado</span>
-                    <span className="text-white/85 tabular-nums">{fmtUSD(result.outCapital)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-[11.5px]">
-                    <span className="text-white/55">Capital p/ comprar referência</span>
-                    <span className={`tabular-nums ${result.capitalDelta > 0 ? "text-amber-200" : "text-emerald-200"}`}>
-                      {fmtUSD(result.inCapital)}
-                      <span className="text-white/40 ml-1">({result.capitalDelta >= 0 ? "+" : "−"}{fmtUSD(Math.abs(result.capitalDelta))})</span>
-                    </span>
-                  </div>
-                  {result.avgInPayback !== null && (
-                    <div className="flex items-center justify-between text-[11.5px]">
-                      <span className="text-white/55">Payback médio da referência</span>
-                      <span className="text-amber-200 tabular-nums">{result.avgInPayback.toFixed(0)} meses</span>
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between text-[11.5px] pt-1 border-t border-white/10">
-                    <span className="text-white/55">Eficiência do capital</span>
-                    <span className={`tabular-nums ${result.capitalEfficiency >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
-                      {result.capitalEfficiency >= 0 ? "+" : ""}{result.capitalEfficiency.toFixed(0)}%
-                    </span>
-                  </div>
-                </div>
-
-                <p className="text-[10px] text-white/40 leading-relaxed">
-                  Cenário hipotético — assume que cada carro novo atinge a média histórica do seu grupo de referência. Apenas carros com 60+ dias de uso real estão disponíveis.
-                </p>
-              </div>
-            )}
+        {/* RESULTADO — largura total embaixo */}
+        <div className="mt-4 rounded-xl bg-gradient-to-br from-amber-500/[0.06] via-white/[0.02] to-emerald-500/[0.07] border border-amber-300/25 p-4 relative overflow-hidden">
+          <div className="flex items-center gap-1.5 mb-3">
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span className="text-[10.5px] uppercase tracking-wider text-amber-200/85">Resultado da simulação</span>
           </div>
+
+          {!result ? (
+            <div className="flex flex-col items-center justify-center text-center py-8 text-white/40">
+              <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-3">
+                <ArrowRight className="w-5 h-5 text-white/30" />
+              </div>
+              <p className="text-[12px] max-w-[280px] leading-relaxed">
+                Escolha pelo menos 1 carro para <span className="text-rose-200">vender</span> e 1 para <span className="text-emerald-200">comprar</span> para ver os números.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              {/* Hero delta */}
+              <div className="md:col-span-4">
+                <div className="text-[10.5px] uppercase tracking-wider text-white/50 mb-1">Diferença por dia</div>
+                <div className={`text-4xl md:text-5xl font-light tabular-nums leading-none ${result.deltaPerDay >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                  {fmtUSDsigned(result.deltaPerDay)}
+                </div>
+                <div className="text-[11px] text-white/45 tabular-nums mt-2">
+                  Hoje {fmtUSD(result.outRev)}/dia → projetado {fmtUSD(result.outRev + result.deltaPerDay)}/dia
+                </div>
+              </div>
+
+              {/* Projeções */}
+              <div className="md:col-span-8 grid grid-cols-3 gap-2">
+                {[
+                  { label: "90 dias", value: result.delta90 },
+                  { label: "6 meses", value: result.delta180 },
+                  { label: "12 meses", value: result.delta365 },
+                ].map(h => (
+                  <div key={h.label} className="rounded-md bg-white/[0.04] border border-white/10 p-2.5">
+                    <div className="text-[9.5px] uppercase tracking-wider text-white/45">{h.label}</div>
+                    <div className={`text-[15px] md:text-[17px] font-medium tabular-nums leading-tight mt-1 ${h.value >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                      {fmtUSDsigned(h.value)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Detalhes */}
+              <div className="md:col-span-12 rounded-lg bg-white/[0.03] border border-white/10 p-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+                <div className="flex items-center justify-between text-[12px]">
+                  <span className="text-white/55">Uso médio — vendidos</span>
+                  <span className="text-rose-200 tabular-nums">{result.outOcc.toFixed(0)}%</span>
+                </div>
+                <div className="flex items-center justify-between text-[12px]">
+                  <span className="text-white/55">Uso médio — comprados</span>
+                  <span className="text-emerald-200 tabular-nums">{result.inAvgOcc.toFixed(0)}%</span>
+                </div>
+                <div className="flex items-center justify-between text-[12px]">
+                  <span className="text-white/55">Capital reciclado (venda)</span>
+                  <span className="text-white/85 tabular-nums">{fmtUSD(result.outCapital)}</span>
+                </div>
+                <div className="flex items-center justify-between text-[12px]">
+                  <span className="text-white/55">Capital p/ comprar</span>
+                  <span className={`tabular-nums ${result.capitalDelta > 0 ? "text-amber-200" : "text-emerald-200"}`}>
+                    {fmtUSD(result.inCapital)}
+                    <span className="text-white/40 ml-1">({result.capitalDelta >= 0 ? "+" : "−"}{fmtUSD(Math.abs(result.capitalDelta))})</span>
+                  </span>
+                </div>
+                {result.avgInPayback !== null && (
+                  <div className="flex items-center justify-between text-[12px]">
+                    <span className="text-white/55">Payback médio da compra</span>
+                    <span className="text-amber-200 tabular-nums">{result.avgInPayback.toFixed(0)} meses</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between text-[12px]">
+                  <span className="text-white/55">Eficiência do capital</span>
+                  <span className={`tabular-nums ${result.capitalEfficiency >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                    {result.capitalEfficiency >= 0 ? "+" : ""}{result.capitalEfficiency.toFixed(0)}%
+                  </span>
+                </div>
+              </div>
+
+              <p className="md:col-span-12 text-[10.5px] text-white/40 leading-relaxed">
+                Cenário hipotético — assume que cada carro novo atinge a média histórica do grupo de referência. Apenas carros com 60+ dias de uso real estão disponíveis.
+              </p>
+            </div>
+          )}
         </div>
 
         {eligible.length < 4 && (
