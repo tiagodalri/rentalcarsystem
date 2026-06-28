@@ -155,18 +155,22 @@ export default function AdminPainel() {
   const AiToggle = (
     <button
       onClick={() => setAiMode(v => !v)}
-      title={aiMode ? "Voltar ao painel clássico" : "Ativar 🧠 Zeus Brain"}
-      aria-label={aiMode ? "Voltar ao painel clássico" : "Ativar 🧠 Zeus Brain"}
-      className={`group relative inline-flex items-center gap-2 px-3 py-2 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium transition-all ${
+      title={aiMode ? "Voltar ao painel clássico" : "Ativar Zeus Brain"}
+      aria-label={aiMode ? "Voltar ao painel clássico" : "Ativar Zeus Brain"}
+      className={`group relative inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] uppercase tracking-[0.18em] font-medium transition-all ${
         aiMode
-          ? "bg-gradient-to-r from-cyan-500/20 via-violet-500/20 to-fuchsia-500/20 text-white border border-cyan-300/40 shadow-[0_0_24px_rgba(120,180,255,0.35)]"
+          ? "text-white border shadow-[0_8px_20px_-10px_rgba(13,29,46,0.45)]"
           : "border border-border/50 text-muted-foreground hover:text-foreground hover:border-foreground/30"
       }`}
+      style={aiMode ? {
+        background: "linear-gradient(180deg, #14283d, #0d1d2e)",
+        borderColor: "rgba(154,122,58,0.45)",
+      } : undefined}
     >
-      <Brain size={14} strokeWidth={1.75} className={aiMode ? "text-cyan-200" : ""} />
-      <span>{aiMode ? "🧠 Zeus Brain Ativado" : "🧠 Zeus Brain"}</span>
+      <Brain size={14} strokeWidth={1.75} style={aiMode ? { color: "#d6bf86" } : undefined} />
+      <span>{aiMode ? "Zeus Brain ativado" : "Zeus Brain"}</span>
       {aiMode && (
-        <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(92,255,176,0.8)] animate-pulse" />
+        <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full" style={{ background: "#9a7a3a", boxShadow: "0 0 8px rgba(154,122,58,0.7)" }} />
       )}
     </button>
   );
@@ -178,7 +182,7 @@ export default function AdminPainel() {
         className="fixed inset-0 z-[120] overflow-y-auto overscroll-contain"
         style={{
           background:
-            "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(200,168,107,0.07), transparent 60%), linear-gradient(180deg, #0a0a0c 0%, #08080a 60%, #060608 100%)",
+            "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(154,122,58,0.10), transparent 60%), linear-gradient(180deg, #f6f1e6 0%, #efe9dc 60%, #e9e2d2 100%)",
         }}
       >
         <div
@@ -186,16 +190,16 @@ export default function AdminPainel() {
           style={{
             paddingTop: "max(12px, env(safe-area-inset-top))",
             background:
-              "linear-gradient(180deg, rgba(6,6,8,0.94), rgba(6,6,8,0.55))",
-            borderBottom: "1px solid rgba(200,168,107,0.16)",
+              "linear-gradient(180deg, rgba(246,241,230,0.96), rgba(246,241,230,0.65))",
+            borderBottom: "1px solid rgba(13,29,46,0.10)",
           }}
         >
           <div className="flex-1" />
           <div
             className="text-[15px] sm:text-[17px] font-light tracking-[0.42em] text-center select-none"
             style={{
-              color: "#f4ecd9",
-              textShadow: "0 0 24px rgba(200,168,107,0.25)",
+              color: "#0d1d2e",
+              textShadow: "0 1px 0 rgba(255,255,255,0.6)",
             }}
           >
             ZEUS BRAIN
@@ -203,11 +207,12 @@ export default function AdminPainel() {
           <div className="flex-1 flex justify-end">
             <button
               onClick={() => setAiMode(false)}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full transition-all"
+              className="inline-flex items-center justify-center w-9 h-9 rounded-full transition-all hover:opacity-90"
               style={{
-                background: "rgba(244,236,217,0.04)",
-                border: "1px solid rgba(244,236,217,0.14)",
-                color: "rgba(244,236,217,0.85)",
+                background: "#fbf7ee",
+                border: "1px solid rgba(13,29,46,0.14)",
+                color: "#0d1d2e",
+                boxShadow: "0 4px 10px -6px rgba(13,29,46,0.25)",
               }}
               aria-label="Sair"
             >
