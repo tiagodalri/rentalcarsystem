@@ -20,6 +20,7 @@ import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import AiPainel from "./AiPainel";
 import AiHub from "@/components/admin/zeus-brain/AiHub";
 import ComingSoonModule from "@/components/admin/zeus-brain/ComingSoonModule";
+import MarketingStudio from "@/components/admin/zeus-brain/MarketingStudio";
 import {
   type BookingSource,
   readBookingSource,
@@ -326,17 +327,7 @@ export default function AdminPainel() {
         )}
 
         {hubView === "marketing" && (
-          <ComingSoonModule
-            title="Marketing Studio"
-            description="O estúdio criativo da Zeus está sendo construído. Aqui você vai produzir campanhas, posts, e-mails e materiais com a mesma identidade premium da marca."
-            bullets={[
-              "Templates de e-mail e WhatsApp prontos para disparo",
-              "Geração de posts e legendas com a voz da Zeus",
-              "Banco de imagens, vídeos e provas sociais da frota",
-              "Calendário editorial integrado às temporadas de Orlando",
-            ]}
-            onBack={() => setHubView("hub")}
-          />
+          <MarketingStudio onBack={() => setHubView("hub")} />
         )}
 
         {hubView === "ia" && (
