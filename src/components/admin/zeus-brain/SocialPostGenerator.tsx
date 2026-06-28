@@ -637,17 +637,17 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           {result?.slides && result.slides.length > 1 && (
-            <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
+            <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 snap-x snap-mandatory">
               {result.slides.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveSlide(i)}
-                  className="flex-shrink-0 rounded-md overflow-hidden transition-all"
+                  className="flex-shrink-0 rounded-md overflow-hidden transition-all snap-start"
                   style={{
                     border: i === activeSlide ? "1.5px solid #d6bf86" : "1px solid rgba(214,191,134,0.20)",
                     opacity: i === activeSlide ? 1 : 0.7,
-                    width: format === "feed" ? 48 : 32,
-                    height: 48,
+                    width: format === "feed" ? 60 : 40,
+                    height: 60,
                   }}
                   title={`${s.role === "cover" ? "Capa" : s.role === "cta" ? "Chamada" : "Conteúdo"} · ${i + 1}`}
                 >
