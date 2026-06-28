@@ -1342,9 +1342,8 @@ export default function AiPainel({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <KpiBlock title="Total investido em carros" value={fmtUSD(fleetInvested)} sub="Soma do preço de compra de toda a frota" icon={Wallet} />
-              <KpiBlock title="Receita total já gerada" value={fmtUSD(fleetRevenue)} sub={`Margem de lucro atual: ${fleetMargin.toFixed(1)}%`} icon={DollarSign} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              <KpiBlock title="Total investido em carros" value={fmtUSD(fleetInvested)} sub={`Margem de lucro atual: ${fleetMargin.toFixed(1)}%`} icon={Wallet} />
               <KpiBlock title="Retorno sobre o investimento" value={`${fleetROI.toFixed(1)}%`} sub="Quanto a frota já devolveu do que foi investido" icon={Target} />
             </div>
 
