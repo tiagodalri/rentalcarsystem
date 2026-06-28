@@ -6,6 +6,7 @@ import { Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -71,7 +72,13 @@ const Contato = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Contato | Zeus Rental Car Orlando"
+        description="Fale com a Zeus Rental Car. Atendimento em português para reservas, dúvidas e suporte de aluguel de carros premium em Orlando."
+        path="/contato"
+      />
       <Navbar />
+
 
       <section className="pt-32 pb-20">
         <div className="container mx-auto px-4 max-w-2xl">

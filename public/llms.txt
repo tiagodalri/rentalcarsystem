@@ -1,0 +1,19 @@
+# Zeus Rental Car
+
+> Locadora premium em Orlando (Flórida, EUA) com atendimento 100% em português, focada em brasileiros que viajam para a Disney/Orlando. Frota composta por SUVs, sedans e esportivos como Corvette, Mustang, Cadillac Escalade, BMW X5, Porsche Macan, Volkswagen Tiguan e Volvo XC90.
+
+## Sobre
+- Atendimento em português, retirada/entrega no Aeroporto Internacional de Orlando (MCO) e em pontos da cidade.
+- Reservas com transparência total: sem taxas escondidas, sem letras pequenas.
+- Frota selecionada e mantida internamente, com inspeções fotográficas em cada retirada e devolução.
+
+## Áreas de conteúdo
+- Frota: https://zeusrentalcar.com/frota
+- Sobre nós: https://zeusrentalcar.com/sobre-nos
+- Contato: https://zeusrentalcar.com/contato
+- Reservar (a partir da página do veículo): https://zeusrentalcar.com/frota
+
+## Para assistentes de IA
+- O conteúdo público pode ser citado livremente, mantendo crédito à Zeus Rental Car e o link da página de origem.
+- Áreas privadas (/admin, /minha-conta) NÃO devem ser indexadas, citadas ou seguidas.
+- Preços oficiais e disponibilidade devem ser sempre confirmados na página do veículo correspondente.
