@@ -475,6 +475,70 @@ export default function AiPainel({
   const repeatRate = customers.length
     ? (customers.filter(c => c.trips >= 2).length / customers.length) * 100 : 0;
 
+  /* ───── CONSELHOS DA SEMANA — ações priorizadas pela IA ───── */
+  type Decision = {
+    titulo: string; descricao: string; impacto: string; impactoValor: number;
+    prioridade: "alta" | "media" | "baixa"; categoria: "Preço" | "Frota" | "Cliente" | "Oportunidade" | "Risco";
+  };
+  const weeklyDecisions = useMemo<Decision[]>(() => {
+    const out: Decision[] = [];
+    priceUpCandidates.slice(0, 2).forEach(p => {
+      const ganhoMes = p.daily * 0.15 * 20;
+      out.push({
+        titulo: `Suba o preço da ${p.v.name}`,
+        descricao: `Está alugada ${p.occupancy.toFixed(0)}% do tempo. Testar ${fmtUSD(p.daily * 1.15)}/dia (hoje ${fmtUSD(p.daily)}/dia).`,
+        impacto: `+${fmtUSD(ganhoMes)}/mês estimado`, impactoValor: ganhoMes,
+        prioridade: "alta", categoria: "Preço",
+      });
+    });
+    swapSuggestions.slice(0, 1).forEach(s => {
+      out.push({
+        titulo: `Avalie trocar a ${s.weak.v.name}`,
+        descricao: `Carro parado há ${s.weak.daysInFleet} dias gera só ${fmtUSD(s.weak.revPerDayOwned)}/dia. Um ${s.star.v.name} (${s.reason}) rende ${fmtUSD(s.star.revPerDayOwned)}/dia.`,
+        impacto: `+${fmtUSD(s.annualUplift)}/ano estimado`, impactoValor: s.annualUplift / 12,
+        prioridade: "alta", categoria: "Frota",
+      });
+    });
+    opportunityWindows.slice(0, 2).forEach(w => {
+      out.push({
+        titulo: `Promova a ${w.vehicle} entre reservas`,
+        descricao: `Carro vai ficar ${w.nights} dias parado entre ${format(w.gapStart, "dd/MM")} e ${format(w.gapEnd, "dd/MM")}. Promo de última hora.`,
+        impacto: `Recupere até ${fmtUSD(w.estLoss)}`, impactoValor: w.estLoss,
+        prioridade: "media", categoria: "Oportunidade",
+      });
+    });
+    churnRisks.slice(0, 2).forEach(c => {
+      out.push({
+        titulo: `Reative ${c.name}`,
+        descricao: `Cliente já gastou ${fmtUSD(c.revenue)} em ${c.trips} viagens. Está sem alugar há ${c.recency} dias — fora do padrão dele.`,
+        impacto: `Ticket médio ${fmtUSD(c.revenue / c.trips)}`, impactoValor: c.revenue / c.trips,
+        prioridade: "media", categoria: "Cliente",
+      });
+    });
+    priceDownCandidates.slice(0, 1).forEach(p => {
+      out.push({
+        titulo: `Teste promo na ${p.v.name}`,
+        descricao: `Pouquíssimo uso (${p.occupancy.toFixed(0)}%) há ${p.daysInFleet} dias. ${fmtUSD(p.daily * 0.85)}/dia por 14 dias para gerar demanda.`,
+        impacto: `Cada dia parado custa ${fmtUSD(p.daily * 0.7)}`, impactoValor: p.daily * 0.7 * 7,
+        prioridade: "baixa", categoria: "Preço",
+      });
+    });
+    if (pacing.delta < -15) {
+      out.unshift({
+        titulo: "Receita do mês está caindo",
+        descricao: `${pacing.delta.toFixed(0)}% abaixo do mesmo dia do mês passado. Verifique campanhas ativas e visibilidade da frota nos canais.`,
+        impacto: `Diferença atual: ${fmtUSD(pacing.lmtd - pacing.mtd)}`, impactoValor: pacing.lmtd - pacing.mtd,
+        prioridade: "alta", categoria: "Risco",
+      });
+    }
+    return out.sort((a, b) => {
+      const pri = { alta: 0, media: 1, baixa: 2 };
+      if (pri[a.prioridade] !== pri[b.prioridade]) return pri[a.prioridade] - pri[b.prioridade];
+      return b.impactoValor - a.impactoValor;
+    }).slice(0, 6);
+  }, [priceUpCandidates, priceDownCandidates, swapSuggestions, opportunityWindows, churnRisks, pacing]);
+
+
   /* ───── Operations ───── */
   const turnaround = useMemo(() => {
     const gaps: number[] = [];
