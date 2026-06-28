@@ -1108,67 +1108,7 @@ export default function AiPainel({
           </div>
         )}
 
-        {/* ───── Tab: CUSTOMERS ───── */}
-        {tab === "customers" && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
-              {([
-                { k: "Champion", pt: "Fiéis VIP", help: "4+ reservas, voltaram nos últimos 90 dias" },
-                { k: "Loyal", pt: "Recorrentes", help: "2+ reservas, ativos nos últimos 6 meses" },
-                { k: "At Risk", pt: "Em risco", help: "Já voltaram antes, mas sumiram há mais de 6 meses" },
-                { k: "Hibernating", pt: "Adormecidos", help: "Alugaram uma vez e nunca mais voltaram" },
-                { k: "New", pt: "Novos", help: "Primeira reserva recente" },
-              ] as const).map(s => (
-                <div key={s.k} className="ai-card text-center py-4">
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-white/55">{s.pt}</div>
-                  <div className="text-2xl font-light text-white/90 tabular-nums mt-1">{segmentCounts[s.k] || 0}</div>
-                  <div className="text-[9.5px] text-white/45 mt-1 px-1 leading-tight">{s.help}</div>
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
-              <div className="ai-card">
-                <CardHeader title="Clientes que voltaram" sub="% de clientes com 2 ou mais reservas" icon={Repeat} />
-                <div className="text-3xl font-light text-emerald-200 tabular-nums">{repeatRate.toFixed(1)}%</div>
-                <div className="text-[11px] text-white/55 mt-1">{customers.filter(c => c.trips >= 2).length} clientes voltaram, de {customers.length} no total</div>
-              </div>
-              <div className="ai-card lg:col-span-2">
-                <CardHeader title="Clientes valiosos que estão sumindo" sub="Já gastaram bem na sua frota e estão demorando mais do que o normal para voltar — vale uma mensagem" icon={ShieldAlert} />
-                {churnRisks.length === 0 ? <p className="text-white/55 text-xs">Nenhum cliente importante em zona de risco.</p> : (
-                  <ul className="space-y-2.5">
-                    {churnRisks.map((c, i) => (
-                      <li key={i} className="flex items-center justify-between gap-2 text-[12.5px]">
-                        <div className="min-w-0">
-                          <div className="text-white/90 truncate">{c.name}</div>
-                          <div className="text-[10.5px] text-white/55">{c.trips} reservas · sem alugar há {c.recency} dias (costuma voltar a cada {c.avgInterval.toFixed(0)} dias)</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="tabular-nums text-rose-300">{c.churnRisk.toFixed(0)}%</div>
-                          <div className="text-[10px] text-white/50">já gastou {fmtUSD(c.revenue)}</div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
 
-            <div className="ai-card">
-              <CardHeader title="Top 5 clientes que mais gastaram" sub="Receita total acumulada na sua frota" icon={Award} />
-              <ul className="space-y-2.5">
-                {topCustomers.map((c, i) => (
-                  <li key={i} className="flex items-center justify-between gap-2 text-[12.5px]">
-                    <div className="min-w-0">
-                      <div className="text-white/90 truncate">{c.name}</div>
-                      <div className="text-[10.5px] text-white/55">{c.trips} reservas · {ptSegment(c.segment)}</div>
-                    </div>
-                    <span className="tabular-nums text-amber-200/95">{fmtUSD(c.revenue)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
 
         {/* ───── Tab: OPERATIONS ───── */}
         {tab === "operations" && (
