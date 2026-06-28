@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppBubble from "@/components/WhatsAppBubble";
+import Seo from "@/components/Seo";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
