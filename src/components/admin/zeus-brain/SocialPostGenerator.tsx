@@ -45,6 +45,7 @@ type Result = {
 export default function SocialPostGenerator({ onBack }: { onBack: () => void }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [vehicleId, setVehicleId] = useState<string>("");
+  const [randomVehicle, setRandomVehicle] = useState<boolean>(false);
   const [format, setFormat] = useState<Format>("feed");
   const [tone, setTone] = useState<Tone>("luxo");
   const [mode, setMode] = useState<Mode>("promo");
