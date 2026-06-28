@@ -1788,42 +1788,42 @@ export default function AiPainel({
           background: linear-gradient(135deg, #faf0d6, #fbf7ee);
         }
 
-        /* ─── Overrides p/ componentes legados que usavam text-white/X e bg-*-400/10 ─── */
-        .ai-shell .text-white,
-        .ai-shell [class*="text-white/"] { color: var(--zb-ink) !important; }
-        .ai-shell .text-white\\/95 { color: var(--zb-ink) !important; }
-        .ai-shell .text-white\\/90,
-        .ai-shell .text-white\\/85,
-        .ai-shell .text-white\\/80 { color: var(--zb-ink-2) !important; }
-        .ai-shell .text-white\\/70,
-        .ai-shell .text-white\\/65,
-        .ai-shell .text-white\\/60,
-        .ai-shell .text-white\\/55,
-        .ai-shell .text-white\\/50 { color: var(--zb-ink-soft) !important; }
-        .ai-shell .text-white\\/45,
-        .ai-shell .text-white\\/40,
-        .ai-shell .text-white\\/35,
-        .ai-shell .text-white\\/30 { color: var(--zb-muted) !important; }
+        /* ─── Overrides p/ componentes legados que usavam text-white/X e bg-*-400/10 ───
+           Usamos attribute selectors p/ pegar TODAS variações de opacidade (/95, /80, /70, /50, etc.) */
+        .ai-shell [class*="text-white"]   { color: var(--zb-ink-2) !important; }
+        .ai-shell [class*="text-white/9"],
+        .ai-shell [class*="text-white/8"] { color: var(--zb-ink) !important; }
+        .ai-shell [class*="text-white/7"],
+        .ai-shell [class*="text-white/6"],
+        .ai-shell [class*="text-white/5"] { color: var(--zb-ink-soft) !important; }
+        .ai-shell [class*="text-white/4"],
+        .ai-shell [class*="text-white/3"] { color: var(--zb-muted) !important; }
 
-        /* hue text classes → navy/gold institucional */
-        .ai-shell .text-cyan-200,    .ai-shell .text-cyan-300,    .ai-shell .text-cyan-300\\/70   { color: var(--zb-gold) !important; }
-        .ai-shell .text-violet-200,  .ai-shell .text-violet-300                                     { color: #4a3a78 !important; }
-        .ai-shell .text-amber-200,   .ai-shell .text-amber-300                                      { color: var(--zb-gold) !important; }
-        .ai-shell .text-emerald-200, .ai-shell .text-emerald-300                                    { color: var(--zb-emerald) !important; }
-        .ai-shell .text-rose-200,    .ai-shell .text-rose-300                                       { color: var(--zb-rose) !important; }
+        /* hue text classes → navy/gold institucional (cobre /70, /80, /95 etc) */
+        .ai-shell [class*="text-cyan-"]    { color: var(--zb-gold) !important; }
+        .ai-shell [class*="text-violet-"]  { color: #4a3a78 !important; }
+        .ai-shell [class*="text-amber-"]   { color: var(--zb-gold) !important; }
+        .ai-shell [class*="text-emerald-"] { color: var(--zb-emerald) !important; }
+        .ai-shell [class*="text-rose-"]    { color: var(--zb-rose) !important; }
+        .ai-shell [class*="text-sky-"]     { color: #2d5a8a !important; }
 
         /* superfícies coloridas → champagne discreto */
-        .ai-shell [class*="bg-cyan-400/10"],
-        .ai-shell [class*="bg-violet-400/10"],
-        .ai-shell [class*="bg-violet-500/10"],
-        .ai-shell [class*="bg-amber-300/10"],
-        .ai-shell [class*="bg-amber-400/10"],
-        .ai-shell [class*="bg-rose-400/10"],
-        .ai-shell [class*="bg-emerald-400/10"] {
-          background-color: rgba(154,122,58,0.08) !important;
-          border-color: rgba(154,122,58,0.22) !important;
+        .ai-shell [class*="bg-cyan-"],
+        .ai-shell [class*="bg-violet-"],
+        .ai-shell [class*="bg-amber-"],
+        .ai-shell [class*="bg-sky-"] {
+          background-color: rgba(154,122,58,0.10) !important;
+          border-color: rgba(154,122,58,0.24) !important;
         }
-        .ai-shell .bg-white\\/10 { background-color: rgba(13,29,46,0.06) !important; }
+        .ai-shell [class*="bg-emerald-"] {
+          background-color: rgba(47,106,78,0.10) !important;
+          border-color: rgba(47,106,78,0.26) !important;
+        }
+        .ai-shell [class*="bg-rose-"] {
+          background-color: rgba(154,59,59,0.08) !important;
+          border-color: rgba(154,59,59,0.26) !important;
+        }
+        .ai-shell [class*="bg-white"] { background-color: rgba(13,29,46,0.04) !important; }
 
         /* KPI card glow legado → sombra navy discreta */
         .ai-shell .ai-kpi { box-shadow:
