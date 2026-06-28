@@ -1485,64 +1485,64 @@ export default function AiPainel({
       </div>
 
       <style>{`
-        .ai-shell { background: radial-gradient(ellipse at top, #0b1830 0%, #050813 55%, #02030a 100%); color: #e6f0ff; isolation: isolate; }
+        .ai-shell { background: radial-gradient(ellipse at top, #0a1428 0%, #060912 55%, #03050d 100%); color: #e8eef9; isolation: isolate; }
         .ai-bg-grid { position: absolute; inset: 0; z-index: 0; pointer-events: none;
-          background-image: linear-gradient(rgba(120,180,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(120,180,255,0.06) 1px, transparent 1px);
+          background-image: linear-gradient(rgba(140,180,230,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(140,180,230,0.05) 1px, transparent 1px);
           background-size: 48px 48px; mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%); }
         .ai-bg-glow { position: absolute; inset: 0; z-index: 0; pointer-events: none;
-          background: radial-gradient(600px circle at 20% 10%, rgba(80,140,255,0.25), transparent 60%),
-                      radial-gradient(500px circle at 85% 15%, rgba(180,90,255,0.18), transparent 60%),
-                      radial-gradient(700px circle at 60% 90%, rgba(20,200,200,0.15), transparent 60%); }
-        .ai-bg-noise { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .035;
+          background: radial-gradient(720px circle at 15% 8%, rgba(70,120,200,0.22), transparent 60%),
+                      radial-gradient(640px circle at 88% 92%, rgba(50,90,160,0.16), transparent 60%); }
+        .ai-bg-noise { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .03;
           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
-        .ai-title { font-size: clamp(28px, 3vw, 38px); font-weight: 200; letter-spacing: -0.02em;
-          background: linear-gradient(135deg, #ffffff 0%, #aac8ff 60%, #d4a8ff 100%);
+        .ai-title { font-size: clamp(28px, 3vw, 38px); font-weight: 200; letter-spacing: -0.022em;
+          background: linear-gradient(135deg, #ffffff 0%, #cfdcef 70%, #97b3d4 100%);
           -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1.05; }
-        .ai-subtitle { font-size: 12.5px; color: rgba(230,240,255,0.55); margin-top: 6px; }
+        .ai-subtitle { font-size: 12.5px; color: rgba(220,232,250,0.55); margin-top: 6px; }
         .ai-badge { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 999px;
-          background: linear-gradient(90deg, rgba(80,140,255,0.18), rgba(180,90,255,0.18));
-          border: 1px solid rgba(120,180,255,0.35); font-size: 10px; letter-spacing: 0.22em; font-weight: 600; color: #c7e0ff; }
+          background: rgba(80,130,210,0.12);
+          border: 1px solid rgba(140,180,230,0.30); font-size: 10px; letter-spacing: 0.22em; font-weight: 600; color: #cfe0f7; }
         .ai-pulse { width: 6px; height: 6px; border-radius: 50%; background: #5cffb0; box-shadow: 0 0 10px #5cffb0; animation: ai-pulse 1.6s ease-in-out infinite; }
         @keyframes ai-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
         .ai-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px;
-          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); font-size: 10.5px; color: rgba(230,240,255,0.7); }
+          background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); font-size: 10.5px; color: rgba(220,232,250,0.7); }
         .ai-card { position: relative; padding: 18px; border-radius: 16px;
-          background: linear-gradient(180deg, rgba(20,30,55,0.55), rgba(10,15,30,0.55));
-          border: 1px solid rgba(120,180,255,0.12); backdrop-filter: blur(12px);
-          box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 20px 50px -20px rgba(0,0,0,0.6); }
+          background: linear-gradient(180deg, rgba(16,24,42,0.7), rgba(8,12,24,0.7));
+          border: 1px solid rgba(140,180,230,0.10); backdrop-filter: blur(12px);
+          box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset, 0 24px 60px -30px rgba(0,0,0,0.7); }
         .ai-card::before { content:""; position:absolute; inset:0; border-radius:16px; pointer-events:none;
-          background: linear-gradient(135deg, rgba(120,180,255,0.18), transparent 40%);
+          background: linear-gradient(135deg, rgba(140,180,230,0.14), transparent 45%);
           mask: linear-gradient(black,black) content-box, linear-gradient(black,black);
           mask-composite: exclude; -webkit-mask-composite: xor; padding: 1px; }
-        .ai-card-title { font-size: 13px; font-weight: 500; color: #eaf2ff; letter-spacing: -0.005em; }
-        .ai-card-sub { font-size: 10.5px; color: rgba(230,240,255,0.5); margin-top: 2px; }
-        .ai-bar { background: linear-gradient(180deg, rgba(120,180,255,0.9), rgba(60,100,200,0.5)); box-shadow: 0 0 18px rgba(120,180,255,0.4); }
+        .ai-card-title { font-size: 13px; font-weight: 500; color: #eef3fb; letter-spacing: -0.005em; }
+        .ai-card-sub { font-size: 10.5px; color: rgba(220,232,250,0.5); margin-top: 2px; }
+        .ai-bar { background: linear-gradient(180deg, rgba(140,180,230,0.85), rgba(70,110,180,0.5)); box-shadow: 0 0 18px rgba(120,160,220,0.35); }
         .ai-bar-hot { background: linear-gradient(180deg, #ffd27a, #ff7a5c); box-shadow: 0 0 22px rgba(255,170,90,0.55); }
         .ai-bar-emerald { background: linear-gradient(90deg, rgba(92,255,176,0.9), rgba(60,200,140,0.4)); }
-        .ai-heat { background: linear-gradient(180deg, rgba(120,180,255,0.95), rgba(180,90,255,0.6)); box-shadow: 0 0 14px rgba(120,180,255,0.35); }
+        .ai-heat { background: linear-gradient(180deg, rgba(140,180,230,0.9), rgba(80,120,190,0.55)); box-shadow: 0 0 14px rgba(140,180,230,0.3); }
         .ai-insight { padding: 16px 18px; border-radius: 14px;
-          background: linear-gradient(135deg, rgba(40,80,180,0.25), rgba(120,40,180,0.18));
-          border: 1px solid rgba(120,180,255,0.25); }
+          background: linear-gradient(180deg, rgba(16,24,42,0.85), rgba(8,12,24,0.9));
+          border: 1px solid rgba(140,180,230,0.14); }
         .ai-insight-icon { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center;
-          background: linear-gradient(135deg, rgba(120,180,255,0.4), rgba(180,120,255,0.4));
-          color: #fff; box-shadow: 0 0 18px rgba(120,180,255,0.45); }
+          background: linear-gradient(135deg, rgba(120,170,230,0.30), rgba(60,100,170,0.25));
+          color: #e6efff; box-shadow: 0 0 16px rgba(80,130,210,0.30); border: 1px solid rgba(140,180,230,0.25); }
         .ai-tabs-wrap { position: sticky; top: 0; z-index: 20; margin: 0 -12px; padding: 6px 12px;
-          background: linear-gradient(180deg, rgba(5,8,19,0.92) 70%, rgba(5,8,19,0)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+          background: linear-gradient(180deg, rgba(4,6,14,0.92) 70%, rgba(4,6,14,0)); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
         .ai-tabs { display: flex; gap: 6px; padding: 4px; border-radius: 12px;
-          background: rgba(10,15,30,0.55); border: 1px solid rgba(120,180,255,0.14);
+          background: rgba(10,15,28,0.6); border: 1px solid rgba(140,180,230,0.12);
           overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
           scrollbar-width: none; }
         .ai-tabs::-webkit-scrollbar { display: none; }
         .ai-tab { display: inline-flex; align-items: center; gap: 6px; padding: 10px 14px; border-radius: 8px;
-          font-size: 12px; letter-spacing: 0.04em; color: rgba(230,240,255,0.7); white-space: nowrap;
+          font-size: 12px; letter-spacing: 0.04em; color: rgba(220,232,250,0.7); white-space: nowrap;
           border: 1px solid transparent; transition: all .2s; scroll-snap-align: start; min-height: 40px; touch-action: manipulation; }
-        .ai-tab:hover { color: #fff; background: rgba(120,180,255,0.06); }
-        .ai-tab-active { color: #fff; background: linear-gradient(135deg, rgba(120,180,255,0.24), rgba(180,120,255,0.2));
-          border-color: rgba(120,180,255,0.4); box-shadow: 0 0 18px rgba(120,180,255,0.28); }
-        .ai-alert { padding: 12px; border-radius: 12px; background: rgba(20,30,55,0.55);
+        .ai-tab:hover { color: #fff; background: rgba(140,180,230,0.06); }
+        .ai-tab-active { color: #fff; background: linear-gradient(135deg, rgba(120,170,230,0.22), rgba(60,100,170,0.18));
+          border-color: rgba(140,180,230,0.4); box-shadow: 0 0 18px rgba(80,130,210,0.22); }
+        .ai-alert { padding: 12px; border-radius: 12px; background: rgba(16,24,42,0.6);
           border: 1px solid rgba(255,255,255,0.06); }
-        .ai-alert-high { border-color: rgba(255,120,140,0.35); background: linear-gradient(135deg, rgba(120,30,50,0.35), rgba(20,30,55,0.55)); }
-        .ai-alert-med { border-color: rgba(255,200,90,0.3); background: linear-gradient(135deg, rgba(120,80,20,0.3), rgba(20,30,55,0.55)); }
+        .ai-alert-high { border-color: rgba(255,120,140,0.35); background: linear-gradient(135deg, rgba(120,30,50,0.32), rgba(16,24,42,0.6)); }
+        .ai-alert-med { border-color: rgba(255,200,90,0.3); background: linear-gradient(135deg, rgba(120,80,20,0.28), rgba(16,24,42,0.6)); }
+
 
         @media (max-width: 640px) {
           .ai-shell { overscroll-behavior-y: contain; }

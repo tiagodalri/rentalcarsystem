@@ -4,15 +4,13 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 // --- Brand detection (same regex idea as the renderer) -------------------
-const brandPattern = new RegExp(
+const brandSource =
   "\\b(" +
-    CAR_BRANDS.map((b) => b.name)
-      .sort((a, b) => b.length - a.length)
-      .map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-      .join("|") +
-    ")\\b",
-  "gi"
-);
+  CAR_BRANDS.map((b) => b.name)
+    .sort((a, b) => b.length - a.length)
+    .map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|") +
+  ")\\b";
 
 type Tok = { text: string; bold: boolean; brandSlug?: string };
 
@@ -22,19 +20,35 @@ function tokenize(paragraph: string): Tok[] {
   boldParts.forEach((part, i) => {
     if (!part) return;
     const isBold = i % 2 === 1;
-    let lastIndex = 0;
-    part.replace(brandPattern, (match, _g, offset: number) => {
-      if (offset > lastIndex) {
-        out.push(...wordTokens(part.slice(lastIndex, offset), isBold));
+    const re = new RegExp(brandSource, "gi");
+    let cursor = 0;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(part))) {
+      const start = m.index;
+      if (start > cursor) {
+        out.push(...wordTokens(part.slice(cursor, start), isBold));
       }
-      const brand = findBrandByName(match);
-      // Whole brand stays as one token so its logo sits next to it
-      out.push({ text: match, bold: true, brandSlug: brand?.slug });
-      lastIndex = offset + match.length;
-      return match;
-    });
-    if (lastIndex < part.length) {
-      out.push(...wordTokens(part.slice(lastIndex), isBold));
+      const brandName = m[1];
+      const brand = findBrandByName(brandName);
+      let end = start + m[0].length;
+      const tail = part.slice(end);
+      const ext = tail.match(/^(?:\s+[A-Z0-9][A-Za-z0-9\-/]*){1,5}/);
+      let fullName = brandName;
+      if (ext) {
+        fullName = brandName + ext[0];
+        end += ext[0].length;
+      }
+      // Whole brand+model stays as one token so its logo sits next to it
+      out.push({
+        text: fullName.replace(/\s+/g, " ").trim(),
+        bold: true,
+        brandSlug: brand?.slug,
+      });
+      cursor = end;
+      re.lastIndex = end;
+    }
+    if (cursor < part.length) {
+      out.push(...wordTokens(part.slice(cursor), isBold));
     }
   });
   return out;
@@ -47,6 +61,7 @@ function wordTokens(s: string, bold: boolean): Tok[] {
     .filter((w) => w.length > 0)
     .map((w) => ({ text: w, bold }));
 }
+
 
 // --- Image cache for brand logos -----------------------------------------
 const logoCache = new Map<string, string | null>();
