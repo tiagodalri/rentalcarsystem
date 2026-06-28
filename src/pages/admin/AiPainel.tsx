@@ -1565,34 +1565,18 @@ export default function AiPainel({
               <RecCard title="Carros parados. Testar promo" subtitle="Pouco alugados há mais de 90 dias" icon={Snowflake} hue="amber" empty="Nenhum carro nessa situação."
                 items={priceDownCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 0.85)}/dia em promo` }))} />
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <div className="ai-card">
-                <CardHeader title="Os carros que mais geram dinheiro" sub="Quem mais retorna por dia que está na sua frota. Vale a pena comprar parecidos" icon={Award} />
-                <ul className="space-y-2.5">
-                  {topStars.map(p => (
-                    <li key={p.v.id} className="flex justify-between text-[12.5px]">
-                      <div className="min-w-0">
-                        <div className="text-white/90 truncate">{p.v.name}</div>
-                        <div className="text-[10.5px] text-white/55">{p.bookingsCount} reservas</div>
-                      </div>
-                      <span className="tabular-nums text-emerald-200">{fmtUSD(p.revPerDayOwned)}/dia</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="ai-card">
-                <CardHeader title="Categorias que mais dão dinheiro" sub="Receita por dia que o carro está na sua frota" icon={TrendingUp} />
-                <ul className="space-y-2.5">
-                  {byCategory.slice(0, 6).map(c => (
-                    <li key={c.cat} className="text-[12.5px]">
-                      <div className="flex justify-between"><span className="text-white/85">{c.cat}</span><span className="tabular-nums text-amber-200">{fmtUSD(c.rpd)}/dia</span></div>
-                      <div className="mt-1 h-1 rounded-full bg-white/10 overflow-hidden">
-                        <div className="h-full ai-bar-emerald" style={{ width: `${Math.min(c.avgOcc, 100)}%` }} />
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div className="ai-card">
+              <CardHeader title="Categorias que mais dão dinheiro" sub="Receita por dia que o carro está na sua frota" icon={TrendingUp} />
+              <ul className="space-y-2.5">
+                {byCategory.slice(0, 6).map(c => (
+                  <li key={c.cat} className="text-[12.5px]">
+                    <div className="flex justify-between"><span className="text-white/85">{c.cat}</span><span className="tabular-nums text-amber-200">{fmtUSD(c.rpd)}/dia</span></div>
+                    <div className="mt-1 h-1 rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-full ai-bar-emerald" style={{ width: `${Math.min(c.avgOcc, 100)}%` }} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
             <div className="ai-card">
               <CardHeader title="Marcas com melhor desempenho" sub="Receita total e taxa de uso média" icon={Zap} />
