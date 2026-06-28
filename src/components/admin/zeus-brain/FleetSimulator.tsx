@@ -116,12 +116,18 @@ function VehicleRow({
           <span className="truncate font-medium">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}</span>
           <ColorDot color={p.v.color} />
         </div>
-        <div className="text-[10.5px] text-white/50 tabular-nums truncate">
-          {[p.v.brand, p.v.model, year].filter(Boolean).join(" · ")}
+        <div className="text-[10.5px] text-white/50 tabular-nums truncate flex items-center gap-1.5">
+          <span className="truncate">{[p.v.brand, p.v.model, year].filter(Boolean).join(" · ")}</span>
+          {p.purchase > 0 && (
+            <>
+              <span className="text-white/20">•</span>
+              <span className="text-amber-300/80 font-medium">pago {fmtUSD(p.purchase)}</span>
+            </>
+          )}
         </div>
       </div>
       <div className="text-right shrink-0">
-        <div className={`text-[12px] ${tone} tabular-nums leading-tight`}>{fmtUSD(p.revPerDayOwned)}/dia</div>
+        <div className={`text-[12px] ${tone} tabular-nums leading-tight font-medium`}>{fmtUSD(p.revPerDayOwned)}/dia</div>
         <div className="text-[10px] text-white/45 tabular-nums">{p.occupancy.toFixed(0)}% uso</div>
       </div>
       <button
@@ -130,8 +136,8 @@ function VehicleRow({
           selected
             ? "bg-white/10 hover:bg-white/20 border-white/20 text-white"
             : side === "out"
-              ? "bg-rose-500/10 hover:bg-rose-500/20 border-rose-400/30 text-rose-100"
-              : "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-400/30 text-emerald-100"
+              ? "bg-rose-500/10 hover:bg-rose-500/20 border-rose-400/40 text-rose-100"
+              : "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-400/40 text-emerald-100"
         }`}
         aria-label={action.label}
       >
@@ -140,6 +146,7 @@ function VehicleRow({
     </div>
   );
 }
+
 
 export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[] }) {
   const eligible = useMemo(
