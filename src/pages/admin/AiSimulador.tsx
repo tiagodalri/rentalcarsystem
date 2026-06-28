@@ -49,31 +49,30 @@ export default function AiSimulador() {
 
   return (
     <div
-      className="ai-shell relative -mx-4 lg:-mx-6 -mt-3 lg:-mt-6 min-h-[calc(100vh-80px)]"
+      className="relative -mx-4 lg:-mx-6 -mt-3 lg:-mt-6 min-h-[calc(100vh-80px)]"
       style={{
         background:
           "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(154,122,58,0.10), transparent 60%), linear-gradient(180deg, #f6f1e6 0%, #efe9dc 60%, #e9e2d2 100%)",
       }}
     >
-      {/* Header dedicado */}
+      {/* Header dedicado — integrado ao topo do admin shell */}
       <div
-        className="sticky top-0 z-20 backdrop-blur-xl"
+        className="relative"
         style={{
-          paddingTop: "max(12px, env(safe-area-inset-top))",
+          paddingTop: "max(16px, env(safe-area-inset-top))",
           background:
-            "linear-gradient(180deg, rgba(246,241,230,0.96), rgba(246,241,230,0.70))",
-          borderBottom: "1px solid rgba(13,29,46,0.10)",
+            "linear-gradient(180deg, #f6f1e6 0%, rgba(246,241,230,0.0) 100%)",
         }}
       >
-        <div className="max-w-[1600px] mx-auto flex items-center gap-3 px-4 sm:px-6 lg:px-8 py-3">
+        <div className="max-w-[1600px] mx-auto flex items-center gap-3 px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <button
             onClick={() => navigate("/admin")}
-            className="inline-flex items-center justify-center h-9 w-9 rounded-full transition-all active:scale-95"
+            className="inline-flex items-center justify-center h-10 w-10 rounded-full transition-all active:scale-95 shrink-0"
             style={{
-              background: "#fbf7ee",
+              background: "#ffffff",
               border: "1px solid rgba(13,29,46,0.14)",
               color: "#0d1d2e",
-              boxShadow: "0 4px 10px -6px rgba(13,29,46,0.25)",
+              boxShadow: "0 4px 12px -6px rgba(13,29,46,0.25)",
             }}
             aria-label="Voltar ao painel"
           >
@@ -87,47 +86,39 @@ export default function AiSimulador() {
             >
               Zeus Brain
             </div>
-            <div className="flex items-center gap-2 mt-0.5">
+            <div className="flex items-center gap-2 mt-1">
               <span
-                className="inline-flex items-center justify-center h-6 w-6 rounded-full"
+                className="inline-flex items-center justify-center h-6 w-6 rounded-full shrink-0"
                 style={{ background: "#0d1d2e" }}
               >
                 <Gamepad2 size={12} style={{ color: "#d6bf86" }} />
               </span>
               <h1
-                className="text-[17px] sm:text-[19px] font-medium leading-none truncate"
+                className="text-[18px] sm:text-[20px] font-semibold leading-none truncate"
                 style={{ color: "#0d1d2e", letterSpacing: "-0.01em" }}
               >
                 Simulador de Frota
               </h1>
-              <span
-                className="hidden sm:inline-flex text-[9px] font-semibold uppercase tracking-[0.22em] px-2 py-[3px] rounded-full"
-                style={{
-                  background: "rgba(214,191,134,0.18)",
-                  border: "1px solid rgba(214,191,134,0.45)",
-                  color: "#6b4f1d",
-                }}
-              >
-                Experiência exclusiva
-              </span>
             </div>
           </div>
 
           <div
-            className="hidden md:block text-[11px] text-right"
+            className="hidden md:block text-[11px] text-right tabular-nums shrink-0"
             style={{ color: "rgba(13,29,46,0.55)" }}
           >
             {perVehicle.length} carros · {realBookings.length} reservas
           </div>
         </div>
+        {/* hairline gold accent */}
         <div
-          className="h-[2px]"
+          className="h-[1px] mx-4 sm:mx-6 lg:mx-8 max-w-[1600px] xl:mx-auto"
           style={{
             background:
-              "linear-gradient(90deg, transparent, #c8a86b 30%, #9a7a3a 50%, #c8a86b 70%, transparent)",
+              "linear-gradient(90deg, transparent, rgba(154,122,58,0.45) 30%, rgba(154,122,58,0.65) 50%, rgba(154,122,58,0.45) 70%, transparent)",
           }}
         />
       </div>
+
 
       {/* Conteúdo */}
       <div className="max-w-[1600px] mx-auto px-3 sm:px-4 lg:px-8 pt-5 sm:pt-7 pb-[max(2.5rem,env(safe-area-inset-bottom))]">

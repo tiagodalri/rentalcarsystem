@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Gamepad2, X, ArrowRight, Sparkles, TrendingUp, TrendingDown, Trophy, Search, ShoppingCart, Tag, Plus, Minus } from "lucide-react";
+import { Gamepad2, X, ArrowRight, Sparkles, Trophy, Search, ShoppingCart, Tag, Plus, Minus } from "lucide-react";
 import { findBrandByName, carLogoUrl } from "@/data/carBrands";
 
 export type SimVehicle = {
@@ -27,6 +27,22 @@ export type SimVehicle = {
   hasAcquiredDate: boolean;
 };
 
+/* ── Private-bank palette (navy / ivory / gold) ── */
+const NAVY = "#0d1d2e";
+const NAVY_70 = "rgba(13,29,46,0.70)";
+const NAVY_55 = "rgba(13,29,46,0.55)";
+const NAVY_40 = "rgba(13,29,46,0.40)";
+const NAVY_10 = "rgba(13,29,46,0.10)";
+const NAVY_06 = "rgba(13,29,46,0.06)";
+const IVORY = "#fbf7ee";
+const IVORY_SOFT = "#f6f1e6";
+const GOLD = "#9a7a3a";
+const GOLD_SOFT = "#c8a86b";
+const SELL = "#a33a3a";       // muted bordeaux (vender)
+const SELL_BG = "#fbecec";
+const BUY = "#1f6b4c";        // muted forest (comprar)
+const BUY_BG = "#e8f1ec";
+
 const fmtUSD = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 const fmtUSDsigned = (n: number) =>
   `${n >= 0 ? "+" : "−"}$${Math.abs(Math.round(n)).toLocaleString("en-US")}`;
@@ -51,7 +67,6 @@ function brandLogoUrl(v: SimVehicle["v"]): string | null {
   if (!raw) return null;
   const match = findBrandByName(raw);
   if (match) return match.logoUrl;
-  // tentativa direta por slug
   const slug = raw.toLowerCase().replace(/\s+/g, "-");
   return carLogoUrl(slug);
 }
@@ -63,13 +78,19 @@ function BrandLogo({ v }: { v: SimVehicle["v"] }) {
 
   if (!url || err) {
     return (
-      <div className="w-10 h-10 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-[10px] font-semibold text-white/80 tracking-wider shrink-0">
+      <div
+        className="w-10 h-10 rounded-lg flex items-center justify-center text-[10px] font-semibold tracking-wider shrink-0"
+        style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_10}`, color: NAVY_70 }}
+      >
         {initials}
       </div>
     );
   }
   return (
-    <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center overflow-hidden border border-white/15 shrink-0 shadow-sm">
+    <div
+      className="w-10 h-10 rounded-lg bg-white flex items-center justify-center overflow-hidden shrink-0"
+      style={{ border: `1px solid ${NAVY_10}`, boxShadow: "0 2px 6px -3px rgba(13,29,46,0.18)" }}
+    >
       <img
         src={url}
         alt={v.brand || ""}
@@ -86,8 +107,8 @@ function ColorDot({ color }: { color: string | null }) {
   const hex = COLOR_HEX[color.toLowerCase().trim()] || "#9ca3af";
   return (
     <span
-      className="inline-block w-2.5 h-2.5 rounded-full border border-white/20 shrink-0"
-      style={{ background: hex }}
+      className="inline-block w-2.5 h-2.5 rounded-full shrink-0"
+      style={{ background: hex, border: `1px solid ${NAVY_10}` }}
       title={color}
     />
   );
@@ -102,43 +123,47 @@ function VehicleRow({
   selected?: boolean;
 }) {
   const year = (p.v as any).year || (p.v as any).model_year;
-  const tone = side === "out" ? "text-rose-200" : "text-emerald-200";
-  const ring = selected
-    ? side === "out"
-      ? "border-rose-400/50 bg-rose-500/[0.07]"
-      : "border-emerald-400/50 bg-emerald-500/[0.07]"
-    : "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]";
+  const accent = side === "out" ? SELL : BUY;
+  const accentBg = side === "out" ? SELL_BG : BUY_BG;
+  const rowBg = selected ? accentBg : "#ffffff";
+  const rowBorder = selected ? `1px solid ${accent}55` : `1px solid ${NAVY_10}`;
   return (
-    <div className={`flex items-center gap-3 rounded-lg border px-2.5 py-2 transition-colors ${ring}`}>
+    <div
+      className="flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors hover:shadow-[0_2px_8px_-4px_rgba(13,29,46,0.15)]"
+      style={{ background: rowBg, border: rowBorder }}
+    >
       <BrandLogo v={p.v} />
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5 text-[13px] text-white truncate">
-          <span className="truncate font-medium">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}</span>
+        <div className="flex items-center gap-1.5 text-[13px] truncate" style={{ color: NAVY }}>
+          <span className="truncate font-semibold">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}</span>
           <ColorDot color={p.v.color} />
         </div>
-        <div className="text-[10.5px] text-white/50 tabular-nums truncate flex items-center gap-1.5">
+        <div className="text-[10.5px] tabular-nums truncate flex items-center gap-1.5 mt-0.5" style={{ color: NAVY_55 }}>
           <span className="truncate">{[p.v.brand, p.v.model, year].filter(Boolean).join(" · ")}</span>
           {p.purchase > 0 && (
             <>
-              <span className="text-white/20">•</span>
-              <span className="text-amber-300/80 font-medium">pago {fmtUSD(p.purchase)}</span>
+              <span style={{ color: NAVY_40 }}>•</span>
+              <span className="font-semibold" style={{ color: GOLD }}>pago {fmtUSD(p.purchase)}</span>
             </>
           )}
         </div>
       </div>
       <div className="text-right shrink-0">
-        <div className={`text-[12px] ${tone} tabular-nums leading-tight font-medium`}>{fmtUSD(p.revPerDayOwned)}/dia</div>
-        <div className="text-[10px] text-white/45 tabular-nums">{p.occupancy.toFixed(0)}% uso</div>
+        <div className="text-[12.5px] tabular-nums leading-tight font-semibold" style={{ color: accent }}>
+          {fmtUSD(p.revPerDayOwned)}/dia
+        </div>
+        <div className="text-[10.5px] tabular-nums" style={{ color: NAVY_55 }}>
+          {p.occupancy.toFixed(0)}% uso
+        </div>
       </div>
       <button
         onClick={action.onClick}
-        className={`shrink-0 ml-1 text-[10px] uppercase tracking-wider px-2 py-1 rounded-md border transition-colors ${
+        className="shrink-0 ml-1 text-[10.5px] font-semibold uppercase tracking-wider px-2.5 py-1.5 rounded-md transition-colors min-h-[32px]"
+        style={
           selected
-            ? "bg-white/10 hover:bg-white/20 border-white/20 text-white"
-            : side === "out"
-              ? "bg-rose-500/10 hover:bg-rose-500/20 border-rose-400/40 text-rose-100"
-              : "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-400/40 text-emerald-100"
-        }`}
+            ? { background: NAVY, color: IVORY, border: `1px solid ${NAVY}` }
+            : { background: accentBg, color: accent, border: `1px solid ${accent}40` }
+        }
         aria-label={action.label}
       >
         {action.label}
@@ -162,7 +187,6 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
   const qtyOf = (id: string) => inQty[id] ?? 1;
 
-  // Frota completa, ordenada por desempenho (melhor → pior)
   const sortedByPerf = useMemo(
     () => [...perVehicle].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
     [perVehicle]
@@ -175,12 +199,10 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
       .filter(Boolean).join(" ").toLowerCase().includes(s);
   };
 
-  // Para VENDER: mostra a frota inteira do pior pro melhor (escondendo o que já está marcado para comprar)
   const sellList = useMemo(
     () => [...sortedByPerf].reverse().filter(p => matches(p, queryOut) && !inIds.includes(p.v.id)),
     [sortedByPerf, queryOut, inIds]
   );
-  // Para COMPRAR: frota inteira do melhor pro pior (escondendo o que já está marcado para vender)
   const buyList = useMemo(
     () => sortedByPerf.filter(p => matches(p, queryIn) && !outIds.includes(p.v.id)),
     [sortedByPerf, queryIn, outIds]
@@ -189,14 +211,11 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
   const outList = outIds.map(id => perVehicle.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
   const inList = inIds.map(id => perVehicle.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
 
-  // Unidades totais a comprar (soma das qtds)
   const inTotalUnits = inList.reduce((s, p) => s + qtyOf(p.v.id), 0);
 
-  // Totalizadores ao vivo (independentes do resultado completo)
   const sellCapitalLive = outList.reduce((s, p) => s + (p.purchase || 0), 0);
   const buyCapitalLive = inList.reduce((s, p) => s + (p.purchase || 0) * qtyOf(p.v.id), 0);
   const balanceLive = sellCapitalLive - buyCapitalLive;
-
 
   const result = useMemo(() => {
     if (!outList.length || !inList.length) return null;
@@ -204,14 +223,13 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
     const outOcc = outList.reduce((s, p) => s + p.occupancy, 0) / outList.length;
     const outCapital = outList.reduce((s, p) => s + p.purchase, 0);
 
-    // Cada compra entra ponderada pela quantidade selecionada
     const totalUnits = inList.reduce((s, p) => s + qtyOf(p.v.id), 0);
     const inRevTotal = inList.reduce((s, p) => s + p.revPerDayOwned * qtyOf(p.v.id), 0);
     const inOccWeighted = inList.reduce((s, p) => s + p.occupancy * qtyOf(p.v.id), 0) / Math.max(1, totalUnits);
     const inCapital = inList.reduce((s, p) => s + p.purchase * qtyOf(p.v.id), 0);
     const inAvgRev = inRevTotal / Math.max(1, totalUnits);
 
-    const projectedRevPerDay = inRevTotal; // já é a soma com qtd
+    const projectedRevPerDay = inRevTotal;
     const deltaPerDay = projectedRevPerDay - outRev;
 
     const inPayback = inList.filter(p => p.paybackMonths !== null).map(p => p.paybackMonths!);
@@ -248,117 +266,180 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
   const reset = () => { setOutIds([]); setInIds([]); setInQty({}); };
 
+  /* Wrapper card — ivory premium */
   return (
-    <div className="ai-card relative overflow-hidden">
-      <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-emerald-400/12 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-16 -left-16 w-80 h-80 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
-      <div className="relative">
+    <div
+      className="relative overflow-hidden rounded-2xl"
+      style={{
+        background: `linear-gradient(180deg, ${IVORY} 0%, ${IVORY_SOFT} 100%)`,
+        border: `1px solid ${NAVY_10}`,
+        boxShadow: "0 12px 32px -20px rgba(13,29,46,0.25), 0 0 0 1px rgba(255,255,255,0.6) inset",
+      }}
+    >
+      {/* hairline gold top accent */}
+      <div
+        className="absolute top-0 left-0 right-0 h-[2px]"
+        style={{ background: `linear-gradient(90deg, transparent, ${GOLD_SOFT} 30%, ${GOLD} 50%, ${GOLD_SOFT} 70%, transparent)` }}
+      />
 
+      <div className="relative p-4 sm:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
-          <div className="flex items-center gap-2">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+          <div className="flex items-center gap-2.5">
+            <span
+              className="inline-flex items-center justify-center h-7 w-7 rounded-full shrink-0"
+              style={{ background: NAVY }}
+            >
+              <Gamepad2 size={13} style={{ color: "#d6bf86" }} />
             </span>
-            <Gamepad2 className="w-4 h-4 text-emerald-300" />
-            <span className="text-[11px] uppercase tracking-[0.22em] text-emerald-200/90 font-semibold">Simulador Inteligente</span>
+            <span
+              className="text-[10.5px] sm:text-[11px] font-semibold uppercase tracking-[0.22em]"
+              style={{ color: NAVY }}
+            >
+              Simulador de renovação
+            </span>
           </div>
           {(outIds.length > 0 || inIds.length > 0) && (
             <button
               onClick={reset}
-              className="text-[10.5px] uppercase tracking-wider px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-white/70"
+              className="text-[10.5px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-md transition-colors min-h-[32px]"
+              style={{ background: "#ffffff", color: NAVY_70, border: `1px solid ${NAVY_10}` }}
             >
               Limpar tudo
             </button>
           )}
         </div>
-        <h3 className="text-xl md:text-2xl font-light text-white leading-snug mb-1 tracking-tight">
-          Renovação de Frota
+
+        <h3
+          className="text-[20px] sm:text-[22px] font-medium leading-snug mb-2"
+          style={{ color: NAVY, letterSpacing: "-0.01em" }}
+        >
+          Quanto sua frota renderia se você trocasse alguns carros?
         </h3>
-        <p className="text-[12px] text-white/55 mb-4 leading-relaxed max-w-3xl">
-          Escolha quais carros <span className="text-rose-300 font-medium">vender</span> e quais <span className="text-emerald-300 font-medium">comprar</span>. O simulador soma o valor investido em tempo real e projeta o impacto financeiro da troca.
+        <p
+          className="text-[13px] sm:text-[13.5px] mb-5 leading-[1.65] max-w-3xl"
+          style={{ color: NAVY_70 }}
+        >
+          Marque carros para{" "}
+          <span className="font-semibold" style={{ color: SELL }}>vender</span>{" "}
+          (recuperar capital) e carros para{" "}
+          <span className="font-semibold" style={{ color: BUY }}>comprar</span>{" "}
+          (reinvestir). O simulador calcula em tempo real o impacto financeiro da troca.
         </p>
 
-        {/* BALANÇO DE CAPITAL — ticker ao vivo */}
+        {/* BALANÇO DE CAPITAL */}
         {(outList.length > 0 || inList.length > 0) && (
-          <div className="mb-3 rounded-xl border border-white/10 bg-gradient-to-r from-rose-500/[0.06] via-white/[0.02] to-emerald-500/[0.06] p-3 grid grid-cols-3 gap-2">
-            <div>
-              <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/45 mb-1">Capital recuperado</div>
-              <div className="text-xl md:text-2xl font-semibold text-rose-300 tabular-nums leading-none">
+          <div
+            className="mb-5 rounded-xl grid grid-cols-1 sm:grid-cols-3"
+            style={{
+              background: "#ffffff",
+              border: `1px solid ${NAVY_10}`,
+              boxShadow: "0 4px 14px -10px rgba(13,29,46,0.20)",
+            }}
+          >
+            <div className="p-4 sm:border-r" style={{ borderColor: NAVY_06 }}>
+              <div className="text-[9.5px] uppercase tracking-[0.20em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
+                Capital recuperado
+              </div>
+              <div className="text-[24px] sm:text-[26px] font-semibold tabular-nums leading-none" style={{ color: SELL, letterSpacing: "-0.01em" }}>
                 {fmtUSD(sellCapitalLive)}
               </div>
-              <div className="text-[10px] text-white/40 tabular-nums mt-1">{outList.length} carro{outList.length === 1 ? "" : "s"} vendendo</div>
+              <div className="text-[10.5px] tabular-nums mt-2" style={{ color: NAVY_55 }}>
+                {outList.length} carro{outList.length === 1 ? "" : "s"} marcado{outList.length === 1 ? "" : "s"} para venda
+              </div>
             </div>
-            <div className="border-x border-white/10 px-2">
-              <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/45 mb-1">Capital reinvestido</div>
-              <div className="text-xl md:text-2xl font-semibold text-emerald-300 tabular-nums leading-none">
+            <div className="p-4 sm:border-r" style={{ borderColor: NAVY_06, borderTop: `1px solid ${NAVY_06}`, borderTopWidth: 0 }}>
+              <div className="text-[9.5px] uppercase tracking-[0.20em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
+                Capital reinvestido
+              </div>
+              <div className="text-[24px] sm:text-[26px] font-semibold tabular-nums leading-none" style={{ color: BUY, letterSpacing: "-0.01em" }}>
                 {fmtUSD(buyCapitalLive)}
               </div>
-              <div className="text-[10px] text-white/40 tabular-nums mt-1">{inTotalUnits} unidade{inTotalUnits === 1 ? "" : "s"} · {inList.length} modelo{inList.length === 1 ? "" : "s"}</div>
+              <div className="text-[10.5px] tabular-nums mt-2" style={{ color: NAVY_55 }}>
+                {inTotalUnits} unidade{inTotalUnits === 1 ? "" : "s"} · {inList.length} modelo{inList.length === 1 ? "" : "s"}
+              </div>
             </div>
-            <div>
-              <div className="text-[9.5px] uppercase tracking-[0.18em] text-white/45 mb-1">Saldo</div>
-              <div className={`text-xl md:text-2xl font-semibold tabular-nums leading-none ${
-                balanceLive >= 0 ? "text-emerald-400" : "text-amber-400"
-              }`}>
+            <div className="p-4">
+              <div className="text-[9.5px] uppercase tracking-[0.20em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
+                Saldo em caixa
+              </div>
+              <div
+                className="text-[24px] sm:text-[26px] font-semibold tabular-nums leading-none"
+                style={{ color: balanceLive >= 0 ? BUY : GOLD, letterSpacing: "-0.01em" }}
+              >
                 {fmtUSDsigned(balanceLive)}
               </div>
-              <div className="text-[10px] text-white/40 mt-1">
-                {balanceLive >= 0 ? "sobra em caixa" : "precisa aportar"}
+              <div className="text-[10.5px] mt-2" style={{ color: NAVY_55 }}>
+                {balanceLive >= 0 ? "sobra de caixa após a troca" : "precisa aportar para fechar"}
               </div>
             </div>
           </div>
         )}
 
-
-
         {/* Duas colunas: VENDER | COMPRAR */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* VENDER */}
-          <div className="rounded-xl bg-rose-500/[0.05] border border-rose-400/25 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <div className="flex items-center justify-between mb-2.5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-rose-500/20 border border-rose-400/40 flex items-center justify-center shadow-[0_0_15px_rgba(244,63,94,0.25)]">
-                  <Tag className="w-4 h-4 text-rose-300" />
+          <div
+            className="rounded-xl p-4"
+            style={{ background: "#ffffff", border: `1px solid ${SELL}25`, boxShadow: "0 4px 14px -10px rgba(13,29,46,0.15)" }}
+          >
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center"
+                  style={{ background: SELL_BG, border: `1px solid ${SELL}30` }}
+                >
+                  <Tag className="w-4 h-4" style={{ color: SELL }} />
                 </div>
                 <div>
-                  <div className="text-[12px] uppercase tracking-[0.18em] text-rose-100 font-semibold leading-none">Vender</div>
-                  <div className="text-[10px] text-white/45 mt-0.5">{outList.length} carro{outList.length === 1 ? "" : "s"} · recupera <span className="text-rose-200 font-medium tabular-nums">{fmtUSD(sellCapitalLive)}</span></div>
+                  <div className="text-[12px] uppercase tracking-[0.18em] font-semibold leading-none" style={{ color: SELL }}>
+                    Vender
+                  </div>
+                  <div className="text-[11px] mt-1" style={{ color: NAVY_55 }}>
+                    {outList.length} carro{outList.length === 1 ? "" : "s"} · recupera{" "}
+                    <span className="font-semibold tabular-nums" style={{ color: SELL }}>{fmtUSD(sellCapitalLive)}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-
-            <div className="flex items-center gap-2 flex-1 rounded-md bg-white/[0.04] border border-white/10 px-2.5 py-1.5 mb-2.5">
-              <Search className="w-3.5 h-3.5 text-white/40" />
+            <div
+              className="flex items-center gap-2 rounded-md px-2.5 py-2 mb-3"
+              style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_10}` }}
+            >
+              <Search className="w-3.5 h-3.5" style={{ color: NAVY_55 }} />
               <input
                 value={queryOut}
                 onChange={e => setQueryOut(e.target.value)}
                 placeholder="Buscar carro para vender…"
-                className="flex-1 bg-transparent text-[12.5px] text-white placeholder:text-white/30 outline-none"
+                className="flex-1 bg-transparent text-[13px] outline-none"
+                style={{ color: NAVY }}
               />
             </div>
 
             {outList.length > 0 && (
               <>
-                <div className="text-[10px] uppercase tracking-wider text-rose-200/70 mb-1.5">Saindo</div>
-                <div className="space-y-1.5 mb-3">
+                <div className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color: SELL }}>
+                  Saindo
+                </div>
+                <div className="space-y-1.5 mb-4">
                   {outList.map(p => (
                     <VehicleRow
                       key={p.v.id}
                       p={p}
                       side="out"
                       selected
-                      action={{ label: "✕", onClick: () => toggleOut(p.v.id) }}
+                      action={{ label: "Remover", onClick: () => toggleOut(p.v.id) }}
                     />
                   ))}
                 </div>
               </>
             )}
 
-            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Frota completa (pior desempenho primeiro)</div>
-            <div className="space-y-1.5 max-h-[420px] overflow-y-auto pr-1">
+            <div className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color: NAVY_55 }}>
+              Frota completa · pior desempenho primeiro
+            </div>
+            <div className="space-y-1.5 max-h-[440px] overflow-y-auto pr-1">
               {sellList.filter(p => !outIds.includes(p.v.id)).map(p => (
                 <VehicleRow
                   key={p.v.id}
@@ -371,56 +452,71 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
           </div>
 
           {/* COMPRAR */}
-          <div className="rounded-xl bg-emerald-500/[0.05] border border-emerald-400/25 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-            <div className="flex items-center justify-between mb-2.5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.25)]">
-                  <ShoppingCart className="w-4 h-4 text-emerald-300" />
+          <div
+            className="rounded-xl p-4"
+            style={{ background: "#ffffff", border: `1px solid ${BUY}25`, boxShadow: "0 4px 14px -10px rgba(13,29,46,0.15)" }}
+          >
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-9 h-9 rounded-lg flex items-center justify-center"
+                  style={{ background: BUY_BG, border: `1px solid ${BUY}30` }}
+                >
+                  <ShoppingCart className="w-4 h-4" style={{ color: BUY }} />
                 </div>
                 <div>
-                  <div className="text-[12px] uppercase tracking-[0.18em] text-emerald-100 font-semibold leading-none">Comprar</div>
-                  <div className="text-[10px] text-white/45 mt-0.5">{inTotalUnits} unidade{inTotalUnits === 1 ? "" : "s"} · investe <span className="text-emerald-200 font-medium tabular-nums">{fmtUSD(buyCapitalLive)}</span></div>
+                  <div className="text-[12px] uppercase tracking-[0.18em] font-semibold leading-none" style={{ color: BUY }}>
+                    Comprar
+                  </div>
+                  <div className="text-[11px] mt-1" style={{ color: NAVY_55 }}>
+                    {inTotalUnits} unidade{inTotalUnits === 1 ? "" : "s"} · investe{" "}
+                    <span className="font-semibold tabular-nums" style={{ color: BUY }}>{fmtUSD(buyCapitalLive)}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-
-            <div className="flex items-center gap-2 flex-1 rounded-md bg-white/[0.04] border border-white/10 px-2.5 py-1.5 mb-2.5">
-              <Search className="w-3.5 h-3.5 text-white/40" />
+            <div
+              className="flex items-center gap-2 rounded-md px-2.5 py-2 mb-3"
+              style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_10}` }}
+            >
+              <Search className="w-3.5 h-3.5" style={{ color: NAVY_55 }} />
               <input
                 value={queryIn}
                 onChange={e => setQueryIn(e.target.value)}
                 placeholder="Buscar carro de referência…"
-                className="flex-1 bg-transparent text-[12.5px] text-white placeholder:text-white/30 outline-none"
+                className="flex-1 bg-transparent text-[13px] outline-none"
+                style={{ color: NAVY }}
               />
             </div>
 
             {inList.length > 0 && (
               <>
-                <div className="text-[10px] uppercase tracking-wider text-emerald-200/70 mb-1.5 flex items-center gap-1">
+                <div className="text-[10px] uppercase tracking-wider font-semibold mb-2 flex items-center gap-1.5" style={{ color: BUY }}>
                   <Trophy className="w-3 h-3" /> Referência
                 </div>
-                <div className="space-y-1.5 mb-3">
+                <div className="space-y-1.5 mb-4">
                   {inList.map(p => {
                     const q = qtyOf(p.v.id);
                     const year = (p.v as any).year || (p.v as any).model_year;
                     return (
                       <div
                         key={p.v.id}
-                        className="flex items-center gap-2.5 rounded-lg border border-emerald-400/50 bg-emerald-500/[0.07] px-2.5 py-2"
+                        className="flex items-center gap-2.5 rounded-lg px-2.5 py-2"
+                        style={{ background: BUY_BG, border: `1px solid ${BUY}40` }}
                       >
                         <BrandLogo v={p.v} />
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5 text-[13px] text-white truncate">
-                            <span className="truncate font-medium">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}</span>
+                          <div className="flex items-center gap-1.5 text-[13px] truncate" style={{ color: NAVY }}>
+                            <span className="truncate font-semibold">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}</span>
                             <ColorDot color={p.v.color} />
                           </div>
-                          <div className="text-[10.5px] text-white/50 tabular-nums truncate flex items-center gap-1.5">
+                          <div className="text-[10.5px] tabular-nums truncate flex items-center gap-1.5 mt-0.5" style={{ color: NAVY_55 }}>
                             <span className="truncate">{[p.v.brand, p.v.model, year].filter(Boolean).join(" · ")}</span>
                             {p.purchase > 0 && (
                               <>
-                                <span className="text-white/20">•</span>
-                                <span className="text-amber-300/80 font-medium">
+                                <span style={{ color: NAVY_40 }}>•</span>
+                                <span className="font-semibold" style={{ color: GOLD }}>
                                   {q > 1 ? `${q}× ${fmtUSD(p.purchase)} = ${fmtUSD(p.purchase * q)}` : `pago ${fmtUSD(p.purchase)}`}
                                 </span>
                               </>
@@ -428,25 +524,30 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                           </div>
                         </div>
 
-                        {/* Stepper de quantidade */}
-                        <div className="shrink-0 flex items-center rounded-md border border-emerald-400/40 bg-emerald-500/[0.08] overflow-hidden">
+                        {/* Stepper */}
+                        <div
+                          className="shrink-0 flex items-center rounded-md overflow-hidden"
+                          style={{ background: "#ffffff", border: `1px solid ${BUY}40` }}
+                        >
                           <button
                             type="button"
                             onClick={() => decQty(p.v.id)}
                             disabled={q <= 1}
-                            className="h-7 w-7 flex items-center justify-center text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                            className="h-8 w-8 flex items-center justify-center disabled:opacity-30 transition-colors"
+                            style={{ color: BUY }}
                             aria-label="Diminuir quantidade"
                           >
                             <Minus className="w-3.5 h-3.5" />
                           </button>
-                          <div className="min-w-[28px] text-center text-[12px] font-semibold text-white tabular-nums px-1 select-none">
+                          <div className="min-w-[28px] text-center text-[13px] font-semibold tabular-nums px-1 select-none" style={{ color: NAVY }}>
                             {q}
                           </div>
                           <button
                             type="button"
                             onClick={() => incQty(p.v.id)}
                             disabled={q >= 99}
-                            className="h-7 w-7 flex items-center justify-center text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-30 transition-colors"
+                            className="h-8 w-8 flex items-center justify-center disabled:opacity-30 transition-colors"
+                            style={{ color: BUY }}
                             aria-label="Aumentar quantidade"
                           >
                             <Plus className="w-3.5 h-3.5" />
@@ -455,7 +556,8 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
                         <button
                           onClick={() => toggleIn(p.v.id)}
-                          className="shrink-0 h-7 w-7 flex items-center justify-center rounded-md bg-white/5 hover:bg-rose-500/20 hover:text-rose-200 border border-white/10 text-white/70 transition-colors"
+                          className="shrink-0 h-8 w-8 flex items-center justify-center rounded-md transition-colors"
+                          style={{ background: "#ffffff", color: NAVY_70, border: `1px solid ${NAVY_10}` }}
                           aria-label="Remover"
                         >
                           <X className="w-3.5 h-3.5" />
@@ -467,8 +569,10 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               </>
             )}
 
-            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Frota completa (melhor desempenho primeiro)</div>
-            <div className="space-y-1.5 max-h-[420px] overflow-y-auto pr-1">
+            <div className="text-[10px] uppercase tracking-wider font-semibold mb-2" style={{ color: NAVY_55 }}>
+              Frota completa · melhor desempenho primeiro
+            </div>
+            <div className="space-y-1.5 max-h-[440px] overflow-y-auto pr-1">
               {buyList.filter(p => !inIds.includes(p.v.id)).map(p => (
                 <VehicleRow
                   key={p.v.id}
@@ -481,32 +585,52 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
           </div>
         </div>
 
-        {/* RESULTADO — largura total embaixo */}
-        <div className="mt-4 rounded-xl bg-gradient-to-br from-amber-500/[0.06] via-white/[0.02] to-emerald-500/[0.07] border border-amber-300/25 p-4 relative overflow-hidden">
-          <div className="flex items-center gap-1.5 mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span className="text-[10.5px] uppercase tracking-wider text-amber-200/85">Resultado da simulação</span>
+        {/* RESULTADO */}
+        <div
+          className="mt-5 rounded-xl p-5 relative overflow-hidden"
+          style={{ background: "#ffffff", border: `1px solid ${GOLD}30`, boxShadow: "0 8px 24px -16px rgba(13,29,46,0.22)" }}
+        >
+          <div
+            className="absolute top-0 left-0 right-0 h-[2px]"
+            style={{ background: `linear-gradient(90deg, transparent, ${GOLD_SOFT}, ${GOLD}, ${GOLD_SOFT}, transparent)` }}
+          />
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-3.5 h-3.5" style={{ color: GOLD }} />
+            <span className="text-[10.5px] uppercase tracking-[0.22em] font-semibold" style={{ color: NAVY }}>
+              Resultado da simulação
+            </span>
           </div>
 
           {!result ? (
-            <div className="flex flex-col items-center justify-center text-center py-8 text-white/40">
-              <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-3">
-                <ArrowRight className="w-5 h-5 text-white/30" />
+            <div className="flex flex-col items-center justify-center text-center py-10">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
+                style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_10}` }}
+              >
+                <ArrowRight className="w-5 h-5" style={{ color: NAVY_55 }} />
               </div>
-              <p className="text-[12px] max-w-[280px] leading-relaxed">
-                Escolha pelo menos 1 carro para <span className="text-rose-200">vender</span> e 1 para <span className="text-emerald-200">comprar</span> para ver os números.
+              <p className="text-[13px] max-w-[320px] leading-[1.6]" style={{ color: NAVY_70 }}>
+                Escolha pelo menos 1 carro para{" "}
+                <span className="font-semibold" style={{ color: SELL }}>vender</span> e 1 para{" "}
+                <span className="font-semibold" style={{ color: BUY }}>comprar</span> para ver os números.
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
               {/* Hero delta */}
               <div className="md:col-span-4">
-                <div className="text-[10.5px] uppercase tracking-wider text-white/50 mb-1">Diferença por dia</div>
-                <div className={`text-4xl md:text-5xl font-light tabular-nums leading-none ${result.deltaPerDay >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                <div className="text-[10px] uppercase tracking-[0.18em] font-semibold mb-2" style={{ color: NAVY_55 }}>
+                  Diferença por dia
+                </div>
+                <div
+                  className="text-[40px] md:text-[48px] font-semibold tabular-nums leading-none"
+                  style={{ color: result.deltaPerDay >= 0 ? BUY : SELL, letterSpacing: "-0.02em" }}
+                >
                   {fmtUSDsigned(result.deltaPerDay)}
                 </div>
-                <div className="text-[11px] text-white/45 tabular-nums mt-2">
-                  Hoje {fmtUSD(result.outRev)}/dia → projetado {fmtUSD(result.outRev + result.deltaPerDay)}/dia
+                <div className="text-[12px] tabular-nums mt-3" style={{ color: NAVY_55 }}>
+                  Hoje <span className="font-semibold" style={{ color: NAVY }}>{fmtUSD(result.outRev)}/dia</span> → projetado{" "}
+                  <span className="font-semibold" style={{ color: NAVY }}>{fmtUSD(result.outRev + result.deltaPerDay)}/dia</span>
                 </div>
               </div>
 
@@ -517,9 +641,18 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                   { label: "6 meses", value: result.delta180 },
                   { label: "12 meses", value: result.delta365 },
                 ].map(h => (
-                  <div key={h.label} className="rounded-md bg-white/[0.04] border border-white/10 p-2.5">
-                    <div className="text-[9.5px] uppercase tracking-wider text-white/45">{h.label}</div>
-                    <div className={`text-[15px] md:text-[17px] font-medium tabular-nums leading-tight mt-1 ${h.value >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                  <div
+                    key={h.label}
+                    className="rounded-lg p-3"
+                    style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_10}` }}
+                  >
+                    <div className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: NAVY_55 }}>
+                      {h.label}
+                    </div>
+                    <div
+                      className="text-[18px] md:text-[20px] font-semibold tabular-nums leading-tight mt-1.5"
+                      style={{ color: h.value >= 0 ? BUY : SELL, letterSpacing: "-0.01em" }}
+                    >
                       {fmtUSDsigned(h.value)}
                     </div>
                   </div>
@@ -527,41 +660,26 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               </div>
 
               {/* Detalhes */}
-              <div className="md:col-span-12 rounded-lg bg-white/[0.03] border border-white/10 p-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
-                <div className="flex items-center justify-between text-[12px]">
-                  <span className="text-white/55">Uso médio — vendidos</span>
-                  <span className="text-rose-200 tabular-nums">{result.outOcc.toFixed(0)}%</span>
-                </div>
-                <div className="flex items-center justify-between text-[12px]">
-                  <span className="text-white/55">Uso médio — comprados</span>
-                  <span className="text-emerald-200 tabular-nums">{result.inAvgOcc.toFixed(0)}%</span>
-                </div>
-                <div className="flex items-center justify-between text-[12px]">
-                  <span className="text-white/55">Capital reciclado (venda)</span>
-                  <span className="text-white/85 tabular-nums">{fmtUSD(result.outCapital)}</span>
-                </div>
-                <div className="flex items-center justify-between text-[12px]">
-                  <span className="text-white/55">Capital p/ comprar</span>
-                  <span className={`tabular-nums ${result.capitalDelta > 0 ? "text-amber-200" : "text-emerald-200"}`}>
-                    {fmtUSD(result.inCapital)}
-                    <span className="text-white/40 ml-1">({result.capitalDelta >= 0 ? "+" : "−"}{fmtUSD(Math.abs(result.capitalDelta))})</span>
-                  </span>
-                </div>
-                {result.avgInPayback !== null && (
-                  <div className="flex items-center justify-between text-[12px]">
-                    <span className="text-white/55">Payback médio da compra</span>
-                    <span className="text-amber-200 tabular-nums">{result.avgInPayback.toFixed(0)} meses</span>
+              <div
+                className="md:col-span-12 rounded-lg p-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2"
+                style={{ background: IVORY_SOFT, border: `1px solid ${NAVY_10}` }}
+              >
+                {[
+                  ["Uso médio — vendidos", `${result.outOcc.toFixed(0)}%`, SELL],
+                  ["Uso médio — comprados", `${result.inAvgOcc.toFixed(0)}%`, BUY],
+                  ["Capital reciclado (venda)", fmtUSD(result.outCapital), NAVY],
+                  ["Capital p/ comprar", `${fmtUSD(result.inCapital)} (${result.capitalDelta >= 0 ? "+" : "−"}${fmtUSD(Math.abs(result.capitalDelta))})`, result.capitalDelta > 0 ? GOLD : BUY],
+                  ...(result.avgInPayback !== null ? [["Payback médio da compra", `${result.avgInPayback.toFixed(0)} meses`, GOLD] as [string, string, string]] : []),
+                  ["Eficiência do capital", `${result.capitalEfficiency >= 0 ? "+" : ""}${result.capitalEfficiency.toFixed(0)}%`, result.capitalEfficiency >= 0 ? BUY : SELL],
+                ].map(([label, value, color], idx) => (
+                  <div key={idx} className="flex items-center justify-between text-[13px]">
+                    <span style={{ color: NAVY_70 }}>{label}</span>
+                    <span className="tabular-nums font-semibold" style={{ color: color as string }}>{value}</span>
                   </div>
-                )}
-                <div className="flex items-center justify-between text-[12px]">
-                  <span className="text-white/55">Eficiência do capital</span>
-                  <span className={`tabular-nums ${result.capitalEfficiency >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
-                    {result.capitalEfficiency >= 0 ? "+" : ""}{result.capitalEfficiency.toFixed(0)}%
-                  </span>
-                </div>
+                ))}
               </div>
 
-              {/* ───── Conclusão estruturada da análise ───── */}
+              {/* Conclusão estruturada */}
               {(() => {
                 const nameOf = (p: SimVehicle) =>
                   p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "carro";
@@ -585,39 +703,42 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                 const effWord = result.capitalEfficiency >= 0 ? "mais eficiente" : "menos eficiente";
 
                 return (
-                  <div className="md:col-span-12 rounded-lg border border-emerald-300/15 bg-gradient-to-br from-emerald-500/[0.05] via-white/[0.02] to-amber-500/[0.04] p-4">
-                    <div className="flex items-center gap-1.5 mb-2.5">
-                      <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
-                      <span className="text-[10.5px] uppercase tracking-[0.18em] text-emerald-200/85 font-medium">
+                  <div
+                    className="md:col-span-12 rounded-lg p-5"
+                    style={{ background: IVORY_SOFT, border: `1px solid ${GOLD}30` }}
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="w-3.5 h-3.5" style={{ color: GOLD }} />
+                      <span className="text-[10.5px] uppercase tracking-[0.22em] font-semibold" style={{ color: NAVY }}>
                         Conclusão da análise
                       </span>
                     </div>
 
                     <p
-                      className="text-white/88"
                       style={{
                         fontFamily: '"Söhne", "Inter", ui-sans-serif, system-ui, sans-serif',
-                        fontSize: "13.5px",
-                        lineHeight: 1.72,
+                        fontSize: "14px",
+                        lineHeight: 1.75,
                         letterSpacing: "-0.005em",
-                        fontWeight: 380,
+                        fontWeight: 420,
+                        color: NAVY,
                       }}
                     >
-                      <span className="text-white font-medium">Bruno,</span>{" "}
+                      <span className="font-semibold">Bruno,</span>{" "}
                       se você vender{" "}
-                      <span className="text-rose-200 font-medium">
+                      <span className="font-semibold" style={{ color: SELL }}>
                         {outList.length} carro{outList.length === 1 ? "" : "s"}
                       </span>{" "}
                       ({sellNames}) e comprar{" "}
-                      <span className="text-emerald-200 font-medium">
+                      <span className="font-semibold" style={{ color: BUY }}>
                         {result.buyUnits} unidade{result.buyUnits === 1 ? "" : "s"}
                       </span>{" "}
                       de {buyNames}, o seu resultado mudaria desta forma: a receita diária{" "}
-                      <span className={`font-medium tabular-nums ${result.deltaPerDay >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                      <span className="font-semibold tabular-nums" style={{ color: result.deltaPerDay >= 0 ? BUY : SELL }}>
                         {deltaWord} {sign}{abs(result.deltaPerDay)}
                       </span>{" "}
                       (de {fmtUSD(result.outRev)} para {fmtUSD(result.outRev + result.deltaPerDay)} por dia), o que se traduz em{" "}
-                      <span className={`font-medium tabular-nums ${result.delta365 >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                      <span className="font-semibold tabular-nums" style={{ color: result.delta365 >= 0 ? BUY : SELL }}>
                         {sign}{abs(result.delta365)} em 12 meses
                       </span>
                       . O capital reciclado pela venda ({fmtUSD(result.outCapital)}) seria reinvestido em {fmtUSD(result.inCapital)},{" "}
@@ -626,19 +747,19 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                       ) : (
                         <>
                           {capWord}{" "}
-                          <span className={`font-medium tabular-nums ${result.capitalDelta <= 0 ? "text-emerald-200" : "text-amber-200"}`}>
+                          <span className="font-semibold tabular-nums" style={{ color: result.capitalDelta <= 0 ? BUY : GOLD }}>
                             {capValue}
                           </span>
                         </>
                       )}
                       . O capital empregado ficaria{" "}
-                      <span className={`font-medium tabular-nums ${result.capitalEfficiency >= 0 ? "text-emerald-200" : "text-rose-200"}`}>
+                      <span className="font-semibold tabular-nums" style={{ color: result.capitalEfficiency >= 0 ? BUY : SELL }}>
                         {Math.abs(result.capitalEfficiency).toFixed(0)}% {effWord}
                       </span>
                       {result.avgInPayback !== null && (
                         <>
                           , com payback médio de{" "}
-                          <span className="text-amber-200 font-medium tabular-nums">
+                          <span className="font-semibold tabular-nums" style={{ color: GOLD }}>
                             {result.avgInPayback.toFixed(0)} meses
                           </span>{" "}
                           nos carros novos
@@ -647,26 +768,25 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                       .
                     </p>
 
-                    <div className="mt-3 pt-3 border-t border-white/8 flex items-start gap-2">
-                      <span className="mt-[5px] w-1 h-1 rounded-full bg-amber-300/80 shrink-0" />
-                      <p className="text-[10.5px] leading-relaxed text-white/55">
-                        <span className="text-amber-200/90 font-medium">Aviso:</span> resultados passados não garantem resultados futuros. Esta análise é construída sobre o histórico real de locações, ocupação, receita e custo de aquisição da sua frota — portanto carrega valor analítico real para decisão, mas não substitui o julgamento operacional de mercado, sazonalidade e contexto do momento.
+                    <div className="mt-4 pt-4 flex items-start gap-2.5" style={{ borderTop: `1px solid ${NAVY_10}` }}>
+                      <span className="mt-[6px] w-1 h-1 rounded-full shrink-0" style={{ background: GOLD }} />
+                      <p className="text-[11.5px] leading-[1.65]" style={{ color: NAVY_55 }}>
+                        <span className="font-semibold" style={{ color: GOLD }}>Aviso:</span> resultados passados não garantem resultados futuros. Esta análise é construída sobre o histórico real de locações, ocupação, receita e custo de aquisição da sua frota — portanto carrega valor analítico real para decisão, mas não substitui o julgamento operacional de mercado, sazonalidade e contexto do momento.
                       </p>
                     </div>
                   </div>
                 );
               })()}
 
-              <p className="md:col-span-12 text-[10.5px] text-white/40 leading-relaxed">
+              <p className="md:col-span-12 text-[11px] leading-relaxed" style={{ color: NAVY_55 }}>
                 Cenário hipotético — assume que cada carro novo atinge a média histórica do grupo de referência. Apenas carros com 60+ dias de uso real estão disponíveis.
               </p>
-
             </div>
           )}
         </div>
 
         {eligible.length < 4 && (
-          <p className="text-[11px] text-amber-200/70 mt-3">
+          <p className="text-[11.5px] mt-3" style={{ color: GOLD }}>
             Você ainda tem poucos carros com 60+ dias de histórico ({eligible.length}). O simulador fica mais preciso conforme a frota acumula dados.
           </p>
         )}
