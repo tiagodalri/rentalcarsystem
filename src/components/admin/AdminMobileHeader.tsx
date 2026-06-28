@@ -18,8 +18,8 @@ export function AdminMobileHeader() {
     <header
       className="lg:hidden sticky top-0 z-30 flex items-center gap-1 px-2 bg-background/95 backdrop-blur-md transition-transform duration-300 ease-out will-change-transform"
       style={{
-        paddingTop: "calc(env(safe-area-inset-top, 0px) + 10px)",
-        paddingBottom: "10px",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 2px)",
+        paddingBottom: "6px",
         boxShadow: "inset 0 -1px 0 hsl(var(--border) / 0.6)",
         transform: "translateY(0)",
       }}
