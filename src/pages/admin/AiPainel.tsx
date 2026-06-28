@@ -1053,9 +1053,6 @@ export default function AiPainel({
 
                       {/* Coluna 2 — Ação + contexto */}
                       <div className="min-w-0">
-                        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] mb-1" style={{ color: "rgba(13,29,46,0.45)" }}>
-                          Ação sugerida
-                        </div>
                         <h4 className="text-[15px] sm:text-[16px] font-semibold leading-snug mb-2" style={{ color: "#0d1d2e", letterSpacing: "-0.005em" }}>
                           {d.titulo}
                         </h4>
