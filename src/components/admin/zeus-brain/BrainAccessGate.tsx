@@ -1,19 +1,14 @@
 import { useState, type ReactNode } from "react";
 import { Brain, Lock, X } from "lucide-react";
 
-const STORAGE_KEY = "zeus_brain_access_v1";
 const ACCESS_CODE = "123321";
 
 export function isBrainUnlocked(): boolean {
-  try {
-    return sessionStorage.getItem(STORAGE_KEY) === "ok";
-  } catch {
-    return false;
-  }
+  return false;
 }
 
 export function lockBrain() {
-  try { sessionStorage.removeItem(STORAGE_KEY); } catch {}
+  // no-op: gate sempre exige código a cada acesso
 }
 
 type Props = {
@@ -22,12 +17,11 @@ type Props = {
 };
 
 /**
- * Temporary access gate for Zeus Brain.
- * Requires a private access code while the module is in preview.
- * Persists per browser session (sessionStorage).
+ * Access gate for Zeus Brain.
+ * Always requires the private access code on every entry (no persistence).
  */
 export default function BrainAccessGate({ children, onCancel }: Props) {
-  const [unlocked, setUnlocked] = useState<boolean>(() => isBrainUnlocked());
+  const [unlocked, setUnlocked] = useState<boolean>(false);
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -36,13 +30,13 @@ export default function BrainAccessGate({ children, onCancel }: Props) {
   function submit(e?: React.FormEvent) {
     e?.preventDefault();
     if (code.trim() === ACCESS_CODE) {
-      try { sessionStorage.setItem(STORAGE_KEY, "ok"); } catch {}
       setUnlocked(true);
       setError(null);
     } else {
       setError("Código incorreto. Tente novamente.");
     }
   }
+
 
   return (
     <div
