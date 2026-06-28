@@ -569,7 +569,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
               <div className="text-center px-6" style={{ color: "rgba(214,191,134,0.85)" }}>
                 <Loader2 size={24} className="animate-spin mx-auto mb-2" />
                 <div className="text-[11px] tracking-wide">
-                  {kind === "carousel" ? `Compondo ${slidesCount} slides do carrossel...` : "A inteligencia esta compondo a arte..."}
+                  {kind === "carousel" ? `Compondo ${slidesCount} slides do carrossel…` : "A inteligência está compondo a arte…"}
                 </div>
               </div>
             )}
