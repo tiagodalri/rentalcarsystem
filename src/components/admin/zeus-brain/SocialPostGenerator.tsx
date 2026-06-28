@@ -513,20 +513,23 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             />
           </div>
 
-          <button
-            onClick={generate}
-            disabled={loading || (!randomVehicle && !vehicleId)}
-            className="w-full mt-3 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[13px] font-semibold tracking-wide transition-all disabled:opacity-60"
-            style={{
-              background: "linear-gradient(180deg,#14283d,#0d1d2e)",
-              color: "#d6bf86",
-              border: "1px solid rgba(214,191,134,0.40)",
-              minHeight: 42,
-            }}
-          >
-            {loading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
-            {loading ? (kind === "carousel" ? `Gerando ${slidesCount} slides…` : "Gerando arte…") : (kind === "carousel" ? `Gerar carrossel (${slidesCount} slides)` : "Gerar com IA")}
-          </button>
+          <div className="mt-3 sticky bottom-2 lg:static z-10">
+            <button
+              onClick={generate}
+              disabled={loading || (!randomVehicle && !vehicleId)}
+              className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-3 rounded-lg text-[13px] font-semibold tracking-wide transition-all disabled:opacity-60 active:scale-[0.99]"
+              style={{
+                background: "linear-gradient(180deg,#14283d,#0d1d2e)",
+                color: "#d6bf86",
+                border: "1px solid rgba(214,191,134,0.40)",
+                minHeight: 48,
+                boxShadow: "0 14px 30px -16px rgba(13,29,46,0.6)",
+              }}
+            >
+              {loading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
+              {loading ? (kind === "carousel" ? `Gerando ${slidesCount} slides…` : "Gerando arte…") : (kind === "carousel" ? `Gerar carrossel (${slidesCount} slides)` : "Gerar com IA")}
+            </button>
+          </div>
           <p className="text-[10px] text-center mt-1.5" style={{ color: "rgba(13,29,46,0.5)" }}>
             {kind === "carousel"
               ? `O carrossel leva cerca de ${slidesCount * 25}s. Os slides mantêm o mesmo estilo visual.`
