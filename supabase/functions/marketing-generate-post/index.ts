@@ -1,8 +1,15 @@
 // Marketing Studio - Social Post Generator
-// Generates a polished social media image (feed or story) using Lovable AI:
-// 1) Writes an impactful humanized phrase + caption + hashtags (Gemini Flash)
-// 2) Composes the final image with vehicle photo + Zeus logo (Gemini 3 Pro Image)
+// Generates a polished social media image (feed or story) using Lovable AI.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+
+type Mode = "promo" | "free" | "reference";
+
+type Promo = {
+  priceDaily?: string;
+  dateStart?: string;
+  dateEnd?: string;
+  hook?: string;
+};
 
 type Body = {
   vehicleName: string;
@@ -11,12 +18,22 @@ type Body = {
   logoDataUrl?: string | null;
   format: "feed" | "story";
   tone: "luxo" | "aventura" | "familia" | "promocao" | "lancamento";
+  mode?: Mode;
   customPrompt?: string;
+  promo?: Promo;
+  referenceImageDataUrl?: string | null;
 };
 
-// Logotipo oficial da Zeus (fallback caso o cliente nao envie como data URL).
 const ZEUS_LOGO_URL = "https://zeusrentalcar.com/zeus-logo-full.png";
-const ZEUS_MARK_URL = "https://zeusrentalcar.lovable.app/zeus-z-mark.png";
+
+function fmtDate(iso?: string): string {
+  if (!iso) return "";
+  try {
+    const [y, m, d] = iso.split("-").map(Number);
+    const date = new Date(y, (m || 1) - 1, d || 1);
+    return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }).replace(".", "");
+  } catch { return iso; }
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -30,7 +47,11 @@ Deno.serve(async (req) => {
     }
 
     const body = (await req.json()) as Body;
-    const { vehicleName, vehicleBrand, vehiclePhotoUrl, logoDataUrl, format, tone, customPrompt } = body;
+    const {
+      vehicleName, vehicleBrand, vehiclePhotoUrl, logoDataUrl,
+      format, tone, customPrompt,
+      mode = "free", promo, referenceImageDataUrl,
+    } = body;
     const logoUrl = logoDataUrl && logoDataUrl.startsWith("data:image") ? logoDataUrl : ZEUS_LOGO_URL;
     if (!vehicleName) {
       return new Response(JSON.stringify({ error: "vehicleName required" }), {
@@ -46,24 +67,29 @@ Deno.serve(async (req) => {
       lancamento: "novidade, exclusividade, primeira chance de experimentar",
     };
 
+    const promoBlock = mode === "promo" && promo
+      ? `\nPROMOCAO ATIVA:\n- Valor diaria: USD ${promo.priceDaily}\n- Periodo: ${fmtDate(promo.dateStart)} ate ${fmtDate(promo.dateEnd)}${promo.hook ? `\n- Gancho: ${promo.hook}` : ""}\nA headline DEVE comunicar oportunidade sem soar apelativa. A caption deve mencionar o valor e o periodo de forma elegante.`
+      : "";
+
     // ── 1) Copywriting ────────────────────────────────────────────
-    const copySys = `Voce e copywriter senior de uma agencia premium (estilo Wieden+Kennedy / Mother) trabalhando para a Zeus Rental Car, locadora premium em Orlando.
-Escreva em portugues do Brasil impecavel (zero erros ortograficos), voz humana, calorosa, confiante e cinematografica.
-PROIBIDO: emojis, ponto-e-virgula, travessao, jargao publicitario batido ("imperdivel", "incrivel", "nao perca", "venha conhecer").
-Devolva SOMENTE JSON valido no formato:
+    const copySys = `Voce e copywriter senior de uma agencia premium (Wieden+Kennedy / Mother) trabalhando para a Zeus Rental Car, locadora premium em Orlando.
+Escreva em portugues do Brasil impecavel (zero erros), voz humana, calorosa, confiante, cinematografica.
+PROIBIDO: emojis, ponto-e-virgula, travessao, jargao publicitario ("imperdivel", "incrivel", "nao perca").
+Devolva SOMENTE JSON valido:
 {
-  "headline": "frase principal curta (3 a 6 palavras, impactante, sem nome do carro)",
-  "subheadline": "linha de apoio curta (4 a 8 palavras, complementa a headline)",
-  "caption": "legenda do post (3 a 5 linhas fluidas, conta uma micro-historia)",
-  "hashtags": ["#tag1","#tag2", ...]
+  "headline": "frase principal curta (3 a 6 palavras)",
+  "subheadline": "linha de apoio curta (4 a 8 palavras)",
+  "caption": "legenda do post (3 a 5 linhas, micro-historia)",
+  "hashtags": ["#tag1","#tag2"]
 }
-Tom desejado: ${toneMap[tone] || toneMap.luxo}.
-Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #ZeusRentalCar e #Orlando.
-ATENCAO: revise cada palavra. Erros de ortografia sao inaceitaveis.`;
+Tom: ${toneMap[tone] || toneMap.luxo}.
+Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #ZeusRentalCar e #Orlando.`;
+
     const copyUser = `Carro: ${vehicleBrand ? vehicleBrand + " " : ""}${vehicleName}
 Formato: ${format === "feed" ? "feed quadrado" : "story vertical"}
 Tom: ${tone}
-${customPrompt ? `Direcionamento extra: ${customPrompt}` : ""}`;
+Modo: ${mode}${promoBlock}
+${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
 
     const copyRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -108,46 +134,62 @@ ${customPrompt ? `Direcionamento extra: ${customPrompt}` : ""}`;
     const isFeed = format === "feed";
     const aspect = isFeed ? "quadrado 1:1 (1024x1024)" : "vertical 9:16 (1024x1792)";
     const logoPosition = isFeed
-      ? "logotipo oficial da Zeus posicionado no topo central, ocupando cerca de 18% da largura, com respiro generoso ao redor"
-      : "logotipo oficial da Zeus posicionado no topo central, ocupando cerca de 22% da largura, com respiro generoso ao redor";
+      ? "logotipo oficial Zeus no topo central, cerca de 18% da largura, respiro generoso"
+      : "logotipo oficial Zeus no topo central, cerca de 22% da largura, respiro generoso";
 
-    const imagePrompt = `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Zeus Rental Car — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (estilo Mr Porter, Robb Report, Architectural Digest Automotive).
+    const promoVisualBlock = mode === "promo" && promo
+      ? `\n\n═══ BLOCO DE OFERTA (OBRIGATORIO NA ARTE) ═══
+- Renderize um bloco discreto e elegante na arte com:
+  -> Valor "USD ${promo.priceDaily} /dia" em fonte serif media, cor dourado #c9a861
+  -> Periodo "${fmtDate(promo.dateStart)} - ${fmtDate(promo.dateEnd)}" em sans-serif fina caixa alta, cor branco
+- Posicione o bloco no terco inferior, alinhado com a headline. NUNCA como badge circular ou sticker. Trate como linha editorial de revista.
+- NAO use a palavra "PROMO", "OFERTA", "SALE", "DESCONTO". Apenas o valor e o periodo falam por si.`
+      : "";
+
+    const referenceBlock = mode === "reference"
+      ? `\n\n═══ REFERENCIA VISUAL (imagem extra fornecida) ═══
+A ultima imagem anexada e APENAS uma referencia de estilo: capture paleta de cores, mood, tipo de iluminacao, ritmo da composicao e tratamento tipografico. NAO copie o logo da referencia. NAO inclua textos da referencia. O carro Zeus continua sendo o heroi e o logo OFICIAL da Zeus e obrigatorio.`
+      : "";
+
+    const imagePrompt = `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Zeus Rental Car — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (Mr Porter, Robb Report, Architectural Digest Automotive).
 
 ═══ COMPOSICAO ═══
-1. CARRO (imagem 1): ${vehicleBrand || ""} ${vehicleName} como heroi absoluto da arte. Tratamento color grading cinematografico:
-   - Iluminacao tipo studio Peter Lik (rim light dourado nas bordas da carroceria, key light suave acima)
-   - Contraste alto controlado, pretos profundos preservando detalhes
-   - Reflexos sutis na pintura sugerindo um chao de marmore polido
-   - Particulas douradas finas no ar, bokeh dourado discreto ao fundo
-   - Angulo ligeiramente baixo (hero shot), carro ocupando 55-65% da composicao
-   - Fundo: gradiente de preto absoluto (#000) para azul-marinho profundo (#0a1628) com vinheta dourada quente
+1. CARRO (imagem 1): ${vehicleBrand || ""} ${vehicleName} como heroi absoluto:
+   - Iluminacao tipo studio Peter Lik (rim light dourado nas bordas, key light suave acima)
+   - Contraste alto controlado, pretos profundos com detalhes preservados
+   - Reflexos sutis na pintura sugerindo chao de marmore polido
+   - Particulas douradas finas, bokeh dourado discreto ao fundo
+   - Angulo ligeiramente baixo (hero shot), 55-65% da composicao
+   - Fundo: gradiente preto absoluto (#000) para azul-marinho (#0a1628) com vinheta dourada
 
-2. LOGOTIPO (imagem 2): ${logoPosition}. Use o logotipo EXATAMENTE como fornecido, sem reinterpretar, sem trocar fontes, sem mudar cores, sem adicionar elementos. Preserve transparencia.
+2. LOGOTIPO (imagem 2): ${logoPosition}. Use EXATAMENTE como fornecido, sem reinterpretar.
 
-3. TIPOGRAFIA — REGRA CRITICA:
-   - HEADLINE (parte inferior, centralizado): "${copy.headline}"
-     -> Fonte serif display de luxo (estilo Didot, Bodoni 72, Playfair Display Black)
-     -> Cor branco puro #ffffff
-     -> Tamanho grande, peso regular, tracking levemente apertado
-   - SUBHEADLINE (logo abaixo da headline, menor): "${copy.subheadline}"
-     -> Fonte sans-serif fina em caixa alta (estilo Futura Light, Avenir Light)
-     -> Cor dourado champagne #c9a861
-     -> Letter-spacing largo (tracking +200)
-   - ASSINATURA (rodape, bem pequena, caixa alta): "ZEUS RENTAL CAR  ·  ORLANDO"
-     -> Sans-serif fina, dourado #c9a861, letter-spacing extra largo
+3. TIPOGRAFIA:
+   - HEADLINE (parte inferior centralizada): "${copy.headline}"
+     Fonte serif display (Didot, Bodoni 72, Playfair Display Black), branco #ffffff, tracking apertado
+   - SUBHEADLINE (abaixo): "${copy.subheadline}"
+     Sans-serif fina caixa alta (Futura Light, Avenir Light), dourado #c9a861, tracking +200
+   - ASSINATURA (rodape): "ZEUS RENTAL CAR  ·  ORLANDO"
+     Sans-serif fina, dourado #c9a861, tracking extra largo${promoVisualBlock}
 
 ═══ ORTOGRAFIA — OBRIGATORIO ═══
-Renderize o texto EXATAMENTE como fornecido entre aspas. NAO invente, NAO traduza, NAO altere letras. Cada caractere conta. Se houver duvida sobre uma letra, prefira renderizar a frase mais limpa a errar.
+Renderize textos EXATAMENTE como entre aspas. NAO invente, NAO traduza.
 
 ═══ ELEMENTOS GRAFICOS ═══
-- Uma linha fina horizontal dourada (1px, #c9a861) separando headline da assinatura
-- Cantos da arte: respiro generoso (padding minimo 8% das bordas)
-- Opcional: monograma "Z" muito sutil em marca d'agua no canto, opacidade 5%
+- Linha fina horizontal dourada (1px, #c9a861) separando headline da assinatura
+- Respiro generoso (padding minimo 8% das bordas)
 
 ═══ PROIBIDO ═══
-SEM emojis, SEM stickers, SEM badges, SEM "Save", SEM precos, SEM CTA agressivo, SEM gradientes neon, SEM texturas de papel rasgado, SEM frames de polaroide, SEM clipart, SEM aspas decorativas grandes, SEM swooshes/curvas decorativas.
+SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, aspas decorativas grandes, swooshes.${referenceBlock}
 
-Resultado final: uma pagina de revista de luxo automotivo. Silencio visual, sofisticacao, peso editorial. Atemporal.`;
+Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, atemporal.`;
+
+    const contentParts: any[] = [{ type: "text", text: imagePrompt }];
+    if (vehiclePhotoUrl) contentParts.push({ type: "image_url", image_url: { url: vehiclePhotoUrl } });
+    contentParts.push({ type: "image_url", image_url: { url: logoUrl } });
+    if (mode === "reference" && referenceImageDataUrl && referenceImageDataUrl.startsWith("data:image")) {
+      contentParts.push({ type: "image_url", image_url: { url: referenceImageDataUrl } });
+    }
 
     const imgRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -155,18 +197,7 @@ Resultado final: uma pagina de revista de luxo automotivo. Silencio visual, sofi
       body: JSON.stringify({
         model: "google/gemini-3-pro-image",
         modalities: ["image", "text"],
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: imagePrompt },
-              ...(vehiclePhotoUrl
-                ? [{ type: "image_url", image_url: { url: vehiclePhotoUrl } }]
-                : []),
-              { type: "image_url", image_url: { url: logoUrl } },
-            ],
-          },
-        ],
+        messages: [{ role: "user", content: contentParts }],
       }),
     });
 
@@ -180,7 +211,6 @@ Resultado final: uma pagina de revista de luxo automotivo. Silencio visual, sofi
     }
     const imgJson = await imgRes.json();
     const msg = imgJson.choices?.[0]?.message;
-    // Gateway normalizes to OpenAI-style: look for images array on message
     let imageBase64: string | null = null;
     const images = msg?.images;
     if (Array.isArray(images) && images.length > 0) {
@@ -189,7 +219,6 @@ Resultado final: uma pagina de revista de luxo automotivo. Silencio visual, sofi
         imageBase64 = u.split(",")[1] || null;
       }
     }
-    // fallback: search inside content
     if (!imageBase64 && Array.isArray(msg?.content)) {
       for (const part of msg.content) {
         const u = part?.image_url?.url;
