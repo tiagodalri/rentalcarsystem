@@ -296,9 +296,11 @@ REGRAS:
 - INCORPORE os elementos visuais marcantes (bandeiras, motivos, cenario etc) de forma elegante.
 - SUBSTITUA a marca/logo da referencia pelo logo oficial Zeus fornecido na ultima imagem.
 - NAO copie pessoas, fotos especificas, nem o logotipo da referencia.
-- O carro heroi DEVE ser o ${vehicleBrand || ""} ${vehicleName} da foto fornecida (cor, modelo e identidade EXATAS).` : `
+- O carro heroi DEVE ser o ${vehicleBrand || ""} ${vehicleName} da foto fornecida (cor, modelo e identidade EXATAS).
+- PROIBIDO renderizar nomes, logotipos ou identidade visual de concorrentes (locadoras, marcas automotivas, empresas). Remova ou substitua genericamente antes de compor.` : `
 Capture tema, conceito, paleta, composicao e elementos visuais marcantes — adapte para a Zeus.
-NAO copie pessoas, logos nem textos literais da referencia.`}`
+NAO copie pessoas, logos nem textos literais da referencia.
+PROIBIDO renderizar nomes, logotipos ou identidade visual de concorrentes.`}`
       : "";
 
     const seasonalBlock = tone === "sazonal" && seasonalTheme
