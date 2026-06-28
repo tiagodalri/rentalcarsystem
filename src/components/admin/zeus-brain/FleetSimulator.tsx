@@ -162,9 +162,10 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
 
   const qtyOf = (id: string) => inQty[id] ?? 1;
 
+  // Frota completa, ordenada por desempenho (melhor → pior)
   const sortedByPerf = useMemo(
-    () => [...eligible].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
-    [eligible]
+    () => [...perVehicle].sort((a, b) => b.revPerDayOwned - a.revPerDayOwned),
+    [perVehicle]
   );
 
   const matches = (p: SimVehicle, q: string) => {
@@ -174,19 +175,19 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
       .filter(Boolean).join(" ").toLowerCase().includes(s);
   };
 
-  // Para VENDER: mostra do pior pro melhor
+  // Para VENDER: mostra a frota inteira do pior pro melhor (escondendo o que já está marcado para comprar)
   const sellList = useMemo(
-    () => [...sortedByPerf].reverse().filter(p => matches(p, queryOut)),
-    [sortedByPerf, queryOut]
+    () => [...sortedByPerf].reverse().filter(p => matches(p, queryOut) && !inIds.includes(p.v.id)),
+    [sortedByPerf, queryOut, inIds]
   );
-  // Para COMPRAR (referência): top desempenho
+  // Para COMPRAR: frota inteira do melhor pro pior (escondendo o que já está marcado para vender)
   const buyList = useMemo(
-    () => sortedByPerf.filter(p => matches(p, queryIn)),
-    [sortedByPerf, queryIn]
+    () => sortedByPerf.filter(p => matches(p, queryIn) && !outIds.includes(p.v.id)),
+    [sortedByPerf, queryIn, outIds]
   );
 
-  const outList = outIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
-  const inList = inIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
+  const outList = outIds.map(id => perVehicle.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
+  const inList = inIds.map(id => perVehicle.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
 
   // Unidades totais a comprar (soma das qtds)
   const inTotalUnits = inList.reduce((s, p) => s + qtyOf(p.v.id), 0);
@@ -356,9 +357,9 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               </>
             )}
 
-            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Disponíveis (pior desempenho primeiro)</div>
+            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Frota completa (pior desempenho primeiro)</div>
             <div className="space-y-1.5 max-h-[420px] overflow-y-auto pr-1">
-              {sellList.filter(p => !outIds.includes(p.v.id)).slice(0, 40).map(p => (
+              {sellList.filter(p => !outIds.includes(p.v.id)).map(p => (
                 <VehicleRow
                   key={p.v.id}
                   p={p}
@@ -466,9 +467,9 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
               </>
             )}
 
-            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Top desempenho da frota</div>
+            <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1.5">Frota completa (melhor desempenho primeiro)</div>
             <div className="space-y-1.5 max-h-[420px] overflow-y-auto pr-1">
-              {buyList.filter(p => !inIds.includes(p.v.id)).slice(0, 40).map(p => (
+              {buyList.filter(p => !inIds.includes(p.v.id)).map(p => (
                 <VehicleRow
                   key={p.v.id}
                   p={p}
