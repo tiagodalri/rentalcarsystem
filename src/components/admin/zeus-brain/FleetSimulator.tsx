@@ -388,7 +388,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                   )}
                 </div>
                 <a
-                  href="/admin/frota"
+                  href="/admin/fleet"
                   className="inline-flex items-center gap-1 text-[11.5px] font-semibold uppercase tracking-wider"
                   style={{ color: GOLD }}
                 >
