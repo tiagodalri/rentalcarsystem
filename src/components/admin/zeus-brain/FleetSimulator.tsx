@@ -867,7 +867,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                     <div className="mt-4 pt-4 flex items-start gap-2.5" style={{ borderTop: `1px solid ${NAVY_10}` }}>
                       <span className="mt-[6px] w-1 h-1 rounded-full shrink-0" style={{ background: GOLD }} />
                       <p className="text-[11.5px] leading-[1.65]" style={{ color: NAVY_55 }}>
-                        <span className="font-semibold" style={{ color: GOLD }}>Aviso:</span> resultados passados não garantem resultados futuros. Esta análise é construída sobre o histórico real de locações, ocupação, receita e custo de aquisição da sua frota — portanto carrega valor analítico real para decisão, mas não substitui o julgamento operacional de mercado, sazonalidade e contexto do momento.
+                        <span className="font-semibold" style={{ color: GOLD }}>Aviso:</span> resultados passados não garantem resultados futuros. Esta análise é construída sobre o histórico real de locações, ocupação, receita e custo de aquisição da sua frota. Portanto carrega valor analítico real para decisão, mas não substitui o julgamento operacional de mercado, sazonalidade e contexto do momento.
                       </p>
                     </div>
                   </div>
