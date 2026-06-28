@@ -560,7 +560,14 @@ function AdminTeamDesktop() {
             const levelInfo = accessLevelLabels[mp.access_level || "viewer"];
 
             return (
-              <Card key={m.id} className={`border-border/30 transition-all hover:shadow-md ${!m.is_active ? "opacity-50" : ""}`}>
+              <Card
+                key={m.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => openProfile(m)}
+                onKeyDown={(e) => { if (e.key === "Enter") openProfile(m); }}
+                className={`border-border/30 transition-all hover:shadow-md hover:border-primary/30 cursor-pointer ${!m.is_active ? "opacity-50" : ""}`}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
@@ -612,19 +619,22 @@ function AdminTeamDesktop() {
 
                   {m.notes && <p className="text-[10px] text-muted-foreground/60 mb-3 line-clamp-2">{m.notes}</p>}
 
-                  <div className="flex items-center justify-between pt-2 border-t border-border/20">
+                  <div className="flex items-center justify-between pt-2 border-t border-border/20" onClick={(e) => e.stopPropagation()}>
                     <button
-                      onClick={() => handleToggleActive(m.id, m.is_active)}
+                      onClick={(e) => { e.stopPropagation(); handleToggleActive(m.id, m.is_active); }}
                       className={`flex items-center gap-1 text-[10px] font-medium transition-colors ${m.is_active ? "text-emerald-500 hover:text-emerald-600" : "text-muted-foreground hover:text-foreground"}`}
                     >
                       {m.is_active ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
                       {m.is_active ? "Ativo" : "Inativo"}
                     </button>
                     <div className="flex items-center gap-1">
-                      <button onClick={() => handleEdit(m)} className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                      <button onClick={(e) => { e.stopPropagation(); openProfile(m); }} className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Abrir perfil">
+                        <Eye size={12} />
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); handleEdit(m); }} className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Edição rápida">
                         <Pencil size={12} />
                       </button>
-                      <button onClick={() => handleDelete(m.id)} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors">
+                      <button onClick={(e) => { e.stopPropagation(); handleDelete(m.id); }} className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Remover">
                         <Trash2 size={12} />
                       </button>
                     </div>
