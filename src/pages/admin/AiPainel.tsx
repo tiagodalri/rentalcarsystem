@@ -771,7 +771,7 @@ export default function AiPainel({
             <div className="flex items-center gap-2 mb-2 flex-wrap">
               <div className="ai-badge">
                 <Sparkles size={11} strokeWidth={2} />
-                <span>MODO IA ATIVADO</span>
+                <span>🧠 ZEUS BRAIN ATIVADO</span>
                 <span className="ai-pulse" />
               </div>
               <div className="ai-chip sm:hidden"><Brain size={12} /><span>Análise IA</span></div>
