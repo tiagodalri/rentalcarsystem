@@ -65,16 +65,34 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
     return null;
   }, [selected]);
 
+  async function urlToDataUrl(url: string): Promise<string | null> {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      return await new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onloadend = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  }
+
   async function generate() {
     if (!selected) return;
     setLoading(true);
     setResult(null);
     try {
+      const logoDataUrl = await urlToDataUrl(`${window.location.origin}/zeus-logo-full.png`);
       const { data, error } = await supabase.functions.invoke("marketing-generate-post", {
         body: {
           vehicleName: selected.name || `${selected.brand || ""} ${selected.model || ""}`.trim(),
           vehicleBrand: selected.brand,
           vehiclePhotoUrl: photoUrl,
+          logoDataUrl,
           format,
           tone,
           customPrompt: customPrompt.trim() || undefined,
