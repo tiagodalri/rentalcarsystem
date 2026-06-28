@@ -86,6 +86,12 @@ export default function AdminPainel() {
     try { localStorage.setItem("zeus_ai_mode", aiMode ? "1" : "0"); } catch {}
   }, [aiMode]);
 
+  // hub | painel | marketing | ia — view interna do overlay Zeus Brain
+  type HubView = "hub" | "painel" | "marketing" | "ia";
+  const [hubView, setHubView] = useState<HubView>("hub");
+  // Sempre que abre o Brain, volta ao hub
+  useEffect(() => { if (aiMode) setHubView("hub"); }, [aiMode]);
+
   const [bookingSource, setBookingSource] = useState<BookingSource>(() => readBookingSource());
   useEffect(() => { writeBookingSource(bookingSource); }, [bookingSource]);
 
@@ -93,6 +99,8 @@ export default function AdminPainel() {
     () => filterBookingsBySource(bookings, bookingSource),
     [bookings, bookingSource],
   );
+
+
 
 
 
