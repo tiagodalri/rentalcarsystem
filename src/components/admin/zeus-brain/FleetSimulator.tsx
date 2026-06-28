@@ -539,6 +539,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                   key={p.v.id}
                   p={p}
                   side="out"
+                  disabled={!(p.purchase > 0)}
                   action={{ label: "+ Vender", onClick: () => toggleOut(p.v.id) }}
                 />
               ))}
