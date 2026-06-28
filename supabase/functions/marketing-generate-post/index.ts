@@ -17,11 +17,12 @@ type Body = {
   vehiclePhotoUrl?: string | null;
   logoDataUrl?: string | null;
   format: "feed" | "story";
-  tone: "luxo" | "aventura" | "familia" | "promocao" | "lancamento";
+  tone: "luxo" | "aventura" | "familia" | "promocao" | "lancamento" | "sazonal";
   mode?: Mode;
   customPrompt?: string;
   promo?: Promo;
   referenceImageDataUrl?: string | null;
+  seasonalTheme?: { key: string; label: string; palette: string; motifs: string; copyHint: string };
 };
 
 const ZEUS_LOGO_URL = "https://zeusrentalcar.com/zeus-logo-full.png";
@@ -50,7 +51,7 @@ Deno.serve(async (req) => {
     const {
       vehicleName, vehicleBrand, vehiclePhotoUrl, logoDataUrl,
       format, tone, customPrompt,
-      mode = "free", promo, referenceImageDataUrl,
+      mode = "free", promo, referenceImageDataUrl, seasonalTheme,
     } = body;
     const logoUrl = logoDataUrl && logoDataUrl.startsWith("data:image") ? logoDataUrl : ZEUS_LOGO_URL;
     if (!vehicleName) {
@@ -65,6 +66,9 @@ Deno.serve(async (req) => {
       familia: "acolhedor, seguro, perfeito para criar memorias em familia",
       promocao: "urgencia leve, oportunidade unica, sem soar apelativo",
       lancamento: "novidade, exclusividade, primeira chance de experimentar",
+      sazonal: seasonalTheme
+        ? `tema sazonal "${seasonalTheme.label}" — ${seasonalTheme.copyHint}. Mantenha a sofisticacao Zeus, jamais kitsch.`
+        : "tema sazonal contextual da data atual, sofisticado",
     };
 
     const promoBlock = mode === "promo" && promo
@@ -151,6 +155,13 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
 A ultima imagem anexada e APENAS uma referencia de estilo: capture paleta de cores, mood, tipo de iluminacao, ritmo da composicao e tratamento tipografico. NAO copie o logo da referencia. NAO inclua textos da referencia. O carro Zeus continua sendo o heroi e o logo OFICIAL da Zeus e obrigatorio.`
       : "";
 
+    const seasonalBlock = tone === "sazonal" && seasonalTheme
+      ? `\n\n═══ TEMA SAZONAL — ${seasonalTheme.label.toUpperCase()} (OBRIGATORIO) ═══
+- Paleta auxiliar: ${seasonalTheme.palette}. Aplique como detalhes (vinheta, particulas, reflexos) SEM dominar o carro.
+- Motivos visuais: ${seasonalTheme.motifs}. Sempre sutis, sofisticados, atmosfericos — NUNCA stickers, ilustracoes, clipart ou icones literais.
+- Mantenha o padrao editorial Zeus: silencio visual, atemporal, premium. Nada de kitsch, nada caricato.`
+      : "";
+
     const imagePrompt = `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Zeus Rental Car — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (Mr Porter, Robb Report, Architectural Digest Automotive).
 
 ═══ COMPOSICAO ═══
@@ -180,7 +191,7 @@ Renderize textos EXATAMENTE como entre aspas. NAO invente, NAO traduza.
 - Respiro generoso (padding minimo 8% das bordas)
 
 ═══ PROIBIDO ═══
-SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, aspas decorativas grandes, swooshes.${referenceBlock}
+SEM emojis, stickers, badges, "Save", CTA agressivo, gradientes neon, polaroide, clipart, aspas decorativas grandes, swooshes.${referenceBlock}${seasonalBlock}
 
 Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, atemporal.`;
 
