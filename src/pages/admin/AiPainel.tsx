@@ -982,7 +982,7 @@ export default function AiPainel({
 
               {/* Legenda — explica o que significa cada coluna */}
               <div
-                className="hidden sm:grid grid-cols-[120px_1fr_220px] gap-x-5 px-5 pb-2 mb-2 text-[9.5px] font-semibold uppercase tracking-[0.18em]"
+                className="hidden sm:grid grid-cols-[140px_1fr_220px] gap-x-5 px-5 pb-2 mb-2 text-[9.5px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: "rgba(13,29,46,0.40)", borderBottom: "1px solid rgba(13,29,46,0.06)" }}
               >
                 <span>Prioridade</span>
