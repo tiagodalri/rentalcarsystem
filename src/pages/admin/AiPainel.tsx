@@ -1450,7 +1450,7 @@ export default function AiPainel({
                     <li key={p.v.id} className="flex justify-between text-[12.5px]">
                       <div className="min-w-0">
                         <div className="text-white/90 truncate">{p.v.name}</div>
-                        <div className="text-[10.5px] text-white/55">{p.bookingsCount} reservas · {p.customerCount} clientes diferentes</div>
+                        <div className="text-[10.5px] text-white/55">{p.bookingsCount} reservas</div>
                       </div>
                       <span className="tabular-nums text-emerald-200">{fmtUSD(p.revPerDayOwned)}/dia</span>
                     </li>
