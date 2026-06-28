@@ -428,6 +428,14 @@ export default function AiPainel({
     return out.sort((a, b) => b.estLoss - a.estLoss).slice(0, 6);
   }, [vehicles, realBookings, today]);
 
+  /* ───── RECEITA PERDIDA — cancelamentos + janelas ociosas ───── */
+  const lostRevenue = useMemo(() => {
+    const cancelado = bookings.filter(b => b.status === "cancelled").reduce((s, b) => s + (Number(b.total_price) || 0), 0);
+    const janelas = opportunityWindows.reduce((s, w) => s + w.estLoss, 0);
+    return { cancelado, janelas, total: cancelado + janelas };
+  }, [bookings, opportunityWindows]);
+
+
   /* ───── Customers: RFM-like ───── */
   const customers = useMemo(() => {
     const map = new Map<string, { name: string; trips: number; revenue: number; lastDate: Date | null; firstDate: Date | null }>();
