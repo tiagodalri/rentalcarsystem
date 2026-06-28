@@ -542,7 +542,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             <span className="text-[9px] uppercase tracking-[0.28em] font-semibold" style={{ color: "#d6bf86" }}>
               {result?.slides && result.slides.length > 1
                 ? `Carrossel · ${activeSlide + 1} / ${result.slides.length}`
-                : "Pre-visualizacao completa"}
+                : "Pré-visualização completa"}
             </span>
             {result && (
               <div className="flex gap-1.5">
