@@ -91,8 +91,6 @@ const menuSections: MenuSection[] = [
   {
     label: "Administração",
     items: [
-      { title: "Equipe",        url: "/admin/team",     icon: UsersRound, allowedRoles: ["admin"] },
-      { title: "Logs",          url: "/admin/logs",     icon: ScrollText, allowedRoles: ["admin"] },
       { title: "Configurações", url: "/admin/settings", icon: Settings,   allowedRoles: ["admin"] },
     ],
   },
