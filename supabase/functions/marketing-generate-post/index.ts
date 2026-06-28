@@ -195,7 +195,7 @@ Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #ZeusRentalCar e #O
     const copyUser = `Carro: ${vehicleBrand ? vehicleBrand + " " : ""}${vehicleName}
 Formato: ${format === "feed" ? "feed quadrado" : "story vertical"}${carousel ? ` em CARROSSEL de ${slidesCount} slides` : ""}
 Tom: ${tone}
-Modo: ${mode}${promoBlock}
+Modo: ${mode}${promoBlock}${refBriefBlock}
 ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
 
     const copyRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
