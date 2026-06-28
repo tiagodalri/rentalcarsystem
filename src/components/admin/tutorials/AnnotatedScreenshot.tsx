@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export type Hotspot = {
@@ -22,8 +22,8 @@ interface Props {
 
 /**
  * AnnotatedScreenshot
- * Big-tech feel: full screenshot visible (object-contain), refined gold pins
- * with halo + spotlight cutout effect when a hotspot is focused.
+ * Hover/touch estável: debounce no leave, locking por clique/tap,
+ * aspect-ratio reseta quando o src muda (evita salto entre passos).
  */
 export function AnnotatedScreenshot({
   src,
@@ -36,8 +36,43 @@ export function AnnotatedScreenshot({
 }: Props) {
   const [naturalRatio, setNaturalRatio] = useState<number | null>(null);
   const [hoverN, setHoverN] = useState<number | null>(null);
-  const focused = activeN ?? hoverN;
+  const [lockedN, setLockedN] = useState<number | null>(null);
+  const leaveTimer = useRef<number | null>(null);
+
+  // Reset aspect ratio + locks when image changes — evita pulo entre passos
+  useEffect(() => {
+    setNaturalRatio(null);
+    setHoverN(null);
+    setLockedN(null);
+  }, [src]);
+
+  useEffect(() => () => {
+    if (leaveTimer.current) window.clearTimeout(leaveTimer.current);
+  }, []);
+
+  const focused = lockedN ?? activeN ?? hoverN;
   const focusedHs = hotspots.find((h) => h.n === focused);
+
+  const enter = (n: number) => {
+    if (leaveTimer.current) {
+      window.clearTimeout(leaveTimer.current);
+      leaveTimer.current = null;
+    }
+    setHoverN(n);
+    onHotspotEnter?.(n);
+  };
+
+  const leave = () => {
+    if (leaveTimer.current) window.clearTimeout(leaveTimer.current);
+    leaveTimer.current = window.setTimeout(() => {
+      setHoverN(null);
+      onHotspotLeave?.();
+    }, 90);
+  };
+
+  const toggleLock = (n: number) => {
+    setLockedN((curr) => (curr === n ? null : n));
+  };
 
   return (
     <div
@@ -52,7 +87,8 @@ export function AnnotatedScreenshot({
       <img
         src={src}
         alt={alt}
-        loading="lazy"
+        loading="eager"
+        decoding="async"
         onLoad={(e) => {
           const img = e.currentTarget;
           if (img.naturalWidth && img.naturalHeight) {
@@ -63,7 +99,7 @@ export function AnnotatedScreenshot({
         draggable={false}
       />
 
-      {/* Dim everything except focused area (spotlight effect) */}
+      {/* Spotlight dim */}
       <div
         className={cn(
           "pointer-events-none absolute inset-0 transition-opacity duration-300",
@@ -106,28 +142,22 @@ export function AnnotatedScreenshot({
       {/* Numbered pins */}
       {hotspots.map((hs) => {
         const isFocus = focused === hs.n;
+        const isLocked = lockedN === hs.n;
         return (
           <button
             type="button"
             key={`pin-${hs.n}`}
-            onMouseEnter={() => {
-              setHoverN(hs.n);
-              onHotspotEnter?.(hs.n);
-            }}
-            onMouseLeave={() => {
-              setHoverN(null);
-              onHotspotLeave?.();
-            }}
-            onFocus={() => {
-              setHoverN(hs.n);
-              onHotspotEnter?.(hs.n);
-            }}
-            onBlur={() => {
-              setHoverN(null);
-              onHotspotLeave?.();
+            onPointerEnter={() => enter(hs.n)}
+            onPointerLeave={leave}
+            onFocus={() => enter(hs.n)}
+            onBlur={leave}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleLock(hs.n);
             }}
             aria-label={`${hs.n}. ${hs.label}`}
-            className="absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none z-10"
+            aria-pressed={isLocked}
+            className="absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none z-10 touch-manipulation"
             style={{ left: `${hs.x}%`, top: `${hs.y}%` }}
           >
             <span
@@ -152,7 +182,7 @@ export function AnnotatedScreenshot({
         );
       })}
 
-      {/* Floating label for focused hotspot */}
+      {/* Floating label */}
       {focusedHs && (
         <div
           className="pointer-events-none absolute z-20 transition-all duration-200"

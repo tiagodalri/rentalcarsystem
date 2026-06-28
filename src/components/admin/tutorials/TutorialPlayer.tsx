@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ArrowLeft, ArrowRight, Check, ExternalLink, X, Sparkles, Command } from "lucide-react";
@@ -14,23 +14,13 @@ interface TutorialPlayerProps {
   onComplete: (id: string) => void;
 }
 
-/**
- * TutorialPlayer — versão "Cinema" (Big-Tech)
- *
- * Layout horizontal full-bleed:
- *  ┌────────────────────────────────────────────────────────────────┐
- *  │ STAGE (cinema, 62%)        │ INSTRUÇÕES (38%, min-w ≥ 460px)  │
- *  │ — backdrop premium         │ — tipografia generosa            │
- *  │ — screenshot grande        │ — sem quebra de palavra          │
- *  │ — hotspots flutuantes      │ — passos como índice lateral     │
- *  └────────────────────────────────────────────────────────────────┘
- *
- * Sem barra de progresso fina, sem cards-no-meio-do-nada. Tudo respira.
- */
 export function TutorialPlayer({ tutorial, open, onClose, onComplete }: TutorialPlayerProps) {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [activeHotspot, setActiveHotspot] = useState<number | null>(null);
+  const hoverLeaveTimer = useRef<number | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -41,16 +31,59 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
 
   useEffect(() => setActiveHotspot(null), [step]);
 
+  const total = tutorial?.steps.length ?? 0;
+  const isLast = step === total - 1;
+
+  const goNext = useCallback(() => {
+    if (!tutorial) return;
+    if (isLast) {
+      onComplete(tutorial.id);
+      onClose();
+    } else {
+      setStep((s) => Math.min(tutorial.steps.length - 1, s + 1));
+    }
+  }, [tutorial, isLast, onComplete, onClose]);
+
+  const goPrev = useCallback(() => setStep((s) => Math.max(0, s - 1)), []);
+
   useEffect(() => {
     if (!open || !tutorial) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") setStep((s) => Math.min(tutorial.steps.length - 1, s + 1));
-      if (e.key === "ArrowLeft") setStep((s) => Math.max(0, s - 1));
+      if (e.key === "ArrowRight") { e.preventDefault(); goNext(); }
+      if (e.key === "ArrowLeft")  { e.preventDefault(); goPrev(); }
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, tutorial, onClose]);
+  }, [open, tutorial, onClose, goNext, goPrev]);
+
+  // Preload adjacent step images for instant transitions
+  useEffect(() => {
+    if (!tutorial) return;
+    const refs = [tutorial.steps[step + 1]?.imageRef, tutorial.steps[step - 1]?.imageRef];
+    refs.forEach((r) => {
+      if (r && TUTORIAL_SCREENS[r]) {
+        const img = new Image();
+        img.src = TUTORIAL_SCREENS[r];
+      }
+    });
+  }, [tutorial, step]);
+
+  useEffect(() => () => {
+    if (hoverLeaveTimer.current) window.clearTimeout(hoverLeaveTimer.current);
+  }, []);
+
+  const setHotspotSafe = useCallback((n: number | null) => {
+    if (hoverLeaveTimer.current) {
+      window.clearTimeout(hoverLeaveTimer.current);
+      hoverLeaveTimer.current = null;
+    }
+    if (n === null) {
+      hoverLeaveTimer.current = window.setTimeout(() => setActiveHotspot(null), 90);
+    } else {
+      setActiveHotspot(n);
+    }
+  }, []);
 
   const paragraphs = useMemo(() => {
     if (!tutorial) return [];
@@ -61,20 +94,26 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
 
   if (!tutorial) return null;
 
-  const total = tutorial.steps.length;
   const current = tutorial.steps[step];
-  const isLast = step === total - 1;
   const Icon = tutorial.icon;
   const screenSrc = current.imageRef ? TUTORIAL_SCREENS[current.imageRef] : undefined;
   const hasImage = !!screenSrc;
 
-  const next = () => {
-    if (isLast) {
-      onComplete(tutorial.id);
-      onClose();
-    } else setStep((s) => Math.min(total - 1, s + 1));
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
   };
-  const prev = () => setStep((s) => Math.max(0, s - 1));
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null || touchStartY.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) goNext();
+      else goPrev();
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -109,7 +148,7 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
         >
           {/* ═════════ STAGE (cinema) ═════════ */}
           {hasImage && (
-            <section className="relative min-w-0 overflow-hidden bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.08),transparent_55%),radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.05),transparent_50%),linear-gradient(135deg,hsl(var(--muted)/0.4),hsl(var(--background)))]">
+            <section onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} className="relative min-w-0 overflow-hidden bg-[radial-gradient(ellipse_at_top_left,hsl(var(--primary)/0.08),transparent_55%),radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.05),transparent_50%),linear-gradient(135deg,hsl(var(--muted)/0.4),hsl(var(--background)))]">
               {/* grid texture */}
               <div
                 aria-hidden
@@ -158,8 +197,8 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
                       alt={`Tela — ${current.title}`}
                       hotspots={current.hotspots}
                       activeN={activeHotspot}
-                      onHotspotEnter={setActiveHotspot}
-                      onHotspotLeave={() => setActiveHotspot(null)}
+                      onHotspotEnter={(n) => setHotspotSafe(n)}
+                      onHotspotLeave={() => setHotspotSafe(null)}
                     />
                   </div>
                 </div>
@@ -214,8 +253,8 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
                       return (
                         <li
                           key={hs.n}
-                          onMouseEnter={() => setActiveHotspot(hs.n)}
-                          onMouseLeave={() => setActiveHotspot(null)}
+                          onPointerEnter={() => setHotspotSafe(hs.n)}
+                          onPointerLeave={() => setHotspotSafe(null)}
                           className={cn(
                             "group flex items-start gap-3 rounded-xl px-3 py-2.5 cursor-default transition-all border",
                             isActive
@@ -308,7 +347,7 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
               <div className="flex items-center justify-between gap-3">
                 <button
                   type="button"
-                  onClick={prev}
+                  onClick={goPrev}
                   disabled={step === 0}
                   className="h-10 px-4 rounded-full inline-flex items-center gap-1.5 text-[13px] font-medium text-foreground/70 hover:text-foreground hover:bg-muted/60 transition-all disabled:opacity-25 disabled:hover:bg-transparent disabled:cursor-not-allowed"
                 >
@@ -325,7 +364,7 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
 
                 <button
                   type="button"
-                  onClick={next}
+                  onClick={goNext}
                   className="h-10 px-5 rounded-full inline-flex items-center gap-1.5 text-[13px] font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-[0_4px_16px_-4px_hsl(var(--primary)/0.55)]"
                 >
                   {isLast ? "Concluir tutorial" : "Próximo passo"}
