@@ -12,7 +12,7 @@ import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { SwipeAction } from "@/components/mobile/SwipeAction";
 
 /* ============================================================
-   PAINEL — Mobile-first.
+   PAINEL Mobile-first.
    - Hero "próxima ação" do dia: card grande, ação primária full-width.
    - KPIs em chips horizontais (scroll), tap navega.
    - Timeline do dia agrupada por período (Manhã/Tarde/Noite),
