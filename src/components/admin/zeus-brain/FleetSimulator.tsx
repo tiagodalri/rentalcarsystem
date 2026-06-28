@@ -143,7 +143,7 @@ function VehicleRow({
           {p.purchase > 0 && (
             <>
               <span style={{ color: NAVY_40 }}>•</span>
-              <span className="font-semibold" style={{ color: GOLD }}>pago {fmtUSD(p.purchase)}</span>
+              <span className="font-semibold" style={{ color: GOLD }}>Pago {fmtUSD(p.purchase)}</span>
             </>
           )}
         </div>
