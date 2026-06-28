@@ -35,6 +35,7 @@ import { registerLocalInspectionPreview, compressInspectionImage } from "@/lib/i
 import CarDamageMap from "@/components/inspection/CarDamageMap";
 import { PhotoSourceSheet } from "@/components/admin/PhotoSourceSheet";
 import { stampInspectionPhoto } from "@/lib/inspectionStamp";
+import { normalizeDamageText } from "@/lib/damageTextNormalizer";
 import { AddressAutocompleteInput } from "@/components/admin/AddressAutocompleteInput";
 import { MapPin } from "lucide-react";
 
