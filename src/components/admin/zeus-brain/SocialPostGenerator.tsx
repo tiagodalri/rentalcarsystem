@@ -746,8 +746,9 @@ function IconBtn({ children, onClick, title }: { children: React.ReactNode; onCl
     <button
       onClick={onClick}
       title={title}
-      className="h-7 w-7 rounded-full inline-flex items-center justify-center transition-all"
-      style={{ background: "rgba(214,191,134,0.12)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.30)" }}
+      aria-label={title}
+      className="h-10 w-10 sm:h-8 sm:w-8 rounded-full inline-flex items-center justify-center transition-all active:scale-95"
+      style={{ background: "rgba(214,191,134,0.14)", color: "#d6bf86", border: "1px solid rgba(214,191,134,0.35)" }}
     >
       {children}
     </button>
