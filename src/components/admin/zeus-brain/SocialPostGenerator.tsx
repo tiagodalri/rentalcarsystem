@@ -513,7 +513,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
 
           <button
             onClick={generate}
-            disabled={loading || !vehicleId}
+            disabled={loading || (!randomVehicle && !vehicleId)}
             className="w-full mt-3 inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-[13px] font-semibold tracking-wide transition-all disabled:opacity-60"
             style={{
               background: "linear-gradient(180deg,#14283d,#0d1d2e)",
@@ -523,12 +523,12 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
             }}
           >
             {loading ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
-            {loading ? (kind === "carousel" ? `Gerando ${slidesCount} slides...` : "Gerando arte...") : (kind === "carousel" ? `Gerar carrossel (${slidesCount} slides)` : "Gerar com IA")}
+            {loading ? (kind === "carousel" ? `Gerando ${slidesCount} slides…` : "Gerando arte…") : (kind === "carousel" ? `Gerar carrossel (${slidesCount} slides)` : "Gerar com IA")}
           </button>
           <p className="text-[10px] text-center mt-1.5" style={{ color: "rgba(13,29,46,0.5)" }}>
             {kind === "carousel"
-              ? `Carrossel leva cerca de ${slidesCount * 25}s. Os slides mantem o mesmo estilo visual.`
-              : "A geracao leva de 15 a 40 segundos. Cada vez gera uma arte unica."}
+              ? `O carrossel leva cerca de ${slidesCount * 25}s. Os slides mantêm o mesmo estilo visual.`
+              : "A geração leva de 15 a 40 segundos. Cada execução produz uma arte única."}
           </p>
         </div>
 
