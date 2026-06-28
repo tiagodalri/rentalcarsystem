@@ -496,7 +496,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           <div className="mt-3">
-            <Label>{mode === "free" ? "Sua instrucao" : "Direcionamento extra (opcional)"}</Label>
+            <Label>{mode === "free" ? "Sua instrução" : "Direcionamento extra (opcional)"}</Label>
             <textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
@@ -504,7 +504,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
               placeholder={
                 mode === "free"
                   ? "Ex: arte com clima de fim de tarde em Miami Beach, frase sobre liberdade"
-                  : "Ex: destaque o teto solar panoramico"
+                  : "Ex: destaque o teto solar panorâmico"
               }
               className="w-full mt-1 px-2.5 py-2 rounded-lg text-[12px] bg-white resize-none"
               style={{ border: "1px solid rgba(13,29,46,0.18)", color: "#0d1d2e" }}
