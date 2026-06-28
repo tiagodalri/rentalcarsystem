@@ -1711,7 +1711,7 @@ function localBriefing(p: any): string {
   if (p.sellCandidatesCount) parts.push(`Existem ${p.sellCandidatesCount} carro(s) com pouco uso e baixo retorno que valem ser considerados para venda.`);
   if (p.priceUpCount) parts.push(`${p.priceUpCount} carro(s) estão sempre alugados e aguentam um aumento de preço entre 12% e 18%.`);
   if (p.opportunityWindows) parts.push(`Encontrei ${p.opportunityWindows} períodos curtos de carros parados entre reservas — uma promo de última hora pode capturar essa receita.`);
-  if (p.champions || p.atRisk) parts.push(`Você tem ${p.champions ?? 0} clientes Fiéis VIP que sustentam a recorrência${p.atRisk ? ` e ${p.atRisk} cliente(s) Em risco que merecem uma mensagem` : ""}.`);
+  
   if (p.topCategory) parts.push(`A categoria que mais rende hoje é ${p.topCategory}.`);
   return parts.join(" ");
 }
