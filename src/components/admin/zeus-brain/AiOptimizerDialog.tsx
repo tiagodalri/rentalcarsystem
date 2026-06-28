@@ -278,40 +278,40 @@ export default function AiOptimizerDialog({
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                  <div className="min-w-0">
                     <div className="text-[10px] uppercase tracking-[0.18em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
                       Receita por dia
                     </div>
-                    <div className="text-[32px] sm:text-[36px] font-semibold tabular-nums leading-none"
+                    <div className="text-[26px] sm:text-[30px] font-semibold tabular-nums leading-none truncate"
                          style={{ color: scenario.deltaPerDay >= 0 ? BUY : SELL, letterSpacing: "-0.02em" }}>
                       {fmtUSDsigned(scenario.deltaPerDay)}
                     </div>
-                    <div className="text-[11px] tabular-nums mt-2" style={{ color: NAVY_55 }}>
+                    <div className="text-[11px] tabular-nums mt-2 truncate" style={{ color: NAVY_55 }}>
                       {fmtUSD(scenario.currentRevPerDay)}/dia → {fmtUSD(scenario.projectedRevPerDay)}/dia
                     </div>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-[10px] uppercase tracking-[0.18em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
                       Em 12 meses
                     </div>
-                    <div className="text-[24px] sm:text-[28px] font-semibold tabular-nums leading-none"
+                    <div className="text-[22px] sm:text-[26px] font-semibold tabular-nums leading-none truncate"
                          style={{ color: scenario.delta365 >= 0 ? BUY : SELL, letterSpacing: "-0.02em" }}>
                       {fmtUSDsigned(scenario.delta365)}
                     </div>
-                    <div className="text-[11px] tabular-nums mt-2" style={{ color: NAVY_55 }}>
+                    <div className="text-[11px] tabular-nums mt-2 truncate" style={{ color: NAVY_55 }}>
                       90 d {fmtUSDsigned(scenario.delta90)} · 6 m {fmtUSDsigned(scenario.delta180)}
                     </div>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <div className="text-[10px] uppercase tracking-[0.18em] font-semibold mb-1.5" style={{ color: NAVY_55 }}>
                       Saldo em caixa
                     </div>
-                    <div className="text-[24px] sm:text-[28px] font-semibold tabular-nums leading-none"
+                    <div className="text-[22px] sm:text-[26px] font-semibold tabular-nums leading-none truncate"
                          style={{ color: scenario.cashBalance >= 0 ? BUY : GOLD, letterSpacing: "-0.02em" }}>
                       {fmtUSDsigned(scenario.cashBalance)}
                     </div>
-                    <div className="text-[11px] tabular-nums mt-2" style={{ color: NAVY_55 }}>
+                    <div className="text-[11px] tabular-nums mt-2 truncate" style={{ color: NAVY_55 }}>
                       Recuperado {fmtUSD(scenario.recoveredCapital)} · investido {fmtUSD(scenario.spentCapital)}
                     </div>
                   </div>
