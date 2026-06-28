@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X } from "lucide-react";
+import { ArrowLeft, Wand2, Download, Copy, Loader2, Image as ImageIcon, Smartphone, Tag, MessageSquare, Upload, X, Layers, Square, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { detectSeasonalTheme } from "@/lib/zeusBrain/seasonalTheme";
@@ -17,6 +17,7 @@ type Vehicle = {
 type Format = "feed" | "story";
 type Tone = "luxo" | "aventura" | "familia" | "promocao" | "lancamento" | "sazonal";
 type Mode = "promo" | "free" | "reference";
+type PostKind = "single" | "carousel";
 
 const SEASONAL_NOW = detectSeasonalTheme();
 
@@ -29,12 +30,16 @@ const TONES: { v: Tone; label: string; hint: string }[] = [
   { v: "sazonal", label: `Sazonal · ${SEASONAL_NOW.label}`, hint: "tema da data atual, automatico" },
 ];
 
+type SlideOut = { role: "cover" | "content" | "cta"; imageBase64: string; headline: string; subheadline: string };
 type Result = {
   imageBase64: string;
   phrase: string;
   caption: string;
   hashtags: string[];
   format: Format;
+  carousel?: boolean;
+  slidesCount?: number;
+  slides?: SlideOut[];
 };
 
 export default function SocialPostGenerator({ onBack }: { onBack: () => void }) {
@@ -44,6 +49,11 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
   const [tone, setTone] = useState<Tone>("luxo");
   const [mode, setMode] = useState<Mode>("promo");
   const [customPrompt, setCustomPrompt] = useState("");
+
+  // NEW: single vs carousel
+  const [kind, setKind] = useState<PostKind>("single");
+  const [slidesCount, setSlidesCount] = useState<number>(3);
+  const [activeSlide, setActiveSlide] = useState<number>(0);
 
   // Promo fields
   const [priceDaily, setPriceDaily] = useState("");
