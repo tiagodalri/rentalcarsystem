@@ -59,10 +59,10 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
       key: "marketing",
       eyebrow: "Conteúdo e marca",
       title: "Marketing Studio",
-      description: "Estúdio criativo da Zeus. Em breve: campanhas, posts, e-mails e materiais com identidade premium.",
+      description: "Estúdio criativo da Zeus. Gere posts em formato feed e story com fotos dos carros, logotipo e frases de impacto.",
       image: mktImg,
       Icon: Megaphone,
-      badge: "Em breve",
+      badge: "Novo",
       action: onOpenMarketing,
     },
     {
