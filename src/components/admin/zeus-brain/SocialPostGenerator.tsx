@@ -27,7 +27,7 @@ const TONES: { v: Tone; label: string; hint: string }[] = [
   { v: "familia", label: "Família", hint: "Memórias, conforto, segurança" },
   { v: "promocao", label: "Oportunidade", hint: "Oferta sem apelar" },
   { v: "lancamento", label: "Lançamento", hint: "Novidade, primeira vez" },
-  { v: "sazonal", label: `Sazonal · ${SEASONAL_NOW.label}`, hint: "Tema da data atual, automático" },
+  { v: "sazonal", label: "Sazonal", hint: SEASONAL_NOW.label },
 ];
 
 type SlideOut = { role: "cover" | "content" | "cta"; imageBase64: string; headline: string; subheadline: string };
