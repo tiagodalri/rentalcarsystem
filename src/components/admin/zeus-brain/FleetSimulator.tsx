@@ -185,6 +185,12 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
   const outList = outIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
   const inList = inIds.map(id => eligible.find(p => p.v.id === id)).filter(Boolean) as SimVehicle[];
 
+  // Totalizadores ao vivo (independentes do resultado completo)
+  const sellCapitalLive = outList.reduce((s, p) => s + (p.purchase || 0), 0);
+  const buyCapitalLive = inList.reduce((s, p) => s + (p.purchase || 0), 0);
+  const balanceLive = sellCapitalLive - buyCapitalLive;
+
+
   const result = useMemo(() => {
     if (!outList.length || !inList.length) return null;
     const outRev = outList.reduce((s, p) => s + p.revPerDayOwned, 0);
