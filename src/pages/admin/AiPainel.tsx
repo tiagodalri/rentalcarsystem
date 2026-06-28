@@ -1629,7 +1629,7 @@ export default function AiPainel({
                 <span className="tabular-nums text-rose-300">{fmtUSD(p.revPerDayOwned)}/dia · {p.occupancy.toFixed(0)}% de uso</span>
               </li>
             ))}
-            {underperformers.length === 0 && <li className="text-white/55 text-xs">Frota equilibrada — nenhum carro com desempenho fraco.</li>}
+            {underperformers.length === 0 && <li className="text-white/55 text-xs">Frota equilibrada. Nenhum carro com desempenho fraco.</li>}
           </ul>
         </div>
       </div>
