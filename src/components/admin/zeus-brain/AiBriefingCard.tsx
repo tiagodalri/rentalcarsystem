@@ -96,44 +96,43 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
     <div
       className="relative overflow-hidden rounded-2xl"
       style={{
-        background:
-          "linear-gradient(180deg, rgba(14,22,40,0.85) 0%, rgba(8,12,24,0.92) 100%)",
-        border: "1px solid rgba(140,180,230,0.14)",
+        background: "linear-gradient(180deg, #fbf7ee 0%, #f3ebd4 100%)",
+        border: "1px solid rgba(154,122,58,0.28)",
         boxShadow:
-          "0 1px 0 rgba(255,255,255,0.04) inset, 0 30px 60px -30px rgba(0,0,0,0.7)",
+          "0 1px 0 rgba(255,255,255,0.7) inset, 0 22px 50px -28px rgba(13,29,46,0.28)",
       }}
     >
-      {/* subtle sapphire wash */}
+      {/* subtle gold wash */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-60"
+        className="pointer-events-none absolute inset-0 opacity-70"
         style={{
           background:
-            "radial-gradient(700px circle at 0% 0%, rgba(80,130,210,0.18), transparent 55%)",
+            "radial-gradient(700px circle at 0% 0%, rgba(154,122,58,0.10), transparent 55%)",
         }}
       />
 
-      <div className="relative p-5 sm:p-6">
-        <div className="flex items-start gap-3.5">
+      <div className="relative p-4 sm:p-6">
+        <div className="flex items-start gap-3 sm:gap-3.5">
           <div
             className="shrink-0 grid place-items-center rounded-xl"
             style={{
-              width: 34,
-              height: 34,
-              background: "linear-gradient(135deg, rgba(120,170,230,0.22), rgba(60,100,170,0.18))",
-              border: "1px solid rgba(140,180,230,0.28)",
-              color: "#dce8fb",
-              boxShadow: "0 0 16px rgba(80,130,210,0.25)",
+              width: 36,
+              height: 36,
+              background: "linear-gradient(135deg, #b8924a, #9a7a3a)",
+              border: "1px solid rgba(154,122,58,0.55)",
+              color: "#fbf7ee",
+              boxShadow: "0 8px 18px -8px rgba(154,122,58,0.55)",
             }}
           >
-            <Brain size={16} />
+            <Brain size={17} />
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+            <div className="flex items-start justify-between gap-2 mb-3 flex-wrap">
               <div
-                className="text-[10px] uppercase font-medium"
-                style={{ letterSpacing: "0.24em", color: "rgba(200,220,250,0.7)" }}
+                className="text-[10px] uppercase font-semibold pt-1"
+                style={{ letterSpacing: "0.22em", color: "rgba(13,29,46,0.55)" }}
               >
                 {loading ? "Analisando dados da sua frota..." : "O que a IA está vendo agora"}
               </div>
@@ -141,16 +140,17 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
                 <button
                   onClick={handlePdf}
                   disabled={exporting}
-                  className="inline-flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider px-2.5 py-1.5 rounded-md border transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] px-3 py-2 rounded-lg border transition-all active:scale-[0.98] disabled:opacity-50 min-h-[40px]"
                   style={{
-                    background: "rgba(255,255,255,0.04)",
-                    borderColor: "rgba(255,255,255,0.10)",
-                    color: "rgba(255,255,255,0.82)",
+                    background: "linear-gradient(180deg, #14283d, #0d1d2e)",
+                    borderColor: "rgba(154,122,58,0.45)",
+                    color: "#fbf7ee",
+                    boxShadow: "0 6px 14px -8px rgba(13,29,46,0.5)",
                   }}
                   title="Salvar o painel completo como PDF (réplica fiel da tela)"
                 >
-                  {exporting ? <Loader2 size={11} className="animate-spin" /> : <FileDown size={11} />}
-                  <span>{exporting ? "Gerando PDF..." : "Salvar painel em PDF"}</span>
+                  {exporting ? <Loader2 size={12} className="animate-spin" /> : <FileDown size={12} style={{ color: "#d6bf86" }} />}
+                  <span>{exporting ? "Gerando PDF" : "Salvar PDF"}</span>
                 </button>
               )}
             </div>
@@ -162,14 +162,14 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
                 fontFamily:
                   '"Söhne", "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif',
                 fontSize: "14.5px",
-                lineHeight: 1.78,
+                lineHeight: 1.72,
                 letterSpacing: "-0.005em",
-                fontWeight: 380,
-                color: "rgba(232,240,252,0.92)",
+                fontWeight: 420,
+                color: "rgba(13,29,46,0.86)",
               }}
             >
               {paragraphs.length === 0 && (
-                <p style={{ color: "rgba(232,240,252,0.55)", fontStyle: "italic" }}>
+                <p style={{ color: "rgba(13,29,46,0.50)", fontStyle: "italic" }}>
                   Carregando análise...
                 </p>
               )}
@@ -185,10 +185,10 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
                             padding: "3px 8px 3px 4px",
                             borderRadius: 8,
                             background:
-                              "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))",
-                            border: "1px solid rgba(255,255,255,0.10)",
+                              "linear-gradient(180deg, #ffffff, #f4ecd9)",
+                            border: "1px solid rgba(13,29,46,0.14)",
                             verticalAlign: "-0.22em",
-                            boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset",
+                            boxShadow: "0 1px 2px rgba(13,29,46,0.06)",
                           }}
                         >
                           {s.slug ? (
@@ -198,6 +198,7 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
                                 width: 18,
                                 height: 18,
                                 background: "#fff",
+                                border: "1px solid rgba(13,29,46,0.08)",
                               }}
                             >
                               <img
@@ -219,10 +220,10 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
                           <span
                             style={{
                               fontSize: "12.5px",
-                              fontWeight: 550,
+                              fontWeight: 600,
                               lineHeight: 1,
                               letterSpacing: "-0.005em",
-                              color: "#f4f7fc",
+                              color: "#0d1d2e",
                             }}
                           >
                             {s.value}
@@ -234,7 +235,7 @@ export function AiBriefingCard({ briefing, loading, contextLabel }: Props) {
                       return (
                         <strong
                           key={j}
-                          style={{ fontWeight: 620, color: "#fbfcfe" }}
+                          style={{ fontWeight: 650, color: "#0d1d2e" }}
                         >
                           {s.value}
                         </strong>
