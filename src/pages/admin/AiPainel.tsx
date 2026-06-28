@@ -8,6 +8,7 @@ import {
   CircleDollarSign, Lightbulb,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import FleetSimulator from "@/components/admin/zeus-brain/FleetSimulator";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
   startOfDay, addDays, isSameDay,
