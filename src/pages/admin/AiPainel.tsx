@@ -782,7 +782,6 @@ export default function AiPainel({
             ocupacaoMediaDessesCarros: Math.round(concentration.topAvgOcc),
             ocupacaoMediaDosOutros: Math.round(concentration.tailAvgOcc),
             marcaQueMaisGera: concentration.topBrand,
-            top10PctClientesGeram: Math.round(concentration.topCustomers.share),
           } : null,
           mesAtual: {
             entrouAteHoje: Math.round(pacing.mtd),
