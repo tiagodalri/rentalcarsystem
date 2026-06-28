@@ -1451,6 +1451,26 @@ function KpiBlock({ title, value, sub, icon: Icon }: { title: string; value: str
   );
 }
 
+function MiniStat({ label, value, icon: Icon, hue }: { label: string; value: number; icon: typeof Brain; hue: "emerald" | "cyan" | "violet" | "amber" | "rose" }) {
+  const hueMap = {
+    emerald: { txt: "text-emerald-200", bg: "bg-emerald-400/10 border-emerald-300/20" },
+    cyan: { txt: "text-cyan-200", bg: "bg-cyan-400/10 border-cyan-300/20" },
+    violet: { txt: "text-violet-200", bg: "bg-violet-400/10 border-violet-300/20" },
+    amber: { txt: "text-amber-200", bg: "bg-amber-400/10 border-amber-300/20" },
+    rose: { txt: "text-rose-200", bg: "bg-rose-400/10 border-rose-300/20" },
+  }[hue];
+  return (
+    <div className={`rounded-lg border p-2.5 ${hueMap.bg}`}>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] uppercase tracking-wider text-white/55 leading-tight">{label}</span>
+        <Icon size={12} className={`${hueMap.txt} shrink-0`} />
+      </div>
+      <div className={`text-xl font-light tabular-nums ${hueMap.txt}`}>{value}</div>
+    </div>
+  );
+}
+
+
 function FunnelBar({ label, value, max, hue }: { label: string; value: number; max: number; hue: "violet" | "cyan" | "amber" | "emerald" | "rose" }) {
   const bg = { violet: "rgba(180,120,255,0.7)", cyan: "rgba(120,220,255,0.7)", amber: "rgba(255,200,120,0.7)", emerald: "rgba(120,255,180,0.7)", rose: "rgba(255,140,160,0.7)" }[hue];
   const pct = max > 0 ? (value / max) * 100 : 0;
