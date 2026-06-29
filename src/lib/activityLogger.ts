@@ -34,6 +34,38 @@ function detectDevice(): { device: string; browser: string; os: string } {
   return { device, browser, os };
 }
 
+const GEO_KEY = "zeus_activity_geo_v1";
+type GeoInfo = { ip: string | null; city: string | null; region: string | null; country: string | null };
+let geoPromise: Promise<GeoInfo> | null = null;
+
+async function getGeo(): Promise<GeoInfo> {
+  try {
+    const cached = sessionStorage.getItem(GEO_KEY);
+    if (cached) return JSON.parse(cached);
+  } catch { /* noop */ }
+  if (!geoPromise) {
+    geoPromise = (async () => {
+      const fallback: GeoInfo = { ip: null, city: null, region: null, country: null };
+      try {
+        const res = await fetch("https://ipwho.is/?fields=ip,city,region,country", { cache: "no-store" });
+        if (!res.ok) return fallback;
+        const j = await res.json();
+        const info: GeoInfo = {
+          ip: j.ip ?? null,
+          city: j.city ?? null,
+          region: j.region ?? null,
+          country: j.country ?? null,
+        };
+        try { sessionStorage.setItem(GEO_KEY, JSON.stringify(info)); } catch { /* noop */ }
+        return info;
+      } catch {
+        return fallback;
+      }
+    })();
+  }
+  return geoPromise;
+}
+
 type LogInput = {
   event_type: string;
   event_name?: string;
@@ -42,6 +74,7 @@ type LogInput = {
   metadata?: Record<string, any>;
   duration_ms?: number;
 };
+
 
 export async function logActivity(input: LogInput) {
   try {
