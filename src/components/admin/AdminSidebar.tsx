@@ -21,7 +21,8 @@ import zeusLogo from "@/assets/zeus-logo-mark.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAdminTabs } from "@/hooks/useAdminTabs";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
-import { useVehiclesDB } from "@/hooks/useVehiclesDB";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar,
   SidebarContent,
