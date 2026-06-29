@@ -129,8 +129,8 @@ export default function AdminOpsToday() {
       const vMap: Record<string, Vehicle> = {};
       (vs.data || []).forEach((v: any) => { vMap[v.id] = v; });
       setVehicles(vMap);
-      const pickupRows = (pk.data as BookingRow[]) || [];
-      const returnRows = (rt.data as BookingRow[]) || [];
+      const pickupRows = ((pk.data as BookingRow[]) || []).filter(b => b.status !== "cancelled");
+      const returnRows = ((rt.data as BookingRow[]) || []).filter(b => b.status !== "cancelled");
       setPickups(pickupRows);
       setReturns(returnRows);
       setMaintenance(((vs.data as Vehicle[]) || []).filter(v => ["maintenance", "preparing"].includes(v.status)));
