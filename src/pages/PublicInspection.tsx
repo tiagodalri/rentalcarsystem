@@ -6,6 +6,7 @@ import {
   FileSignature, Printer, Download,
 } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
+import { normalizeDamageText } from "@/lib/damageTextNormalizer";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
