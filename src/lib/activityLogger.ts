@@ -82,6 +82,7 @@ export async function logActivity(input: LogInput) {
     const user = auth?.user;
     if (!user) return; // RLS requires user_id = auth.uid()
     const { device, browser, os } = detectDevice();
+    const geo = await getGeo();
     await supabase.from("activity_logs").insert({
       user_id: user.id,
       user_email: user.email ?? null,
@@ -98,6 +99,10 @@ export async function logActivity(input: LogInput) {
       device,
       browser,
       os,
+      ip: geo.ip,
+      city: geo.city,
+      region: geo.region,
+      country: geo.country,
       session_id: getSessionId(),
       duration_ms: input.duration_ms ?? null,
     });
