@@ -34,6 +34,38 @@ function detectDevice(): { device: string; browser: string; os: string } {
   return { device, browser, os };
 }
 
+const GEO_KEY = "zeus_activity_geo_v1";
+type GeoInfo = { ip: string | null; city: string | null; region: string | null; country: string | null };
+let geoPromise: Promise<GeoInfo> | null = null;
+
+async function getGeo(): Promise<GeoInfo> {
+  try {
+    const cached = sessionStorage.getItem(GEO_KEY);
+    if (cached) return JSON.parse(cached);
+  } catch { /* noop */ }
+  if (!geoPromise) {
+    geoPromise = (async () => {
+      const fallback: GeoInfo = { ip: null, city: null, region: null, country: null };
+      try {
+        const res = await fetch("https://ipwho.is/?fields=ip,city,region,country", { cache: "no-store" });
+        if (!res.ok) return fallback;
+        const j = await res.json();
+        const info: GeoInfo = {
+          ip: j.ip ?? null,
+          city: j.city ?? null,
+          region: j.region ?? null,
+          country: j.country ?? null,
+        };
+        try { sessionStorage.setItem(GEO_KEY, JSON.stringify(info)); } catch { /* noop */ }
+        return info;
+      } catch {
+        return fallback;
+      }
+    })();
+  }
+  return geoPromise;
+}
+
 type LogInput = {
   event_type: string;
   event_name?: string;
@@ -43,12 +75,14 @@ type LogInput = {
   duration_ms?: number;
 };
 
+
 export async function logActivity(input: LogInput) {
   try {
     const { data: auth } = await supabase.auth.getUser();
     const user = auth?.user;
     if (!user) return; // RLS requires user_id = auth.uid()
     const { device, browser, os } = detectDevice();
+    const geo = await getGeo();
     await supabase.from("activity_logs").insert({
       user_id: user.id,
       user_email: user.email ?? null,
@@ -65,6 +99,10 @@ export async function logActivity(input: LogInput) {
       device,
       browser,
       os,
+      ip: geo.ip,
+      city: geo.city,
+      region: geo.region,
+      country: geo.country,
       session_id: getSessionId(),
       duration_ms: input.duration_ms ?? null,
     });

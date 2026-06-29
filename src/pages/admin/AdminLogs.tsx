@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Activity, Users, MonitorSmartphone, Search, RefreshCw } from "lucide-react";
+import { Activity, Users, MonitorSmartphone, Search, RefreshCw, MapPin, Smartphone, Tablet, Monitor, LogIn, LogOut, MousePointerClick, FileText, Edit3, Trash2, PlusCircle, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   describeNavigation,
@@ -46,12 +46,49 @@ function fmtTime(d: string) {
   return dt.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "medium" });
 }
 
-function eventColor(type: string) {
-  if (type.includes("error") || type.includes("fail")) return "destructive";
-  if (type.includes("login") || type.includes("auth")) return "default";
-  if (type.includes("create") || type.includes("insert")) return "secondary";
-  return "outline";
+function relTime(d: string) {
+  const diff = (Date.now() - new Date(d).getTime()) / 1000;
+  if (diff < 60) return "agora";
+  if (diff < 3600) return `há ${Math.floor(diff / 60)}min`;
+  if (diff < 86400) return `há ${Math.floor(diff / 3600)}h`;
+  return `há ${Math.floor(diff / 86400)}d`;
 }
+
+function eventIcon(type: string) {
+  if (type.includes("login")) return LogIn;
+  if (type.includes("logout")) return LogOut;
+  if (type.includes("click")) return MousePointerClick;
+  if (type.includes("form")) return FileText;
+  if (type.includes("pageview")) return Globe;
+  return Activity;
+}
+
+function deviceIcon(device: string | null) {
+  if (device === "mobile") return Smartphone;
+  if (device === "tablet") return Tablet;
+  return Monitor;
+}
+
+function actionIcon(action: string) {
+  const a = action.toLowerCase();
+  if (a.includes("insert") || a.includes("create")) return PlusCircle;
+  if (a.includes("delete")) return Trash2;
+  return Edit3;
+}
+
+function eventAccent(type: string) {
+  if (type.includes("login")) return "text-emerald-600 bg-emerald-500/10 ring-emerald-500/20";
+  if (type.includes("logout")) return "text-slate-500 bg-slate-500/10 ring-slate-500/20";
+  if (type.includes("click")) return "text-blue-600 bg-blue-500/10 ring-blue-500/20";
+  if (type.includes("form")) return "text-violet-600 bg-violet-500/10 ring-violet-500/20";
+  if (type.includes("pageview")) return "text-primary bg-primary/10 ring-primary/20";
+  return "text-muted-foreground bg-muted ring-border";
+}
+
+function formatLocation(l: { city: string | null; region: string | null; country: string | null }) {
+  return [l.city, l.region, l.country].filter(Boolean).join(", ");
+}
+
 
 type AuditRow = {
   id: string;
@@ -225,42 +262,74 @@ export default function AdminLogs() {
 
         <TabsContent value="activity">
           <Card className="admin-card">
-            <CardHeader><CardTitle className="text-base">Eventos</CardTitle></CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-base">Linha do tempo de eventos</CardTitle>
+              <Badge variant="outline" className="font-normal">{filtered.length} eventos</Badge>
+            </CardHeader>
             <CardContent className="p-0">
-              <ScrollArea className="h-[60vh]">
-                <div className="divide-y divide-border">
+              <ScrollArea className="h-[62vh]">
+                <ol className="relative px-4 sm:px-6 py-4">
+                  <span className="absolute left-[34px] sm:left-[42px] top-4 bottom-4 w-px bg-border" aria-hidden />
                   {filtered.map((l) => {
                     const nav = describeNavigation(l);
                     const dur = fmtDuration(l.duration_ms);
+                    const EvIcon = eventIcon(l.event_type);
+                    const DevIcon = deviceIcon(l.device);
+                    const accent = eventAccent(l.event_type);
+                    const location = formatLocation(l);
                     return (
-                      <div key={l.id} className="p-3 flex flex-wrap items-start gap-2 text-sm hover:bg-muted/30">
-                        <Badge variant={eventColor(l.event_type) as any} className="shrink-0">
-                          {friendlyEventType(l.event_type)}
-                        </Badge>
-                        <div className="flex-1 min-w-[200px]">
-                          <div className="font-medium">
-                            <span className="text-foreground">{l.user_name || l.user_email || "Visitante"}</span>
-                            <span className="text-muted-foreground"> · </span>
-                            <span>{nav.title}</span>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {nav.subtitle}
-                            {dur ? ` · Ficou ${dur} na página anterior` : ""}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {describeDevice(l)}
-                            {(l.city || l.country) ? ` · ${[l.city, l.region, l.country].filter(Boolean).join(", ")}` : ""}
-                            {l.ip ? ` · ${l.ip}` : ""}
+                      <li key={l.id} className="relative pl-12 sm:pl-14 py-3 group">
+                        <span className={`absolute left-0 sm:left-2 top-3 h-7 w-7 rounded-full ring-2 ring-background flex items-center justify-center ${accent}`}>
+                          <EvIcon className="h-3.5 w-3.5" />
+                        </span>
+                        <div className="rounded-lg border border-border/50 bg-card hover:bg-muted/30 transition-colors p-3 sm:p-4">
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-medium text-foreground">{l.user_name || l.user_email || "Visitante"}</span>
+                                <Badge variant="outline" className="font-normal text-[10px] uppercase tracking-wider">
+                                  {friendlyEventType(l.event_type)}
+                                </Badge>
+                              </div>
+                              <div className="text-sm text-foreground/90 mt-0.5">{nav.title}</div>
+                              {(nav.subtitle || dur) && (
+                                <div className="text-xs text-muted-foreground mt-0.5">
+                                  {nav.subtitle}
+                                  {dur ? `${nav.subtitle ? " · " : ""}Ficou ${dur} na página anterior` : ""}
+                                </div>
+                              )}
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-2">
+                                <span className="inline-flex items-center gap-1">
+                                  <DevIcon className="h-3 w-3" />
+                                  {describeDevice(l)}
+                                </span>
+                                {location && (
+                                  <span className="inline-flex items-center gap-1">
+                                    <MapPin className="h-3 w-3" />
+                                    {location}
+                                  </span>
+                                )}
+                                {l.ip && (
+                                  <span className="inline-flex items-center gap-1 font-mono">
+                                    <Globe className="h-3 w-3" />
+                                    {l.ip}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <div className="text-xs font-medium text-foreground">{relTime(l.created_at)}</div>
+                              <div className="text-[10px] text-muted-foreground tabular-nums">{fmtTime(l.created_at)}</div>
+                            </div>
                           </div>
                         </div>
-                        <div className="text-xs text-muted-foreground tabular-nums">{fmtTime(l.created_at)}</div>
-                      </div>
+                      </li>
                     );
                   })}
                   {filtered.length === 0 && (
-                    <div className="p-6 text-center text-sm text-muted-foreground">Nenhum evento registrado.</div>
+                    <li className="p-6 text-center text-sm text-muted-foreground">Nenhum evento registrado.</li>
                   )}
-                </div>
+                </ol>
               </ScrollArea>
             </CardContent>
           </Card>
@@ -268,10 +337,14 @@ export default function AdminLogs() {
 
         <TabsContent value="audit">
           <Card className="admin-card">
-            <CardHeader><CardTitle className="text-base">Alterações de dados ({audit.length})</CardTitle></CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+              <CardTitle className="text-base">Alterações de dados</CardTitle>
+              <Badge variant="outline" className="font-normal">{audit.length} registros</Badge>
+            </CardHeader>
             <CardContent className="p-0">
-              <ScrollArea className="h-[60vh]">
-                <div className="divide-y divide-border">
+              <ScrollArea className="h-[62vh]">
+                <ol className="relative px-4 sm:px-6 py-4">
+                  <span className="absolute left-[34px] sm:left-[42px] top-4 bottom-4 w-px bg-border" aria-hidden />
                   {audit
                     .filter((a) => {
                       const q = search.trim().toLowerCase();
@@ -280,30 +353,49 @@ export default function AdminLogs() {
                         .filter(Boolean)
                         .some((v) => String(v).toLowerCase().includes(q));
                     })
-                    .map((a) => (
-                      <div key={a.id} className="p-3 flex flex-wrap items-start gap-2 text-sm hover:bg-muted/30">
-                        <Badge variant="outline" className="shrink-0">{friendlyAction(a.action)}</Badge>
-                        <div className="flex-1 min-w-[200px]">
-                          <div className="font-medium">
-                            <span>{a.actor_email || "Sistema"}</span>
-                            <span className="text-muted-foreground"> · </span>
-                            <span>{friendlyAction(a.action)} {friendlyTable(a.table_name)}</span>
+                    .map((a) => {
+                      const Icon = actionIcon(a.action);
+                      const accent = a.action.toLowerCase().includes("delete")
+                        ? "text-rose-600 bg-rose-500/10 ring-rose-500/20"
+                        : a.action.toLowerCase().includes("insert") || a.action.toLowerCase().includes("create")
+                        ? "text-emerald-600 bg-emerald-500/10 ring-emerald-500/20"
+                        : "text-amber-600 bg-amber-500/10 ring-amber-500/20";
+                      return (
+                        <li key={a.id} className="relative pl-12 sm:pl-14 py-3">
+                          <span className={`absolute left-0 sm:left-2 top-3 h-7 w-7 rounded-full ring-2 ring-background flex items-center justify-center ${accent}`}>
+                            <Icon className="h-3.5 w-3.5" />
+                          </span>
+                          <div className="rounded-lg border border-border/50 bg-card hover:bg-muted/30 transition-colors p-3 sm:p-4">
+                            <div className="flex flex-wrap items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="font-medium text-foreground">
+                                  {a.actor_email || "Sistema"}
+                                </div>
+                                <div className="text-sm text-foreground/90">
+                                  {friendlyAction(a.action)} {friendlyTable(a.table_name)}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1 font-mono">
+                                  Registro: {a.record_id.slice(0, 8)}
+                                </div>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <div className="text-xs font-medium text-foreground">{relTime(a.created_at)}</div>
+                                <div className="text-[10px] text-muted-foreground tabular-nums">{fmtTime(a.created_at)}</div>
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            Registro: {a.record_id.slice(0, 8)}
-                          </div>
-                        </div>
-                        <div className="text-xs text-muted-foreground tabular-nums">{fmtTime(a.created_at)}</div>
-                      </div>
-                    ))}
+                        </li>
+                      );
+                    })}
                   {audit.length === 0 && (
-                    <div className="p-6 text-center text-sm text-muted-foreground">Nenhuma alteração registrada.</div>
+                    <li className="p-6 text-center text-sm text-muted-foreground">Nenhuma alteração registrada.</li>
                   )}
-                </div>
+                </ol>
               </ScrollArea>
             </CardContent>
           </Card>
         </TabsContent>
+
 
         <TabsContent value="users">
           <Card className="admin-card">
