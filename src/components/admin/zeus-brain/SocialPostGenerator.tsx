@@ -67,7 +67,37 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+
+  async function suggestDirection() {
+    setSuggesting(true);
+    try {
+      const seasonal = tone === "sazonal" ? pickRandomSeasonalTheme() : null;
+      const v = selected;
+      const { data, error } = await supabase.functions.invoke("marketing-suggest-direction", {
+        body: {
+          vehicleName: v?.name || undefined,
+          vehicleBrand: v?.brand || undefined,
+          format, tone, mode,
+          carousel: kind === "carousel",
+          slidesCount: kind === "carousel" ? slidesCount : 1,
+          seasonalLabel: seasonal?.label,
+          promo: mode === "promo" ? { priceDaily, dateStart, dateEnd, hook: promoHook } : undefined,
+        },
+      });
+      if (error) throw error;
+      const s = (data as any)?.suggestion as string | undefined;
+      if (!s) throw new Error("Sem sugestão");
+      setCustomPrompt(s);
+      toast.success("Direcionamento sugerido pela IA");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Falha ao sugerir direcionamento");
+    } finally {
+      setSuggesting(false);
+    }
+  }
 
   useEffect(() => {
     void (async () => {
