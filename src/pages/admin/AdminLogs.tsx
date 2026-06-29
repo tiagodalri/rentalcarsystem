@@ -282,11 +282,15 @@ export default function AdminLogs() {
                     })
                     .map((a) => (
                       <div key={a.id} className="p-3 flex flex-wrap items-start gap-2 text-sm hover:bg-muted/30">
-                        <Badge variant="outline" className="shrink-0">{a.action}</Badge>
+                        <Badge variant="outline" className="shrink-0">{friendlyAction(a.action)}</Badge>
                         <div className="flex-1 min-w-[200px]">
-                          <div className="font-medium">{a.table_name}</div>
+                          <div className="font-medium">
+                            <span>{a.actor_email || "Sistema"}</span>
+                            <span className="text-muted-foreground"> · </span>
+                            <span>{friendlyAction(a.action)} {friendlyTable(a.table_name)}</span>
+                          </div>
                           <div className="text-xs text-muted-foreground">
-                            {a.actor_email || "sistema"} · {a.record_id.slice(0, 8)}
+                            Registro: {a.record_id.slice(0, 8)}
                           </div>
                         </div>
                         <div className="text-xs text-muted-foreground tabular-nums">{fmtTime(a.created_at)}</div>
