@@ -669,7 +669,7 @@ export default function AdminInspectionReport() {
                     <div key={i} className="text-xs flex items-center gap-2 p-2.5 rounded-md bg-muted/40 border border-border/30">
                       <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLOR[d.severity] || ""}`}>{SEVERITY_LABELS[d.severity] || d.severity}</Badge>
                       <span className="font-semibold text-foreground">{d.position}</span>
-                      <span className="text-muted-foreground">— {d.description || "—"}</span>
+                      <span className="text-muted-foreground">— {normalizeDamageText(d.description || "") || "—"}</span>
                     </div>
                   ))}
                 </div>
