@@ -123,7 +123,7 @@ export default function AdminOpsToday() {
           .eq("return_date", dayStr)
           .in("status", ["confirmed", "active", "in_progress", "completed"])
           .order("return_time"),
-        supabase.from("vehicles").select("id, name, status").is("deleted_at", null),
+        supabase.rpc("list_vehicles_basic"),
       ]);
 
       const vMap: Record<string, Vehicle> = {};
