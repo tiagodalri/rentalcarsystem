@@ -129,8 +129,8 @@ export default function AdminOpsToday() {
       const vMap: Record<string, Vehicle> = {};
       (vs.data || []).forEach((v: any) => { vMap[v.id] = v; });
       setVehicles(vMap);
-      const pickupRows = (pk.data as BookingRow[]) || [];
-      const returnRows = (rt.data as BookingRow[]) || [];
+      const pickupRows = ((pk.data as BookingRow[]) || []).filter(b => b.status !== "cancelled");
+      const returnRows = ((rt.data as BookingRow[]) || []).filter(b => b.status !== "cancelled");
       setPickups(pickupRows);
       setReturns(returnRows);
       setMaintenance(((vs.data as Vehicle[]) || []).filter(v => ["maintenance", "preparing"].includes(v.status)));
@@ -545,8 +545,8 @@ function StatusLegend({
   active: OpsStatus | "all";
   onChange: (s: OpsStatus | "all") => void;
 }) {
-  const total = counts.completed + counts.late + counts.pending + counts.cancelled;
-  const order: OpsStatus[] = ["completed", "late", "pending", "cancelled"];
+  const total = counts.completed + counts.late + counts.pending;
+  const order: OpsStatus[] = ["completed", "late", "pending"];
   return (
     <div className="mb-3 flex flex-wrap items-center gap-1.5">
       <button

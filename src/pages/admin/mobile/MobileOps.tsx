@@ -74,8 +74,8 @@ export default function MobileOps() {
       const map: Record<string, Vehicle> = {};
       (vs.data || []).forEach((v: any) => { map[v.id] = v; });
       setVehicles(map);
-      setPickups((pk.data as Booking[]) || []);
-      setReturns((rt.data as Booking[]) || []);
+      setPickups(((pk.data as Booking[]) || []).filter(b => b.status !== "cancelled"));
+      setReturns(((rt.data as Booking[]) || []).filter(b => b.status !== "cancelled"));
       setPrep(((vs.data as Vehicle[]) || []).filter((v) => ["maintenance", "preparing"].includes(v.status)));
     } finally {
       setLoading(false);
