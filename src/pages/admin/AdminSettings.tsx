@@ -15,6 +15,9 @@ export default function AdminSettings() {
 
   const managementItems = [
     { title: "Equipe", url: "/admin/team", icon: UsersRound, desc: "Gerencie permissões e membros da equipe" },
+    ...(hasAny(["admin","operations","finance"])
+      ? [{ title: "Pendências", url: "/admin/pendencias", icon: FileWarning, desc: "Informações faltantes no cadastro da frota" }]
+      : []),
     ...(hasAny(["admin","operations","support","finance"])
       ? [{ title: "Contratos", url: "/admin/contracts", icon: FileSignature, desc: "Gerencie contratos e templates de assinatura" }]
       : []),
