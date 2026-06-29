@@ -6,6 +6,7 @@ import {
   FileSignature, Printer, Download,
 } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
+import { normalizeDamageText } from "@/lib/damageTextNormalizer";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -247,7 +248,7 @@ export default function PublicInspection() {
                         {SEVERITY_LABELS[d.severity] || d.severity}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 break-words">{d.description || "Sem descrição"}</p>
+                    <p className="text-xs text-muted-foreground mt-1 break-words">{normalizeDamageText(d.description || "") || "Sem descrição"}</p>
                   </div>
                 </li>
               ))}

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { SignedImage } from "@/components/admin/SignedImage";
+import { normalizeDamageText } from "@/lib/damageTextNormalizer";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 
 const FUEL_LABELS: Record<string, string> = {
@@ -668,7 +669,7 @@ export default function AdminInspectionReport() {
                     <div key={i} className="text-xs flex items-center gap-2 p-2.5 rounded-md bg-muted/40 border border-border/30">
                       <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLOR[d.severity] || ""}`}>{SEVERITY_LABELS[d.severity] || d.severity}</Badge>
                       <span className="font-semibold text-foreground">{d.position}</span>
-                      <span className="text-muted-foreground">— {d.description || "—"}</span>
+                      <span className="text-muted-foreground">— {normalizeDamageText(d.description || "") || "—"}</span>
                     </div>
                   ))}
                 </div>
@@ -691,7 +692,7 @@ export default function AdminInspectionReport() {
                       <XCircle size={12} className="text-destructive shrink-0" />
                       <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLOR[d.severity] || ""}`}>{SEVERITY_LABELS[d.severity] || d.severity}</Badge>
                       <span className="font-semibold text-foreground">{d.position}</span>
-                      <span className="text-muted-foreground flex-1 min-w-0 truncate">— {d.description || "—"}</span>
+                      <span className="text-muted-foreground flex-1 min-w-0 truncate">— {normalizeDamageText(d.description || "") || "—"}</span>
                       {d.photoUrl && <SignedImage value={d.photoUrl} alt="" className="w-12 h-12 rounded object-contain border border-border/30 bg-muted/30 ml-auto" />}
                     </div>
                   ))}
