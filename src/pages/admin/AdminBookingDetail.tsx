@@ -386,7 +386,7 @@ export default function AdminBookingDetail() {
                     <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${d.severity === "heavy" ? "bg-red-500" : d.severity === "medium" ? "bg-amber-500" : "bg-yellow-400"}`} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-medium text-foreground">{d.description}</span>
+                        <span className="text-xs font-medium text-foreground">{normalizeDamageText(d.description || "")}</span>
                         <Badge variant="outline" className={`text-[10px] px-2 py-0 shrink-0 ${
                           d.severity === "heavy" ? "border-red-500/30 text-red-500" :
                           d.severity === "medium" ? "border-amber-500/30 text-amber-600" :
