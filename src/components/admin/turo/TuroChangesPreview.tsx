@@ -70,37 +70,74 @@ export function TuroChangesPreview({ classifications }: Props) {
     return Array.from(map.entries()).map(([field, v]) => ({ field, ...v })).sort((a, b) => b.rows.length - a.rows.length);
   }, [enriches]);
 
-  // Extensões: reservas em que a data de devolução foi adiada (Turo é fonte de verdade)
-  const extensions = useMemo<ExtensionInfo[]>(() => {
-    const out: ExtensionInfo[] = [];
+  // Alterações de datas: pickup ou return mudaram (Turo é fonte de verdade)
+  const dateChanges = useMemo<DateChangeInfo[]>(() => {
+    const out: DateChangeInfo[] = [];
     for (const c of enriches) {
       if (!c.existing) continue;
+      const name = formatPersonName(c.row.guestName);
+
+      // RETURN
       const dReturn = c.diffs.find((d) => d.field === "return_date" && c.selectedFields.has(d.field));
-      if (!dReturn) continue;
-      const oldDate = String(dReturn.currentValue ?? "");
-      const newDate = String(dReturn.newValue ?? "");
-      const days = diffDays(oldDate, newDate);
-      if (days <= 0) continue; // só conta extensão (não redução)
-      const dRt = c.diffs.find((d) => d.field === "return_time");
-      const dRloc = c.diffs.find((d) => d.field === "return_location");
-      out.push({
-        reservationId: c.row.reservationId,
-        bookingNumber: c.existing.booking_number,
-        name: formatPersonName(c.row.guestName),
-        vehicleModel: c.row.vehicleModel,
-        oldReturnDate: oldDate,
-        newReturnDate: newDate,
-        daysAdded: days,
-        oldReturnTime: dRt ? String(dRt.currentValue ?? "") : c.existing.return_time,
-        newReturnTime: dRt ? String(dRt.newValue ?? "") : c.existing.return_time,
-        oldReturnLocation: dRloc ? String(dRloc.currentValue ?? "") : c.existing.return_location,
-        newReturnLocation: dRloc ? String(dRloc.newValue ?? "") : c.existing.return_location,
-      });
+      if (dReturn) {
+        const oldDate = String(dReturn.currentValue ?? "");
+        const newDate = String(dReturn.newValue ?? "");
+        const delta = diffDays(oldDate, newDate);
+        if (delta !== 0) {
+          const dRt = c.diffs.find((d) => d.field === "return_time");
+          const dRloc = c.diffs.find((d) => d.field === "return_location");
+          out.push({
+            reservationId: c.row.reservationId,
+            bookingNumber: c.existing.booking_number,
+            name,
+            vehicleModel: c.row.vehicleModel,
+            kind: delta > 0 ? "return_extended" : "return_shortened",
+            field: "return",
+            oldDate,
+            newDate,
+            daysDelta: Math.abs(delta),
+            oldTime: dRt ? String(dRt.currentValue ?? "") : c.existing.return_time,
+            newTime: dRt ? String(dRt.newValue ?? "") : c.existing.return_time,
+            oldLocation: dRloc ? String(dRloc.currentValue ?? "") : c.existing.return_location,
+            newLocation: dRloc ? String(dRloc.newValue ?? "") : c.existing.return_location,
+          });
+        }
+      }
+
+      // PICKUP
+      const dPickup = c.diffs.find((d) => d.field === "pickup_date" && c.selectedFields.has(d.field));
+      if (dPickup) {
+        const oldDate = String(dPickup.currentValue ?? "");
+        const newDate = String(dPickup.newValue ?? "");
+        const delta = diffDays(oldDate, newDate);
+        if (delta !== 0) {
+          const dPt = c.diffs.find((d) => d.field === "pickup_time");
+          const dPloc = c.diffs.find((d) => d.field === "pickup_location");
+          out.push({
+            reservationId: c.row.reservationId,
+            bookingNumber: c.existing.booking_number,
+            name,
+            vehicleModel: c.row.vehicleModel,
+            kind: delta > 0 ? "pickup_postponed" : "pickup_anticipated",
+            field: "pickup",
+            oldDate,
+            newDate,
+            daysDelta: Math.abs(delta),
+            oldTime: dPt ? String(dPt.currentValue ?? "") : c.existing.pickup_time,
+            newTime: dPt ? String(dPt.newValue ?? "") : c.existing.pickup_time,
+            oldLocation: dPloc ? String(dPloc.currentValue ?? "") : c.existing.pickup_location,
+            newLocation: dPloc ? String(dPloc.newValue ?? "") : c.existing.pickup_location,
+          });
+        }
+      }
     }
-    return out.sort((a, b) => b.daysAdded - a.daysAdded);
+    // Ordena: maior impacto primeiro
+    return out.sort((a, b) => b.daysDelta - a.daysDelta);
   }, [enriches]);
 
-  const totalDaysExtended = extensions.reduce((s, e) => s + e.daysAdded, 0);
+  const extendedCount = dateChanges.filter((d) => d.kind === "return_extended").length;
+  const shortenedCount = dateChanges.filter((d) => d.kind === "return_shortened").length;
+  const pickupChangedCount = dateChanges.filter((d) => d.field === "pickup").length;
 
 
   const total = selected.length;
