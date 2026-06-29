@@ -515,8 +515,14 @@ export default function AdminInspection() {
       } else if (bookingRes.data) {
         setBooking(bookingRes.data);
         if (bookingRes.data.vehicle_id) {
-          const { data: veh } = await supabase.from("vehicles").select("*").eq("id", bookingRes.data.vehicle_id).single();
-          setVehicle(veh);
+          // Senior staff can read the full row; drivers/mechanics use the safe RPC.
+          const { data: vehFull } = await supabase.from("vehicles").select("*").eq("id", bookingRes.data.vehicle_id).maybeSingle();
+          if (vehFull) {
+            setVehicle(vehFull);
+          } else {
+            const { data: vehBasic } = await supabase.rpc("get_vehicle_basic", { p_vehicle_id: bookingRes.data.vehicle_id });
+            setVehicle((vehBasic && vehBasic[0]) || null);
+          }
         }
       }
 

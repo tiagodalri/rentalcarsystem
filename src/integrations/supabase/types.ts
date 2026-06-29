@@ -2357,6 +2357,26 @@ export type Database = {
         Returns: number
       }
       get_occupancy_rate: { Args: never; Returns: number }
+      get_vehicle_basic: {
+        Args: { p_vehicle_id: string }
+        Returns: {
+          brand: string
+          category: string
+          color: string
+          current_odometer: number
+          doors: number
+          fuel: string
+          id: string
+          image_url: string
+          license_plate: string
+          model: string
+          name: string
+          photos: Json
+          status: string
+          transmission: string
+          year: number
+        }[]
+      }
       get_vehicle_for_my_booking: {
         Args: { p_booking_id: string }
         Returns: {
@@ -2393,6 +2413,23 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      list_vehicles_basic: {
+        Args: never
+        Returns: {
+          brand: string
+          category: string
+          color: string
+          current_odometer: number
+          id: string
+          image_url: string
+          license_plate: string
+          model: string
+          name: string
+          photos: Json
+          status: string
+          year: number
+        }[]
       }
       move_to_dlq: {
         Args: {
