@@ -247,7 +247,7 @@ export default function PublicInspection() {
                         {SEVERITY_LABELS[d.severity] || d.severity}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1 break-words">{d.description || "Sem descrição"}</p>
+                    <p className="text-xs text-muted-foreground mt-1 break-words">{normalizeDamageText(d.description || "") || "Sem descrição"}</p>
                   </div>
                 </li>
               ))}
