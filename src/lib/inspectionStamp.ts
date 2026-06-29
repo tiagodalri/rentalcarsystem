@@ -220,8 +220,8 @@ function drawStamp(
   const marginY = Math.max(18, Math.round(shortSide * 0.022));
   const maxWidth = Math.round(w * 0.94);
   const maxHeight = Math.round(h * 0.68);
-  let fontSize = Math.max(132, Math.round(shortSide * 0.172));
-  let lineHeight = Math.round(fontSize * 1.02);
+  let fontSize = Math.max(264, Math.round(shortSide * 0.344));
+  let lineHeight = Math.round(fontSize * 0.92);
 
   const measure = () => {
     ctx.font = `760 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
