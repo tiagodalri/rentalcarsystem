@@ -545,8 +545,8 @@ function StatusLegend({
   active: OpsStatus | "all";
   onChange: (s: OpsStatus | "all") => void;
 }) {
-  const total = counts.completed + counts.late + counts.pending + counts.cancelled;
-  const order: OpsStatus[] = ["completed", "late", "pending", "cancelled"];
+  const total = counts.completed + counts.late + counts.pending;
+  const order: OpsStatus[] = ["completed", "late", "pending"];
   return (
     <div className="mb-3 flex flex-wrap items-center gap-1.5">
       <button
