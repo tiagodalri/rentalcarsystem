@@ -1,0 +1,1 @@
+UPDATE vehicles SET color = 'Azul' WHERE id = '713374dc-0d52-4f7c-b33f-412e2856fe17';
