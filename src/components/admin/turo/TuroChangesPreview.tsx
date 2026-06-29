@@ -1,8 +1,29 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronRight, Plus, Pencil, XCircle } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Pencil, XCircle, CalendarClock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPersonName } from "@/lib/formatName";
 import type { Classification, BookingSnapshot } from "@/lib/turo/diffEngine";
+
+interface ExtensionInfo {
+  reservationId: string;
+  bookingNumber?: string | null;
+  name: string;
+  vehicleModel: string;
+  oldReturnDate: string;
+  newReturnDate: string;
+  daysAdded: number;
+  oldReturnTime?: string | null;
+  newReturnTime?: string | null;
+  oldReturnLocation?: string | null;
+  newReturnLocation?: string | null;
+}
+
+function diffDays(from: string, to: string): number {
+  const a = new Date(`${from}T00:00:00`);
+  const b = new Date(`${to}T00:00:00`);
+  if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return 0;
+  return Math.round((b.getTime() - a.getTime()) / 86400000);
+}
 
 interface Props {
   classifications: Classification[];
@@ -16,7 +37,7 @@ function fmt(v: any): string {
 
 export function TuroChangesPreview({ classifications }: Props) {
   const [open, setOpen] = useState(true);
-  const [section, setSection] = useState<"cancelled" | "enrich" | "new">("cancelled");
+  const [section, setSection] = useState<"cancelled" | "enrich" | "extensions" | "new">("extensions");
 
   const selected = useMemo(() => classifications.filter((c) => c.selected), [classifications]);
 
@@ -45,6 +66,39 @@ export function TuroChangesPreview({ classifications }: Props) {
     return Array.from(map.entries()).map(([field, v]) => ({ field, ...v })).sort((a, b) => b.rows.length - a.rows.length);
   }, [enriches]);
 
+  // Extensões: reservas em que a data de devolução foi adiada (Turo é fonte de verdade)
+  const extensions = useMemo<ExtensionInfo[]>(() => {
+    const out: ExtensionInfo[] = [];
+    for (const c of enriches) {
+      if (!c.existing) continue;
+      const dReturn = c.diffs.find((d) => d.field === "return_date" && c.selectedFields.has(d.field));
+      if (!dReturn) continue;
+      const oldDate = String(dReturn.currentValue ?? "");
+      const newDate = String(dReturn.newValue ?? "");
+      const days = diffDays(oldDate, newDate);
+      if (days <= 0) continue; // só conta extensão (não redução)
+      const dRt = c.diffs.find((d) => d.field === "return_time");
+      const dRloc = c.diffs.find((d) => d.field === "return_location");
+      out.push({
+        reservationId: c.row.reservationId,
+        bookingNumber: c.existing.booking_number,
+        name: formatPersonName(c.row.guestName),
+        vehicleModel: c.row.vehicleModel,
+        oldReturnDate: oldDate,
+        newReturnDate: newDate,
+        daysAdded: days,
+        oldReturnTime: dRt ? String(dRt.currentValue ?? "") : c.existing.return_time,
+        newReturnTime: dRt ? String(dRt.newValue ?? "") : c.existing.return_time,
+        oldReturnLocation: dRloc ? String(dRloc.currentValue ?? "") : c.existing.return_location,
+        newReturnLocation: dRloc ? String(dRloc.newValue ?? "") : c.existing.return_location,
+      });
+    }
+    return out.sort((a, b) => b.daysAdded - a.daysAdded);
+  }, [enriches]);
+
+  const totalDaysExtended = extensions.reduce((s, e) => s + e.daysAdded, 0);
+
+
   const total = selected.length;
   if (total === 0) return null;
 
@@ -59,7 +113,7 @@ export function TuroChangesPreview({ classifications }: Props) {
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           <span className="font-semibold">Preview das mudanças</span>
           <span className="text-xs text-muted-foreground">
-            ({total} reservas · {cancelled.length} canceladas · {enriches.length} enriquecer · {news.length} novas)
+            ({total} reservas · {extensions.length} estendidas · {cancelled.length} canceladas · {enriches.length} enriquecer · {news.length} novas)
           </span>
         </div>
       </button>
@@ -67,13 +121,78 @@ export function TuroChangesPreview({ classifications }: Props) {
       {open && (
         <div className="border-t border-primary/20 bg-card/50">
           {/* Tabs */}
-          <div className="flex border-b border-border/60 text-xs">
+          <div className="flex border-b border-border/60 text-xs overflow-x-auto">
+            <TabBtn active={section === "extensions"} onClick={() => setSection("extensions")} icon={<CalendarClock className="h-3.5 w-3.5" />} label="Extensões" count={extensions.length} />
             <TabBtn active={section === "cancelled"} onClick={() => setSection("cancelled")} icon={<XCircle className="h-3.5 w-3.5" />} label="Canceladas" count={cancelled.length} />
             <TabBtn active={section === "enrich"} onClick={() => setSection("enrich")} icon={<Pencil className="h-3.5 w-3.5" />} label="Enriquecer" count={byField.reduce((s, f) => s + f.rows.length, 0)} />
             <TabBtn active={section === "new"} onClick={() => setSection("new")} icon={<Plus className="h-3.5 w-3.5" />} label="Novas" count={news.length} />
           </div>
 
+
           <div className="max-h-[420px] overflow-y-auto p-3 space-y-2 text-xs">
+            {section === "extensions" && (
+              extensions.length === 0 ? (
+                <Empty>Nenhuma reserva foi estendida neste CSV.</Empty>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2 px-1 pb-1 text-[11px] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-medium">
+                      <CalendarClock className="h-3 w-3" />
+                      {extensions.length} {extensions.length === 1 ? "reserva estendida" : "reservas estendidas"}
+                    </span>
+                    <span className="tabular-nums">+{totalDaysExtended} {totalDaysExtended === 1 ? "diária adicional" : "diárias adicionais"} no total</span>
+                  </div>
+                  <div className="rounded-lg border border-border/60 overflow-hidden">
+                    <table className="w-full text-xs">
+                      <thead className="bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        <tr>
+                          <th className="text-left px-3 py-2 font-medium">Cliente / Reserva</th>
+                          <th className="text-left px-3 py-2 font-medium">Veículo</th>
+                          <th className="text-left px-3 py-2 font-medium">Devolução anterior</th>
+                          <th className="text-left px-3 py-2 font-medium">Nova devolução</th>
+                          <th className="text-right px-3 py-2 font-medium">Extensão</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {extensions.map((e) => {
+                          const locChanged = (e.oldReturnLocation || "") !== (e.newReturnLocation || "");
+                          const timeChanged = (e.oldReturnTime || "") !== (e.newReturnTime || "");
+                          return (
+                            <tr key={e.reservationId} className="border-t border-border/40 align-top">
+                              <td className="px-3 py-2">
+                                <div className="font-medium">{e.name}</div>
+                                <div className="text-[10px] text-muted-foreground tabular-nums">
+                                  {e.bookingNumber ? `#${e.bookingNumber} · ` : ""}Turo #{e.reservationId}
+                                </div>
+                              </td>
+                              <td className="px-3 py-2 text-muted-foreground">{e.vehicleModel}</td>
+                              <td className="px-3 py-2 tabular-nums text-muted-foreground line-through opacity-70">
+                                <div>{e.oldReturnDate}{e.oldReturnTime ? ` · ${e.oldReturnTime}` : ""}</div>
+                                {e.oldReturnLocation && <div className="text-[10px] not-italic no-underline">{e.oldReturnLocation}</div>}
+                              </td>
+                              <td className="px-3 py-2 tabular-nums font-medium">
+                                <div>{e.newReturnDate}{e.newReturnTime ? ` · ${e.newReturnTime}` : ""}{timeChanged && <span className="ml-1 text-[10px] text-amber-600 dark:text-amber-400">(novo horário)</span>}</div>
+                                {e.newReturnLocation && (
+                                  <div className={cn("text-[10px] font-normal", locChanged ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground")}>
+                                    {e.newReturnLocation}{locChanged && " (novo local)"}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-3 py-2 text-right">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">
+                                  +{e.daysAdded} {e.daysAdded === 1 ? "dia" : "dias"}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )
+            )}
+
             {section === "cancelled" && (
               cancelled.length === 0 ? (
                 <Empty>Nenhuma cancelada selecionada.</Empty>
