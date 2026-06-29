@@ -1,4 +1,5 @@
 import { formatPersonName } from "@/lib/formatName";
+import { normalizeDamageText } from "@/lib/damageTextNormalizer";
 import { parseDateOnly } from "@/lib/dateOnly";
 import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { useEffect, useState } from "react";
