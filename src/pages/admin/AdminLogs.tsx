@@ -336,9 +336,9 @@ export default function AdminLogs() {
                   {sessions.map((s) => (
                     <div key={s.id} className="p-3 flex items-center justify-between text-sm">
                       <div className="min-w-0">
-                        <div className="font-medium truncate">{s.email || "anônimo"}</div>
+                        <div className="font-medium truncate">{s.email || "Visitante"}</div>
                         <div className="text-xs text-muted-foreground truncate">
-                          {s.device || "device desconhecido"} · {s.id.slice(0, 8)}
+                          {s.device === "mobile" ? "Celular" : s.device === "tablet" ? "Tablet" : s.device === "desktop" ? "Computador" : "Aparelho"} · Sessão {s.id.slice(0, 6)}
                         </div>
                       </div>
                       <div className="text-right shrink-0">
