@@ -46,12 +46,49 @@ function fmtTime(d: string) {
   return dt.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "medium" });
 }
 
-function eventColor(type: string) {
-  if (type.includes("error") || type.includes("fail")) return "destructive";
-  if (type.includes("login") || type.includes("auth")) return "default";
-  if (type.includes("create") || type.includes("insert")) return "secondary";
-  return "outline";
+function relTime(d: string) {
+  const diff = (Date.now() - new Date(d).getTime()) / 1000;
+  if (diff < 60) return "agora";
+  if (diff < 3600) return `há ${Math.floor(diff / 60)}min`;
+  if (diff < 86400) return `há ${Math.floor(diff / 3600)}h`;
+  return `há ${Math.floor(diff / 86400)}d`;
 }
+
+function eventIcon(type: string) {
+  if (type.includes("login")) return LogIn;
+  if (type.includes("logout")) return LogOut;
+  if (type.includes("click")) return MousePointerClick;
+  if (type.includes("form")) return FileText;
+  if (type.includes("pageview")) return Globe;
+  return Activity;
+}
+
+function deviceIcon(device: string | null) {
+  if (device === "mobile") return Smartphone;
+  if (device === "tablet") return Tablet;
+  return Monitor;
+}
+
+function actionIcon(action: string) {
+  const a = action.toLowerCase();
+  if (a.includes("insert") || a.includes("create")) return PlusCircle;
+  if (a.includes("delete")) return Trash2;
+  return Edit3;
+}
+
+function eventAccent(type: string) {
+  if (type.includes("login")) return "text-emerald-600 bg-emerald-500/10 ring-emerald-500/20";
+  if (type.includes("logout")) return "text-slate-500 bg-slate-500/10 ring-slate-500/20";
+  if (type.includes("click")) return "text-blue-600 bg-blue-500/10 ring-blue-500/20";
+  if (type.includes("form")) return "text-violet-600 bg-violet-500/10 ring-violet-500/20";
+  if (type.includes("pageview")) return "text-primary bg-primary/10 ring-primary/20";
+  return "text-muted-foreground bg-muted ring-border";
+}
+
+function formatLocation(l: { city: string | null; region: string | null; country: string | null }) {
+  return [l.city, l.region, l.country].filter(Boolean).join(", ");
+}
+
 
 type AuditRow = {
   id: string;
