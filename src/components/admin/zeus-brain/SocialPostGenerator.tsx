@@ -67,7 +67,37 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+
+  async function suggestDirection() {
+    setSuggesting(true);
+    try {
+      const seasonal = tone === "sazonal" ? pickRandomSeasonalTheme() : null;
+      const v = selected;
+      const { data, error } = await supabase.functions.invoke("marketing-suggest-direction", {
+        body: {
+          vehicleName: v?.name || undefined,
+          vehicleBrand: v?.brand || undefined,
+          format, tone, mode,
+          carousel: kind === "carousel",
+          slidesCount: kind === "carousel" ? slidesCount : 1,
+          seasonalLabel: seasonal?.label,
+          promo: mode === "promo" ? { priceDaily, dateStart, dateEnd, hook: promoHook } : undefined,
+        },
+      });
+      if (error) throw error;
+      const s = (data as any)?.suggestion as string | undefined;
+      if (!s) throw new Error("Sem sugestão");
+      setCustomPrompt(s);
+      toast.success("Direcionamento sugerido pela IA");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Falha ao sugerir direcionamento");
+    } finally {
+      setSuggesting(false);
+    }
+  }
 
   useEffect(() => {
     void (async () => {
@@ -519,7 +549,25 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           </div>
 
           <div className="mt-3">
-            <Label>{mode === "free" ? "Sua instrução" : "Direcionamento extra (opcional)"}</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label>{mode === "free" ? "Sua instrução" : "Direcionamento extra (opcional)"}</Label>
+              <button
+                type="button"
+                onClick={suggestDirection}
+                disabled={suggesting}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10.5px] font-semibold tracking-wide transition-all disabled:opacity-60 active:scale-[0.98]"
+                style={{
+                  background: "linear-gradient(180deg,#14283d,#0d1d2e)",
+                  color: "#d6bf86",
+                  border: "1px solid rgba(214,191,134,0.40)",
+                  minHeight: 28,
+                }}
+                title="A IA sugere um direcionamento criativo coerente com a Zeus"
+              >
+                {suggesting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
+                Sugerir com IA
+              </button>
+            </div>
             <textarea
               value={customPrompt}
               onChange={(e) => setCustomPrompt(e.target.value)}
