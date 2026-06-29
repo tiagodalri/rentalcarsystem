@@ -41,7 +41,7 @@ function fmt(v: any): string {
 
 export function TuroChangesPreview({ classifications }: Props) {
   const [open, setOpen] = useState(true);
-  const [section, setSection] = useState<"cancelled" | "enrich" | "extensions" | "new">("extensions");
+  const [section, setSection] = useState<"cancelled" | "enrich" | "dateChanges" | "new">("dateChanges");
 
   const selected = useMemo(() => classifications.filter((c) => c.selected), [classifications]);
 
