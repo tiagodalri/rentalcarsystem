@@ -232,6 +232,7 @@ const App = () => (
             <ScrollManager />
             <SwUpdateOnNavigate />
             <RouteProgress />
+            <ActivityTracker />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/share/track/:token" element={<PublicSuspense><PublicTrack /></PublicSuspense>} />
