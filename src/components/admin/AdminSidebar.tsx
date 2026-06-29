@@ -21,7 +21,8 @@ import zeusLogo from "@/assets/zeus-logo-mark.png";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAdminTabs } from "@/hooks/useAdminTabs";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
-import { useVehiclesDB } from "@/hooks/useVehiclesDB";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar,
   SidebarContent,
@@ -101,7 +102,21 @@ interface AdminSidebarProps {
 
 /** Compact stats card that mirrors the bottom-of-sidebar "FROTA" widget in the mockup. */
 function FleetMiniStats() {
-  const { vehicles, loading } = useVehiclesDB();
+  const [vehicles, setVehicles] = useState<Array<{ status: string | null }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.rpc("list_vehicles_basic");
+      if (cancelled) return;
+      setVehicles((data || []) as Array<{ status: string | null }>);
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (loading) {
     return (
