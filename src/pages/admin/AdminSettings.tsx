@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, UsersRound, ScrollText, ChevronRight, FileSignature } from "lucide-react";
+import { Lock, UsersRound, ScrollText, ChevronRight, FileSignature, FileWarning } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import ChangePasswordDialog from "@/components/admin/ChangePasswordDialog";
 
@@ -15,6 +15,9 @@ export default function AdminSettings() {
 
   const managementItems = [
     { title: "Equipe", url: "/admin/team", icon: UsersRound, desc: "Gerencie permissões e membros da equipe" },
+    ...(hasAny(["admin","operations","finance"])
+      ? [{ title: "Pendências", url: "/admin/pendencias", icon: FileWarning, desc: "Informações faltantes no cadastro da frota" }]
+      : []),
     ...(hasAny(["admin","operations","support","finance"])
       ? [{ title: "Contratos", url: "/admin/contracts", icon: FileSignature, desc: "Gerencie contratos e templates de assinatura" }]
       : []),
