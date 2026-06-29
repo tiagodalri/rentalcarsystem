@@ -130,6 +130,69 @@ export function TuroChangesPreview({ classifications }: Props) {
 
 
           <div className="max-h-[420px] overflow-y-auto p-3 space-y-2 text-xs">
+            {section === "extensions" && (
+              extensions.length === 0 ? (
+                <Empty>Nenhuma reserva foi estendida neste CSV.</Empty>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center gap-2 px-1 pb-1 text-[11px] text-muted-foreground">
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-medium">
+                      <CalendarClock className="h-3 w-3" />
+                      {extensions.length} {extensions.length === 1 ? "reserva estendida" : "reservas estendidas"}
+                    </span>
+                    <span className="tabular-nums">+{totalDaysExtended} {totalDaysExtended === 1 ? "diária adicional" : "diárias adicionais"} no total</span>
+                  </div>
+                  <div className="rounded-lg border border-border/60 overflow-hidden">
+                    <table className="w-full text-xs">
+                      <thead className="bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        <tr>
+                          <th className="text-left px-3 py-2 font-medium">Cliente / Reserva</th>
+                          <th className="text-left px-3 py-2 font-medium">Veículo</th>
+                          <th className="text-left px-3 py-2 font-medium">Devolução anterior</th>
+                          <th className="text-left px-3 py-2 font-medium">Nova devolução</th>
+                          <th className="text-right px-3 py-2 font-medium">Extensão</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {extensions.map((e) => {
+                          const locChanged = (e.oldReturnLocation || "") !== (e.newReturnLocation || "");
+                          const timeChanged = (e.oldReturnTime || "") !== (e.newReturnTime || "");
+                          return (
+                            <tr key={e.reservationId} className="border-t border-border/40 align-top">
+                              <td className="px-3 py-2">
+                                <div className="font-medium">{e.name}</div>
+                                <div className="text-[10px] text-muted-foreground tabular-nums">
+                                  {e.bookingNumber ? `#${e.bookingNumber} · ` : ""}Turo #{e.reservationId}
+                                </div>
+                              </td>
+                              <td className="px-3 py-2 text-muted-foreground">{e.vehicleModel}</td>
+                              <td className="px-3 py-2 tabular-nums text-muted-foreground line-through opacity-70">
+                                <div>{e.oldReturnDate}{e.oldReturnTime ? ` · ${e.oldReturnTime}` : ""}</div>
+                                {e.oldReturnLocation && <div className="text-[10px] not-italic no-underline">{e.oldReturnLocation}</div>}
+                              </td>
+                              <td className="px-3 py-2 tabular-nums font-medium">
+                                <div>{e.newReturnDate}{e.newReturnTime ? ` · ${e.newReturnTime}` : ""}{timeChanged && <span className="ml-1 text-[10px] text-amber-600 dark:text-amber-400">(novo horário)</span>}</div>
+                                {e.newReturnLocation && (
+                                  <div className={cn("text-[10px] font-normal", locChanged ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground")}>
+                                    {e.newReturnLocation}{locChanged && " (novo local)"}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-3 py-2 text-right">
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">
+                                  +{e.daysAdded} {e.daysAdded === 1 ? "dia" : "dias"}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )
+            )}
+
             {section === "cancelled" && (
               cancelled.length === 0 ? (
                 <Empty>Nenhuma cancelada selecionada.</Empty>
