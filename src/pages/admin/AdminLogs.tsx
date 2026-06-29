@@ -9,6 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Activity, Users, MonitorSmartphone, Search, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  describeNavigation,
+  describeDevice,
+  friendlyEventType,
+  friendlyAction,
+  friendlyTable,
+  fmtDuration,
+} from "@/lib/activityLabels";
 
 const ALLOWED_EMAIL = "admin@zeusrentalcar.com";
 
