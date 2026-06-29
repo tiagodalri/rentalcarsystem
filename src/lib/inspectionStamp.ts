@@ -219,18 +219,18 @@ function drawStamp(
   const marginX = Math.max(18, Math.round(shortSide * 0.020));
   const marginY = Math.max(18, Math.round(shortSide * 0.022));
   const maxWidth = Math.round(w * 0.94);
-  const maxHeight = Math.round(h * 0.68);
-  let fontSize = Math.max(264, Math.round(shortSide * 0.344));
-  let lineHeight = Math.round(fontSize * 0.92);
+  const maxHeight = Math.round(h * 0.82);
+  let fontSize = Math.max(380, Math.round(shortSide * 0.48));
+  let lineHeight = Math.round(fontSize * 0.86);
 
   const measure = () => {
     ctx.font = `760 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
     return Math.max(...lines.map((line) => ctx.measureText(line).width));
   };
 
-  while (fontSize > 92 && (measure() > maxWidth || lines.length * lineHeight > maxHeight)) {
-    fontSize -= 1;
-    lineHeight = Math.round(fontSize * 1.02);
+  while (fontSize > 140 && (measure() > maxWidth || lines.length * lineHeight > maxHeight)) {
+    fontSize -= 2;
+    lineHeight = Math.round(fontSize * 0.86);
   }
   const blockHeight = lines.length * lineHeight;
   const widestLine = measure();
