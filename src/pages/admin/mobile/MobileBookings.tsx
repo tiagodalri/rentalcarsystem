@@ -65,8 +65,8 @@ export default function MobileBookings() {
     const list = (data as Booking[]) || [];
     const vids = Array.from(new Set(list.map((b) => b.vehicle_id).filter(Boolean))) as string[];
     if (vids.length) {
-      const { data: vs } = await supabase.from("vehicles").select("id, name").in("id", vids);
-      const map = new Map((vs || []).map((v: any) => [v.id, v.name]));
+      const { data: vs } = await supabase.rpc("list_vehicles_basic");
+      const map = new Map(((vs || []) as { id: string; name: string | null }[]).map((v) => [v.id, v.name || ""]));
       list.forEach((b) => { if (b.vehicle_id) b.vehicle_name = map.get(b.vehicle_id) || ""; });
     }
     setItems(list);

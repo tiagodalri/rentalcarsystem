@@ -79,6 +79,7 @@ export default function AdminPainel() {
   const { hasAny } = useAdminAuth();
   const { isMobile } = useIsMobileApp();
   const showFinancial = hasAny(["admin", "finance"]);
+  const canViewFullVehicleData = hasAny(["admin", "operations", "finance", "support"]);
 
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
@@ -117,15 +118,17 @@ export default function AdminPainel() {
         .select("id, status, pickup_date, return_date, pickup_time, return_time, total_price, created_at, vehicle_id, customer_name, stripe_session_id, turo_reservation_code")
         .order("created_at", { ascending: false })
         .limit(800),
-      supabase.from("vehicles")
-        .select("id, name, status, color, daily_price_usd, purchase_price, acquired_date, category, brand, model")
-        .is("deleted_at", null),
+      canViewFullVehicleData
+        ? supabase.from("vehicles")
+          .select("id, name, status, color, daily_price_usd, purchase_price, acquired_date, category, brand, model")
+          .is("deleted_at", null)
+        : supabase.rpc("list_vehicles_basic"),
     ]);
 
     setBookings((b.data as BookingRow[]) || []);
     setVehicles((v.data as VehicleRow[]) || []);
     setLoading(false);
-  }, []);
+  }, [canViewFullVehicleData]);
 
   useEffect(() => { void load(); }, [load]);
 
