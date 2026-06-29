@@ -84,6 +84,7 @@ const AdminContractTemplate = lazy(() => import("./pages/admin/AdminContractTemp
 const AdminTuroImport = lazy(() => import("./pages/admin/AdminTuroImport.tsx"));
 const AdminTutorials = lazy(() => import("./pages/admin/AdminTutorials.tsx"));
 const AdminLogs = lazy(() => import("./pages/admin/AdminLogs.tsx"));
+const AdminPendencias = lazy(() => import("./pages/admin/AdminPendencias.tsx"));
 const AdminStampPreview = lazy(() => import("./pages/admin/AdminStampPreview.tsx"));
 
 
