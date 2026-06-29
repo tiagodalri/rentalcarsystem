@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import {
   Camera, Check, ChevronLeft, Fuel, Gauge, ClipboardCheck,
   PenTool, Save, Loader2, X, Trash2, AlertTriangle, CheckCircle2,
-  Download, GitCompare, Info, Eye
+  Download, GitCompare, Info, Eye, Calendar, Clock, MapPin as MapPinIcon
 } from "lucide-react";
 import { generateInspectionPDF } from "@/utils/inspectionPdf";
 import { WebcamCaptureDialog } from "@/components/admin/WebcamCaptureDialog";
