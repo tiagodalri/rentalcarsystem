@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, useLocation, useNavigationType } from "react-router-dom";
 import { RouteErrorBoundary } from "./components/RouteErrorBoundary.tsx";
 import { RouteProgress } from "./components/RouteProgress.tsx";
+import ActivityTracker from "./components/ActivityTracker.tsx";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
