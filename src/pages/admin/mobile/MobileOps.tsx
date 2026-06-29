@@ -69,7 +69,7 @@ export default function MobileOps() {
           .eq("return_date", dayStr)
           .in("status", ["confirmed", "active", "in_progress", "completed"])
           .order("return_time"),
-        supabase.from("vehicles").select("id, name, status").is("deleted_at", null),
+        supabase.rpc("list_vehicles_basic"),
       ]);
       const map: Record<string, Vehicle> = {};
       (vs.data || []).forEach((v: any) => { map[v.id] = v; });
