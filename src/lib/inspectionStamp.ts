@@ -214,52 +214,50 @@ function drawStamp(
   h: number,
   lines: string[],
 ) {
-  // Carimbo intencionalmente grande: precisa ser lido até quando a foto aparece em miniatura no mobile.
+  // Carimbo discreto no canto inferior direito: legível mas sem competir com a foto.
   const shortSide = Math.min(w, h);
-  const marginX = Math.max(18, Math.round(shortSide * 0.020));
-  const marginY = Math.max(18, Math.round(shortSide * 0.022));
-  const maxWidth = Math.round(w * 0.94);
-  const maxHeight = Math.round(h * 0.82);
-  let fontSize = Math.max(380, Math.round(shortSide * 0.48));
-  let lineHeight = Math.round(fontSize * 0.86);
+  const marginX = Math.max(12, Math.round(shortSide * 0.018));
+  const marginY = Math.max(12, Math.round(shortSide * 0.018));
+  const maxWidth = Math.round(w * 0.55);
+  const maxHeight = Math.round(h * 0.28);
+  let fontSize = Math.max(20, Math.round(shortSide * 0.034));
+  let lineHeight = Math.round(fontSize * 1.18);
 
   const measure = () => {
-    ctx.font = `760 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
+    ctx.font = `600 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
     return Math.max(...lines.map((line) => ctx.measureText(line).width));
   };
 
-  while (fontSize > 140 && (measure() > maxWidth || lines.length * lineHeight > maxHeight)) {
-    fontSize -= 2;
-    lineHeight = Math.round(fontSize * 0.86);
+  while (fontSize > 14 && (measure() > maxWidth || lines.length * lineHeight > maxHeight)) {
+    fontSize -= 1;
+    lineHeight = Math.round(fontSize * 1.18);
   }
   const blockHeight = lines.length * lineHeight;
   const widestLine = measure();
-  const bgPadX = Math.round(fontSize * 0.34);
-  const bgPadY = Math.round(fontSize * 0.22);
+  const bgPadX = Math.round(fontSize * 0.55);
+  const bgPadY = Math.round(fontSize * 0.38);
   const bgWidth = Math.min(w - marginX * 2, widestLine + bgPadX * 2);
   const bgHeight = blockHeight + bgPadY * 2;
   const bgX = w - marginX - bgWidth;
   const bgY = Math.max(marginY, h - marginY - bgHeight);
 
   ctx.save();
-  ctx.fillStyle = "rgba(0,0,0,0.58)";
-  roundRect(ctx, bgX, bgY, bgWidth, bgHeight, Math.round(fontSize * 0.22));
+  ctx.fillStyle = "rgba(0,0,0,0.55)";
+  roundRect(ctx, bgX, bgY, bgWidth, bgHeight, Math.round(fontSize * 0.35));
   ctx.fill();
   ctx.restore();
 
-  ctx.font = `760 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
+  ctx.font = `600 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
   ctx.textAlign = "right";
   ctx.textBaseline = "top";
 
-  // SEM shadowBlur do canvas (criava halo borrado atrás do texto sobre a foto).
-  // Contraste = stroke escuro nítido em volta de cada letra + preenchimento branco.
   ctx.shadowColor = "transparent";
   ctx.shadowBlur = 0;
   ctx.shadowOffsetX = 0;
   ctx.shadowOffsetY = 0;
 
-  ctx.strokeStyle = "rgba(0,0,0,0.98)";
-  ctx.lineWidth = Math.max(8, Math.round(fontSize * 0.18));
+  ctx.strokeStyle = "rgba(0,0,0,0.85)";
+  ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.08));
   ctx.lineJoin = "round";
   ctx.miterLimit = 2;
 
