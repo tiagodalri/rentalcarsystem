@@ -44,9 +44,6 @@ const FIELDS: FieldDef[] = [
   { key: "color", label: "Cor" },
   { key: "image_url", label: "Foto principal" },
   { key: "initial_odometer", label: "Odômetro inicial", test: (v) => v.initial_odometer == null },
-  { key: "insurance_policy", label: "Apólice de seguro" },
-  { key: "insurance_expiry", label: "Validade do seguro" },
-  { key: "registration_expiry", label: "Validade do registro" },
 ];
 
 function isMissing(v: Vehicle, f: FieldDef) {
