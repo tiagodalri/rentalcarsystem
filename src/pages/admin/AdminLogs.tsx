@@ -45,9 +45,21 @@ function eventColor(type: string) {
   return "outline";
 }
 
+type AuditRow = {
+  id: string;
+  created_at: string;
+  table_name: string;
+  record_id: string;
+  action: string;
+  actor_id: string | null;
+  actor_email: string | null;
+  diff: any;
+};
+
 export default function AdminLogs() {
   const { user, loading } = useAdminAuth();
   const [logs, setLogs] = useState<LogRow[]>([]);
+  const [audit, setAudit] = useState<AuditRow[]>([]);
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
@@ -55,12 +67,12 @@ export default function AdminLogs() {
 
   const load = async () => {
     setRefreshing(true);
-    const { data } = await supabase
-      .from("activity_logs")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(500);
-    setLogs((data as LogRow[]) || []);
+    const [{ data: act }, { data: aud }] = await Promise.all([
+      supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(500),
+      supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(500),
+    ]);
+    setLogs((act as LogRow[]) || []);
+    setAudit((aud as AuditRow[]) || []);
     setRefreshing(false);
   };
 
@@ -74,6 +86,13 @@ export default function AdminLogs() {
         { event: "INSERT", schema: "public", table: "activity_logs" },
         (payload) => {
           setLogs((prev) => [payload.new as LogRow, ...prev].slice(0, 500));
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "audit_logs" },
+        (payload) => {
+          setAudit((prev) => [payload.new as AuditRow, ...prev].slice(0, 500));
         },
       )
       .subscribe();
@@ -191,6 +210,7 @@ export default function AdminLogs() {
       <Tabs defaultValue="activity" className="w-full">
         <TabsList>
           <TabsTrigger value="activity">Atividade ao vivo</TabsTrigger>
+          <TabsTrigger value="audit">Alterações de dados</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="sessions">Sessões</TabsTrigger>
         </TabsList>
@@ -222,6 +242,41 @@ export default function AdminLogs() {
                   ))}
                   {filtered.length === 0 && (
                     <div className="p-6 text-center text-sm text-muted-foreground">Nenhum evento registrado.</div>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="audit">
+          <Card className="admin-card">
+            <CardHeader><CardTitle className="text-base">Alterações de dados ({audit.length})</CardTitle></CardHeader>
+            <CardContent className="p-0">
+              <ScrollArea className="h-[60vh]">
+                <div className="divide-y divide-border">
+                  {audit
+                    .filter((a) => {
+                      const q = search.trim().toLowerCase();
+                      if (!q) return true;
+                      return [a.table_name, a.action, a.actor_email, a.record_id]
+                        .filter(Boolean)
+                        .some((v) => String(v).toLowerCase().includes(q));
+                    })
+                    .map((a) => (
+                      <div key={a.id} className="p-3 flex flex-wrap items-start gap-2 text-sm hover:bg-muted/30">
+                        <Badge variant="outline" className="shrink-0">{a.action}</Badge>
+                        <div className="flex-1 min-w-[200px]">
+                          <div className="font-medium">{a.table_name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {a.actor_email || "sistema"} · {a.record_id.slice(0, 8)}
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground tabular-nums">{fmtTime(a.created_at)}</div>
+                      </div>
+                    ))}
+                  {audit.length === 0 && (
+                    <div className="p-6 text-center text-sm text-muted-foreground">Nenhuma alteração registrada.</div>
                   )}
                 </div>
               </ScrollArea>
