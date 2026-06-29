@@ -171,17 +171,30 @@ export function TuroChangesPreview({ classifications }: Props) {
 
 
           <div className="max-h-[420px] overflow-y-auto p-3 space-y-2 text-xs">
-            {section === "extensions" && (
-              extensions.length === 0 ? (
-                <Empty>Nenhuma reserva foi estendida neste CSV.</Empty>
+            {section === "dateChanges" && (
+              dateChanges.length === 0 ? (
+                <Empty>Nenhuma reserva teve datas alteradas neste CSV.</Empty>
               ) : (
                 <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-2 px-1 pb-1 text-[11px] text-muted-foreground">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-medium">
-                      <CalendarClock className="h-3 w-3" />
-                      {extensions.length} {extensions.length === 1 ? "reserva estendida" : "reservas estendidas"}
-                    </span>
-                    <span className="tabular-nums">+{totalDaysExtended} {totalDaysExtended === 1 ? "diária adicional" : "diárias adicionais"} no total</span>
+                  <div className="flex flex-wrap items-center gap-2 px-1 pb-1 text-[11px]">
+                    {extendedCount > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-medium">
+                        <CalendarClock className="h-3 w-3" />
+                        {extendedCount} {extendedCount === 1 ? "devolução estendida" : "devoluções estendidas"}
+                      </span>
+                    )}
+                    {shortenedCount > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 font-medium">
+                        <CalendarClock className="h-3 w-3" />
+                        {shortenedCount} {shortenedCount === 1 ? "devolução antecipada" : "devoluções antecipadas"}
+                      </span>
+                    )}
+                    {pickupChangedCount > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-700 dark:text-sky-400 font-medium">
+                        <CalendarClock className="h-3 w-3" />
+                        {pickupChangedCount} {pickupChangedCount === 1 ? "retirada alterada" : "retiradas alteradas"}
+                      </span>
+                    )}
                   </div>
                   <div className="rounded-lg border border-border/60 overflow-hidden">
                     <table className="w-full text-xs">
@@ -189,17 +202,30 @@ export function TuroChangesPreview({ classifications }: Props) {
                         <tr>
                           <th className="text-left px-3 py-2 font-medium">Cliente / Reserva</th>
                           <th className="text-left px-3 py-2 font-medium">Veículo</th>
-                          <th className="text-left px-3 py-2 font-medium">Devolução anterior</th>
-                          <th className="text-left px-3 py-2 font-medium">Nova devolução</th>
-                          <th className="text-right px-3 py-2 font-medium">Extensão</th>
+                          <th className="text-left px-3 py-2 font-medium">Campo</th>
+                          <th className="text-left px-3 py-2 font-medium">Antes</th>
+                          <th className="text-left px-3 py-2 font-medium">Depois</th>
+                          <th className="text-right px-3 py-2 font-medium">Variação</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {extensions.map((e) => {
-                          const locChanged = (e.oldReturnLocation || "") !== (e.newReturnLocation || "");
-                          const timeChanged = (e.oldReturnTime || "") !== (e.newReturnTime || "");
+                        {dateChanges.map((e) => {
+                          const locChanged = (e.oldLocation || "") !== (e.newLocation || "");
+                          const timeChanged = (e.oldTime || "") !== (e.newTime || "");
+                          const isPositive = e.kind === "return_extended" || e.kind === "pickup_anticipated";
+                          const sign = e.kind === "return_extended" ? "+" : e.kind === "return_shortened" ? "−" : e.kind === "pickup_postponed" ? "→" : "←";
+                          const badgeClass = isPositive
+                            ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                            : e.field === "return"
+                              ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                              : "bg-sky-500/10 text-sky-700 dark:text-sky-400";
+                          const fieldLabel =
+                            e.kind === "return_extended" ? "Devolução estendida"
+                            : e.kind === "return_shortened" ? "Devolução antecipada"
+                            : e.kind === "pickup_postponed" ? "Retirada adiada"
+                            : "Retirada antecipada";
                           return (
-                            <tr key={e.reservationId} className="border-t border-border/40 align-top">
+                            <tr key={`${e.reservationId}-${e.field}`} className="border-t border-border/40 align-top">
                               <td className="px-3 py-2">
                                 <div className="font-medium">{e.name}</div>
                                 <div className="text-[10px] text-muted-foreground tabular-nums">
@@ -207,21 +233,26 @@ export function TuroChangesPreview({ classifications }: Props) {
                                 </div>
                               </td>
                               <td className="px-3 py-2 text-muted-foreground">{e.vehicleModel}</td>
+                              <td className="px-3 py-2">
+                                <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium", badgeClass)}>
+                                  {fieldLabel}
+                                </span>
+                              </td>
                               <td className="px-3 py-2 tabular-nums text-muted-foreground line-through opacity-70">
-                                <div>{e.oldReturnDate}{e.oldReturnTime ? ` · ${e.oldReturnTime}` : ""}</div>
-                                {e.oldReturnLocation && <div className="text-[10px] not-italic no-underline">{e.oldReturnLocation}</div>}
+                                <div>{e.oldDate}{e.oldTime ? ` · ${e.oldTime}` : ""}</div>
+                                {e.oldLocation && <div className="text-[10px] not-italic no-underline">{e.oldLocation}</div>}
                               </td>
                               <td className="px-3 py-2 tabular-nums font-medium">
-                                <div>{e.newReturnDate}{e.newReturnTime ? ` · ${e.newReturnTime}` : ""}{timeChanged && <span className="ml-1 text-[10px] text-amber-600 dark:text-amber-400">(novo horário)</span>}</div>
-                                {e.newReturnLocation && (
+                                <div>{e.newDate}{e.newTime ? ` · ${e.newTime}` : ""}{timeChanged && <span className="ml-1 text-[10px] text-amber-600 dark:text-amber-400">(novo horário)</span>}</div>
+                                {e.newLocation && (
                                   <div className={cn("text-[10px] font-normal", locChanged ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground")}>
-                                    {e.newReturnLocation}{locChanged && " (novo local)"}
+                                    {e.newLocation}{locChanged && " (novo local)"}
                                   </div>
                                 )}
                               </td>
                               <td className="px-3 py-2 text-right">
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold tabular-nums">
-                                  +{e.daysAdded} {e.daysAdded === 1 ? "dia" : "dias"}
+                                <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold tabular-nums", badgeClass)}>
+                                  {sign}{e.daysDelta} {e.daysDelta === 1 ? "dia" : "dias"}
                                 </span>
                               </td>
                             </tr>
@@ -233,6 +264,7 @@ export function TuroChangesPreview({ classifications }: Props) {
                 </div>
               )
             )}
+
 
             {section === "cancelled" && (
               cancelled.length === 0 ? (
