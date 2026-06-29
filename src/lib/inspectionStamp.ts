@@ -232,40 +232,34 @@ function drawStamp(
     fontSize -= 1;
     lineHeight = Math.round(fontSize * 1.18);
   }
-  const blockHeight = lines.length * lineHeight;
   const widestLine = measure();
-  const bgPadX = Math.round(fontSize * 0.55);
-  const bgPadY = Math.round(fontSize * 0.38);
-  const bgWidth = Math.min(w - marginX * 2, widestLine + bgPadX * 2);
-  const bgHeight = blockHeight + bgPadY * 2;
-  const bgX = w - marginX - bgWidth;
-  const bgY = Math.max(marginY, h - marginY - bgHeight);
-
-  ctx.save();
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  roundRect(ctx, bgX, bgY, bgWidth, bgHeight, Math.round(fontSize * 0.35));
-  ctx.fill();
-  ctx.restore();
+  const textPadX = Math.round(fontSize * 0.35);
+  const textPadY = Math.round(fontSize * 0.25);
+  const blockHeight = lines.length * lineHeight;
+  const stampWidth = Math.min(w - marginX * 2, widestLine + textPadX * 2);
+  const stampHeight = blockHeight + textPadY * 2;
+  const stampX = w - marginX - stampWidth;
+  const stampY = Math.max(marginY, h - marginY - stampHeight);
 
   ctx.font = `600 ${fontSize}px "Helvetica Neue", Inter, system-ui, -apple-system, Segoe UI, sans-serif`;
   ctx.textAlign = "right";
   ctx.textBaseline = "top";
 
-  ctx.shadowColor = "transparent";
-  ctx.shadowBlur = 0;
+  ctx.shadowColor = "rgba(0,0,0,0.72)";
+  ctx.shadowBlur = Math.round(fontSize * 0.45);
   ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 0;
+  ctx.shadowOffsetY = Math.round(fontSize * 0.18);
 
-  ctx.strokeStyle = "rgba(0,0,0,0.85)";
-  ctx.lineWidth = Math.max(2, Math.round(fontSize * 0.08));
+  ctx.strokeStyle = "rgba(0,0,0,0.92)";
+  ctx.lineWidth = Math.max(3, Math.round(fontSize * 0.14));
   ctx.lineJoin = "round";
   ctx.miterLimit = 2;
 
   ctx.fillStyle = "#ffffff";
 
   lines.forEach((line, i) => {
-    const x = w - marginX - bgPadX;
-    const y = bgY + bgPadY + i * lineHeight;
+    const x = w - marginX - textPadX;
+    const y = stampY + textPadY + i * lineHeight;
     ctx.strokeText(line, x, y);
     ctx.fillText(line, x, y);
   });
