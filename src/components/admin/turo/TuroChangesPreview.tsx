@@ -4,18 +4,22 @@ import { cn } from "@/lib/utils";
 import { formatPersonName } from "@/lib/formatName";
 import type { Classification, BookingSnapshot } from "@/lib/turo/diffEngine";
 
-interface ExtensionInfo {
+type DateChangeKind = "return_extended" | "return_shortened" | "pickup_postponed" | "pickup_anticipated";
+
+interface DateChangeInfo {
   reservationId: string;
   bookingNumber?: string | null;
   name: string;
   vehicleModel: string;
-  oldReturnDate: string;
-  newReturnDate: string;
-  daysAdded: number;
-  oldReturnTime?: string | null;
-  newReturnTime?: string | null;
-  oldReturnLocation?: string | null;
-  newReturnLocation?: string | null;
+  kind: DateChangeKind;
+  field: "pickup" | "return";
+  oldDate: string;
+  newDate: string;
+  daysDelta: number; // sempre positivo, sinal vem do kind
+  oldTime?: string | null;
+  newTime?: string | null;
+  oldLocation?: string | null;
+  newLocation?: string | null;
 }
 
 function diffDays(from: string, to: string): number {
