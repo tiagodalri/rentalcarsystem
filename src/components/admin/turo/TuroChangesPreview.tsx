@@ -66,6 +66,39 @@ export function TuroChangesPreview({ classifications }: Props) {
     return Array.from(map.entries()).map(([field, v]) => ({ field, ...v })).sort((a, b) => b.rows.length - a.rows.length);
   }, [enriches]);
 
+  // Extensões: reservas em que a data de devolução foi adiada (Turo é fonte de verdade)
+  const extensions = useMemo<ExtensionInfo[]>(() => {
+    const out: ExtensionInfo[] = [];
+    for (const c of enriches) {
+      if (!c.existing) continue;
+      const dReturn = c.diffs.find((d) => d.field === "return_date" && c.selectedFields.has(d.field));
+      if (!dReturn) continue;
+      const oldDate = String(dReturn.currentValue ?? "");
+      const newDate = String(dReturn.newValue ?? "");
+      const days = diffDays(oldDate, newDate);
+      if (days <= 0) continue; // só conta extensão (não redução)
+      const dRt = c.diffs.find((d) => d.field === "return_time");
+      const dRloc = c.diffs.find((d) => d.field === "return_location");
+      out.push({
+        reservationId: c.row.reservationId,
+        bookingNumber: c.existing.booking_number,
+        name: formatPersonName(c.row.guestName),
+        vehicleModel: c.row.vehicleModel,
+        oldReturnDate: oldDate,
+        newReturnDate: newDate,
+        daysAdded: days,
+        oldReturnTime: dRt ? String(dRt.currentValue ?? "") : c.existing.return_time,
+        newReturnTime: dRt ? String(dRt.newValue ?? "") : c.existing.return_time,
+        oldReturnLocation: dRloc ? String(dRloc.currentValue ?? "") : c.existing.return_location,
+        newReturnLocation: dRloc ? String(dRloc.newValue ?? "") : c.existing.return_location,
+      });
+    }
+    return out.sort((a, b) => b.daysAdded - a.daysAdded);
+  }, [enriches]);
+
+  const totalDaysExtended = extensions.reduce((s, e) => s + e.daysAdded, 0);
+
+
   const total = selected.length;
   if (total === 0) return null;
 
