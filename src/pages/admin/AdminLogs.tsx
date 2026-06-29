@@ -45,9 +45,21 @@ function eventColor(type: string) {
   return "outline";
 }
 
+type AuditRow = {
+  id: string;
+  created_at: string;
+  table_name: string;
+  record_id: string;
+  action: string;
+  actor_id: string | null;
+  actor_email: string | null;
+  diff: any;
+};
+
 export default function AdminLogs() {
   const { user, loading } = useAdminAuth();
   const [logs, setLogs] = useState<LogRow[]>([]);
+  const [audit, setAudit] = useState<AuditRow[]>([]);
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
@@ -55,12 +67,12 @@ export default function AdminLogs() {
 
   const load = async () => {
     setRefreshing(true);
-    const { data } = await supabase
-      .from("activity_logs")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(500);
-    setLogs((data as LogRow[]) || []);
+    const [{ data: act }, { data: aud }] = await Promise.all([
+      supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(500),
+      supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(500),
+    ]);
+    setLogs((act as LogRow[]) || []);
+    setAudit((aud as AuditRow[]) || []);
     setRefreshing(false);
   };
 
@@ -74,6 +86,13 @@ export default function AdminLogs() {
         { event: "INSERT", schema: "public", table: "activity_logs" },
         (payload) => {
           setLogs((prev) => [payload.new as LogRow, ...prev].slice(0, 500));
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "audit_logs" },
+        (payload) => {
+          setAudit((prev) => [payload.new as AuditRow, ...prev].slice(0, 500));
         },
       )
       .subscribe();
