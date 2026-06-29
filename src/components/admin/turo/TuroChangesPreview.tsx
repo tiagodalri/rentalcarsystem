@@ -1,8 +1,29 @@
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronRight, Plus, Pencil, XCircle } from "lucide-react";
+import { ChevronDown, ChevronRight, Plus, Pencil, XCircle, CalendarClock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPersonName } from "@/lib/formatName";
 import type { Classification, BookingSnapshot } from "@/lib/turo/diffEngine";
+
+interface ExtensionInfo {
+  reservationId: string;
+  bookingNumber?: string | null;
+  name: string;
+  vehicleModel: string;
+  oldReturnDate: string;
+  newReturnDate: string;
+  daysAdded: number;
+  oldReturnTime?: string | null;
+  newReturnTime?: string | null;
+  oldReturnLocation?: string | null;
+  newReturnLocation?: string | null;
+}
+
+function diffDays(from: string, to: string): number {
+  const a = new Date(`${from}T00:00:00`);
+  const b = new Date(`${to}T00:00:00`);
+  if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return 0;
+  return Math.round((b.getTime() - a.getTime()) / 86400000);
+}
 
 interface Props {
   classifications: Classification[];
