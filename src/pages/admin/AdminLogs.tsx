@@ -9,6 +9,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Activity, Users, MonitorSmartphone, Search, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  describeNavigation,
+  describeDevice,
+  friendlyEventType,
+  friendlyAction,
+  friendlyTable,
+  fmtDuration,
+} from "@/lib/activityLabels";
 
 const ALLOWED_EMAIL = "admin@zeusrentalcar.com";
 
@@ -221,25 +229,34 @@ export default function AdminLogs() {
             <CardContent className="p-0">
               <ScrollArea className="h-[60vh]">
                 <div className="divide-y divide-border">
-                  {filtered.map((l) => (
-                    <div key={l.id} className="p-3 flex flex-wrap items-start gap-2 text-sm hover:bg-muted/30">
-                      <Badge variant={eventColor(l.event_type) as any} className="shrink-0">
-                        {l.event_type}
-                      </Badge>
-                      <div className="flex-1 min-w-[200px]">
-                        <div className="font-medium">{l.event_name || l.event_type}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {l.user_email || "anônimo"} {l.path ? `· ${l.path}` : ""}
-                        </div>
-                        {(l.city || l.country) && (
-                          <div className="text-xs text-muted-foreground">
-                            {[l.city, l.region, l.country].filter(Boolean).join(", ")} {l.ip ? `· ${l.ip}` : ""}
+                  {filtered.map((l) => {
+                    const nav = describeNavigation(l);
+                    const dur = fmtDuration(l.duration_ms);
+                    return (
+                      <div key={l.id} className="p-3 flex flex-wrap items-start gap-2 text-sm hover:bg-muted/30">
+                        <Badge variant={eventColor(l.event_type) as any} className="shrink-0">
+                          {friendlyEventType(l.event_type)}
+                        </Badge>
+                        <div className="flex-1 min-w-[200px]">
+                          <div className="font-medium">
+                            <span className="text-foreground">{l.user_name || l.user_email || "Visitante"}</span>
+                            <span className="text-muted-foreground"> · </span>
+                            <span>{nav.title}</span>
                           </div>
-                        )}
+                          <div className="text-xs text-muted-foreground">
+                            {nav.subtitle}
+                            {dur ? ` · Ficou ${dur} na página anterior` : ""}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {describeDevice(l)}
+                            {(l.city || l.country) ? ` · ${[l.city, l.region, l.country].filter(Boolean).join(", ")}` : ""}
+                            {l.ip ? ` · ${l.ip}` : ""}
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground tabular-nums">{fmtTime(l.created_at)}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground tabular-nums">{fmtTime(l.created_at)}</div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {filtered.length === 0 && (
                     <div className="p-6 text-center text-sm text-muted-foreground">Nenhum evento registrado.</div>
                   )}
@@ -265,11 +282,15 @@ export default function AdminLogs() {
                     })
                     .map((a) => (
                       <div key={a.id} className="p-3 flex flex-wrap items-start gap-2 text-sm hover:bg-muted/30">
-                        <Badge variant="outline" className="shrink-0">{a.action}</Badge>
+                        <Badge variant="outline" className="shrink-0">{friendlyAction(a.action)}</Badge>
                         <div className="flex-1 min-w-[200px]">
-                          <div className="font-medium">{a.table_name}</div>
+                          <div className="font-medium">
+                            <span>{a.actor_email || "Sistema"}</span>
+                            <span className="text-muted-foreground"> · </span>
+                            <span>{friendlyAction(a.action)} {friendlyTable(a.table_name)}</span>
+                          </div>
                           <div className="text-xs text-muted-foreground">
-                            {a.actor_email || "sistema"} · {a.record_id.slice(0, 8)}
+                            Registro: {a.record_id.slice(0, 8)}
                           </div>
                         </div>
                         <div className="text-xs text-muted-foreground tabular-nums">{fmtTime(a.created_at)}</div>
@@ -315,9 +336,9 @@ export default function AdminLogs() {
                   {sessions.map((s) => (
                     <div key={s.id} className="p-3 flex items-center justify-between text-sm">
                       <div className="min-w-0">
-                        <div className="font-medium truncate">{s.email || "anônimo"}</div>
+                        <div className="font-medium truncate">{s.email || "Visitante"}</div>
                         <div className="text-xs text-muted-foreground truncate">
-                          {s.device || "device desconhecido"} · {s.id.slice(0, 8)}
+                          {s.device === "mobile" ? "Celular" : s.device === "tablet" ? "Tablet" : s.device === "desktop" ? "Computador" : "Aparelho"} · Sessão {s.id.slice(0, 6)}
                         </div>
                       </div>
                       <div className="text-right shrink-0">
