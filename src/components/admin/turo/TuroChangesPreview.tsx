@@ -154,7 +154,7 @@ export function TuroChangesPreview({ classifications }: Props) {
           {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           <span className="font-semibold">Preview das mudanças</span>
           <span className="text-xs text-muted-foreground">
-            ({total} reservas · {extensions.length} estendidas · {cancelled.length} canceladas · {enriches.length} enriquecer · {news.length} novas)
+            ({total} reservas · {dateChanges.length} c/ datas alteradas · {cancelled.length} canceladas · {enriches.length} enriquecer · {news.length} novas)
           </span>
         </div>
       </button>
@@ -163,7 +163,7 @@ export function TuroChangesPreview({ classifications }: Props) {
         <div className="border-t border-primary/20 bg-card/50">
           {/* Tabs */}
           <div className="flex border-b border-border/60 text-xs overflow-x-auto">
-            <TabBtn active={section === "extensions"} onClick={() => setSection("extensions")} icon={<CalendarClock className="h-3.5 w-3.5" />} label="Extensões" count={extensions.length} />
+            <TabBtn active={section === "dateChanges"} onClick={() => setSection("dateChanges")} icon={<CalendarClock className="h-3.5 w-3.5" />} label="Alterações de datas" count={dateChanges.length} />
             <TabBtn active={section === "cancelled"} onClick={() => setSection("cancelled")} icon={<XCircle className="h-3.5 w-3.5" />} label="Canceladas" count={cancelled.length} />
             <TabBtn active={section === "enrich"} onClick={() => setSection("enrich")} icon={<Pencil className="h-3.5 w-3.5" />} label="Enriquecer" count={byField.reduce((s, f) => s + f.rows.length, 0)} />
             <TabBtn active={section === "new"} onClick={() => setSection("new")} icon={<Plus className="h-3.5 w-3.5" />} label="Novas" count={news.length} />
