@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import {
   Camera, Check, ChevronLeft, Fuel, Gauge, ClipboardCheck,
   PenTool, Save, Loader2, X, Trash2, AlertTriangle, CheckCircle2,
-  Download, GitCompare, Info, Eye
+  Download, GitCompare, Info, Eye, Calendar, Clock, MapPin as MapPinIcon
 } from "lucide-react";
 import { generateInspectionPDF } from "@/utils/inspectionPdf";
 import { WebcamCaptureDialog } from "@/components/admin/WebcamCaptureDialog";
@@ -1153,7 +1153,48 @@ export default function AdminInspection() {
         </div>
       </div>
 
+      {/* Booking info card — visível pra equipe na hora da inspeção */}
+      <Card className="admin-card border-primary/20">
+        <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground">Retirada</div>
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar size={14} className="text-primary shrink-0" />
+              <span className="font-medium">{parseDateOnly(booking.pickup_date).toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}</span>
+              {booking.pickup_time && (
+                <>
+                  <Clock size={14} className="text-primary shrink-0 ml-1" />
+                  <span className="font-medium tabular-nums">{booking.pickup_time}</span>
+                </>
+              )}
+            </div>
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <MapPinIcon size={14} className="text-primary shrink-0 mt-0.5" />
+              <span className="break-words">{booking.pickup_location || "Local não informado"}</span>
+            </div>
+          </div>
+          <div className="space-y-2 sm:border-l sm:border-border/60 sm:pl-4">
+            <div className="text-[11px] uppercase tracking-wider font-medium text-muted-foreground">Devolução</div>
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar size={14} className="text-primary shrink-0" />
+              <span className="font-medium">{parseDateOnly(booking.return_date).toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}</span>
+              {booking.return_time && (
+                <>
+                  <Clock size={14} className="text-primary shrink-0 ml-1" />
+                  <span className="font-medium tabular-nums">{booking.return_time}</span>
+                </>
+              )}
+            </div>
+            <div className="flex items-start gap-2 text-sm text-muted-foreground">
+              <MapPinIcon size={14} className="text-primary shrink-0 mt-0.5" />
+              <span className="break-words">{booking.return_location || "Local não informado"}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Step indicator */}
+
       <div className="flex items-center gap-1 overflow-x-auto pb-2">
         {steps.map((s, i) => {
           const Icon = s.icon;
