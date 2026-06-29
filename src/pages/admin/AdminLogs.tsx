@@ -229,25 +229,34 @@ export default function AdminLogs() {
             <CardContent className="p-0">
               <ScrollArea className="h-[60vh]">
                 <div className="divide-y divide-border">
-                  {filtered.map((l) => (
-                    <div key={l.id} className="p-3 flex flex-wrap items-start gap-2 text-sm hover:bg-muted/30">
-                      <Badge variant={eventColor(l.event_type) as any} className="shrink-0">
-                        {l.event_type}
-                      </Badge>
-                      <div className="flex-1 min-w-[200px]">
-                        <div className="font-medium">{l.event_name || l.event_type}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {l.user_email || "anônimo"} {l.path ? `· ${l.path}` : ""}
-                        </div>
-                        {(l.city || l.country) && (
-                          <div className="text-xs text-muted-foreground">
-                            {[l.city, l.region, l.country].filter(Boolean).join(", ")} {l.ip ? `· ${l.ip}` : ""}
+                  {filtered.map((l) => {
+                    const nav = describeNavigation(l);
+                    const dur = fmtDuration(l.duration_ms);
+                    return (
+                      <div key={l.id} className="p-3 flex flex-wrap items-start gap-2 text-sm hover:bg-muted/30">
+                        <Badge variant={eventColor(l.event_type) as any} className="shrink-0">
+                          {friendlyEventType(l.event_type)}
+                        </Badge>
+                        <div className="flex-1 min-w-[200px]">
+                          <div className="font-medium">
+                            <span className="text-foreground">{l.user_name || l.user_email || "Visitante"}</span>
+                            <span className="text-muted-foreground"> · </span>
+                            <span>{nav.title}</span>
                           </div>
-                        )}
+                          <div className="text-xs text-muted-foreground">
+                            {nav.subtitle}
+                            {dur ? ` · Ficou ${dur} na página anterior` : ""}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {describeDevice(l)}
+                            {(l.city || l.country) ? ` · ${[l.city, l.region, l.country].filter(Boolean).join(", ")}` : ""}
+                            {l.ip ? ` · ${l.ip}` : ""}
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground tabular-nums">{fmtTime(l.created_at)}</div>
                       </div>
-                      <div className="text-xs text-muted-foreground tabular-nums">{fmtTime(l.created_at)}</div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {filtered.length === 0 && (
                     <div className="p-6 text-center text-sm text-muted-foreground">Nenhum evento registrado.</div>
                   )}
