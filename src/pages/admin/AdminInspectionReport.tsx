@@ -692,7 +692,7 @@ export default function AdminInspectionReport() {
                       <XCircle size={12} className="text-destructive shrink-0" />
                       <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLOR[d.severity] || ""}`}>{SEVERITY_LABELS[d.severity] || d.severity}</Badge>
                       <span className="font-semibold text-foreground">{d.position}</span>
-                      <span className="text-muted-foreground flex-1 min-w-0 truncate">— {d.description || "—"}</span>
+                      <span className="text-muted-foreground flex-1 min-w-0 truncate">— {normalizeDamageText(d.description || "") || "—"}</span>
                       {d.photoUrl && <SignedImage value={d.photoUrl} alt="" className="w-12 h-12 rounded object-contain border border-border/30 bg-muted/30 ml-auto" />}
                     </div>
                   ))}
