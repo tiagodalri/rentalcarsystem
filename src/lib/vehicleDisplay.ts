@@ -35,6 +35,23 @@ const COLOR_HEX: Record<string, string> = {
   rosa: "#db2777", pink: "#db2777",
 };
 
+const COLOR_NAME_PT: Record<string, string> = {
+  preto: "Preto", preta: "Preta", black: "Preto",
+  branco: "Branco", branca: "Branca", white: "Branco",
+  prata: "Prata", prateado: "Prata", prateada: "Prata", silver: "Prata",
+  cinza: "Cinza", grafite: "Grafite", chumbo: "Chumbo", gray: "Cinza", grey: "Cinza",
+  vermelho: "Vermelho", vermelha: "Vermelha", rubi: "Rubi", bordo: "Bordô", "bordô": "Bordô", red: "Vermelho",
+  azul: "Azul", azulado: "Azul", blue: "Azul",
+  verde: "Verde", green: "Verde",
+  amarelo: "Amarelo", amarela: "Amarela", yellow: "Amarelo",
+  dourado: "Dourado", dourada: "Dourada", ouro: "Ouro", gold: "Dourado",
+  bege: "Bege",
+  marrom: "Marrom", café: "Café", cafe: "Café", brown: "Marrom",
+  laranja: "Laranja", orange: "Laranja",
+  roxo: "Roxo", roxa: "Roxa", violeta: "Violeta", purple: "Roxo",
+  rosa: "Rosa", pink: "Rosa",
+};
+
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
