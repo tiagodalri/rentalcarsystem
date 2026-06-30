@@ -84,6 +84,7 @@ export default function AdminPainel() {
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [vehicles, setVehicles] = useState<VehicleRow[]>([]);
+  const [inspectionMap, setInspectionMap] = useState<Record<string, { checkin: boolean; checkout: boolean }>>({});
   const [aiMode, setAiMode] = useState<boolean>(() => {
     try { return localStorage.getItem("zeus_ai_mode") === "1"; } catch { return false; }
   });
