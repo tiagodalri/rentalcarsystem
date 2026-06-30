@@ -520,9 +520,12 @@ export default function AdminFleetReport({
 
       {/* Addon Revenue Breakdown — full width since Plano card was removed */}
       <Card className="border-border/40">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <Sparkles size={16} className="text-primary" /> Receita de Opcionais
+          <CardHeader className="pb-2 pt-5">
+            <CardTitle className="text-sm font-medium flex items-center gap-2 tracking-tight">
+              <div className="h-6 w-6 rounded-md bg-primary/[0.07] flex items-center justify-center">
+                <Sparkles size={14} className="text-primary" />
+              </div>
+              Receita de Opcionais
             {totalAddonRevenue > 0 && (
               <Badge variant="outline" className="ml-auto text-xs font-medium">${totalAddonRevenue.toLocaleString()}</Badge>
             )}
