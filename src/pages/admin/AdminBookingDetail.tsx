@@ -24,6 +24,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { SignedImage } from "@/components/admin/SignedImage";
 import { ShareWhatsAppInspectionButton } from "@/components/admin/ShareWhatsAppInspectionButton";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
+import { BookingEpassTolls } from "@/components/admin/booking/BookingEpassTolls";
 
 const FUEL_LABELS: Record<string, string> = {
   empty: "Vazio", "1/8": "1/8", "1/4": "1/4", "3/8": "3/8",
@@ -1062,6 +1063,8 @@ export default function AdminBookingDetail() {
           </CardContent>
         </Card>
       )}
+
+      <BookingEpassTolls bookingId={booking.id} />
     </div>
   );
 }

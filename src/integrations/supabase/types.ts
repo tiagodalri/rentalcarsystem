@@ -731,6 +731,182 @@ export type Database = {
         }
         Relationships: []
       }
+      epass_account_activity: {
+        Row: {
+          account_number: string | null
+          activity_date: string | null
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          import_id: string
+          location: string | null
+        }
+        Insert: {
+          account_number?: string | null
+          activity_date?: string | null
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          import_id: string
+          location?: string | null
+        }
+        Update: {
+          account_number?: string | null
+          activity_date?: string | null
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          import_id?: string
+          location?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epass_account_activity_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "epass_imports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      epass_imports: {
+        Row: {
+          account_number: string | null
+          created_at: string
+          filename: string
+          id: string
+          imported_by: string | null
+          matched_rows: number
+          period_label: string | null
+          total_amount: number
+          total_rows: number
+          unmatched_booking_rows: number
+          unmatched_vehicle_rows: number
+        }
+        Insert: {
+          account_number?: string | null
+          created_at?: string
+          filename: string
+          id?: string
+          imported_by?: string | null
+          matched_rows?: number
+          period_label?: string | null
+          total_amount?: number
+          total_rows?: number
+          unmatched_booking_rows?: number
+          unmatched_vehicle_rows?: number
+        }
+        Update: {
+          account_number?: string | null
+          created_at?: string
+          filename?: string
+          id?: string
+          imported_by?: string | null
+          matched_rows?: number
+          period_label?: string | null
+          total_amount?: number
+          total_rows?: number
+          unmatched_booking_rows?: number
+          unmatched_vehicle_rows?: number
+        }
+        Relationships: []
+      }
+      epass_tolls: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          charged_at: string | null
+          charged_to_customer: boolean
+          created_at: string
+          customer_id: string | null
+          dedupe_hash: string
+          id: string
+          import_id: string
+          location: string | null
+          posting_date: string | null
+          status: Database["public"]["Enums"]["epass_toll_status"]
+          toll_datetime: string
+          toll_type: string | null
+          transponder_number: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          amount?: number
+          booking_id?: string | null
+          charged_at?: string | null
+          charged_to_customer?: boolean
+          created_at?: string
+          customer_id?: string | null
+          dedupe_hash: string
+          id?: string
+          import_id: string
+          location?: string | null
+          posting_date?: string | null
+          status?: Database["public"]["Enums"]["epass_toll_status"]
+          toll_datetime: string
+          toll_type?: string | null
+          transponder_number: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          charged_at?: string | null
+          charged_to_customer?: boolean
+          created_at?: string
+          customer_id?: string | null
+          dedupe_hash?: string
+          id?: string
+          import_id?: string
+          location?: string | null
+          posting_date?: string | null
+          status?: Database["public"]["Enums"]["epass_toll_status"]
+          toll_datetime?: string
+          toll_type?: string | null
+          transponder_number?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "epass_tolls_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epass_tolls_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epass_tolls_import_id_fkey"
+            columns: ["import_id"]
+            isOneToOne: false
+            referencedRelation: "epass_imports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epass_tolls_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "epass_tolls_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       financial_accounts: {
         Row: {
           created_at: string
@@ -2462,6 +2638,7 @@ export type Database = {
         | "operations"
         | "support"
         | "driver"
+      epass_toll_status: "matched" | "no_vehicle" | "no_booking" | "ignored"
       expense_type:
         | "maintenance"
         | "insurance"
@@ -2608,6 +2785,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "finance", "operations", "support", "driver"],
+      epass_toll_status: ["matched", "no_vehicle", "no_booking", "ignored"],
       expense_type: [
         "maintenance",
         "insurance",
