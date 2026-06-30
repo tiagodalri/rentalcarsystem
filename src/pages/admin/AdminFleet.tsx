@@ -192,7 +192,7 @@ export default function AdminFleet() {
           description="Ajuste os filtros ou limpe a busca."
           actionLabel="Limpar filtros"
           onAction={() => {
-            setFilters({ search: "", status: "all", publication: "all", category: "all" });
+            setFilters({ search: "", status: "all", publication: "all", category: "all", turo: "all" });
             setKpiKey(null);
           }}
         />
