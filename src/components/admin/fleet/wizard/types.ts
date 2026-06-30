@@ -73,6 +73,7 @@ export const EMPTY_FORM: WizardForm = {
   insurance_policy: "",
   insurance_expiry: null,
   registration_expiry: null,
+  listed_on_turo: false,
   published: false,
 };
 
