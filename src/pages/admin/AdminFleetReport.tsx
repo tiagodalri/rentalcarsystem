@@ -31,6 +31,7 @@ type VehicleReport = {
   totalDays: number;
   occupancyPct: number;
   damageCount: number;
+  listedOnTuro: boolean;
 };
 
 // Sophisticated emerald/teal palette — bold yet refined
