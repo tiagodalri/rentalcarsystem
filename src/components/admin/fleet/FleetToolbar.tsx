@@ -31,9 +31,9 @@ const PUB_OPTS = [
 ] as const;
 
 const TURO_OPTS = [
-  { v: "all", label: "Turo: Todos" },
-  { v: "listed", label: "Turo: Listados" },
-  { v: "unlisted", label: "Turo: Não listados" },
+  { v: "listed", label: "Turo" },
+  { v: "unlisted", label: "Particular" },
+  { v: "all", label: "Todos" },
 ] as const;
 
 export default function FleetToolbar({ filters, setFilters, categories, view, setView }: Props) {

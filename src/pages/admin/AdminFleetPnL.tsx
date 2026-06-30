@@ -461,9 +461,9 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
           onChange={(e) => setTuroFilter(e.target.value as any)}
           className="h-9 rounded-lg border border-border/60 bg-background px-2 text-sm"
         >
-          <option value="all">Turo: Todos</option>
-          <option value="listed">Turo: Listados</option>
-          <option value="unlisted">Turo: Não listados</option>
+          <option value="listed">Turo</option>
+          <option value="unlisted">Particular</option>
+          <option value="all">Todos</option>
         </select>
       </div>
 
