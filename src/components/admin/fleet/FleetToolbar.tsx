@@ -5,6 +5,7 @@ export type FleetFilters = {
   status: "all" | "available" | "rented" | "maintenance" | "unavailable";
   publication: "all" | "published" | "hidden";
   category: string; // "all" or specific
+  turo: "all" | "listed" | "unlisted";
 };
 
 type Props = {
