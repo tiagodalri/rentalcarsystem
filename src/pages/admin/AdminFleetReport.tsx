@@ -417,7 +417,8 @@ export default function AdminFleetReport({
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
                   <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `${v}%`} />
-                  <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
+                  <YAxis type="category" dataKey="name" width={190} interval={0} tickLine={false} tick={<VehicleTick colorMap={vehicleColorMap} />} />
+
                   <Tooltip
                     {...darkTooltipProps}
                     formatter={(v: number) => [`${v}%`, "Ocupação"]}
