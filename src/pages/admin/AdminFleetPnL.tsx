@@ -29,6 +29,7 @@ type Row = {
   totalDays: number;
   occupancyPct: number;
   damageCount: number;
+  listedOnTuro: boolean;
 };
 
 const fmt = (n: number) =>
@@ -43,6 +44,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
   const [avgMonthlyRevenue3m, setAvgMonthlyRevenue3m] = useState<number | null>(null);
   const [compareMode, setCompareMode] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [turoFilter, setTuroFilter] = useState<"all" | "listed" | "unlisted">("all");
 
   useEffect(() => {
     load();
@@ -148,6 +150,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         totalDays,
         occupancyPct,
         damageCount,
+        listedOnTuro: !!v.listed_on_turo,
       };
     });
 
@@ -157,9 +160,11 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    const list = rows.filter(
-      (r) => r.name.toLowerCase().includes(q) || r.category.toLowerCase().includes(q)
-    );
+    const list = rows.filter((r) => {
+      if (turoFilter === "listed" && !r.listedOnTuro) return false;
+      if (turoFilter === "unlisted" && r.listedOnTuro) return false;
+      return r.name.toLowerCase().includes(q) || r.category.toLowerCase().includes(q);
+    });
     return list.sort((a, b) => {
       const av = (a[sortKey] ?? -Infinity) as any;
       const bv = (b[sortKey] ?? -Infinity) as any;
@@ -168,7 +173,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
       }
       return sortDir === "asc" ? av - bv : bv - av;
     });
-  }, [rows, search, sortKey, sortDir]);
+  }, [rows, search, sortKey, sortDir, turoFilter]);
 
   const totals = useMemo(() => {
     return rows.reduce(
@@ -440,15 +445,26 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         </Tooltip>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar veículo..."
-          className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/60 bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
-        />
+      {/* Search + filters */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <div className="relative max-w-md flex-1 min-w-[220px]">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar veículo..."
+            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/60 bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+        </div>
+        <select
+          value={turoFilter}
+          onChange={(e) => setTuroFilter(e.target.value as any)}
+          className="h-9 rounded-lg border border-border/60 bg-background px-2 text-sm"
+        >
+          <option value="all">Turo: Todos</option>
+          <option value="listed">Turo: Listados</option>
+          <option value="unlisted">Turo: Não listados</option>
+        </select>
       </div>
 
       {/* Table */}

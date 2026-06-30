@@ -18,6 +18,7 @@ type Vehicle = FleetVehicleCard &
   FleetTableVehicle & {
     insurance_expiry: string | null;
     registration_expiry: string | null;
+    listed_on_turo?: boolean | null;
   };
 
 const VIEW_KEY = "admin.fleet.view";
@@ -45,6 +46,7 @@ export default function AdminFleet() {
     status: "all",
     publication: "all",
     category: "all",
+    turo: "all",
   });
   const [kpiKey, setKpiKey] = useState<string | null>(null);
 
@@ -53,7 +55,7 @@ export default function AdminFleet() {
     const { data } = await supabase
       .from("vehicles")
       .select(
-        "id,name,license_plate,category,year,status,published,daily_price_usd,default_deposit_amount,default_franchise_amount,passengers,bags,transmission,image_url,photos,insurance_expiry,registration_expiry",
+        "id,name,license_plate,category,year,status,published,daily_price_usd,default_deposit_amount,default_franchise_amount,passengers,bags,transmission,image_url,photos,insurance_expiry,registration_expiry,listed_on_turo",
       )
       .is("deleted_at", null)
       .order("name");
@@ -90,6 +92,8 @@ export default function AdminFleet() {
       if (filters.publication === "published" && !v.published) return false;
       if (filters.publication === "hidden" && v.published) return false;
       if (filters.category !== "all" && v.category !== filters.category) return false;
+      if (filters.turo === "listed" && !v.listed_on_turo) return false;
+      if (filters.turo === "unlisted" && v.listed_on_turo) return false;
       if (kpiKey === "expiring" && !isExpiringSoon(v)) return false;
       return true;
     });
@@ -98,12 +102,18 @@ export default function AdminFleet() {
   const onKpiClick = (key: string) => {
     if (key === "all") {
       setKpiKey(null);
-      setFilters((f) => ({ ...f, status: "all", publication: "all" }));
+      setFilters((f) => ({ ...f, status: "all", publication: "all", turo: "all" }));
       return;
     }
     if (key === "published") {
       setKpiKey("published");
       setFilters((f) => ({ ...f, status: "all", publication: "published" }));
+      return;
+    }
+    if (key === "turo") {
+      const next = kpiKey === "turo" ? null : "turo";
+      setKpiKey(next);
+      setFilters((f) => ({ ...f, turo: next === "turo" ? "listed" : "all" }));
       return;
     }
     if (key === "expiring") {
@@ -188,7 +198,7 @@ export default function AdminFleet() {
           description="Ajuste os filtros ou limpe a busca."
           actionLabel="Limpar filtros"
           onAction={() => {
-            setFilters({ search: "", status: "all", publication: "all", category: "all" });
+            setFilters({ search: "", status: "all", publication: "all", category: "all", turo: "all" });
             setKpiKey(null);
           }}
         />

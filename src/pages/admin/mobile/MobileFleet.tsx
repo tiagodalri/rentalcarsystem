@@ -20,6 +20,7 @@ type Vehicle = {
   daily_price_usd: number | null;
   category: string | null;
   image_url: string | null;
+  listed_on_turo: boolean | null;
 };
 
 const STATUS_DOT: Record<string, string> = {
@@ -30,6 +31,7 @@ const STATUS_DOT: Record<string, string> = {
 };
 
 type Filter = "all" | "available" | "rented" | "maintenance";
+type TuroFilter = "all" | "listed" | "unlisted";
 
 export default function MobileFleet() {
   const navigate = useNavigate();
@@ -37,12 +39,13 @@ export default function MobileFleet() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
+  const [turoFilter, setTuroFilter] = useState<TuroFilter>("all");
 
   const load = async () => {
     setLoading(true);
     const { data } = await supabase
       .from("vehicles")
-      .select("id, name, license_plate, status, published, daily_price_usd, category, image_url")
+      .select("id, name, license_plate, status, published, daily_price_usd, category, image_url, listed_on_turo")
       .is("deleted_at", null)
       .order("name");
     setItems((data as Vehicle[]) || []);
@@ -52,12 +55,14 @@ export default function MobileFleet() {
 
   const filtered = useMemo(() => items.filter((v) => {
     if (filter !== "all" && v.status !== filter) return false;
+    if (turoFilter === "listed" && !v.listed_on_turo) return false;
+    if (turoFilter === "unlisted" && v.listed_on_turo) return false;
     if (search) {
       const q = search.toLowerCase();
       if (!`${v.name} ${v.license_plate || ""} ${v.category || ""}`.toLowerCase().includes(q)) return false;
     }
     return true;
-  }), [items, filter, search]);
+  }), [items, filter, turoFilter, search]);
 
   return (
     <PullToRefresh onRefresh={load}>
@@ -92,6 +97,18 @@ export default function MobileFleet() {
                 { value: "available", label: "Disp." },
                 { value: "rented", label: "Alug." },
                 { value: "maintenance", label: "Manut." },
+              ]}
+            />
+          </div>
+
+          <div className="mt-2">
+            <SegmentedControl
+              value={turoFilter}
+              onChange={(v) => setTuroFilter(v as TuroFilter)}
+              options={[
+                { value: "all", label: "Tudo" },
+                { value: "listed", label: "Na Turo" },
+                { value: "unlisted", label: "Particular" },
               ]}
             />
           </div>

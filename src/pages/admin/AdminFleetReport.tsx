@@ -31,6 +31,7 @@ type VehicleReport = {
   totalDays: number;
   occupancyPct: number;
   damageCount: number;
+  listedOnTuro: boolean;
 };
 
 // Sophisticated emerald/teal palette — bold yet refined
@@ -60,6 +61,7 @@ export default function AdminFleetReport({
   const [bookings, setBookings] = useState<any[]>([]);
   const [inspections, setInspections] = useState<any[]>([]);
   const [report, setReport] = useState<VehicleReport[]>([]);
+  const [turoFilter, setTuroFilter] = useState<"all" | "listed" | "unlisted">("all");
 
   // Sync with external override (global period filter)
   useEffect(() => {
@@ -133,6 +135,7 @@ export default function AdminFleetReport({
         totalDays,
         occupancyPct: Math.min(100, Math.round((totalDays / daysInMonth) * 100)),
         damageCount,
+        listedOnTuro: !!v.listed_on_turo,
       };
     });
 
@@ -142,23 +145,34 @@ export default function AdminFleetReport({
     setInitialLoad(false);
   };
 
+  // Apply Turo filter to derived report views
+  const visibleReport = report.filter((r) => {
+    if (turoFilter === "listed") return r.listedOnTuro;
+    if (turoFilter === "unlisted") return !r.listedOnTuro;
+    return true;
+  });
+
   // Aggregated metrics
-  const totalRevenue = report.reduce((s, r) => s + r.totalRevenue, 0);
-  const totalBookings = bookings.length;
-  const avgOccupancy = report.length ? Math.round(report.reduce((s, r) => s + r.occupancyPct, 0) / report.length) : 0;
-  const totalDamages = report.reduce((s, r) => s + r.damageCount, 0);
+  const totalRevenue = visibleReport.reduce((s, r) => s + r.totalRevenue, 0);
+  const totalBookings = bookings.filter((b) => {
+    if (turoFilter === "all") return true;
+    const v = vehicles.find((x: any) => x.id === b.vehicle_id);
+    return turoFilter === "listed" ? !!v?.listed_on_turo : !v?.listed_on_turo;
+  }).length;
+  const avgOccupancy = visibleReport.length ? Math.round(visibleReport.reduce((s, r) => s + r.occupancyPct, 0) / visibleReport.length) : 0;
+  const totalDamages = visibleReport.reduce((s, r) => s + r.damageCount, 0);
 
   // Chart data
-  const revenueChartData = report
+  const revenueChartData = visibleReport
     .filter((r) => r.totalRevenue > 0)
     .map((r) => ({ name: r.name, revenue: r.totalRevenue }));
 
-  const occupancyChartData = report
+  const occupancyChartData = visibleReport
     .filter((r) => r.totalBookings > 0)
     .map((r) => ({ name: r.name, occupancy: r.occupancyPct }));
 
   const categoryData = Object.entries(
-    report.reduce((acc, r) => {
+    visibleReport.reduce((acc, r) => {
       acc[r.category] = (acc[r.category] || 0) + r.totalRevenue;
       return acc;
     }, {} as Record<string, number>)
@@ -166,7 +180,7 @@ export default function AdminFleetReport({
     .filter(([_, v]) => v > 0)
     .map(([name, value]) => ({ name, value }));
 
-  const damageRanking = [...report].filter((r) => r.damageCount > 0).sort((a, b) => b.damageCount - a.damageCount).slice(0, 10);
+  const damageRanking = [...visibleReport].filter((r) => r.damageCount > 0).sort((a, b) => b.damageCount - a.damageCount).slice(0, 10);
 
   // Addon revenue calculations
   const _addons = aggregateAddons(bookings as any);
@@ -269,6 +283,16 @@ export default function AdminFleetReport({
                 </div>
               </PopoverContent>
             </Popover>
+            <select
+              value={turoFilter}
+              onChange={(e) => setTuroFilter(e.target.value as any)}
+              className="h-10 rounded-md border border-border bg-background px-2 text-sm"
+              title="Filtrar por listagem na Turo"
+            >
+              <option value="all">Turo: Todos</option>
+              <option value="listed">Turo: Listados</option>
+              <option value="unlisted">Turo: Não listados</option>
+            </select>
           </div>
         )}
       </div>
