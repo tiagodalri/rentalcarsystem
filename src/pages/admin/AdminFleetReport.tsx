@@ -61,6 +61,7 @@ export default function AdminFleetReport({
   const [bookings, setBookings] = useState<any[]>([]);
   const [inspections, setInspections] = useState<any[]>([]);
   const [report, setReport] = useState<VehicleReport[]>([]);
+  const [turoFilter, setTuroFilter] = useState<"all" | "listed" | "unlisted">("all");
 
   // Sync with external override (global period filter)
   useEffect(() => {
