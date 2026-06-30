@@ -134,6 +134,7 @@ export default function AdminFleetReport({
         totalDays,
         occupancyPct: Math.min(100, Math.round((totalDays / daysInMonth) * 100)),
         damageCount,
+        listedOnTuro: !!v.listed_on_turo,
       };
     });
 
