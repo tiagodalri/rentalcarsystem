@@ -20,6 +20,7 @@ type Vehicle = {
   daily_price_usd: number | null;
   category: string | null;
   image_url: string | null;
+  listed_on_turo: boolean | null;
 };
 
 const STATUS_DOT: Record<string, string> = {
