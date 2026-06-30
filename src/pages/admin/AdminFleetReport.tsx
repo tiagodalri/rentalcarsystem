@@ -332,19 +332,19 @@ export default function AdminFleetReport({
           { Icon: Percent, label: "Ocupação Média", value: `${avgOccupancy}%`, tone: "primary" as const },
           { Icon: AlertTriangle, label: "Avarias", value: String(totalDamages), tone: "destructive" as const },
         ].map(({ Icon, label, value, tone }) => (
-          <Card key={label} className="border-border/40 h-full min-h-[72px]">
-            <CardContent className="!p-4 h-full min-h-[72px] flex items-center">
-              <div className="flex items-center gap-3 w-full min-h-10">
+          <Card key={label} className="border-border/40 h-full">
+            <CardContent className="!p-4 h-full flex items-center">
+              <div className="flex items-center gap-3.5 w-full">
                 <div
-                  className={`shrink-0 h-10 w-10 rounded-lg flex items-center justify-center ${
-                    tone === "destructive" ? "bg-destructive/10" : "bg-primary/10"
+                  className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${
+                    tone === "destructive" ? "bg-destructive/10" : "bg-primary/[0.07]"
                   }`}
                 >
-                  <Icon size={18} className={tone === "destructive" ? "text-destructive" : "text-primary"} />
+                  <Icon size={20} strokeWidth={1.8} className={tone === "destructive" ? "text-destructive" : "text-primary"} />
                 </div>
-                <div className="min-w-0 flex h-10 flex-col justify-center">
-                  <p className="text-[11px] text-muted-foreground uppercase tracking-wider truncate leading-none">{label}</p>
-                  <p className="admin-h1 text-xl tabular-nums leading-none mt-2">{value}</p>
+                <div className="min-w-0 flex flex-col justify-center gap-1">
+                  <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">{label}</p>
+                  <p className="admin-h1 text-[22px] tabular-nums leading-none">{value}</p>
                 </div>
               </div>
             </CardContent>
