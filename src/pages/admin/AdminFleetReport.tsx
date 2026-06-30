@@ -402,9 +402,12 @@ export default function AdminFleetReport({
 
         {/* Occupancy per vehicle */}
         <Card className="border-border/40">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Car size={16} className="text-primary" /> Taxa de Ocupação
+          <CardHeader className="pb-2 pt-5">
+            <CardTitle className="text-sm font-medium flex items-center gap-2 tracking-tight">
+              <div className="h-6 w-6 rounded-md bg-primary/[0.07] flex items-center justify-center">
+                <Car size={14} className="text-primary" />
+              </div>
+              Taxa de Ocupação
             </CardTitle>
           </CardHeader>
           <CardContent>
