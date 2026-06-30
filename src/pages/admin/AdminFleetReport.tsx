@@ -145,11 +145,22 @@ export default function AdminFleetReport({
     setInitialLoad(false);
   };
 
+  // Apply Turo filter to derived report views
+  const visibleReport = report.filter((r) => {
+    if (turoFilter === "listed") return r.listedOnTuro;
+    if (turoFilter === "unlisted") return !r.listedOnTuro;
+    return true;
+  });
+
   // Aggregated metrics
-  const totalRevenue = report.reduce((s, r) => s + r.totalRevenue, 0);
-  const totalBookings = bookings.length;
-  const avgOccupancy = report.length ? Math.round(report.reduce((s, r) => s + r.occupancyPct, 0) / report.length) : 0;
-  const totalDamages = report.reduce((s, r) => s + r.damageCount, 0);
+  const totalRevenue = visibleReport.reduce((s, r) => s + r.totalRevenue, 0);
+  const totalBookings = bookings.filter((b) => {
+    if (turoFilter === "all") return true;
+    const v = vehicles.find((x: any) => x.id === b.vehicle_id);
+    return turoFilter === "listed" ? !!v?.listed_on_turo : !v?.listed_on_turo;
+  }).length;
+  const avgOccupancy = visibleReport.length ? Math.round(visibleReport.reduce((s, r) => s + r.occupancyPct, 0) / visibleReport.length) : 0;
+  const totalDamages = visibleReport.reduce((s, r) => s + r.damageCount, 0);
 
   // Chart data
   const revenueChartData = report
