@@ -46,6 +46,7 @@ type Vehicle = {
   tire_condition: string | null; brake_condition: string | null;
   battery_condition: string | null; body_condition: string | null;
   photos: string[] | null;
+  listed_on_turo?: boolean | null;
 };
 
 type Expense = {
