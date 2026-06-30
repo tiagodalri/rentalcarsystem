@@ -30,15 +30,22 @@ const PUB_OPTS = [
   { v: "hidden", label: "Publicação: Oculto" },
 ] as const;
 
+const TURO_OPTS = [
+  { v: "all", label: "Turo: Todos" },
+  { v: "listed", label: "Turo: Listados" },
+  { v: "unlisted", label: "Turo: Não listados" },
+] as const;
+
 export default function FleetToolbar({ filters, setFilters, categories, view, setView }: Props) {
   const hasFilter =
     filters.search ||
     filters.status !== "all" ||
     filters.publication !== "all" ||
-    filters.category !== "all";
+    filters.category !== "all" ||
+    filters.turo !== "all";
 
   const reset = () =>
-    setFilters({ search: "", status: "all", publication: "all", category: "all" });
+    setFilters({ search: "", status: "all", publication: "all", category: "all", turo: "all" });
 
   const selectCls =
     "h-9 px-3 rounded-lg border border-border/60 bg-background text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30";
