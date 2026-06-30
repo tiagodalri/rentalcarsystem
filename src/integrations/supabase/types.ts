@@ -2112,6 +2112,7 @@ export type Database = {
           insurance_policy: string | null
           last_service_date: string | null
           license_plate: string | null
+          listed_on_turo: boolean
           manufacture_year: number | null
           model: string | null
           model_year: number | null
@@ -2165,6 +2166,7 @@ export type Database = {
           insurance_policy?: string | null
           last_service_date?: string | null
           license_plate?: string | null
+          listed_on_turo?: boolean
           manufacture_year?: number | null
           model?: string | null
           model_year?: number | null
@@ -2218,6 +2220,7 @@ export type Database = {
           insurance_policy?: string | null
           last_service_date?: string | null
           license_plate?: string | null
+          listed_on_turo?: boolean
           manufacture_year?: number | null
           model?: string | null
           model_year?: number | null

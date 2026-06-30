@@ -34,6 +34,8 @@ export type WizardForm = {
   insurance_policy: string;
   insurance_expiry: string | null;
   registration_expiry: string | null;
+  // Distribuição
+  listed_on_turo: boolean;
   // Publicação
   published: boolean;
 };
@@ -71,6 +73,7 @@ export const EMPTY_FORM: WizardForm = {
   insurance_policy: "",
   insurance_expiry: null,
   registration_expiry: null,
+  listed_on_turo: false,
   published: false,
 };
 

@@ -82,6 +82,29 @@ export default function StepCommercial({ form, set }: Props) {
           </div>
         </div>
       </section>
+
+      <section>
+        <h3 className="text-xs font-semibold text-primary uppercase tracking-wider mb-3">Distribuição</h3>
+        <div className="rounded-xl border border-border/60 bg-background p-4 flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-foreground">Listado na Turo</p>
+            <p className="text-[12px] text-muted-foreground mt-0.5">
+              Marque se este veículo está anunciado/ativo na plataforma Turo.
+            </p>
+          </div>
+          <label className="inline-flex items-center gap-2 shrink-0 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              className="h-5 w-5 accent-primary"
+              checked={!!form.listed_on_turo}
+              onChange={(e) => set({ listed_on_turo: e.target.checked })}
+            />
+            <span className="text-sm font-medium text-foreground">
+              {form.listed_on_turo ? "Listado" : "Não listado"}
+            </span>
+          </label>
+        </div>
+      </section>
     </div>
   );
 }
