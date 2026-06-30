@@ -12,6 +12,7 @@ type Ctx = {
   tabs: AdminTab[];
   activeId: string | null;
   openTab: (path: string) => void;          // abre nova aba (ou ativa existente do mesmo path se já existir)
+  duplicateTab: (path: string) => void;     // sempre cria nova aba, mesmo se path já existir
   closeTab: (id: string) => void;
   activateTab: (id: string) => void;
   canAddMore: boolean;
@@ -115,6 +116,19 @@ export function AdminTabsProvider({ children }: { children: ReactNode }) {
     [navigate],
   );
 
+  const duplicateTab = useCallback(
+    (path: string) => {
+      setState((prev) => {
+        if (prev.tabs.length >= MAX_TABS) return prev;
+        const id = newId();
+        ignoreNextLocationSync.current = true;
+        navigate(path);
+        return { tabs: [...prev.tabs, { id, path }], activeId: id };
+      });
+    },
+    [navigate],
+  );
+
   const closeTab = useCallback(
     (id: string) => {
       setState((prev) => {
@@ -140,11 +154,12 @@ export function AdminTabsProvider({ children }: { children: ReactNode }) {
       tabs,
       activeId,
       openTab,
+      duplicateTab,
       closeTab,
       activateTab,
       canAddMore: tabs.length < MAX_TABS,
     }),
-    [tabs, activeId, openTab, closeTab, activateTab],
+    [tabs, activeId, openTab, duplicateTab, closeTab, activateTab],
   );
 
   return <AdminTabsContext.Provider value={value}>{children}</AdminTabsContext.Provider>;
