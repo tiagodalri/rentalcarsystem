@@ -355,10 +355,13 @@ export default function AdminBookingDetail() {
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Fotos Exteriores ({photos.length})</span>
               </div>
               <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
-                {photos.map((photo) => (
+                {photos.map((photo, idx) => (
                   <button
                     key={photo.id}
-                    onClick={() => setExpandedPhoto(photo.url)}
+                    onClick={() => setLightbox({
+                      items: photos.map((p) => ({ url: p.url, label: positionLabel(p.position) })),
+                      index: idx,
+                    })}
                     className="group relative aspect-square rounded-lg overflow-hidden border border-border/30 bg-muted/30 hover:border-primary/40 transition-all"
                   >
                     <SignedImage value={photo.url} alt={positionLabel(photo.position)} className="w-full h-full object-contain" loading="lazy" />
