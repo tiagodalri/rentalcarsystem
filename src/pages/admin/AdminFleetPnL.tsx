@@ -160,9 +160,11 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    const list = rows.filter(
-      (r) => r.name.toLowerCase().includes(q) || r.category.toLowerCase().includes(q)
-    );
+    const list = rows.filter((r) => {
+      if (turoFilter === "listed" && !r.listedOnTuro) return false;
+      if (turoFilter === "unlisted" && r.listedOnTuro) return false;
+      return r.name.toLowerCase().includes(q) || r.category.toLowerCase().includes(q);
+    });
     return list.sort((a, b) => {
       const av = (a[sortKey] ?? -Infinity) as any;
       const bv = (b[sortKey] ?? -Infinity) as any;
@@ -171,7 +173,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
       }
       return sortDir === "asc" ? av - bv : bv - av;
     });
-  }, [rows, search, sortKey, sortDir]);
+  }, [rows, search, sortKey, sortDir, turoFilter]);
 
   const totals = useMemo(() => {
     return rows.reduce(
