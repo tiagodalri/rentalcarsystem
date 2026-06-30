@@ -15,7 +15,7 @@ export function EpassDropzone({ onFiles, files, onRemove, disabled }: Props) {
 
   const handleFiles = useCallback((list: FileList | null) => {
     if (!list) return;
-    const arr = Array.from(list).filter((f) => /\.csv$/i.test(f.name));
+    const arr = Array.from(list).filter((f) => /\.(csv|pdf)$/i.test(f.name));
     if (arr.length > 0) onFiles(arr);
   }, [onFiles]);
 
@@ -39,9 +39,9 @@ export function EpassDropzone({ onFiles, files, onRemove, disabled }: Props) {
           <Upload className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <p className="text-sm font-medium">Arraste os CSVs do portal E-Pass aqui</p>
+          <p className="text-sm font-medium">Arraste os CSVs ou PDFs do portal E-Pass aqui</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Aceita varios arquivos. Por enquanto so .CSV (exporte do portal).
+            Aceita vários arquivos .CSV e .PDF. PDFs são interpretados por OCR de alta qualidade (IA).
           </p>
         </div>
       </button>
@@ -49,7 +49,7 @@ export function EpassDropzone({ onFiles, files, onRemove, disabled }: Props) {
       <input
         ref={inputRef}
         type="file"
-        accept=".csv,text/csv"
+        accept=".csv,text/csv,.pdf,application/pdf"
         multiple
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}

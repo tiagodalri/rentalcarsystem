@@ -102,6 +102,11 @@ function splitCsvLine(line: string): string[] {
 }
 
 export async function parseEpassCsv(file: File): Promise<EpassParseResult> {
+  // Roteia PDF para o pipeline OCR (Gemini); CSV continua no parser local.
+  if (/\.pdf$/i.test(file.name) || file.type === "application/pdf") {
+    return parseEpassPdf(file);
+  }
+
   const text = await file.text();
   const lines = text.split(/\r?\n/);
   const account: EpassAccountRow[] = [];
@@ -170,6 +175,73 @@ export async function parseEpassCsv(file: File): Promise<EpassParseResult> {
     account_number: accountNumber,
     period_label,
     account,
+    tolls,
+    errors,
+  };
+}
+
+// ===== PDF (OCR via edge function `epass-pdf-parse`) =====
+
+async function fileToBase64(file: File): Promise<string> {
+  const buf = new Uint8Array(await file.arrayBuffer());
+  const chunk = 0x8000;
+  let bin = "";
+  for (let i = 0; i < buf.length; i += chunk) {
+    bin += String.fromCharCode(...buf.subarray(i, i + chunk));
+  }
+  return btoa(bin);
+}
+
+export async function parseEpassPdf(file: File): Promise<EpassParseResult> {
+  const { supabase } = await import("@/integrations/supabase/client");
+  const pdfBase64 = await fileToBase64(file);
+
+  const { data, error } = await supabase.functions.invoke("epass-pdf-parse", {
+    body: { pdfBase64, filename: file.name },
+  });
+  if (error) throw new Error(error.message || "Falha ao processar PDF do E-Pass.");
+  const payload = (data as any)?.data;
+  const rawTolls: any[] = Array.isArray(payload?.tolls) ? payload.tolls : [];
+
+  const tolls: EpassTollRow[] = [];
+  const errors: { line: number; reason: string }[] = [];
+  for (let i = 0; i < rawTolls.length; i++) {
+    const t = rawTolls[i];
+    const transponder = String(t?.transponder_number || "").trim();
+    const date: string = typeof t?.date === "string" ? t.date : "";
+    const time = normalizeTime(typeof t?.time === "string" ? t.time : "00:00:00");
+    const amt = typeof t?.amount === "number" ? t.amount : parseFloat(String(t?.amount ?? ""));
+    const location = String(t?.location || "").trim();
+    if (!transponder || !/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(amt)) {
+      errors.push({ line: i + 1, reason: "Linha OCR inválida" });
+      continue;
+    }
+    const offset = nyOffsetFor(date);
+    const toll_datetime = `${date}T${time}${offset}`;
+    const hash = await hashString(`${transponder}|${toll_datetime}|${location}|${amt.toFixed(2)}`);
+    tolls.push({
+      transponder_number: transponder,
+      date,
+      time,
+      toll_datetime,
+      posting_date: typeof t?.posting_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(t.posting_date) ? t.posting_date : date,
+      location,
+      amount: amt,
+      toll_type: String(t?.toll_type || "").trim(),
+      dedupe_hash: hash,
+    });
+  }
+
+  const periodMatch = file.name.match(/(\d{1,2})[_-](\d{4})/);
+  const period_label =
+    (typeof payload?.period_label === "string" && payload.period_label) ||
+    (periodMatch ? `${periodMatch[1]}/${periodMatch[2]}` : null);
+
+  return {
+    filename: file.name,
+    account_number: typeof payload?.account_number === "string" ? payload.account_number : null,
+    period_label,
+    account: [],
     tolls,
     errors,
   };
