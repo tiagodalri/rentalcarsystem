@@ -152,7 +152,7 @@ export default function AdminBookingDetail() {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ items: { url: string; label?: string }[]; index: number } | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [incidentOpen, setIncidentOpen] = useState(false);
   const { isAdmin, hasAny } = useAdminAuth();
