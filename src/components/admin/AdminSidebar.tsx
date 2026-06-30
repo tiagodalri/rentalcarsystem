@@ -237,7 +237,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
       <SidebarContent
-        className="pb-2 gap-0 scrollbar-thin px-[8px] mx-[8px]"
+        className={`pb-2 gap-0 scrollbar-thin ${collapsed ? "px-0 mx-0" : "px-[8px] mx-[8px]"}`}
         style={{ paddingTop: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
       >
         {/* ===== Brand block ===== */}
@@ -260,7 +260,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
         {visibleSections.map((section) => (
           <div key={section.label}>
             {!collapsed && <SectionLabel>{section.label.toUpperCase()}</SectionLabel>}
-            <SidebarMenu className="gap-0.5">
+            <SidebarMenu className={`gap-0.5 ${collapsed ? "items-center" : ""}`}>
               {section.items.map((item) => {
                 const active = isActive(item.url);
                 return (
