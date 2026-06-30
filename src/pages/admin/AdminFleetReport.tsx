@@ -148,7 +148,7 @@ export default function AdminFleetReport({
         id: v.id,
         name: getVehicleDisplayName(v),
         color: detectVehicleColor(v),
-
+        colorName: detectVehicleColorName(v),
         category: v.category,
         image_url: v.image_url,
         totalBookings: vBookings.length,
