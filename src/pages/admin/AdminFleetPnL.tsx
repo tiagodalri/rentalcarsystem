@@ -336,14 +336,14 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* 1. Investimento */}
         <Card className="border-border/40">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-muted">
-                <Car size={18} className="text-foreground" />
+          <CardContent className="!p-4 h-full flex items-center">
+            <div className="flex items-center gap-3.5 w-full">
+              <div className="shrink-0 h-11 w-11 rounded-xl bg-muted flex items-center justify-center">
+                <Car size={20} strokeWidth={1.8} className="text-foreground" />
               </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Investimento</p>
-                <p className="admin-h1 text-xl tabular-nums">${fmt(totals.purchase)}</p>
+              <div className="min-w-0 flex flex-col justify-center gap-1">
+                <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">Investimento</p>
+                <p className="admin-h1 text-[22px] tabular-nums leading-none">${fmt(totals.purchase)}</p>
               </div>
             </div>
           </CardContent>
@@ -351,14 +351,14 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
 
         {/* 2. Receita Total */}
         <Card className="border-border/40">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <DollarSign size={18} className="text-primary" />
+          <CardContent className="!p-4 h-full flex items-center">
+            <div className="flex items-center gap-3.5 w-full">
+              <div className="shrink-0 h-11 w-11 rounded-xl bg-primary/[0.07] flex items-center justify-center">
+                <DollarSign size={20} strokeWidth={1.8} className="text-primary" />
               </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Receita Acumulada</p>
-                <p className="admin-h1 text-xl tabular-nums">${fmt(totals.revenue)}</p>
+              <div className="min-w-0 flex flex-col justify-center gap-1">
+                <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">Receita Acumulada</p>
+                <p className="admin-h1 text-[22px] tabular-nums leading-none">${fmt(totals.revenue)}</p>
               </div>
             </div>
           </CardContent>
@@ -366,14 +366,14 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
 
         {/* 3. Gastos Totais */}
         <Card className="border-border/40">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-destructive/10">
-                <TrendingDown size={18} className="text-destructive" />
+          <CardContent className="!p-4 h-full flex items-center">
+            <div className="flex items-center gap-3.5 w-full">
+              <div className="shrink-0 h-11 w-11 rounded-xl bg-destructive/10 flex items-center justify-center">
+                <TrendingDown size={20} strokeWidth={1.8} className="text-destructive" />
               </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Gastos Totais</p>
-                <p className="admin-h1 text-xl tabular-nums">${fmt(totals.expenses)}</p>
+              <div className="min-w-0 flex flex-col justify-center gap-1">
+                <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">Gastos Totais</p>
+                <p className="admin-h1 text-[22px] tabular-nums leading-none">${fmt(totals.expenses)}</p>
               </div>
             </div>
           </CardContent>
@@ -381,14 +381,14 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
 
         {/* 4. Lucro Operacional */}
         <Card className="border-border/40">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${totals.opProfit >= 0 ? "bg-emerald-700/10" : "bg-destructive/10"}`}>
-                <TrendingUp size={18} className={totals.opProfit >= 0 ? "text-emerald-700" : "text-destructive"} />
+          <CardContent className="!p-4 h-full flex items-center">
+            <div className="flex items-center gap-3.5 w-full">
+              <div className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${totals.opProfit >= 0 ? "bg-emerald-700/10" : "bg-destructive/10"}`}>
+                <TrendingUp size={20} strokeWidth={1.8} className={totals.opProfit >= 0 ? "text-emerald-700" : "text-destructive"} />
               </div>
-              <div>
-                <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Lucro Operacional</p>
-                <p className={`text-xl font-medium tabular-nums ${totals.opProfit >= 0 ? "text-emerald-700" : "text-destructive"}`}>
+              <div className="min-w-0 flex flex-col justify-center gap-1">
+                <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">Lucro Operacional</p>
+                <p className={`text-[22px] font-medium tabular-nums leading-none ${totals.opProfit >= 0 ? "text-emerald-700" : "text-destructive"}`}>
                   {totals.opProfit >= 0 ? "" : "-"}${fmt(Math.abs(totals.opProfit))}
                 </p>
               </div>
@@ -400,14 +400,14 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         <Tooltip>
           <TooltipTrigger asChild>
             <Card className="border-border/40 cursor-help">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${(globalRoiPct ?? 0) >= 0 ? "bg-emerald-700/10" : "bg-destructive/10"}`}>
-                    <Percent size={18} className={(globalRoiPct ?? 0) >= 0 ? "text-emerald-700" : "text-destructive"} />
+              <CardContent className="!p-4 h-full flex items-center">
+                <div className="flex items-center gap-3.5 w-full">
+                  <div className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${(globalRoiPct ?? 0) >= 0 ? "bg-emerald-700/10" : "bg-destructive/10"}`}>
+                    <Percent size={20} strokeWidth={1.8} className={(globalRoiPct ?? 0) >= 0 ? "text-emerald-700" : "text-destructive"} />
                   </div>
-                  <div>
-                    <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Retorno sobre Investimento</p>
-                    <p className={`text-xl font-medium tabular-nums ${globalRoiPct === null ? "text-muted-foreground" : (globalRoiPct >= 0 ? "text-emerald-700" : "text-destructive")}`}>
+                  <div className="min-w-0 flex flex-col justify-center gap-1">
+                    <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">Retorno sobre Investimento</p>
+                    <p className={`text-[22px] font-medium tabular-nums leading-none ${globalRoiPct === null ? "text-muted-foreground" : (globalRoiPct >= 0 ? "text-emerald-700" : "text-destructive")}`}>
                       {globalRoiPct === null ? "—" : `${globalRoiPct.toFixed(1)}%`}
                     </p>
                   </div>
@@ -424,14 +424,14 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         <Tooltip>
           <TooltipTrigger asChild>
             <Card className="border-border/40 cursor-help">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${paybackMonths === "recovered" ? "bg-emerald-700/10" : "bg-muted"}`}>
-                    <Clock size={18} className={paybackMonths === "recovered" ? "text-emerald-700" : "text-foreground"} />
+              <CardContent className="!p-4 h-full flex items-center">
+                <div className="flex items-center gap-3.5 w-full">
+                  <div className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${paybackMonths === "recovered" ? "bg-emerald-700/10" : "bg-muted"}`}>
+                    <Clock size={20} strokeWidth={1.8} className={paybackMonths === "recovered" ? "text-emerald-700" : "text-foreground"} />
                   </div>
-                  <div>
-                    <p className="text-[11px] text-muted-foreground uppercase tracking-wider">Payback Estimado</p>
-                    <p className={`text-xl font-medium tabular-nums ${paybackMonths === "recovered" ? "text-emerald-700" : "text-foreground"}`}>
+                  <div className="min-w-0 flex flex-col justify-center gap-1">
+                    <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">Payback Estimado</p>
+                    <p className={`text-[22px] font-medium tabular-nums leading-none ${paybackMonths === "recovered" ? "text-emerald-700" : "text-foreground"}`}>
                       {paybackMonths === null ? "—" : paybackMonths === "recovered" ? "Recuperado" : `${paybackMonths} meses`}
                     </p>
                   </div>
