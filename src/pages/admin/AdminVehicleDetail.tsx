@@ -1174,10 +1174,32 @@ export default function AdminVehicleDetail() {
 
               {/* Comercial */}
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Comercial</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 {renderField("Diária (USD)", "daily_price_usd", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—")}
                 {renderField("Caução padrão (USD)", "default_deposit_amount", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—")}
                 {renderField("Franquia padrão (USD)", "default_franchise_amount", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—")}
+              </div>
+              <div className="mb-6">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Listado na Turo</p>
+                {editingDetails ? (
+                  <label className="inline-flex items-center gap-2 cursor-pointer select-none h-10 px-3 rounded-lg border border-border/60 bg-background">
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4 accent-primary"
+                      checked={!!editForm.listed_on_turo}
+                      onChange={e => setEditForm({ ...editForm, listed_on_turo: e.target.checked })}
+                    />
+                    <span className="text-sm font-medium text-foreground">
+                      {editForm.listed_on_turo ? "Listado na Turo" : "Não listado na Turo"}
+                    </span>
+                  </label>
+                ) : (
+                  <Badge variant="outline" className={vehicle.listed_on_turo
+                    ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                    : "bg-muted text-muted-foreground border-border"}>
+                    {vehicle.listed_on_turo ? "Listado na Turo" : "Não listado na Turo"}
+                  </Badge>
+                )}
               </div>
 
               {/* Financial */}
