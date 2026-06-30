@@ -154,11 +154,12 @@ export function AdminTabsProvider({ children }: { children: ReactNode }) {
       tabs,
       activeId,
       openTab,
+      duplicateTab,
       closeTab,
       activateTab,
       canAddMore: tabs.length < MAX_TABS,
     }),
-    [tabs, activeId, openTab, closeTab, activateTab],
+    [tabs, activeId, openTab, duplicateTab, closeTab, activateTab],
   );
 
   return <AdminTabsContext.Provider value={value}>{children}</AdminTabsContext.Provider>;
