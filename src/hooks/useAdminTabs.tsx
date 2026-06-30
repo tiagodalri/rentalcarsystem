@@ -12,6 +12,7 @@ type Ctx = {
   tabs: AdminTab[];
   activeId: string | null;
   openTab: (path: string) => void;          // abre nova aba (ou ativa existente do mesmo path se já existir)
+  duplicateTab: (path: string) => void;     // sempre cria nova aba, mesmo se path já existir
   closeTab: (id: string) => void;
   activateTab: (id: string) => void;
   canAddMore: boolean;
