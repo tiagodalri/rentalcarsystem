@@ -49,12 +49,25 @@ const PHOTO_REFERENCES: Record<string, string> = {
   "Banco Dianteiro": refBancoD,
   "Banco Traseiro": refBancoT,
   "Porta-Malas": refPortaMalas,
-  "Roda Dianteira Esq.": refRodaDE,
-  "Roda Dianteira Dir.": refRodaDD,
-  "Roda Traseira Esq.": refRodaTE,
-  "Roda Traseira Dir.": refRodaTD,
+  "Roda Dianteira Esquerda": refRodaDE,
+  "Roda Dianteira Direita": refRodaDD,
+  "Roda Traseira Esquerda": refRodaTE,
+  "Roda Traseira Direita": refRodaTD,
   "Estepe": refPortaMalas,
 };
+
+/** Normaliza nomes de posição antigos (abreviados) para os novos nomes completos */
+function normalizePhotoPosition(position: string): string {
+  const map: Record<string, string> = {
+    "Roda Dianteira Esq.": "Roda Dianteira Esquerda",
+    "Roda Dianteira Dir.": "Roda Dianteira Direita",
+    "Roda Traseira Esq.": "Roda Traseira Esquerda",
+    "Roda Traseira Dir.": "Roda Traseira Direita",
+    "Lateral Esq.": "Lateral Esquerda",
+    "Lateral Dir.": "Lateral Direita",
+  };
+  return map[position] ?? position;
+}
 
 type DamageItem = {
   id: string;
