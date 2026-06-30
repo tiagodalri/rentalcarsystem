@@ -76,10 +76,11 @@ export default function AdminEpassImport() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Importar pedagios E-Pass</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Sincronizar E-Pass</h1>
           <p className="text-sm text-muted-foreground">
-            Suba o CSV do portal E-Pass. O sistema atrela cada pedagio ao veiculo
-            (pelo numero do transponder) e a reserva ativa no horario.
+            Suba o CSV do portal E-Pass. O sistema atrela cada pedágio ao veículo
+            (pelo número do transponder) e à reserva ativa no horário, e mostra uma
+            prévia para você confirmar antes de gravar.
           </p>
         </div>
       </div>
