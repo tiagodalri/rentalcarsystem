@@ -55,7 +55,7 @@ export default function AdminFleet() {
     const { data } = await supabase
       .from("vehicles")
       .select(
-        "id,name,license_plate,category,year,status,published,daily_price_usd,default_deposit_amount,default_franchise_amount,passengers,bags,transmission,image_url,photos,insurance_expiry,registration_expiry",
+        "id,name,license_plate,category,year,status,published,daily_price_usd,default_deposit_amount,default_franchise_amount,passengers,bags,transmission,image_url,photos,insurance_expiry,registration_expiry,listed_on_turo",
       )
       .is("deleted_at", null)
       .order("name");
