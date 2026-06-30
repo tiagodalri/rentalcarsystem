@@ -173,10 +173,10 @@ const PhotoIllustration = ({ position }: { position: string }) => {
           <path d="M22 28 L26 28 M24 26 L24 30" stroke={stroke} strokeWidth="0.8"/>
         </svg>
       );
-    case "Roda Dianteira Esq.":
-    case "Roda Dianteira Dir.":
-    case "Roda Traseira Esq.":
-    case "Roda Traseira Dir.":
+    case "Roda Dianteira Esquerda":
+    case "Roda Dianteira Direita":
+    case "Roda Traseira Esquerda":
+    case "Roda Traseira Direita":
       const isLeft = position.includes("Esq");
       const isFront = position.includes("Dianteira");
       return (
