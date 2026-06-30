@@ -150,6 +150,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         totalDays,
         occupancyPct,
         damageCount,
+        listedOnTuro: !!v.listed_on_turo,
       };
     });
 
