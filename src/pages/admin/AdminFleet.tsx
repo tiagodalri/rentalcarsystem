@@ -46,6 +46,7 @@ export default function AdminFleet() {
     status: "all",
     publication: "all",
     category: "all",
+    turo: "all",
   });
   const [kpiKey, setKpiKey] = useState<string | null>(null);
 
