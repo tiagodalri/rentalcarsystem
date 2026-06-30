@@ -49,12 +49,25 @@ const PHOTO_REFERENCES: Record<string, string> = {
   "Banco Dianteiro": refBancoD,
   "Banco Traseiro": refBancoT,
   "Porta-Malas": refPortaMalas,
-  "Roda Dianteira Esq.": refRodaDE,
-  "Roda Dianteira Dir.": refRodaDD,
-  "Roda Traseira Esq.": refRodaTE,
-  "Roda Traseira Dir.": refRodaTD,
+  "Roda Dianteira Esquerda": refRodaDE,
+  "Roda Dianteira Direita": refRodaDD,
+  "Roda Traseira Esquerda": refRodaTE,
+  "Roda Traseira Direita": refRodaTD,
   "Estepe": refPortaMalas,
 };
+
+/** Normaliza nomes de posição antigos (abreviados) para os novos nomes completos */
+function normalizePhotoPosition(position: string): string {
+  const map: Record<string, string> = {
+    "Roda Dianteira Esq.": "Roda Dianteira Esquerda",
+    "Roda Dianteira Dir.": "Roda Dianteira Direita",
+    "Roda Traseira Esq.": "Roda Traseira Esquerda",
+    "Roda Traseira Dir.": "Roda Traseira Direita",
+    "Lateral Esq.": "Lateral Esquerda",
+    "Lateral Dir.": "Lateral Direita",
+  };
+  return map[position] ?? position;
+}
 
 type DamageItem = {
   id: string;
@@ -160,10 +173,10 @@ const PhotoIllustration = ({ position }: { position: string }) => {
           <path d="M22 28 L26 28 M24 26 L24 30" stroke={stroke} strokeWidth="0.8"/>
         </svg>
       );
-    case "Roda Dianteira Esq.":
-    case "Roda Dianteira Dir.":
-    case "Roda Traseira Esq.":
-    case "Roda Traseira Dir.":
+    case "Roda Dianteira Esquerda":
+    case "Roda Dianteira Direita":
+    case "Roda Traseira Esquerda":
+    case "Roda Traseira Direita":
       const isLeft = position.includes("Esq");
       const isFront = position.includes("Dianteira");
       return (
@@ -222,11 +235,11 @@ const PhotoIllustration = ({ position }: { position: string }) => {
 const PHOTO_POSITIONS: { name: string; guide: string; optional?: boolean }[] = [
   { name: "Frente", guide: "Foto centralizada da frente do veículo, mostrando faróis, grade e placa inteiros. Distância: ~2 metros." },
   { name: "Lateral Esquerda", guide: "Foto lateral completa do lado do motorista. Posicione-se no meio do carro. Distância: ~3 metros." },
-  { name: "Roda Dianteira Esq.", guide: "Foto focada na roda dianteira esquerda: pneu, calota/roda e suspensão visível." },
-  { name: "Roda Traseira Esq.", guide: "Foto focada na roda traseira esquerda: pneu, calota/roda e suspensão visível." },
+  { name: "Roda Dianteira Esquerda", guide: "Foto focada na roda dianteira esquerda: pneu, calota/roda e suspensão visível." },
+  { name: "Roda Traseira Esquerda", guide: "Foto focada na roda traseira esquerda: pneu, calota/roda e suspensão visível." },
   { name: "Lateral Direita", guide: "Foto lateral completa do lado do passageiro. Posicione-se no meio do carro. Distância: ~3 metros." },
-  { name: "Roda Dianteira Dir.", guide: "Foto focada na roda dianteira direita: pneu, calota/roda e suspensão visível." },
-  { name: "Roda Traseira Dir.", guide: "Foto focada na roda traseira direita: pneu, calota/roda e suspensão visível." },
+  { name: "Roda Dianteira Direita", guide: "Foto focada na roda dianteira direita: pneu, calota/roda e suspensão visível." },
+  { name: "Roda Traseira Direita", guide: "Foto focada na roda traseira direita: pneu, calota/roda e suspensão visível." },
   { name: "Traseira", guide: "Foto centralizada da traseira, mostrando lanternas, placa e para-choque inteiros. Distância: ~2 metros." },
   { name: "Porta-Malas", guide: "Foto do porta-malas aberto, mostrando espaço, tapete e estepe (se visível)." },
   { name: "Banco Dianteiro", guide: "Foto dos bancos dianteiros mostrando estado do estofamento. Tire da porta traseira aberta." },
@@ -429,7 +442,7 @@ export default function AdminInspection() {
       if (typeof d.step === "number") setStep(d.step);
       if (typeof d.odometer === "string") setOdometer(d.odometer);
       if (typeof d.fuelLevel === "string") setFuelLevel(d.fuelLevel);
-      if (Array.isArray(d.photos)) setPhotos(d.photos);
+      if (Array.isArray(d.photos)) setPhotos(d.photos.map((p: any) => ({ ...p, position: normalizePhotoPosition(p.position) })));
       if (Array.isArray(d.damages)) setDamages(d.damages);
       if (d.accessories && typeof d.accessories === "object") setAccessories(d.accessories);
       if (typeof d.notes === "string") setNotes(d.notes);
@@ -531,7 +544,7 @@ export default function AdminInspection() {
         setExistingInspection(inspectionRes.data);
         setOdometer(inspectionRes.data.odometer_reading?.toString() || "");
         setFuelLevel(inspectionRes.data.fuel_level || "full");
-        setPhotos((inspectionRes.data.exterior_photos as any[]) || []);
+        setPhotos(((inspectionRes.data.exterior_photos as any[]) || []).map((p: any) => ({ ...p, position: normalizePhotoPosition(p.position) })));
         setDamages((inspectionRes.data.damages as any[]) || []);
         setAccessories(inspectionRes.data.accessories_check as AccessoryCheck || {});
         setNotes(inspectionRes.data.notes || "");
@@ -1415,7 +1428,7 @@ export default function AdminInspection() {
                                 </>
                               )}
                             </div>
-                            <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded">
+                            <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap">
                               {pos.name}
                             </span>
                             <CheckCircle2 size={16} className="absolute top-1 right-1 text-emerald-400" />
@@ -1430,7 +1443,7 @@ export default function AdminInspection() {
                           >
                             <PhotoIllustration position={pos.name} />
                             <Camera size={18} />
-                            <span className="text-[10px] font-medium leading-tight text-center px-1">{pos.name}</span>
+                            <span className="text-[10px] font-medium leading-tight text-center px-1 whitespace-nowrap">{pos.name}</span>
                             {pos.optional && (
                               <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70 border border-border/40 rounded px-1.5 py-0.5">
                                 Se houver
