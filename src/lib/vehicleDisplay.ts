@@ -86,6 +86,22 @@ export function detectVehicleColor(vehicle: { color?: string | null; name?: stri
   return null;
 }
 
+/** Detect the Portuguese color name (e.g. "Branco") from the vehicle record. */
+export function detectVehicleColorName(vehicle: { color?: string | null; name?: string | null }): string | null {
+  if (vehicle.color && vehicle.color.trim()) {
+    const k = normalize(vehicle.color.trim().split(/\s+/)[0]);
+    if (COLOR_NAME_PT[k]) return COLOR_NAME_PT[k];
+  }
+  if (vehicle.name) {
+    const tokens = vehicle.name.trim().split(/\s+/);
+    for (let i = tokens.length - 1; i >= 0; i--) {
+      const k = normalize(tokens[i]);
+      if (COLOR_NAME_PT[k]) return COLOR_NAME_PT[k];
+    }
+  }
+  return null;
+}
+
 /** Public-facing display label: name without color suffix. */
 export function getVehicleDisplayName(vehicle: { name?: string | null }): string {
   return stripColorFromName(vehicle?.name || "");
