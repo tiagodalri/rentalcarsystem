@@ -116,6 +116,19 @@ export function AdminTabsProvider({ children }: { children: ReactNode }) {
     [navigate],
   );
 
+  const duplicateTab = useCallback(
+    (path: string) => {
+      setState((prev) => {
+        if (prev.tabs.length >= MAX_TABS) return prev;
+        const id = newId();
+        ignoreNextLocationSync.current = true;
+        navigate(path);
+        return { tabs: [...prev.tabs, { id, path }], activeId: id };
+      });
+    },
+    [navigate],
+  );
+
   const closeTab = useCallback(
     (id: string) => {
       setState((prev) => {
