@@ -21,10 +21,12 @@ export default function AdminEpassImport() {
   const [parsed, setParsed] = useState<EpassParseResult | null>(null);
   const [assigned, setAssigned] = useState<AssignedToll[]>([]);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [duplicateHashes, setDuplicateHashes] = useState<Set<string>>(new Set());
+  const [checkingDupes, setCheckingDupes] = useState(false);
 
   useEffect(() => {
     const prev = document.title;
-    document.title = "Importar E-Pass · Zeus Rental Car";
+    document.title = "Sincronizar E-Pass · Zeus Rental Car";
     return () => { document.title = prev; };
   }, []);
 
