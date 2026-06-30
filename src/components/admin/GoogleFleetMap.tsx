@@ -1163,8 +1163,15 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
 
     const google = (window as any).google;
     const map = mapRef.current;
+    // Only render meaningful driving events on the map (hard brake, hard
+    // accel, speeding, idle, trip start/end). Generic ticks/heartbeats
+    // were rendering as evenly-spaced blue dots overlapping the route —
+    // they pollute the map and add nothing visual. They still live in the
+    // event list/sidebar if needed.
+    const MEANINGFUL = /(brak|accel|speed|idle|trip_start|trip_end|\bstart\b|\bend\b|\bstop\b)/i;
     for (const ev of events) {
       if (ev.lat == null || ev.lng == null) continue;
+      if (!MEANINGFUL.test(ev.event_type || "")) continue;
       const { color, label } = eventEmoji(ev.event_type);
       const m = new google.maps.Marker({
         map: zoomHiddenOverlaysRef.current ? null : map,
