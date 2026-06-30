@@ -1,6 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Loader2, Save } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { formatPersonName } from "@/lib/formatName";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 import type { AssignedToll } from "@/lib/epass/assignEngine";
 
 function fmtUsd(n: number) {
@@ -16,7 +21,21 @@ function fmtDateTime(iso: string) {
   } catch { return iso; }
 }
 
-export function EpassPreview({ assigned }: { assigned: AssignedToll[] }) {
+type FleetVehicle = {
+  id: string;
+  name: string | null;
+  model: string | null;
+  license_plate: string | null;
+  e_pass_transponder: string | null;
+};
+
+export function EpassPreview({
+  assigned,
+  onRemapped,
+}: {
+  assigned: AssignedToll[];
+  onRemapped?: () => void | Promise<void>;
+}) {
   const matched = useMemo(() => assigned.filter((t) => t.status === "matched"), [assigned]);
   const noBooking = useMemo(() => assigned.filter((t) => t.status === "no_booking"), [assigned]);
   const noVehicle = useMemo(() => assigned.filter((t) => t.status === "no_vehicle"), [assigned]);
@@ -34,6 +53,60 @@ export function EpassPreview({ assigned }: { assigned: AssignedToll[] }) {
   }, [noVehicle]);
 
   const [tab, setTab] = useState("matched");
+  const [fleet, setFleet] = useState<FleetVehicle[]>([]);
+  const [mapping, setMapping] = useState<Record<string, string>>({}); // transponder -> vehicle_id
+  const [saving, setSaving] = useState(false);
+
+  // Carrega frota inteira pra dropdown (uma vez).
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("vehicles")
+        .select("id,name,model,license_plate,e_pass_transponder")
+        .order("model", { ascending: true });
+      if (alive) setFleet((data || []) as FleetVehicle[]);
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const usedVehicleIds = useMemo(() => {
+    const used = new Set<string>();
+    for (const v of fleet) if (v.e_pass_transponder) used.add(v.id);
+    for (const id of Object.values(mapping)) if (id) used.add(id);
+    return used;
+  }, [fleet, mapping]);
+
+  const pendingCount = Object.values(mapping).filter(Boolean).length;
+
+  const handleSave = async () => {
+    const entries = Object.entries(mapping).filter(([, v]) => !!v);
+    if (entries.length === 0) {
+      toast({ title: "Nada pra salvar", description: "Selecione ao menos um veículo." });
+      return;
+    }
+    setSaving(true);
+    try {
+      // 1 update por transponder (poucos por arquivo — instantâneo).
+      for (const [transponder, vehicleId] of entries) {
+        const { error } = await supabase
+          .from("vehicles")
+          .update({ e_pass_transponder: transponder })
+          .eq("id", vehicleId);
+        if (error) throw error;
+      }
+      toast({
+        title: "Mapeamento salvo",
+        description: `${entries.length} transponder(s) atrelado(s) à frota. Reatribuindo pedágios…`,
+      });
+      setMapping({});
+      await onRemapped?.();
+    } catch (e: any) {
+      toast({ title: "Erro ao salvar mapeamento", description: e?.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -65,20 +138,91 @@ export function EpassPreview({ assigned }: { assigned: AssignedToll[] }) {
           </p>
           <TollTable rows={noBooking} />
         </TabsContent>
-        <TabsContent value="no_vehicle" className="mt-3">
+        <TabsContent value="no_vehicle" className="mt-3 space-y-3">
           {transpondersFaltando.length > 0 && (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 mb-3 text-xs">
-              <div className="font-medium mb-1">Transponders sem veiculo vinculado:</div>
-              <ul className="space-y-0.5">
-                {transpondersFaltando.map(([t, info]) => (
-                  <li key={t} className="tabular-nums">
-                    <span className="font-mono">{t}</span> — {info.count} pedagios · {fmtUsd(info.amount)}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-2 text-muted-foreground">
-                Cadastre o numero do transponder no campo "E-Pass" do veiculo na frota e reimporte.
-              </p>
+            <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-3">
+              <div>
+                <div className="text-sm font-semibold">Vincule cada transponder ao veículo correto</div>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                  O extrato do E-Pass não traz placa nem modelo — só o número do transponder. Selecione
+                  abaixo a qual veículo da frota cada um pertence. O sistema vai gravar no cadastro do
+                  veículo (campo "E-Pass") e <strong>reatribuir os pedágios automaticamente</strong>,
+                  inclusive em importações futuras.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                {transpondersFaltando.map(([transponder, info]) => {
+                  const selected = mapping[transponder] || "";
+                  return (
+                    <div
+                      key={transponder}
+                      className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 rounded-lg border border-border/60 bg-background/60 p-2.5"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="font-mono text-sm font-semibold">{transponder}</div>
+                        <div className="text-[11px] text-muted-foreground tabular-nums">
+                          {info.count} pedágios · {fmtUsd(info.amount)}
+                        </div>
+                      </div>
+                      <div className="sm:w-72">
+                        <Select
+                          value={selected}
+                          onValueChange={(v) =>
+                            setMapping((p) => ({ ...p, [transponder]: v }))
+                          }
+                        >
+                          <SelectTrigger className="h-9 text-xs">
+                            <SelectValue placeholder="Selecionar veículo da frota..." />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-72">
+                            {fleet.length === 0 && (
+                              <div className="px-3 py-2 text-xs text-muted-foreground">
+                                Carregando frota…
+                              </div>
+                            )}
+                            {fleet.map((v) => {
+                              const label = [v.model || v.name || "Veículo", v.license_plate]
+                                .filter(Boolean)
+                                .join(" · ");
+                              const taken = usedVehicleIds.has(v.id) && selected !== v.id;
+                              return (
+                                <SelectItem key={v.id} value={v.id} disabled={taken}>
+                                  <span className="flex items-center gap-2">
+                                    <span>{label}</span>
+                                    {v.e_pass_transponder && (
+                                      <span className="text-[10px] text-muted-foreground font-mono">
+                                        (já: {v.e_pass_transponder})
+                                      </span>
+                                    )}
+                                  </span>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+                <div className="text-[11px] text-muted-foreground">
+                  {pendingCount > 0
+                    ? `${pendingCount} mapeamento(s) prontos pra salvar`
+                    : "Selecione um veículo pra cada transponder que quiser atrelar"}
+                </div>
+                <Button
+                  onClick={handleSave}
+                  disabled={saving || pendingCount === 0}
+                  size="sm"
+                  className="gap-2"
+                >
+                  {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                  Salvar e reatribuir
+                </Button>
+              </div>
             </div>
           )}
           <TollTable rows={noVehicle} hideVehicle />
