@@ -86,16 +86,18 @@ async function extractFromTextLike(file: File): Promise<EpassParseResult> {
   return extractFromText(text, file.name);
 }
 
-// Tenta detectar delimitador e converter pra CSV padrão E-Pass; se nada bater, vai pra IA.
+// Tenta sempre o parser local primeiro (E-Pass CSV mesmo renomeado pra .txt/.tsv);
+// so cai pra IA se nao sair nenhum pedagio.
 async function extractFromText(text: string, filename: string): Promise<EpassParseResult> {
   const normalized = normalizeToCsv(text);
 
-  // Heurística: precisa ter cabeçalho "Vehicle Activity" ou "Transponder Number" pra confiar no parser local.
-  const lower = normalized.toLowerCase();
-  if (lower.includes("vehicle activity") || lower.includes("transponder number")) {
+  // Tentativa 1: parser local direto, independente de cabecalho.
+  try {
     const fakeFile = new File([normalized], filename.replace(/\.[^.]+$/, "") + ".csv", { type: "text/csv" });
     const local = await parseEpassCsv(fakeFile);
     if (local.tolls.length > 0) return local;
+  } catch {
+    // ignora — vai pra IA
   }
 
   // Fallback IA via texto.
