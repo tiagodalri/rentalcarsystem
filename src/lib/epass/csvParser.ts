@@ -79,12 +79,18 @@ function normalizeTime(t: string): string {
   return parts.map((p) => p.padStart(2, "0")).join(":");
 }
 
-async function hashString(s: string): Promise<string> {
-  const buf = new TextEncoder().encode(s);
-  const digest = await crypto.subtle.digest("SHA-256", buf);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+// Hash sincrono e estavel (FNV-1a 64-bit em hex). Suficiente pra deduplicar
+// transponder|datetime|location|valor — evitamos centenas de awaits em
+// crypto.subtle.digest, que era a causa real da lentidao no E-Pass.
+function hashString(s: string): string {
+  let h1 = 0xcbf29ce4 >>> 0;
+  let h2 = 0x84222325 >>> 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
+    h2 = Math.imul(h2 ^ ((c >>> 4) | (c << 4)), 0x01000193) >>> 0;
+  }
+  return h1.toString(16).padStart(8, "0") + h2.toString(16).padStart(8, "0");
 }
 
 function splitCsvLine(line: string): string[] {
