@@ -210,6 +210,7 @@ export default function AdminVehicleDetail() {
       brake_condition: editForm.brake_condition || "good",
       battery_condition: editForm.battery_condition || "good",
       body_condition: editForm.body_condition || "good",
+      listed_on_turo: !!editForm.listed_on_turo,
     }).eq("id", vehicle.id);
     if (error) { toast({ title: "Erro ao salvar", variant: "destructive" }); }
     else { toast({ title: "Dados atualizados!" }); setEditingDetails(false); loadData(); }
