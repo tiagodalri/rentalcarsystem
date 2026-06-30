@@ -35,6 +35,23 @@ const COLOR_HEX: Record<string, string> = {
   rosa: "#db2777", pink: "#db2777",
 };
 
+const COLOR_NAME_PT: Record<string, string> = {
+  preto: "Preto", preta: "Preta", black: "Preto",
+  branco: "Branco", branca: "Branca", white: "Branco",
+  prata: "Prata", prateado: "Prata", prateada: "Prata", silver: "Prata",
+  cinza: "Cinza", grafite: "Grafite", chumbo: "Chumbo", gray: "Cinza", grey: "Cinza",
+  vermelho: "Vermelho", vermelha: "Vermelha", rubi: "Rubi", bordo: "Bordô", "bordô": "Bordô", red: "Vermelho",
+  azul: "Azul", azulado: "Azul", blue: "Azul",
+  verde: "Verde", green: "Verde",
+  amarelo: "Amarelo", amarela: "Amarela", yellow: "Amarelo",
+  dourado: "Dourado", dourada: "Dourada", ouro: "Ouro", gold: "Dourado",
+  bege: "Bege",
+  marrom: "Marrom", café: "Café", cafe: "Café", brown: "Marrom",
+  laranja: "Laranja", orange: "Laranja",
+  roxo: "Roxo", roxa: "Roxa", violeta: "Violeta", purple: "Roxo",
+  rosa: "Rosa", pink: "Rosa",
+};
+
 const normalize = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
@@ -64,6 +81,22 @@ export function detectVehicleColor(vehicle: { color?: string | null; name?: stri
     for (let i = tokens.length - 1; i >= 0; i--) {
       const k = normalize(tokens[i]);
       if (COLOR_HEX[k]) return COLOR_HEX[k];
+    }
+  }
+  return null;
+}
+
+/** Detect the Portuguese color name (e.g. "Branco") from the vehicle record. */
+export function detectVehicleColorName(vehicle: { color?: string | null; name?: string | null }): string | null {
+  if (vehicle.color && vehicle.color.trim()) {
+    const k = normalize(vehicle.color.trim().split(/\s+/)[0]);
+    if (COLOR_NAME_PT[k]) return COLOR_NAME_PT[k];
+  }
+  if (vehicle.name) {
+    const tokens = vehicle.name.trim().split(/\s+/);
+    for (let i = tokens.length - 1; i >= 0; i--) {
+      const k = normalize(tokens[i]);
+      if (COLOR_NAME_PT[k]) return COLOR_NAME_PT[k];
     }
   }
   return null;
