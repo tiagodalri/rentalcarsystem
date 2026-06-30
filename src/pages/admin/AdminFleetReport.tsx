@@ -112,9 +112,10 @@ export default function AdminFleetReport({
 
     const [vRes, bRes, iRes] = await Promise.all([
       supabase.from("vehicles").select("*").is("deleted_at", null),
+      // Buscar reservas que SE SOBREPÕEM ao período (não apenas pickup dentro do mês)
       supabase.from("bookings").select("*")
-        .gte("pickup_date", startStr)
-        .lte("pickup_date", endStr),
+        .lte("pickup_date", endStr)
+        .gte("return_date", startStr),
       supabase.from("vehicle_inspections").select("*")
         .gte("created_at", `${startStr}T00:00:00`)
         .lte("created_at", `${endStr}T23:59:59`),
@@ -123,7 +124,6 @@ export default function AdminFleetReport({
     const vehs = vRes.data || [];
     const allBks = bRes.data || [];
     // Regra unificada: receita/ocupação/contagem NÃO incluem reservas canceladas.
-    // Reconhecimento pela data de retirada (pickup_date) — filtro já aplicado no SELECT.
     const bks = allBks.filter((b: any) => b.status !== "cancelled");
     const insps = iRes.data || [];
 
@@ -131,13 +131,28 @@ export default function AdminFleetReport({
     setBookings(bks);
     setInspections(insps);
 
+    // Janela do período em ms (return é exclusivo: [pickup, return))
+    const periodStartMs = monthStart.getTime();
+    const periodEndMs = monthEnd.getTime() + 24 * 60 * 60 * 1000; // fim do dia final
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
     // Build per-vehicle report
     const rpt: VehicleReport[] = vehs.map((v) => {
       const vBookings = bks.filter((b: any) => b.vehicle_id === v.id);
-      const totalRevenue = vBookings.reduce((s: number, b: any) => s + (Number(b.total_price) || 0), 0);
+      // Receita: apenas reservas que retiraram dentro do período (reconhecimento na retirada)
+      const revenueBookings = vBookings.filter((b: any) => {
+        const p = parseISO(b.pickup_date).getTime();
+        return p >= periodStartMs && p < periodEndMs;
+      });
+      const totalRevenue = revenueBookings.reduce((s: number, b: any) => s + (Number(b.total_price) || 0), 0);
+      // Dias ocupados: interseção [pickup, return) ∩ [monthStart, monthEnd+1)
       const totalDays = vBookings.reduce((s: number, b: any) => {
-        const d = differenceInDays(parseISO(b.return_date), parseISO(b.pickup_date));
-        return s + Math.max(d, 1);
+        const pickupMs = parseISO(b.pickup_date).getTime();
+        const returnMs = parseISO(b.return_date).getTime();
+        const start = Math.max(pickupMs, periodStartMs);
+        const end = Math.min(returnMs, periodEndMs);
+        const days = Math.max(0, (end - start) / MS_PER_DAY);
+        return s + days;
       }, 0);
       const vInsps = insps.filter((i: any) => {
         const bk = bks.find((b: any) => b.id === i.booking_id);
@@ -155,14 +170,15 @@ export default function AdminFleetReport({
         colorName: detectVehicleColorName(v),
         category: v.category,
         image_url: v.image_url,
-        totalBookings: vBookings.length,
+        totalBookings: revenueBookings.length,
         totalRevenue,
-        totalDays,
+        totalDays: Math.round(totalDays * 10) / 10,
         occupancyPct: Math.min(100, Math.round((totalDays / daysInMonth) * 100)),
         damageCount,
         listedOnTuro: !!v.listed_on_turo,
       };
     });
+
 
     rpt.sort((a, b) => b.totalRevenue - a.totalRevenue);
     setReport(rpt);
