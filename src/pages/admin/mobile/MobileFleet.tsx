@@ -100,6 +100,18 @@ export default function MobileFleet() {
               ]}
             />
           </div>
+
+          <div className="mt-2">
+            <SegmentedControl
+              value={turoFilter}
+              onChange={(v) => setTuroFilter(v as TuroFilter)}
+              options={[
+                { value: "all", label: "Tudo" },
+                { value: "listed", label: "Na Turo" },
+                { value: "unlisted", label: "Particular" },
+              ]}
+            />
+          </div>
         </div>
 
         <div className="mt-4 px-4 grid grid-cols-2 gap-3">
