@@ -92,6 +92,8 @@ export default function AdminFleet() {
       if (filters.publication === "published" && !v.published) return false;
       if (filters.publication === "hidden" && v.published) return false;
       if (filters.category !== "all" && v.category !== filters.category) return false;
+      if (filters.turo === "listed" && !v.listed_on_turo) return false;
+      if (filters.turo === "unlisted" && v.listed_on_turo) return false;
       if (kpiKey === "expiring" && !isExpiringSoon(v)) return false;
       return true;
     });
