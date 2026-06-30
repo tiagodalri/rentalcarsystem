@@ -131,7 +131,14 @@ export default function AdminEpassImport() {
               </div>
             </div>
           )}
-          <EpassPreview assigned={assigned} />
+          <EpassPreview
+            assigned={assigned}
+            onRemapped={async () => {
+              if (!parsed) return;
+              const rematched = await assignTolls(parsed.tolls);
+              setAssigned(rematched);
+            }}
+          />
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky bottom-0 bg-background/95 backdrop-blur border-t border-border py-3 -mx-4 lg:-mx-6 px-4 lg:px-6 z-10">
             <div className="text-xs text-muted-foreground">
