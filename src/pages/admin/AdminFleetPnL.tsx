@@ -482,7 +482,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
           ) : (
           <div className="overflow-x-auto">
             <table className="text-sm min-w-full" style={{ minWidth: "1500px" }}>
-              <thead className="bg-muted/30 border-y border-border/40">
+              <thead className="bg-muted/40 border-y border-border/30">
                 <tr>
                   <TH k="name" align="left">Veículo</TH>
                   <TH k="category" align="left">Categoria</TH>
@@ -498,7 +498,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                   <TH k="operatingProfit">Lucro Oper.</TH>
                   <TH k="roiPct">ROI %</TH>
                   <TH k="damageCount">Avarias</TH>
-                  <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-center whitespace-nowrap">Status</th>
+                  <th className="px-3 py-2.5 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground/70 text-center whitespace-nowrap">Status</th>
                 </tr>
               </thead>
               <tbody>
