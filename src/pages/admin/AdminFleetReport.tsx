@@ -283,6 +283,16 @@ export default function AdminFleetReport({
                 </div>
               </PopoverContent>
             </Popover>
+            <select
+              value={turoFilter}
+              onChange={(e) => setTuroFilter(e.target.value as any)}
+              className="h-10 rounded-md border border-border bg-background px-2 text-sm"
+              title="Filtrar por listagem na Turo"
+            >
+              <option value="all">Turo: Todos</option>
+              <option value="listed">Turo: Listados</option>
+              <option value="unlisted">Turo: Não listados</option>
+            </select>
           </div>
         )}
       </div>
