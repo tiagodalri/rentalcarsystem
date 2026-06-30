@@ -163,16 +163,16 @@ export default function AdminFleetReport({
   const totalDamages = visibleReport.reduce((s, r) => s + r.damageCount, 0);
 
   // Chart data
-  const revenueChartData = report
+  const revenueChartData = visibleReport
     .filter((r) => r.totalRevenue > 0)
     .map((r) => ({ name: r.name, revenue: r.totalRevenue }));
 
-  const occupancyChartData = report
+  const occupancyChartData = visibleReport
     .filter((r) => r.totalBookings > 0)
     .map((r) => ({ name: r.name, occupancy: r.occupancyPct }));
 
   const categoryData = Object.entries(
-    report.reduce((acc, r) => {
+    visibleReport.reduce((acc, r) => {
       acc[r.category] = (acc[r.category] || 0) + r.totalRevenue;
       return acc;
     }, {} as Record<string, number>)
@@ -180,7 +180,7 @@ export default function AdminFleetReport({
     .filter(([_, v]) => v > 0)
     .map(([name, value]) => ({ name, value }));
 
-  const damageRanking = [...report].filter((r) => r.damageCount > 0).sort((a, b) => b.damageCount - a.damageCount).slice(0, 10);
+  const damageRanking = [...visibleReport].filter((r) => r.damageCount > 0).sort((a, b) => b.damageCount - a.damageCount).slice(0, 10);
 
   // Addon revenue calculations
   const _addons = aggregateAddons(bookings as any);
