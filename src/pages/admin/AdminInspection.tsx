@@ -231,6 +231,7 @@ const PHOTO_POSITIONS: { name: string; guide: string; optional?: boolean }[] = [
   { name: "Porta-Malas", guide: "Foto do porta-malas aberto, mostrando espaço, tapete e estepe (se visível)." },
   { name: "Banco Dianteiro", guide: "Foto dos bancos dianteiros mostrando estado do estofamento. Tire da porta traseira aberta." },
   { name: "Banco Traseiro", guide: "Foto dos bancos traseiros e assoalho. Tire com a porta traseira aberta." },
+  { name: "Banco Traseiro (3ª Fileira)", guide: "Apenas para veículos de 7 lugares. Foto da terceira fileira de bancos (últimos 2 lugares) mostrando estado do estofamento e assoalho.", optional: true },
   { name: "Chaves + Ticket", guide: "Foto da chave do veículo posicionada junto ao ticket do parking. Enquadre ambos lado a lado em superfície limpa para que o número do ticket fique legível." },
   { name: "Estepe", guide: "Somente se o veículo possuir estepe visível ou acessível. Registre o estado do pneu reserva, independente de onde esteja (porta-malas, porta traseira, sob o veículo, etc.)", optional: true },
 ];
