@@ -29,6 +29,7 @@ type Row = {
   totalDays: number;
   occupancyPct: number;
   damageCount: number;
+  listedOnTuro: boolean;
 };
 
 const fmt = (n: number) =>
