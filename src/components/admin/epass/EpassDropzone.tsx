@@ -15,7 +15,8 @@ export function EpassDropzone({ onFiles, files, onRemove, disabled }: Props) {
 
   const handleFiles = useCallback((list: FileList | null) => {
     if (!list) return;
-    const arr = Array.from(list).filter((f) => /\.(csv|pdf)$/i.test(f.name));
+    // Aceita qualquer arquivo — o smartExtract roteia por extensão/MIME (CSV, PDF, TXT, TSV, XLS/XLSX/ODS, HTML, JSON, imagens).
+    const arr = Array.from(list).filter((f) => f.size > 0);
     if (arr.length > 0) onFiles(arr);
   }, [onFiles]);
 
@@ -39,9 +40,9 @@ export function EpassDropzone({ onFiles, files, onRemove, disabled }: Props) {
           <Upload className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <p className="text-sm font-medium">Arraste os CSVs ou PDFs do portal E-Pass aqui</p>
+          <p className="text-sm font-medium">Arraste qualquer arquivo do E-Pass aqui</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Aceita vários arquivos .CSV e .PDF. PDFs são interpretados por OCR de alta qualidade (IA).
+            CSV · PDF · TXT · TSV · XLS/XLSX/ODS · HTML · JSON · até prints e fotos. Extração inteligente com OCR/IA.
           </p>
         </div>
       </button>
@@ -49,7 +50,7 @@ export function EpassDropzone({ onFiles, files, onRemove, disabled }: Props) {
       <input
         ref={inputRef}
         type="file"
-        accept=".csv,text/csv,.pdf,application/pdf"
+        accept=".csv,text/csv,.pdf,application/pdf,.txt,.tsv,.tab,.log,.dat,.prn,.json,.html,.htm,.xls,.xlsx,.ods,.xlsm,.xlsb,image/*"
         multiple
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}
