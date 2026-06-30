@@ -22,7 +22,7 @@ const ROUTE_OPTIONS: RouteOption[] = [
 ];
 
 export function AdminTabsBar() {
-  const { tabs, activeId, activateTab, closeTab, openTab, canAddMore } = useAdminTabs();
+  const { tabs, activeId, activateTab, closeTab, openTab, duplicateTab, canAddMore } = useAdminTabs();
   const { hasAny } = useAdminAuth();
   const location = useLocation();
   const [openPopover, setOpenPopover] = useState(false);
@@ -36,13 +36,10 @@ export function AdminTabsBar() {
 
   const handleDuplicate = () => {
     setOpenPopover(false);
-    // Duplica a aba ativa abrindo o mesmo path "como novo"
+    if (!canAddMore) return;
     const active = tabs.find((t) => t.id === activeId);
     const target = active?.path ?? location.pathname + location.search;
-    // Mesmo se já existir, queremos forçar nova aba — usa um truque com query param vazio? não.
-    // Em vez disso, se canAddMore permite, criamos via openTab com path único acrescentando hash temporário.
-    // Para manter simples: openTab que ativa existente; se quiser cópia real, mudamos uma flag.
-    openTab(target);
+    duplicateTab(target);
   };
 
   return (
