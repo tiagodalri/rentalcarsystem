@@ -33,18 +33,20 @@ export default function FleetKpiStrip({ vehicles, onFilter, activeKey }: Props) 
   const maintenance = vehicles.filter((v) => v.status === "maintenance").length;
   const published = vehicles.filter((v) => v.published).length;
   const expiring = vehicles.filter(isExpiringSoon).length;
+  const turo = vehicles.filter((v) => v.listed_on_turo).length;
 
   const items = [
     { key: "all", label: "Frota total", value: total, Icon: Car, accent: "text-foreground" },
     { key: "available", label: "Disponíveis", value: available, Icon: CheckCircle2, accent: "text-green-600 dark:text-green-500" },
     { key: "rented", label: "Alugados", value: rented, Icon: KeyRound, accent: "text-blue-600 dark:text-blue-400" },
     { key: "maintenance", label: "Manutenção", value: maintenance, Icon: Wrench, accent: "text-yellow-600 dark:text-yellow-500" },
+    { key: "turo", label: "Na Turo", value: turo, Icon: Share2, accent: "text-purple-600 dark:text-purple-400" },
     { key: "published", label: "No site", value: published, Icon: Eye, accent: "text-primary" },
     { key: "expiring", label: "Vencendo (30d)", value: expiring, Icon: AlertTriangle, accent: "text-destructive" },
   ] as const;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2">
       {items.map(({ key, label, value, Icon, accent }) => {
         const active = activeKey === key;
         return (
