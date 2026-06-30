@@ -1118,12 +1118,13 @@ export default function AdminInspection() {
         stampAddress={inspectionAddress}
       />
 
-      <PhotoLightbox
-        open={!!lightbox}
-        onClose={() => setLightbox(null)}
-        value={lightbox?.value || null}
-        label={lightbox?.label}
-      />
+      {lightbox && (
+        <PhotoLightbox
+          items={photos.map((p) => ({ url: p.url, label: p.position }))}
+          index={Math.max(0, photos.findIndex((p) => p.url === lightbox.value))}
+          onClose={() => setLightbox(null)}
+        />
+      )}
 
       {/* Header */}
       <div className="flex items-center gap-4">

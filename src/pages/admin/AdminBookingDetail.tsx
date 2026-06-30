@@ -25,6 +25,7 @@ import { SignedImage } from "@/components/admin/SignedImage";
 import { ShareWhatsAppInspectionButton } from "@/components/admin/ShareWhatsAppInspectionButton";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
 import { BookingEpassTolls } from "@/components/admin/booking/BookingEpassTolls";
+import { PhotoLightbox } from "@/components/admin/PhotoLightbox";
 
 const FUEL_LABELS: Record<string, string> = {
   empty: "Vazio", "1/8": "1/8", "1/4": "1/4", "3/8": "3/8",
@@ -152,7 +153,7 @@ export default function AdminBookingDetail() {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedPhoto, setExpandedPhoto] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ items: { url: string; label?: string }[]; index: number } | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [incidentOpen, setIncidentOpen] = useState(false);
   const { isAdmin, hasAny } = useAdminAuth();
@@ -355,10 +356,13 @@ export default function AdminBookingDetail() {
                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Fotos Exteriores ({photos.length})</span>
               </div>
               <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
-                {photos.map((photo) => (
+                {photos.map((photo, idx) => (
                   <button
                     key={photo.id}
-                    onClick={() => setExpandedPhoto(photo.url)}
+                    onClick={() => setLightbox({
+                      items: photos.map((p) => ({ url: p.url, label: positionLabel(p.position) })),
+                      index: idx,
+                    })}
                     className="group relative aspect-square rounded-lg overflow-hidden border border-border/30 bg-muted/30 hover:border-primary/40 transition-all"
                   >
                     <SignedImage value={photo.url} alt={positionLabel(photo.position)} className="w-full h-full object-contain" loading="lazy" />
@@ -399,7 +403,7 @@ export default function AdminBookingDetail() {
                       {d.position && <span className="text-[10px] text-muted-foreground">{positionLabel(d.position)}</span>}
                     </div>
                     {d.photoUrl && (
-                      <button onClick={() => setExpandedPhoto(d.photoUrl)} className="w-10 h-10 rounded-md overflow-hidden border border-border/30 bg-muted/30 shrink-0">
+                      <button onClick={() => setLightbox({ items: [{ url: d.photoUrl, label: d.position ? positionLabel(d.position) : "Avaria" }], index: 0 })} className="w-10 h-10 rounded-md overflow-hidden border border-border/30 bg-muted/30 shrink-0">
                         <SignedImage value={d.photoUrl} alt="" className="w-full h-full object-contain" />
                       </button>
                     )}
@@ -468,14 +472,13 @@ export default function AdminBookingDetail() {
   return (
     <div className="space-y-5 sm:space-y-6 max-w-6xl mx-auto w-full px-3 sm:px-4 lg:px-0">
 
-      {/* Photo lightbox */}
-      {expandedPhoto && (
-        <div className="fixed inset-0 z-50 bg-background/90 backdrop-blur-sm flex items-center justify-center p-3 sm:p-8" onClick={() => setExpandedPhoto(null)}>
-          <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80">
-            <XIcon size={20} />
-          </button>
-          <SignedImage value={expandedPhoto} alt="" className="max-w-full max-h-full rounded-xl shadow-2xl object-contain" />
-        </div>
+      {/* Photo lightbox with gallery navigation */}
+      {lightbox && (
+        <PhotoLightbox
+          items={lightbox.items}
+          index={lightbox.index}
+          onClose={() => setLightbox(null)}
+        />
       )}
 
       {/* Breadcrumb */}
