@@ -544,7 +544,7 @@ export default function AdminInspection() {
         setExistingInspection(inspectionRes.data);
         setOdometer(inspectionRes.data.odometer_reading?.toString() || "");
         setFuelLevel(inspectionRes.data.fuel_level || "full");
-        setPhotos((inspectionRes.data.exterior_photos as any[]) || []);
+        setPhotos(((inspectionRes.data.exterior_photos as any[]) || []).map((p: any) => ({ ...p, position: normalizePhotoPosition(p.position) })));
         setDamages((inspectionRes.data.damages as any[]) || []);
         setAccessories(inspectionRes.data.accessories_check as AccessoryCheck || {});
         setNotes(inspectionRes.data.notes || "");
