@@ -18,6 +18,7 @@ type Vehicle = FleetVehicleCard &
   FleetTableVehicle & {
     insurance_expiry: string | null;
     registration_expiry: string | null;
+    listed_on_turo?: boolean | null;
   };
 
 const VIEW_KEY = "admin.fleet.view";
