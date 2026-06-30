@@ -151,12 +151,10 @@ export default function AdminFleetReport({
   // Chart data
   const revenueChartData = report
     .filter((r) => r.totalRevenue > 0)
-    .slice(0, 10)
     .map((r) => ({ name: r.name, revenue: r.totalRevenue }));
 
   const occupancyChartData = report
     .filter((r) => r.totalBookings > 0)
-    .slice(0, 10)
     .map((r) => ({ name: r.name, occupancy: r.occupancyPct }));
 
   const categoryData = Object.entries(
