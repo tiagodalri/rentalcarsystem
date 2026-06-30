@@ -349,7 +349,7 @@ export default function AdminFleetReport({
         <Card className="border-border/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Car size={16} className="text-primary" /> Taxa de Ocupação (Top 10)
+              <Car size={16} className="text-primary" /> Taxa de Ocupação
             </CardTitle>
           </CardHeader>
           <CardContent>
