@@ -78,9 +78,10 @@ export default function AdminEpassImport() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Sincronizar E-Pass</h1>
           <p className="text-sm text-muted-foreground">
-            Suba o CSV do portal E-Pass. O sistema atrela cada pedágio ao veículo
-            (pelo número do transponder) e à reserva ativa no horário, e mostra uma
-            prévia para você confirmar antes de gravar.
+            Suba o CSV ou o PDF do portal E-Pass. Para PDFs, o sistema aplica um OCR de
+            alta qualidade (IA) para interpretar cada linha. Em seguida, atrela cada
+            pedágio ao veículo (pelo número do transponder) e à reserva ativa no horário,
+            e mostra uma prévia para você confirmar antes de gravar.
           </p>
         </div>
       </div>
@@ -102,7 +103,7 @@ export default function AdminEpassImport() {
       {step === 1 && (
         <div className="space-y-4">
           <div className="bg-card border border-border/60 rounded-xl p-4 lg:p-6">
-            <h2 className="text-sm font-semibold mb-3">1. Selecione o(s) CSV(s) exportados do portal E-Pass</h2>
+            <h2 className="text-sm font-semibold mb-3">1. Selecione o(s) CSV(s) ou PDF(s) exportados do portal E-Pass</h2>
             <EpassDropzone files={files} onFiles={(arr) => setFiles((p) => [...p, ...arr])} onRemove={(i) => setFiles((p) => p.filter((_, idx) => idx !== i))} disabled={parsing} />
             <div className="mt-3 text-[11px] text-muted-foreground leading-relaxed">
               O numero do transponder no CSV (coluna "Transponder Number") e cruzado com o campo
