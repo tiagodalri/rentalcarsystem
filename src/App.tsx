@@ -289,6 +289,7 @@ const App = () => (
                 <Route path="contracts" element={<RequireRole roles={["admin","operations","support","finance"]}><AdminSuspense><AdminContracts /></AdminSuspense></RequireRole>} />
                 <Route path="contracts/template" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminContractTemplate /></AdminSuspense></RequireRole>} />
                 <Route path="turo-import" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminTuroImport /></AdminSuspense></RequireRole>} />
+                <Route path="epass-import" element={<RequireRole roles={["admin","operations","finance"]}><AdminSuspense><AdminEpassImport /></AdminSuspense></RequireRole>} />
                 <Route path="tutoriais" element={<RequireRole roles={["admin","operations","support","driver","finance"]}><AdminSuspense><AdminTutorials /></AdminSuspense></RequireRole>} />
                 <Route path="logs" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminLogs /></AdminSuspense></RequireRole>} />
                 <Route path="pendencias" element={<RequireRole roles={["admin","operations","finance"]}><AdminSuspense><AdminPendencias /></AdminSuspense></RequireRole>} />
