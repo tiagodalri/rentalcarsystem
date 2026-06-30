@@ -20,7 +20,7 @@ const COLOR_WORDS = [
 
 const COLOR_HEX: Record<string, string> = {
   preto: "#0a0a0a", preta: "#0a0a0a", black: "#0a0a0a",
-  branco: "#f4f4f5", branca: "#f4f4f5", white: "#f4f4f5",
+  branco: "#ffffff", branca: "#ffffff", white: "#ffffff",
   prata: "#c0c4c8", prateado: "#c0c4c8", prateada: "#c0c4c8", silver: "#c0c4c8",
   cinza: "#6b7280", grafite: "#3f3f46", chumbo: "#52525b", gray: "#6b7280", grey: "#6b7280",
   vermelho: "#b91c1c", vermelha: "#b91c1c", rubi: "#9f1239", bordo: "#7f1d1d", "bordô": "#7f1d1d", red: "#b91c1c",
