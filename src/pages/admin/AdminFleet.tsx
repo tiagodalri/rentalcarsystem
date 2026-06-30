@@ -102,12 +102,18 @@ export default function AdminFleet() {
   const onKpiClick = (key: string) => {
     if (key === "all") {
       setKpiKey(null);
-      setFilters((f) => ({ ...f, status: "all", publication: "all" }));
+      setFilters((f) => ({ ...f, status: "all", publication: "all", turo: "all" }));
       return;
     }
     if (key === "published") {
       setKpiKey("published");
       setFilters((f) => ({ ...f, status: "all", publication: "published" }));
+      return;
+    }
+    if (key === "turo") {
+      const next = kpiKey === "turo" ? null : "turo";
+      setKpiKey(next);
+      setFilters((f) => ({ ...f, turo: next === "turo" ? "listed" : "all" }));
       return;
     }
     if (key === "expiring") {
