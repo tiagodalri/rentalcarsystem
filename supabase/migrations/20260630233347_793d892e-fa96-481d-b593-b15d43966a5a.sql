@@ -1,0 +1,1 @@
+UPDATE public.vehicles SET listed_on_turo = true WHERE deleted_at IS NULL AND listed_on_turo = false;
