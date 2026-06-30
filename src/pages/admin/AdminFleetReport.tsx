@@ -202,6 +202,11 @@ export default function AdminFleetReport({
     return acc;
   }, {} as Record<string, string>);
 
+  const vehicleColorNameMap: Record<string, string> = visibleReport.reduce((acc, r) => {
+    if (r.colorName) acc[r.name] = r.colorName;
+    return acc;
+  }, {} as Record<string, string>);
+
 
   const categoryData = Object.entries(
     visibleReport.reduce((acc, r) => {
