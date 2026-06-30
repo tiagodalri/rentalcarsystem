@@ -1,4 +1,4 @@
-import { Car, CheckCircle2, KeyRound, Wrench, Eye, AlertTriangle } from "lucide-react";
+import { Car, CheckCircle2, KeyRound, Wrench, Eye, AlertTriangle, Share2 } from "lucide-react";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 
 type Vehicle = {
@@ -6,11 +6,12 @@ type Vehicle = {
   published: boolean;
   insurance_expiry?: string | null;
   registration_expiry?: string | null;
+  listed_on_turo?: boolean | null;
 };
 
 type Props = {
   vehicles: Vehicle[];
-  onFilter?: (key: "all" | "available" | "rented" | "maintenance" | "published" | "expiring") => void;
+  onFilter?: (key: "all" | "available" | "rented" | "maintenance" | "published" | "expiring" | "turo") => void;
   activeKey?: string | null;
 };
 
