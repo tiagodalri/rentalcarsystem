@@ -151,12 +151,10 @@ export default function AdminFleetReport({
   // Chart data
   const revenueChartData = report
     .filter((r) => r.totalRevenue > 0)
-    .slice(0, 10)
     .map((r) => ({ name: r.name, revenue: r.totalRevenue }));
 
   const occupancyChartData = report
     .filter((r) => r.totalBookings > 0)
-    .slice(0, 10)
     .map((r) => ({ name: r.name, occupancy: r.occupancyPct }));
 
   const categoryData = Object.entries(
@@ -315,7 +313,7 @@ export default function AdminFleetReport({
         <Card className="border-border/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <TrendingUp size={16} className="text-primary" /> Receita por Veículo (Top 10)
+              <TrendingUp size={16} className="text-primary" /> Receita por Veículo
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -351,7 +349,7 @@ export default function AdminFleetReport({
         <Card className="border-border/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Car size={16} className="text-primary" /> Taxa de Ocupação (Top 10)
+              <Car size={16} className="text-primary" /> Taxa de Ocupação
             </CardTitle>
           </CardHeader>
           <CardContent>
