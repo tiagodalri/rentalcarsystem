@@ -20,10 +20,28 @@ import { EmptyState } from "@/components/admin/EmptyState";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { aggregateAddons, calcVehicleOccupancyPct } from "@/lib/fleetMetrics";
+import { getVehicleDisplayName, detectVehicleColor } from "@/lib/vehicleDisplay";
+
+// Custom YAxis tick: colored dot + single-line vehicle name
+const VehicleTick = (props: any) => {
+  const { x, y, payload, colorMap } = props;
+  const label: string = payload?.value ?? "";
+  const dotColor: string = (colorMap && colorMap[label]) || "hsl(var(--muted-foreground))";
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <circle cx={-10} cy={0} r={5} fill={dotColor} stroke="hsl(var(--border))" strokeWidth={1} />
+      <text x={-22} y={0} dy={4} textAnchor="end" fontSize={11} fill="hsl(var(--muted-foreground))">
+        {label}
+      </text>
+    </g>
+  );
+};
+
 
 type VehicleReport = {
   id: string;
   name: string;
+  color: string | null;
   category: string;
   image_url: string | null;
   totalBookings: number;
@@ -127,7 +145,9 @@ export default function AdminFleetReport({
 
       return {
         id: v.id,
-        name: v.name,
+        name: getVehicleDisplayName(v),
+        color: detectVehicleColor(v),
+
         category: v.category,
         image_url: v.image_url,
         totalBookings: vBookings.length,
@@ -170,6 +190,13 @@ export default function AdminFleetReport({
   const occupancyChartData = visibleReport
     .filter((r) => r.totalBookings > 0)
     .map((r) => ({ name: r.name, occupancy: r.occupancyPct }));
+
+  // Color map: vehicle display-name -> real vehicle color (for chart ticks)
+  const vehicleColorMap: Record<string, string> = visibleReport.reduce((acc, r) => {
+    if (r.color) acc[r.name] = r.color;
+    return acc;
+  }, {} as Record<string, string>);
+
 
   const categoryData = Object.entries(
     visibleReport.reduce((acc, r) => {
@@ -354,7 +381,8 @@ export default function AdminFleetReport({
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
                   <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
-                  <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
+                  <YAxis type="category" dataKey="name" width={190} interval={0} tickLine={false} tick={<VehicleTick colorMap={vehicleColorMap} />} />
+
                   <Tooltip
                     {...darkTooltipProps}
                     formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
@@ -389,7 +417,8 @@ export default function AdminFleetReport({
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
                   <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `${v}%`} />
-                  <YAxis type="category" dataKey="name" width={160} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} interval={0} />
+                  <YAxis type="category" dataKey="name" width={190} interval={0} tickLine={false} tick={<VehicleTick colorMap={vehicleColorMap} />} />
+
                   <Tooltip
                     {...darkTooltipProps}
                     formatter={(v: number) => [`${v}%`, "Ocupação"]}
