@@ -82,6 +82,7 @@ const AdminBookingNew = lazy(() => import("./pages/admin/AdminBookingNew.tsx"));
 const AdminContracts = lazy(() => import("./pages/admin/AdminContracts.tsx"));
 const AdminContractTemplate = lazy(() => import("./pages/admin/AdminContractTemplate.tsx"));
 const AdminTuroImport = lazy(() => import("./pages/admin/AdminTuroImport.tsx"));
+const AdminEpassImport = lazy(() => import("./pages/admin/AdminEpassImport.tsx"));
 const AdminTutorials = lazy(() => import("./pages/admin/AdminTutorials.tsx"));
 const AdminLogs = lazy(() => import("./pages/admin/AdminLogs.tsx"));
 const AdminPendencias = lazy(() => import("./pages/admin/AdminPendencias.tsx"));
