@@ -443,9 +443,12 @@ export default function AdminFleetReport({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Revenue by category */}
         <Card className="border-border/40">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <DollarSign size={16} className="text-primary" /> Receita por Categoria
+          <CardHeader className="pb-2 pt-5">
+            <CardTitle className="text-sm font-medium flex items-center gap-2 tracking-tight">
+              <div className="h-6 w-6 rounded-md bg-primary/[0.07] flex items-center justify-center">
+                <DollarSign size={14} className="text-primary" />
+              </div>
+              Receita por Categoria
             </CardTitle>
           </CardHeader>
           <CardContent>
