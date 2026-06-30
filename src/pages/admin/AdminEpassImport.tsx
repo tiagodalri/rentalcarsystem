@@ -141,8 +141,23 @@ export default function AdminEpassImport() {
               <Button variant="outline" onClick={() => { setStep(1); setParsed(null); setAssigned([]); }} size="sm">
                 <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
               </Button>
-              <Button onClick={() => setConfirmOpen(true)} size="sm" className="gap-2">
-                Importar para o sistema <ArrowRight className="h-4 w-4" />
+              <Button
+                onClick={async () => {
+                  setCheckingDupes(true);
+                  try {
+                    const dupes = await precheckEpassDuplicates(assigned);
+                    setDuplicateHashes(dupes);
+                  } finally {
+                    setCheckingDupes(false);
+                    setConfirmOpen(true);
+                  }
+                }}
+                size="sm"
+                className="gap-2"
+                disabled={checkingDupes}
+              >
+                {checkingDupes ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+                Revisar e importar
               </Button>
             </div>
           </div>
@@ -150,29 +165,63 @@ export default function AdminEpassImport() {
       )}
 
       <Dialog open={confirmOpen} onOpenChange={(v) => !applying && setConfirmOpen(v)}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Confirmar importacao E-Pass</DialogTitle>
+            <DialogTitle>Confirmar sincronização E-Pass</DialogTitle>
             <DialogDescription>
-              {assigned.length} pedagios serao registrados. Pedagios ja importados antes
-              (mesmo transponder + data/hora + local + valor) sao ignorados automaticamente.
+              Revise abaixo o que será aplicado. Nada é gravado até você confirmar.
             </DialogDescription>
           </DialogHeader>
-          <div className="text-sm space-y-1 tabular-nums">
-            <div>Atribuidos a reservas: <span className="font-semibold">{matched}</span></div>
-            <div>Sem reserva ativa: <span className="font-semibold">{assigned.filter(t => t.status === "no_booking").length}</span></div>
-            <div>Sem veiculo cadastrado: <span className="font-semibold">{assigned.filter(t => t.status === "no_vehicle").length}</span></div>
-            <div className="pt-2">Valor total: <span className="font-semibold">${total.toFixed(2)}</span></div>
-          </div>
+          {(() => {
+            const novos = assigned.filter((t) => !duplicateHashes.has(t.dedupe_hash));
+            const novosMatched = novos.filter((t) => t.status === "matched");
+            const novosNoBooking = novos.filter((t) => t.status === "no_booking");
+            const novosNoVehicle = novos.filter((t) => t.status === "no_vehicle");
+            const novosValor = novos.reduce((s, t) => s + t.amount, 0);
+            const cobravel = novosMatched.reduce((s, t) => s + t.amount, 0);
+            return (
+              <div className="space-y-3 text-sm">
+                <div className="rounded-lg border border-border/60 divide-y">
+                  <Row label="Pedágios lidos no arquivo" value={assigned.length} />
+                  <Row label="Já importados antes (serão ignorados)" value={duplicateHashes.size} muted />
+                  <Row label="Novos a gravar" value={novos.length} highlight />
+                </div>
+                <div className="rounded-lg border border-border/60 divide-y">
+                  <Row label="Atrelados a uma reserva (cobráveis)" value={novosMatched.length} positive />
+                  <Row label="Sem reserva ativa no horário" value={novosNoBooking.length} warn />
+                  <Row label="Sem veículo cadastrado (transponder novo)" value={novosNoVehicle.length} warn />
+                </div>
+                <div className="rounded-lg border border-border/60 divide-y">
+                  <Row label="Valor total novo" value={`$${novosValor.toFixed(2)}`} />
+                  <Row label="Valor cobrável de clientes" value={`$${cobravel.toFixed(2)}`} highlight />
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Nenhum registro existente é alterado ou removido. Duplicatas são detectadas por
+                  transponder + data/hora + local + valor.
+                </p>
+              </div>
+            );
+          })()}
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmOpen(false)} disabled={applying}>Cancelar</Button>
             <Button onClick={handleApply} disabled={applying}>
               {applying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Confirmar importacao
+              Confirmar e gravar
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function Row({ label, value, muted, highlight, positive, warn }: { label: string; value: string | number; muted?: boolean; highlight?: boolean; positive?: boolean; warn?: boolean }) {
+  return (
+    <div className="flex items-center justify-between px-3 py-2">
+      <span className={`text-xs ${muted ? "text-muted-foreground" : "text-foreground"}`}>{label}</span>
+      <span className={`text-sm font-semibold tabular-nums ${
+        highlight ? "text-primary" : positive ? "text-emerald-600 dark:text-emerald-400" : warn ? "text-amber-600 dark:text-amber-400" : ""
+      }`}>{value}</span>
     </div>
   );
 }
