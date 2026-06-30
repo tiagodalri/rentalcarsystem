@@ -1443,7 +1443,7 @@ export default function AdminInspection() {
                           >
                             <PhotoIllustration position={pos.name} />
                             <Camera size={18} />
-                            <span className="text-[10px] font-medium leading-tight text-center px-1">{pos.name}</span>
+                            <span className="text-[10px] font-medium leading-tight text-center px-1 whitespace-nowrap">{pos.name}</span>
                             {pos.optional && (
                               <span className="text-[9px] uppercase tracking-wider text-muted-foreground/70 border border-border/40 rounded px-1.5 py-0.5">
                                 Se houver
