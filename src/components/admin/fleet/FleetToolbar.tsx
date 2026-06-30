@@ -99,6 +99,18 @@ export default function FleetToolbar({ filters, setFilters, categories, view, se
         ))}
       </select>
 
+      <select
+        value={filters.turo}
+        onChange={(e) => setFilters({ ...filters, turo: e.target.value as FleetFilters["turo"] })}
+        className={selectCls}
+      >
+        {TURO_OPTS.map((o) => (
+          <option key={o.v} value={o.v}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+
       {hasFilter && (
         <button
           onClick={reset}
