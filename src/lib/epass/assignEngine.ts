@@ -126,6 +126,21 @@ export async function assignTolls(tolls: EpassTollRow[]): Promise<AssignedToll[]
   return out;
 }
 
+export async function precheckEpassDuplicates(assigned: AssignedToll[]): Promise<Set<string>> {
+  const hashes = assigned.map((t) => t.dedupe_hash);
+  const existing = new Set<string>();
+  const CHUNK = 500;
+  for (let i = 0; i < hashes.length; i += CHUNK) {
+    const slice = hashes.slice(i, i + CHUNK);
+    const { data } = await supabase
+      .from("epass_tolls")
+      .select("dedupe_hash")
+      .in("dedupe_hash", slice);
+    (data || []).forEach((r: any) => existing.add(r.dedupe_hash));
+  }
+  return existing;
+}
+
 export async function applyEpassImport(
   parsed: EpassParseResult,
   assigned: AssignedToll[],
