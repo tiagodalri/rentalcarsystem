@@ -445,15 +445,26 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         </Tooltip>
       </div>
 
-      {/* Search */}
-      <div className="relative max-w-md">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Buscar veículo..."
-          className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/60 bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
-        />
+      {/* Search + filters */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <div className="relative max-w-md flex-1 min-w-[220px]">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar veículo..."
+            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/60 bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+          />
+        </div>
+        <select
+          value={turoFilter}
+          onChange={(e) => setTuroFilter(e.target.value as any)}
+          className="h-9 rounded-lg border border-border/60 bg-background px-2 text-sm"
+        >
+          <option value="all">Turo: Todos</option>
+          <option value="listed">Turo: Listados</option>
+          <option value="unlisted">Turo: Não listados</option>
+        </select>
       </div>
 
       {/* Table */}
