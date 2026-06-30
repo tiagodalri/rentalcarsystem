@@ -84,6 +84,7 @@ export default function AdminPainel() {
   const [loading, setLoading] = useState(true);
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [vehicles, setVehicles] = useState<VehicleRow[]>([]);
+  const [inspectionMap, setInspectionMap] = useState<Record<string, { checkin: boolean; checkout: boolean }>>({});
   const [aiMode, setAiMode] = useState<boolean>(() => {
     try { return localStorage.getItem("zeus_ai_mode") === "1"; } catch { return false; }
   });
@@ -127,6 +128,29 @@ export default function AdminPainel() {
 
     setBookings((b.data as BookingRow[]) || []);
     setVehicles((v.data as VehicleRow[]) || []);
+
+    // Load inspections so we can hide bookings whose check-in/out is already done
+    const todayIso = format(new Date(), "yyyy-MM-dd");
+    const todays = ((b.data as BookingRow[]) || []).filter(
+      x => x.pickup_date === todayIso || x.return_date === todayIso,
+    );
+    if (todays.length) {
+      const { data: insps } = await supabase
+        .from("vehicle_inspections")
+        .select("booking_id, type, completed_at")
+        .in("booking_id", todays.map(x => x.id));
+      const map: Record<string, { checkin: boolean; checkout: boolean }> = {};
+      (insps || []).forEach((i: any) => {
+        if (!i.completed_at) return;
+        if (!map[i.booking_id]) map[i.booking_id] = { checkin: false, checkout: false };
+        if (i.type === "checkin") map[i.booking_id].checkin = true;
+        if (i.type === "checkout") map[i.booking_id].checkout = true;
+      });
+      setInspectionMap(map);
+    } else {
+      setInspectionMap({});
+    }
+
     setLoading(false);
   }, [canViewFullVehicleData]);
 
@@ -161,10 +185,10 @@ export default function AdminPainel() {
 
   /* ─────────── HOJE ─────────── */
   const checkinsHoje  = bookings
-    .filter(b => b.pickup_date === today && b.status !== "cancelled")
+    .filter(b => b.pickup_date === today && b.status !== "cancelled" && !inspectionMap[b.id]?.checkin)
     .sort((a, b) => (a.pickup_time || "").localeCompare(b.pickup_time || ""));
   const checkoutsHoje = bookings
-    .filter(b => b.return_date === today && b.status !== "cancelled")
+    .filter(b => b.return_date === today && b.status !== "cancelled" && !inspectionMap[b.id]?.checkout)
     .sort((a, b) => (a.return_time || "").localeCompare(b.return_time || ""));
 
   const proximaAcao = [...checkinsHoje.map(b => ({ b, kind: "in" as const, t: b.pickup_time })),
