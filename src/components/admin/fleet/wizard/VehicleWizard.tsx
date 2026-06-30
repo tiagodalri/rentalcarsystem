@@ -139,6 +139,7 @@ export default function VehicleWizard() {
         insurance_policy: form.insurance_policy || null,
         insurance_expiry: form.insurance_expiry,
         registration_expiry: form.registration_expiry,
+        listed_on_turo: !!form.listed_on_turo,
         published: false,
       };
 
