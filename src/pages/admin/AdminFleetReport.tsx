@@ -191,6 +191,13 @@ export default function AdminFleetReport({
     .filter((r) => r.totalBookings > 0)
     .map((r) => ({ name: r.name, occupancy: r.occupancyPct }));
 
+  // Color map: vehicle display-name -> real vehicle color (for chart ticks)
+  const vehicleColorMap: Record<string, string> = visibleReport.reduce((acc, r) => {
+    if (r.color) acc[r.name] = r.color;
+    return acc;
+  }, {} as Record<string, string>);
+
+
   const categoryData = Object.entries(
     visibleReport.reduce((acc, r) => {
       acc[r.category] = (acc[r.category] || 0) + r.totalRevenue;
