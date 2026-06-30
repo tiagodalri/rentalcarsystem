@@ -1063,6 +1063,8 @@ export default function AdminBookingDetail() {
           </CardContent>
         </Card>
       )}
+
+      <BookingEpassTolls bookingId={booking.id} />
     </div>
   );
 }
