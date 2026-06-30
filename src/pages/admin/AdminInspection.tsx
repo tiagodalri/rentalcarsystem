@@ -442,7 +442,7 @@ export default function AdminInspection() {
       if (typeof d.step === "number") setStep(d.step);
       if (typeof d.odometer === "string") setOdometer(d.odometer);
       if (typeof d.fuelLevel === "string") setFuelLevel(d.fuelLevel);
-      if (Array.isArray(d.photos)) setPhotos(d.photos);
+      if (Array.isArray(d.photos)) setPhotos(d.photos.map((p: any) => ({ ...p, position: normalizePhotoPosition(p.position) })));
       if (Array.isArray(d.damages)) setDamages(d.damages);
       if (d.accessories && typeof d.accessories === "object") setAccessories(d.accessories);
       if (typeof d.notes === "string") setNotes(d.notes);
