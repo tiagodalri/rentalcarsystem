@@ -313,7 +313,7 @@ export default function AdminFleetReport({
         <Card className="border-border/40">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <TrendingUp size={16} className="text-primary" /> Receita por Veículo (Top 10)
+              <TrendingUp size={16} className="text-primary" /> Receita por Veículo
             </CardTitle>
           </CardHeader>
           <CardContent>
