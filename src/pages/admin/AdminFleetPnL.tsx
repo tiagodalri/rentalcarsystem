@@ -44,6 +44,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
   const [avgMonthlyRevenue3m, setAvgMonthlyRevenue3m] = useState<number | null>(null);
   const [compareMode, setCompareMode] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [turoFilter, setTuroFilter] = useState<"all" | "listed" | "unlisted">("all");
 
   useEffect(() => {
     load();
