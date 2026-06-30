@@ -42,6 +42,7 @@ type VehicleReport = {
   id: string;
   name: string;
   color: string | null;
+  colorName: string | null;
   category: string;
   image_url: string | null;
   totalBookings: number;
