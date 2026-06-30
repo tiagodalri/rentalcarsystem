@@ -22,15 +22,19 @@ import { ptBR } from "date-fns/locale";
 import { aggregateAddons, calcVehicleOccupancyPct } from "@/lib/fleetMetrics";
 import { getVehicleDisplayName, detectVehicleColor, detectVehicleColorName } from "@/lib/vehicleDisplay";
 
-// Custom YAxis tick: colored dot + single-line vehicle name
+// Custom YAxis tick: colored dot + single-line vehicle name + tooltip
 const VehicleTick = (props: any) => {
-  const { x, y, payload, colorMap } = props;
+  const { x, y, payload, colorMap, colorNameMap } = props;
   const label: string = payload?.value ?? "";
   const dotColor: string = (colorMap && colorMap[label]) || "hsl(var(--muted-foreground))";
+  const colorName: string | undefined = colorNameMap?.[label];
   return (
     <g transform={`translate(${x},${y})`}>
-      <circle cx={-10} cy={0} r={5} fill={dotColor} stroke="hsl(var(--border))" strokeWidth={1} />
-      <text x={-22} y={0} dy={4} textAnchor="end" fontSize={11} fill="hsl(var(--muted-foreground))">
+      {/* Larger invisible hit-area for mobile long-press */}
+      <circle cx={-10} cy={0} r={12} fill="transparent" />
+      <circle cx={-10} cy={0} r={6} fill={dotColor} stroke="hsl(var(--border))" strokeWidth={1} />
+      {colorName && <title>Cor: {colorName}</title>}
+      <text x={-24} y={0} dy={4} textAnchor="end" fontSize={11} fill="hsl(var(--muted-foreground))">
         {label}
       </text>
     </g>
