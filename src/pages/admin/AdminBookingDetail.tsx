@@ -402,7 +402,7 @@ export default function AdminBookingDetail() {
                       {d.position && <span className="text-[10px] text-muted-foreground">{positionLabel(d.position)}</span>}
                     </div>
                     {d.photoUrl && (
-                      <button onClick={() => setExpandedPhoto(d.photoUrl)} className="w-10 h-10 rounded-md overflow-hidden border border-border/30 bg-muted/30 shrink-0">
+                      <button onClick={() => setLightbox({ items: [{ url: d.photoUrl, label: d.position ? positionLabel(d.position) : "Avaria" }], index: 0 })} className="w-10 h-10 rounded-md overflow-hidden border border-border/30 bg-muted/30 shrink-0">
                         <SignedImage value={d.photoUrl} alt="" className="w-full h-full object-contain" />
                       </button>
                     )}
