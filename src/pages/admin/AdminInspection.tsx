@@ -1428,7 +1428,7 @@ export default function AdminInspection() {
                                 </>
                               )}
                             </div>
-                            <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded">
+                            <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded whitespace-nowrap">
                               {pos.name}
                             </span>
                             <CheckCircle2 size={16} className="absolute top-1 right-1 text-emerald-400" />
