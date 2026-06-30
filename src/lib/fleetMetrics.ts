@@ -74,16 +74,22 @@ export function vehicleRevenueBreakdown(
   const daily = Number(vehicle.daily_price_usd) || 0;
 
   for (const b of bookings) {
+    // Reservas canceladas nao geram receita.
+    const status = String((b as any).status || "").toLowerCase();
+    if (status === "cancelled" || status === "canceled") continue;
+
     const addonSum = sumBookingAddons(b);
     const total = Number(b.total_price) || 0;
     const a = (b.addons && typeof b.addons === "object" ? b.addons : {}) as Record<string, unknown>;
     const isTuro = a.source === "turo";
     if (isTuro) {
-      // Turo: total_price é a receita líquida real do CSV oficial — não inflar com daily_price_usd
+      // Turo: total_price e a receita liquida real do CSV oficial.
       rentalRevenue += Math.max(total - addonSum, 0);
     } else {
-      const dailyTotal = bookingNights(b) * daily;
-      rentalRevenue += Math.max(total - addonSum, dailyTotal);
+      // Zeus: usa o total cobrado da reserva. So cai pro fallback dias x diaria
+      // quando nao ha total_price salvo (reservas antigas / pre-checkout).
+      const base = total > 0 ? Math.max(total - addonSum, 0) : bookingNights(b) * daily;
+      rentalRevenue += base;
     }
     addonRevenue += addonSum;
   }
