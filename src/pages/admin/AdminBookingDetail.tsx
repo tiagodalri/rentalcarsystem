@@ -30,10 +30,10 @@ const FUEL_LABELS: Record<string, string> = {
   "1/2": "1/2", "5/8": "5/8", "3/4": "3/4", "7/8": "7/8", full: "Cheio",
 };
 const POSITION_LABELS: Record<string, string> = {
-  front: "Frente", rear: "Traseira", left: "Lateral Esq.", right: "Lateral Dir.",
+  front: "Frente", rear: "Traseira", left: "Lateral Esquerda", right: "Lateral Direita",
   hood: "Capô", roof: "Teto", trunk: "Porta-malas",
-  front_left: "Diant. Esq.", front_right: "Diant. Dir.",
-  rear_left: "Tras. Esq.", rear_right: "Tras. Dir.",
+  front_left: "Dianteira Esquerda", front_right: "Dianteira Direita",
+  rear_left: "Traseira Esquerda", rear_right: "Traseira Direita",
   dashboard: "Painel", odometer: "Odômetro", fuel: "Combustível",
   interior: "Interior", keys_ticket: "Chaves + Ticket",
 };
