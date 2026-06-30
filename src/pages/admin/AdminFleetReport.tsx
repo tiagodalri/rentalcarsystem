@@ -394,7 +394,7 @@ export default function AdminFleetReport({
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" />
                   <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `$${v}`} />
-                  <YAxis type="category" dataKey="name" width={190} interval={0} tickLine={false} tick={<VehicleTick colorMap={vehicleColorMap} />} />
+                  <YAxis type="category" dataKey="name" width={190} interval={0} tickLine={false} tick={<VehicleTick colorMap={vehicleColorMap} colorNameMap={vehicleColorNameMap} />} />
 
                   <Tooltip
                     {...darkTooltipProps}
