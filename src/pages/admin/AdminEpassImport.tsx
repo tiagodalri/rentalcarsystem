@@ -10,7 +10,7 @@ import {
 import { EpassDropzone } from "@/components/admin/epass/EpassDropzone";
 import { EpassPreview } from "@/components/admin/epass/EpassPreview";
 import { parseEpassCsv, mergeEpassResults, type EpassParseResult } from "@/lib/epass/csvParser";
-import { assignTolls, applyEpassImport, type AssignedToll } from "@/lib/epass/assignEngine";
+import { assignTolls, applyEpassImport, precheckEpassDuplicates, type AssignedToll } from "@/lib/epass/assignEngine";
 
 export default function AdminEpassImport() {
   const navigate = useNavigate();
