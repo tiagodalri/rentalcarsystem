@@ -20,7 +20,7 @@ import { EmptyState } from "@/components/admin/EmptyState";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { aggregateAddons, calcVehicleOccupancyPct } from "@/lib/fleetMetrics";
-import { getVehicleDisplayName, detectVehicleColor } from "@/lib/vehicleDisplay";
+import { getVehicleDisplayName, detectVehicleColor, detectVehicleColorName } from "@/lib/vehicleDisplay";
 
 // Custom YAxis tick: colored dot + single-line vehicle name
 const VehicleTick = (props: any) => {
