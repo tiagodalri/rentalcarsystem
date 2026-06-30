@@ -185,10 +185,10 @@ export default function AdminPainel() {
 
   /* ─────────── HOJE ─────────── */
   const checkinsHoje  = bookings
-    .filter(b => b.pickup_date === today && b.status !== "cancelled")
+    .filter(b => b.pickup_date === today && b.status !== "cancelled" && !inspectionMap[b.id]?.checkin)
     .sort((a, b) => (a.pickup_time || "").localeCompare(b.pickup_time || ""));
   const checkoutsHoje = bookings
-    .filter(b => b.return_date === today && b.status !== "cancelled")
+    .filter(b => b.return_date === today && b.status !== "cancelled" && !inspectionMap[b.id]?.checkout)
     .sort((a, b) => (a.return_time || "").localeCompare(b.return_time || ""));
 
   const proximaAcao = [...checkinsHoje.map(b => ({ b, kind: "in" as const, t: b.pickup_time })),
