@@ -260,7 +260,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
         {visibleSections.map((section) => (
           <div key={section.label}>
             {!collapsed && <SectionLabel>{section.label.toUpperCase()}</SectionLabel>}
-            <SidebarMenu className="gap-0.5">
+            <SidebarMenu className={`gap-0.5 ${collapsed ? "items-center" : ""}`}>
               {section.items.map((item) => {
                 const active = isActive(item.url);
                 return (
