@@ -483,9 +483,12 @@ export default function AdminFleetReport({
 
         {/* Damage ranking */}
         <Card className="border-border/40">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <AlertTriangle size={16} className="text-destructive" /> Ranking de Avarias
+          <CardHeader className="pb-2 pt-5">
+            <CardTitle className="text-sm font-medium flex items-center gap-2 tracking-tight">
+              <div className="h-6 w-6 rounded-md bg-destructive/10 flex items-center justify-center">
+                <AlertTriangle size={14} className="text-destructive" />
+              </div>
+              Ranking de Avarias
             </CardTitle>
           </CardHeader>
           <CardContent>
