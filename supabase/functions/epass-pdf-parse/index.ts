@@ -64,13 +64,33 @@ Deno.serve(async (req) => {
     if (!LOVABLE_API_KEY) return json({ error: "AI service não configurado" }, 500);
 
     const body = await req.json();
-    const { pdfBase64, filename } = body ?? {};
-    if (!pdfBase64 || typeof pdfBase64 !== "string") {
-      return json({ error: "pdfBase64 é obrigatório" }, 400);
+    // Aceita 3 modos: PDF binário, imagem binária ou texto bruto (CSV/TSV/TXT/HTML/JSON/XLSX-extraído).
+    const { pdfBase64, fileBase64, mimeType, text, filename } = body ?? {};
+
+    let userContent: any[] = [
+      {
+        type: "text",
+        text: `Extraia TODOS os pedágios deste documento do portal E-Pass${filename ? ` (arquivo: ${filename})` : ""}. Retorne só o JSON conforme o schema do system prompt.`,
+      },
+    ];
+
+    if (typeof text === "string" && text.trim()) {
+      // Modo texto: incorpora o conteúdo no prompt do usuário (sem image_url).
+      const truncated = text.length > 180_000 ? text.slice(0, 180_000) + "\n...[truncado]..." : text;
+      userContent.push({
+        type: "text",
+        text: `Conteúdo do arquivo (texto cru):\n\n${truncated}`,
+      });
+    } else {
+      // Modo binário (PDF ou imagem). pdfBase64 é alias legado pra fileBase64 (PDF).
+      const b64 = (typeof fileBase64 === "string" && fileBase64) || (typeof pdfBase64 === "string" && pdfBase64) || "";
+      if (!b64) {
+        return json({ error: "Envie `text` (string) ou `fileBase64` (binário base64) + `mimeType`." }, 400);
+      }
+      const mt = (typeof mimeType === "string" && mimeType) || (pdfBase64 ? "application/pdf" : "application/octet-stream");
+      const dataUrl = b64.startsWith("data:") ? b64 : `data:${mt};base64,${b64}`;
+      userContent.push({ type: "image_url", image_url: { url: dataUrl } });
     }
-    const dataUrl = pdfBase64.startsWith("data:")
-      ? pdfBase64
-      : `data:application/pdf;base64,${pdfBase64}`;
 
     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -82,16 +102,7 @@ Deno.serve(async (req) => {
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: `Extraia todos os pedágios deste PDF do E-Pass${filename ? ` (arquivo: ${filename})` : ""}. Retorne só o JSON conforme o schema.`,
-              },
-              { type: "image_url", image_url: { url: dataUrl } },
-            ],
-          },
+          { role: "user", content: userContent },
         ],
         response_format: { type: "json_object" },
       }),

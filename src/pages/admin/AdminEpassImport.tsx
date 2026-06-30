@@ -9,7 +9,8 @@ import {
 
 import { EpassDropzone } from "@/components/admin/epass/EpassDropzone";
 import { EpassPreview } from "@/components/admin/epass/EpassPreview";
-import { parseEpassCsv, mergeEpassResults, type EpassParseResult } from "@/lib/epass/csvParser";
+import { mergeEpassResults, type EpassParseResult } from "@/lib/epass/csvParser";
+import { extractEpassFromFile } from "@/lib/epass/smartExtract";
 import { assignTolls, applyEpassImport, precheckEpassDuplicates, type AssignedToll } from "@/lib/epass/assignEngine";
 
 export default function AdminEpassImport() {
@@ -35,7 +36,7 @@ export default function AdminEpassImport() {
     setParsing(true);
     try {
       const results: EpassParseResult[] = [];
-      for (const f of files) results.push(await parseEpassCsv(f));
+      for (const f of files) results.push(await extractEpassFromFile(f));
       const merged = mergeEpassResults(results);
       const matched = await assignTolls(merged.tolls);
       setParsed(merged);
@@ -78,10 +79,10 @@ export default function AdminEpassImport() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Sincronizar E-Pass</h1>
           <p className="text-sm text-muted-foreground">
-            Suba o CSV ou o PDF do portal E-Pass. Para PDFs, o sistema aplica um OCR de
-            alta qualidade (IA) para interpretar cada linha. Em seguida, atrela cada
-            pedágio ao veículo (pelo número do transponder) e à reserva ativa no horário,
-            e mostra uma prévia para você confirmar antes de gravar.
+            Aceita CSV, PDF, TXT, TSV, Excel (XLS/XLSX/ODS), HTML, JSON e até prints/fotos do extrato.
+            O sistema usa parsing local quando o formato é conhecido e cai num OCR/IA de alta qualidade
+            (Gemini multimodal) quando não é — sempre atrelando cada pedágio ao veículo e à reserva ativa
+            no horário, com prévia antes de gravar.
           </p>
         </div>
       </div>
@@ -103,7 +104,7 @@ export default function AdminEpassImport() {
       {step === 1 && (
         <div className="space-y-4">
           <div className="bg-card border border-border/60 rounded-xl p-4 lg:p-6">
-            <h2 className="text-sm font-semibold mb-3">1. Selecione o(s) CSV(s) ou PDF(s) exportados do portal E-Pass</h2>
+            <h2 className="text-sm font-semibold mb-3">1. Selecione os arquivos do portal E-Pass (qualquer formato)</h2>
             <EpassDropzone files={files} onFiles={(arr) => setFiles((p) => [...p, ...arr])} onRemove={(i) => setFiles((p) => p.filter((_, idx) => idx !== i))} disabled={parsing} />
             <div className="mt-3 text-[11px] text-muted-foreground leading-relaxed">
               O numero do transponder no CSV (coluna "Transponder Number") e cruzado com o campo
