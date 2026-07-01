@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { KpiCard } from "@/components/admin/KpiCard";
 import { Wallet, Plus, Search, Loader2, Download, Sparkles, ExternalLink, Trash2, Paperclip, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { ExpenseFormSheet } from "@/components/admin/ExpenseFormSheet";
