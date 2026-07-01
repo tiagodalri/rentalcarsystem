@@ -355,22 +355,29 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
                   const vehicleShort = b.vehicle_name ? b.vehicle_name.split(" ").slice(0, 2).join(" ") : "—";
                   const customerFirst = formatName(b.customer_name).split(" ")[0];
 
+                  const isMovement = isPickup || isReturn;
+                  const movementBg = isPickup
+                    ? "bg-emerald-500/10 dark:bg-emerald-500/15 border-emerald-500/30"
+                    : isReturn
+                      ? "bg-orange-500/10 dark:bg-orange-500/15 border-orange-500/30"
+                      : "";
+
                   return (
                     <div
                       key={b.id}
                       onClick={() => navigate(`/admin/bookings/${b.id}`)}
-                      className={`rounded-lg p-2.5 cursor-pointer transition-all hover:shadow-md hover:scale-[1.01] border-l-[3px] ${sc.accent} ${sc.calBg} ${sc.calText}`}
+                      className={`rounded-lg p-2.5 cursor-pointer transition-all hover:shadow-md hover:scale-[1.01] border-l-[3px] ${isMovement ? (isPickup ? "border-l-emerald-500" : "border-l-orange-500") : sc.accent} ${isMovement ? movementBg : sc.calBg} ${sc.calText}`}
                     >
                       {/* Movement badge */}
                       {(isPickup || isReturn) && (
                         <div className="flex items-center gap-1 mb-1.5">
                           {isPickup && (
-                            <span className="text-[9px] font-medium uppercase tracking-wider bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded">
+                            <span className="text-[9px] font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-1.5 py-0.5 rounded">
                               → Retirada
                             </span>
                           )}
                           {isReturn && (
-                            <span className="text-[9px] font-medium uppercase tracking-wider bg-orange-500/20 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded">
+                            <span className="text-[9px] font-semibold uppercase tracking-wider bg-orange-500/20 text-orange-700 dark:text-orange-300 px-1.5 py-0.5 rounded">
                               ← Devolução
                             </span>
                           )}
