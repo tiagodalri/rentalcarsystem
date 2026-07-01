@@ -19,6 +19,8 @@ import {
   friendlyTable,
   fmtDuration,
 } from "@/lib/activityLabels";
+import { UserActivitySheet } from "@/components/admin/UserActivitySheet";
+import { ChevronRight } from "lucide-react";
 
 const ALLOWED_EMAIL = "admin@zeusrentalcar.com";
 
