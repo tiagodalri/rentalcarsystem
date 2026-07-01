@@ -1681,45 +1681,73 @@ export type Database = {
       }
       vehicle_expenses: {
         Row: {
+          ai_data: Json | null
           amount: number
+          booking_id: string | null
           created_at: string
+          created_by: string | null
           description: string | null
           expense_date: string
           id: string
           is_recurring: boolean | null
+          notes: string | null
+          payment_method: string | null
           receipt_url: string | null
+          source: string
+          status: string
           supplier: string | null
           type: Database["public"]["Enums"]["expense_type"]
           updated_at: string
           vehicle_id: string
         }
         Insert: {
+          ai_data?: Json | null
           amount?: number
+          booking_id?: string | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           expense_date?: string
           id?: string
           is_recurring?: boolean | null
+          notes?: string | null
+          payment_method?: string | null
           receipt_url?: string | null
+          source?: string
+          status?: string
           supplier?: string | null
           type?: Database["public"]["Enums"]["expense_type"]
           updated_at?: string
           vehicle_id: string
         }
         Update: {
+          ai_data?: Json | null
           amount?: number
+          booking_id?: string | null
           created_at?: string
+          created_by?: string | null
           description?: string | null
           expense_date?: string
           id?: string
           is_recurring?: boolean | null
+          notes?: string | null
+          payment_method?: string | null
           receipt_url?: string | null
+          source?: string
+          status?: string
           supplier?: string | null
           type?: Database["public"]["Enums"]["expense_type"]
           updated_at?: string
           vehicle_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "vehicle_expenses_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "vehicle_expenses_vehicle_id_fkey"
             columns: ["vehicle_id"]

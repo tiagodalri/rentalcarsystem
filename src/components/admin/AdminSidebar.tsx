@@ -16,6 +16,7 @@ import {
   GraduationCap,
   ScrollText,
   Receipt,
+  Wallet,
 } from "lucide-react";
 
 import zeusLogo from "@/assets/zeus-logo-mark.png";
@@ -83,6 +84,7 @@ const menuSections: MenuSection[] = [
     label: "Financeiro",
     items: [
       { title: "Financeiro", url: "/admin/finance", icon: DollarSign, allowedRoles: ["admin","finance"] },
+      { title: "Central de Custos", url: "/admin/costs", icon: Wallet, allowedRoles: ["admin","operations","finance"] },
       { title: "Relatórios", url: "/admin/report",  icon: BarChart3,  allowedRoles: ["admin","finance"] },
     ],
   },
