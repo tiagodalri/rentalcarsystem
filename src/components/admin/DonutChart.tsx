@@ -187,8 +187,8 @@ export default function DonutChart({ data, title, unit = "$", height = 320 }: Pr
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2 min-w-0">
                   <span
-                    className="shrink-0 w-2.5 h-2.5 rounded-full ring-2 ring-offset-1 ring-offset-background"
-                    style={{ background: d.color, ringColor: d.color + "40" }}
+                    className="shrink-0 w-2.5 h-2.5 rounded-full"
+                    style={{ background: d.color, boxShadow: `0 0 0 2px hsl(var(--background)), 0 0 0 3.5px ${d.color}40` }}
                   />
                   <span className="text-sm text-foreground truncate">{d.name}</span>
                 </div>
