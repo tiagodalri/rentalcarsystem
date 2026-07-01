@@ -360,7 +360,9 @@ export default function AdminLogs() {
                     );
                   })}
                   {filtered.length === 0 && (
-                    <li className="p-6 text-center text-sm text-muted-foreground">Nenhum evento registrado.</li>
+                    <li>
+                      <EmptyState compact icon={Activity} title="Nenhum evento registrado" description="Assim que a equipe interagir com o sistema, os eventos aparecem aqui em tempo real." />
+                    </li>
                   )}
                 </ol>
               </ScrollArea>
