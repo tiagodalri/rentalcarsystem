@@ -42,7 +42,7 @@ export default function AdminEpassImport() {
       setAssigned(matched);
       setStep(2);
     } catch (e: any) {
-      toast({ title: "Erro ao analisar CSV", description: e?.message || "Falha", variant: "destructive" });
+      toast({ title: "Erro ao analisar arquivo", description: e?.message || "Falha", variant: "destructive" });
     } finally {
       setParsing(false);
     }
@@ -115,7 +115,7 @@ export default function AdminEpassImport() {
             <h2 className="text-sm font-semibold mb-3">1. Selecione os arquivos do portal E-Pass (qualquer formato)</h2>
             <EpassDropzone files={files} onFiles={handleFiles} onRemove={(i) => setFiles((p) => p.filter((_, idx) => idx !== i))} disabled={parsing} />
             <div className="mt-3 text-[11px] text-muted-foreground leading-relaxed">
-              O numero do transponder no CSV (coluna "Transponder Number") e cruzado com o campo
+              O numero do transponder no arquivo e cruzado com o campo
               <span className="font-medium text-foreground"> E-Pass</span> de cada veiculo da frota.
               Veiculos sem transponder cadastrado caem em "Sem veiculo".
             </div>
