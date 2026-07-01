@@ -12,7 +12,7 @@ type Toll = {
   charged_to_customer: boolean;
 };
 
-export function BookingEpassTolls({ bookingId }: { bookingId: string }) {
+export function BookingEpassTolls({ bookingId, transponder }: { bookingId: string; transponder?: string | null }) {
   const [tolls, setTolls] = useState<Toll[]>([]);
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
@@ -57,6 +57,11 @@ export function BookingEpassTolls({ bookingId }: { bookingId: string }) {
         <div className="flex items-center gap-2">
           <Receipt className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold">Pedagios E-Pass</h3>
+          {transponder && (
+            <span className="text-[10px] text-muted-foreground/60 tabular-nums ml-1">
+              #{transponder}
+            </span>
+          )}
         </div>
         <div className="text-xs text-muted-foreground tabular-nums">
           {tolls.length} pedagios · <span className="font-semibold text-foreground">${total.toFixed(2)}</span>

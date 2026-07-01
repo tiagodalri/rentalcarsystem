@@ -108,6 +108,7 @@ type Vehicle = {
   year: number | null;
   image_url: string | null;
   status: string;
+  e_pass_transponder?: string | null;
 };
 
 type Inspection = {
@@ -1067,7 +1068,7 @@ export default function AdminBookingDetail() {
         </Card>
       )}
 
-      <BookingEpassTolls bookingId={booking.id} />
+      <BookingEpassTolls bookingId={booking.id} transponder={vehicle?.e_pass_transponder} />
     </div>
   );
 }
