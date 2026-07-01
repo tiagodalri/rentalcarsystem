@@ -198,15 +198,56 @@ export default function AdminPainel() {
     .sort((a, b) => (a.t || "").localeCompare(b.t || ""))[0];
 
   /* ─────────── MÊS ───────────
-     Considera reservas com pickup dentro do mês e exclui canceladas
-     (a métrica reflete operação efetiva, não data de criação). */
+     Receita REALIZADA: proporcional aos dias já decorridos dentro do mês.
+     Uma reserva de 10 dias com pickup dia 30/jun e retorno 10/jul, se hoje
+     é 01/jul, contabiliza apenas 1 dia (não o total). Assim o card reflete
+     receita já ganha, não receita futura.
+     Reservas canceladas são ignoradas. */
   const isRealBooking = (b: BookingRow) => b.status !== "cancelled";
-  const monthBookings = bookings.filter(b => isRealBooking(b) && inMonth(parseDateOnly(b.pickup_date), monthAnchor));
-  const prevBookings  = bookings.filter(b => isRealBooking(b) && inMonth(parseDateOnly(b.pickup_date), prevMonthAnchor));
-  const monthRevenue  = monthBookings.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
-  const prevRevenue   = prevBookings.reduce((s, b) => s + (Number(b.total_price) || 0), 0);
-  const monthCount    = monthBookings.length;
-  const prevCount     = prevBookings.length;
+  const DAY_MS = 86400000;
+  const overlapDays = (aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) => {
+    const s = aStart > bStart ? aStart : bStart;
+    const e = aEnd   < bEnd   ? aEnd   : bEnd;
+    if (e < s) return 0;
+    return Math.max(1, Math.round((e.getTime() - s.getTime()) / DAY_MS) + 1);
+  };
+  const proratedRevenue = (b: BookingRow, rangeStart: Date, rangeEnd: Date) => {
+    const pk = parseDateOnly(b.pickup_date);
+    const rt = parseDateOnly(b.return_date);
+    const totalDays = Math.max(1, Math.round((rt.getTime() - pk.getTime()) / DAY_MS) + 1);
+    const daysInRange = overlapDays(pk, rt, rangeStart, rangeEnd);
+    if (daysInRange <= 0) return 0;
+    const daily = (Number(b.total_price) || 0) / totalDays;
+    return daily * daysInRange;
+  };
+  const nowDate = now;
+  const monthStart = startOfMonth(monthAnchor);
+  const monthEndRealized = nowDate < endOfMonth(monthAnchor) ? nowDate : endOfMonth(monthAnchor);
+  const prevStart = startOfMonth(prevMonthAnchor);
+  const prevEnd   = endOfMonth(prevMonthAnchor);
+
+  const realBookings  = bookings.filter(isRealBooking);
+  const monthBookings = realBookings.filter(b => {
+    const pk = parseDateOnly(b.pickup_date);
+    const rt = parseDateOnly(b.return_date);
+    return rt >= monthStart && pk <= monthEndRealized;
+  });
+  const prevBookings  = realBookings.filter(b => {
+    const pk = parseDateOnly(b.pickup_date);
+    const rt = parseDateOnly(b.return_date);
+    return rt >= prevStart && pk <= prevEnd;
+  });
+  const monthRevenue  = monthBookings.reduce((s, b) => s + proratedRevenue(b, monthStart, monthEndRealized), 0);
+  const prevRevenue   = prevBookings.reduce((s, b) => s + proratedRevenue(b, prevStart, prevEnd), 0);
+  // Contagem: reservas cujo pickup já aconteceu dentro do mês (efetivamente iniciadas).
+  const monthCount    = realBookings.filter(b => {
+    const pk = parseDateOnly(b.pickup_date);
+    return pk >= monthStart && pk <= monthEndRealized;
+  }).length;
+  const prevCount     = realBookings.filter(b => {
+    const pk = parseDateOnly(b.pickup_date);
+    return pk >= prevStart && pk <= prevEnd;
+  }).length;
   const ticketAvg     = monthCount ? monthRevenue / monthCount : 0;
   const prevTicket    = prevCount  ? prevRevenue  / prevCount  : 0;
 
