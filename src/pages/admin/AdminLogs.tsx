@@ -165,7 +165,7 @@ export default function AdminLogs() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "activity_logs" },
         (payload) => {
-          setLogs((prev) => [payload.new as LogRow, ...prev].slice(0, 500));
+          setLogs((prev) => [payload.new as LogRow, ...prev].slice(0, 5000));
         },
       )
       .on(
