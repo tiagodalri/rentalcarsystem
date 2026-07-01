@@ -12,7 +12,7 @@ type Toll = {
   charged_to_customer: boolean;
 };
 
-export function BookingEpassTolls({ bookingId }: { bookingId: string }) {
+export function BookingEpassTolls({ bookingId, transponder }: { bookingId: string; transponder?: string | null }) {
   const [tolls, setTolls] = useState<Toll[]>([]);
   const [loading, setLoading] = useState(true);
   const [marking, setMarking] = useState(false);
