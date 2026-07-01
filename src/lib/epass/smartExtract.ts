@@ -5,7 +5,7 @@
 // .pdf → leitura local quando tem texto; OCR/IA só como fallback
 // .png/.jpg/.jpeg/.webp/.heic → IA multimodal (visão) na edge function
 // outros → tenta ler como texto; se vazio, manda binário pra IA
-import { parseEpassCsv, parseEpassStatementText, type EpassParseResult } from "./csvParser";
+import { parseEpassCsv, parseEpassStatementText, parseTollTransactionsText, type EpassParseResult } from "./csvParser";
 import { supabase } from "@/integrations/supabase/client";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
@@ -86,9 +86,15 @@ async function extractFromPdf(file: File): Promise<EpassParseResult> {
   try {
     const text = await extractPdfTextLocally(file);
     if (text.trim()) {
+      // 1) Formato "TollTransactions" (uma transacao por linha) — mais rapido e comum no portal novo.
+      const rowMode = parseTollTransactionsText(text, file.name);
+      if (rowMode.tolls.length > 0) return rowMode;
+
+      // 2) Formato "Statement" (blocos por veiculo).
       const statement = parseEpassStatementText(text, file.name);
       if (statement.tolls.length > 0) return statement;
 
+      // 3) Ultimo recurso local: normaliza pra CSV.
       const generic = await extractFromText(text, file.name);
       if (generic.tolls.length > 0) return generic;
     }
@@ -105,14 +111,19 @@ async function extractPdfTextLocally(file: File): Promise<string> {
   const buffer = await file.arrayBuffer();
   const loadingTask = pdfjs.getDocument({ data: new Uint8Array(buffer), useSystemFonts: true });
   const pdf = await loadingTask.promise;
-  const pages: string[] = [];
 
+  // Le todas as paginas em paralelo (drasticamente mais rapido em PDFs grandes).
+  const pagePromises: Promise<string>[] = [];
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-    const page = await pdf.getPage(pageNum);
-    const content = await page.getTextContent();
-    const items = content.items as Array<{ str?: string; transform?: number[]; width?: number }>;
-    pages.push(itemsToLayoutText(items));
+    pagePromises.push(
+      pdf.getPage(pageNum).then(async (page) => {
+        const content = await page.getTextContent();
+        const items = content.items as Array<{ str?: string; transform?: number[]; width?: number }>;
+        return itemsToLayoutText(items);
+      }),
+    );
   }
+  const pages = await Promise.all(pagePromises);
 
   await pdf.destroy();
   return pages.join("\n\n");

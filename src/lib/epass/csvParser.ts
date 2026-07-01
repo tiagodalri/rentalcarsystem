@@ -384,6 +384,105 @@ export function parseEpassStatementText(text: string, filename: string): EpassPa
   };
 }
 
+// ============================================================================
+// Formato "TollTransactions" (portal E-Pass, uma transacao por linha).
+// Cabecalho:
+//   TRANSACTION DATE  POSTING DATE  LICENSE  STATE  YEAR  MAKE  MODEL  TRANSPONDER  LOCATION  LANE  AMOUNT  TYPE
+// Exemplo:
+//   06/28/2026 06:31:04PM  06/30/2026 10:08:17PM  XGU656 FL 2021 CADILLAC ESCALADE 726075 INDEPENDENCE(M) 14 $1.68 E
+// Muito comum e MUITO mais rapido de parsear que o statement em blocos.
+// ============================================================================
+const TOLL_ROW_RE = new RegExp(
+  "^(\\d{2}/\\d{2}/\\d{4})\\s+(\\d{1,2}:\\d{2}:\\d{2}(?:AM|PM))\\s+" +
+    "(\\d{2}/\\d{2}/\\d{4})\\s+\\d{1,2}:\\d{2}:\\d{2}(?:AM|PM)\\s+" +
+    "(\\S+)\\s+\\S+\\s+(\\S+)\\s+(.+?)\\s+(\\d{5,7})\\s+" +
+    "(.+?)\\s+\\d+\\s+\\$([0-9]+(?:\\.[0-9]{2})?)(?:\\s+([A-Z]))?\\s*$",
+  "i",
+);
+
+export function parseTollTransactionsText(text: string, filename: string): EpassParseResult {
+  const tolls: EpassTollRow[] = [];
+  const errors: { line: number; reason: string }[] = [];
+  const transponder_hints: Record<string, TransponderHint> = {};
+  let accountNumber: string | null = null;
+  let periodStart: string | null = null;
+  let periodEnd: string | null = null;
+
+  const lines = text.split(/\r?\n/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].replace(/\s+/g, " ").trim();
+    if (!line) continue;
+
+    if (!accountNumber) {
+      const acc = line.match(/ACCOUNT NUMBER\s*:?\s*(\d+)/i);
+      if (acc) accountNumber = acc[1];
+    }
+    if (!periodStart) {
+      const ps = line.match(/START DATE\s*:?\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/i);
+      if (ps) periodStart = ps[1];
+    }
+    if (!periodEnd) {
+      const pe = line.match(/END DATE\s*:?\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/i);
+      if (pe) periodEnd = pe[1];
+    }
+
+    const m = line.match(TOLL_ROW_RE);
+    if (!m) continue;
+
+    const [, tDate, tTime, pDate, plate, year, makeModel, transponder, location, amount, tollType] = m;
+    const dateIso = mdToIso(tDate);
+    const postingIso = mdToIso(pDate) || dateIso;
+    const timeIso = to24h(tTime);
+    const amt = parseFloat(amount);
+    if (!dateIso || !timeIso || Number.isNaN(amt)) {
+      errors.push({ line: i + 1, reason: "Linha invalida" });
+      continue;
+    }
+    tolls.push(
+      buildTollRow(transponder, dateIso, timeIso, postingIso, location.trim(), Math.abs(amt), (tollType || "").trim()),
+    );
+
+    // Guarda pistas se veio marca/modelo.
+    const hint: TransponderHint = { plate };
+    if (/^\d{4}$/.test(year)) hint.year = year;
+    const vehicleName = makeModel.trim();
+    if (vehicleName && vehicleName !== "-" && !/^-\s+-$/.test(vehicleName)) hint.vehicle = vehicleName;
+    transponder_hints[transponder] = mergeHint(transponder_hints[transponder], hint);
+  }
+
+  return {
+    filename,
+    account_number: accountNumber,
+    period_label: periodStart && periodEnd ? `${periodStart} a ${periodEnd}` : null,
+    account: [],
+    tolls,
+    transponder_hints,
+    errors,
+  };
+}
+
+// "06/28/2026" -> "2026-06-28"
+function mdToIso(s: string): string | null {
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (!m) return null;
+  const mm = m[1].padStart(2, "0");
+  const dd = m[2].padStart(2, "0");
+  const yy = m[3].length === 2 ? "20" + m[3] : m[3];
+  return `${yy}-${mm}-${dd}`;
+}
+
+// "06:31:04PM" -> "18:31:04"
+function to24h(s: string): string | null {
+  const m = s.match(/^(\d{1,2}):(\d{2}):(\d{2})(AM|PM)$/i);
+  if (!m) return null;
+  let h = parseInt(m[1], 10);
+  const ampm = m[4].toUpperCase();
+  if (ampm === "PM" && h < 12) h += 12;
+  if (ampm === "AM" && h === 12) h = 0;
+  return `${String(h).padStart(2, "0")}:${m[2]}:${m[3]}`;
+}
+
+
 // Header-aware: quando o extrato traz colunas extras (Plate/License,
 // Vehicle/Description/Model, Color, Year), aproveitamos pra montar pistas
 // por transponder.
