@@ -130,9 +130,9 @@ export default function DonutChart({ data, title, unit = "$", height = 320 }: Pr
   return (
     <div className="flex flex-col lg:flex-row items-center gap-6">
       {/* Chart */}
-      <div className="relative w-full lg:w-1/2" style={{ minHeight: height }}>
+      <div className="relative w-full lg:w-1/2 donut-chart-wrap" style={{ minHeight: height }}>
         <ResponsiveContainer width="100%" height={height}>
-          <PieChart>
+          <PieChart margin={{ top: 16, right: 16, bottom: 16, left: 16 }}>
             <Pie
               activeIndex={activeIndex}
               activeShape={renderActiveShape}
