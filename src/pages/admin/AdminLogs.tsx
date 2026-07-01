@@ -135,6 +135,7 @@ export default function AdminLogs() {
   const [inspFilter, setInspFilter] = useState<"all" | "checkin" | "checkout">("all");
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
   const isAllowed = user?.email?.toLowerCase() === ALLOWED_EMAIL;
 
