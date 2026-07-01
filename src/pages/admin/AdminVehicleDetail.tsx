@@ -504,6 +504,7 @@ export default function AdminVehicleDetail() {
             <TabsTrigger value="health" className="whitespace-nowrap">Saúde</TabsTrigger>
             <TabsTrigger value="expenses" className="whitespace-nowrap">Gastos</TabsTrigger>
             <TabsTrigger value="incidents" className="whitespace-nowrap">Ocorrências</TabsTrigger>
+            <TabsTrigger value="tolls" className="whitespace-nowrap">Pedágios</TabsTrigger>
             
             <TabsTrigger value="history" className="whitespace-nowrap">Locações</TabsTrigger>
             <TabsTrigger value="pricing" className="whitespace-nowrap">Precificação</TabsTrigger>
