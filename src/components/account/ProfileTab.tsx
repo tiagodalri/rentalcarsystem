@@ -30,6 +30,7 @@ interface ProfileForm {
 const isHttpUrl = (s: string | null | undefined) => !!s && /^https?:\/\//i.test(s);
 
 const ProfileTab = () => {
+  const { t } = useAccountT();
   const { customer, rawUser, refreshCustomer } = useAuth() as any;
   const [form, setForm] = useState<ProfileForm>({
     full_name: "", phone: "", nationality: "", date_of_birth: "",
