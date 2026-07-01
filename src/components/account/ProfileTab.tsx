@@ -185,14 +185,14 @@ const ProfileTab = () => {
         .eq("user_id", rawUser.id);
       if (error) throw error;
 
-      toast({ title: "Perfil atualizado", description: "Seus dados foram salvos com sucesso." });
+      toast({ title: t.toastSaved, description: t.toastSavedDesc });
       setInitial(form);
       clearFormDraft(profileDraftKey);
       setLicenseFile(null);
       await refreshCustomer?.();
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Erro ao salvar", description: err.message || "Tente novamente.", variant: "destructive" });
+      toast({ title: t.toastError, description: err.message || t.toastErrorDesc, variant: "destructive" });
     } finally {
       setSaving(false);
     }
