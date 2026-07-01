@@ -239,32 +239,32 @@ const ProfileTab = () => {
         {/* SEÇÃO: ENDEREÇO */}
         <section className="rounded-xl border border-border bg-card p-5">
           <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-foreground mb-4 flex items-center gap-2">
-            <MapPin size={14} className="text-primary" /> Endereço
+            <MapPin size={14} className="text-primary" /> {t.addressTitle}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="CEP / Zip code" icon={MapPin}>
+            <Field label={t.fieldZip} icon={MapPin}>
               <div className="relative">
                 <input
                   type="text"
                   value={form.zip_code}
                   onChange={(e) => { update("zip_code", e.target.value); lookupCep(e.target.value); }}
                   className={inputCls}
-                  placeholder="00000-000"
+                  placeholder={t.fieldZipPh}
                 />
                 {cepLoading && <Loader2 size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-primary animate-spin" />}
               </div>
             </Field>
-            <Field label="Número" icon={MapPin}>
+            <Field label={t.fieldNumber} icon={MapPin}>
               <input type="text" value={form.house_number} onChange={(e) => update("house_number", e.target.value)} className={inputCls} />
             </Field>
             <div className="sm:col-span-2">
-              <Field label="Rua / Logradouro" icon={MapPin}>
+              <Field label={t.fieldStreet} icon={MapPin}>
                 <input type="text" value={form.address} onChange={(e) => update("address", e.target.value)} className={inputCls} />
               </Field>
             </div>
             <div className="sm:col-span-2">
-              <Field label="Complemento" icon={MapPin}>
-                <input type="text" value={form.complement} onChange={(e) => update("complement", e.target.value)} className={inputCls} placeholder="Apto, bloco, sala..." />
+              <Field label={t.fieldComplement} icon={MapPin}>
+                <input type="text" value={form.complement} onChange={(e) => update("complement", e.target.value)} className={inputCls} placeholder={t.fieldComplementPh} />
               </Field>
             </div>
           </div>
