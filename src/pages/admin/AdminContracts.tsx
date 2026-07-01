@@ -18,6 +18,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { EmptyState } from "@/components/admin/EmptyState";
 import { formatPersonName } from "@/lib/formatName";
 
 type ContractStatus =
@@ -245,8 +246,8 @@ const AdminContracts = () => {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-10 text-center text-muted-foreground">
-                    Nenhum contrato encontrado.
+                  <td colSpan={7} className="p-0">
+                    <EmptyState compact icon={FileText} title="Nenhum contrato encontrado" description="Não há contratos que correspondam aos filtros aplicados." />
                   </td>
                 </tr>
               ) : (

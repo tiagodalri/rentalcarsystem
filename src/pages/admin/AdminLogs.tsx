@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Activity, Users, MonitorSmartphone, Search, RefreshCw, MapPin, Smartphone, Tablet, Monitor, LogIn, LogOut, MousePointerClick, FileText, Edit3, Trash2, PlusCircle, Globe, ClipboardCheck, ArrowDownToLine, ArrowUpFromLine, Gauge, Fuel, Car, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/admin/EmptyState";
 import {
   describeNavigation,
   describeDevice,
@@ -359,7 +360,9 @@ export default function AdminLogs() {
                     );
                   })}
                   {filtered.length === 0 && (
-                    <li className="p-6 text-center text-sm text-muted-foreground">Nenhum evento registrado.</li>
+                    <li>
+                      <EmptyState compact icon={Activity} title="Nenhum evento registrado" description="Assim que a equipe interagir com o sistema, os eventos aparecem aqui em tempo real." />
+                    </li>
                   )}
                 </ol>
               </ScrollArea>
@@ -420,7 +423,9 @@ export default function AdminLogs() {
                       );
                     })}
                   {audit.length === 0 && (
-                    <li className="p-6 text-center text-sm text-muted-foreground">Nenhuma alteração registrada.</li>
+                    <li>
+                      <EmptyState compact icon={Edit3} title="Nenhuma alteração registrada" description="Edições e exclusões feitas no sistema aparecem aqui automaticamente." />
+                    </li>
                   )}
                 </ol>
               </ScrollArea>
@@ -605,7 +610,9 @@ export default function AdminLogs() {
                       );
                     })}
                   {inspections.filter((i) => inspFilter === "all" || i.type === inspFilter).length === 0 && (
-                    <li className="p-6 text-center text-sm text-muted-foreground">Nenhuma inspeção registrada.</li>
+                    <li>
+                      <EmptyState compact icon={ClipboardCheck} title="Nenhuma inspeção registrada" description="Check-ins e check-outs feitos pelos operadores aparecerão aqui." />
+                    </li>
                   )}
                 </ol>
               </ScrollArea>

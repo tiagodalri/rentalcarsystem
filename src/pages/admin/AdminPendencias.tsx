@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, ChevronRight, FileWarning, Loader2, CheckCircle2 } from "lucide-react";
+import { EmptyState } from "@/components/admin/EmptyState";
 
 type Vehicle = {
   id: string;
@@ -134,10 +135,8 @@ export default function AdminPendencias() {
 
       {byField.length === 0 ? (
         <Card className="bg-card/50 border-border/40">
-          <CardContent className="py-12 flex flex-col items-center text-center gap-2">
-            <CheckCircle2 className="h-10 w-10 text-emerald-500" />
-            <p className="text-base font-medium">Frota 100% atualizada</p>
-            <p className="text-sm text-muted-foreground">Nenhum campo crítico está faltando.</p>
+          <CardContent className="p-0">
+            <EmptyState icon={CheckCircle2} title="Frota 100% atualizada" description="Nenhum campo crítico está faltando nos veículos cadastrados." />
           </CardContent>
         </Card>
       ) : (
