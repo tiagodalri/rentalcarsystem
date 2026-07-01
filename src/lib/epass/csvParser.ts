@@ -23,12 +23,23 @@ export type EpassTollRow = {
   dedupe_hash: string;
 };
 
+// Pistas por transponder extraidas do proprio arquivo (quando o extrato traz
+// colunas de placa/modelo/cor/ano/descricao). Usadas pra pre-sugerir a
+// vinculacao com a frota no preview.
+export type TransponderHint = {
+  plate?: string;
+  vehicle?: string;
+  color?: string;
+  year?: string;
+};
+
 export type EpassParseResult = {
   filename: string;
   account_number: string | null;
   period_label: string | null;
   account: EpassAccountRow[];
   tolls: EpassTollRow[];
+  transponder_hints: Record<string, TransponderHint>;
   errors: { line: number; reason: string }[];
 };
 
