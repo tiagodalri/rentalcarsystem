@@ -35,8 +35,7 @@ export default function AdminEpassImport() {
     if (files.length === 0) return;
     setParsing(true);
     try {
-      const results: EpassParseResult[] = [];
-      for (const f of files) results.push(await extractEpassFromFile(f));
+      const results: EpassParseResult[] = await Promise.all(files.map((f) => extractEpassFromFile(f)));
       const merged = mergeEpassResults(results);
       const matched = await assignTolls(merged.tolls);
       setParsed(merged);
