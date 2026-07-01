@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, ChevronRight, FileWarning, Loader2, CheckCircle2 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { KpiCard } from "@/components/admin/KpiCard";
 
 type Vehicle = {
   id: string;
