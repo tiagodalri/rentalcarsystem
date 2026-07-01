@@ -142,7 +142,7 @@ export default function AdminLogs() {
   const load = async () => {
     setRefreshing(true);
     const [{ data: act }, { data: aud }, { data: insp }] = await Promise.all([
-      supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(500),
+      supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(5000),
       supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(500),
       supabase
         .from("vehicle_inspections")
@@ -165,7 +165,7 @@ export default function AdminLogs() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "activity_logs" },
         (payload) => {
-          setLogs((prev) => [payload.new as LogRow, ...prev].slice(0, 500));
+          setLogs((prev) => [payload.new as LogRow, ...prev].slice(0, 5000));
         },
       )
       .on(
