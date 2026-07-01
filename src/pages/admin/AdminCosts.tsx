@@ -239,7 +239,7 @@ export default function AdminCosts() {
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-        <TabsList className="w-full lg:w-auto flex overflow-x-auto no-scrollbar">
+        <TabsList className="w-full lg:w-auto flex overflow-x-auto">
           <TabsTrigger value="all" className="flex-1 lg:flex-none">Todos</TabsTrigger>
           <TabsTrigger value="draft" className="flex-1 lg:flex-none">Rascunhos IA</TabsTrigger>
           <TabsTrigger value="with_booking" className="flex-1 lg:flex-none whitespace-nowrap">Com reserva</TabsTrigger>

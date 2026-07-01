@@ -192,7 +192,7 @@ export default function AdminTolls() {
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-        <TabsList className="w-full lg:w-auto flex overflow-x-auto no-scrollbar">
+        <TabsList className="w-full lg:w-auto flex overflow-x-auto">
           <TabsTrigger value="all" className="flex-1 lg:flex-none">Todos</TabsTrigger>
           <TabsTrigger value="pending" className="flex-1 lg:flex-none whitespace-nowrap">Pendentes</TabsTrigger>
           <TabsTrigger value="orphans" className="flex-1 lg:flex-none whitespace-nowrap">Sem reserva</TabsTrigger>
