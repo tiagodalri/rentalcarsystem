@@ -610,7 +610,9 @@ export default function AdminLogs() {
                       );
                     })}
                   {inspections.filter((i) => inspFilter === "all" || i.type === inspFilter).length === 0 && (
-                    <li className="p-6 text-center text-sm text-muted-foreground">Nenhuma inspeção registrada.</li>
+                    <li>
+                      <EmptyState compact icon={ClipboardCheck} title="Nenhuma inspeção registrada" description="Check-ins e check-outs feitos pelos operadores aparecerão aqui." />
+                    </li>
                   )}
                 </ol>
               </ScrollArea>
