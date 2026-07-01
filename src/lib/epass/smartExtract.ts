@@ -6,7 +6,7 @@
 // .png/.jpg/.jpeg/.webp/.heic → IA multimodal (visão) na edge function
 // outros → tenta ler como texto; se vazio, manda binário pra IA
 import * as XLSX from "xlsx";
-import { parseEpassCsv, type EpassParseResult } from "./csvParser";
+import { parseEpassCsv, parseEpassStatementText, type EpassParseResult } from "./csvParser";
 import { supabase } from "@/integrations/supabase/client";
 
 const IMG_EXT = /\.(png|jpe?g|webp|heic|heif|bmp|tiff?)$/i;
@@ -17,9 +17,9 @@ export async function extractEpassFromFile(file: File): Promise<EpassParseResult
   const lower = name.toLowerCase();
   const mt = (file.type || "").toLowerCase();
 
-  // PDF → IA multimodal (rota dedicada já no parseEpassCsv).
+  // PDF nativo do E-Pass → leitura local instantânea; OCR/IA só fica como fallback.
   if (/\.pdf$/i.test(lower) || mt === "application/pdf") {
-    return parseEpassCsv(file);
+    return extractFromPdf(file);
   }
 
   // Imagens (extrato em foto/print) → IA visão.
@@ -80,6 +80,71 @@ async function extractFromSpreadsheet(file: File): Promise<EpassParseResult> {
   return extractFromText(merged, file.name);
 }
 
+// ===== PDF nativo =====
+async function extractFromPdf(file: File): Promise<EpassParseResult> {
+  try {
+    const text = await extractPdfTextLocally(file);
+    if (text.trim()) {
+      const statement = parseEpassStatementText(text, file.name);
+      if (statement.tolls.length > 0) return statement;
+
+      const generic = await extractFromText(text, file.name);
+      if (generic.tolls.length > 0) return generic;
+    }
+  } catch {
+    // PDF escaneado/protegido: cai no OCR/IA abaixo.
+  }
+  return aiBinaryExtract(file, file.type || "application/pdf");
+}
+
+async function extractPdfTextLocally(file: File): Promise<string> {
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+
+  const buffer = await file.arrayBuffer();
+  const loadingTask = pdfjs.getDocument({ data: new Uint8Array(buffer), useSystemFonts: true });
+  const pdf = await loadingTask.promise;
+  const pages: string[] = [];
+
+  for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+    const page = await pdf.getPage(pageNum);
+    const content = await page.getTextContent();
+    const items = content.items as Array<{ str?: string; transform?: number[]; width?: number }>;
+    pages.push(itemsToLayoutText(items));
+  }
+
+  await pdf.destroy();
+  return pages.join("\n\n");
+}
+
+function itemsToLayoutText(items: Array<{ str?: string; transform?: number[]; width?: number }>): string {
+  const rows = new Map<number, Array<{ x: number; text: string }>>();
+  for (const item of items) {
+    const text = item.str || "";
+    if (!text.trim()) continue;
+    const transform = item.transform || [];
+    const x = Number(transform[4] || 0);
+    const y = Number(transform[5] || 0);
+    const key = Math.round(y / 3) * 3;
+    const row = rows.get(key) || [];
+    row.push({ x, text });
+    rows.set(key, row);
+  }
+
+  return Array.from(rows.entries())
+    .sort((a, b) => b[0] - a[0])
+    .map(([, row]) =>
+      row
+        .sort((a, b) => a.x - b.x)
+        .map((cell) => cell.text)
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim(),
+    )
+    .filter(Boolean)
+    .join("\n");
+}
+
 // ===== Texto (TXT/TSV/HTML/JSON/etc) =====
 async function extractFromTextLike(file: File): Promise<EpassParseResult> {
   const text = await file.text();
@@ -99,6 +164,9 @@ async function extractFromText(text: string, filename: string): Promise<EpassPar
   } catch {
     // ignora — vai pra IA
   }
+
+  const statement = parseEpassStatementText(normalized || text, filename);
+  if (statement.tolls.length > 0) return statement;
 
   // Fallback IA via texto.
   return aiTextExtract(normalized || text, filename);
