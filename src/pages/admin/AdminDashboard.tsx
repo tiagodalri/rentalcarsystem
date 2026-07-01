@@ -136,9 +136,10 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
     <div className={`grid ${cols} gap-4`}>
       {cards.map((card) => (
         <button
+          type="button"
           key={card.label}
           onClick={card.onClick}
-          className="text-left"
+          className="h-full w-full text-left"
         >
           <KpiCard
             label={card.label}
