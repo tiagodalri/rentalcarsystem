@@ -1,4 +1,5 @@
 import { BookingStatus, statusConfig } from "@/data/bookingTypes";
+import { useAccountT } from "@/i18n/accountTranslations";
 
 interface BookingStatusBadgeProps {
   status: BookingStatus;
@@ -7,6 +8,16 @@ interface BookingStatusBadgeProps {
 
 const BookingStatusBadge = ({ status, pulse }: BookingStatusBadgeProps) => {
   const config = statusConfig[status];
+  const { t } = useAccountT();
+
+  const labelMap: Record<BookingStatus, string> = {
+    active: t.statusActive,
+    in_progress: t.statusInProgress,
+    confirmed: t.statusConfirmed,
+    pending: t.statusPending,
+    completed: t.statusCompleted,
+    cancelled: t.statusCancelled,
+  };
 
   return (
     <span
@@ -25,7 +36,7 @@ const BookingStatusBadge = ({ status, pulse }: BookingStatusBadgeProps) => {
           />
         </span>
       )}
-      {config.label}
+      {labelMap[status]}
     </span>
   );
 };
