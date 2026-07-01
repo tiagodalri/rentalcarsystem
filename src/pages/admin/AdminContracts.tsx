@@ -18,6 +18,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { EmptyState } from "@/components/admin/EmptyState";
 import { formatPersonName } from "@/lib/formatName";
 
 type ContractStatus =
