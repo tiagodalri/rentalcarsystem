@@ -1093,6 +1093,11 @@ export default function AdminVehicleDetail() {
 
 
 
+        {/* ── Tolls Tab ── */}
+        <TabsContent value="tolls" className="mt-4">
+          <VehicleEpassTolls vehicleId={id!} />
+        </TabsContent>
+
         {/* ── History Tab ── */}
         <TabsContent value="history" className="mt-4">
           {bookings.length === 0 ? (
