@@ -10,6 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Activity, Users, MonitorSmartphone, Search, RefreshCw, MapPin, Smartphone, Tablet, Monitor, LogIn, LogOut, MousePointerClick, FileText, Edit3, Trash2, PlusCircle, Globe, ClipboardCheck, ArrowDownToLine, ArrowUpFromLine, Gauge, Fuel, Car, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/admin/EmptyState";
 import {
   describeNavigation,
   describeDevice,
