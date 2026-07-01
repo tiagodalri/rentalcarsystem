@@ -19,6 +19,8 @@ import {
   friendlyTable,
   fmtDuration,
 } from "@/lib/activityLabels";
+import { UserActivitySheet } from "@/components/admin/UserActivitySheet";
+import { ChevronRight } from "lucide-react";
 
 const ALLOWED_EMAIL = "admin@zeusrentalcar.com";
 
@@ -133,6 +135,7 @@ export default function AdminLogs() {
   const [inspFilter, setInspFilter] = useState<"all" | "checkin" | "checkout">("all");
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
   const isAllowed = user?.email?.toLowerCase() === ALLOWED_EMAIL;
 
@@ -440,16 +443,23 @@ export default function AdminLogs() {
               <ScrollArea className="h-[60vh]">
                 <div className="divide-y divide-border">
                   {users.map((u) => (
-                    <div key={u.email} className="p-3 flex items-center justify-between text-sm">
-                      <div>
-                        <div className="font-medium">{u.name || u.email}</div>
-                        <div className="text-xs text-muted-foreground">{u.email}</div>
+                    <button
+                      key={u.email}
+                      onClick={() => setSelectedUser(u.email)}
+                      className="w-full text-left p-3 flex items-center justify-between text-sm hover:bg-muted/40 transition-colors group"
+                    >
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{u.name || u.email}</div>
+                        <div className="text-xs text-muted-foreground truncate">{u.email}</div>
                       </div>
-                      <div className="text-right">
-                        <div className="tabular-nums">{u.count} eventos</div>
-                        <div className="text-xs text-muted-foreground">{fmtTime(u.last)}</div>
+                      <div className="text-right flex items-center gap-2 shrink-0">
+                        <div>
+                          <div className="tabular-nums">{u.count} eventos</div>
+                          <div className="text-xs text-muted-foreground">{fmtTime(u.last)}</div>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </ScrollArea>
@@ -620,6 +630,13 @@ export default function AdminLogs() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <UserActivitySheet
+        open={!!selectedUser}
+        onOpenChange={(o) => !o && setSelectedUser(null)}
+        userKey={selectedUser}
+        logs={logs}
+      />
     </div>
   );
 }
