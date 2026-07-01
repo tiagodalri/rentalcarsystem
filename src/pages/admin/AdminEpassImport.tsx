@@ -103,9 +103,7 @@ export default function AdminEpassImport() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Sincronizar E-Pass</h1>
           <p className="text-sm text-muted-foreground">
-            Aceita CSV, PDF, TXT, TSV, Excel (XLS/XLSX/ODS), HTML, JSON e até prints/fotos do extrato.
-            CSV, TXT e PDF nativo são lidos localmente para resposta imediata; OCR/IA entra somente quando
-            o arquivo é escaneado ou não tem texto estruturado.
+            Aceita qualquer formato: CSV, Excel, PDF, TXT e até fotos do extrato.
           </p>
         </div>
       </div>
