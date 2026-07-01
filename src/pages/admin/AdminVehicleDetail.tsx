@@ -20,6 +20,7 @@ import { useLanguage } from "@/i18n/LanguageContext";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { Receipt, ShieldCheck, ChevronDown } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { VehicleEpassTolls } from "@/components/admin/vehicle/VehicleEpassTolls";
 import VehicleAgenda from "@/components/admin/VehicleAgenda";
 import PricingPanel from "@/components/admin/pricing/PricingPanel";
 import { VehicleDetailSkeleton } from "@/components/skeletons/DetailSkeletons";
@@ -504,6 +505,7 @@ export default function AdminVehicleDetail() {
             <TabsTrigger value="health" className="whitespace-nowrap">Saúde</TabsTrigger>
             <TabsTrigger value="expenses" className="whitespace-nowrap">Gastos</TabsTrigger>
             <TabsTrigger value="incidents" className="whitespace-nowrap">Ocorrências</TabsTrigger>
+            <TabsTrigger value="tolls" className="whitespace-nowrap">Pedágios</TabsTrigger>
             
             <TabsTrigger value="history" className="whitespace-nowrap">Locações</TabsTrigger>
             <TabsTrigger value="pricing" className="whitespace-nowrap">Precificação</TabsTrigger>
@@ -1091,6 +1093,11 @@ export default function AdminVehicleDetail() {
 
 
 
+
+        {/* ── Tolls Tab ── */}
+        <TabsContent value="tolls" className="mt-4">
+          <VehicleEpassTolls vehicleId={vehicleId!} />
+        </TabsContent>
 
         {/* ── History Tab ── */}
         <TabsContent value="history" className="mt-4">
