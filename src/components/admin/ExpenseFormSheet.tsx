@@ -238,15 +238,7 @@ export function ExpenseFormSheet({ open, onOpenChange, onSaved, defaultVehicleId
             )}
           </TabsContent>
 
-          <TabsContent value="manual" className="mt-4 space-y-2">
-            <Label className="text-xs text-muted-foreground">Comprovante / Nota (opcional)</Label>
-            <ReceiptPicker
-              receiptFile={receiptFile}
-              receiptPreview={receiptPreview}
-              onFilePicked={onFilePicked}
-              onClear={() => { setReceiptFile(null); setReceiptPreview(null); }}
-            />
-          </TabsContent>
+          <TabsContent value="manual" className="mt-0" />
         </Tabs>
 
         <div className="mt-5 space-y-3">
