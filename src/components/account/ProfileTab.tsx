@@ -283,10 +283,10 @@ const ProfileTab = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-            <Field label="Número da CNH" icon={FileText}>
+            <Field label={t.fieldLicenseNumber} icon={FileText}>
               <input type="text" value={form.driver_license} onChange={(e) => update("driver_license", e.target.value)} className={inputCls} />
             </Field>
-            <Field label="Validade" icon={Calendar}>
+            <Field label={t.fieldLicenseExpiry} icon={Calendar}>
               <input type="date" value={form.driver_license_expiry} onChange={(e) => update("driver_license_expiry", e.target.value)} className={inputCls} />
             </Field>
           </div>
