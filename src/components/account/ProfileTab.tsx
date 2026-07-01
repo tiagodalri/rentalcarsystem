@@ -116,7 +116,7 @@ const ProfileTab = () => {
   const handleFile = async (file: File | null) => {
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
-      toast({ title: "Arquivo muito grande", description: "Máximo 10MB", variant: "destructive" });
+      toast({ title: t.toastTooLarge, description: t.toastTooLargeDesc, variant: "destructive" });
       return;
     }
     setLicenseFile(file);
