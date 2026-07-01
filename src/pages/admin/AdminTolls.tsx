@@ -216,7 +216,58 @@ export default function AdminTolls() {
           ) : (
             <Card className="border-border/40">
               <CardContent className="p-0">
-                <div className="overflow-auto max-h-[700px]">
+                {/* Mobile list */}
+                <ul className="lg:hidden divide-y divide-border/40">
+                  {filtered.map((t) => (
+                    <li key={t.id} className="p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[11px] tabular-nums text-muted-foreground whitespace-nowrap">
+                              {new Date(t.toll_datetime).toLocaleString("pt-BR", { timeZone: "America/New_York", dateStyle: "short", timeStyle: "short" })}
+                            </span>
+                          </div>
+                          <div className="mt-1 text-sm font-medium truncate">{t.location}</div>
+                          {t.vehicles ? (
+                            <button onClick={() => navigate(`/admin/vehicles/${t.vehicles!.id}?tab=tolls`)} className="mt-1 text-left block max-w-full">
+                              <div className="text-xs font-medium truncate">{t.vehicles.name}</div>
+                              {t.vehicles.license_plate && <div className="text-[10px] text-muted-foreground">{t.vehicles.license_plate}</div>}
+                            </button>
+                          ) : (
+                            <Badge variant="outline" className="mt-1 text-[10px]">Transponder {t.transponder_number}</Badge>
+                          )}
+                          {t.booking_id && t.bookings ? (
+                            <button onClick={() => navigate(`/admin/bookings/${t.booking_id}`)} className="mt-1 text-left block">
+                              <div className="inline-flex items-center gap-1 text-primary text-xs font-medium">
+                                {t.bookings.booking_number || "reserva"} <ExternalLink className="h-3 w-3" />
+                              </div>
+                              <div className="text-[10px] text-muted-foreground truncate">{formatPersonName(t.bookings.customer_name)}</div>
+                            </button>
+                          ) : (
+                            <Badge variant="outline" className="mt-1 text-[10px]">Sem reserva</Badge>
+                          )}
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="tabular-nums font-semibold text-base">${Number(t.amount).toFixed(2)}</div>
+                          <div className="mt-1">
+                            {t.charged_to_customer ? (
+                              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-[11px]">
+                                <CheckCircle2 className="h-3 w-3" /> Cobrado
+                              </span>
+                            ) : t.booking_id ? (
+                              <span className="text-amber-600 dark:text-amber-400 text-[11px]">Pendente</span>
+                            ) : (
+                              <span className="text-muted-foreground text-[11px]">—</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Desktop table */}
+                <div className="hidden lg:block overflow-auto max-h-[700px]">
                   <table className="w-full text-xs">
                     <thead className="bg-muted/40 sticky top-0 z-10">
                       <tr className="text-left">
@@ -278,6 +329,7 @@ export default function AdminTolls() {
               </CardContent>
             </Card>
           )}
+
         </TabsContent>
       </Tabs>
     </div>
