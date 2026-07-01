@@ -169,23 +169,23 @@ export default function AdminCosts() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="admin-h1 text-2xl flex items-center gap-2">
-            <Wallet className="h-5 w-5 text-primary" /> Central de Custos
+    <div className="space-y-5 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-start sm:justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="admin-h1 text-xl sm:text-2xl flex items-center gap-2">
+            <Wallet className="h-5 w-5 text-primary shrink-0" /> Central de Custos
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Registre todo custo por veículo — manutenção, combustível, lavagem, peças e mais. Atrele à reserva quando fizer sentido.
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Registre todo custo por veículo — manutenção, combustível, lavagem, peças e mais.
           </p>
         </div>
-        <Button onClick={() => setOpenForm(true)}>
+        <Button onClick={() => setOpenForm(true)} className="w-full sm:w-auto h-11 sm:h-9">
           <Plus className="h-4 w-4 mr-1.5" /> Novo custo
         </Button>
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <KpiCard label="Total (filtro)" value={`$${kpis.total.toFixed(2)}`} hint={`${kpis.count} lançamentos`} />
         <KpiCard
           label="Maior categoria"
@@ -205,46 +205,47 @@ export default function AdminCosts() {
       </div>
 
       {/* Filtros */}
-      <div className="flex flex-wrap gap-3 items-center justify-between">
-        <div className="flex flex-wrap gap-2 items-center">
-          <div className="relative">
+      <div className="flex flex-col lg:flex-row lg:flex-wrap gap-2 lg:gap-3 lg:items-center lg:justify-between">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-2 lg:items-center">
+          <div className="relative sm:col-span-2 lg:col-auto">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar fornecedor, descrição, veículo..." className="h-9 w-72 pl-8 text-xs" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar fornecedor, descrição, veículo..." className="h-10 lg:h-9 w-full lg:w-72 pl-8 text-sm lg:text-xs" />
           </div>
           <Select value={month} onValueChange={setMonth}>
-            <SelectTrigger className="h-9 w-[180px] text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="h-10 lg:h-9 w-full lg:w-[180px] text-sm lg:text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os meses</SelectItem>
               {months.map((k) => <SelectItem key={k} value={k}>{monthLabel(k)}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={vehicleFilter} onValueChange={setVehicleFilter}>
-            <SelectTrigger className="h-9 w-[220px] text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="h-10 lg:h-9 w-full lg:w-[220px] text-sm lg:text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os veículos</SelectItem>
               {vehicles.map(([id, name]) => <SelectItem key={id} value={id}>{name}</SelectItem>)}
             </SelectContent>
           </Select>
           <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="h-9 w-[180px] text-xs"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="h-10 lg:h-9 w-full lg:w-[180px] text-sm lg:text-xs"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os tipos</SelectItem>
               {Object.entries(TYPE_LABEL).map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
-        <Button size="sm" variant="outline" onClick={exportCsv}>
+        <Button size="sm" variant="outline" onClick={exportCsv} className="h-10 lg:h-9 w-full lg:w-auto">
           <Download className="h-3.5 w-3.5 mr-1.5" /> Exportar CSV
         </Button>
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
-        <TabsList>
-          <TabsTrigger value="all">Todos</TabsTrigger>
-          <TabsTrigger value="draft">Rascunhos IA</TabsTrigger>
-          <TabsTrigger value="with_booking">Com reserva</TabsTrigger>
-          <TabsTrigger value="general">Custos gerais</TabsTrigger>
+        <TabsList className="w-full lg:w-auto flex overflow-x-auto no-scrollbar">
+          <TabsTrigger value="all" className="flex-1 lg:flex-none">Todos</TabsTrigger>
+          <TabsTrigger value="draft" className="flex-1 lg:flex-none">Rascunhos IA</TabsTrigger>
+          <TabsTrigger value="with_booking" className="flex-1 lg:flex-none whitespace-nowrap">Com reserva</TabsTrigger>
+          <TabsTrigger value="general" className="flex-1 lg:flex-none whitespace-nowrap">Custos gerais</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value={tab} className="mt-4">
           {loading ? (
