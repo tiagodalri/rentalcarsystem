@@ -30,7 +30,9 @@ const PAYMENT_METHODS = [
   { value: "credit_card", label: "Cartão de crédito" },
   { value: "debit_card", label: "Cartão de débito" },
   { value: "cash", label: "Dinheiro" },
+  { value: "zelle", label: "Zelle" },
   { value: "pix", label: "PIX" },
+  { value: "bank_transfer", label: "Transferência bancária" },
   { value: "other", label: "Outro" },
 ];
 
@@ -236,15 +238,7 @@ export function ExpenseFormSheet({ open, onOpenChange, onSaved, defaultVehicleId
             )}
           </TabsContent>
 
-          <TabsContent value="manual" className="mt-4 space-y-2">
-            <Label className="text-xs text-muted-foreground">Comprovante / Nota (opcional)</Label>
-            <ReceiptPicker
-              receiptFile={receiptFile}
-              receiptPreview={receiptPreview}
-              onFilePicked={onFilePicked}
-              onClear={() => { setReceiptFile(null); setReceiptPreview(null); }}
-            />
-          </TabsContent>
+          <TabsContent value="manual" className="mt-0" />
         </Tabs>
 
         <div className="mt-5 space-y-3">
@@ -314,6 +308,15 @@ export function ExpenseFormSheet({ open, onOpenChange, onSaved, defaultVehicleId
 
           <Field label="Observações internas">
             <Textarea rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Notas internas para a equipe" />
+          </Field>
+
+          <Field label="Comprovante / Nota (opcional)">
+            <ReceiptPicker
+              receiptFile={receiptFile}
+              receiptPreview={receiptPreview}
+              onFilePicked={onFilePicked}
+              onClear={() => { setReceiptFile(null); setReceiptPreview(null); }}
+            />
           </Field>
         </div>
 
