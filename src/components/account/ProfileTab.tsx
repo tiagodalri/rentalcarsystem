@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import { clearFormDraft, useFormDraft } from "@/hooks/useFormDraft";
+import { useAccountT } from "@/i18n/accountTranslations";
 
 interface ProfileForm {
   full_name: string;
