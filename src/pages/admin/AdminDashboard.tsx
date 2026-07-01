@@ -3,6 +3,7 @@ import { parseDateOnly } from "@/lib/dateOnly";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
+import { KpiCard } from "@/components/admin/KpiCard";
 import {
   Car, Users, DollarSign, TrendingUp, Clock,
   CheckCircle2, Wrench, Gauge, Calculator,
@@ -134,21 +135,19 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
   const renderCardGrid = (cards: StatCard[], cols = "grid-cols-2 lg:grid-cols-4") => (
     <div className={`grid ${cols} gap-4`}>
       {cards.map((card) => (
-        <Card
+        <button
           key={card.label}
           onClick={card.onClick}
-          className="bg-card/80 border-border/30 hover:border-primary/30 hover:bg-card/95 transition-all duration-200 cursor-pointer"
+          className="text-left"
         >
-          <CardContent className="p-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <p className="admin-label leading-tight">{card.label}</p>
-              <card.icon className={`h-3.5 w-3.5 ${card.color} opacity-60`} strokeWidth={1.75} />
-            </div>
-            <p className={`admin-kpi ${card.color}`}>
-              {card.value}
-            </p>
-          </CardContent>
-        </Card>
+          <KpiCard
+            label={card.label}
+            value={card.value}
+            icon={card.icon}
+            valueClassName={card.color}
+            className="bg-card/80 border-border/30 hover:border-primary/30 hover:bg-card/95 transition-all duration-200 cursor-pointer"
+          />
+        </button>
       ))}
     </div>
   );

@@ -482,21 +482,21 @@ function KpiCard({
   valueColor: string; sub: string; waveColor: string;
 }) {
   return (
-    <div className="relative rounded-xl border border-border/40 bg-card/80 p-2.5 overflow-hidden">
-      <div className="flex items-center gap-2.5 relative z-10">
+    <div className="relative flex min-h-[118px] flex-col items-center justify-center overflow-hidden rounded-xl border border-border/40 bg-card/80 px-3 py-4 text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center gap-2">
         <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${iconBg}`}>
           {icon}
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-[9px] uppercase tracking-[0.14em] font-medium text-muted-foreground">
+        <div className="min-w-0">
+          <p className="text-[9px] uppercase tracking-[0.14em] font-medium text-muted-foreground leading-[1.15]">
             {label}
           </p>
-          <p className={`text-xl font-medium tabular-nums leading-none mt-0.5 ${valueColor}`}>
+          <p className={`mt-1 text-xl font-medium tabular-nums leading-[1.05] ${valueColor}`}>
             {value}
           </p>
         </div>
       </div>
-      <p className="text-[9px] text-muted-foreground mt-1 relative z-10">{sub}</p>
+      <p className="text-[9px] text-muted-foreground mt-1.5 relative z-10 leading-[1.2]">{sub}</p>
       {/* decorative wave */}
       <svg
         className={`absolute -right-2 -bottom-1 ${waveColor}`}

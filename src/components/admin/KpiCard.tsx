@@ -33,29 +33,29 @@ export function KpiCard({
   compact = false,
 }: KpiCardProps) {
   return (
-    <Card className={cn("border-border/40", className)}>
+    <Card className={cn("border-border/40 h-full", className)}>
       <div
         className={cn(
-          "flex flex-col items-center justify-center text-center gap-2",
-          compact ? "min-h-[112px] px-3 py-4" : "min-h-[128px] px-4 py-5",
+          "flex h-full flex-col items-center justify-center text-center",
+          compact ? "min-h-[112px] gap-1.5 px-3 py-4" : "min-h-[128px] gap-2 px-4 py-5",
         )}
       >
-        <div className="flex items-center justify-center gap-1.5 leading-none">
+        <div className="flex min-h-[16px] items-center justify-center gap-1.5 leading-[1.15]">
           {Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.75} />}
-          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider leading-none">
+          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider leading-[1.15]">
             {label}
           </p>
         </div>
         <p
           className={cn(
-            "admin-kpi tabular-nums leading-none",
+            "admin-kpi tabular-nums leading-[1.05]",
             compact ? "text-xl" : "text-2xl",
             valueClassName,
           )}
         >
           {value}
         </p>
-        <p className="text-[11px] text-muted-foreground leading-none min-h-[12px]">
+        <p className="min-h-[14px] text-[11px] text-muted-foreground leading-[1.2]">
           {hint ?? "\u00A0"}
         </p>
       </div>

@@ -11,6 +11,7 @@ import {
   Calendar, MapPin, User, Car, Loader2, ExternalLink, ArrowRight,
   TrendingUp, TrendingDown, Minus, Sparkles, Hash, Phone, Mail,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import zeusLogo from "@/assets/zeus-logo-hd.png";
 import { SignedImage } from "@/components/admin/SignedImage";
 import { normalizeDamageText } from "@/lib/damageTextNormalizer";
@@ -209,13 +210,18 @@ export default function AdminInspectionReport() {
   // ============================================================
   // Helpers
   // ============================================================
-  const SectionHeader = ({ icon: Icon, title, kicker, action }: { icon: any; title: string; kicker?: string; action?: React.ReactNode }) => (
-    <div className="flex items-end justify-between gap-3 mb-4 pb-3 border-b border-border/40">
-      <div>
-        {kicker && <p className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground mb-1">{kicker}</p>}
-        <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-          <Icon size={16} className="text-primary" /> {title}
-        </h3>
+  const SectionHeader = ({ icon: Icon, title, kicker, action }: { icon: LucideIcon; title: string; kicker?: string; action?: React.ReactNode }) => (
+    <div className="mb-4 flex min-h-[88px] items-center justify-between gap-3 border-b border-border/40 py-3">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted/40 text-primary">
+          <Icon size={18} strokeWidth={1.8} />
+        </div>
+        <div className="min-w-0 space-y-1">
+          {kicker && <p className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground leading-[1.15]">{kicker}</p>}
+          <h3 className="text-base font-medium text-foreground leading-[1.2]">
+            {title}
+          </h3>
+        </div>
       </div>
       {action}
     </div>
@@ -796,9 +802,9 @@ export default function AdminInspectionReport() {
               { label: "Franquia", value: fmtMoney(Number(booking.franchise_amount || 0)) },
               { label: "Pagamento", value: (booking.payment_status || "—").toUpperCase(), highlight: booking.payment_status === "paid" },
             ].map((kpi) => (
-              <div key={kpi.label} className="rounded-lg border border-border/30 bg-muted/20 p-3">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">{kpi.label}</p>
-                <p className={`text-sm font-medium tabular-nums ${kpi.highlight ? "text-emerald-700" : "text-foreground"}`}>{kpi.value}</p>
+              <div key={kpi.label} className="flex min-h-[82px] flex-col items-center justify-center rounded-lg border border-border/30 bg-muted/20 px-3 py-3 text-center">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium leading-[1.15]">{kpi.label}</p>
+                <p className={`mt-1.5 text-sm font-medium tabular-nums leading-[1.2] ${kpi.highlight ? "text-emerald-700" : "text-foreground"}`}>{kpi.value}</p>
               </div>
             ))}
           </div>

@@ -249,29 +249,29 @@ export default function AdminLogs() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="admin-card">
-          <CardContent className="p-4 flex items-center gap-3">
+          <CardContent className="flex min-h-[112px] items-center justify-center gap-3 p-4 text-center">
             <Activity className="h-5 w-5 text-primary" />
-            <div>
-              <div className="admin-kpi">{logs.length}</div>
-              <div className="admin-label">Eventos recentes</div>
+            <div className="flex flex-col items-center justify-center gap-1">
+              <div className="admin-kpi leading-[1.05]">{logs.length}</div>
+              <div className="admin-label leading-[1.15]">Eventos recentes</div>
             </div>
           </CardContent>
         </Card>
         <Card className="admin-card">
-          <CardContent className="p-4 flex items-center gap-3">
+          <CardContent className="flex min-h-[112px] items-center justify-center gap-3 p-4 text-center">
             <Users className="h-5 w-5 text-primary" />
-            <div>
-              <div className="admin-kpi">{users.length}</div>
-              <div className="admin-label">Usuários ativos</div>
+            <div className="flex flex-col items-center justify-center gap-1">
+              <div className="admin-kpi leading-[1.05]">{users.length}</div>
+              <div className="admin-label leading-[1.15]">Usuários ativos</div>
             </div>
           </CardContent>
         </Card>
         <Card className="admin-card">
-          <CardContent className="p-4 flex items-center gap-3">
+          <CardContent className="flex min-h-[112px] items-center justify-center gap-3 p-4 text-center">
             <MonitorSmartphone className="h-5 w-5 text-primary" />
-            <div>
-              <div className="admin-kpi">{sessions.length}</div>
-              <div className="admin-label">Sessões</div>
+            <div className="flex flex-col items-center justify-center gap-1">
+              <div className="admin-kpi leading-[1.05]">{sessions.length}</div>
+              <div className="admin-label leading-[1.15]">Sessões</div>
             </div>
           </CardContent>
         </Card>
