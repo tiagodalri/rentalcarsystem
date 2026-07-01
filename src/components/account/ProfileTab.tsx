@@ -377,7 +377,7 @@ const ProfileTab = () => {
         <div className="sticky bottom-3 z-10">
           <div className="rounded-xl border border-border bg-card/95 backdrop-blur p-3 flex items-center justify-between gap-3 shadow-lg">
             <p className="text-xs text-muted-foreground">
-              {dirty ? "Há alterações não salvas." : "Tudo certo, nenhuma alteração pendente."}
+              {dirty ? t.unsaved : t.allSaved}
             </p>
             <button
               type="button"
@@ -386,7 +386,7 @@ const ProfileTab = () => {
               className="h-9 px-4 rounded-md gold-gradient text-primary-foreground text-xs font-bold uppercase tracking-wider flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
             >
               {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-              {saving ? "Salvando..." : "Salvar alterações"}
+              {saving ? t.saving : t.save}
             </button>
           </div>
         </div>
