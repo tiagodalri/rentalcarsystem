@@ -497,6 +497,7 @@ export async function parseEpassPdf(file: File): Promise<EpassParseResult> {
     period_label,
     account: [],
     tolls,
+    transponder_hints: {},
     errors,
   };
 }
@@ -506,6 +507,7 @@ export function mergeEpassResults(results: EpassParseResult[]): EpassParseResult
   const tolls: EpassTollRow[] = [];
   const account: EpassAccountRow[] = [];
   const errors: { line: number; reason: string }[] = [];
+  const transponder_hints: Record<string, TransponderHint> = {};
   for (const r of results) {
     for (const t of r.tolls) {
       if (seen.has(t.dedupe_hash)) continue;
@@ -514,6 +516,9 @@ export function mergeEpassResults(results: EpassParseResult[]): EpassParseResult
     }
     account.push(...r.account);
     errors.push(...r.errors);
+    for (const [tr, hint] of Object.entries(r.transponder_hints || {})) {
+      transponder_hints[tr] = mergeHint(transponder_hints[tr], hint);
+    }
   }
   return {
     filename: results.map((r) => r.filename).join(", "),
@@ -521,6 +526,7 @@ export function mergeEpassResults(results: EpassParseResult[]): EpassParseResult
     period_label: results.find((r) => r.period_label)?.period_label || null,
     account,
     tolls,
+    transponder_hints,
     errors,
   };
 }
