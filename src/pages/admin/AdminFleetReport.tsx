@@ -17,6 +17,7 @@ import {
   ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart, CalendarRange, X
 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
+import DonutChart from "@/components/admin/DonutChart";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { aggregateAddons, calcVehicleOccupancyPct } from "@/lib/fleetMetrics";
