@@ -22,7 +22,7 @@ interface Props {
   height?: number;
 }
 
-const RADIAN = Math.PI / 180;
+
 
 const renderActiveShape = (props: any) => {
   const {
