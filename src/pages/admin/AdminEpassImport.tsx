@@ -31,11 +31,11 @@ export default function AdminEpassImport() {
     return () => { document.title = prev; };
   }, []);
 
-  const handleAnalyze = async () => {
-    if (files.length === 0) return;
+  const analyzeFiles = async (targetFiles: File[]) => {
+    if (targetFiles.length === 0) return;
     setParsing(true);
     try {
-      const results: EpassParseResult[] = await Promise.all(files.map((f) => extractEpassFromFile(f)));
+      const results: EpassParseResult[] = await Promise.all(targetFiles.map((f) => extractEpassFromFile(f)));
       const merged = mergeEpassResults(results);
       const matched = await assignTolls(merged.tolls);
       setParsed(merged);
@@ -46,6 +46,16 @@ export default function AdminEpassImport() {
     } finally {
       setParsing(false);
     }
+  };
+
+  const handleAnalyze = async () => {
+    await analyzeFiles(files);
+  };
+
+  const handleFiles = (arr: File[]) => {
+    const next = [...files, ...arr];
+    setFiles(next);
+    void analyzeFiles(next);
   };
 
   const handleApply = async () => {
@@ -79,9 +89,8 @@ export default function AdminEpassImport() {
           <h1 className="text-2xl font-semibold tracking-tight">Sincronizar E-Pass</h1>
           <p className="text-sm text-muted-foreground">
             Aceita CSV, PDF, TXT, TSV, Excel (XLS/XLSX/ODS), HTML, JSON e até prints/fotos do extrato.
-            O sistema usa parsing local quando o formato é conhecido e cai num OCR/IA de alta qualidade
-            (Gemini multimodal) quando não é — sempre atrelando cada pedágio ao veículo e à reserva ativa
-            no horário, com prévia antes de gravar.
+            CSV, TXT e PDF nativo são lidos localmente para resposta imediata; OCR/IA entra somente quando
+            o arquivo é escaneado ou não tem texto estruturado.
           </p>
         </div>
       </div>
@@ -104,7 +113,7 @@ export default function AdminEpassImport() {
         <div className="space-y-4">
           <div className="bg-card border border-border/60 rounded-xl p-4 lg:p-6">
             <h2 className="text-sm font-semibold mb-3">1. Selecione os arquivos do portal E-Pass (qualquer formato)</h2>
-            <EpassDropzone files={files} onFiles={(arr) => setFiles((p) => [...p, ...arr])} onRemove={(i) => setFiles((p) => p.filter((_, idx) => idx !== i))} disabled={parsing} />
+            <EpassDropzone files={files} onFiles={handleFiles} onRemove={(i) => setFiles((p) => p.filter((_, idx) => idx !== i))} disabled={parsing} />
             <div className="mt-3 text-[11px] text-muted-foreground leading-relaxed">
               O numero do transponder no CSV (coluna "Transponder Number") e cruzado com o campo
               <span className="font-medium text-foreground"> E-Pass</span> de cada veiculo da frota.
@@ -114,7 +123,7 @@ export default function AdminEpassImport() {
           <div className="flex justify-end">
             <Button onClick={handleAnalyze} disabled={files.length === 0 || parsing} className="gap-2">
               {parsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-              {parsing ? "Analisando..." : "Analisar e atribuir"}
+              {parsing ? "Analisando..." : parsed ? "Analisar novamente" : "Analisar e atribuir"}
             </Button>
           </div>
         </div>
