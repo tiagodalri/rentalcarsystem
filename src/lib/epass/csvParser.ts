@@ -288,7 +288,7 @@ export async function parseEpassCsv(file: File): Promise<EpassParseResult> {
       const date = parseEpassDate(cells[1]);
       const posting = parseEpassDate(cells[2]);
       const amt = parseAmount(cells[5]);
-      if (!date || isNaN(amt)) { errors.push({ line: i + 1, reason: "Data ou valor invalido" }); continue; }
+      if (!date || amt === null) { errors.push({ line: i + 1, reason: "Data ou valor invalido" }); continue; }
       accountNumber = accountNumber || acc;
       account.push({
         account_number: acc,
@@ -356,9 +356,9 @@ export async function parseEpassPdf(file: File): Promise<EpassParseResult> {
     const amt = typeof t?.amount === "number" ? t.amount : parseFloat(String(t?.amount ?? ""));
     const location = String(t?.location || "").trim();
     if (!transponder || !/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(amt)) {
-        errors.push({ line: i + 1, reason: "Linha invalida" });
-        continue;
-      }
+      errors.push({ line: i + 1, reason: "Linha invalida" });
+      continue;
+    }
     tolls.push(buildTollRow(
       transponder,
       date,
