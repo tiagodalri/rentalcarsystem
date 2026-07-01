@@ -142,7 +142,7 @@ export default function AdminLogs() {
   const load = async () => {
     setRefreshing(true);
     const [{ data: act }, { data: aud }, { data: insp }] = await Promise.all([
-      supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(500),
+      supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(5000),
       supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(500),
       supabase
         .from("vehicle_inspections")
