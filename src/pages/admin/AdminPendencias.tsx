@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, ChevronRight, FileWarning, Loader2, CheckCircle2 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { KpiCard } from "@/components/admin/KpiCard";
+import { AdminKpiGrid } from "@/components/admin/layout/AdminPage";
 
 type Vehicle = {
   id: string;
@@ -112,11 +113,11 @@ export default function AdminPendencias() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <AdminKpiGrid cols={3}>
         <KpiCard label="Total de pendências" value={totalPendencias} />
         <KpiCard label="Veículos com pendências" value={byVehicle.length} />
         <KpiCard label="Veículos completos" value={vehicles.length - byVehicle.length} />
-      </div>
+      </AdminKpiGrid>
 
 
       {byField.length === 0 ? (
