@@ -30,7 +30,9 @@ const PAYMENT_METHODS = [
   { value: "credit_card", label: "Cartão de crédito" },
   { value: "debit_card", label: "Cartão de débito" },
   { value: "cash", label: "Dinheiro" },
+  { value: "zelle", label: "Zelle" },
   { value: "pix", label: "PIX" },
+  { value: "bank_transfer", label: "Transferência bancária" },
   { value: "other", label: "Outro" },
 ];
 
