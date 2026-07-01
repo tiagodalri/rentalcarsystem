@@ -2,6 +2,7 @@ import { LogOut } from "lucide-react";
 import { AuthUser } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useAccountT } from "@/i18n/accountTranslations";
 
 interface ClientHeaderProps {
   user: AuthUser;
@@ -9,6 +10,7 @@ interface ClientHeaderProps {
 }
 
 const ClientHeader = ({ user, onLogout }: ClientHeaderProps) => {
+  const { t } = useAccountT();
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
@@ -28,11 +30,11 @@ const ClientHeader = ({ user, onLogout }: ClientHeaderProps) => {
       </div>
       <div className="flex-1 text-center sm:text-left">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-          Olá, {user.name.split(" ")[0]}!
+          {t.greeting(user.name.split(" ")[0])}
         </h1>
         <p className="text-muted-foreground text-sm mt-1">{user.email}</p>
         <p className="text-muted-foreground/70 text-xs mt-1">
-          Aqui você acompanha todas as suas reservas com a Zeus Rental Car
+          {t.subtitle}
         </p>
       </div>
       <div className="flex items-center gap-4 shrink-0">
@@ -42,7 +44,7 @@ const ClientHeader = ({ user, onLogout }: ClientHeaderProps) => {
           className="flex items-center gap-2 text-xs text-muted-foreground hover:text-destructive transition-colors uppercase tracking-wider"
         >
           <LogOut size={14} />
-          Sair
+          {t.logout}
         </button>
       </div>
     </motion.div>

@@ -14,11 +14,7 @@ import ClientHeader from "@/components/client/ClientHeader";
 import BookingCard from "@/components/client/BookingCard";
 import { AccountSkeleton } from "@/components/skeletons/AccountSkeleton";
 import { EmptyState } from "@/components/admin/EmptyState";
-
-const formatShortDate = (iso: string) => {
-  const d = new Date(iso);
-  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
-};
+import { useAccountT } from "@/i18n/accountTranslations";
 
 const MyAccount = () => {
   const { user, customer, loading: authLoading, signOut } = useAuth();
@@ -27,6 +23,7 @@ const MyAccount = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const outerTab = searchParams.get("tab") === "perfil" ? "perfil" : "reservas";
   const [tab, setTab] = useState("all");
+  const { t, formatDate } = useAccountT();
 
   const loading = authLoading || bookingsLoading;
 
@@ -62,18 +59,18 @@ const MyAccount = () => {
   const profileIncomplete = !customer || !customer.phone || !customer.document_number;
 
   const stats = [
-    { icon: Car, label: "Total de reservas", value: allBookings.length.toString() },
-    { icon: CheckCircle, label: "Concluídas", value: completedCount.toString() },
+    { icon: Car, label: t.statTotal, value: allBookings.length.toString() },
+    { icon: CheckCircle, label: t.statCompleted, value: completedCount.toString() },
     {
       icon: Clock,
-      label: "Ativa agora",
+      label: t.statActive,
       value: activeBooking ? "1" : "0",
       pulse: !!activeBooking,
     },
     {
       icon: CalendarDays,
-      label: "Próxima reserva",
-      value: nextFuture ? formatShortDate(nextFuture.pickupDate) : "Nenhuma",
+      label: t.statNext,
+      value: nextFuture ? formatDate(nextFuture.pickupDate) : t.none,
     },
   ];
 
@@ -87,16 +84,16 @@ const MyAccount = () => {
         {profileIncomplete && (
           <div className="mt-6 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="flex-1">
-              <p className="text-sm font-semibold text-amber-500">Complete seu cadastro</p>
+              <p className="text-sm font-semibold text-amber-500">{t.completeProfileTitle}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Para reservar veículos, precisamos de telefone, documento e endereço.
+                {t.completeProfileDesc}
               </p>
             </div>
             <button
               onClick={() => setSearchParams({ tab: "perfil" })}
               className="text-xs font-bold uppercase tracking-wider gold-gradient text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
             >
-              Completar agora
+              {t.completeNow}
             </button>
           </div>
         )}
@@ -109,10 +106,10 @@ const MyAccount = () => {
         >
           <TabsList className="bg-muted/50 w-full grid grid-cols-2 h-auto p-1">
             <TabsTrigger value="reservas" className="text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <CalendarRange size={13} /> Reservas
+              <CalendarRange size={13} /> {t.tabReservations}
             </TabsTrigger>
             <TabsTrigger value="perfil" className="text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <UserCog size={13} /> Perfil
+              <UserCog size={13} /> {t.tabProfile}
             </TabsTrigger>
           </TabsList>
 
@@ -127,9 +124,9 @@ const MyAccount = () => {
           <div className="mt-16">
             <EmptyState
               icon={CalendarX}
-              title="Você ainda não tem reservas"
-              description="Quando fizer uma reserva, ela aparece aqui."
-              actionLabel="Ver veículos disponíveis"
+              title={t.emptyTitle}
+              description={t.emptyDesc}
+              actionLabel={t.emptyCta}
               onAction={() => navigate("/")}
             />
           </div>
@@ -164,7 +161,7 @@ const MyAccount = () => {
             {activeBooking && (
               <div className="mt-8">
                 <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                  Reserva em andamento
+                  {t.sectionActive}
                 </h2>
                 <BookingCard booking={activeBooking} index={0} featured />
               </div>
@@ -174,16 +171,16 @@ const MyAccount = () => {
             <div className="mt-10">
               <Tabs value={tab} onValueChange={setTab}>
                 <TabsList className="bg-muted/50 mb-4 w-full grid grid-cols-4 h-auto p-1">
-                  <TabsTrigger value="all" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">Todas</TabsTrigger>
-                  <TabsTrigger value="active" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">Ativas</TabsTrigger>
-                  <TabsTrigger value="future" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">Futuras</TabsTrigger>
-                  <TabsTrigger value="completed" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">Concluídas</TabsTrigger>
+                  <TabsTrigger value="all" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">{t.filterAll}</TabsTrigger>
+                  <TabsTrigger value="active" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">{t.filterActive}</TabsTrigger>
+                  <TabsTrigger value="future" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">{t.filterFuture}</TabsTrigger>
+                  <TabsTrigger value="completed" className="text-[10px] sm:text-xs uppercase tracking-wider px-1.5 sm:px-3">{t.filterCompleted}</TabsTrigger>
                 </TabsList>
                 <TabsContent value={tab}>
                   <div className="space-y-3">
                     {sorted.length === 0 ? (
                       <p className="text-muted-foreground text-sm text-center py-8">
-                        Nenhuma reserva encontrada nesta categoria.
+                        {t.noResults}
                       </p>
                     ) : (
                       sorted.map((booking, i) => (

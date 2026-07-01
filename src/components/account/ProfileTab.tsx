@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
 import { clearFormDraft, useFormDraft } from "@/hooks/useFormDraft";
+import { useAccountT } from "@/i18n/accountTranslations";
 
 interface ProfileForm {
   full_name: string;
@@ -29,6 +30,7 @@ interface ProfileForm {
 const isHttpUrl = (s: string | null | undefined) => !!s && /^https?:\/\//i.test(s);
 
 const ProfileTab = () => {
+  const { t } = useAccountT();
   const { customer, rawUser, refreshCustomer } = useAuth() as any;
   const [form, setForm] = useState<ProfileForm>({
     full_name: "", phone: "", nationality: "", date_of_birth: "",
@@ -114,7 +116,7 @@ const ProfileTab = () => {
   const handleFile = async (file: File | null) => {
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
-      toast({ title: "Arquivo muito grande", description: "Máximo 10MB", variant: "destructive" });
+      toast({ title: t.toastTooLarge, description: t.toastTooLargeDesc, variant: "destructive" });
       return;
     }
     setLicenseFile(file);
@@ -125,7 +127,7 @@ const ProfileTab = () => {
   const applyOcr = (values: Partial<Record<keyof OcrFields, string>>) => {
     setForm((prev) => ({ ...prev, ...values } as any));
     resetOcr();
-    toast({ title: "Dados aplicados", description: "Confira e clique em salvar." });
+    toast({ title: t.ocrApplied, description: t.ocrAppliedDesc });
   };
 
   const dirty = useMemo(() => {
@@ -137,10 +139,10 @@ const ProfileTab = () => {
   const cnhStatus = useMemo(() => {
     const hasFile = !!customer?.driver_license_file_url;
     const verified = !!customer?.driver_license_verified_at;
-    if (verified) return { label: "CNH verificada", icon: BadgeCheck, color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30" };
-    if (hasFile) return { label: "Aguardando verificação", icon: Clock, color: "text-amber-600 bg-amber-500/10 border-amber-500/30" };
-    return { label: "CNH não enviada", icon: AlertCircle, color: "text-muted-foreground bg-muted/40 border-border" };
-  }, [customer]);
+    if (verified) return { label: t.cnhVerified, icon: BadgeCheck, color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30" };
+    if (hasFile) return { label: t.cnhWaiting, icon: Clock, color: "text-amber-600 bg-amber-500/10 border-amber-500/30" };
+    return { label: t.cnhMissing, icon: AlertCircle, color: "text-muted-foreground bg-muted/40 border-border" };
+  }, [customer, t]);
 
   const handleSave = async () => {
     if (!rawUser || !customer) return;
@@ -183,14 +185,14 @@ const ProfileTab = () => {
         .eq("user_id", rawUser.id);
       if (error) throw error;
 
-      toast({ title: "Perfil atualizado", description: "Seus dados foram salvos com sucesso." });
+      toast({ title: t.toastSaved, description: t.toastSavedDesc });
       setInitial(form);
       clearFormDraft(profileDraftKey);
       setLicenseFile(null);
       await refreshCustomer?.();
     } catch (err: any) {
       console.error(err);
-      toast({ title: "Erro ao salvar", description: err.message || "Tente novamente.", variant: "destructive" });
+      toast({ title: t.toastError, description: err.message || t.toastErrorDesc, variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -204,31 +206,31 @@ const ProfileTab = () => {
         {/* SEÇÃO: DADOS PESSOAIS */}
         <section className="rounded-xl border border-border bg-card p-5">
           <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-foreground mb-4 flex items-center gap-2">
-            <User size={14} className="text-primary" /> Dados Pessoais
+            <User size={14} className="text-primary" /> {t.personalTitle}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Nome completo" icon={User}>
+            <Field label={t.fieldFullName} icon={User}>
               <input type="text" value={form.full_name} onChange={(e) => update("full_name", e.target.value)} className={inputCls} />
             </Field>
-            <Field label="E-mail" icon={Mail} locked tooltip="Para alterar o e-mail, contate o suporte.">
+            <Field label={t.fieldEmail} icon={Mail} locked tooltip={t.emailLockedTip}>
               <input type="email" value={customer?.email || ""} disabled className={inputCls + " opacity-60 cursor-not-allowed"} />
             </Field>
-            <Field label="Celular / WhatsApp" icon={Phone}>
+            <Field label={t.fieldPhone} icon={Phone}>
               <PhoneInput value={form.phone} onChange={(v) => update("phone", v)} inputClassName="h-9 px-2.5 text-sm" />
             </Field>
-            <Field label="Documento (CPF / Passport / ID)" icon={FileText}>
+            <Field label={t.fieldDocument} icon={FileText}>
               <input
                 type="text"
                 value={form.document_number}
                 onChange={(e) => update("document_number", e.target.value)}
                 className={inputCls}
-                placeholder="CPF, Passport ou ID/SSN"
+                placeholder={t.fieldDocumentPh}
               />
             </Field>
-            <Field label="Nacionalidade" icon={Globe}>
-              <input type="text" value={form.nationality} onChange={(e) => update("nationality", e.target.value)} className={inputCls} placeholder="Brasileira" />
+            <Field label={t.fieldNationality} icon={Globe}>
+              <input type="text" value={form.nationality} onChange={(e) => update("nationality", e.target.value)} className={inputCls} placeholder={t.fieldNationalityPh} />
             </Field>
-            <Field label="Data de nascimento" icon={Calendar}>
+            <Field label={t.fieldBirth} icon={Calendar}>
               <input type="date" value={form.date_of_birth} onChange={(e) => update("date_of_birth", e.target.value)} className={inputCls} />
             </Field>
           </div>
@@ -237,32 +239,32 @@ const ProfileTab = () => {
         {/* SEÇÃO: ENDEREÇO */}
         <section className="rounded-xl border border-border bg-card p-5">
           <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-foreground mb-4 flex items-center gap-2">
-            <MapPin size={14} className="text-primary" /> Endereço
+            <MapPin size={14} className="text-primary" /> {t.addressTitle}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="CEP / Zip code" icon={MapPin}>
+            <Field label={t.fieldZip} icon={MapPin}>
               <div className="relative">
                 <input
                   type="text"
                   value={form.zip_code}
                   onChange={(e) => { update("zip_code", e.target.value); lookupCep(e.target.value); }}
                   className={inputCls}
-                  placeholder="00000-000"
+                  placeholder={t.fieldZipPh}
                 />
                 {cepLoading && <Loader2 size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-primary animate-spin" />}
               </div>
             </Field>
-            <Field label="Número" icon={MapPin}>
+            <Field label={t.fieldNumber} icon={MapPin}>
               <input type="text" value={form.house_number} onChange={(e) => update("house_number", e.target.value)} className={inputCls} />
             </Field>
             <div className="sm:col-span-2">
-              <Field label="Rua / Logradouro" icon={MapPin}>
+              <Field label={t.fieldStreet} icon={MapPin}>
                 <input type="text" value={form.address} onChange={(e) => update("address", e.target.value)} className={inputCls} />
               </Field>
             </div>
             <div className="sm:col-span-2">
-              <Field label="Complemento" icon={MapPin}>
-                <input type="text" value={form.complement} onChange={(e) => update("complement", e.target.value)} className={inputCls} placeholder="Apto, bloco, sala..." />
+              <Field label={t.fieldComplement} icon={MapPin}>
+                <input type="text" value={form.complement} onChange={(e) => update("complement", e.target.value)} className={inputCls} placeholder={t.fieldComplementPh} />
               </Field>
             </div>
           </div>
@@ -272,7 +274,7 @@ const ProfileTab = () => {
         <section className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
             <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-foreground flex items-center gap-2">
-              <FileText size={14} className="text-primary" /> Habilitação (CNH)
+              <FileText size={14} className="text-primary" /> {t.cnhTitle}
             </h3>
             <span className={`inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border ${cnhStatus.color}`}>
               <StatusIcon size={11} />
@@ -281,10 +283,10 @@ const ProfileTab = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-            <Field label="Número da CNH" icon={FileText}>
+            <Field label={t.fieldLicenseNumber} icon={FileText}>
               <input type="text" value={form.driver_license} onChange={(e) => update("driver_license", e.target.value)} className={inputCls} />
             </Field>
-            <Field label="Validade" icon={Calendar}>
+            <Field label={t.fieldLicenseExpiry} icon={Calendar}>
               <input type="date" value={form.driver_license_expiry} onChange={(e) => update("driver_license_expiry", e.target.value)} className={inputCls} />
             </Field>
           </div>
@@ -306,10 +308,10 @@ const ProfileTab = () => {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-foreground truncate">
-                    {licenseFile ? licenseFile.name : "Foto atual da CNH"}
+                    {licenseFile ? licenseFile.name : t.currentLicensePhoto}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
-                    {licenseFile ? "Pronta para envio ao salvar" : "Reenvie para atualizar"}
+                    {licenseFile ? t.readyToSend : t.reuploadHint}
                   </p>
                 </div>
               </div>
@@ -336,22 +338,22 @@ const ProfileTab = () => {
                 onClick={() => cameraRef.current?.click()}
                 className="h-9 px-3 rounded-md border border-dashed border-border bg-background text-xs text-foreground hover:border-primary/40 transition-all flex items-center gap-1.5"
               >
-                <Camera size={12} /> Câmera
+                <Camera size={12} /> {t.camera}
               </button>
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 className="h-9 px-3 rounded-md border border-dashed border-border bg-background text-xs text-foreground hover:border-primary/40 transition-all flex items-center gap-1.5"
               >
-                <Upload size={12} /> Anexar arquivo
+                <Upload size={12} /> {t.attachFile}
               </button>
             </div>
             <p className="text-[10px] text-muted-foreground">
-              Imagem ou PDF, máximo 10MB. Reenviar a foto coloca a CNH em "Aguardando verificação".
+              {t.uploadHint}
             </p>
             {ocrLoading && (
               <p className="text-[11px] text-primary mt-1 flex items-center gap-1.5">
-                <Loader2 size={11} className="animate-spin" /> Lendo documento com IA...
+                <Loader2 size={11} className="animate-spin" /> {t.ocrReading}
               </p>
             )}
             {ocrResult && (
@@ -375,7 +377,7 @@ const ProfileTab = () => {
         <div className="sticky bottom-3 z-10">
           <div className="rounded-xl border border-border bg-card/95 backdrop-blur p-3 flex items-center justify-between gap-3 shadow-lg">
             <p className="text-xs text-muted-foreground">
-              {dirty ? "Há alterações não salvas." : "Tudo certo, nenhuma alteração pendente."}
+              {dirty ? t.unsaved : t.allSaved}
             </p>
             <button
               type="button"
@@ -384,7 +386,7 @@ const ProfileTab = () => {
               className="h-9 px-4 rounded-md gold-gradient text-primary-foreground text-xs font-bold uppercase tracking-wider flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
             >
               {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-              {saving ? "Salvando..." : "Salvar alterações"}
+              {saving ? t.saving : t.save}
             </button>
           </div>
         </div>
