@@ -139,10 +139,10 @@ const ProfileTab = () => {
   const cnhStatus = useMemo(() => {
     const hasFile = !!customer?.driver_license_file_url;
     const verified = !!customer?.driver_license_verified_at;
-    if (verified) return { label: "CNH verificada", icon: BadgeCheck, color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30" };
-    if (hasFile) return { label: "Aguardando verificação", icon: Clock, color: "text-amber-600 bg-amber-500/10 border-amber-500/30" };
-    return { label: "CNH não enviada", icon: AlertCircle, color: "text-muted-foreground bg-muted/40 border-border" };
-  }, [customer]);
+    if (verified) return { label: t.cnhVerified, icon: BadgeCheck, color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/30" };
+    if (hasFile) return { label: t.cnhWaiting, icon: Clock, color: "text-amber-600 bg-amber-500/10 border-amber-500/30" };
+    return { label: t.cnhMissing, icon: AlertCircle, color: "text-muted-foreground bg-muted/40 border-border" };
+  }, [customer, t]);
 
   const handleSave = async () => {
     if (!rawUser || !customer) return;
