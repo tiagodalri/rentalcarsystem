@@ -45,12 +45,31 @@ function combineDateTime(date: string, time: string | null, fallback: string): n
 export async function assignTolls(tolls: EpassTollRow[]): Promise<AssignedToll[]> {
   if (tolls.length === 0) return [];
 
-  // 1) Veiculos com transponder cadastrado
+  // 1) Veiculos com transponder cadastrado + reservas do periodo em paralelo.
+  // Antes isso fazia duas idas sequenciais ao Supabase; em mobile/4G isso dava a
+  // sensação de que o arquivo “travava” depois do upload. Buscando em paralelo,
+  // o resumo aparece mais rápido e o cruzamento termina logo em seguida.
   const transponders = Array.from(new Set(tolls.map((t) => t.transponder_number.trim()))).filter(Boolean);
-  const { data: vehiclesData } = await supabase
+  const dates = tolls.map((t) => t.date).sort();
+  const minDate = dates[0];
+  const maxDate = dates[dates.length - 1];
+
+  const vehiclesPromise = supabase
     .from("vehicles")
     .select("id,name,license_plate,e_pass_transponder")
     .not("e_pass_transponder", "is", null);
+
+  const bookingsPromise = minDate && maxDate
+    ? supabase
+        .from("bookings")
+        .select("id,booking_number,customer_id,customer_name,vehicle_id,pickup_date,return_date,pickup_time,return_time,status")
+        .neq("status", "cancelled")
+        .is("deleted_at", null)
+        .lte("pickup_date", maxDate)
+        .gte("return_date", minDate)
+    : Promise.resolve({ data: [] as BookingRow[] });
+
+  const [{ data: vehiclesData }, { data: bookingsData }] = await Promise.all([vehiclesPromise, bookingsPromise]);
 
   const byTransponder = new Map<string, VehicleRow>();
   for (const v of (vehiclesData || []) as VehicleRow[]) {
@@ -62,21 +81,11 @@ export async function assignTolls(tolls: EpassTollRow[]): Promise<AssignedToll[]
     transponders.map((t) => byTransponder.get(t)?.id).filter(Boolean) as string[]
   ));
 
-  const dates = tolls.map((t) => t.date).sort();
-  const minDate = dates[0];
-  const maxDate = dates[dates.length - 1];
-
   const bookingsByVehicle = new Map<string, BookingRow[]>();
-  if (vehicleIds.length > 0 && minDate && maxDate) {
-    const { data: bookings } = await supabase
-      .from("bookings")
-      .select("id,booking_number,customer_id,customer_name,vehicle_id,pickup_date,return_date,pickup_time,return_time,status")
-      .in("vehicle_id", vehicleIds)
-      .neq("status", "cancelled")
-      .is("deleted_at", null)
-      .lte("pickup_date", maxDate)
-      .gte("return_date", minDate);
-    for (const b of (bookings || []) as BookingRow[]) {
+  if (vehicleIds.length > 0) {
+    const involved = new Set(vehicleIds);
+    for (const b of (bookingsData || []) as BookingRow[]) {
+      if (!involved.has(b.vehicle_id)) continue;
       const arr = bookingsByVehicle.get(b.vehicle_id) || [];
       arr.push(b);
       bookingsByVehicle.set(b.vehicle_id, arr);

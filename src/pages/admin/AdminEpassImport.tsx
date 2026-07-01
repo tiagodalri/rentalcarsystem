@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Loader2, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,9 +15,11 @@ import { assignTolls, applyEpassImport, precheckEpassDuplicates, type AssignedTo
 
 export default function AdminEpassImport() {
   const navigate = useNavigate();
+  const analysisSeq = useRef(0);
   const [step, setStep] = useState<1 | 2>(1);
   const [files, setFiles] = useState<File[]>([]);
   const [parsing, setParsing] = useState(false);
+  const [assigning, setAssigning] = useState(false);
   const [applying, setApplying] = useState(false);
   const [parsed, setParsed] = useState<EpassParseResult | null>(null);
   const [assigned, setAssigned] = useState<AssignedToll[]>([]);
@@ -31,21 +33,44 @@ export default function AdminEpassImport() {
     return () => { document.title = prev; };
   }, []);
 
-  const handleAnalyze = async () => {
-    if (files.length === 0) return;
+  const analyzeFiles = async (targetFiles: File[]) => {
+    if (targetFiles.length === 0) return;
+    const runId = ++analysisSeq.current;
     setParsing(true);
+    setAssigning(false);
     try {
-      const results: EpassParseResult[] = await Promise.all(files.map((f) => extractEpassFromFile(f)));
+      const results: EpassParseResult[] = await Promise.all(targetFiles.map((f) => extractEpassFromFile(f)));
+      if (runId !== analysisSeq.current) return;
       const merged = mergeEpassResults(results);
+      setParsed(merged);
+      setAssigned(makeInstantPreviewRows(merged));
+      setStep(2);
+      setParsing(false);
+
+      setAssigning(true);
       const matched = await assignTolls(merged.tolls);
+      if (runId !== analysisSeq.current) return;
       setParsed(merged);
       setAssigned(matched);
-      setStep(2);
     } catch (e: any) {
-      toast({ title: "Erro ao analisar CSV", description: e?.message || "Falha", variant: "destructive" });
+      if (runId !== analysisSeq.current) return;
+      toast({ title: "Erro ao analisar arquivo", description: e?.message || "Falha", variant: "destructive" });
     } finally {
-      setParsing(false);
+      if (runId === analysisSeq.current) {
+        setParsing(false);
+        setAssigning(false);
+      }
     }
+  };
+
+  const handleAnalyze = async () => {
+    await analyzeFiles(files);
+  };
+
+  const handleFiles = (arr: File[]) => {
+    const next = [...files, ...arr];
+    setFiles(next);
+    void analyzeFiles(next);
   };
 
   const handleApply = async () => {
@@ -79,9 +104,8 @@ export default function AdminEpassImport() {
           <h1 className="text-2xl font-semibold tracking-tight">Sincronizar E-Pass</h1>
           <p className="text-sm text-muted-foreground">
             Aceita CSV, PDF, TXT, TSV, Excel (XLS/XLSX/ODS), HTML, JSON e até prints/fotos do extrato.
-            O sistema usa parsing local quando o formato é conhecido e cai num OCR/IA de alta qualidade
-            (Gemini multimodal) quando não é — sempre atrelando cada pedágio ao veículo e à reserva ativa
-            no horário, com prévia antes de gravar.
+            CSV, TXT e PDF nativo são lidos localmente para resposta imediata; OCR/IA entra somente quando
+            o arquivo é escaneado ou não tem texto estruturado.
           </p>
         </div>
       </div>
@@ -104,9 +128,9 @@ export default function AdminEpassImport() {
         <div className="space-y-4">
           <div className="bg-card border border-border/60 rounded-xl p-4 lg:p-6">
             <h2 className="text-sm font-semibold mb-3">1. Selecione os arquivos do portal E-Pass (qualquer formato)</h2>
-            <EpassDropzone files={files} onFiles={(arr) => setFiles((p) => [...p, ...arr])} onRemove={(i) => setFiles((p) => p.filter((_, idx) => idx !== i))} disabled={parsing} />
+            <EpassDropzone files={files} onFiles={handleFiles} onRemove={(i) => setFiles((p) => p.filter((_, idx) => idx !== i))} disabled={parsing} />
             <div className="mt-3 text-[11px] text-muted-foreground leading-relaxed">
-              O numero do transponder no CSV (coluna "Transponder Number") e cruzado com o campo
+              O numero do transponder no arquivo e cruzado com o campo
               <span className="font-medium text-foreground"> E-Pass</span> de cada veiculo da frota.
               Veiculos sem transponder cadastrado caem em "Sem veiculo".
             </div>
@@ -114,7 +138,7 @@ export default function AdminEpassImport() {
           <div className="flex justify-end">
             <Button onClick={handleAnalyze} disabled={files.length === 0 || parsing} className="gap-2">
               {parsing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-              {parsing ? "Analisando..." : "Analisar e atribuir"}
+              {parsing ? "Analisando..." : parsed ? "Analisar novamente" : "Analisar e atribuir"}
             </Button>
           </div>
         </div>
@@ -122,6 +146,15 @@ export default function AdminEpassImport() {
 
       {step === 2 && parsed && (
         <div className="space-y-4">
+          {assigning && (
+            <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 flex items-start gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0 mt-0.5" />
+              <div>
+                <span className="font-medium text-foreground">Resumo carregado.</span>{" "}
+                Agora o sistema está só cruzando os pedágios com frota e reservas em segundo plano.
+              </div>
+            </div>
+          )}
           {parsed.errors.length > 0 && (
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 flex items-start gap-2 text-xs">
               <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
@@ -147,11 +180,12 @@ export default function AdminEpassImport() {
               <span className="font-semibold text-foreground tabular-nums">${total.toFixed(2)}</span>
             </div>
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => { setStep(1); setParsed(null); setAssigned([]); }} size="sm">
+              <Button variant="outline" onClick={() => { analysisSeq.current += 1; setAssigning(false); setStep(1); setParsed(null); setAssigned([]); }} size="sm">
                 <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
               </Button>
               <Button
                 onClick={async () => {
+                  if (assigning) return;
                   setCheckingDupes(true);
                   try {
                     const dupes = await precheckEpassDuplicates(assigned);
@@ -163,10 +197,10 @@ export default function AdminEpassImport() {
                 }}
                 size="sm"
                 className="gap-2"
-                disabled={checkingDupes}
+                disabled={checkingDupes || assigning}
               >
-                {checkingDupes ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-                Revisar e importar
+                {checkingDupes || assigning ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+                {assigning ? "Finalizando..." : "Revisar e importar"}
               </Button>
             </div>
           </div>
@@ -222,6 +256,20 @@ export default function AdminEpassImport() {
       </Dialog>
     </div>
   );
+}
+
+function makeInstantPreviewRows(parsed: EpassParseResult): AssignedToll[] {
+  return parsed.tolls.map((t) => ({
+    ...t,
+    vehicle_id: null,
+    vehicle_name: null,
+    vehicle_plate: null,
+    booking_id: null,
+    booking_number: null,
+    customer_id: null,
+    customer_name: null,
+    status: "no_vehicle" as const,
+  }));
 }
 
 function Row({ label, value, muted, highlight, positive, warn }: { label: string; value: string | number; muted?: boolean; highlight?: boolean; positive?: boolean; warn?: boolean }) {

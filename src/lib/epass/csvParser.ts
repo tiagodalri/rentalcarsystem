@@ -43,6 +43,11 @@ export type EpassParseResult = {
   errors: { line: number; reason: string }[];
 };
 
+type StatementVehicleContext = {
+  transponder: string;
+  hint: TransponderHint;
+};
+
 const MONTHS: Record<string, string> = {
   jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
   jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12",
@@ -265,6 +270,118 @@ function parseTollTextLine(raw: string): EpassTollRow | null {
   const location = rest.slice(0, amountStart).trim();
   const tollType = rest.slice(amountEnd).trim();
   return buildTollRow(match[1], date, match[3], posting, location, Math.abs(amount), tollType);
+}
+
+function cleanStatementLine(raw: string): string {
+  return raw.replace(/\f/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function parseStatementVehicleLine(raw: string): StatementVehicleContext | null {
+  const line = cleanStatementLine(raw);
+  const parts = line.split(" ").filter(Boolean);
+  if (parts.length < 6) return null;
+  const transponder = parts[0]?.replace(/\D/g, "") || "";
+  if (!/^\d{4,}$/.test(transponder)) return null;
+  const plate = parts[1] || "";
+  const year = parts[parts.length - 1] || "";
+  if (!/^\d{4}$/.test(year)) return null;
+
+  const vehicleTokens = parts.slice(2, -2);
+  const color = parts[parts.length - 2] || "";
+  const vehicle = vehicleTokens.join(" ").trim();
+
+  return {
+    transponder,
+    hint: {
+      plate,
+      vehicle,
+      color,
+      year,
+    },
+  };
+}
+
+function parseStatementTollLine(raw: string, transponder: string): EpassTollRow | null {
+  const line = cleanStatementLine(raw);
+  if (!transponder || !/^\d/.test(line)) return null;
+
+  const re = new RegExp(`^(${DATE_TOKEN})\\s+(${TIME_TOKEN})\\s+(${DATE_TOKEN})\\s+(.+?)\\s+\\$?([0-9,]+(?:\\.[0-9]{2})?|[0-9]+,[0-9]{2})(?:\\s+([A-Z]))?$`, "i");
+  const match = line.match(re);
+  if (!match) return null;
+
+  const date = parseEpassDate(match[1]);
+  const posting = parseEpassDate(match[3]) || date;
+  const amount = parseAmount(match[5]);
+  if (!date || amount === null) return null;
+
+  return buildTollRow(transponder, date, match[2], posting, match[4], Math.abs(amount), match[6] || "");
+}
+
+export function parseEpassStatementText(text: string, filename: string): EpassParseResult {
+  const lines = text.split(/\r?\n/);
+  const tolls: EpassTollRow[] = [];
+  const errors: { line: number; reason: string }[] = [];
+  const transponder_hints: Record<string, TransponderHint> = {};
+  let accountNumber: string | null = null;
+  let period_label: string | null = null;
+  let current: StatementVehicleContext | null = null;
+  let expectingVehicle = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = cleanStatementLine(lines[i]);
+    if (!line) continue;
+
+    const account = line.match(/ACCOUNT NUMBER\s*:?\s*(\d+)/i);
+    if (account && !accountNumber) accountNumber = account[1];
+
+    const period = line.match(/PERIOD\s*:?\s*(\d{1,2}[-/][A-Z]{3,9}[-/]\d{2,4}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})\s+TO\s+(\d{1,2}[-/][A-Z]{3,9}[-/]\d{2,4}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})/i);
+    if (period && !period_label) period_label = `${period[1]} a ${period[2]}`;
+
+    if (/E-PASS NUMBER\s+LICENSE PLATE\s+MAKE\s+MODEL\s+COLOR\s+YEAR/i.test(line)) {
+      expectingVehicle = true;
+      continue;
+    }
+
+    if (expectingVehicle) {
+      const vehicle = parseStatementVehicleLine(line);
+      if (vehicle) {
+        current = vehicle;
+        transponder_hints[vehicle.transponder] = mergeHint(transponder_hints[vehicle.transponder], vehicle.hint);
+        expectingVehicle = false;
+        continue;
+      }
+    }
+
+    const inlineVehicle = parseStatementVehicleLine(line);
+    if (inlineVehicle) {
+      current = inlineVehicle;
+      transponder_hints[inlineVehicle.transponder] = mergeHint(transponder_hints[inlineVehicle.transponder], inlineVehicle.hint);
+      expectingVehicle = false;
+      continue;
+    }
+
+    if (/^DATE\s*\/\s*TIME\s+POSTING DATE\s+LOCATION\s+AMOUNT\s+TOLL TYPE/i.test(line)) continue;
+
+    if (current) {
+      const toll = parseStatementTollLine(line, current.transponder);
+      if (toll) {
+        tolls.push(toll);
+      } else if (/^\d{1,2}[-/][A-Za-z]{3,9}[-/]\d{2,4}\s+\d{1,2}:\d{2}/.test(line)) {
+        errors.push({ line: i + 1, reason: "Linha invalida" });
+      }
+    }
+  }
+
+  const periodMatch = filename.match(/(\d{1,2})[_-](\d{4})/);
+  return {
+    filename,
+    account_number: accountNumber,
+    period_label: period_label || (periodMatch ? `${periodMatch[1]}/${periodMatch[2]}` : null),
+    account: [],
+    tolls,
+    transponder_hints,
+    errors,
+  };
 }
 
 // Header-aware: quando o extrato traz colunas extras (Plate/License,
