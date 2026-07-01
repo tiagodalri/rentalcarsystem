@@ -256,7 +256,69 @@ export default function AdminCosts() {
             </CardContent></Card>
           ) : (
             <Card className="border-border/40"><CardContent className="p-0">
-              <div className="overflow-auto max-h-[700px]">
+              {/* Mobile card list */}
+              <ul className="lg:hidden divide-y divide-border/40">
+                {filtered.map((r) => (
+                  <li key={r.id} className="p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-[11px] tabular-nums text-muted-foreground">
+                            {new Date(r.expense_date + "T12:00:00").toLocaleDateString("pt-BR")}
+                          </span>
+                          {r.source === "ai_receipt" && (
+                            <Badge variant="secondary" className="text-[10px] gap-1 h-5"><Sparkles className="h-2.5 w-2.5" /> IA</Badge>
+                          )}
+                          {r.status === "draft" && <Badge variant="outline" className="h-5 text-[10px] text-amber-600 border-amber-500/40">Rascunho</Badge>}
+                        </div>
+                        <div className="mt-1 text-sm font-medium truncate">{TYPE_LABEL[r.type] || r.type}</div>
+                        {(r.supplier || r.description) && (
+                          <div className="text-xs text-muted-foreground truncate">
+                            {[r.supplier, r.description].filter(Boolean).join(" · ")}
+                          </div>
+                        )}
+                        {r.vehicles && (
+                          <button onClick={() => navigate(`/admin/vehicles/${r.vehicles!.id}`)} className="mt-1 text-left block max-w-full">
+                            <div className="text-xs font-medium truncate">{r.vehicles.name}</div>
+                            {r.vehicles.license_plate && <div className="text-[10px] text-muted-foreground">{r.vehicles.license_plate}</div>}
+                          </button>
+                        )}
+                        {r.booking_id && r.bookings ? (
+                          <button onClick={() => navigate(`/admin/bookings/${r.booking_id}`)} className="mt-1 text-left block">
+                            <div className="inline-flex items-center gap-1 text-primary text-xs font-medium">
+                              {r.bookings.booking_number || "reserva"} <ExternalLink className="h-3 w-3" />
+                            </div>
+                            <div className="text-[10px] text-muted-foreground truncate">{formatPersonName(r.bookings.customer_name)}</div>
+                          </button>
+                        ) : (
+                          <Badge variant="outline" className="mt-1 text-[10px]">Custo geral</Badge>
+                        )}
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="tabular-nums font-semibold text-base">${Number(r.amount).toFixed(2)}</div>
+                        <div className="mt-2 flex flex-col items-end gap-1">
+                          {r.receipt_url && (
+                            <Button size="sm" variant="ghost" className="h-8 px-2 text-xs" onClick={() => openReceipt(r)}>
+                              <Paperclip className="h-3.5 w-3.5 mr-1" /> Nota
+                            </Button>
+                          )}
+                          {r.status === "draft" && (
+                            <Button size="sm" variant="ghost" className="h-8 px-2 text-xs text-emerald-600" onClick={() => approve(r.id)}>
+                              <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Aprovar
+                            </Button>
+                          )}
+                          <Button size="sm" variant="ghost" className="h-8 px-2 text-xs text-destructive" onClick={() => remove(r.id)}>
+                            <Trash2 className="h-3.5 w-3.5 mr-1" /> Excluir
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Desktop table */}
+              <div className="hidden lg:block overflow-auto max-h-[700px]">
                 <table className="w-full text-xs">
                   <thead className="bg-muted/40 sticky top-0 z-10">
                     <tr className="text-left">
@@ -332,6 +394,7 @@ export default function AdminCosts() {
               </div>
             </CardContent></Card>
           )}
+
         </TabsContent>
       </Tabs>
 
