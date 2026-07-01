@@ -309,6 +309,15 @@ export function ExpenseFormSheet({ open, onOpenChange, onSaved, defaultVehicleId
           <Field label="Observações internas">
             <Textarea rows={2} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Notas internas para a equipe" />
           </Field>
+
+          <Field label="Comprovante / Nota (opcional)">
+            <ReceiptPicker
+              receiptFile={receiptFile}
+              receiptPreview={receiptPreview}
+              onFilePicked={onFilePicked}
+              onClear={() => { setReceiptFile(null); setReceiptPreview(null); }}
+            />
+          </Field>
         </div>
 
         <div className="mt-6 flex gap-2 justify-end sticky bottom-0 bg-background pt-4 border-t border-border/40">
