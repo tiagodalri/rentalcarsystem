@@ -112,24 +112,9 @@ export default function AdminPendencias() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Card className="bg-card/50 border-border/40">
-          <CardContent className="py-6 flex flex-col items-center justify-center text-center gap-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Total de pendências</p>
-            <p className="admin-kpi text-3xl tabular-nums leading-none">{totalPendencias}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card/50 border-border/40">
-          <CardContent className="py-6 flex flex-col items-center justify-center text-center gap-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Veículos com pendências</p>
-            <p className="admin-kpi text-3xl tabular-nums leading-none">{byVehicle.length}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-card/50 border-border/40">
-          <CardContent className="py-6 flex flex-col items-center justify-center text-center gap-2">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">Veículos completos</p>
-            <p className="admin-kpi text-3xl tabular-nums leading-none">{vehicles.length - byVehicle.length}</p>
-          </CardContent>
-        </Card>
+        <KpiCard label="Total de pendências" value={totalPendencias} />
+        <KpiCard label="Veículos com pendências" value={byVehicle.length} />
+        <KpiCard label="Veículos completos" value={vehicles.length - byVehicle.length} />
       </div>
 
 
