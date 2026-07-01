@@ -202,28 +202,61 @@ export function EpassPreview({
           {transpondersFaltando.length > 0 && (
             <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-3">
               <div>
-                <div className="text-sm font-semibold">Vincule cada transponder ao veículo correto</div>
+                <div className="text-sm font-semibold flex items-center gap-2">
+                  Vincule cada transponder ao veículo correto
+                  {suggestedCount > 0 && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
+                      <Sparkles className="h-3 w-3" />
+                      {suggestedCount} pré-atrelado(s)
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  O extrato do E-Pass não traz placa nem modelo — só o número do transponder. Selecione
-                  abaixo a qual veículo da frota cada um pertence. O sistema vai gravar no cadastro do
-                  veículo (campo "E-Pass") e <strong>reatribuir os pedágios automaticamente</strong>,
-                  inclusive em importações futuras.
+                  Quando o extrato traz placa, modelo, cor ou ano, o sistema já sugere o veículo da
+                  frota — você só confere e aprova. Se vier apenas o número do transponder, escolha
+                  manualmente. Salvando, o vínculo grava no cadastro do veículo (campo "E-Pass") e
+                  <strong> reatribui os pedágios automaticamente</strong>, inclusive em futuras
+                  importações.
                 </p>
               </div>
 
               <div className="space-y-2">
                 {transpondersFaltando.map(([transponder, info]) => {
                   const selected = mapping[transponder] || "";
+                  const hint = hints?.[transponder];
+                  const sug = suggestions[transponder];
+                  const hintChips = [hint?.plate, hint?.vehicle, hint?.color, hint?.year]
+                    .filter(Boolean) as string[];
                   return (
                     <div
                       key={transponder}
                       className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 rounded-lg border border-border/60 bg-background/60 p-2.5"
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="font-mono text-sm font-semibold">{transponder}</div>
-                        <div className="text-[11px] text-muted-foreground tabular-nums">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono text-sm font-semibold">{transponder}</span>
+                          {sug && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
+                              <Sparkles className="h-2.5 w-2.5" />
+                              sugerido via {sug.reason}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground tabular-nums mt-0.5">
                           {info.count} pedágios · {fmtUsd(info.amount)}
                         </div>
+                        {hintChips.length > 0 && (
+                          <div className="flex items-center gap-1 flex-wrap mt-1">
+                            {hintChips.map((c, i) => (
+                              <span
+                                key={i}
+                                className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground"
+                              >
+                                {c}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="sm:w-72">
                         <Select
@@ -242,14 +275,20 @@ export function EpassPreview({
                               </div>
                             )}
                             {fleet.map((v) => {
-                              const label = [v.model || v.name || "Veículo", v.license_plate]
+                              const label = [v.model || v.name || "Veículo", v.year, v.license_plate]
                                 .filter(Boolean)
                                 .join(" · ");
                               const taken = usedVehicleIds.has(v.id) && selected !== v.id;
+                              const isSuggested = sug?.id === v.id;
                               return (
                                 <SelectItem key={v.id} value={v.id} disabled={taken}>
                                   <span className="flex items-center gap-2">
                                     <span>{label}</span>
+                                    {isSuggested && (
+                                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                                        (sugerido)
+                                      </span>
+                                    )}
                                     {v.e_pass_transponder && (
                                       <span className="text-[10px] text-muted-foreground font-mono">
                                         (já: {v.e_pass_transponder})
@@ -270,7 +309,7 @@ export function EpassPreview({
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
                 <div className="text-[11px] text-muted-foreground">
                   {pendingCount > 0
-                    ? `${pendingCount} mapeamento(s) prontos pra salvar`
+                    ? `${pendingCount} mapeamento(s) prontos pra salvar${suggestedCount > 0 ? ` (${suggestedCount} pré-atrelados pelo sistema)` : ""}`
                     : "Selecione um veículo pra cada transponder que quiser atrelar"}
                 </div>
                 <Button
@@ -280,9 +319,10 @@ export function EpassPreview({
                   className="gap-2"
                 >
                   {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                  Salvar e reatribuir
+                  {suggestedCount > 0 && pendingCount === suggestedCount ? "Aprovar e salvar" : "Salvar e reatribuir"}
                 </Button>
               </div>
+
             </div>
           )}
           <TollTable rows={noVehicle} hideVehicle />
