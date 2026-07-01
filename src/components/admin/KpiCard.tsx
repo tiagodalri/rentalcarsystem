@@ -34,15 +34,15 @@ export function KpiCard({
 }: KpiCardProps) {
   return (
     <Card className={cn("border-border/40", className)}>
-      <CardContent
+      <div
         className={cn(
-          "flex flex-col items-center justify-center text-center gap-1.5",
-          compact ? "min-h-[112px] px-3 py-3" : "min-h-[128px] px-4 py-4",
+          "flex flex-col items-center justify-center text-center gap-2",
+          compact ? "min-h-[112px] px-3 py-4" : "min-h-[128px] px-4 py-5",
         )}
       >
-        <div className="flex items-center justify-center gap-1.5">
+        <div className="flex items-center justify-center gap-1.5 leading-none">
           {Icon && <Icon className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.75} />}
-          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider leading-none">
             {label}
           </p>
         </div>
@@ -55,10 +55,10 @@ export function KpiCard({
         >
           {value}
         </p>
-        <p className="text-[11px] text-muted-foreground leading-tight min-h-[14px]">
+        <p className="text-[11px] text-muted-foreground leading-none min-h-[12px]">
           {hint ?? "\u00A0"}
         </p>
-      </CardContent>
+      </div>
     </Card>
   );
 }
