@@ -5,9 +5,9 @@
 // .pdf → IA multimodal (Gemini) na edge function
 // .png/.jpg/.jpeg/.webp/.heic → IA multimodal (visão) na edge function
 // outros → tenta ler como texto; se vazio, manda binário pra IA
-import * as XLSX from "xlsx";
 import { parseEpassCsv, parseEpassStatementText, type EpassParseResult } from "./csvParser";
 import { supabase } from "@/integrations/supabase/client";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 const IMG_EXT = /\.(png|jpe?g|webp|heic|heif|bmp|tiff?)$/i;
 const SHEET_EXT = /\.(xlsx|xls|ods|xlsm|xlsb)$/i;
@@ -60,6 +60,7 @@ export async function extractEpassFromFile(file: File): Promise<EpassParseResult
 
 // ===== Planilhas =====
 async function extractFromSpreadsheet(file: File): Promise<EpassParseResult> {
+  const XLSX = await import("xlsx");
   const buf = new Uint8Array(await file.arrayBuffer());
   const wb = XLSX.read(buf, { type: "array" });
   const chunks: string[] = [];
@@ -99,7 +100,7 @@ async function extractFromPdf(file: File): Promise<EpassParseResult> {
 
 async function extractPdfTextLocally(file: File): Promise<string> {
   const pdfjs = await import("pdfjs-dist");
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+  pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
   const buffer = await file.arrayBuffer();
   const loadingTask = pdfjs.getDocument({ data: new Uint8Array(buffer), useSystemFonts: true });
