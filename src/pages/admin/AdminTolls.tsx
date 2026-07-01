@@ -149,31 +149,10 @@ export default function AdminTolls() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="border-border/40">
-          <CardContent className="py-5 text-center space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total (filtro)</p>
-            <p className="admin-kpi text-2xl tabular-nums">${kpis.total.toFixed(2)}</p>
-            <p className="text-[11px] text-muted-foreground">{kpis.count} pedágios</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40">
-          <CardContent className="py-5 text-center space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Já cobrado</p>
-            <p className="admin-kpi text-2xl tabular-nums text-emerald-600 dark:text-emerald-400">${kpis.charged.toFixed(2)}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40">
-          <CardContent className="py-5 text-center space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Pendente</p>
-            <p className="admin-kpi text-2xl tabular-nums text-amber-600 dark:text-amber-400">${kpis.pending.toFixed(2)}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40">
-          <CardContent className="py-5 text-center space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Sem reserva</p>
-            <p className="admin-kpi text-2xl tabular-nums">${kpis.orphans.toFixed(2)}</p>
-          </CardContent>
-        </Card>
+        <KpiCard label="Total (filtro)" value={`$${kpis.total.toFixed(2)}`} hint={`${kpis.count} pedágios`} />
+        <KpiCard label="Já cobrado" value={`$${kpis.charged.toFixed(2)}`} valueClassName="text-emerald-600 dark:text-emerald-400" />
+        <KpiCard label="Pendente" value={`$${kpis.pending.toFixed(2)}`} valueClassName="text-amber-600 dark:text-amber-400" />
+        <KpiCard label="Sem reserva" value={`$${kpis.orphans.toFixed(2)}`} />
       </div>
 
       {/* Filtros + ações */}
