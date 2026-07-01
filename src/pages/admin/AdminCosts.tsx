@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { KpiCard } from "@/components/admin/KpiCard";
 import { Wallet, Plus, Search, Loader2, Download, Sparkles, ExternalLink, Trash2, Paperclip, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { ExpenseFormSheet } from "@/components/admin/ExpenseFormSheet";
@@ -185,26 +186,22 @@ export default function AdminCosts() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="border-border/40"><CardContent className="h-[128px] flex flex-col items-center justify-center text-center gap-1.5 py-4">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total (filtro)</p>
-          <p className="admin-kpi text-2xl tabular-nums leading-none">${kpis.total.toFixed(2)}</p>
-          <p className="text-[11px] text-muted-foreground">{kpis.count} lançamentos</p>
-        </CardContent></Card>
-        <Card className="border-border/40"><CardContent className="h-[128px] flex flex-col items-center justify-center text-center gap-1.5 py-4">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Maior categoria</p>
-          <p className="admin-kpi text-2xl tabular-nums leading-none">{kpis.topType ? `$${kpis.topType[1].toFixed(2)}` : "—"}</p>
-          <p className="text-[11px] text-muted-foreground">{kpis.topType ? TYPE_LABEL[kpis.topType[0]] : "\u00A0"}</p>
-        </CardContent></Card>
-        <Card className="border-border/40"><CardContent className="h-[128px] flex flex-col items-center justify-center text-center gap-1.5 py-4">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Ticket médio</p>
-          <p className="admin-kpi text-2xl tabular-nums leading-none">${kpis.count ? (kpis.total / kpis.count).toFixed(2) : "0.00"}</p>
-          <p className="text-[11px] text-muted-foreground">&nbsp;</p>
-        </CardContent></Card>
-        <Card className="border-border/40"><CardContent className="h-[128px] flex flex-col items-center justify-center text-center gap-1.5 py-4">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Rascunhos IA</p>
-          <p className="admin-kpi text-2xl tabular-nums leading-none text-amber-600 dark:text-amber-400">{kpis.drafts}</p>
-          <p className="text-[11px] text-muted-foreground">aguardando aprovação</p>
-        </CardContent></Card>
+        <KpiCard label="Total (filtro)" value={`$${kpis.total.toFixed(2)}`} hint={`${kpis.count} lançamentos`} />
+        <KpiCard
+          label="Maior categoria"
+          value={kpis.topType ? `$${kpis.topType[1].toFixed(2)}` : "—"}
+          hint={kpis.topType ? TYPE_LABEL[kpis.topType[0]] : undefined}
+        />
+        <KpiCard
+          label="Ticket médio"
+          value={`$${kpis.count ? (kpis.total / kpis.count).toFixed(2) : "0.00"}`}
+        />
+        <KpiCard
+          label="Rascunhos IA"
+          value={kpis.drafts}
+          valueClassName="text-amber-600 dark:text-amber-400"
+          hint="aguardando aprovação"
+        />
       </div>
 
       {/* Filtros */}

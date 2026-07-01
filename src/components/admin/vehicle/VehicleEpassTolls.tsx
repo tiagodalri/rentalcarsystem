@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
+import { KpiCard } from "@/components/admin/KpiCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -97,31 +98,10 @@ export function VehicleEpassTolls({ vehicleId }: { vehicleId: string }) {
     <div className="space-y-4">
       {/* Filtros e KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Card className="border-border/40">
-          <CardContent className="py-4 text-center space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Total no período</p>
-            <p className="admin-kpi text-2xl tabular-nums">${total.toFixed(2)}</p>
-            <p className="text-[11px] text-muted-foreground">{filtered.length} pedágios</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40">
-          <CardContent className="py-4 text-center space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Já cobrado</p>
-            <p className="admin-kpi text-2xl tabular-nums text-emerald-600 dark:text-emerald-400">${charged.toFixed(2)}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40">
-          <CardContent className="py-4 text-center space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Pendente de cobrança</p>
-            <p className="admin-kpi text-2xl tabular-nums text-amber-600 dark:text-amber-400">${pending.toFixed(2)}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-border/40">
-          <CardContent className="py-4 text-center space-y-1">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Sem reserva</p>
-            <p className="admin-kpi text-2xl tabular-nums">{orphans}</p>
-          </CardContent>
-        </Card>
+        <KpiCard label="Total no período" value={`$${total.toFixed(2)}`} hint={`${filtered.length} pedágios`} />
+        <KpiCard label="Já cobrado" value={`$${charged.toFixed(2)}`} valueClassName="text-emerald-600 dark:text-emerald-400" />
+        <KpiCard label="Pendente de cobrança" value={`$${pending.toFixed(2)}`} valueClassName="text-amber-600 dark:text-amber-400" />
+        <KpiCard label="Sem reserva" value={orphans} />
       </div>
 
       <div className="flex flex-wrap items-center gap-3 justify-between">
