@@ -55,28 +55,30 @@ export function EmptyState({
   onAction,
   compact = false,
 }: EmptyStateProps) {
-  const illustrationSize = compact ? 120 : 160;
-  const iconSize = compact ? 28 : 36;
+  const illustrationSize = compact ? 108 : 148;
+  const iconSize = compact ? 26 : 34;
 
   return (
     <div
-      className={`flex flex-col items-center justify-center text-center animate-fade-in ${
-        compact ? "py-8" : "py-20"
+      className={`w-full flex flex-col items-center justify-center text-center animate-fade-in px-4 mx-auto ${
+        compact ? "py-6 sm:py-8" : "py-12 sm:py-16 lg:py-20"
       }`}
     >
       {/* Illustration: rings + dots backdrop with icon floating in the middle */}
       <div
-        className="relative flex items-center justify-center mb-5"
-        style={{ width: illustrationSize, height: illustrationSize }}
+        className="relative flex items-center justify-center mb-4 sm:mb-5 shrink-0"
+        style={{ width: illustrationSize, height: illustrationSize, maxWidth: "80vw" }}
       >
         <EmptyIllustration size={illustrationSize} />
-        <div className="relative flex items-center justify-center rounded-full bg-muted/60 border border-border/40 shadow-sm"
-             style={{ width: illustrationSize * 0.35, height: illustrationSize * 0.35 }}>
+        <div
+          className="relative flex items-center justify-center rounded-full bg-muted/60 border border-border/40 shadow-sm"
+          style={{ width: illustrationSize * 0.35, height: illustrationSize * 0.35 }}
+        >
           <Icon size={iconSize} strokeWidth={1.4} className="text-muted-foreground" />
         </div>
       </div>
 
-      <h3 className="text-sm font-semibold text-foreground mb-1.5">{title}</h3>
+      <h3 className="text-sm font-semibold text-foreground mb-1.5 max-w-[90%]">{title}</h3>
       <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">{description}</p>
 
       {actionLabel && onAction && (
