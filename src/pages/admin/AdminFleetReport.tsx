@@ -17,6 +17,7 @@ import {
   ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart, CalendarRange, X
 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
+import DonutChart from "@/components/admin/DonutChart";
 import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, differenceInDays, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { aggregateAddons, calcVehicleOccupancyPct } from "@/lib/fleetMetrics";
@@ -70,6 +71,18 @@ const CHART_COLORS = [
 ];
 const GREEN_PRIMARY = "hsl(160 84% 28%)";
 const GREEN_SECONDARY = "hsl(170 60% 38%)";
+
+// Private-bank inspired palette for category donut — gold, slate, petrol, warm accents
+const CATEGORY_PALETTE = [
+  "hsl(40 72% 42%)",   // gold primary
+  "hsl(220 14% 35%)",  // slate
+  "hsl(175 60% 38%)",  // petrol teal
+  "hsl(12 65% 52%)",   // terracotta
+  "hsl(270 30% 48%)",  // muted lavender
+  "hsl(145 50% 36%)",  // forest green
+  "hsl(210 55% 48%)",  // steel blue
+  "hsl(35 50% 55%)",   // warm sand
+];
 
 export default function AdminFleetReport({
   embedded = false,
@@ -465,7 +478,7 @@ export default function AdminFleetReport({
         </Card>
       </div>
 
-      {/* Charts Row 2 */}
+  {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Revenue by category */}
         <Card className="border-border/40">
@@ -479,28 +492,14 @@ export default function AdminFleetReport({
           </CardHeader>
           <CardContent>
             {categoryData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={280}>
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={3}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {categoryData.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    {...darkTooltipProps}
-                    formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+              <DonutChart
+                title="Total"
+                data={categoryData.map((d, i) => ({
+                  name: d.name,
+                  value: d.value,
+                  color: CATEGORY_PALETTE[i % CATEGORY_PALETTE.length],
+                }))}
+              />
             ) : (
               <EmptyState icon={DollarSign} title="Sem dados de receita" description="A receita por categoria aparecerá quando houver reservas neste mês." compact />
             )}
