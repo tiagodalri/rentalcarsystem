@@ -72,6 +72,18 @@ const CHART_COLORS = [
 const GREEN_PRIMARY = "hsl(160 84% 28%)";
 const GREEN_SECONDARY = "hsl(170 60% 38%)";
 
+// Private-bank inspired palette for category donut — gold, slate, petrol, warm accents
+const CATEGORY_PALETTE = [
+  "hsl(40 72% 42%)",   // gold primary
+  "hsl(220 14% 35%)",  // slate
+  "hsl(175 60% 38%)",  // petrol teal
+  "hsl(12 65% 52%)",   // terracotta
+  "hsl(270 30% 48%)",  // muted lavender
+  "hsl(145 50% 36%)",  // forest green
+  "hsl(210 55% 48%)",  // steel blue
+  "hsl(35 50% 55%)",   // warm sand
+];
+
 export default function AdminFleetReport({
   embedded = false,
   monthOverride,
