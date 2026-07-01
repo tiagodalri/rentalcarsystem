@@ -2,7 +2,7 @@
 // .csv → parser local (já existente)
 // .tsv/.txt → tenta delimitadores (vírgula, tab, ponto-e-vírgula, pipe); fallback IA por texto
 // .xls/.xlsx/.ods → SheetJS converte pra TSV e tenta local; fallback IA por texto
-// .pdf → IA multimodal (Gemini) na edge function
+// .pdf → leitura local quando tem texto; OCR/IA só como fallback
 // .png/.jpg/.jpeg/.webp/.heic → IA multimodal (visão) na edge function
 // outros → tenta ler como texto; se vazio, manda binário pra IA
 import { parseEpassCsv, parseEpassStatementText, type EpassParseResult } from "./csvParser";
