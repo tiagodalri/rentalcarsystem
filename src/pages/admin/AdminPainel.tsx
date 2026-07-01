@@ -403,7 +403,7 @@ export default function AdminPainel() {
 
       {/* ═════════ AGORA ═════════ */}
       <Zone label="Agora" caption="Status da operação em tempo real" icon={Activity}>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <AdminKpiGrid cols={4}>
           <KpiCard
             label="Frota rodando"
             value={`${rodando}/${totalFrota}`}
@@ -435,7 +435,7 @@ export default function AdminPainel() {
             onClick={() => navigate("/admin/bookings?status=pending")}
             accent={pendentes > 0 ? "rose" : undefined}
           />
-        </div>
+        </AdminKpiGrid>
       </Zone>
 
       {/* ═════════ HOJE ═════════ */}

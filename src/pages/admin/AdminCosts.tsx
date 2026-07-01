@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { KpiCard } from "@/components/admin/KpiCard";
+import { AdminKpiGrid } from "@/components/admin/layout/AdminPage";
 import { Wallet, Plus, Search, Loader2, Download, Sparkles, ExternalLink, Trash2, Paperclip, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { ExpenseFormSheet } from "@/components/admin/ExpenseFormSheet";
@@ -185,7 +186,7 @@ export default function AdminCosts() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+      <AdminKpiGrid cols={4}>
         <KpiCard label="Total (filtro)" value={`$${kpis.total.toFixed(2)}`} hint={`${kpis.count} lançamentos`} />
         <KpiCard
           label="Maior categoria"
@@ -202,7 +203,7 @@ export default function AdminCosts() {
           valueClassName="text-amber-600 dark:text-amber-400"
           hint="aguardando aprovação"
         />
-      </div>
+      </AdminKpiGrid>
 
       {/* Filtros */}
       <div className="flex flex-col lg:flex-row lg:flex-wrap gap-2 lg:gap-3 lg:items-center lg:justify-between">

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { KpiCard } from "@/components/admin/KpiCard";
+import { AdminKpiGrid } from "@/components/admin/layout/AdminPage";
 import { Receipt, CheckCircle2, Loader2, ExternalLink, Download, Search } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { formatPersonName } from "@/lib/formatName";
@@ -149,12 +150,12 @@ export default function AdminTolls() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+      <AdminKpiGrid cols={4}>
         <KpiCard label="Total (filtro)" value={`$${kpis.total.toFixed(2)}`} hint={`${kpis.count} pedágios`} />
         <KpiCard label="Já cobrado" value={`$${kpis.charged.toFixed(2)}`} valueClassName="text-emerald-600 dark:text-emerald-400" />
         <KpiCard label="Pendente" value={`$${kpis.pending.toFixed(2)}`} valueClassName="text-amber-600 dark:text-amber-400" />
         <KpiCard label="Sem reserva" value={`$${kpis.orphans.toFixed(2)}`} />
-      </div>
+      </AdminKpiGrid>
 
       {/* Filtros + ações */}
       <div className="flex flex-col lg:flex-row lg:flex-wrap gap-2 lg:gap-3 lg:items-center lg:justify-between">
