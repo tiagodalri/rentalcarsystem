@@ -102,10 +102,34 @@ type AuditRow = {
   diff: any;
 };
 
+type InspectionRow = {
+  id: string;
+  booking_id: string;
+  type: string;
+  odometer_reading: number | null;
+  fuel_level: string | null;
+  agent_name: string | null;
+  completed_at: string | null;
+  created_at: string;
+  location_address: string | null;
+  notes: string | null;
+  exterior_photos: any;
+  damages: any;
+  bookings: {
+    booking_number: string | null;
+    customer_name: string | null;
+    pickup_date: string | null;
+    return_date: string | null;
+    vehicles: { name: string | null; license_plate: string | null; brand: string | null; model: string | null } | null;
+  } | null;
+};
+
 export default function AdminLogs() {
   const { user, loading } = useAdminAuth();
   const [logs, setLogs] = useState<LogRow[]>([]);
   const [audit, setAudit] = useState<AuditRow[]>([]);
+  const [inspections, setInspections] = useState<InspectionRow[]>([]);
+  const [inspFilter, setInspFilter] = useState<"all" | "checkin" | "checkout">("all");
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
@@ -113,12 +137,18 @@ export default function AdminLogs() {
 
   const load = async () => {
     setRefreshing(true);
-    const [{ data: act }, { data: aud }] = await Promise.all([
+    const [{ data: act }, { data: aud }, { data: insp }] = await Promise.all([
       supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(500),
       supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(500),
+      supabase
+        .from("vehicle_inspections")
+        .select("id,booking_id,type,odometer_reading,fuel_level,agent_name,completed_at,created_at,location_address,notes,exterior_photos,damages,bookings:booking_id(booking_number,customer_name,pickup_date,return_date,vehicles:vehicle_id(name,license_plate,brand,model))")
+        .order("completed_at", { ascending: false, nullsFirst: false })
+        .limit(500),
     ]);
     setLogs((act as LogRow[]) || []);
     setAudit((aud as AuditRow[]) || []);
+    setInspections((insp as any[]) || []);
     setRefreshing(false);
   };
 
