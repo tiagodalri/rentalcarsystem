@@ -343,3 +343,51 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
+
+function ReceiptPicker({
+  receiptFile,
+  receiptPreview,
+  onFilePicked,
+  onClear,
+}: {
+  receiptFile: File | null;
+  receiptPreview: string | null;
+  onFilePicked: (f: File | null) => void;
+  onClear: () => void;
+}) {
+  const isPdf = receiptFile?.type === "application/pdf";
+  return (
+    <div className="rounded-lg border border-dashed border-border/60 p-4 space-y-3">
+      {receiptPreview && !isPdf ? (
+        <div className="relative">
+          <img src={receiptPreview} alt="Comprovante" className="w-full max-h-80 object-contain rounded" />
+          <Button size="icon" variant="secondary" className="absolute top-2 right-2 h-7 w-7" onClick={onClear}>
+            <X className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      ) : receiptFile ? (
+        <div className="flex items-center justify-between rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-sm">
+          <span className="truncate">{receiptFile.name}</span>
+          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={onClear}>
+            <X className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-2 py-6 text-center">
+          <Upload className="h-8 w-8 text-muted-foreground" />
+          <p className="text-sm">Anexe uma foto da nota ou comprovante</p>
+          <div className="flex gap-2 mt-2">
+            <label>
+              <input type="file" accept="image/*" capture="environment" hidden onChange={(e) => onFilePicked(e.target.files?.[0] || null)} />
+              <Button asChild size="sm" variant="outline"><span><Camera className="h-3.5 w-3.5 mr-1.5" /> Câmera</span></Button>
+            </label>
+            <label>
+              <input type="file" accept="image/*,application/pdf" hidden onChange={(e) => onFilePicked(e.target.files?.[0] || null)} />
+              <Button asChild size="sm" variant="outline"><span><ImageIcon className="h-3.5 w-3.5 mr-1.5" /> Galeria</span></Button>
+            </label>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
