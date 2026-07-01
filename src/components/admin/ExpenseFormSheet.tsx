@@ -216,48 +216,35 @@ export function ExpenseFormSheet({ open, onOpenChange, onSaved, defaultVehicleId
           </TabsList>
 
           <TabsContent value="ai" className="mt-4 space-y-3">
-            <div className="rounded-lg border border-dashed border-border/60 p-4 space-y-3">
-              {receiptPreview ? (
-                <div className="relative">
-                  <img src={receiptPreview} alt="Nota" className="w-full max-h-80 object-contain rounded" />
-                  <Button size="icon" variant="secondary" className="absolute top-2 right-2 h-7 w-7" onClick={() => { setReceiptFile(null); setReceiptPreview(null); }}>
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-2 py-6 text-center">
-                  <Upload className="h-8 w-8 text-muted-foreground" />
-                  <p className="text-sm">Tire a foto da nota ou anexe do rolo da câmera</p>
-                  <div className="flex gap-2 mt-2">
-                    <label>
-                      <input type="file" accept="image/*" capture="environment" hidden onChange={(e) => onFilePicked(e.target.files?.[0] || null)} />
-                      <Button asChild size="sm" variant="outline"><span><Camera className="h-3.5 w-3.5 mr-1.5" /> Câmera</span></Button>
-                    </label>
-                    <label>
-                      <input type="file" accept="image/*" hidden onChange={(e) => onFilePicked(e.target.files?.[0] || null)} />
-                      <Button asChild size="sm" variant="outline"><span><ImageIcon className="h-3.5 w-3.5 mr-1.5" /> Galeria</span></Button>
-                    </label>
-                  </div>
-                </div>
-              )}
-
-              {receiptFile && (
-                <Button className="w-full" onClick={runOCR} disabled={aiLoading}>
-                  {aiLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                  {aiLoading ? "Lendo nota..." : "Ler nota com IA"}
-                </Button>
-              )}
-
-              {aiConfidence != null && (
-                <div className="text-[11px] text-muted-foreground text-center">
-                  Confiança da IA: <span className="font-medium">{Math.round(aiConfidence * 100)}%</span>
-                  {aiConfidence < 0.7 && <Badge variant="outline" className="ml-2 text-[10px]">Revise com atenção</Badge>}
-                </div>
-              )}
-            </div>
+            <ReceiptPicker
+              receiptFile={receiptFile}
+              receiptPreview={receiptPreview}
+              onFilePicked={onFilePicked}
+              onClear={() => { setReceiptFile(null); setReceiptPreview(null); }}
+            />
+            {receiptFile && (
+              <Button className="w-full" onClick={runOCR} disabled={aiLoading}>
+                {aiLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                {aiLoading ? "Lendo nota..." : "Ler nota com IA"}
+              </Button>
+            )}
+            {aiConfidence != null && (
+              <div className="text-[11px] text-muted-foreground text-center">
+                Confiança da IA: <span className="font-medium">{Math.round(aiConfidence * 100)}%</span>
+                {aiConfidence < 0.7 && <Badge variant="outline" className="ml-2 text-[10px]">Revise com atenção</Badge>}
+              </div>
+            )}
           </TabsContent>
 
-          <TabsContent value="manual" className="mt-4" />
+          <TabsContent value="manual" className="mt-4 space-y-2">
+            <Label className="text-xs text-muted-foreground">Comprovante / Nota (opcional)</Label>
+            <ReceiptPicker
+              receiptFile={receiptFile}
+              receiptPreview={receiptPreview}
+              onFilePicked={onFilePicked}
+              onClear={() => { setReceiptFile(null); setReceiptPreview(null); }}
+            />
+          </TabsContent>
         </Tabs>
 
         <div className="mt-5 space-y-3">
