@@ -1068,7 +1068,7 @@ export default function AdminBookingDetail() {
         </Card>
       )}
 
-      <BookingEpassTolls bookingId={booking.id} />
+      <BookingEpassTolls bookingId={booking.id} transponder={vehicle?.e_pass_transponder} />
     </div>
   );
 }
