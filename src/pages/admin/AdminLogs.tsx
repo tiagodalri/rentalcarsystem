@@ -423,7 +423,9 @@ export default function AdminLogs() {
                       );
                     })}
                   {audit.length === 0 && (
-                    <li className="p-6 text-center text-sm text-muted-foreground">Nenhuma alteração registrada.</li>
+                    <li>
+                      <EmptyState compact icon={Edit3} title="Nenhuma alteração registrada" description="Edições e exclusões feitas no sistema aparecem aqui automaticamente." />
+                    </li>
                   )}
                 </ol>
               </ScrollArea>
