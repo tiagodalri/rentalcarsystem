@@ -532,6 +532,15 @@ function AdminBookingsDesktop() {
   const navigate = useNavigate();
   const hideFin = useHideFinancials();
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [tollTotals, setTollTotals] = useState<Record<string, number>>({});
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("epass_tolls").select("booking_id,amount").not("booking_id", "is", null);
+      const m: Record<string, number> = {};
+      (data || []).forEach((r: any) => { if (r.booking_id) m[r.booking_id] = (m[r.booking_id] || 0) + Number(r.amount || 0); });
+      setTollTotals(m);
+    })();
+  }, []);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
@@ -1582,9 +1591,16 @@ function AdminBookingsDesktop() {
                           </td>
                           {!hideFin && (
                             <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
-                              <span className="text-foreground font-semibold text-[13px]">
-                                {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
-                              </span>
+                              <div className="flex flex-col items-end gap-0.5">
+                                <span className="text-foreground font-semibold text-[13px]">
+                                  {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
+                                </span>
+                                {tollTotals[b.id] > 0 && (
+                                  <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400 font-medium" title="Pedágios E-Pass vinculados">
+                                    🛣 ${tollTotals[b.id].toFixed(2)}
+                                  </span>
+                                )}
+                              </div>
                             </td>
                           )}
                           {!hideFin && (
