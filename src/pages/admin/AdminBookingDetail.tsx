@@ -286,7 +286,7 @@ export default function AdminBookingDetail() {
   const FullInspectionSection = ({ insp, label, type }: { insp: Inspection | undefined; label: string; type: "checkin" | "checkout" }) => {
     if (!insp) {
       return (
-        <Card className="bg-card/80 border-border/30 overflow-hidden">
+        <Card className="bg-card/80 border-border/30 overflow-hidden flex flex-col">
           <div className="flex items-center justify-between px-4 sm:px-5 py-3 border-b border-border/20 bg-muted/20">
             <div className="flex items-center gap-2">
               {type === "checkin" ? <LogIn size={14} className="text-primary" /> : <LogOut size={14} className="text-primary" />}
@@ -294,14 +294,14 @@ export default function AdminBookingDetail() {
             </div>
             <span className="text-[10px] text-muted-foreground/50 italic">Não realizada</span>
           </div>
-          <CardContent className="px-5 py-10 flex flex-col items-center justify-center text-center gap-3">
+          <CardContent className="px-5 flex-1 flex flex-col items-center justify-center text-center gap-3">
             <div className="w-11 h-11 rounded-full bg-muted/50 flex items-center justify-center">
               <FileText size={18} className="text-muted-foreground/40" />
             </div>
-            <p className="text-xs text-muted-foreground leading-none">Inspeção pendente</p>
+            <p className="text-xs text-muted-foreground">Inspeção pendente</p>
             <button
               onClick={() => navigate(`/admin/inspection/${booking.id}?type=${type}`)}
-              className="text-xs text-primary hover:underline font-medium leading-none inline-flex items-center gap-1"
+              className="text-xs text-primary hover:underline font-medium inline-flex items-center gap-1"
             >
               Realizar inspeção <ArrowRight size={12} />
             </button>
