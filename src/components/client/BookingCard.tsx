@@ -4,18 +4,13 @@ import { motion } from "framer-motion";
 import { Booking } from "@/data/bookingTypes";
 import { useCurrency } from "@/i18n/CurrencyContext";
 import BookingStatusBadge from "./BookingStatusBadge";
-import { Progress } from "@/components/ui/progress";
+import { useAccountT } from "@/i18n/accountTranslations";
 
 interface BookingCardProps {
   booking: Booking;
   index: number;
   featured?: boolean;
 }
-
-const formatDate = (iso: string) => {
-  const d = new Date(iso);
-  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
-};
 
 function getBookingProgress(b: Booking): number {
   if (b.status === "completed") return 100;
@@ -37,6 +32,7 @@ function getProgressColor(b: Booking): string {
 const BookingCard = ({ booking, index, featured }: BookingCardProps) => {
   const navigate = useNavigate();
   const { formatPrice } = useCurrency();
+  const { t, formatDate } = useAccountT();
   const progress = getBookingProgress(booking);
   const progressColor = getProgressColor(booking);
 
@@ -67,7 +63,7 @@ const BookingCard = ({ booking, index, featured }: BookingCardProps) => {
           <div className="p-5 md:p-6 flex-1 flex flex-col justify-between">
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                Reserva {booking.status === "in_progress" ? "em andamento" : "ativa"}
+                {booking.status === "in_progress" ? t.cardInProgress : t.cardActive}
               </p>
               <h3 className="text-xl font-bold text-foreground">{booking.vehicle}</h3>
               <p className="text-sm text-muted-foreground italic">{booking.category}</p>
@@ -78,7 +74,7 @@ const BookingCard = ({ booking, index, featured }: BookingCardProps) => {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <MapPin size={14} className="text-primary" />
-                  Devolução: {booking.dropoffLocation}
+                  {t.dropoffLabel}: {booking.dropoffLocation}
                 </span>
               </div>
             </div>
@@ -87,7 +83,7 @@ const BookingCard = ({ booking, index, featured }: BookingCardProps) => {
                 <div className="space-y-1.5">
                   {booking.daysRemaining != null && (
                     <p className="text-sm font-semibold text-foreground">
-                      Devolução em {booking.daysRemaining} dias
+                      {t.cardReturnIn(booking.daysRemaining)}
                     </p>
                   )}
                   <div className="flex items-center gap-2 w-48">
@@ -102,7 +98,7 @@ const BookingCard = ({ booking, index, featured }: BookingCardProps) => {
                 </div>
               </div>
               <button className="flex items-center gap-1 gold-gradient text-primary-foreground px-4 py-2 rounded-lg text-sm font-semibold uppercase tracking-wider hover:opacity-90 transition-opacity">
-                Ver detalhes
+                {t.viewDetails}
                 <ChevronRight size={16} />
               </button>
             </div>
