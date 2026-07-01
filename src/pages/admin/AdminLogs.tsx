@@ -284,8 +284,9 @@ export default function AdminLogs() {
       </div>
 
       <Tabs defaultValue="activity" className="w-full">
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto">
           <TabsTrigger value="activity">Atividade ao vivo</TabsTrigger>
+          <TabsTrigger value="inspections">Inspeções realizadas</TabsTrigger>
           <TabsTrigger value="audit">Alterações de dados</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="sessions">Sessões</TabsTrigger>
