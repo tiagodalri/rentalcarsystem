@@ -15,6 +15,7 @@ import {
   Upload,
   GraduationCap,
   ScrollText,
+  Receipt,
 } from "lucide-react";
 
 import zeusLogo from "@/assets/zeus-logo-mark.png";
@@ -69,6 +70,8 @@ const menuSections: MenuSection[] = [
       { title: "Reservas",   url: "/admin/bookings",  icon: CalendarRange, allowedRoles: ["admin","operations","support","driver"] },
       { title: "Sincronizar Turo", url: "/admin/turo-import", icon: Upload, allowedRoles: ["admin","operations"] },
       { title: "Sincronizar E-Pass", url: "/admin/epass-import", icon: Upload, allowedRoles: ["admin","operations","finance"] },
+      { title: "Pedágios", url: "/admin/tolls", icon: Receipt, allowedRoles: ["admin","operations","finance"] },
+      
       
       { title: "Agenda", url: "/admin/calendar",  icon: CalendarDays,  allowedRoles: ["admin","operations","support"] },
       { title: "Frota",      url: "/admin/fleet",     icon: Car,           allowedRoles: ["admin","operations"] },
