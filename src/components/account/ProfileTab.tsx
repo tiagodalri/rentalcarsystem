@@ -127,7 +127,7 @@ const ProfileTab = () => {
   const applyOcr = (values: Partial<Record<keyof OcrFields, string>>) => {
     setForm((prev) => ({ ...prev, ...values } as any));
     resetOcr();
-    toast({ title: "Dados aplicados", description: "Confira e clique em salvar." });
+    toast({ title: t.ocrApplied, description: t.ocrAppliedDesc });
   };
 
   const dirty = useMemo(() => {
