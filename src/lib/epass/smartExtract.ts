@@ -5,7 +5,7 @@
 // .pdf → leitura local quando tem texto; OCR/IA só como fallback
 // .png/.jpg/.jpeg/.webp/.heic → IA multimodal (visão) na edge function
 // outros → tenta ler como texto; se vazio, manda binário pra IA
-import { parseEpassCsv, parseEpassStatementText, type EpassParseResult } from "./csvParser";
+import { parseEpassCsv, parseEpassStatementText, parseTollTransactionsText, type EpassParseResult } from "./csvParser";
 import { supabase } from "@/integrations/supabase/client";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
