@@ -308,10 +308,10 @@ const ProfileTab = () => {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold text-foreground truncate">
-                    {licenseFile ? licenseFile.name : "Foto atual da CNH"}
+                    {licenseFile ? licenseFile.name : t.currentLicensePhoto}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
-                    {licenseFile ? "Pronta para envio ao salvar" : "Reenvie para atualizar"}
+                    {licenseFile ? t.readyToSend : t.reuploadHint}
                   </p>
                 </div>
               </div>
