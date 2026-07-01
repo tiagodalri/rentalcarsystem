@@ -7,7 +7,7 @@ import {
   Sector,
   Tooltip,
 } from "recharts";
-import { TrendingUp } from "lucide-react";
+
 
 export interface DonutDatum {
   name: string;
@@ -22,63 +22,24 @@ interface Props {
   height?: number;
 }
 
-const RADIAN = Math.PI / 180;
+
 
 const renderActiveShape = (props: any) => {
   const {
-    cx, cy, midAngle, innerRadius, outerRadius, startAngle, endAngle,
-    fill, payload, percent, value,
+    cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill,
   } = props;
-
-  const sin = Math.sin(-RADIAN * midAngle);
-  const cos = Math.cos(-RADIAN * midAngle);
-  const sx = cx + (outerRadius + 6) * cos;
-  const sy = cy + (outerRadius + 6) * sin;
-  const mx = cx + (outerRadius + 14) * cos;
-  const my = cy + (outerRadius + 14) * sin;
-  const ex = mx + (cos >= 0 ? 1 : -1) * 10;
-  const ey = my;
-  const textAnchor = cos >= 0 ? "start" : "end";
-
   return (
     <g>
       <Sector
         cx={cx}
         cy={cy}
         innerRadius={innerRadius}
-        outerRadius={outerRadius + 5}
+        outerRadius={outerRadius + 6}
         startAngle={startAngle}
         endAngle={endAngle}
         fill={fill}
-        style={{ filter: "drop-shadow(0 2px 6px hsl(0 0% 0% / 0.25))" }}
+        style={{ filter: "drop-shadow(0 4px 12px hsl(0 0% 0% / 0.2))" }}
       />
-      <path
-        d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
-        stroke={fill}
-        fill="none"
-        strokeWidth={1.5}
-      />
-      <circle cx={ex} cy={ey} r={3} fill={fill} stroke="none" />
-      <text
-        x={ex + (cos >= 0 ? 1 : -1) * 6}
-        y={ey}
-        textAnchor={textAnchor}
-        fill="hsl(var(--foreground))"
-        fontSize={12}
-        fontWeight={600}
-      >
-        {payload.name}
-      </text>
-      <text
-        x={ex + (cos >= 0 ? 1 : -1) * 6}
-        y={ey}
-        dy={16}
-        textAnchor={textAnchor}
-        fill="hsl(var(--muted-foreground))"
-        fontSize={11}
-      >
-        {`${(percent * 100).toFixed(1)}%`}
-      </text>
     </g>
   );
 };
@@ -130,9 +91,9 @@ export default function DonutChart({ data, title, unit = "$", height = 320 }: Pr
   return (
     <div className="flex flex-col lg:flex-row items-center gap-6">
       {/* Chart */}
-      <div className="relative w-full lg:w-1/2" style={{ minHeight: height }}>
+      <div className="relative w-full lg:w-1/2 donut-chart-wrap" style={{ minHeight: height }}>
         <ResponsiveContainer width="100%" height={height}>
-          <PieChart>
+          <PieChart margin={{ top: 16, right: 16, bottom: 16, left: 16 }}>
             <Pie
               activeIndex={activeIndex}
               activeShape={renderActiveShape}
