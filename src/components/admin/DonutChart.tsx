@@ -7,7 +7,7 @@ import {
   Sector,
   Tooltip,
 } from "recharts";
-import { TrendingUp } from "lucide-react";
+
 
 export interface DonutDatum {
   name: string;
