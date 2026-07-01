@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { KpiCard } from "@/components/admin/KpiCard";
+import { AdminKpiGrid } from "@/components/admin/layout/AdminPage";
 import {
   Car, Users, DollarSign, TrendingUp, Clock,
   CheckCircle2, Wrench, Gauge, Calculator,
@@ -132,8 +133,8 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
     { label: "Custo Medio/Carro", value: fmtUSD(stats.avgCostPerCar), icon: Calculator, color: "text-foreground", onClick: goFleet },
   ];
 
-  const renderCardGrid = (cards: StatCard[], cols = "grid-cols-2 lg:grid-cols-4") => (
-    <div className={`grid ${cols} gap-4`}>
+  const renderCardGrid = (cards: StatCard[], cols: 2 | 3 | 4 = 4) => (
+    <AdminKpiGrid cols={cols}>
       {cards.map((card) => (
         <button
           type="button"
@@ -146,11 +147,11 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
             value={card.value}
             icon={card.icon}
             valueClassName={card.color}
-            className="bg-card/80 border-border/30 hover:border-primary/30 hover:bg-card/95 transition-all duration-200 cursor-pointer"
+            className="bg-card/80 border-border/30 hover:border-primary/30 hover:bg-card/95 transition-all duration-200 cursor-pointer h-full"
           />
         </button>
       ))}
-    </div>
+    </AdminKpiGrid>
   );
 
   const statusMap: Record<string, { label: string; className: string }> = {
@@ -189,7 +190,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
       {showFinancial && (
         <section className="space-y-3">
           <h2 className="admin-section-title">Investimento</h2>
-          {renderCardGrid(financeCards, "grid-cols-2 lg:grid-cols-2")}
+          {renderCardGrid(financeCards, 2)}
         </section>
       )}
 
