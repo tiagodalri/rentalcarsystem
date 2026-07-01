@@ -602,19 +602,19 @@ function KpiCard({
   return (
     <button
       onClick={onClick}
-      className="group text-left rounded-xl border border-border/40 bg-card/70 hover:border-foreground/30 hover:bg-card transition-all p-4 flex flex-col gap-3"
+      className="group flex min-h-[128px] flex-col items-center justify-center gap-2 rounded-xl border border-border/40 bg-card/70 px-4 py-5 text-center transition-all hover:border-foreground/30 hover:bg-card"
     >
-      <div className="flex items-center justify-between">
-        <span className="admin-label flex items-center gap-1.5">
+      <div className="flex min-h-[16px] items-center justify-center gap-2">
+        <span className="admin-label flex items-center justify-center gap-1.5 leading-[1.15]">
           {accent && <span className={`h-1.5 w-1.5 rounded-full ${ACCENT_DOT[accent]}`} />}
           {label}
         </span>
         <Icon size={13} className="text-muted-foreground/50 group-hover:text-foreground transition-colors" strokeWidth={1.75} />
       </div>
-      <div className={`admin-kpi ${accent ? ACCENT_TEXT[accent] : "text-foreground"}`}>
+      <div className={`admin-kpi leading-[1.05] ${accent ? ACCENT_TEXT[accent] : "text-foreground"}`}>
         {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
       </div>
-      {sub && <span className="text-[11px] text-muted-foreground/70 leading-tight">{sub}</span>}
+      <span className="min-h-[14px] text-[11px] text-muted-foreground/70 leading-[1.2]">{sub ?? "\u00A0"}</span>
     </button>
   );
 }
