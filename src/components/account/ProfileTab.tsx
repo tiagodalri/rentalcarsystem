@@ -274,7 +274,7 @@ const ProfileTab = () => {
         <section className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
             <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-foreground flex items-center gap-2">
-              <FileText size={14} className="text-primary" /> Habilitação (CNH)
+              <FileText size={14} className="text-primary" /> {t.cnhTitle}
             </h3>
             <span className={`inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border ${cnhStatus.color}`}>
               <StatusIcon size={11} />
