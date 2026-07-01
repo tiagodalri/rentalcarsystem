@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { EmptyState } from "@/components/admin/EmptyState";
 import { Receipt, CheckCircle2, Loader2, ExternalLink, Download, Search } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { formatPersonName } from "@/lib/formatName";
@@ -222,9 +223,13 @@ export default function AdminTolls() {
             <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
           ) : filtered.length === 0 ? (
             <Card className="border-border/40">
-              <CardContent className="py-16 text-center space-y-2">
-                <Receipt className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                <p className="text-sm text-muted-foreground">Nenhum pedágio encontrado com os filtros atuais.</p>
+              <CardContent>
+                <EmptyState
+                  compact
+                  icon={Receipt}
+                  title="Nenhum pedágio encontrado"
+                  description="Ajuste os filtros ou importe um novo extrato E-Pass."
+                />
               </CardContent>
             </Card>
           ) : (
