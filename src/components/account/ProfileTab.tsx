@@ -338,22 +338,22 @@ const ProfileTab = () => {
                 onClick={() => cameraRef.current?.click()}
                 className="h-9 px-3 rounded-md border border-dashed border-border bg-background text-xs text-foreground hover:border-primary/40 transition-all flex items-center gap-1.5"
               >
-                <Camera size={12} /> Câmera
+                <Camera size={12} /> {t.camera}
               </button>
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 className="h-9 px-3 rounded-md border border-dashed border-border bg-background text-xs text-foreground hover:border-primary/40 transition-all flex items-center gap-1.5"
               >
-                <Upload size={12} /> Anexar arquivo
+                <Upload size={12} /> {t.attachFile}
               </button>
             </div>
             <p className="text-[10px] text-muted-foreground">
-              Imagem ou PDF, máximo 10MB. Reenviar a foto coloca a CNH em "Aguardando verificação".
+              {t.uploadHint}
             </p>
             {ocrLoading && (
               <p className="text-[11px] text-primary mt-1 flex items-center gap-1.5">
-                <Loader2 size={11} className="animate-spin" /> Lendo documento com IA...
+                <Loader2 size={11} className="animate-spin" /> {t.ocrReading}
               </p>
             )}
             {ocrResult && (
