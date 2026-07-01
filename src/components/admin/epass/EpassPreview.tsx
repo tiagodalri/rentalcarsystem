@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Sparkles } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,6 +7,7 @@ import { formatPersonName } from "@/lib/formatName";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import type { AssignedToll } from "@/lib/epass/assignEngine";
+import type { TransponderHint } from "@/lib/epass/csvParser";
 
 function fmtUsd(n: number) {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD" });
@@ -24,16 +25,51 @@ function fmtDateTime(iso: string) {
 type FleetVehicle = {
   id: string;
   name: string | null;
+  brand: string | null;
   model: string | null;
+  year: number | null;
+  color: string | null;
   license_plate: string | null;
   e_pass_transponder: string | null;
 };
 
+function normalizePlate(s?: string | null) {
+  return (s || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+}
+
+// Sugestao de veiculo a partir da pista extraida do arquivo (placa, modelo,
+// cor, ano). Placa exata ganha; senao pontua match de tokens.
+function suggestVehicle(hint: TransponderHint | undefined, fleet: FleetVehicle[]): { id: string; reason: string } | null {
+  if (!hint) return null;
+  const plate = normalizePlate(hint.plate);
+  if (plate) {
+    const byPlate = fleet.find((v) => normalizePlate(v.license_plate) === plate);
+    if (byPlate) return { id: byPlate.id, reason: `placa ${hint.plate}` };
+  }
+  const desc = [hint.vehicle, hint.color, hint.year].filter(Boolean).join(" ").toLowerCase();
+  if (!desc) return null;
+  const tokens = Array.from(new Set(desc.split(/[^a-z0-9]+/i).filter((t) => t.length >= 3)));
+  if (tokens.length === 0) return null;
+  let best: { id: string; score: number; label: string } | null = null;
+  for (const v of fleet) {
+    const label = [v.brand, v.model, v.name, v.color, v.year, v.license_plate]
+      .filter(Boolean).join(" ").toLowerCase();
+    let score = 0;
+    for (const t of tokens) if (label.includes(t)) score++;
+    if (hint.year && label.includes(hint.year)) score += 1;
+    if (score > 0 && (!best || score > best.score)) best = { id: v.id, score, label };
+  }
+  if (best && best.score >= 2) return { id: best.id, reason: "modelo/cor/ano" };
+  return null;
+}
+
 export function EpassPreview({
   assigned,
+  hints,
   onRemapped,
 }: {
   assigned: AssignedToll[];
+  hints?: Record<string, TransponderHint>;
   onRemapped?: () => void | Promise<void>;
 }) {
   const matched = useMemo(() => assigned.filter((t) => t.status === "matched"), [assigned]);
@@ -55,6 +91,7 @@ export function EpassPreview({
   const [tab, setTab] = useState("matched");
   const [fleet, setFleet] = useState<FleetVehicle[]>([]);
   const [mapping, setMapping] = useState<Record<string, string>>({}); // transponder -> vehicle_id
+  const [suggestions, setSuggestions] = useState<Record<string, { id: string; reason: string }>>({});
   const [saving, setSaving] = useState(false);
 
   // Carrega frota inteira pra dropdown (uma vez).
@@ -63,12 +100,33 @@ export function EpassPreview({
     (async () => {
       const { data } = await supabase
         .from("vehicles")
-        .select("id,name,model,license_plate,e_pass_transponder")
+        .select("id,name,brand,model,year,color,license_plate,e_pass_transponder")
         .order("model", { ascending: true });
       if (alive) setFleet((data || []) as FleetVehicle[]);
     })();
     return () => { alive = false; };
   }, []);
+
+  // Ao ter frota + pistas, calcula sugestoes e pre-preenche o mapeamento.
+  useEffect(() => {
+    if (fleet.length === 0 || !hints) return;
+    const nextSug: Record<string, { id: string; reason: string }> = {};
+    const preselect: Record<string, string> = {};
+    const usedByFleet = new Set(
+      fleet.filter((v) => v.e_pass_transponder).map((v) => v.id),
+    );
+    const claimed = new Set<string>();
+    for (const [tr] of transpondersFaltando) {
+      const s = suggestVehicle(hints[tr], fleet);
+      if (!s) continue;
+      if (usedByFleet.has(s.id) || claimed.has(s.id)) continue;
+      nextSug[tr] = s;
+      preselect[tr] = s.id;
+      claimed.add(s.id);
+    }
+    setSuggestions(nextSug);
+    setMapping((prev) => ({ ...preselect, ...prev }));
+  }, [fleet, hints, transpondersFaltando]);
 
   const usedVehicleIds = useMemo(() => {
     const used = new Set<string>();
@@ -78,6 +136,7 @@ export function EpassPreview({
   }, [fleet, mapping]);
 
   const pendingCount = Object.values(mapping).filter(Boolean).length;
+  const suggestedCount = Object.keys(suggestions).length;
 
   const handleSave = async () => {
     const entries = Object.entries(mapping).filter(([, v]) => !!v);
@@ -107,6 +166,7 @@ export function EpassPreview({
       setSaving(false);
     }
   };
+
 
   return (
     <div className="space-y-4">
