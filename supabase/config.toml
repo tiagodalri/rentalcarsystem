@@ -43,3 +43,7 @@ verify_jwt = false
 
 [functions.handle-email-suppression]
 verify_jwt = false
+
+[functions.admin-create-test-user]
+verify_jwt = false
+
