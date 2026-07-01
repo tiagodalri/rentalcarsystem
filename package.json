@@ -63,6 +63,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^0.462.0",
     "papaparse": "^5.5.4",
+    "pdfjs-dist": "4.10.38",
     "react": "^18.3.1",
     "react-barcode": "^1.6.1",
     "react-day-picker": "^8.10.1",
