@@ -466,7 +466,7 @@ export default function AdminFleetReport({
         </Card>
       </div>
 
-      {/* Charts Row 2 */}
+  {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Revenue by category */}
         <Card className="border-border/40">
@@ -480,28 +480,14 @@ export default function AdminFleetReport({
           </CardHeader>
           <CardContent>
             {categoryData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={280}>
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={3}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {categoryData.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    {...darkTooltipProps}
-                    formatter={(v: number) => [`$${v.toLocaleString()}`, "Receita"]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+              <DonutChart
+                title="Total"
+                data={categoryData.map((d, i) => ({
+                  name: d.name,
+                  value: d.value,
+                  color: CATEGORY_PALETTE[i % CATEGORY_PALETTE.length],
+                }))}
+              />
             ) : (
               <EmptyState icon={DollarSign} title="Sem dados de receita" description="A receita por categoria aparecerá quando houver reservas neste mês." compact />
             )}
