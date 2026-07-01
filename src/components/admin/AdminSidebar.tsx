@@ -16,6 +16,7 @@ import {
   GraduationCap,
   ScrollText,
   Receipt,
+  Wallet,
 } from "lucide-react";
 
 import zeusLogo from "@/assets/zeus-logo-mark.png";
