@@ -630,6 +630,13 @@ export default function AdminLogs() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <UserActivitySheet
+        open={!!selectedUser}
+        onOpenChange={(o) => !o && setSelectedUser(null)}
+        userKey={selectedUser}
+        logs={logs}
+      />
     </div>
   );
 }
