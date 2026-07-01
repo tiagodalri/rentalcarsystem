@@ -108,6 +108,7 @@ type Vehicle = {
   year: number | null;
   image_url: string | null;
   status: string;
+  e_pass_transponder?: string | null;
 };
 
 type Inspection = {
