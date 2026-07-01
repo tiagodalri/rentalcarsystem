@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Activity, Users, MonitorSmartphone, Search, RefreshCw, MapPin, Smartphone, Tablet, Monitor, LogIn, LogOut, MousePointerClick, FileText, Edit3, Trash2, PlusCircle, Globe } from "lucide-react";
+import { Activity, Users, MonitorSmartphone, Search, RefreshCw, MapPin, Smartphone, Tablet, Monitor, LogIn, LogOut, MousePointerClick, FileText, Edit3, Trash2, PlusCircle, Globe, ClipboardCheck, ArrowDownToLine, ArrowUpFromLine, Gauge, Fuel, Car, User } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   describeNavigation,
@@ -101,10 +102,34 @@ type AuditRow = {
   diff: any;
 };
 
+type InspectionRow = {
+  id: string;
+  booking_id: string;
+  type: string;
+  odometer_reading: number | null;
+  fuel_level: string | null;
+  agent_name: string | null;
+  completed_at: string | null;
+  created_at: string;
+  location_address: string | null;
+  notes: string | null;
+  exterior_photos: any;
+  damages: any;
+  bookings: {
+    booking_number: string | null;
+    customer_name: string | null;
+    pickup_date: string | null;
+    return_date: string | null;
+    vehicles: { name: string | null; license_plate: string | null; brand: string | null; model: string | null } | null;
+  } | null;
+};
+
 export default function AdminLogs() {
   const { user, loading } = useAdminAuth();
   const [logs, setLogs] = useState<LogRow[]>([]);
   const [audit, setAudit] = useState<AuditRow[]>([]);
+  const [inspections, setInspections] = useState<InspectionRow[]>([]);
+  const [inspFilter, setInspFilter] = useState<"all" | "checkin" | "checkout">("all");
   const [search, setSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
 
@@ -112,12 +137,18 @@ export default function AdminLogs() {
 
   const load = async () => {
     setRefreshing(true);
-    const [{ data: act }, { data: aud }] = await Promise.all([
+    const [{ data: act }, { data: aud }, { data: insp }] = await Promise.all([
       supabase.from("activity_logs").select("*").order("created_at", { ascending: false }).limit(500),
       supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(500),
+      supabase
+        .from("vehicle_inspections")
+        .select("id,booking_id,type,odometer_reading,fuel_level,agent_name,completed_at,created_at,location_address,notes,exterior_photos,damages,bookings:booking_id(booking_number,customer_name,pickup_date,return_date,vehicles:vehicle_id(name,license_plate,brand,model))")
+        .order("completed_at", { ascending: false, nullsFirst: false })
+        .limit(500),
     ]);
     setLogs((act as LogRow[]) || []);
     setAudit((aud as AuditRow[]) || []);
+    setInspections((insp as any[]) || []);
     setRefreshing(false);
   };
 
@@ -253,8 +284,9 @@ export default function AdminLogs() {
       </div>
 
       <Tabs defaultValue="activity" className="w-full">
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto">
           <TabsTrigger value="activity">Atividade ao vivo</TabsTrigger>
+          <TabsTrigger value="inspections">Inspeções realizadas</TabsTrigger>
           <TabsTrigger value="audit">Alterações de dados</TabsTrigger>
           <TabsTrigger value="users">Usuários</TabsTrigger>
           <TabsTrigger value="sessions">Sessões</TabsTrigger>
@@ -440,6 +472,142 @@ export default function AdminLogs() {
                     </div>
                   ))}
                 </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="inspections">
+          <Card className="admin-card">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 gap-3 flex-wrap">
+              <div className="flex items-center gap-3 flex-wrap">
+                <CardTitle className="text-base">Inspeções realizadas</CardTitle>
+                <div className="flex items-center gap-1 rounded-lg border border-border p-0.5 text-xs">
+                  {(["all", "checkin", "checkout"] as const).map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => setInspFilter(f)}
+                      className={`px-2.5 py-1 rounded-md transition-colors ${inspFilter === f ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    >
+                      {f === "all" ? "Todas" : f === "checkin" ? "Retiradas" : "Devoluções"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <Badge variant="outline" className="font-normal">
+                {inspections.filter((i) => inspFilter === "all" || i.type === inspFilter).length} inspeções
+              </Badge>
+            </CardHeader>
+            <CardContent className="p-0">
+              <ScrollArea className="h-[62vh]">
+                <ol className="relative px-4 sm:px-6 py-4">
+                  <span className="absolute left-[34px] sm:left-[42px] top-4 bottom-4 w-px bg-border" aria-hidden />
+                  {inspections
+                    .filter((i) => inspFilter === "all" || i.type === inspFilter)
+                    .filter((i) => {
+                      const q = search.trim().toLowerCase();
+                      if (!q) return true;
+                      return [
+                        i.agent_name,
+                        i.bookings?.booking_number,
+                        i.bookings?.customer_name,
+                        i.bookings?.vehicles?.name,
+                        i.bookings?.vehicles?.license_plate,
+                        i.location_address,
+                      ]
+                        .filter(Boolean)
+                        .some((v) => String(v).toLowerCase().includes(q));
+                    })
+                    .map((i) => {
+                      const isCheckin = i.type === "checkin";
+                      const Icon = isCheckin ? ArrowDownToLine : ArrowUpFromLine;
+                      const accent = isCheckin
+                        ? "text-emerald-600 bg-emerald-500/10 ring-emerald-500/20"
+                        : "text-blue-600 bg-blue-500/10 ring-blue-500/20";
+                      const when = i.completed_at || i.created_at;
+                      const photos = Array.isArray(i.exterior_photos) ? i.exterior_photos.length : 0;
+                      const damages = Array.isArray(i.damages) ? i.damages.length : 0;
+                      const veh = i.bookings?.vehicles;
+                      const vehLabel = veh?.name || [veh?.brand, veh?.model].filter(Boolean).join(" ") || "Veículo";
+                      return (
+                        <li key={i.id} className="relative pl-12 sm:pl-14 py-3">
+                          <span className={`absolute left-0 sm:left-2 top-3 h-7 w-7 rounded-full ring-2 ring-background flex items-center justify-center ${accent}`}>
+                            <Icon className="h-3.5 w-3.5" />
+                          </span>
+                          <div className="rounded-lg border border-border/50 bg-card hover:bg-muted/30 transition-colors p-3 sm:p-4">
+                            <div className="flex flex-wrap items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <Badge variant="outline" className={`font-normal text-[10px] uppercase tracking-wider ${accent}`}>
+                                    {isCheckin ? "Retirada" : "Devolução"}
+                                  </Badge>
+                                  {i.bookings?.booking_number && (
+                                    <Link
+                                      to={`/admin/bookings/${i.booking_id}`}
+                                      className="text-sm font-medium text-foreground hover:underline"
+                                    >
+                                      {i.bookings.booking_number}
+                                    </Link>
+                                  )}
+                                </div>
+                                <div className="mt-1.5 flex items-center gap-2 text-sm text-foreground/90">
+                                  <Car className="h-3.5 w-3.5 text-muted-foreground" />
+                                  <span>{vehLabel}</span>
+                                  {veh?.license_plate && (
+                                    <span className="font-mono text-xs text-muted-foreground">· {veh.license_plate}</span>
+                                  )}
+                                </div>
+                                <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+                                  <User className="h-3 w-3" />
+                                  <span>{i.bookings?.customer_name || "Cliente"}</span>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-2">
+                                  <span className="inline-flex items-center gap-1">
+                                    <ClipboardCheck className="h-3 w-3" />
+                                    Operador: <span className="text-foreground">{i.agent_name || "—"}</span>
+                                  </span>
+                                  {i.odometer_reading != null && (
+                                    <span className="inline-flex items-center gap-1 tabular-nums">
+                                      <Gauge className="h-3 w-3" />
+                                      {i.odometer_reading.toLocaleString("pt-BR")} mi
+                                    </span>
+                                  )}
+                                  {i.fuel_level && (
+                                    <span className="inline-flex items-center gap-1 capitalize">
+                                      <Fuel className="h-3 w-3" />
+                                      {i.fuel_level}
+                                    </span>
+                                  )}
+                                  <span className="inline-flex items-center gap-1">
+                                    <FileText className="h-3 w-3" />
+                                    {photos} fotos{damages > 0 ? ` · ${damages} avarias` : ""}
+                                  </span>
+                                  {i.location_address && (
+                                    <span className="inline-flex items-center gap-1 max-w-[280px] truncate">
+                                      <MapPin className="h-3 w-3 shrink-0" />
+                                      <span className="truncate">{i.location_address}</span>
+                                    </span>
+                                  )}
+                                </div>
+                                {i.notes && (
+                                  <div className="mt-2 text-xs text-muted-foreground italic border-l-2 border-border pl-2">
+                                    "{i.notes}"
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-right shrink-0">
+                                <div className="text-xs font-medium text-foreground">{relTime(when)}</div>
+                                <div className="text-[10px] text-muted-foreground tabular-nums">{fmtTime(when)}</div>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  {inspections.filter((i) => inspFilter === "all" || i.type === inspFilter).length === 0 && (
+                    <li className="p-6 text-center text-sm text-muted-foreground">Nenhuma inspeção registrada.</li>
+                  )}
+                </ol>
               </ScrollArea>
             </CardContent>
           </Card>
