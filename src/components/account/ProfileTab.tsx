@@ -206,31 +206,31 @@ const ProfileTab = () => {
         {/* SEÇÃO: DADOS PESSOAIS */}
         <section className="rounded-xl border border-border bg-card p-5">
           <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-foreground mb-4 flex items-center gap-2">
-            <User size={14} className="text-primary" /> Dados Pessoais
+            <User size={14} className="text-primary" /> {t.personalTitle}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Nome completo" icon={User}>
+            <Field label={t.fieldFullName} icon={User}>
               <input type="text" value={form.full_name} onChange={(e) => update("full_name", e.target.value)} className={inputCls} />
             </Field>
-            <Field label="E-mail" icon={Mail} locked tooltip="Para alterar o e-mail, contate o suporte.">
+            <Field label={t.fieldEmail} icon={Mail} locked tooltip={t.emailLockedTip}>
               <input type="email" value={customer?.email || ""} disabled className={inputCls + " opacity-60 cursor-not-allowed"} />
             </Field>
-            <Field label="Celular / WhatsApp" icon={Phone}>
+            <Field label={t.fieldPhone} icon={Phone}>
               <PhoneInput value={form.phone} onChange={(v) => update("phone", v)} inputClassName="h-9 px-2.5 text-sm" />
             </Field>
-            <Field label="Documento (CPF / Passport / ID)" icon={FileText}>
+            <Field label={t.fieldDocument} icon={FileText}>
               <input
                 type="text"
                 value={form.document_number}
                 onChange={(e) => update("document_number", e.target.value)}
                 className={inputCls}
-                placeholder="CPF, Passport ou ID/SSN"
+                placeholder={t.fieldDocumentPh}
               />
             </Field>
-            <Field label="Nacionalidade" icon={Globe}>
-              <input type="text" value={form.nationality} onChange={(e) => update("nationality", e.target.value)} className={inputCls} placeholder="Brasileira" />
+            <Field label={t.fieldNationality} icon={Globe}>
+              <input type="text" value={form.nationality} onChange={(e) => update("nationality", e.target.value)} className={inputCls} placeholder={t.fieldNationalityPh} />
             </Field>
-            <Field label="Data de nascimento" icon={Calendar}>
+            <Field label={t.fieldBirth} icon={Calendar}>
               <input type="date" value={form.date_of_birth} onChange={(e) => update("date_of_birth", e.target.value)} className={inputCls} />
             </Field>
           </div>
