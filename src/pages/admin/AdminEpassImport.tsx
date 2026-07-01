@@ -132,6 +132,7 @@ export default function AdminEpassImport() {
           )}
           <EpassPreview
             assigned={assigned}
+            hints={parsed.transponder_hints}
             onRemapped={async () => {
               if (!parsed) return;
               const rematched = await assignTolls(parsed.tolls);

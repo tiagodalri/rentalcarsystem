@@ -23,12 +23,23 @@ export type EpassTollRow = {
   dedupe_hash: string;
 };
 
+// Pistas por transponder extraidas do proprio arquivo (quando o extrato traz
+// colunas de placa/modelo/cor/ano/descricao). Usadas pra pre-sugerir a
+// vinculacao com a frota no preview.
+export type TransponderHint = {
+  plate?: string;
+  vehicle?: string;
+  color?: string;
+  year?: string;
+};
+
 export type EpassParseResult = {
   filename: string;
   account_number: string | null;
   period_label: string | null;
   account: EpassAccountRow[];
   tolls: EpassTollRow[];
+  transponder_hints: Record<string, TransponderHint>;
   errors: { line: number; reason: string }[];
 };
 
@@ -256,6 +267,91 @@ function parseTollTextLine(raw: string): EpassTollRow | null {
   return buildTollRow(match[1], date, match[3], posting, location, Math.abs(amount), tollType);
 }
 
+// Header-aware: quando o extrato traz colunas extras (Plate/License,
+// Vehicle/Description/Model, Color, Year), aproveitamos pra montar pistas
+// por transponder.
+type TollHeaderMap = {
+  transponder?: number;
+  date?: number;
+  time?: number;
+  posting?: number;
+  location?: number;
+  amount?: number;
+  toll_type?: number;
+  plate?: number;
+  vehicle?: number;
+  color?: number;
+  year?: number;
+};
+
+const HEADER_ALIASES: Record<keyof TollHeaderMap, string[]> = {
+  transponder: ["transponder"],
+  date: ["date"],
+  time: ["time"],
+  posting: ["posting"],
+  location: ["location", "plaza", "site", "exit", "entry"],
+  amount: ["amount", "charge", "toll"],
+  toll_type: ["type"],
+  plate: ["plate", "license"],
+  vehicle: ["vehicle", "description", "model", "make"],
+  color: ["color", "colour"],
+  year: ["year"],
+};
+
+function detectTollHeader(cells: string[]): TollHeaderMap | null {
+  const lower = cells.map((c) => c.toLowerCase().trim());
+  if (!lower.some((c) => c.includes("transponder"))) return null;
+  const map: TollHeaderMap = {};
+  for (let i = 0; i < lower.length; i++) {
+    for (const key of Object.keys(HEADER_ALIASES) as (keyof TollHeaderMap)[]) {
+      if (map[key] !== undefined) continue;
+      // "posting" nao pode capturar "posting date"? sim, contains basta.
+      if (HEADER_ALIASES[key].some((a) => lower[i].includes(a))) {
+        map[key] = i;
+      }
+    }
+  }
+  return map;
+}
+
+function cleanCell(v: string | undefined): string {
+  return (v || "").trim().replace(/^"|"$/g, "");
+}
+
+function parseTollByHeader(cells: string[], h: TollHeaderMap): { toll: EpassTollRow | null; hint: TransponderHint } {
+  const hint: TransponderHint = {};
+  const plate = cleanCell(h.plate !== undefined ? cells[h.plate] : "");
+  const vehicle = cleanCell(h.vehicle !== undefined ? cells[h.vehicle] : "");
+  const color = cleanCell(h.color !== undefined ? cells[h.color] : "");
+  const yearRaw = cleanCell(h.year !== undefined ? cells[h.year] : "");
+  if (plate) hint.plate = plate;
+  if (vehicle) hint.vehicle = vehicle;
+  if (color) hint.color = color;
+  if (/^\d{4}$/.test(yearRaw)) hint.year = yearRaw;
+
+  const transponder = cleanCell(h.transponder !== undefined ? cells[h.transponder] : "").replace(/\D/g, "");
+  const date = parseEpassDate(cleanCell(h.date !== undefined ? cells[h.date] : ""));
+  const time = cleanCell(h.time !== undefined ? cells[h.time] : "");
+  const posting = parseEpassDate(cleanCell(h.posting !== undefined ? cells[h.posting] : "")) || date;
+  const location = cleanCell(h.location !== undefined ? cells[h.location] : "");
+  const amountRaw = cleanCell(h.amount !== undefined ? cells[h.amount] : "");
+  const amount = parseAmount(amountRaw);
+  const tollType = cleanCell(h.toll_type !== undefined ? cells[h.toll_type] : "");
+
+  if (!transponder || !date || !time || amount === null) return { toll: null, hint };
+  const toll = buildTollRow(transponder, date, time, posting, location, Math.abs(amount), tollType);
+  return { toll, hint };
+}
+
+function mergeHint(target: TransponderHint | undefined, incoming: TransponderHint): TransponderHint {
+  const out = { ...(target || {}) };
+  if (incoming.plate && !out.plate) out.plate = incoming.plate;
+  if (incoming.vehicle && !out.vehicle) out.vehicle = incoming.vehicle;
+  if (incoming.color && !out.color) out.color = incoming.color;
+  if (incoming.year && !out.year) out.year = incoming.year;
+  return out;
+}
+
 export async function parseEpassCsv(file: File): Promise<EpassParseResult> {
   // Roteia PDF para o pipeline OCR (Gemini); CSV continua no parser local.
   if (/\.pdf$/i.test(file.name) || file.type === "application/pdf") {
@@ -267,22 +363,29 @@ export async function parseEpassCsv(file: File): Promise<EpassParseResult> {
   const account: EpassAccountRow[] = [];
   const tolls: EpassTollRow[] = [];
   const errors: { line: number; reason: string }[] = [];
+  const transponder_hints: Record<string, TransponderHint> = {};
   let section: "none" | "account" | "tolls" = "none";
   let accountNumber: string | null = null;
+  let tollHeader: TollHeaderMap | null = null;
 
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i];
     if (!raw || !raw.trim()) continue;
     const lower = raw.toLowerCase().replace(/\s+/g, " ").trim();
-    if (lower.startsWith("account activity") || lower.includes(" account activity")) { section = "account"; continue; }
+    if (lower.startsWith("account activity") || lower.includes(" account activity")) { section = "account"; tollHeader = null; continue; }
     if (lower.startsWith("vehicle activity") || lower.includes(" vehicle activity")) { section = "tolls"; continue; }
     if (lower.startsWith("account number,date") || lower.startsWith("account number date")) continue;
-    if (lower.startsWith("transponder number") || lower.startsWith("transponder #") || lower.includes("transponder number date time")) {
+
+    const cells = splitBestDelimitedLine(raw);
+
+    // Header do bloco de pedagios (pode vir com colunas extras: plate/vehicle/color/year).
+    const maybeHeader = detectTollHeader(cells);
+    if (maybeHeader) {
       section = "tolls";
+      tollHeader = maybeHeader;
       continue;
     }
 
-    const cells = splitBestDelimitedLine(raw);
     if (section === "account" && cells.length >= 6) {
       const acc = cells[0];
       const date = parseEpassDate(cells[1]);
@@ -299,6 +402,18 @@ export async function parseEpassCsv(file: File): Promise<EpassParseResult> {
         amount: amt,
       });
       continue;
+    }
+
+    // Se temos header, priorizamos parsing por coluna (pega hints).
+    if (tollHeader) {
+      const { toll, hint } = parseTollByHeader(cells, tollHeader);
+      if (toll) {
+        tolls.push(toll);
+        if (Object.keys(hint).length > 0) {
+          transponder_hints[toll.transponder_number] = mergeHint(transponder_hints[toll.transponder_number], hint);
+        }
+        continue;
+      }
     }
 
     const tollFromCells = parseTollCells(cells);
@@ -319,6 +434,7 @@ export async function parseEpassCsv(file: File): Promise<EpassParseResult> {
     period_label,
     account,
     tolls,
+    transponder_hints,
     errors,
   };
 }
@@ -381,6 +497,7 @@ export async function parseEpassPdf(file: File): Promise<EpassParseResult> {
     period_label,
     account: [],
     tolls,
+    transponder_hints: {},
     errors,
   };
 }
@@ -390,6 +507,7 @@ export function mergeEpassResults(results: EpassParseResult[]): EpassParseResult
   const tolls: EpassTollRow[] = [];
   const account: EpassAccountRow[] = [];
   const errors: { line: number; reason: string }[] = [];
+  const transponder_hints: Record<string, TransponderHint> = {};
   for (const r of results) {
     for (const t of r.tolls) {
       if (seen.has(t.dedupe_hash)) continue;
@@ -398,6 +516,9 @@ export function mergeEpassResults(results: EpassParseResult[]): EpassParseResult
     }
     account.push(...r.account);
     errors.push(...r.errors);
+    for (const [tr, hint] of Object.entries(r.transponder_hints || {})) {
+      transponder_hints[tr] = mergeHint(transponder_hints[tr], hint);
+    }
   }
   return {
     filename: results.map((r) => r.filename).join(", "),
@@ -405,6 +526,7 @@ export function mergeEpassResults(results: EpassParseResult[]): EpassParseResult
     period_label: results.find((r) => r.period_label)?.period_label || null,
     account,
     tolls,
+    transponder_hints,
     errors,
   };
 }
