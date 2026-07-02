@@ -381,31 +381,6 @@ const HowItWorksSection = () => {
           </p>
         </motion.div>
 
-        {/* Concierge hero image */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="max-w-2xl mx-auto mb-16 sm:mb-24 relative group"
-        >
-          <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-primary/20 via-transparent to-primary/10 opacity-60 blur-md group-hover:opacity-80 transition-opacity duration-500" />
-          <div className="relative rounded-2xl overflow-hidden border border-primary/20 shadow-[0_8px_40px_hsl(0,0%,0%,0.4)]">
-            <img
-              src={conciergeImg}
-              alt="Representante Rental Studio aguardando cliente no aeroporto com plaquinha personalizada"
-              className="w-full h-auto object-cover"
-              loading="lazy"
-              decoding="async"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 px-6 pb-5 text-center">
-              <p className="text-sm sm:text-base font-semibold text-foreground tracking-wide">
-                Recepção VIP no aeroporto. <span className="text-primary">com seu nome na placa</span>
-              </p>
-            </div>
-          </div>
-        </motion.div>
 
         {/* Timeline */}
         <div className="max-w-4xl mx-auto">
