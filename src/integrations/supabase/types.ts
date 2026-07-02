@@ -605,6 +605,33 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_presentation_state: {
+        Row: {
+          hidden_booking_ids: string[]
+          hidden_vehicle_ids: string[]
+          id: number
+          started_at: string
+          started_by: string | null
+          target_count: number
+        }
+        Insert: {
+          hidden_booking_ids?: string[]
+          hidden_vehicle_ids?: string[]
+          id?: number
+          started_at?: string
+          started_by?: string | null
+          target_count: number
+        }
+        Update: {
+          hidden_booking_ids?: string[]
+          hidden_vehicle_ids?: string[]
+          id?: number
+          started_at?: string
+          started_by?: string | null
+          target_count?: number
+        }
+        Relationships: []
+      }
       email_logs: {
         Row: {
           attempt_count: number
@@ -2559,6 +2586,8 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      demo_start_presentation: { Args: { p_count: number }; Returns: Json }
+      demo_stop_presentation: { Args: never; Returns: Json }
       email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
