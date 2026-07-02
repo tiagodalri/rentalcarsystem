@@ -10,6 +10,7 @@ import { formatPersonName } from "@/lib/formatName";
 import { MobileList, MobileListItem } from "@/components/mobile/MobileListItem";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { SwipeAction } from "@/components/mobile/SwipeAction";
+import PresentationModeButton from "@/components/admin/PresentationModeButton";
 
 /* ============================================================
    PAINEL Mobile-first.
@@ -297,6 +298,11 @@ export default function MobilePainel({ bookings, vehicles, onRefresh, aiMode, on
             <ChevronRight size={16} className="text-muted-foreground/50" />
           </button>
         )}
+
+        <div className="flex justify-center">
+          <PresentationModeButton />
+        </div>
+
 
         {/* ═══════════ Atalhos ═══════════ */}
         <section>
