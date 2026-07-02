@@ -57,6 +57,7 @@ const AboutSection = () => {
                   loading="lazy"
                   width={1024}
                   height={1024}
+                  style={{ filter: "hue-rotate(95deg) saturate(0.75)" }}
                   className="max-h-full w-auto object-contain drop-shadow-[0_18px_28px_rgba(0,0,0,0.25)] transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-[-2deg]"
                 />
               </div>
