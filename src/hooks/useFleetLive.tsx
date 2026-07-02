@@ -63,8 +63,9 @@ export function useFleetLive() {
       const { data, error } = await supabase
         .from("vehicle_telemetry")
         .select(
-          "vehicle_id, imei, lat, lng, heading, speed, is_running, odometer, fuel_level, battery_status, mil_on, address, last_event, reported_at, vehicles ( name, license_plate, image_url )"
-        );
+          "vehicle_id, imei, lat, lng, heading, speed, is_running, odometer, fuel_level, battery_status, mil_on, address, last_event, reported_at, vehicles!inner ( name, license_plate, image_url, deleted_at )"
+        )
+        .is("vehicles.deleted_at", null);
 
       if (cancelled) return;
       if (error) {
