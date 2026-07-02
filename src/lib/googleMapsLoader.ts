@@ -68,6 +68,7 @@ function loadWithKey(apiKey: string, channel: string | undefined): Promise<any> 
     const cbName = `__zeusInitGmaps_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     let settled = false;
     let authFailed = false;
+    (window as any).__gmapsAuthFailed = false;
 
     const cleanup = () => {
       try { delete (window as any)[cbName]; } catch (_) { /* ignore */ }
@@ -79,6 +80,7 @@ function loadWithKey(apiKey: string, channel: string | undefined): Promise<any> 
     const prevAuthFailure = (window as any).gm_authFailure;
     (window as any).gm_authFailure = () => {
       authFailed = true;
+      (window as any).__gmapsAuthFailed = true;
       // Tear down the broken google object so the next key attempt can re-init.
       try {
         delete (window as any).google;
@@ -100,9 +102,12 @@ function loadWithKey(apiKey: string, channel: string | undefined): Promise<any> 
 
     (window as any)[cbName] = () => {
       if (settled || authFailed) return;
-      settled = true;
-      cleanup();
-      resolve((window as any).google);
+      window.setTimeout(() => {
+        if (settled || authFailed || (window as any).__gmapsAuthFailed) return;
+        settled = true;
+        cleanup();
+        resolve((window as any).google);
+      }, 800);
     };
 
     const params = new URLSearchParams({
