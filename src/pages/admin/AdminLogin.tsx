@@ -4,7 +4,7 @@ import { Mail, Lock, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { toast } from "@/hooks/use-toast";
 import { toast as sonnerToast } from "sonner";
-import zeusLogo from "@/assets/zeus-logo-hd.png";
+import BrandLogo from "@/components/BrandLogo";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -54,9 +54,11 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <img src={zeusLogo} alt="Rental Studio" className="h-20 w-auto mx-auto mb-4" />
+          <div className="flex justify-center mb-4">
+            <BrandLogo size="lg" />
+          </div>
           <h1 className="text-2xl font-medium tracking-tight">
-            <span className="text-primary">RENTAL STUDIO</span>
+            <span className="text-primary font-semibold uppercase tracking-[0.25em]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>SUA MARCA</span>
             <span className="text-muted-foreground font-light ml-1.5">ADMIN</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-2">Acesso restrito à administração</p>

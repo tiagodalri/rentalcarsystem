@@ -5,7 +5,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import zeusLogo from "@/assets/zeus-logo-hd.png";
+import BrandLogo from "@/components/BrandLogo";
 
 const passwordSchema = z
   .string()
@@ -70,7 +70,9 @@ const ResetPassword = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <a href="/" className="inline-block">
-            <img src={zeusLogo} alt="Rental Studio" className="h-20 w-auto mx-auto mb-4" />
+            <div className="flex justify-center mb-4">
+              <BrandLogo size="lg" />
+            </div>
           </a>
           <h1 className="text-xl font-bold text-foreground">Redefinir senha</h1>
           <p className="text-muted-foreground text-sm mt-2">

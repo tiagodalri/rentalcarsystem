@@ -5,7 +5,7 @@ import {
   Camera, AlertTriangle, ClipboardCheck, CheckCircle2, XCircle, Hash,
   FileSignature, Printer, Download,
 } from "lucide-react";
-import zeusLogo from "@/assets/zeus-logo-hd.png";
+import BrandLogo from "@/components/BrandLogo";
 import { normalizeDamageText } from "@/lib/damageTextNormalizer";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -109,7 +109,7 @@ export default function PublicInspection() {
       <div className="bg-foreground text-background print:bg-white print:text-black print:border-b print:border-black">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <img src={zeusLogo} alt="Rental Studio" className="h-9 w-auto print:invert-0" />
+            <BrandLogo size="sm" dark showMark={false} className="print:invert-0" />
             <div className="min-w-0">
               <p className="text-[10px] uppercase tracking-[0.2em] text-background/60 print:text-black/60">Rental Studio</p>
               <h1 className="text-base sm:text-lg font-semibold truncate">

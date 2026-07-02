@@ -15,6 +15,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/epilogue": "^5.2.8",
     "@fontsource/urbanist": "^5.2.7",
     "@hookform/resolvers": "^3.10.0",

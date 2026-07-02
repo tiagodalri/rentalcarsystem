@@ -20,7 +20,7 @@ import { LoadingRows } from "@/components/skeletons/LoadingRows";
 const TripReplayOverlay = lazy(() =>
   import("@/components/admin/live/TripReplayOverlay").then((m) => ({ default: m.TripReplayOverlay })),
 );
-import zeusZMark from "@/assets/zeus-z-mark.png";
+
 
 function formatRelative(iso: string | null): string {
   if (!iso) return "—";
@@ -355,7 +355,10 @@ function AdminLiveDesktop() {
         {/* Map */}
         <div className="flex-1 rounded-xl overflow-hidden border border-border/40 relative h-[60vh] lg:h-auto min-h-[400px]">
           <div className="absolute top-3 left-3 z-[1000] w-10 h-10 rounded-lg bg-background/95 backdrop-blur-sm border border-border/40 shadow-md flex items-center justify-center pointer-events-none">
-            <img src={zeusZMark} alt="Rental Studio" width={24} height={24} className="w-6 h-6 object-contain" />
+            <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+              <circle cx="24" cy="24" r="22" stroke="#1B3528" strokeWidth="2.5" fill="none" />
+              <line x1="12" y1="24" x2="36" y2="24" stroke="#1B3528" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
           </div>
 
           {/* Map controls (settings button + popup panel) */}

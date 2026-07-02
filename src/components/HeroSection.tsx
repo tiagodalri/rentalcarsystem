@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import zeusLogo from "@/assets/zeus-logo-ultra.png";
+import BrandLogo from "@/components/BrandLogo";
 import { useLanguage } from "@/i18n/LanguageContext";
 import SearchBar from "@/components/SearchBar";
 
@@ -27,19 +27,14 @@ const HeroSection = () => {
 
       <div className="relative z-10 container mx-auto px-4 text-center flex flex-col items-center gap-3 sm:gap-5">
         {/* Logo */}
-        <motion.img
-          src={zeusLogo}
-          alt="Rental Studio"
-          loading="eager"
-          decoding="async"
-          {...({ fetchpriority: "high" } as Record<string, string>)}
-          width={1584}
-          height={672}
+        <motion.div
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto dark:drop-shadow-[0_2px_16px_rgba(212,175,55,0.35)]"
-        />
+          className="h-16 sm:h-20 md:h-24 lg:h-28 flex items-center justify-center"
+        >
+          <BrandLogo size="xl" />
+        </motion.div>
 
         {/* Editorial tagline */}
         <motion.div

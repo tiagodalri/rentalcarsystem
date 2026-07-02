@@ -10,7 +10,7 @@ import { PhoneInput } from "@/components/ui/phone-input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useDocumentOcr, type OcrFields } from "@/hooks/useDocumentOcr";
 import OcrReviewPanel from "@/components/admin/OcrReviewPanel";
-import zeusLogo from "@/assets/zeus-logo-hd.png";
+import BrandLogo from "@/components/BrandLogo";
 import { uploadCnh } from "@/lib/cnhStorage";
 import { clearFormDraft, useFormDraft } from "@/hooks/useFormDraft";
 import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
@@ -199,7 +199,9 @@ const CustomerRegistration = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-6">
-          <img src={zeusLogo} alt="Rental Studio" className="h-16 mx-auto" />
+          <div className="flex justify-center">
+            <BrandLogo size="lg" />
+          </div>
           <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto">
             <Check size={28} className="text-emerald-500" />
           </div>
@@ -231,7 +233,7 @@ const CustomerRegistration = () => {
     <div className="min-h-screen bg-background">
       <div className="border-b border-border/40 bg-card/50">
         <div className="container mx-auto px-4 py-6 flex items-center justify-center">
-          <img src={zeusLogo} alt="Rental Studio" className="h-14" />
+          <BrandLogo size="md" />
         </div>
       </div>
 
