@@ -30,6 +30,7 @@ import {
   SOURCE_LABEL,
 } from "@/lib/aiStudio/bookingSource";
 import { AdminKpiGrid } from "@/components/admin/layout/AdminPage";
+import PresentationModeButton from "@/components/admin/PresentationModeButton";
 
 
 
