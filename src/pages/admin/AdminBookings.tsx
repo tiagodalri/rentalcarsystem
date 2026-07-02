@@ -850,7 +850,7 @@ function AdminBookingsDesktop() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `zeus-reservas-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.download = `reservas-${format(new Date(), "yyyy-MM-dd")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     toast({ title: "CSV exportado com sucesso" });
@@ -988,7 +988,7 @@ function AdminBookingsDesktop() {
       doc.text(`Página ${p} de ${totalPages}`, pageW - 15, pageH - 5, { align: "right" });
     }
 
-    doc.save(`zeus-reservas-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+    doc.save(`reservas-${format(new Date(), "yyyy-MM-dd")}.pdf`);
     toast({ title: "PDF exportado com sucesso" });
   }, [filtered, bookings.length]);
 

@@ -27,13 +27,13 @@ const Footer = () => {
 
         <div className="mt-10 flex items-center justify-center gap-8 text-muted-foreground text-sm">
           <a
-            href="https://instagram.com/zeusrentalcar"
+            href="https://instagram.com/rentalstudio"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 hover:text-primary transition-colors duration-300"
           >
             <Instagram size={18} />
-            @zeusrentalcar
+            @rentalstudio
           </a>
           <span className="flex items-center gap-2">
             <MapPin size={18} className="text-primary/60" />

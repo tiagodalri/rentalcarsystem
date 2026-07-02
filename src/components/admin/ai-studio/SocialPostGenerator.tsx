@@ -261,8 +261,8 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
     if (!result) return;
     const safeName = (selected?.name || "post").replace(/[^a-z0-9]+/gi, "-").toLowerCase();
     const list = result.slides && result.slides.length > 0
-      ? result.slides.map((s, i) => ({ b64: s.imageBase64, name: `zeus-${safeName}-${result.format}-slide-${String(i + 1).padStart(2, "0")}.png` }))
-      : [{ b64: result.imageBase64, name: `zeus-${safeName}-${result.format}.png` }];
+      ? result.slides.map((s, i) => ({ b64: s.imageBase64, name: `post-${safeName}-${result.format}-slide-${String(i + 1).padStart(2, "0")}.png` }))
+      : [{ b64: result.imageBase64, name: `post-${safeName}-${result.format}.png` }];
     list.forEach((it, idx) => {
       setTimeout(() => {
         const a = document.createElement("a");
@@ -306,7 +306,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
           className="mt-1.5 text-[20px] sm:text-[26px] font-light tracking-[-0.01em]"
           style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
         >
-          Crie uma arte com a marca Zeus em segundos
+          Crie uma arte com a marca em segundos
         </h1>
       </div>
 
@@ -479,7 +479,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                 </div>
               )}
               <p className="text-[10px] mt-1" style={{ color: "rgba(13,29,46,0.55)" }}>
-                A IA usa essa arte como inspiração de estilo, composição e paleta. O carro e a marca Zeus continuam sendo os protagonistas.
+                A IA usa essa arte como inspiração de estilo, composição e paleta. O carro e a marca continuam sendo os protagonistas.
               </p>
             </div>
           )}
@@ -562,7 +562,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                   border: "1px solid rgba(214,191,134,0.40)",
                   minHeight: 28,
                 }}
-                title="A IA sugere um direcionamento criativo coerente com a Zeus"
+                title="A IA sugere um direcionamento criativo coerente com a marca"
               >
                 {suggesting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wand2 className="w-3 h-3" />}
                 Sugerir com IA

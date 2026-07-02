@@ -3,7 +3,7 @@ import { ArrowUpRight, LayoutDashboard, Gamepad2, Megaphone, Sparkles } from "lu
 import hallImg from "@/assets/ai-studio/hall-estrategico.jpg?url";
 import simImg from "@/assets/ai-studio/simulador.jpg?url";
 import mktImg from "@/assets/ai-studio/marketing-studio.jpg?url";
-import iaImg from "@/assets/ai-studio/zeus-ia.jpg?url";
+import iaImg from "@/assets/ai-studio/ai-hub.jpg?url";
 
 // Pre-cache as soon as module loads so cards aparecem instant.
 if (typeof window !== "undefined") {
@@ -59,7 +59,7 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
       key: "marketing",
       eyebrow: "Conteúdo e marca",
       title: "Marketing Studio",
-      description: "Estúdio criativo da Zeus. Gere posts em formato feed e story com fotos dos carros, logotipo e frases de impacto.",
+      description: "Estúdio criativo da plataforma. Gere posts em formato feed e story com fotos dos carros, logotipo e frases de impacto.",
       image: mktImg,
       Icon: Megaphone,
       badge: "Novo",
@@ -68,8 +68,8 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
     {
       key: "ia",
       eyebrow: "Assistente cognitivo",
-      title: "Zeus IA",
-      description: "Converse com a inteligência da Zeus. Tire dúvidas operacionais, peça análises e gere insights sob medida.",
+      title: "AI Studio",
+      description: "Converse com a inteligência da plataforma. Tire dúvidas operacionais, peça análises e gere insights sob medida.",
       image: iaImg,
       Icon: Sparkles,
       badge: "Em breve",
