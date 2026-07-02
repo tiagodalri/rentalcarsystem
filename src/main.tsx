@@ -1,6 +1,14 @@
 import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
+import "@fontsource/urbanist/400.css";
+import "@fontsource/urbanist/600.css";
+import "@fontsource/urbanist/700.css";
+import "@fontsource/urbanist/800.css";
+import "@fontsource/epilogue/400.css";
+import "@fontsource/epilogue/500.css";
+import "@fontsource/epilogue/600.css";
+import "@fontsource/epilogue/700.css";
 import "./index.css";
 import { isRecoverableChunkLoadError, recoverFromStaleApp } from "@/lib/pwaRecovery";
 
