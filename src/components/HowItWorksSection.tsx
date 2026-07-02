@@ -1,6 +1,5 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import conciergeImg from "@/assets/concierge-welcome.jpg";
 import {
   Car,
   MessageCircle,
