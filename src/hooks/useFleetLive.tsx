@@ -8,6 +8,7 @@ export type LiveVehicle = {
   name: string;
   plate: string | null;
   imei: string | null;
+  image_url: string | null;
   lat: number | null;
   lng: number | null;
   heading: number | null;
