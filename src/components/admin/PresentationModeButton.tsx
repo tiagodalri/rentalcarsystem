@@ -22,11 +22,11 @@ export default function PresentationModeButton() {
   const [state, setState] = useState<State>(null);
 
   const refresh = async () => {
-    const { data } = await supabase
-      .from("demo_presentation_state" as any)
+    const { data } = await (supabase as any)
+      .from("demo_presentation_state")
       .select("target_count, hidden_vehicle_ids, started_at")
       .maybeSingle();
-    setState((data as State) ?? null);
+    setState((data as unknown as State) ?? null);
   };
 
   useEffect(() => { void refresh(); }, []);
