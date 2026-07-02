@@ -118,6 +118,11 @@ function enqueueSignedUrl(path: string): Promise<string | null> {
 export async function getSignedInspectionUrl(value: string | null | undefined): Promise<string | null> {
   if (!value) return null;
   if (value.startsWith("data:") || value.startsWith("blob:")) return value;
+  // External URLs (demo photos, CDN renders) that don't live in the private
+  // inspections bucket — passthrough as-is.
+  if ((value.startsWith("http://") || value.startsWith("https://")) && !value.includes(`/${INSPECTIONS_BUCKET}/`)) {
+    return value;
+  }
   const path = extractInspectionPath(value);
   if (!path) return null;
 
