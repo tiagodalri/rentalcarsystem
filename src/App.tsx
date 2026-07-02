@@ -28,6 +28,13 @@ import { useDynamicThemeColor } from "./hooks/useDynamicThemeColor.ts";
 import { useNativeFeel } from "./hooks/useNativeFeel.ts";
 import { useSwipeBack } from "./hooks/useSwipeBack.ts";
 import { useIsMobileApp } from "./hooks/useIsMobileApp.ts";
+import { DemoBadge } from "./components/demo/DemoBadge.tsx";
+import { startDemoTracker } from "./lib/demo/tracker.ts";
+
+// Inicia o simulador de rastreador uma única vez no boot do app.
+if (typeof window !== "undefined") {
+  startDemoTracker();
+}
 
 // Lazy-loaded: páginas públicas secundárias (reduz bundle inicial da home)
 const AboutUs = lazy(() => import("./pages/AboutUs.tsx"));
@@ -233,6 +240,7 @@ const App = () => (
           <Sonner />
           <OfflineBanner />
           <InstallPrompt />
+          <DemoBadge />
           <BrowserRouter>
             <ScrollManager />
             <SwUpdateOnNavigate />
