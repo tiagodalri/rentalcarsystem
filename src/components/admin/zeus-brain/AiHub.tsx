@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, LayoutDashboard, Gamepad2, Megaphone, Sparkles } from "lucide-react";
-import hallImg from "@/assets/zeus-brain/hall-estrategico.jpg?url";
-import simImg from "@/assets/zeus-brain/simulador.jpg?url";
-import mktImg from "@/assets/zeus-brain/marketing-studio.jpg?url";
-import iaImg from "@/assets/zeus-brain/zeus-ia.jpg?url";
+import hallImg from "@/assets/ai-studio/hall-estrategico.jpg?url";
+import simImg from "@/assets/ai-studio/simulador.jpg?url";
+import mktImg from "@/assets/ai-studio/marketing-studio.jpg?url";
+import iaImg from "@/assets/ai-studio/zeus-ia.jpg?url";
 
 // Pre-cache as soon as module loads so cards aparecem instant.
 if (typeof window !== "undefined") {
@@ -53,7 +53,7 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
       image: simImg,
       Icon: Gamepad2,
       badge: "Interativo",
-      action: () => navigate("/admin/zeus-brain/simulador"),
+      action: () => navigate("/admin/ai-studio/simulador"),
     },
     {
       key: "marketing",
@@ -102,7 +102,7 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
           className="mt-1.5 mx-auto text-[11px] sm:text-[12.5px] leading-relaxed whitespace-nowrap"
           style={{ color: "rgba(13,29,46,0.62)" }}
         >
-          Escolha um módulo do Zeus Brain. Cada espaço foi desenhado para uma frente da operação.
+          Escolha um módulo do AI Studio. Cada espaço foi desenhado para uma frente da operação.
         </p>
       </div>
 

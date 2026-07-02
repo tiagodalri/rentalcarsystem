@@ -52,26 +52,26 @@ export function renderPasswordChanged(
       ${greeting}
     </h1>
     <p style="margin: 0 0 20px; font-size: 15px; color: ${colors.textSecondary}; line-height: 1.7;">
-      Identificamos que a senha da sua conta Zeus Rental Car foi alterada em
+      Identificamos que a senha da sua conta Rental Studio foi alterada em
       <strong style="color: ${colors.textPrimary};">${when}</strong>
       (fuso horário de Orlando, EUA).
     </p>
 
     ${alertBox}
 
-    ${emailButton("REDEFINIR SENHA", "https://zeusrentalcar.com/reset-password")}
+    ${emailButton("REDEFINIR SENHA", "https://rentalstudio.demo/reset-password")}
 
     <p style="margin: 8px 0 0; font-size: 14px; color: ${colors.textSecondary}; line-height: 1.6;">
       Se foi você que alterou a senha, pode ignorar este email com segurança.
     </p>
 
     <p style="margin: 24px 0 0; font-size: 13px; color: ${colors.textMuted}; font-style: italic;">
-      — Equipe Zeus Rental Car
+      — Equipe Rental Studio
     </p>
   `;
 
   return {
-    subject: "Sua senha foi alterada — Zeus Rental Car",
+    subject: "Sua senha foi alterada — Rental Studio",
     html: emailLayout(body, "pt"),
   };
 }

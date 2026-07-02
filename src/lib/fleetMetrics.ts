@@ -86,7 +86,7 @@ export function vehicleRevenueBreakdown(
       // Turo: total_price e a receita liquida real do CSV oficial.
       rentalRevenue += Math.max(total - addonSum, 0);
     } else {
-      // Zeus: usa o total cobrado da reserva. So cai pro fallback dias x diaria
+      // Rental Studio: usa o total cobrado da reserva. So cai pro fallback dias x diaria
       // quando nao ha total_price salvo (reservas antigas / pre-checkout).
       const base = total > 0 ? Math.max(total - addonSum, 0) : bookingNights(b) * daily;
       rentalRevenue += base;

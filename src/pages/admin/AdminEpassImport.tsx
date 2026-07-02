@@ -29,7 +29,7 @@ export default function AdminEpassImport() {
 
   useEffect(() => {
     const prev = document.title;
-    document.title = "Sincronizar E-Pass · Zeus Rental Car";
+    document.title = "Sincronizar E-Pass · Rental Studio";
     return () => { document.title = prev; };
   }, []);
 

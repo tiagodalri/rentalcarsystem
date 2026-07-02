@@ -22,7 +22,7 @@ export default function AdminLogin() {
     } else {
       if (!restrictedToastShown.current) {
         restrictedToastShown.current = true;
-        sonnerToast.error("Esta área é restrita à equipe Zeus Rental Car. Faça login com sua conta de equipe.");
+        sonnerToast.error("Esta área é restrita à equipe Rental Studio. Faça login com sua conta de equipe.");
       }
       navigate("/", { replace: true });
     }
@@ -54,9 +54,9 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <img src={zeusLogo} alt="Zeus Rental Car" className="h-20 w-auto mx-auto mb-4" />
+          <img src={zeusLogo} alt="Rental Studio" className="h-20 w-auto mx-auto mb-4" />
           <h1 className="text-2xl font-medium tracking-tight">
-            <span className="text-primary">ZEUS</span>
+            <span className="text-primary">RENTAL STUDIO</span>
             <span className="text-muted-foreground font-light ml-1.5">ADMIN</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-2">Acesso restrito à administração</p>
@@ -74,7 +74,7 @@ export default function AdminLogin() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@zeusrentalcar.com"
+                  placeholder="admin@rentalstudio.demo"
                   required
                   className="w-full h-10 pl-10 pr-3 rounded-lg border border-border/60 bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
                 />
@@ -117,7 +117,7 @@ export default function AdminLogin() {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground/60 mt-6">
-          © {new Date().getFullYear()} Zeus Rental Car · Painel Administrativo
+          © {new Date().getFullYear()} Rental Studio · Painel Administrativo
         </p>
       </div>
     </div>

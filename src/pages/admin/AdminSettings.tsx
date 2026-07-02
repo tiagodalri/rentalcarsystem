@@ -11,7 +11,7 @@ export default function AdminSettings() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const email = user?.email || "";
-  const isSuperAdmin = email.toLowerCase() === "admin@zeusrentalcar.com";
+  const isSuperAdmin = email.toLowerCase() === "admin@rentalstudio.demo";
 
   const managementItems = [
     { title: "Equipe", url: "/admin/team", icon: UsersRound, desc: "Gerencie permissões e membros da equipe" },

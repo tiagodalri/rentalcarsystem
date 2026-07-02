@@ -7,14 +7,14 @@ import Seo from "@/components/Seo";
 const Frota = () => (
   <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
     <Seo
-      title="Frota Premium em Orlando | Zeus Rental Car"
-      description="Conheça a frota Zeus em Orlando: SUVs, sedans e esportivos como Corvette, Mustang, Escalade, BMW X5, Tiguan e mais. Atendimento 100% em português."
+      title="Frota Premium em Orlando | Rental Studio"
+      description="Conheça a frota Rental Studio em Orlando: SUVs, sedans e esportivos como Corvette, Mustang, Escalade, BMW X5, Tiguan e mais. Atendimento 100% em português."
       path="/frota"
       jsonLd={{
         "@context": "https://schema.org",
         "@type": "CollectionPage",
-        name: "Frota Zeus Rental Car em Orlando",
-        url: "https://zeusrentalcar.com/frota",
+        name: "Frota Rental Studio em Orlando",
+        url: "https://rentalstudio.demo/frota",
         about: "Aluguel de carros premium em Orlando para brasileiros",
       }}
     />

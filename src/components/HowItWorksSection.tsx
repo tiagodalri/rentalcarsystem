@@ -74,7 +74,7 @@ const steps: Step[] = [
     phaseLabel: "Chegou em Orlando",
     title: "Recepção VIP no aeroporto",
     description:
-      "Ao desembarcar, um representante da Zeus estará na área de desembarque com uma plaquinha com seu nome. Sem fila, sem estresse.",
+      "Ao desembarcar, um representante da Rental Studio estará na área de desembarque com uma plaquinha com seu nome. Sem fila, sem estresse.",
     highlight: "plaquinha com seu nome",
     isStar: true,
     icon: UserCheck,
@@ -103,7 +103,7 @@ const steps: Step[] = [
     phaseLabel: "Durante a viagem",
     title: "Aproveite com suporte a qualquer hora",
     description:
-      "Parques, outlets, restaurantes, praias. Vá aonde quiser, na hora que quiser. A Zeus está a uma mensagem de distância.",
+      "Parques, outlets, restaurantes, praias. Vá aonde quiser, na hora que quiser. A Rental Studio está a uma mensagem de distância.",
     highlight: "a uma mensagem de distância",
     icon: MapPin,
     tags: [
@@ -116,7 +116,7 @@ const steps: Step[] = [
     phaseLabel: "Hora de voltar",
     title: "Devolução simples e assistida",
     description:
-      "Um representante Zeus estará te esperando no aeroporto ou no local combinado. Entregue a chave e embarque tranquilo. Sem burocracia, sem taxas escondidas.",
+      "Um representante Rental Studio estará te esperando no aeroporto ou no local combinado. Entregue a chave e embarque tranquilo. Sem burocracia, sem taxas escondidas.",
     highlight: "no aeroporto ou no local combinado",
     isFinal: true,
     icon: KeyRound,
@@ -378,7 +378,7 @@ const HowItWorksSection = () => {
 
           <p className="section-subtitle">
             Você só precisa chegar.{" "}
-            <span className="text-foreground font-medium">A Zeus cuida de todo o resto.</span>
+            <span className="text-foreground font-medium">A Rental Studio cuida de todo o resto.</span>
           </p>
         </motion.div>
 
@@ -394,7 +394,7 @@ const HowItWorksSection = () => {
           <div className="relative rounded-2xl overflow-hidden border border-primary/20 shadow-[0_8px_40px_hsl(0,0%,0%,0.4)]">
             <img
               src={conciergeImg}
-              alt="Representante Zeus Rental Car aguardando cliente no aeroporto com plaquinha personalizada"
+              alt="Representante Rental Studio aguardando cliente no aeroporto com plaquinha personalizada"
               className="w-full h-auto object-cover"
               loading="lazy"
               decoding="async"
@@ -424,7 +424,7 @@ const HowItWorksSection = () => {
           className="text-center mt-16 sm:mt-24"
         >
           <a
-            href={`https://wa.me/16892981754?text=${encodeURIComponent("Olá, venho do site da Zeus e gostaria de realizar uma reserva!")}`}
+            href={`https://wa.me/15550000000?text=${encodeURIComponent("Olá, venho do site da Rental Studio e gostaria de realizar uma reserva!")}`}
             target="_blank"
             rel="noopener noreferrer"
             className="group/cta relative inline-flex items-center gap-3 px-10 py-4 rounded-xl text-sm font-bold uppercase tracking-[2px] transition-all duration-300"

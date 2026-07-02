@@ -13,7 +13,7 @@ import Seo from "@/components/Seo";
 const Index = () => (
   <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
     <Seo
-      title="Zeus Rental Car — Aluguel Premium em Orlando"
+      title="Rental Studio — Aluguel Premium em Orlando"
       description="Locadora de carros premium para brasileiros em Orlando. Corvette, Mustang, Escalade, BMW X5 e mais. Atendimento 100% em português."
       path="/"
     />

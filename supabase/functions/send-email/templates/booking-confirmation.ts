@@ -37,7 +37,7 @@ const content = {
     },
     cta: "VER DETALHES DA RESERVA",
     closing: "Em caso de dúvidas ou alteração, responda este e-mail.",
-    team: "— Equipe Zeus Rental Car",
+    team: "— Equipe Rental Studio",
   },
   en: {
     subject: (num: string) => `Booking confirmed — ${num}`,
@@ -53,7 +53,7 @@ const content = {
     },
     cta: "VIEW BOOKING DETAILS",
     closing: "For questions or changes, reply to this email.",
-    team: "— Zeus Rental Car Team",
+    team: "— Rental Studio Team",
   },
 } as const;
 
@@ -73,7 +73,7 @@ export function renderBookingConfirmation(
   const returnTime = d.returnTime || "";
   const pickupLocation = d.pickupLocation || "—";
   const totalPrice = d.totalPrice || "—";
-  const bookingDetailsUrl = d.bookingDetailsUrl || "https://zeusrentalcar.com";
+  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalstudio.demo";
 
   const pickupFull = pickupTime ? `${pickupDate} · ${pickupTime}` : pickupDate;
   const returnFull = returnTime ? `${returnDate} · ${returnTime}` : returnDate;

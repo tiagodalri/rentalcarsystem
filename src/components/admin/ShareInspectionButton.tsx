@@ -27,7 +27,7 @@ export function ShareInspectionButton({ bookingId, type, size = "sm", variant = 
       const url = `${window.location.origin}/share/inspection/${data.token}`;
 
       // Try native share first (mobile-friendly)
-      const shareTitle = type === "checkin" ? "Inspeção de Entrega — Zeus" : "Inspeção de Devolução — Zeus";
+      const shareTitle = type === "checkin" ? "Inspeção de Entrega — Rental Studio" : "Inspeção de Devolução — Rental Studio";
       if (navigator.share) {
         try {
           await navigator.share({ title: shareTitle, url });

@@ -1,4 +1,4 @@
-// Filtro global de origem das reservas usado pelo Zeus Brain (Painel + Simulador)
+// Filtro global de origem das reservas usado pelo AI Studio (Painel + Simulador)
 // Persistido em localStorage para que a escolha feita no painel principal valha
 // também na página dedicada do simulador.
 

@@ -385,7 +385,7 @@ function AdminCustomersDesktop() {
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {([
-                    { id: "regular" as const, label: "Zeus (regular)", icon: User, desc: "Cliente direto Zeus" },
+                    { id: "regular" as const, label: "Rental Studio (regular)", icon: User, desc: "Cliente direto Rental Studio" },
                     { id: "turo" as const, label: "Turo", icon: Car, desc: "Hóspede importado" },
                   ]).map((opt) => {
                     const Icon = opt.icon;

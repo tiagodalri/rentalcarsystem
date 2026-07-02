@@ -10,7 +10,7 @@ import { useNwsAlerts, nwsSeverityColor } from "@/hooks/useNwsAlerts";
 import { useVehicleEvents } from "@/hooks/useVehicleEvents";
 import { type MapLayers, DEFAULT_LAYERS } from "@/components/admin/live/MapControlsPanel";
 
-// --- Dark theme for Google Maps that matches Zeus admin (off-black) ---
+// --- Dark theme for Google Maps that matches Rental Studio admin (off-black) ---
 const DARK_STYLE: any[] = [
   { elementType: "geometry", stylers: [{ color: "#0f0f10" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#0f0f10" }] },
@@ -475,7 +475,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
           scrollwheel: true,
-          // Smooth wheel/pinch zoom. Heavy Zeus overlays are paused during the
+          // Smooth wheel/pinch zoom. Heavy Rental Studio overlays are paused during the
           // gesture below, so the map can animate continuously instead of
           // snapping between integer zoom levels.
           isFractionalZoomEnabled: true,

@@ -28,7 +28,7 @@ export type PvBooking = {
 export type PvExpense = { vehicle_id: string; amount: number; expense_date: string; type?: string | null };
 
 /**
- * Centralized per-vehicle analytics used by Zeus Brain (Painel + Simulador).
+ * Centralized per-vehicle analytics used by AI Studio (Painel + Simulador).
  * Mantido idêntico à versão original do AiPainel pra garantir consistência.
  */
 export function computePerVehicle(

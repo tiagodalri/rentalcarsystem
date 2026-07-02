@@ -234,7 +234,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
       ...s,
       items: s.items.filter((it) => {
         if (!hasAny(it.allowedRoles)) return false;
-        if (it.url === "/admin/logs" && email.toLowerCase() !== "admin@zeusrentalcar.com") return false;
+        if (it.url === "/admin/logs" && email.toLowerCase() !== "admin@rentalstudio.demo") return false;
         return true;
       }),
     }))
@@ -250,14 +250,14 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
         <div className={`flex flex-col items-center ${collapsed ? "px-0 py-2" : "px-2 pb-3"}`}>
           <img
             src={zeusLogo}
-            alt="Zeus Rental Car"
+            alt="Rental Studio"
             className={`${
               collapsed ? "h-8 max-w-[32px]" : "h-11 max-w-[44px]"
             } w-auto object-contain opacity-95 transition-all`}
           />
           {!collapsed && (
             <div className="mt-2 text-[11.5px] font-semibold tracking-[0.32em] text-sidebar-foreground/85 text-center leading-none">
-              ZEUS RENTAL CAR
+              RENTAL STUDIO
             </div>
           )}
         </div>

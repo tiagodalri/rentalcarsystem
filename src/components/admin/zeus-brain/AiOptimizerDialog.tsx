@@ -3,7 +3,7 @@ import { Brain, Sparkles, ArrowRight, Loader2, Tag, ShoppingCart, Check, Trendin
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { findBrandByName, carLogoUrl } from "@/data/carBrands";
-import { optimizeFleet, countEligible, type AiScenario } from "@/lib/zeusBrain/aiOptimizer";
+import { optimizeFleet, countEligible, type AiScenario } from "@/lib/aiStudio/aiOptimizer";
 import type { SimVehicle } from "./FleetSimulator";
 
 /* Mesma paleta private-bank do simulador */
@@ -164,7 +164,7 @@ export default function AiOptimizerDialog({
               <Brain size={13} style={{ color: "#d6bf86" }} />
             </span>
             <span className="text-[10.5px] font-semibold uppercase tracking-[0.22em]" style={{ color: "#d6bf86" }}>
-              Zeus Brain · Otimizador
+              AI Studio · Otimizador
             </span>
           </div>
           <h2 className="text-[15px] sm:text-[17px] font-medium leading-snug pr-8" style={{ color: IVORY, letterSpacing: "-0.01em" }}>

@@ -70,7 +70,7 @@ const ResetPassword = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <a href="/" className="inline-block">
-            <img src={zeusLogo} alt="Zeus Rental Car" className="h-20 w-auto mx-auto mb-4" />
+            <img src={zeusLogo} alt="Rental Studio" className="h-20 w-auto mx-auto mb-4" />
           </a>
           <h1 className="text-xl font-bold text-foreground">Redefinir senha</h1>
           <p className="text-muted-foreground text-sm mt-2">

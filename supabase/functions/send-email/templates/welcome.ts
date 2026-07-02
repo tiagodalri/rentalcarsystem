@@ -15,12 +15,12 @@ interface WelcomeData {
 
 const content = {
   pt: {
-    subject: "Bem-vindo à Zeus Rental Car",
+    subject: "Bem-vindo à Rental Studio",
     greeting: (name: string) =>
       name ? `Olá, ${name}!` : "Olá!",
     intro:
-      "Seja muito bem-vindo à Zeus Rental Car. Estamos felizes em tê-lo conosco! Sua conta foi criada com sucesso e você já pode explorar nossa frota premium em Orlando.",
-    benefitsTitle: "Por que a Zeus?",
+      "Seja muito bem-vindo à Rental Studio. Estamos felizes em tê-lo conosco! Sua conta foi criada com sucesso e você já pode explorar nossa frota premium em Orlando.",
+    benefitsTitle: "Por que a Rental Studio?",
     benefit1Label: "Atendimento 24/7",
     benefit1Value: "Suporte premium via WhatsApp, a qualquer hora",
     benefit2Label: "Frota Selecionada",
@@ -30,15 +30,15 @@ const content = {
     cta: "EXPLORAR FROTA",
     closing:
       "Se precisar de ajuda, fale conosco pelo WhatsApp. Estamos sempre disponíveis!",
-    team: "— Equipe Zeus Rental Car",
+    team: "— Equipe Rental Studio",
   },
   en: {
-    subject: "Welcome to Zeus Rental Car",
+    subject: "Welcome to Rental Studio",
     greeting: (name: string) =>
       name ? `Hello, ${name}!` : "Hello!",
     intro:
-      "Welcome to Zeus Rental Car! We're thrilled to have you. Your account has been created successfully and you can now explore our premium fleet in Orlando.",
-    benefitsTitle: "Why Zeus?",
+      "Welcome to Rental Studio! We're thrilled to have you. Your account has been created successfully and you can now explore our premium fleet in Orlando.",
+    benefitsTitle: "Why Rental Studio?",
     benefit1Label: "24/7 Support",
     benefit1Value: "Premium support via WhatsApp, anytime",
     benefit2Label: "Curated Fleet",
@@ -48,7 +48,7 @@ const content = {
     cta: "EXPLORE FLEET",
     closing:
       "Need help? Reach out via WhatsApp. We're always available!",
-    team: "— Zeus Rental Car Team",
+    team: "— Rental Studio Team",
   },
 } as const;
 
@@ -80,7 +80,7 @@ export function renderWelcome(
     </h2>
     ${emailDetailCard(benefitsHtml)}
 
-    ${emailButton(t.cta, "https://zeusrentalcar.com")}
+    ${emailButton(t.cta, "https://rentalstudio.demo")}
 
     <p style="margin: 0 0 4px; font-size: 14px; color: ${colors.textSecondary}; line-height: 1.6;">
       ${t.closing}

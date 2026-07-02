@@ -145,7 +145,7 @@ function AdminLiveDesktop() {
           </div>
           <div>
             <h1 className="admin-h1 text-xl flex items-center gap-2">
-              Zeus Live Tracking
+              Rental Studio Live Tracking
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
@@ -355,7 +355,7 @@ function AdminLiveDesktop() {
         {/* Map */}
         <div className="flex-1 rounded-xl overflow-hidden border border-border/40 relative h-[60vh] lg:h-auto min-h-[400px]">
           <div className="absolute top-3 left-3 z-[1000] w-10 h-10 rounded-lg bg-background/95 backdrop-blur-sm border border-border/40 shadow-md flex items-center justify-center pointer-events-none">
-            <img src={zeusZMark} alt="Zeus" width={24} height={24} className="w-6 h-6 object-contain" />
+            <img src={zeusZMark} alt="Rental Studio" width={24} height={24} className="w-6 h-6 object-contain" />
           </div>
 
           {/* Map controls (settings button + popup panel) */}

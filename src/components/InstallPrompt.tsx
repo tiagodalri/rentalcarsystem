@@ -96,7 +96,7 @@ export default function InstallPrompt() {
   return (
     <div
       role="dialog"
-      aria-label="Instalar aplicativo Zeus Rental Car"
+      aria-label="Instalar aplicativo Rental Studio"
       className="fixed inset-x-0 z-[60] flex justify-center px-3 sm:px-4"
       style={{ bottom: "max(env(safe-area-inset-bottom), 12px)" }}
     >
@@ -106,7 +106,7 @@ export default function InstallPrompt() {
         </span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-foreground leading-tight">
-            Instalar Zeus Rental Car
+            Instalar Rental Studio
           </p>
           <p className="text-[11px] sm:text-xs text-muted-foreground leading-snug mt-0.5">
             {showIosHint

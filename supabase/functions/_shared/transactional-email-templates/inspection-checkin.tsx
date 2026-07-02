@@ -64,7 +64,7 @@ const Email = (p: Props) => (
 
 export const template = {
   component: Email,
-  subject: (d: Props) => `Check-in concluído · ${d.vehicleName ?? 'Zeus'} (${d.bookingNumber ?? ''})`,
+  subject: (d: Props) => `Check-in concluído · ${d.vehicleName ?? 'Rental Studio'} (${d.bookingNumber ?? ''})`,
   displayName: 'Inspeção de entrega',
   previewData: {
     bookingNumber: 'ZRC-0142',
@@ -75,8 +75,8 @@ export const template = {
     fuelLevel: '8/8',
     damagesCount: 0,
     photosCount: 18,
-    inspectorName: 'Equipe Zeus',
+    inspectorName: 'Equipe Rental Studio',
     completedAt: '28/06/2026 · 14:47',
-    reportUrl: 'https://zeusrentalcar.com/i/abc123',
+    reportUrl: 'https://rentalstudio.demo/i/abc123',
   },
 } satisfies TemplateEntry

@@ -3,20 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { startOfDay } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import FleetSimulator from "@/components/admin/zeus-brain/FleetSimulator";
+import FleetSimulator from "@/components/admin/ai-studio/FleetSimulator";
 import {
   computePerVehicle,
   type PvVehicle,
   type PvBooking,
   type PvExpense,
-} from "@/lib/zeusBrain/perVehicle";
+} from "@/lib/aiStudio/perVehicle";
 import {
   type BookingSource,
   readBookingSource,
   writeBookingSource,
   filterBookingsBySource,
   SOURCE_LABEL,
-} from "@/lib/zeusBrain/bookingSource";
+} from "@/lib/aiStudio/bookingSource";
 
 export default function AiSimulador() {
   const navigate = useNavigate();
@@ -105,7 +105,7 @@ export default function AiSimulador() {
               className="text-[10px] font-semibold uppercase tracking-[0.32em]"
               style={{ color: "rgba(13,29,46,0.55)" }}
             >
-              Zeus Brain
+              AI Studio
             </div>
           </div>
 

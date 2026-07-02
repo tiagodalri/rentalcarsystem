@@ -29,7 +29,7 @@ const HeroSection = () => {
         {/* Logo */}
         <motion.img
           src={zeusLogo}
-          alt="Zeus Rental Car"
+          alt="Rental Studio"
           loading="eager"
           decoding="async"
           {...({ fetchpriority: "high" } as Record<string, string>)}

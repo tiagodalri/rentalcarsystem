@@ -9,8 +9,8 @@ import {
   CircleDollarSign, Lightbulb, Gamepad2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { computePerVehicle } from "@/lib/zeusBrain/perVehicle";
-import { AiBriefingCard, type BriefingSnapshot, type BriefingHighlight, type BriefingAction } from "@/components/admin/zeus-brain/AiBriefingCard";
+import { computePerVehicle } from "@/lib/aiStudio/perVehicle";
+import { AiBriefingCard, type BriefingSnapshot, type BriefingHighlight, type BriefingAction } from "@/components/admin/ai-studio/AiBriefingCard";
 import { findBrandByName } from "@/data/carBrands";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
@@ -70,7 +70,7 @@ export default function AiPainel({
     [bookings],
   );
 
-  /* ───── Per-vehicle analytics — centralizado em src/lib/zeusBrain/perVehicle.ts ───── */
+  /* ───── Per-vehicle analytics — centralizado em src/lib/aiStudio/perVehicle.ts ───── */
   const perVehicle = useMemo(
     () => computePerVehicle(vehicles as any, realBookings as any, expenses as any, today),
     [vehicles, realBookings, expenses, today],
@@ -794,7 +794,7 @@ export default function AiPainel({
       <div className="ai-bg-noise" />
 
       <div className="relative z-10 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto">
-        {/* Header — apenas contagem de carros/reservas (Simulador agora vive no Hub Zeus Brain) */}
+        {/* Header — apenas contagem de carros/reservas (Simulador agora vive no Hub AI Studio) */}
         <div className="flex items-center justify-end gap-3 flex-wrap pt-1">
           <p className="ai-subtitle m-0 shrink-0 text-right">
             {perVehicle.length} carros · {realBookings.length} reservas
@@ -1231,7 +1231,7 @@ export default function AiPainel({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card">
                 <CardHeader title="De onde vem a receita" sub="Quanto cada canal gerou de aluguel" icon={Layers} />
-                <ChannelBar label="Site Zeus (Câmbio Real)" value={channelMix.stripe} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="cyan" />
+                <ChannelBar label="Site Rental Studio (Câmbio Real)" value={channelMix.stripe} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="cyan" />
                 <ChannelBar label="Turo" value={channelMix.turo} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="violet" />
                 <ChannelBar label="Outros (reserva manual)" value={channelMix.other} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="amber" />
               </div>
@@ -1567,7 +1567,7 @@ export default function AiPainel({
       </div>
 
       <style>{`
-        /* ─── Zeus Brain · Private Bank Light Edition ───
+        /* ─── AI Studio · Private Bank Light Edition ───
            Paleta institucional inspirada em banco privado (Safra-like).
            Três pilares: warm ivory (#f4efe6) · deep navy (#0d1d2e) · institutional gold (#a07a3a).
            Tom restrito, elegante, alta legibilidade, claro mas imersivo. */

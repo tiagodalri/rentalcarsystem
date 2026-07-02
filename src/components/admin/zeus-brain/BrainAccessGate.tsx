@@ -17,7 +17,7 @@ type Props = {
 };
 
 /**
- * Access gate for Zeus Brain.
+ * Access gate for AI Studio.
  * Always requires the private access code on every entry (no persistence).
  */
 export default function BrainAccessGate({ children, onCancel }: Props) {
@@ -145,7 +145,7 @@ export default function BrainAccessGate({ children, onCancel }: Props) {
             minHeight: 44,
           }}
         >
-          Entrar no Zeus Brain
+          Entrar no AI Studio
         </button>
       </form>
     </div>

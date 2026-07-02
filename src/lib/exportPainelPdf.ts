@@ -2,7 +2,7 @@ import html2canvas from "html2canvas-pro";
 import { jsPDF } from "jspdf";
 
 /**
- * Captura a página inteira do Zeus Brain como PDF, fiel ao layout em tela.
+ * Captura a página inteira do AI Studio como PDF, fiel ao layout em tela.
  * Estratégia: renderiza o nó-alvo num único canvas alto, depois "fatia" em
  * páginas A4 evitando cortes no meio das linhas/cards (busca pixel mais escuro
  * próximo do limite da página = menor chance de cortar texto).
@@ -11,7 +11,7 @@ export async function exportPainelPdf(opts: {
   target: HTMLElement;
   filename?: string;
 }) {
-  const { target, filename = "zeus-brain.pdf" } = opts;
+  const { target, filename = "ai-studio.pdf" } = opts;
 
   // Aguarda imagens/fontes
   if ((document as any).fonts?.ready) {
@@ -70,7 +70,7 @@ export async function exportPainelPdf(opts: {
     pdf.setTextColor(220, 230, 250);
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
-    pdf.text("ZEUS BRAIN", marginX, 22);
+    pdf.text("RENTAL STUDIO BRAIN", marginX, 22);
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(8);
@@ -84,7 +84,7 @@ export async function exportPainelPdf(opts: {
     // Rodapé
     pdf.setFontSize(8);
     pdf.setTextColor(120, 140, 170);
-    pdf.text("Zeus Rental Car · Análise gerada por IA com base no histórico real da frota", marginX, pageH - 12);
+    pdf.text("Rental Studio · Análise gerada por IA com base no histórico real da frota", marginX, pageH - 12);
     pdf.text(`${pageIdx} / ${totalPages}`, pageW - marginX, pageH - 12, { align: "right" });
   };
 
