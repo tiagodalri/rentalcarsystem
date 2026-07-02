@@ -403,6 +403,13 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   useEffect(() => { followRef.current = following; }, [following]);
   useEffect(() => { layersRef.current = layers; }, [layers]);
 
+  useEffect(() => {
+    if (!DEMO_MODE) return;
+    const handleAuthFailure = () => setUseFallbackMap(true);
+    window.addEventListener("google-maps-auth-failure", handleAuthFailure);
+    return () => window.removeEventListener("google-maps-auth-failure", handleAuthFailure);
+  }, []);
+
   const { points: trail } = useTripTrail(selectedId, 24);
   const { data: nwsAlerts = [] } = useNwsAlerts("FL", layers.nwsAlerts);
   const { data: events = [] } = useVehicleEvents(selectedId, 7, layers.tripEvents && !!selectedId);
