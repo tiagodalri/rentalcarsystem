@@ -132,11 +132,11 @@ async function tick() {
 export function startDemoTracker(): void {
   if (!DEMO_MODE || started || typeof window === "undefined") return;
   started = true;
-  // Primeiro tick após 3s (dá tempo do app carregar).
+  // Primeiro tick imediato para animação começar sem espera.
   window.setTimeout(() => {
     void tick();
     timerId = window.setInterval(() => void tick(), DEMO_TRACKER.intervalMs);
-  }, 3_000);
+  }, 500);
 }
 
 /** Para o simulador (útil para testes/hot reload). */
