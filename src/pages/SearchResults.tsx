@@ -325,12 +325,7 @@ const SearchResults = () => {
                       Alterar <span className="gold-text">busca</span>
                     </DialogTitle>
                   </DialogHeader>
-                  <div
-                    className="px-4 sm:px-8 py-6 max-h-[80vh] overflow-y-auto
-                      [&_.glass-card]:border-0 [&_.glass-card]:bg-transparent [&_.glass-card]:p-0 [&_.glass-card]:shadow-none [&_.glass-card]:rounded-none
-                      [&_.grid.grid-cols-2]:!grid-cols-1 sm:[&_.grid.grid-cols-2]:!grid-cols-2 md:[&_.grid.grid-cols-2]:!grid-cols-3
-                      [&_p.uppercase]:whitespace-nowrap [&_p.uppercase]:overflow-hidden [&_p.uppercase]:text-ellipsis"
-                  >
+                  <div className="px-4 sm:px-8 py-6 max-h-[80vh] overflow-y-auto [&_.glass-card]:!border-0 [&_.glass-card]:!bg-transparent [&_.glass-card]:!p-0 [&_.glass-card]:!shadow-none">
                     <SearchBar />
                   </div>
                 </DialogContent>
