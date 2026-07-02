@@ -10,6 +10,7 @@ import { formatPersonName } from "@/lib/formatName";
 import { MobileList, MobileListItem } from "@/components/mobile/MobileListItem";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { SwipeAction } from "@/components/mobile/SwipeAction";
+import PresentationModeButton from "@/components/admin/PresentationModeButton";
 
 /* ============================================================
    PAINEL Mobile-first.
