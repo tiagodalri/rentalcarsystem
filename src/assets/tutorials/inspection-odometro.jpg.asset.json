@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "6ffcc998-30da-4763-9040-e0ba0fa09c90",
-  "project_id": "b0f7e6ff-78ad-4b66-9f17-20e86d56a18d",
-  "url": "/__l5e/assets-v1/6ffcc998-30da-4763-9040-e0ba0fa09c90/tut-inspection-odometro.jpg",
-  "r2_key": "a/v1/b0f7e6ff-78ad-4b66-9f17-20e86d56a18d/6ffcc998-30da-4763-9040-e0ba0fa09c90/tut-inspection-odometro.jpg",
-  "original_filename": "tut-inspection-odometro.jpg",
-  "size": 87677,
   "content_type": "image/jpeg",
-  "created_at": "2026-06-26T05:05:58Z"
+  "created_at": "2026-06-26T05:05:58Z",
+  "original_filename": "tut-inspection-odometro.jpg",
+  "project_id": "567a4fcc-f195-4d79-bef1-dc87c27b6af6",
+  "r2_key": "a/v1/567a4fcc-f195-4d79-bef1-dc87c27b6af6/6ffcc998-30da-4763-9040-e0ba0fa09c90/tut-inspection-odometro.jpg",
+  "size": 87677,
+  "url": "/__l5e/assets-v1/6ffcc998-30da-4763-9040-e0ba0fa09c90/tut-inspection-odometro.jpg",
+  "version": 1
 }

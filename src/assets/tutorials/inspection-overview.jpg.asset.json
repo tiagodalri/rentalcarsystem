@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "700571e0-b1c6-4802-a012-c91c8a4b46ca",
-  "project_id": "b0f7e6ff-78ad-4b66-9f17-20e86d56a18d",
-  "url": "/__l5e/assets-v1/700571e0-b1c6-4802-a012-c91c8a4b46ca/tut-inspection-overview.jpg",
-  "r2_key": "a/v1/b0f7e6ff-78ad-4b66-9f17-20e86d56a18d/700571e0-b1c6-4802-a012-c91c8a4b46ca/tut-inspection-overview.jpg",
-  "original_filename": "tut-inspection-overview.jpg",
-  "size": 87893,
   "content_type": "image/jpeg",
-  "created_at": "2026-06-26T05:05:55Z"
+  "created_at": "2026-06-26T05:05:55Z",
+  "original_filename": "tut-inspection-overview.jpg",
+  "project_id": "567a4fcc-f195-4d79-bef1-dc87c27b6af6",
+  "r2_key": "a/v1/567a4fcc-f195-4d79-bef1-dc87c27b6af6/700571e0-b1c6-4802-a012-c91c8a4b46ca/tut-inspection-overview.jpg",
+  "size": 87893,
+  "url": "/__l5e/assets-v1/700571e0-b1c6-4802-a012-c91c8a4b46ca/tut-inspection-overview.jpg",
+  "version": 1
 }
