@@ -4,7 +4,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import zeusLogo from "@/assets/zeus-logo-hd.png";
+import BrandLogo from "@/components/BrandLogo";
 import SocialAuthButtons from "@/components/auth/SocialAuthButtons";
 
 const Login = () => {
@@ -68,9 +68,11 @@ const Login = () => {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <a href="/" className="inline-block">
-            <img src={zeusLogo} alt="Rental Studio" className="h-20 w-auto mx-auto mb-4" />
+            <div className="flex justify-center mb-4">
+              <BrandLogo size="lg" />
+            </div>
             <h1 className="text-3xl font-bold tracking-tight">
-              <span className="text-primary">RENTAL STUDIO</span>
+              <span className="text-primary font-semibold uppercase tracking-[0.25em]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>SUA MARCA</span>
               <span className="text-muted-foreground font-light ml-1">RENTAL CAR</span>
             </h1>
           </a>

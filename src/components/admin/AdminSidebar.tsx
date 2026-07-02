@@ -19,7 +19,7 @@ import {
   Wallet,
 } from "lucide-react";
 
-import zeusLogo from "@/assets/zeus-logo-mark.png";
+import BrandLogo from "@/components/BrandLogo";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAdminTabs } from "@/hooks/useAdminTabs";
 import { useAdminAuth, type AppRole } from "@/hooks/useAdminAuth";
@@ -248,17 +248,10 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
       >
         {/* ===== Brand block ===== */}
         <div className={`flex flex-col items-center ${collapsed ? "px-0 py-2" : "px-2 pb-3"}`}>
-          <img
-            src={zeusLogo}
-            alt="Rental Studio"
-            className={`${
-              collapsed ? "h-8 max-w-[32px]" : "h-11 max-w-[44px]"
-            } w-auto object-contain opacity-95 transition-all`}
-          />
-          {!collapsed && (
-            <div className="mt-2 text-[11.5px] font-semibold tracking-[0.32em] text-sidebar-foreground/85 text-center leading-none">
-              RENTAL STUDIO
-            </div>
+          {collapsed ? (
+            <BrandLogo size="sm" dark showMark={false} className="opacity-95" />
+          ) : (
+            <BrandLogo size="md" dark showMark={false} className="opacity-95" />
           )}
         </div>
 
