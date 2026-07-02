@@ -440,7 +440,7 @@ export default function AdminInspectionReport() {
               Rental Studio
             </p>
             <p style={{ fontSize: "7pt", color: "#737373", marginTop: "0.5mm" }}>
-              Premium Concierge · Orlando, FL · +1 689 298 1754
+              Premium Concierge · +1 555 000 0000
             </p>
           </div>
         </div>
