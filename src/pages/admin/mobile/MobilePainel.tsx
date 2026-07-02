@@ -298,6 +298,11 @@ export default function MobilePainel({ bookings, vehicles, onRefresh, aiMode, on
           </button>
         )}
 
+        <div className="flex justify-center">
+          <PresentationModeButton />
+        </div>
+
+
         {/* ═══════════ Atalhos ═══════════ */}
         <section>
           <SectionLabel>Atalhos</SectionLabel>
