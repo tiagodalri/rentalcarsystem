@@ -54,7 +54,7 @@ const FieldButton = ({ icon, label, value, placeholder = "Selecione", active, on
   >
     <span className="text-primary shrink-0">{icon}</span>
     <span className="min-w-0 flex-1">
-      <span className="block text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+      <span className="block text-[10px] uppercase tracking-widest text-muted-foreground font-semibold whitespace-nowrap">
         {label}
       </span>
       <span className={cn("block text-sm truncate", value ? "text-foreground" : "text-muted-foreground")}>
@@ -212,7 +212,7 @@ const SearchBar = () => {
 
         {/* ============ DESKTOP LAYOUT (popovers, unchanged) ============ */}
         <div className="hidden md:block">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3.5">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
             {/* Pickup Date */}
             <Popover open={openPicker === "pickupDate"} onOpenChange={(o) => setOpenPicker(o ? "pickupDate" : null)}>
               <PopoverTrigger asChild>
@@ -222,7 +222,7 @@ const SearchBar = () => {
                 )}>
                   <CalendarIcon size={16} className="text-primary shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Data Retirada</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold whitespace-nowrap">Data Retirada</p>
                     <p className="text-sm text-foreground truncate">
                       {pickupDate ? format(pickupDate, "dd MMM yyyy", { locale: pt }) : "Selecione"}
                     </p>
@@ -247,7 +247,7 @@ const SearchBar = () => {
                 <button className="flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full">
                   <Clock size={16} className="text-primary shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Horário Retirada</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold whitespace-nowrap">Horário Retirada</p>
                     <p className="text-sm text-foreground">{pickupTime}</p>
                   </div>
                 </button>
@@ -277,7 +277,7 @@ const SearchBar = () => {
                 )}>
                   <MapPin size={16} className="text-primary shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Local Retirada</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold whitespace-nowrap">Local Retirada</p>
                     <p className="text-sm text-foreground truncate">{pickupLocation || "Selecione"}</p>
                   </div>
                 </button>
@@ -298,7 +298,7 @@ const SearchBar = () => {
               </PopoverContent>
             </Popover>
             {locationErrors.pickup && (
-              <p className="text-xs text-destructive col-span-2 lg:col-span-1 -mt-1">{locationErrors.pickup}</p>
+              <p className="text-xs text-destructive col-span-3 -mt-1">{locationErrors.pickup}</p>
             )}
 
             {/* Return Date */}
@@ -310,7 +310,7 @@ const SearchBar = () => {
                 )}>
                   <CalendarIcon size={16} className="text-primary shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Data Devolução</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold whitespace-nowrap">Data Devolução</p>
                     <p className="text-sm text-foreground truncate">
                       {returnDate ? format(returnDate, "dd MMM yyyy", { locale: pt }) : "Selecione"}
                     </p>
@@ -335,7 +335,7 @@ const SearchBar = () => {
                 <button className="flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 rounded-xl border border-border/60 bg-background/50 text-left hover:border-primary/40 transition-colors w-full">
                   <Clock size={16} className="text-primary shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Horário Devolução</p>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold whitespace-nowrap">Horário Devolução</p>
                     <p className="text-sm text-foreground">{returnTime}</p>
                   </div>
                 </button>
@@ -360,7 +360,7 @@ const SearchBar = () => {
             <Button
               onClick={handleSearch}
               disabled={isUnderageBlocked}
-              className="gold-gradient text-primary-foreground font-bold uppercase tracking-widest h-auto py-3 rounded-xl hover:opacity-90 transition-opacity text-sm gap-2 disabled:opacity-40 disabled:cursor-not-allowed col-span-2 lg:col-span-1"
+              className="gold-gradient text-primary-foreground font-bold uppercase tracking-widest h-auto py-3 rounded-xl hover:opacity-90 transition-opacity text-sm gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Search size={16} />
               Buscar
@@ -400,7 +400,7 @@ const SearchBar = () => {
                       )}>
                         <MapPin size={16} className="text-primary shrink-0" />
                         <div className="min-w-0">
-                          <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Local Devolução</p>
+                          <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold whitespace-nowrap">Local Devolução</p>
                           <p className="text-sm text-foreground truncate">{returnLocation || "Selecione"}</p>
                         </div>
                       </button>
@@ -458,7 +458,7 @@ const SearchBar = () => {
                   )}>
                     <UserCheck size={16} className={cn("shrink-0", isUnderageBlocked ? "text-destructive" : "text-primary")} />
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Idade do Condutor</p>
+                      <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold whitespace-nowrap">Idade do Condutor</p>
                       <input
                         type="number"
                         inputMode="numeric"

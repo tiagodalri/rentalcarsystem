@@ -319,13 +319,13 @@ const SearchResults = () => {
                     Alterar busca
                   </button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl p-0 gap-0 overflow-hidden bg-background">
-                  <DialogHeader className="px-6 pt-6 pb-2">
+                <DialogContent className="w-[calc(100vw-1.5rem)] sm:max-w-5xl p-0 gap-0 overflow-hidden bg-background border-border/40">
+                  <DialogHeader className="px-6 pt-6 pb-3 border-b border-border/40">
                     <DialogTitle className="text-lg font-bold uppercase tracking-wider">
                       Alterar <span className="gold-text">busca</span>
                     </DialogTitle>
                   </DialogHeader>
-                  <div className="p-4 sm:p-6 max-h-[80vh] overflow-y-auto">
+                  <div className="px-4 sm:px-8 py-6 max-h-[80vh] overflow-y-auto [&_.glass-card]:!border-0 [&_.glass-card]:!bg-transparent [&_.glass-card]:!p-0 [&_.glass-card]:!shadow-none">
                     <SearchBar />
                   </div>
                 </DialogContent>
