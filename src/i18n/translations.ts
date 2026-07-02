@@ -267,9 +267,9 @@ export const translations: Record<Language, TranslationKeys> = {
       myBookings: "My Bookings",
     },
     hero: {
-      title: "Your Orlando trip starts with the ",
-      titleHighlight: "right car.",
-      subtitle: "Comfort, space, and convenience for every type of trip.",
+      title: "Your next trip starts ",
+      titleHighlight: "here.",
+      subtitle: "A ready fleet, close service, and the ease of going further, your way.",
       exploreFleet: "Explore the Fleet",
       contactUs: "Contact Us",
     },
