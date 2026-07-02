@@ -440,7 +440,10 @@ export default function AdminPainel() {
             Cockpit operacional · {format(now, "EEEE, dd 'de' MMMM", { locale: ptBR })}
           </p>
         </div>
-        {AiToggle}
+        <div className="flex items-center gap-2">
+          <PresentationModeButton />
+          {AiToggle}
+        </div>
       </div>
 
 
