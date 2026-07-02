@@ -445,6 +445,9 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   // 1. Load Google Maps and create map instance
   useEffect(() => {
     let cancelled = false;
+    // Clear any residual Google error overlay ("Ops! Algo deu errado…") that
+    // Google may have injected in a previous failed load, before re-init.
+    if (containerRef.current) containerRef.current.innerHTML = "";
     loadGoogleMaps()
       .then((google) => {
         if (cancelled || !containerRef.current) return;
