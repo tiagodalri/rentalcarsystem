@@ -34,7 +34,7 @@ export default function BrandLogo({ size = "md", showMark = true, className = ""
       <span
         className={`font-semibold uppercase whitespace-nowrap ${cfg.text}`}
         style={{
-          fontFamily: "'Cormorant Garamond', 'Cormorant Garamond Variable', serif",
+          fontFamily: "'Cormorant Garamond', serif",
           letterSpacing: "0.25em",
           color,
           lineHeight: 1.1,
