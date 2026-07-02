@@ -40,7 +40,7 @@ const content = {
     },
     cta: "VER HISTÓRICO",
     closing: "Em caso de dúvidas sobre o reembolso, responda este e-mail ou chame no WhatsApp.",
-    team: "— Equipe Zeus Rental Car",
+    team: "— Equipe Rental Studio",
   },
   en: {
     subject: (num: string) => `Booking canceled — ${num}`,
@@ -60,7 +60,7 @@ const content = {
     },
     cta: "VIEW HISTORY",
     closing: "For questions about your refund, reply to this email or text us on WhatsApp.",
-    team: "— Zeus Rental Car Team",
+    team: "— Rental Studio Team",
   },
 } as const;
 
@@ -79,7 +79,7 @@ export function renderBookingCancellation(
   const refundAmount = d.refundAmount || "—";
   const refundMethod = d.refundMethod || "—";
   const refundDeadline = d.refundDeadline || "—";
-  const bookingDetailsUrl = d.bookingDetailsUrl || "https://zeusrentalcar.com";
+  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalstudio.demo";
 
   const bookingDetailsHtml = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">

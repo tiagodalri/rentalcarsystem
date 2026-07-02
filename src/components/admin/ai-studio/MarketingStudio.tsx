@@ -24,7 +24,7 @@ export default function MarketingStudio({ onBack }: Props) {
         className="inline-flex items-center gap-1.5 text-[12px] uppercase tracking-[0.22em] font-semibold mb-4"
         style={{ color: "rgba(13,29,46,0.62)" }}
       >
-        <ArrowLeft size={14} /> Voltar ao Zeus Brain
+        <ArrowLeft size={14} /> Voltar ao AI Studio
       </button>
 
       <div className="text-center mb-6">

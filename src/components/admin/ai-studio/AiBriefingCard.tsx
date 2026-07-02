@@ -251,7 +251,7 @@ export function AiBriefingCard({ briefing, loading, snapshot, highlights, action
     try {
       const target =
         (document.querySelector(".ai-shell") as HTMLElement | null) ?? (document.body as HTMLElement);
-      await exportPainelPdf({ target, filename: "zeus-brain-painel.pdf" });
+      await exportPainelPdf({ target, filename: "ai-studio-painel.pdf" });
     } finally {
       setExporting(false);
     }

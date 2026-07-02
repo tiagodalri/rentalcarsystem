@@ -140,7 +140,7 @@ serve(async (req) => {
       .single();
     if (bookErr) return json({ error: "Booking create failed: " + bookErr.message }, 500);
 
-    const orderId = `ZEUS-${booking.id}`;
+    const orderId = `RENTAL STUDIO-${booking.id}`;
 
     function isEmailConflict(j: any, status: number): boolean {
       const errs = j?.errors ?? [];
@@ -177,7 +177,7 @@ serve(async (req) => {
             qty: 1,
             ref: orderId,
             category: "Car Rental",
-            brand: "Zeus Rental Car",
+            brand: "Rental Studio",
             sku: vehicle_id,
           },
         ],

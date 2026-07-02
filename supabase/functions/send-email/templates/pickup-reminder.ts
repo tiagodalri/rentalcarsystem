@@ -41,7 +41,7 @@ const content = {
     ],
     cta: "VER DETALHES",
     closing: "Em caso de imprevistos, responda este e-mail ou chame no WhatsApp.",
-    team: "— Equipe Zeus Rental Car",
+    team: "— Equipe Rental Studio",
   },
   en: {
     subject: (num: string) => `Your pickup is tomorrow — ${num}`,
@@ -63,7 +63,7 @@ const content = {
     ],
     cta: "VIEW DETAILS",
     closing: "If anything comes up, reply to this email or text us on WhatsApp.",
-    team: "— Zeus Rental Car Team",
+    team: "— Rental Studio Team",
   },
 } as const;
 
@@ -81,7 +81,7 @@ export function renderPickupReminder(
   const pickupTime = d.pickupTime || "";
   const pickupLocation = d.pickupLocation || "—";
   const pickupAddress = (d.pickupAddress || "").trim();
-  const bookingDetailsUrl = d.bookingDetailsUrl || "https://zeusrentalcar.com";
+  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalstudio.demo";
 
   const dateTimeFull = pickupTime ? `${pickupDate} · ${pickupTime}` : pickupDate;
 

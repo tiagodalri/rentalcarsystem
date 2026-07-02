@@ -986,7 +986,7 @@ export default function AdminInspection() {
       try { localStorage.removeItem(draftKey); } catch {}
     }
 
-    // Dispara e-mail Zeus com o laudo da inspeção (não bloqueia)
+    // Dispara e-mail Rental Studio com o laudo da inspeção (não bloqueia)
     if (finalize && booking) {
       try {
         const { sendZeusEmail } = await import("@/lib/emails/sendZeusEmail");
@@ -1042,7 +1042,7 @@ export default function AdminInspection() {
             damagesCount: damages?.length ?? 0,
             photosCount,
             paymentStatus: type === "checkout" ? "Pago" : ((booking as any).payment_status || "—"),
-            inspectorName: "Equipe Zeus",
+            inspectorName: "Equipe Rental Studio",
             completedAt,
             reportUrl,
             inspectionBookingId: bookingId,

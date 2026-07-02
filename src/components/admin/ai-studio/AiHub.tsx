@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, LayoutDashboard, Gamepad2, Megaphone, Sparkles } from "lucide-react";
-import hallImg from "@/assets/zeus-brain/hall-estrategico.jpg?url";
-import simImg from "@/assets/zeus-brain/simulador.jpg?url";
-import mktImg from "@/assets/zeus-brain/marketing-studio.jpg?url";
-import iaImg from "@/assets/zeus-brain/zeus-ia.jpg?url";
+import hallImg from "@/assets/ai-studio/hall-estrategico.jpg?url";
+import simImg from "@/assets/ai-studio/simulador.jpg?url";
+import mktImg from "@/assets/ai-studio/marketing-studio.jpg?url";
+import iaImg from "@/assets/ai-studio/ai-hub.jpg?url";
 
 // Pre-cache as soon as module loads so cards aparecem instant.
 if (typeof window !== "undefined") {
@@ -53,13 +53,13 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
       image: simImg,
       Icon: Gamepad2,
       badge: "Interativo",
-      action: () => navigate("/admin/zeus-brain/simulador"),
+      action: () => navigate("/admin/ai-studio/simulador"),
     },
     {
       key: "marketing",
       eyebrow: "Conteúdo e marca",
       title: "Marketing Studio",
-      description: "Estúdio criativo da Zeus. Gere posts em formato feed e story com fotos dos carros, logotipo e frases de impacto.",
+      description: "Estúdio criativo da plataforma. Gere posts em formato feed e story com fotos dos carros, logotipo e frases de impacto.",
       image: mktImg,
       Icon: Megaphone,
       badge: "Novo",
@@ -68,8 +68,8 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
     {
       key: "ia",
       eyebrow: "Assistente cognitivo",
-      title: "Zeus IA",
-      description: "Converse com a inteligência da Zeus. Tire dúvidas operacionais, peça análises e gere insights sob medida.",
+      title: "AI Studio",
+      description: "Converse com a inteligência da plataforma. Tire dúvidas operacionais, peça análises e gere insights sob medida.",
       image: iaImg,
       Icon: Sparkles,
       badge: "Em breve",
@@ -102,7 +102,7 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
           className="mt-1.5 mx-auto text-[11px] sm:text-[12.5px] leading-relaxed whitespace-nowrap"
           style={{ color: "rgba(13,29,46,0.62)" }}
         >
-          Escolha um módulo do Zeus Brain. Cada espaço foi desenhado para uma frente da operação.
+          Escolha um módulo do AI Studio. Cada espaço foi desenhado para uma frente da operação.
         </p>
       </div>
 

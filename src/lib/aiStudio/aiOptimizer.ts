@@ -11,7 +11,7 @@
  * Resultado: ÓTIMO GLOBAL dentro da granularidade — não é heurística.
  */
 
-import type { SimVehicle } from "@/components/admin/zeus-brain/FleetSimulator";
+import type { SimVehicle } from "@/components/admin/ai-studio/FleetSimulator";
 
 export type AiScenario = {
   sell: SimVehicle[];

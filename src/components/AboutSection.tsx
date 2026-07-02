@@ -88,7 +88,7 @@ const AboutSection = () => {
             {t.hero.exploreFleet}
           </a>
           <a
-            href={`https://wa.me/16892981754?text=${encodeURIComponent("Olá, venho do site da Zeus e gostaria de realizar uma reserva!")}`}
+            href={`https://wa.me/15550000000?text=${encodeURIComponent("Olá, venho do site da Rental Studio e gostaria de realizar uma reserva!")}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto border border-primary/50 text-primary px-6 sm:px-8 py-3 sm:py-3.5 rounded-lg text-[11px] sm:text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all duration-300 backdrop-blur-sm text-center"

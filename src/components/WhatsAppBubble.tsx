@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
-const WHATSAPP_URL = "https://wa.me/16892981754?text=" +
-  encodeURIComponent("Olá, venho do site da Zeus e gostaria de realizar uma reserva!");
+const WHATSAPP_URL = "https://wa.me/15550000000?text=" +
+  encodeURIComponent("Olá, venho do site da Rental Studio e gostaria de realizar uma reserva!");
 
 const WhatsAppBubble = () => (
   <motion.a

@@ -73,8 +73,8 @@ const Contato = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="Contato | Zeus Rental Car Orlando"
-        description="Fale com a Zeus Rental Car. Atendimento em português para reservas, dúvidas e suporte de aluguel de carros premium em Orlando."
+        title="Contato | Rental Studio Orlando"
+        description="Fale com a Rental Studio. Atendimento em português para reservas, dúvidas e suporte de aluguel de carros premium em Orlando."
         path="/contato"
       />
       <Navbar />

@@ -1,7 +1,7 @@
 /**
  * Demo mode global configuration.
  *
- * Este projeto é uma cópia (remix) da plataforma real da Zeus Rental Car,
+ * Este projeto é uma cópia (remix) da plataforma real da Rental Studio,
  * usada exclusivamente como ambiente de demonstração para apresentações
  * comerciais. Nenhuma integração externa (Bouncie, Stripe, ClickSign,
  * CambioReal, Resend, Google Maps, E-Pass) está conectada — tudo é

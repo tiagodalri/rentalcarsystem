@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /minha-conta/
 
-Sitemap: https://zeusrentalcar.com/sitemap.xml
+Sitemap: https://rentalstudio.demo/sitemap.xml

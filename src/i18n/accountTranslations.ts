@@ -88,7 +88,7 @@ export type AccountDict = {
 const dicts: Record<Language, AccountDict> = {
   pt: {
     greeting: (n) => `Olá, ${n}!`,
-    subtitle: "Aqui você acompanha todas as suas reservas com a Zeus Rental Car",
+    subtitle: "Aqui você acompanha todas as suas reservas com a Rental Studio",
     logout: "Sair",
     completeProfileTitle: "Complete seu cadastro",
     completeProfileDesc: "Para reservar veículos, precisamos de telefone, documento e endereço.",
@@ -165,7 +165,7 @@ const dicts: Record<Language, AccountDict> = {
   },
   en: {
     greeting: (n) => `Hi, ${n}!`,
-    subtitle: "Track all your reservations with Zeus Rental Car in one place.",
+    subtitle: "Track all your reservations with Rental Studio in one place.",
     logout: "Sign out",
     completeProfileTitle: "Complete your profile",
     completeProfileDesc: "To book vehicles we need your phone, document and address.",
@@ -242,7 +242,7 @@ const dicts: Record<Language, AccountDict> = {
   },
   es: {
     greeting: (n) => `¡Hola, ${n}!`,
-    subtitle: "Aquí acompañas todas tus reservas con Zeus Rental Car",
+    subtitle: "Aquí acompañas todas tus reservas con Rental Studio",
     logout: "Salir",
     completeProfileTitle: "Completa tu registro",
     completeProfileDesc: "Para reservar vehículos necesitamos teléfono, documento y dirección.",
@@ -319,7 +319,7 @@ const dicts: Record<Language, AccountDict> = {
   },
   it: {
     greeting: (n) => `Ciao, ${n}!`,
-    subtitle: "Qui segui tutte le tue prenotazioni con Zeus Rental Car",
+    subtitle: "Qui segui tutte le tue prenotazioni con Rental Studio",
     logout: "Esci",
     completeProfileTitle: "Completa la registrazione",
     completeProfileDesc: "Per prenotare veicoli servono telefono, documento e indirizzo.",
@@ -396,7 +396,7 @@ const dicts: Record<Language, AccountDict> = {
   },
   de: {
     greeting: (n) => `Hallo, ${n}!`,
-    subtitle: "Hier verfolgen Sie alle Ihre Buchungen bei Zeus Rental Car",
+    subtitle: "Hier verfolgen Sie alle Ihre Buchungen bei Rental Studio",
     logout: "Abmelden",
     completeProfileTitle: "Profil vervollständigen",
     completeProfileDesc: "Für Buchungen benötigen wir Telefon, Dokument und Adresse.",
@@ -473,7 +473,7 @@ const dicts: Record<Language, AccountDict> = {
   },
   fr: {
     greeting: (n) => `Bonjour, ${n}!`,
-    subtitle: "Suivez toutes vos réservations Zeus Rental Car ici",
+    subtitle: "Suivez toutes vos réservations Rental Studio ici",
     logout: "Déconnexion",
     completeProfileTitle: "Complétez votre profil",
     completeProfileDesc: "Pour réserver un véhicule, nous avons besoin du téléphone, document et adresse.",

@@ -199,7 +199,7 @@ const CustomerRegistration = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center space-y-6">
-          <img src={zeusLogo} alt="Zeus Rental Car" className="h-16 mx-auto" />
+          <img src={zeusLogo} alt="Rental Studio" className="h-16 mx-auto" />
           <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto">
             <Check size={28} className="text-emerald-500" />
           </div>
@@ -231,7 +231,7 @@ const CustomerRegistration = () => {
     <div className="min-h-screen bg-background">
       <div className="border-b border-border/40 bg-card/50">
         <div className="container mx-auto px-4 py-6 flex items-center justify-center">
-          <img src={zeusLogo} alt="Zeus Rental Car" className="h-14" />
+          <img src={zeusLogo} alt="Rental Studio" className="h-14" />
         </div>
       </div>
 
@@ -436,7 +436,7 @@ const CustomerRegistration = () => {
         </form>
 
         <p className="text-center text-[10px] text-muted-foreground/50 mt-6">
-          Zeus Rental Car · Orlando & Miami · Seus dados estão protegidos.
+          Rental Studio · Orlando & Miami · Seus dados estão protegidos.
         </p>
       </div>
     </div>

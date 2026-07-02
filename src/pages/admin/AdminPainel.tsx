@@ -18,17 +18,17 @@ import { formatPersonName } from "@/lib/formatName";
 import MobilePainel from "./mobile/MobilePainel";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import AiPainel from "./AiPainel";
-import AiHub from "@/components/admin/zeus-brain/AiHub";
-import ComingSoonModule from "@/components/admin/zeus-brain/ComingSoonModule";
-import MarketingStudio from "@/components/admin/zeus-brain/MarketingStudio";
-import BrainAccessGate from "@/components/admin/zeus-brain/BrainAccessGate";
+import AiHub from "@/components/admin/ai-studio/AiHub";
+import ComingSoonModule from "@/components/admin/ai-studio/ComingSoonModule";
+import MarketingStudio from "@/components/admin/ai-studio/MarketingStudio";
+import BrainAccessGate from "@/components/admin/ai-studio/BrainAccessGate";
 import {
   type BookingSource,
   readBookingSource,
   writeBookingSource,
   filterBookingsBySource,
   SOURCE_LABEL,
-} from "@/lib/zeusBrain/bookingSource";
+} from "@/lib/aiStudio/bookingSource";
 import { AdminKpiGrid } from "@/components/admin/layout/AdminPage";
 
 
@@ -93,7 +93,7 @@ export default function AdminPainel() {
     try { localStorage.setItem("zeus_ai_mode", aiMode ? "1" : "0"); } catch {}
   }, [aiMode]);
 
-  // hub | painel | marketing | ia — view interna do overlay Zeus Brain
+  // hub | painel | marketing | ia — view interna do overlay AI Studio
   type HubView = "hub" | "painel" | "marketing" | "ia";
   const [hubView, setHubView] = useState<HubView>("hub");
   // Sempre que abre o Brain, volta ao hub
@@ -257,8 +257,8 @@ export default function AdminPainel() {
   const AiToggle = (
     <button
       onClick={() => setAiMode(v => !v)}
-      title={aiMode ? "Voltar ao painel clássico" : "Ativar Zeus Brain"}
-      aria-label={aiMode ? "Voltar ao painel clássico" : "Ativar Zeus Brain"}
+      title={aiMode ? "Voltar ao painel clássico" : "Ativar AI Studio"}
+      aria-label={aiMode ? "Voltar ao painel clássico" : "Ativar AI Studio"}
       className={`group relative inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] uppercase tracking-[0.18em] font-medium transition-all ${
         aiMode
           ? "text-white border shadow-[0_8px_20px_-10px_rgba(13,29,46,0.45)]"
@@ -270,7 +270,7 @@ export default function AdminPainel() {
       } : undefined}
     >
       <Brain size={14} strokeWidth={1.75} style={aiMode ? { color: "#d6bf86" } : undefined} />
-      <span>{aiMode ? "Zeus Brain ativado" : "Zeus Brain"}</span>
+      <span>{aiMode ? "AI Studio ativado" : "AI Studio"}</span>
       {aiMode && (
         <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full" style={{ background: "#9a7a3a", boxShadow: "0 0 8px rgba(154,122,58,0.7)" }} />
       )}
@@ -308,7 +308,7 @@ export default function AdminPainel() {
                     color: "rgba(13,29,46,0.72)",
                     boxShadow: "0 4px 10px -6px rgba(13,29,46,0.25)",
                   }}
-                  aria-label="Voltar ao menu Zeus Brain"
+                  aria-label="Voltar ao menu AI Studio"
                 >
                   <ArrowLeft size={13} />
                   <span className="hidden sm:inline">Menu</span>
@@ -322,7 +322,7 @@ export default function AdminPainel() {
                 textShadow: "0 1px 0 rgba(255,255,255,0.6)",
               }}
             >
-              ZEUS BRAIN
+              RENTAL STUDIO BRAIN
             </div>
             <div className="flex-1 flex justify-end">
               <button
@@ -402,10 +402,10 @@ export default function AdminPainel() {
 
         {hubView === "ia" && (
           <ComingSoonModule
-            title="Zeus IA"
+            title="Rental Studio IA"
             description="Sua assistente cognitiva dedicada. Pergunte sobre a operação, peça análises, gere relatórios e tome decisões com apoio em tempo real."
             bullets={[
-              "Chat com a inteligência da Zeus, treinada nos seus dados",
+              "Chat com a inteligência da Rental Studio, treinada nos seus dados",
               "Resumos executivos, comparativos e respostas em segundos",
               "Sugestões proativas com base no que está acontecendo agora",
               "Memória persistente do contexto da sua frota",

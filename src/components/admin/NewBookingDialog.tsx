@@ -614,7 +614,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
               <div className="min-w-0">
                 <Label className={labelCls}>Plano</Label>
                 <div className="h-11 flex items-center px-3 rounded-xl border border-border/50 bg-muted/20 text-sm font-medium text-foreground">
-                  Zeus (Plano único)
+                  Rental Studio (Plano único)
                 </div>
               </div>
             </div>

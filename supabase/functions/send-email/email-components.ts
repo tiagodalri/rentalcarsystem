@@ -1,4 +1,4 @@
-// ─── Zeus Rental Car — Reusable Email Components ───
+// ─── Rental Studio — Reusable Email Components ───
 // Pure HTML string builders for Deno Edge Functions.
 // All 5 transactional templates inherit from emailLayout().
 
@@ -29,7 +29,7 @@ export function emailHeader(): string {
       <td align="center" style="padding: 40px 30px 24px;">
         <img
           src="${LOGO_URL}"
-          alt="Zeus Rental Car"
+          alt="Rental Studio"
           width="180"
           height="auto"
           style="display: block; max-width: 180px; height: auto;"
@@ -49,14 +49,14 @@ export function emailFooter(lang: "pt" | "en" = "pt"): string {
   const texts = {
     pt: {
       address: "Orlando, FL, EUA",
-      whatsapp: "WhatsApp: +1 (689) 298-1754",
-      rights: `© ${new Date().getFullYear()} Zeus Rental Car. Todos os direitos reservados.`,
+      whatsapp: "WhatsApp: +1 (555) 000-0000",
+      rights: `© ${new Date().getFullYear()} Rental Studio. Todos os direitos reservados.`,
       unsubscribe: "Cancelar inscrição",
     },
     en: {
       address: "Orlando, FL, USA",
-      whatsapp: "WhatsApp: +1 (689) 298-1754",
-      rights: `© ${new Date().getFullYear()} Zeus Rental Car. All rights reserved.`,
+      whatsapp: "WhatsApp: +1 (555) 000-0000",
+      rights: `© ${new Date().getFullYear()} Rental Studio. All rights reserved.`,
       unsubscribe: "Unsubscribe",
     },
   };
@@ -72,7 +72,7 @@ export function emailFooter(lang: "pt" | "en" = "pt"): string {
       <td align="center" style="padding: 24px 30px 16px;">
         <a href="https://instagram.com/zeusrentalcar" style="color: ${colors.textMuted}; font-size: 13px; text-decoration: none; margin: 0 8px;">Instagram</a>
         <span style="color: ${colors.textMuted};">·</span>
-        <a href="https://wa.me/16892981754" style="color: ${colors.textMuted}; font-size: 13px; text-decoration: none; margin: 0 8px;">${t.whatsapp}</a>
+        <a href="https://wa.me/15550000000" style="color: ${colors.textMuted}; font-size: 13px; text-decoration: none; margin: 0 8px;">${t.whatsapp}</a>
       </td>
     </tr>
     <tr>
@@ -150,7 +150,7 @@ export function emailLayout(bodyContent: string, lang: "pt" | "en" = "pt"): stri
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="color-scheme" content="dark" />
   <meta name="supported-color-schemes" content="dark" />
-  <title>Zeus Rental Car</title>
+  <title>Rental Studio</title>
   <!--[if mso]>
   <noscript>
     <xml>

@@ -183,7 +183,7 @@ const BookingDetailClient = () => {
             refundAmount: "A definir",
             refundMethod: "Estorno via cartão de origem",
             refundDeadline: "Até 10 dias úteis",
-            bookingDetailsUrl: `https://zeusrentalcar.com/minha-conta/reserva/${dbBooking.booking_number}`,
+            bookingDetailsUrl: `https://rentalstudio.demo/minha-conta/reserva/${dbBooking.booking_number}`,
           },
         },
       });
@@ -422,13 +422,13 @@ const BookingDetailClient = () => {
               {isFuture && (
                 <div className="space-y-2">
                   <a
-                    href="https://wa.me/16892981754"
+                    href="https://wa.me/15550000000"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center justify-center gap-2 border border-border/50 rounded-lg px-4 py-3 text-sm font-medium text-foreground hover:bg-accent transition-colors"
                   >
                     <MessageCircle size={16} />
-                    Falar com a Zeus
+                    Falar com a Rental Studio
                   </a>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>

@@ -322,7 +322,7 @@ export default function AdminInspectionReport() {
   // ============================================================
   return (
     <>
-      {/* ============ PRINT STYLES (papel timbrado Zeus) ============ */}
+      {/* ============ PRINT STYLES (papel timbrado Rental Studio) ============ */}
       <style>{`
         @media print {
           @page {
@@ -434,13 +434,13 @@ export default function AdminInspectionReport() {
       {/* ============ LETTERHEAD (print only) ============ */}
       <div className="laudo-letterhead hidden print:flex">
         <div className="flex items-center gap-3">
-          <img src={zeusLogo} alt="Zeus Rental Car" style={{ height: "10mm", width: "auto" }} />
+          <img src={zeusLogo} alt="Rental Studio" style={{ height: "10mm", width: "auto" }} />
           <div className="leading-tight">
             <p style={{ fontSize: "8pt", letterSpacing: "0.2em", textTransform: "uppercase", color: "#737373", fontWeight: 600 }}>
-              Zeus Rental Car
+              Rental Studio
             </p>
             <p style={{ fontSize: "7pt", color: "#737373", marginTop: "0.5mm" }}>
-              Premium Concierge · Orlando, FL · +1 689 298 1754
+              Premium Concierge · +1 555 000 0000
             </p>
           </div>
         </div>
@@ -457,8 +457,8 @@ export default function AdminInspectionReport() {
       {/* ============ FOOTER (print only) ============ */}
       <div className="laudo-footer hidden print:flex">
         <div>
-          <p style={{ fontWeight: 600, color: "#0a0a0a" }}>Zeus Rental Car</p>
-          <p style={{ marginTop: "0.5mm" }}>www.zeusrentalcar.com · contato@zeusrentalcar.com</p>
+          <p style={{ fontWeight: 600, color: "#0a0a0a" }}>Rental Studio</p>
+          <p style={{ marginTop: "0.5mm" }}>www.rentalstudio.demo · contato@rentalstudio.demo</p>
         </div>
         <div className="text-center">
           <p style={{ letterSpacing: "0.15em", textTransform: "uppercase" }}>Documento Confidencial</p>
@@ -497,7 +497,7 @@ export default function AdminInspectionReport() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Sparkles size={12} className="text-primary" />
-                <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-medium">Zeus Rental Car</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-medium">Rental Studio</p>
               </div>
               <h2 className="admin-h1 text-2xl">Laudo Completo de Serviço</h2>
               <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 tabular-nums">
@@ -900,7 +900,7 @@ export default function AdminInspectionReport() {
                       )}
                     </div>
                     <div>
-                      <p className="text-[9px] uppercase text-muted-foreground mb-1">Agente Zeus</p>
+                      <p className="text-[9px] uppercase text-muted-foreground mb-1">Agente Rental Studio</p>
                       {s.data?.agent_signature ? (
                         <img src={s.data.agent_signature} alt="" className="w-full h-20 object-contain bg-white rounded border border-border/40" />
                       ) : (
@@ -918,7 +918,7 @@ export default function AdminInspectionReport() {
 
       {/* Footer (screen only — print uses fixed footer) */}
       <div className="text-center text-[10px] text-muted-foreground pt-4 border-t border-border/30 print:hidden">
-        Laudo gerado em {fmtDateTime(new Date().toISOString())} • Zeus Rental Car • Documento {reportNumber}
+        Laudo gerado em {fmtDateTime(new Date().toISOString())} • Rental Studio • Documento {reportNumber}
       </div>
       </div>{/* /.laudo-content */}
       </div>{/* /.laudo-print */}
