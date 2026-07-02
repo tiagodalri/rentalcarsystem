@@ -81,6 +81,7 @@ function loadWithKey(apiKey: string, channel: string | undefined): Promise<any> 
     (window as any).gm_authFailure = () => {
       authFailed = true;
       (window as any).__gmapsAuthFailed = true;
+      window.dispatchEvent(new CustomEvent("google-maps-auth-failure"));
       // Tear down the broken google object so the next key attempt can re-init.
       try {
         delete (window as any).google;
