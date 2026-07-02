@@ -45,7 +45,7 @@ type Row = {
   address: string | null;
   last_event: string | null;
   reported_at: string | null;
-  vehicles: { name: string; license_plate: string | null } | null;
+  vehicles: { name: string; license_plate: string | null; image_url: string | null } | null;
 };
 
 type TelemetryPayload = Partial<Omit<Row, "vehicles">>;
