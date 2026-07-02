@@ -212,7 +212,7 @@ const SearchBar = () => {
 
         {/* ============ DESKTOP LAYOUT (popovers, unchanged) ============ */}
         <div className="hidden md:block">
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3.5">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3.5">
             {/* Pickup Date */}
             <Popover open={openPicker === "pickupDate"} onOpenChange={(o) => setOpenPicker(o ? "pickupDate" : null)}>
               <PopoverTrigger asChild>
