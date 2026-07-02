@@ -54,7 +54,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
     setLoading(true);
     const [vRes, bRes, eRes, iRes] = await Promise.all([
       supabase.from("vehicles").select("*").is("deleted_at", null),
-      supabase.from("bookings").select("*"),
+      supabase.from("bookings").select("*").is("deleted_at", null),
       supabase.from("vehicle_expenses").select("*"),
       supabase.from("vehicle_inspections").select("*"),
     ]);
