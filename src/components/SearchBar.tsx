@@ -298,7 +298,7 @@ const SearchBar = () => {
               </PopoverContent>
             </Popover>
             {locationErrors.pickup && (
-              <p className="text-xs text-destructive col-span-2 lg:col-span-1 -mt-1">{locationErrors.pickup}</p>
+              <p className="text-xs text-destructive col-span-3 -mt-1">{locationErrors.pickup}</p>
             )}
 
             {/* Return Date */}
