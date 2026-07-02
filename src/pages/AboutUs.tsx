@@ -90,45 +90,6 @@ const AboutUs = () => {
         </div>
       </section>
 
-      {/* Nossa História */}
-      <section className="py-20 section-divider">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={fadeUp}
-            custom={0}
-            className="max-w-3xl mx-auto"
-          >
-            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-wider mb-8">
-              A nossa <span className="gold-text">história</span>
-            </h2>
-
-            <div className="space-y-6 text-muted-foreground leading-relaxed text-base sm:text-lg">
-              <p className="text-xl sm:text-2xl font-semibold text-foreground italic">
-                A Rental Studio nasceu da mesma estrada que a gente percorreu.
-              </p>
-
-              <p>
-                Bruno e Vanessa conhecem o caminho de perto. Sabem o que significa sair de uma origem humilde, olhar para frente quando o cenário não ajuda, e construir, tijolo por tijolo, decisão por decisão, algo que antes parecia distante demais para ser real.
-              </p>
-
-              <p>
-                Essa trajetória moldou tudo: a forma como atendem, o nível de detalhe que exigem, o cuidado que colocam em cada carro, em cada recepção no aeroporto, em cada mensagem no WhatsApp. Porque para quem já viveu o lado difícil, entregar o melhor não é luxo. É respeito.
-              </p>
-
-              <p>
-                Quando um brasileiro desembarca em Orlando e encontra alguém esperando com seu nome numa plaquinha, falando português, num carro impecável, o que ele sente não é só conveniência. É acolhimento. É sentir que alguém pensou nele.
-              </p>
-
-              <p className="text-foreground font-semibold">
-                E foi exatamente isso que o Bruno e a Vanessa decidiram construir.
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
       {/* Missão */}
       <section className="py-20">
