@@ -54,7 +54,7 @@ export function useFleetLive() {
   const [vehicles, setVehicles] = useState<LiveVehicle[]>([]);
   const [loading, setLoading] = useState(true);
   // Cache estático de nome/placa por vehicle_id — não vem no payload realtime.
-  const metaRef = useRef<Map<string, { name: string; plate: string | null }>>(new Map());
+  const metaRef = useRef<Map<string, { name: string; plate: string | null; image_url: string | null }>>(new Map());
 
   useEffect(() => {
     let cancelled = false;
