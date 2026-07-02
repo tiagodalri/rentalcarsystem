@@ -47,7 +47,7 @@ export function VehicleDetailDrawer({
       <div className="shrink-0 border-b border-border/30">
         <div className="relative">
           <img
-            src={getCoverImage(vehicle.name)}
+            src={vehicle.image_url || getCoverImage(vehicle.name)}
             alt={vehicle.name}
             className="w-full h-32 object-cover bg-muted"
             onError={(e) => ((e.currentTarget as HTMLImageElement).style.display = "none")}
