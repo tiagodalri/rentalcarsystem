@@ -174,7 +174,7 @@ export function useFinanceOverview(): OverviewData {
     (async () => {
       setLoading(true);
       const [bRes, eRes, iRes, mRes, vRes] = await Promise.all([
-        supabase.from("bookings").select("id, vehicle_id, total_price, status, pickup_date, return_date, created_at"),
+        supabase.from("bookings").select("id, vehicle_id, total_price, status, pickup_date, return_date, created_at").is("deleted_at", null),
         supabase.from("vehicle_expenses").select("id, amount, type, expense_date, vehicle_id"),
         supabase.from("vehicle_incidents").select("id, actual_cost, status, incident_date"),
         supabase.from("financial_transactions").select("type, amount, transaction_date").eq("source", "manual").eq("is_cancelled", false),

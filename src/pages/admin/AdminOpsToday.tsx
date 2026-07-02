@@ -115,11 +115,13 @@ export default function AdminOpsToday() {
       const [pk, rt, vs] = await Promise.all([
         supabase.from("bookings")
           .select("id, customer_name, customer_phone, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, vehicle_id, status, booking_number")
+          .is("deleted_at", null)
           .eq("pickup_date", dayStr)
           .in("status", ["pending", "confirmed", "active", "in_progress", "completed"])
           .order("pickup_time"),
         supabase.from("bookings")
           .select("id, customer_name, customer_phone, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, vehicle_id, status, booking_number")
+          .is("deleted_at", null)
           .eq("return_date", dayStr)
           .in("status", ["confirmed", "active", "in_progress", "completed"])
           .order("return_time"),

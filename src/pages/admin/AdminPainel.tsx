@@ -119,6 +119,7 @@ export default function AdminPainel() {
     const [b, v] = await Promise.all([
       supabase.from("bookings")
         .select("id, status, pickup_date, return_date, pickup_time, return_time, total_price, created_at, vehicle_id, customer_name, stripe_session_id, turo_reservation_code")
+        .is("deleted_at", null)
         .order("created_at", { ascending: false })
         .limit(800),
       canViewFullVehicleData
