@@ -20,7 +20,7 @@ import { LoadingRows } from "@/components/skeletons/LoadingRows";
 const TripReplayOverlay = lazy(() =>
   import("@/components/admin/live/TripReplayOverlay").then((m) => ({ default: m.TripReplayOverlay })),
 );
-import zeusZMark from "@/assets/zeus-z-mark.png";
+
 
 function formatRelative(iso: string | null): string {
   if (!iso) return "—";
