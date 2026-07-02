@@ -149,55 +149,49 @@ export function ShareWhatsAppInspectionButton({
 
       const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
-      // 1) Mobile/PWA: tenta Web Share API com arquivos (WhatsApp aparece na folha).
+      // 1) MOBILE — fluxo em 2 etapas, sempre com gesto explícito do usuário.
+      //    Auto-redirect após navigator.share é bloqueado por muitos browsers
+      //    (perde o gesto) e trava o usuário na página do wa.me. Por isso:
+      //    a) copiamos a mensagem no clipboard
+      //    b) abrimos wa.me com o texto AGORA (mesmo gesto do clique)
+      //    c) baixamos fotos em paralelo — ficam salvas na galeria pro user anexar
       if (!isDesktopLike) {
-        toast({ title: "Preparando fotos…", description: `Baixando ${photos.length} imagem(ns).` });
-        const files: File[] = [];
-        const signed = await Promise.all(
-          photos.map(async (p, idx) => {
-            const url = await getSignedInspectionUrl(p.url || "");
-            if (!url) return null;
-            const safePos = (p.position || `foto-${idx + 1}`).toString().replace(/[^a-zA-Z0-9_-]/g, "_");
-            return urlToFile(url, `inspecao-${type}-${idx + 1}-${safePos}.jpg`);
-          }),
-        );
-        for (const f of signed) if (f) files.push(f);
-
-        // IMPORTANTE: WhatsApp no iOS ignora o campo `text` quando há `files` no
-        // Web Share. Por isso copiamos a mensagem pro clipboard ANTES e, logo
-        // após a folha de compartilhamento, abrimos wa.me com o texto pronto
-        // para o usuário enviar a mensagem em sequência às fotos.
+        // Copia mensagem ANTES de qualquer await (garante permissão do gesto).
         await navigator.clipboard.writeText(message).catch(() => undefined);
 
-        const canShareFiles =
-          "canShare" in navigator &&
-          files.length > 0 &&
-          (navigator as any).canShare({ files });
-
-        if (canShareFiles && navigator.share) {
-          try {
-            await navigator.share({ text: message, title: "Inspeção Zeus", files } as any);
-            toast({
-              title: "Fotos enviadas — agora o texto",
-              description: "Mensagem copiada. Abrindo WhatsApp para enviar o resumo da inspeção.",
-            });
-            // Pequeno delay para a folha do iOS fechar antes de abrir o wa.me.
-            setTimeout(() => {
-              window.location.href = waUrl;
-            }, 400);
-            return;
-          } catch (err: any) {
-            if (err?.name === "AbortError") {
-              toast({
-                title: "Compartilhamento cancelado",
-                description: "A mensagem ficou copiada se quiser colar manualmente.",
-              });
-              return;
-            }
-          }
-        }
-        // Fallback mobile sem files: abre wa.me direto (gesto ainda válido).
+        // Abre WhatsApp com a mensagem pronta — usa o gesto original do clique.
+        // location.href funciona melhor que window.open no iOS para deep links.
         window.location.href = waUrl;
+
+        toast({
+          title: "WhatsApp aberto com a mensagem",
+          description: `Baixando ${photos.length} foto(s) — anexe pela galeria do WhatsApp.`,
+        });
+
+        // Baixa as fotos em background (não bloqueia a abertura do WhatsApp).
+        // Em mobile, o navegador salva os arquivos na pasta Downloads/Fotos.
+        (async () => {
+          const signed = await Promise.all(
+            photos.map(async (p, idx) => {
+              const url = await getSignedInspectionUrl(p.url || "");
+              if (!url) return null;
+              const safePos = (p.position || `foto-${idx + 1}`).toString().replace(/[^a-zA-Z0-9_-]/g, "_");
+              return urlToFile(url, `inspecao-${type}-${idx + 1}-${safePos}.jpg`);
+            }),
+          );
+          for (const f of signed) {
+            if (!f) continue;
+            const u = URL.createObjectURL(f);
+            const a = document.createElement("a");
+            a.href = u;
+            a.download = f.name;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(u), 2000);
+          }
+        })().catch(() => undefined);
+
         return;
       }
 
