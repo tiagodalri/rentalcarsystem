@@ -63,7 +63,7 @@ export function useFleetLive() {
       const { data, error } = await supabase
         .from("vehicle_telemetry")
         .select(
-          "vehicle_id, imei, lat, lng, heading, speed, is_running, odometer, fuel_level, battery_status, mil_on, address, last_event, reported_at, vehicles ( name, license_plate )"
+          "vehicle_id, imei, lat, lng, heading, speed, is_running, odometer, fuel_level, battery_status, mil_on, address, last_event, reported_at, vehicles ( name, license_plate, image_url )"
         );
 
       if (cancelled) return;
@@ -78,11 +78,12 @@ export function useFleetLive() {
       const list: LiveVehicle[] = [];
       for (const r of rows) {
         if (!r.vehicles) continue;
-        meta.set(r.vehicle_id, { name: r.vehicles.name, plate: r.vehicles.license_plate });
+        meta.set(r.vehicle_id, { name: r.vehicles.name, plate: r.vehicles.license_plate, image_url: r.vehicles.image_url });
         list.push({
           vehicle_id: r.vehicle_id,
           name: r.vehicles.name,
           plate: r.vehicles.license_plate,
+          image_url: r.vehicles.image_url,
           imei: r.imei,
           lat: r.lat,
           lng: r.lng,
