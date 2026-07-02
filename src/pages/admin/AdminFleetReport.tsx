@@ -127,6 +127,7 @@ export default function AdminFleetReport({
       supabase.from("vehicles").select("*").is("deleted_at", null),
       // Buscar reservas que SE SOBREPÕEM ao período (não apenas pickup dentro do mês)
       supabase.from("bookings").select("*")
+        .is("deleted_at", null)
         .lte("pickup_date", endStr)
         .gte("return_date", startStr),
       supabase.from("vehicle_inspections").select("*")
