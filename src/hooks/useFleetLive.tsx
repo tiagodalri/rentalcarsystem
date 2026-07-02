@@ -139,6 +139,7 @@ export function useFleetLive() {
                 vehicle_id: row.vehicle_id,
                 name: meta.name,
                 plate: meta.plate,
+                image_url: meta.image_url,
                 imei: row.imei ?? null,
                 lat: row.lat ?? null,
                 lng: row.lng ?? null,
