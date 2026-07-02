@@ -8,6 +8,7 @@ export type LiveVehicle = {
   name: string;
   plate: string | null;
   imei: string | null;
+  image_url: string | null;
   lat: number | null;
   lng: number | null;
   heading: number | null;
@@ -44,7 +45,7 @@ type Row = {
   address: string | null;
   last_event: string | null;
   reported_at: string | null;
-  vehicles: { name: string; license_plate: string | null } | null;
+  vehicles: { name: string; license_plate: string | null; image_url: string | null } | null;
 };
 
 type TelemetryPayload = Partial<Omit<Row, "vehicles">>;
@@ -53,7 +54,7 @@ export function useFleetLive() {
   const [vehicles, setVehicles] = useState<LiveVehicle[]>([]);
   const [loading, setLoading] = useState(true);
   // Cache estático de nome/placa por vehicle_id — não vem no payload realtime.
-  const metaRef = useRef<Map<string, { name: string; plate: string | null }>>(new Map());
+  const metaRef = useRef<Map<string, { name: string; plate: string | null; image_url: string | null }>>(new Map());
 
   useEffect(() => {
     let cancelled = false;
@@ -62,7 +63,7 @@ export function useFleetLive() {
       const { data, error } = await supabase
         .from("vehicle_telemetry")
         .select(
-          "vehicle_id, imei, lat, lng, heading, speed, is_running, odometer, fuel_level, battery_status, mil_on, address, last_event, reported_at, vehicles ( name, license_plate )"
+          "vehicle_id, imei, lat, lng, heading, speed, is_running, odometer, fuel_level, battery_status, mil_on, address, last_event, reported_at, vehicles ( name, license_plate, image_url )"
         );
 
       if (cancelled) return;
@@ -77,11 +78,12 @@ export function useFleetLive() {
       const list: LiveVehicle[] = [];
       for (const r of rows) {
         if (!r.vehicles) continue;
-        meta.set(r.vehicle_id, { name: r.vehicles.name, plate: r.vehicles.license_plate });
+        meta.set(r.vehicle_id, { name: r.vehicles.name, plate: r.vehicles.license_plate, image_url: r.vehicles.image_url });
         list.push({
           vehicle_id: r.vehicle_id,
           name: r.vehicles.name,
           plate: r.vehicles.license_plate,
+          image_url: r.vehicles.image_url,
           imei: r.imei,
           lat: r.lat,
           lng: r.lng,
@@ -137,6 +139,7 @@ export function useFleetLive() {
                 vehicle_id: row.vehicle_id,
                 name: meta.name,
                 plate: meta.plate,
+                image_url: meta.image_url,
                 imei: row.imei ?? null,
                 lat: row.lat ?? null,
                 lng: row.lng ?? null,

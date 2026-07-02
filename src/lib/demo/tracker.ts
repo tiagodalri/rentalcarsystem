@@ -53,29 +53,27 @@ let timerId: number | null = null;
 
 async function tick() {
   try {
-    // Pegamos até 40 rastreadores para animar por tick.
+    // Buscamos apenas veículos com status "rented" (candidatos a estar em movimento).
+    const { data: rentedVehicles, error: vErr } = await supabase
+      .from("vehicles")
+      .select("id")
+      .eq("status", "rented")
+      .is("deleted_at", null);
+
+    if (vErr || !rentedVehicles || rentedVehicles.length === 0) return;
+    const rentedIds = rentedVehicles.map((v) => v.id);
+
     const { data, error } = await supabase
       .from("vehicle_telemetry")
       .select("vehicle_id, lat, lng, heading, speed, odometer, fuel_level, is_running")
-      .limit(200);
+      .in("vehicle_id", rentedIds);
 
     if (error || !data) return;
 
-    // Filtra veículos que estão "em locação" (in-motion candidates).
-    const { data: rentedVehicles } = await supabase
-      .from("vehicles")
-      .select("id, status")
-      .eq("status", "rented")
-      .limit(80);
-
-    const rentedIds = new Set((rentedVehicles ?? []).map((v) => v.id));
-    const movers = (data as TelemetryRow[])
-      .filter((r) => rentedIds.has(r.vehicle_id))
-      .slice(0, 25);
-
+    const movers = data as TelemetryRow[];
     if (movers.length === 0) return;
 
-    // Atualização em paralelo — cada linha é pequena.
+    // Atualização em paralelo — TODOS os veículos alugados, nenhum "congelado".
     await Promise.all(
       movers.map((r) => {
         const idle = Math.random() < DEMO_TRACKER.idleChance;
@@ -89,7 +87,6 @@ async function tick() {
 
         const curLat = r.lat ?? 28.5383;
         const curLng = r.lng ?? -81.3792;
-        // Se muito longe do anchor, aplica leve pull-back.
         const [aLat, aLng] = nearestAnchor(curLat, curLng);
         const drift = 0.02;
         const pullLat = Math.abs(curLat - aLat) > drift ? (aLat - curLat) * 0.05 : 0;
@@ -124,7 +121,6 @@ async function tick() {
       }),
     );
   } catch (err) {
-    // silencioso — simulador não pode quebrar UX
     if (process.env.NODE_ENV !== "production") {
       // eslint-disable-next-line no-console
       console.warn("[demo-tracker] tick falhou:", err);
@@ -136,11 +132,11 @@ async function tick() {
 export function startDemoTracker(): void {
   if (!DEMO_MODE || started || typeof window === "undefined") return;
   started = true;
-  // Primeiro tick após 3s (dá tempo do app carregar).
+  // Primeiro tick imediato para animação começar sem espera.
   window.setTimeout(() => {
     void tick();
     timerId = window.setInterval(() => void tick(), DEMO_TRACKER.intervalMs);
-  }, 3_000);
+  }, 500);
 }
 
 /** Para o simulador (útil para testes/hot reload). */
