@@ -118,6 +118,11 @@ function enqueueSignedUrl(path: string): Promise<string | null> {
 export async function getSignedInspectionUrl(value: string | null | undefined): Promise<string | null> {
   if (!value) return null;
   if (value.startsWith("data:") || value.startsWith("blob:")) return value;
+  // External URLs (demo photos, CDN renders) that don't live in the private
+  // inspections bucket — passthrough as-is.
+  if ((value.startsWith("http://") || value.startsWith("https://")) && !value.includes(`/${INSPECTIONS_BUCKET}/`)) {
+    return value;
+  }
   const path = extractInspectionPath(value);
   if (!path) return null;
 
@@ -150,11 +155,12 @@ export async function prefetchSignedInspectionUrls(values: Array<string | null |
 
 /** React hook: resolves a stored value (path / legacy URL / data URL) to a usable URL. */
 export function useSignedInspectionUrl(value: string | null | undefined): string | null {
-  const [url, setUrl] = useState<string | null>(() =>
-    value && (value.startsWith("data:") || value.startsWith("blob:"))
-      ? value
-      : getLocalInspectionPreview(value)
-  );
+  const [url, setUrl] = useState<string | null>(() => {
+    if (!value) return null;
+    if (value.startsWith("data:") || value.startsWith("blob:")) return value;
+    if ((value.startsWith("http://") || value.startsWith("https://")) && !value.includes(`/${INSPECTIONS_BUCKET}/`)) return value;
+    return getLocalInspectionPreview(value);
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -163,6 +169,10 @@ export function useSignedInspectionUrl(value: string | null | undefined): string
       return;
     }
     if (value.startsWith("data:") || value.startsWith("blob:")) {
+      setUrl(value);
+      return;
+    }
+    if ((value.startsWith("http://") || value.startsWith("https://")) && !value.includes(`/${INSPECTIONS_BUCKET}/`)) {
       setUrl(value);
       return;
     }
