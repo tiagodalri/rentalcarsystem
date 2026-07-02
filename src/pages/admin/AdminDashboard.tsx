@@ -56,7 +56,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
   useEffect(() => {
     async function load() {
       const [bookings, vehicles, customers] = await Promise.all([
-        supabase.from("bookings").select("id, status, created_at, return_date, total_price, customer_name, customer_email, vehicle_id, pickup_date").order("created_at", { ascending: false }).limit(500),
+        supabase.from("bookings").select("id, status, created_at, return_date, total_price, customer_name, customer_email, vehicle_id, pickup_date").is("deleted_at", null).order("created_at", { ascending: false }).limit(500),
         supabase.from("vehicles").select("id, name, status, purchase_price, current_odometer").is("deleted_at", null),
         supabase.from("customers").select("id"),
       ]);
