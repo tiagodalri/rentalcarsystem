@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNwsAlerts, nwsSeverityColor } from "@/hooks/useNwsAlerts";
 import { useVehicleEvents } from "@/hooks/useVehicleEvents";
 import { type MapLayers, DEFAULT_LAYERS } from "@/components/admin/live/MapControlsPanel";
+import { DEMO_MODE } from "@/lib/demo/config";
+import { LeafletFleetMapFallback } from "@/components/admin/LeafletFleetMapFallback";
 
 // --- Dark theme for Google Maps that matches Rental Studio admin (off-black) ---
 const DARK_STYLE: any[] = [
@@ -395,6 +397,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
   const [ready, setReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [following, setFollowing] = useState<boolean>(false);
+  const [useFallbackMap, setUseFallbackMap] = useState(false);
 
   useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
   useEffect(() => { followRef.current = following; }, [following]);
@@ -450,6 +453,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
     if (containerRef.current) containerRef.current.innerHTML = "";
     loadGoogleMaps()
       .then((google) => {
+        if (DEMO_MODE && (!google?.maps?.Map || (window as any).__gmapsAuthFailed)) {
+          setUseFallbackMap(true);
+          return;
+        }
         if (cancelled || !containerRef.current) return;
         mapRef.current = new google.maps.Map(containerRef.current, {
           center: { lat: 28.5, lng: -81.4 },
@@ -666,6 +673,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       })
       .catch((e) => {
         console.error("[GoogleFleetMap]", e);
+        if (DEMO_MODE) {
+          setUseFallbackMap(true);
+          return;
+        }
         setError(e.message || "Falha ao carregar Google Maps");
       });
     return () => {
@@ -1198,6 +1209,10 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
       eventMarkersRef.current.push(m);
     }
   }, [events, layers.tripEvents, selectedId, ready]);
+
+  if (useFallbackMap) {
+    return <LeafletFleetMapFallback vehicles={vehicles} selectedId={selectedId} onSelect={onSelect} onOpen={onOpen} />;
+  }
 
   if (error) {
     return (
