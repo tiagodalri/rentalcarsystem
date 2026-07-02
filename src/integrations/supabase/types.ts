@@ -608,27 +608,33 @@ export type Database = {
       demo_presentation_state: {
         Row: {
           hidden_booking_ids: string[]
+          hidden_txn_ids: string[] | null
           hidden_vehicle_ids: string[]
           id: number
           started_at: string
           started_by: string | null
           target_count: number
+          telemetry_snapshot: Json | null
         }
         Insert: {
           hidden_booking_ids?: string[]
+          hidden_txn_ids?: string[] | null
           hidden_vehicle_ids?: string[]
           id?: number
           started_at?: string
           started_by?: string | null
           target_count: number
+          telemetry_snapshot?: Json | null
         }
         Update: {
           hidden_booking_ids?: string[]
+          hidden_txn_ids?: string[] | null
           hidden_vehicle_ids?: string[]
           id?: number
           started_at?: string
           started_by?: string | null
           target_count?: number
+          telemetry_snapshot?: Json | null
         }
         Relationships: []
       }
