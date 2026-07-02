@@ -22,7 +22,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', "Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ['"Epilogue"', "Inter", "system-ui", "-apple-system", "sans-serif"],
+        display: ['"Urbanist"', '"Epilogue"', "Inter", "system-ui", "sans-serif"],
+        heading: ['"Urbanist"', '"Epilogue"', "Inter", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
