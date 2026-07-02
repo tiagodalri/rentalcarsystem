@@ -6,7 +6,8 @@
 //   Google Maps corretamente" screen).
 // - Remembers which key worked in sessionStorage for stability across navigations.
 
-const KEY_CACHE_STORAGE = "zeus:gmaps:working-key";
+// v2: bumped after remix to invalidate stale cached keys from source project.
+const KEY_CACHE_STORAGE = "zeus:gmaps:working-key:v2";
 
 let loaderPromise: Promise<any> | null = null;
 let resolvedKey: string | undefined;
