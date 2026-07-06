@@ -1,103 +1,59 @@
+## Plano: gerar histórico realista de viagens para todos os veículos da demo
 
-# Importação E-Pass + Atribuição de Pedágios
+### Escopo
+Popular, para cada veículo ativo da frota (todos os 23 veículos demo hoje, e qualquer novo até 105), entre 8 e 12 viagens passadas nos últimos 30 dias, com dados completos e visualmente idênticos aos de um rastreador real. Se houver um projeto Zeus com viagens reais acessíveis via cross-project, replicar/adaptar essas rotas para os veículos da whitelabel.
 
-Replica a arquitetura do módulo Turo (upload → parse → preview → confirmar) para arquivos do portal E-Pass, e usa o campo `vehicles.e_pass_transponder` + as datas das reservas para atrelar cada pedágio ao carro, à reserva ativa naquele momento e ao cliente correspondente.
+### O que cada viagem terá
+- Datas coerentes distribuídas nos últimos 30 dias (dias/horários variados: manhã, tarde, noite).
+- Duração entre 8 min e 2h30, plausível para trajetos em Orlando/Kissimmee/Celebration/Davenport/Winter Garden/Lake Buena Vista.
+- Distância coerente com a duração e a velocidade média.
+- Endereços de partida e chegada plausíveis (aeroporto, parques, outlets, hotéis, bairros residenciais).
+- Rota GPS com centenas de pontos suaves, com curvas, seguindo padrões de rua realistas.
+- Velocidade variável ponto a ponto (arranque, cruzeiro, semáforo, rodovia, chegada).
+- Heading calculado por segmento.
+- Eventos: início, fim, pico de velocidade, ao menos 1–2 freadas ou acelerações fortes por viagem quando fizer sentido, paradas longas em algumas viagens.
+- Consumo em galões, MPG médio, odômetro inicial e final consistentes com a distância.
+- Máx/média de velocidade, contagens de hard_brake/hard_accel, idle_seconds.
+- Time zone America/New_York.
+- `raw` marcado como demo para rastreabilidade (`source: 'demo-seed'`, versão do seed).
 
-## 1. Modelo de dados (Lovable Cloud)
+### Telemetria detalhada
+Para cada viagem, popular `vehicle_telemetry_history` com pontos ao longo da duração real (lat, lng, speed, heading, reported_at, event_type início/atualização/fim, raw). Isso faz o replay entrar no modo detalhado com velocímetro, G-meter, banda de velocidade, timeline e eventos posicionados corretamente.
 
-Três tabelas novas em `public`:
+### Estado atual do veículo
+Atualizar `vehicle_telemetry` (última posição, velocidade, heading, combustível, odômetro, bateria, MIL, endereço) com valores plausíveis para cada veículo, para o card do Live já abrir com dados “vivos”.
 
-**`epass_imports`** — uma linha por arquivo importado
-- `filename`, `period_label` (ex: "5_2026"), `account_number`
-- `total_rows`, `matched_rows`, `unmatched_vehicle_rows`, `unmatched_booking_rows`
-- `total_amount` (soma do período)
-- `imported_by` (uuid), `created_at`
+### Espelhar dados do Zeus
+Verificar se existe projeto Zeus acessível via cross-project com viagens reais. Se sim:
+- ler amostras de rotas reais;
+- normalizar e reatribuir aos veículos da whitelabel, preservando forma de rota mas adaptando IDs, IMEIs, placas e nomes.
+Se não houver acesso, gerar rotas sintéticas com o mesmo nível de realismo (curvas, paradas, velocidades por trecho).
 
-**`epass_tolls`** — uma linha por pedágio do CSV
-- `import_id` → `epass_imports`
-- `transponder_number` (text, indexado)
-- `vehicle_id` (uuid, nullable — resolvido por transponder)
-- `booking_id` (uuid, nullable — resolvido por janela da reserva)
-- `customer_id` (uuid, nullable — espelhado da reserva)
-- `toll_datetime` (timestamptz, montado de Date + Time, TZ America/New_York)
-- `posting_date` (date)
-- `location` (text), `amount` (numeric), `toll_type` (text)
-- `status` enum: `matched` | `no_vehicle` | `no_booking` | `ignored`
-- `charged_to_customer` boolean default false (marca cobrança feita)
-- `dedupe_hash` (text, unique) = hash(transponder + datetime + location + amount) → evita duplicar em reimport
+### Idempotência e segurança
+- O seed identifica viagens demo por prefixo de id (ex.: `demo-<vehicleId>-<n>`) e por marcador em `raw.source`.
+- Rodar o seed novamente não duplica: substitui/atualiza apenas viagens demo do mesmo lote.
+- Não toca em viagens sem marcação demo, não afeta integrações reais, não expõe secrets.
+- Não altera schema; apenas insere/atualiza dados nas tabelas existentes (`vehicle_trips`, `vehicle_telemetry_history`, `vehicle_telemetry`).
 
-**`epass_account_activity`** — linhas da seção "Account Activity" (descontos/pagamentos), só pra auditoria/total. Campos: `import_id`, `account_number`, `date`, `description`, `location`, `amount`.
+### Como executo
+1. Criar uma rotina de seed no backend, aplicável via ferramenta de dados, que:
+   - lista veículos ativos;
+   - remove viagens/telemetria demo antigas desse lote;
+   - gera 8–12 viagens por veículo, com rota+telemetria+eventos;
+   - atualiza o telemetry “ao vivo” de cada veículo.
+2. Rodar a rotina para os 23 veículos existentes.
+3. Deixar a rotina reaproveitável para novos veículos até 105.
 
-RLS: leitura/escrita só para `admin`, `finance`, `operations`. Grants padrão + service_role.
+### Proteções extras para apresentação
+- Ocultar do seletor de viagens qualquer viagem que ainda não tenha rota válida, evitando o modal de erro em cima de dado antigo.
+- Manter o botão “Ver rota inteira” e “Baixar MP4” funcionando com o mesmo pipeline atual.
 
-## 2. Parser do arquivo E-Pass
+### Validação após implementar
+- Abrir Live Tracking, escolher Ford Ranger e mais 4 veículos aleatórios.
+- Reproduzir 3 viagens de cada, confirmando: rota traçada, marcador se movendo suave, velocímetro variando, eventos aparecendo na timeline, sem erro.
+- Testar em desktop e tablet retrato.
 
-Novo `src/lib/epass/csvParser.ts`:
-- Lê o CSV bruto, identifica as duas seções por cabeçalho ("Account Activity" e "Vehicle Activity")
-- Normaliza datas no formato `1-May-26` + hora `16:18:44` → `Date` em America/New_York
-- Retorna `{ accountActivity[], vehicleActivity[] }`
-
-PDF: na v1 **aceitamos só CSV** (o PDF tem o mesmo conteúdo mas em formato visual; parse de PDF é frágil). Mostro mensagem clara no dropzone: "Exporte o relatório como CSV no portal E-Pass". Pode entrar como v2 se quiser.
-
-## 3. Motor de atribuição
-
-`src/lib/epass/assignEngine.ts`:
-1. Para cada linha de Vehicle Activity:
-   - Acha `vehicle_id` por `e_pass_transponder = transponder_number` (compara como string, trim)
-   - Se não achou → `status='no_vehicle'`
-   - Senão, busca reservas desse veículo onde `toll_datetime` ∈ `[pickup_at, return_at]` (intervalo `[)`) — montando os datetimes de pickup/return com `pickup_date+pickup_time` e `return_date+return_time` em America/New_York
-   - Match → grava `booking_id` + `customer_id`, `status='matched'`
-   - Sem reserva ativa → `status='no_booking'` (provavelmente uso interno / movimentação)
-2. Calcula `dedupe_hash` e descarta o que já existe em `epass_tolls`.
-
-## 4. UI — Página `/admin/epass-import`
-
-Espelha `AdminTuroImport`:
-- **Dropzone** (`EpassDropzone`) — aceita só `.csv`, múltiplos
-- **Preview** (`EpassPreview`) com 4 abas:
-  - **Resumo**: total $, nº pedágios, % atribuídos, conta E-Pass
-  - **Atribuídos** (tabela: data/hora, carro, placa, reserva, cliente, local, valor)
-  - **Sem reserva** (carro identificado, mas fora de qualquer reserva — provável uso interno)
-  - **Sem veículo** (transponder não cadastrado em nenhum carro → CTA "Vincular transponder" abre o veículo)
-- **Confirmar importação** grava tudo nas tabelas.
-
-Acesso no menu: novo item "E-Pass" dentro de **Configurações → Gestão** (próximo a Turo) e/ou em **Operações**.
-
-## 5. Cobrança ao cliente
-
-Na página de detalhes da reserva (`AdminBookingDetail`):
-- Nova seção **Pedágios E-Pass** lista `epass_tolls` da reserva, com total
-- Botão **"Adicionar à fatura"** cria uma `payment_request` (ou linha de addon) com o total não cobrado e marca `charged_to_customer=true`
-- Estado visual claro: "Pendente cobrança" / "Cobrado"
-
-Sem alteração automática de `total_price` — fica explícito por ação do operador.
-
-## 6. Pendências automáticas
-
-Em `AdminPendencias`: nova categoria **"Transponder E-Pass não cadastrado"** listando veículos sem `e_pass_transponder` mas que aparecem em algum CSV importado (referência cruzada via `epass_tolls.status='no_vehicle'`).
-
-## Arquivos a criar/alterar
-
-Criar:
-- `supabase/migrations/<ts>_epass.sql` (3 tabelas + RLS + grants + índices)
-- `src/lib/epass/csvParser.ts`
-- `src/lib/epass/assignEngine.ts`
-- `src/lib/epass/applyImport.ts`
-- `src/components/admin/epass/EpassDropzone.tsx`
-- `src/components/admin/epass/EpassPreview.tsx`
-- `src/components/admin/epass/EpassTollsTable.tsx`
-- `src/pages/admin/AdminEpassImport.tsx`
-- `src/components/admin/booking/BookingEpassTolls.tsx`
-
-Alterar:
-- `src/App.tsx` (rota `/admin/epass-import`)
-- `src/components/admin/AdminSidebar.tsx` (item de menu)
-- `src/pages/admin/AdminBookingDetail.tsx` (seção pedágios)
-- `src/pages/admin/AdminPendencias.tsx` (categoria nova)
-
-## Pontos a confirmar antes de codar
-
-1. **PDF**: ok aceitar **só CSV** na v1? (parse de PDF E-Pass dá inconsistência e o portal já exporta CSV)
-2. **Cobrança**: criar como **`payment_request` separado** (recomendado) ou somar no `total_price` da reserva?
-3. **Fuso horário**: confirmo que os horários do CSV são **America/New_York** (Orlando) — ok?
-4. **Pedágios "sem reserva"**: ficam só registrados (uso interno/manutenção) ou também listar como pendência?
+### Arquivos/áreas prováveis
+- Rotina/seed de dados aplicada via ferramenta de dados (não é migração de schema).
+- Ajustes pequenos, se necessários, em `TripPickerDialog.tsx` para ocultar viagens inválidas.
+- Nenhum ajuste esperado em `useTripReplay.ts` além de possíveis pequenos fallbacks.
