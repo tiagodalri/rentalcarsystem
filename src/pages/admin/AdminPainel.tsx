@@ -438,7 +438,7 @@ export default function AdminPainel() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="min-w-0 hidden lg:flex items-start justify-between gap-4">
+      <div className="min-w-0 hidden md:flex items-start justify-between gap-4">
         <div>
           <h1 className="admin-h1">Painel</h1>
           <p className="text-sm text-muted-foreground/80 mt-1">
