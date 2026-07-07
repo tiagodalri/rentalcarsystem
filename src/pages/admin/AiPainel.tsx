@@ -109,34 +109,65 @@ export default function AiPainel({
   ).sort((a, b) => a.occupancy - b.occupancy).slice(0, 5);
 
 
-  /* ───── Sugestões de troca: pareia underperformer com top-star similar ───── */
+  /* ───── Sugestões de troca: pareia underperformer com top-star de valor parecido ───── */
   const swapSuggestions = useMemo(() => {
+    // ROI anualizado (%/ano): normaliza pelo tempo de posse — o que o cliente entende como "retorno".
+    const annualROI = (p: typeof perVehicle[number]) => {
+      if (!p.purchase || p.purchase <= 0) return 0;
+      const yrs = Math.max(p.daysInFleet / 365, 0.25);
+      return ((p.revenue - p.exp) / p.purchase) * 100 / yrs;
+    };
     const stars = [...perVehicle]
-      .filter(p => p.daysInFleet > 60 && p.revPerDayOwned > 0)
+      .filter(p => p.daysInFleet > 60 && p.revPerDayOwned > 0 && p.purchase > 0)
       .sort((a, b) => b.revPerDayOwned - a.revPerDayOwned)
-      .slice(0, 5);
+      .slice(0, 10);
     const weak = [...perVehicle]
       .filter(p => p.daysInFleet > 120 && p.occupancy < 35 && p.purchase > 0)
       .sort((a, b) => a.revPerDayOwned - b.revPerDayOwned)
       .slice(0, 4);
     return weak.map(w => {
-      // Match preferido: mesma categoria; depois mesma marca; depois melhor star geral
+      // Prioridade de match: mesma categoria + valor parecido (±40%); depois mesma categoria;
+      // depois valor parecido; depois melhor star geral.
+      const priceClose = (s: typeof perVehicle[number]) =>
+        Math.abs(s.purchase - w.purchase) / w.purchase <= 0.4;
+      const sameCatPrice = stars.find(s => s.v.id !== w.v.id && (s.v.category || "—") === (w.v.category || "—") && priceClose(s));
       const sameCat = stars.find(s => s.v.id !== w.v.id && (s.v.category || "—") === (w.v.category || "—"));
-      const sameBrand = stars.find(s => s.v.id !== w.v.id && (s.v.brand || "") === (w.v.brand || "") && (w.v.brand || ""));
+      const anyPrice = stars.find(s => s.v.id !== w.v.id && priceClose(s));
       const best = stars.find(s => s.v.id !== w.v.id);
-      const match = sameCat || sameBrand || best;
+      const match = sameCatPrice || sameCat || anyPrice || best;
       if (!match) return null;
       const upliftPerDay = Math.max(match.revPerDayOwned - w.revPerDayOwned, 0);
       const annualUplift = upliftPerDay * 365;
-      const reason = sameCat
+      const wROI = annualROI(w);
+      const sROI = annualROI(match);
+      const multiple = wROI > 0 ? sROI / wROI : (sROI > 0 ? Infinity : 0);
+      const reason = sameCatPrice
+        ? `${w.v.category || "categoria parecida"}, valor parecido`
+        : sameCat
         ? `mesma categoria (${w.v.category || "—"})`
-        : sameBrand
-        ? `mesma marca (${w.v.brand})`
+        : anyPrice
+        ? "valor de compra parecido"
         : "melhor desempenho da frota";
-      return { weak: w, star: match, upliftPerDay, annualUplift, reason };
+
+      // Frases mastigadas de venda (5 partes)
+      const daysIdle = w.daysSinceLastBooking ?? w.daysInFleet;
+      const wDays = Math.max(w.daysInFleet, 1);
+      const sDays = Math.max(match.daysInFleet, 1);
+      const lines = [
+        `Esta ${w.v.name} está há ${daysIdle} dias sem nenhuma locação.`,
+        `No histórico rendeu em média só ${fmtUSD(w.revPerDayOwned)}/dia na frota (= ${w.bookingsCount} locaç${w.bookingsCount === 1 ? "ão" : "ões"} somando ${fmtUSD(w.revenue)} em ${wDays} dias de posse).`,
+        `Ela custou ${fmtUSD(w.purchase)} — isso dá só ${wROI.toFixed(1)}% de retorno ao ano.`,
+        `Uma ${match.v.name} parecida (${reason}, custou ${fmtUSD(match.purchase)}) rende ${fmtUSD(match.revPerDayOwned)}/dia = ${sROI.toFixed(1)}% ao ano${
+          isFinite(multiple) && multiple >= 1.5 ? `, quase ${multiple.toFixed(1)}× mais retorno sobre investimento parecido` : ""
+        }.`,
+        `+${fmtUSD(annualUplift)}/ano se trocar.`,
+      ];
+
+      return { weak: w, star: match, upliftPerDay, annualUplift, reason, wROI, sROI, multiple, lines };
     }).filter(Boolean) as Array<{
       weak: typeof perVehicle[number]; star: typeof perVehicle[number];
       upliftPerDay: number; annualUplift: number; reason: string;
+      wROI: number; sROI: number; multiple: number; lines: string[];
     }>;
   }, [perVehicle]);
 
@@ -546,7 +577,7 @@ export default function AiPainel({
     swapSuggestions.slice(0, 1).forEach(s => {
       out.push({
         titulo: `Avalie trocar a ${s.weak.v.name}`,
-        descricao: `Carro parado há ${s.weak.daysSinceLastBooking ?? '—'} dias gera só ${fmtUSD(s.weak.revPerDayOwned)}/dia. Um ${s.star.v.name} (${s.reason}) rende ${fmtUSD(s.star.revPerDayOwned)}/dia.`,
+        descricao: s.lines.join(" "),
         impacto: `+${fmtUSD(s.annualUplift)}/ano estimado`, impactoValor: s.annualUplift / 12,
         prioridade: "alta", categoria: "Frota",
       });
@@ -1428,32 +1459,33 @@ export default function AiPainel({
                     Carros que estão dando pouco retorno e qual carro da sua frota provou render mais no lugar.
                   </h3>
                   <p className="text-[12px] text-white/55 mb-4 leading-relaxed">
-                    A IA pareou cada carro parado com um carro parecido (mesma categoria ou marca) que está performando bem. O valor mostra quanto a mais por ano você poderia ganhar trocando um pelo outro.
+                    Cada troca compara carros de valor e categoria parecidos, mostrando quanto cada um rende e o retorno anual real sobre o dinheiro investido.
                   </p>
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-3">
                     {swapSuggestions.map((s, i) => (
-                      <li key={i} className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
-                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <li key={i} className="rounded-lg bg-white/[0.03] border border-white/10 p-3.5">
+                        <div className="flex items-center justify-between gap-2 mb-2">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="text-[10px] uppercase tracking-wider text-rose-300/80 shrink-0">Trocar</span>
                             <span className="text-[13px] text-white/90 truncate">{s.weak.v.name}</span>
                           </div>
-                          <span className="text-[11px] tabular-nums text-rose-300 shrink-0">{fmtUSD(s.weak.revPerDayOwned)}/dia</span>
+                          <span className="text-[10px] uppercase tracking-wider text-emerald-300/80 shrink-0">
+                            por {s.star.v.name}
+                          </span>
                         </div>
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-[10px] uppercase tracking-wider text-emerald-300/80 shrink-0">Por algo como</span>
-                            <span className="text-[13px] text-white/90 truncate">{s.star.v.name}</span>
-                          </div>
-                          <span className="text-[11px] tabular-nums text-emerald-300 shrink-0">{fmtUSD(s.star.revPerDayOwned)}/dia</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2 text-[10.5px] text-white/55">
-                          <span>Critério: {s.reason} · {s.weak.occupancy.toFixed(0)}% de uso vs {s.star.occupancy.toFixed(0)}%</span>
-                          <span className="text-amber-200/95 tabular-nums">+{fmtUSD(s.annualUplift)}/ano</span>
+                        <ol className="space-y-1 text-[12px] text-white/80 leading-relaxed list-decimal list-inside marker:text-white/40">
+                          {s.lines.slice(0, 4).map((line, idx) => (
+                            <li key={idx}>{line}</li>
+                          ))}
+                        </ol>
+                        <div className="mt-2.5 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
+                          <span className="text-[10.5px] text-white/55">Critério: {s.reason}</span>
+                          <span className="text-[13px] text-amber-200 font-medium tabular-nums">{s.lines[4]}</span>
                         </div>
                       </li>
                     ))}
                   </ul>
+
                 </div>
               </div>
             )}

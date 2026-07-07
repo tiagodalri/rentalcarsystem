@@ -98,7 +98,7 @@ export default function PresentationModeButton() {
               Modo apresentação
             </DialogTitle>
             <DialogDescription>
-              Escolha o tamanho da frota simulada. O sistema seleciona automaticamente uma mescla coerente de carros — variados por categoria, com foco em modelos populares e um toque de padrão mais alto — e oculta o restante temporariamente (frota, reservas, rastreador e relatórios).
+              Escolha o tamanho da frota simulada. O sistema monta um mix estilo Pareto: sempre inclui pelo menos um carro campeão (alto retorno), um caroço (baixo retorno) e o restante entre eles — assim a narrativa "poucos carros trazem a maior parte da receita" aparece em qualquer tamanho. Os demais são ocultados temporariamente da frota, reservas, rastreador e relatórios.
             </DialogDescription>
           </DialogHeader>
 
