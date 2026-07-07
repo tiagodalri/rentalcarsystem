@@ -47,7 +47,9 @@ type Props = {
   snapshot?: BriefingSnapshot;
   highlights?: BriefingHighlight[];
   actions?: BriefingAction[];
+  report?: FleetReport;
 };
+
 
 const brandSource =
   "\\b(" +
