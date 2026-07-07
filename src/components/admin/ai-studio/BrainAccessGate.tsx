@@ -3,6 +3,9 @@ import { Brain, Lock, X } from "lucide-react";
 
 const ACCESS_CODE = "123321";
 
+// Demo: desativa o gate de acesso. Troque para true para reativar a exigencia do codigo.
+const BRAIN_GATE_ENABLED = false;
+
 export function isBrainUnlocked(): boolean {
   return false;
 }
@@ -25,6 +28,7 @@ export default function BrainAccessGate({ children, onCancel }: Props) {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  if (!BRAIN_GATE_ENABLED) return <>{children}</>;
   if (unlocked) return <>{children}</>;
 
   function submit(e?: React.FormEvent) {
