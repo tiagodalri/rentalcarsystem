@@ -542,7 +542,7 @@ export default function AiPainel({
     swapSuggestions.slice(0, 1).forEach(s => {
       out.push({
         titulo: `Avalie trocar a ${s.weak.v.name}`,
-        descricao: `Carro parado há ${s.weak.daysInFleet} dias gera só ${fmtUSD(s.weak.revPerDayOwned)}/dia. Um ${s.star.v.name} (${s.reason}) rende ${fmtUSD(s.star.revPerDayOwned)}/dia.`,
+        descricao: `Carro parado há ${s.weak.daysSinceLastBooking ?? '—'} dias gera só ${fmtUSD(s.weak.revPerDayOwned)}/dia. Um ${s.star.v.name} (${s.reason}) rende ${fmtUSD(s.star.revPerDayOwned)}/dia.`,
         impacto: `+${fmtUSD(s.annualUplift)}/ano estimado`, impactoValor: s.annualUplift / 12,
         prioridade: "alta", categoria: "Frota",
       });
