@@ -14,6 +14,8 @@ import { AdminFab } from "./AdminFab";
 import { AdminMobileHeader } from "./AdminMobileHeader";
 import { PainelHeaderWidgets } from "./PainelHeaderWidgets";
 import { AdminFabProvider } from "@/hooks/useAdminFab";
+import { GuidedTourProvider } from "@/components/admin/guided-tour/GuidedTourContext";
+import GuidedTour from "@/components/admin/guided-tour/GuidedTour";
 import { usePrefetchAdminRoutes } from "@/hooks/usePrefetchAdminRoutes";
 import { MobileFabDock } from "@/components/mobile/MobileFabDock";
 import { ConfirmProvider } from "@/components/mobile/ConfirmSheet";
@@ -77,6 +79,7 @@ export default function AdminLayout() {
       <AdminTabsProvider>
         <AdminFabProvider>
           <ConfirmProvider>
+          <GuidedTourProvider>
           <div className="admin-shell min-h-[100dvh] flex w-full bg-background">
             <AdminSidebar onSignOut={signOut} />
             <div className="flex-1 flex flex-col min-w-0">
@@ -119,7 +122,9 @@ export default function AdminLayout() {
             <AdminFab />
             <MobileFabDock />
             <AdminBottomNav />
+            <GuidedTour />
           </div>
+          </GuidedTourProvider>
           </ConfirmProvider>
         </AdminFabProvider>
       </AdminTabsProvider>

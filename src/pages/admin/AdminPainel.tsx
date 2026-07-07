@@ -32,6 +32,7 @@ import {
 } from "@/lib/aiStudio/bookingSource";
 import { AdminKpiGrid } from "@/components/admin/layout/AdminPage";
 import PresentationModeButton from "@/components/admin/PresentationModeButton";
+import GuidedTourButton from "@/components/admin/guided-tour/GuidedTourButton";
 
 
 
@@ -445,6 +446,7 @@ export default function AdminPainel() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <GuidedTourButton />
           <PresentationModeButton />
           {AiToggle}
         </div>
