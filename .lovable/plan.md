@@ -1,104 +1,135 @@
-# Plano: Seção unificada "Frota Inteligente"
-
-## Situação atual
-
-- **AI Studio Hub** (`src/components/admin/ai-studio/AiHub.tsx`) mostra 4 cards: Hall Estratégico, Simulador, Marketing Studio, AI Studio (em breve).
-- **Briefing narrado de IA** (`AiBriefingCard`) hoje é renderizado *dentro* do Hall Estratégico (`src/pages/admin/AiPainel.tsx`, linhas ~815–896), junto com KPIs, tabs e outros gráficos. Todo o cálculo do snapshot/highlights/actions e a chamada da edge function `intelligence-summary` vivem no `AiPainel`.
-- **Simulador de realocação** (`FleetSimulator`) vive numa **rota separada** `/admin/ai-studio/simulador`, servida por `src/pages/admin/AiSimulador.tsx` (carrega bookings/vehicles/expenses via Supabase, filtra por `bookingSource`, chama `computePerVehicle`).
-- Card "Simulador" no hub hoje navega via `navigate("/admin/ai-studio/simulador")`.
 
 ## Objetivo
 
-Criar **uma única seção "Frota Inteligente"** com:
-1. Briefing de IA narrado no topo (mesmo `AiBriefingCard` já existente).
-2. Simulador de realocação (mesmo `FleetSimulator`) logo abaixo, na mesma tela.
+"Frota Inteligente" passa a ser a UNIÃO COMPLETA do Hall Estratégico (briefing narrado + TODAS as métricas, rankings, projeções, Pareto, funil, RFM, conselhos, anomalias etc.) + o Simulador de realocação, em uma única tela. Vira item destacado na sidebar do admin. O card "Hall Estratégico" do AI Studio e a view interna `hubView === "painel"` são removidos para não duplicar.
 
-Sem duplicar o briefing no Hall Estratégico e sem quebrar a rota atual do simulador.
+Marketing Studio e "AI (em breve)" continuam intactos no hub.
 
-## Estrutura da nova seção
+---
 
-```text
-Frota Inteligente (view "frota-inteligente" dentro do AI Studio)
-├── Header
-│   ├── Botão "voltar" para o hub
-│   ├── Título "Frota Inteligente" + eyebrow
-│   └── Seletor de origem (all / zeus / turo) — reaproveitado
-├── Bloco 1 — Briefing narrado (AiBriefingCard)
-│   ├── KPIs de contexto (opcional, enxuto)
-│   └── Highlights + Ações sugeridas
-├── Divisor dourado (hairline)
-└── Bloco 2 — Simulador de realocação (FleetSimulator)
+## Diagnóstico do bug atual
+
+Em `src/components/admin/ai-studio/FrotaInteligente.tsx` (linha ~108) a renderização é:
+
+```tsx
+<AiPainel bookings={sourceFilteredBookings} vehicles={vehicles} briefingOnly />
 ```
 
-## Arquivos afetados
+`briefingOnly` faz o `AiPainel` esconder tudo exceto o `AiBriefingCard`. Por isso rankings, sugestões de troca, projeção futura, Pareto, "Hoje na sua frota", payback, receita por dia, funil, RFM, conselhos, operações, canais financeiros e anomalias sumiram. Basta remover a flag para o conteúdo completo voltar (o briefing já é renderizado por padrão dentro do `AiPainel`).
 
-### Criar
-- `src/components/admin/ai-studio/FrotaInteligente.tsx` — nova view unificada. Responsável por:
-  - Carregar `bookings`, `vehicles`, `expenses`, `incidents`, `transactions` (Supabase).
-  - Aplicar `filterBookingsBySource(bookingSource)`.
-  - Chamar `computePerVehicle`.
-  - Montar `snapshot / highlights / actions` do briefing (lógica extraída de `AiPainel`).
-  - Invocar edge function `intelligence-summary` (com fallback `localBriefing`).
-  - Renderizar `<AiBriefingCard />` + `<FleetSimulator perVehicle={...} />`.
-  - Props: `onBack: () => void`, `bookingSource`, `setBookingSource`.
+---
 
-- `src/lib/aiStudio/briefingInputs.ts` — extrair funções puras de `AiPainel` para calcular snapshot/highlights/actions/localBriefing, reutilizáveis tanto pelo Hall Estratégico (se mantido) quanto pela nova Frota Inteligente. Evita duplicação lógica.
+## Arquivos tocados
 
-### Modificar
-- `src/components/admin/ai-studio/AiHub.tsx`
-  - Substituir o card "Simulador" pelo card **"Frota Inteligente"** (nova cover, mesmo estilo).
-  - Trocar `action: () => navigate(...)` por `action: onOpenFrotaInteligente` (nova prop).
-  - Manter os outros 3 cards intactos.
+### 1. `src/components/admin/ai-studio/FrotaInteligente.tsx`
+- Remover `briefingOnly` do `<AiPainel>` — render passa a ser o painel completo (briefing + todas as métricas).
+- Ajustar o cabeçalho da seção: substituir os dois blocos "Briefing narrado" / "Simulador de realocação" por uma estrutura em dois blocos:
+  1. **Painel de inteligência** (briefing + KPIs + tabs "Recomendações / Conselhos da semana / Operações / Anomalias" — tudo já vem do `AiPainel`).
+  2. **Simulador de realocação** (divisor dourado + `<FleetSimulator>`).
+- Tornar `bookingSource` opcional: quando não vier por prop (rota standalone via sidebar), ler de `readBookingSource()` e renderizar um seletor local reaproveitando o mesmo pill group `all/zeus/turo`.
+- Aceitar prop opcional `onBack`; quando ausente (rota standalone), esconder o botão "voltar".
 
-- `src/pages/admin/AdminPainel.tsx`
-  - Adicionar `"frota-inteligente"` ao union type de `hubView`.
-  - Passar `onOpenFrotaInteligente={() => setHubView("frota-inteligente")}` ao `<AiHub />`.
-  - Renderizar `<FrotaInteligente ... />` quando `hubView === "frota-inteligente"`.
-  - Manter o seletor de origem (linhas 347–384) também visível nessa view (ajustar condicional).
-  - Nenhuma mudança no fluxo do Hall Estratégico, Marketing ou IA.
+### 2. `src/components/admin/ai-studio/AiHub.tsx`
+- Remover o card `key: "painel"` (Hall Estratégico) da lista `cards`.
+- Remover prop `onOpenPainel` e o tipo correspondente em `HubModule`.
+- Grid fica com 3 cards: Frota Inteligente, Marketing Studio, AI (em breve). Manter layout 2 colunas em `sm`.
 
-- `src/pages/admin/AiPainel.tsx`
-  - **Remover** o bloco `AiBriefingCard` (linhas ~814–896) e o estado/`useEffect` do briefing (linhas 51–52, 730–780), já que a narrativa agora vive na Frota Inteligente. KPIs, tabs, "Hoje na frota", "Conselhos da semana" etc. permanecem.
-  - Alternativa (se preferir preservar): manter briefing também no Hall Estratégico — decisão pra você (ver seção "Decisão pendente").
+### 3. `src/pages/admin/AdminPainel.tsx`
+- Remover `"painel"` do union `HubView`.
+- Remover o bloco `{hubView === "painel" && ...}` (linhas ~397-401).
+- Remover a prop `onOpenPainel` no `<AiHub>`.
+- Ajustar o gate do seletor de origem: `hubView === "frota-inteligente"` (deixa de precisar do OR com `"painel"`).
+- Manter `filteredBookings`, `bookingSource` e restante do overlay do Brain.
 
-- `src/App.tsx`
-  - Manter rota `/admin/ai-studio/simulador → AiSimulador` funcionando (compat com deep links). A página `AiSimulador.tsx` fica como fallback direto ao simulador. Sem mudanças aqui.
+### 4. `src/components/admin/AdminSidebar.tsx`
+- Adicionar novo item no grupo **Operações**, logo abaixo de "Operação":
+  ```ts
+  { title: "Frota Inteligente", url: "/admin/frota-inteligente", icon: Brain, allowedRoles: ["admin","operations","finance","support"], highlight: "gold" }
+  ```
+- Estender o tipo `MenuItem` com `highlight?: "gold"`.
+- Renderizar itens com `highlight === "gold"` com um acento visual distinto (sem quebrar o padrão existente):
+  - Fina linha vertical dourada à esquerda (`bg-[hsl(var(--sidebar-primary))]` já em uso), sempre presente (não só ativo).
+  - Micro-badge "IA" à direita do label (chip retangular pequeno, dourado sobre navy, mesma paleta usada no card do hub).
+  - Ícone `Brain` (lucide) com stroke levemente reforçado.
+  - Estado colapsado: apenas ícone + tooltip; manter o fio dourado à esquerda como marca.
 
-### Não tocar
-- `FleetSimulator.tsx` (usado como está).
-- `AiBriefingCard.tsx` (usado como está).
-- `lib/aiStudio/perVehicle.ts`, `bookingSource.ts`, `aiOptimizer.ts`.
-- Edge function `intelligence-summary`.
+### 5. `src/App.tsx`
+- Adicionar rota nova dentro do layout admin:
+  ```tsx
+  <Route
+    path="frota-inteligente"
+    element={
+      <RequireRole roles={["admin","operations","finance","support"]}>
+        <AdminSuspense>
+          <FrotaInteligentePage />
+        </AdminSuspense>
+      </RequireRole>
+    }
+  />
+  ```
+- `FrotaInteligentePage` é um wrapper novo (arquivo `src/pages/admin/AdminFrotaInteligente.tsx`) que:
+  - Aplica o mesmo shell visual usado pelo overlay do Brain (fundo bege/dourado + header com título "Frota Inteligente" e seletor de origem).
+  - Renderiza `<FrotaInteligente />` sem `onBack` e sem `bookingSource` (o componente lê do storage e mostra o seletor local).
+  - Não passa pelo `BrainAccessGate` (com a flag `BRAIN_GATE_ENABLED = false` atual já estaria bypassed, mas para o item da sidebar queremos acesso direto sempre).
 
-## Navegação e rotas
+### 6. `src/hooks/useAdminPageTitle.ts`
+- Adicionar entrada `[/^\/admin\/frota-inteligente/, "Frota Inteligente"]` antes do fallback.
 
-- **Entrada principal:** AI Studio Hub → card "Frota Inteligente" (dentro do painel admin, mesmo padrão de Hall Estratégico e Marketing — usa `hubView`, sem sair da rota `/admin`).
-- **Deep link legado:** `/admin/ai-studio/simulador` continua funcionando via `AiSimulador.tsx` (útil caso apresentador tenha o link salvo).
-- Nenhuma mudança no menu lateral.
+### 7. Rotas legadas
+- `/admin/ai-studio/simulador` (App.tsx linha 275) — manter como está para não quebrar links antigos. Nenhuma mudança.
 
-## Decisão pendente (rápida)
+---
 
-Preciso confirmar 1 ponto antes de construir:
+## Como a Frota Inteligente carrega dados fora do contexto do painel
 
-**O briefing narrado deve continuar aparecendo dentro do Hall Estratégico?**
-- (a) **Não** — remover de lá, passa a existir só em Frota Inteligente. Mais limpo, evita duplicação. *(minha recomendação)*
-- (b) **Sim** — manter nos dois lugares. Simples, mas duplica payload/chamada da edge function.
+Hoje `FrotaInteligente` já é auto-suficiente: dispara em `useEffect` três `supabase.from(...).select(...)` para `bookings`, `vehicles` (`list_vehicles_basic` semantics via `is deleted_at null`) e `vehicle_expenses`, e computa `perVehicle` internamente via `computePerVehicle`. Isso é o que o `FleetSimulator` precisa.
+
+O `AiPainel` só precisa de `bookings` e `vehicles` — que já são carregados. Portanto **nenhuma nova query** é necessária. A única mudança é passar os `bookings` já filtrados por origem para o `AiPainel` (sem `briefingOnly`) e continuar passando `perVehicle` para o `FleetSimulator`.
+
+Quando aberto pela sidebar (fora do `AdminPainel`), o componente continua funcionando porque toda a carga é local; a origem vem de `readBookingSource()` e o seletor local grava via `writeBookingSource`, mantendo consistência com o overlay do Brain.
+
+---
+
+## Estrutura visual da nova tela
+
+```text
+┌─────────────────────────────────────────────────────────┐
+│  Header (sidebar route) OU header do overlay do Brain   │
+│  "Frota Inteligente"  · seletor Todas/Zeus/Turo         │
+├─────────────────────────────────────────────────────────┤
+│  [AiPainel completo]                                    │
+│   • Briefing narrado (AiBriefingCard)                   │
+│   • KPIs principais                                     │
+│   • Tabs: Recomendações · Conselhos · Operações · …     │
+│   • Rankings, Pareto, projeção, RFM, anomalias etc.     │
+├──────── divisor dourado ────────────────────────────────┤
+│  [FleetSimulator]                                       │
+│   • Simulador interativo de compra/venda/realocação     │
+└─────────────────────────────────────────────────────────┘
+```
+
+Dois pontos de entrada, mesma tela:
+- **Sidebar** → `/admin/frota-inteligente` (novo wrapper) — fluxo padrão diário.
+- **AI Studio → card "Frota Inteligente"** → mesmo componente dentro do overlay do Brain (mantém a experiência imersiva quando o usuário entra pelo Brain).
+
+---
 
 ## Riscos
 
-1. **Payload duplicado da edge function** se optar por (b) — mitigado com cache/memoização por sessão.
-2. **Carregamento pesado**: a Frota Inteligente carrega bookings + vehicles + expenses + incidents + transactions. Já é o que `AiPainel` + `AiSimulador` fazem hoje isolados; consolidar numa view só aumenta o tempo da primeira renderização. Mitigar com skeleton (padrão `AiSimulador`) e `Promise.all`.
-3. **`bookingSource` compartilhado**: o seletor precisa persistir entre Hall Estratégico e Frota Inteligente (já usa `read/writeBookingSource` no localStorage — ok).
-4. **Deep link `/admin/ai-studio/simulador`**: continua funcionando isolado; se quiser unificar 100%, redirecionar essa rota para o hub com `hubView=frota-inteligente` — posso adicionar isso.
-5. **Refactor do briefing**: extrair a lógica de snapshot/highlights/actions de `AiPainel` para `briefingInputs.ts` é a parte mais delicada. Vou preservar o comportamento atual byte-a-byte (mesmos inputs → mesma saída). Sem mudanças em `AiBriefingCard`.
-6. **Regressão visual no Hall Estratégico** se remover o briefing: layout continua coeso (KPIs + Hoje + Conselhos + tabs) — validado antes de finalizar.
+1. **Performance da tela unificada**: `AiPainel` é pesado (~1956 linhas, muitos cálculos). Somado ao `FleetSimulator` numa mesma rota, pode aumentar TTI. Mitigação: `AiPainel` já usa `useMemo` internamente; se necessário, envolver `FleetSimulator` em `React.lazy` no wrapper da rota.
+2. **Duplicação de estado de origem**: o overlay do Brain e a rota standalone lêem/escrevem no mesmo `localStorage` (`zeus_booking_source`). É proposital, mas exige testar que trocar em um lado não gere loops quando ambos estão montados (não ocorre porque só um está montado por vez).
+3. **Sidebar destacada**: o acento dourado precisa respeitar dark/light do sidebar sem hardcode (usar tokens `--sidebar-primary`, `--sidebar-accent`); o mock atual do sidebar já expõe esses tokens.
+4. **Remoção do Hall Estratégico**: links diretos (bookmarks internos) para `hubView "painel"` deixam de existir. Como era estado local (não rota), não há URLs quebradas. Nenhuma migração necessária.
+5. **`AiPainel` sendo renderizado sem estar em `AdminPainel`**: já é um componente puro que recebe `bookings`/`vehicles` por prop — sem dependência de contexto do pai. Confirmado nos arquivos lidos.
+6. **Rota `/admin/ai-studio/simulador`**: mantida como fallback; se quisermos limpar depois, é uma remoção trivial de uma linha em `App.tsx`.
 
-## Como testar depois de construir
+---
 
-1. Admin → AI Studio → card "Frota Inteligente" abre a nova view.
-2. Briefing narrado aparece no topo com highlights/ações; simulador logo abaixo é interativo.
-3. Alternar seletor de origem (all/zeus/turo) atualiza ambos os blocos.
-4. Voltar para o hub volta pro grid de 4 cards.
-5. Hall Estratégico continua funcional (sem briefing, se opção (a)).
-6. `/admin/ai-studio/simulador` continua abrindo o simulador standalone.
-7. Build + typecheck limpos.
+## Ordem de implementação sugerida (quando aprovar)
+
+1. Ajustar `FrotaInteligente.tsx` (remover `briefingOnly`, tornar props opcionais, adicionar seletor local).
+2. Criar `AdminFrotaInteligente.tsx` (wrapper de rota).
+3. Registrar rota em `App.tsx` + `useAdminPageTitle`.
+4. Adicionar item destacado na `AdminSidebar.tsx`.
+5. Remover card e view `painel` do `AiHub.tsx` + `AdminPainel.tsx`.
+6. Type-check e verificar navegação pelos dois pontos de entrada.

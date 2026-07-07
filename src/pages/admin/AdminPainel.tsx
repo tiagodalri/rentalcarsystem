@@ -96,7 +96,7 @@ export default function AdminPainel() {
   }, [aiMode]);
 
   // hub | painel | marketing | ia — view interna do overlay AI Studio
-  type HubView = "hub" | "painel" | "marketing" | "ia" | "frota-inteligente";
+  type HubView = "hub" | "marketing" | "ia" | "frota-inteligente";
   const [hubView, setHubView] = useState<HubView>("hub");
   // Sempre que abre o Brain, volta ao hub
   useEffect(() => { if (aiMode) setHubView("hub"); }, [aiMode]);
@@ -345,7 +345,7 @@ export default function AdminPainel() {
           </div>
 
           {/* Source selector — só aparece dentro do Hall Estratégico */}
-          {(hubView === "painel" || hubView === "frota-inteligente") && (
+          {hubView === "frota-inteligente" && (
             <div className="flex justify-center">
               <div
                 role="tablist"
@@ -387,18 +387,12 @@ export default function AdminPainel() {
 
         {hubView === "hub" && (
           <AiHub
-            onOpenPainel={() => setHubView("painel")}
             onOpenMarketing={() => setHubView("marketing")}
             onOpenIa={() => setHubView("ia")}
             onOpenFrotaInteligente={() => setHubView("frota-inteligente")}
           />
         )}
 
-        {hubView === "painel" && (
-          <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
-            <AiPainel bookings={filteredBookings as any} vehicles={vehicles as any} hideBriefing />
-          </div>
-        )}
 
         {hubView === "frota-inteligente" && (
           <FrotaInteligente
