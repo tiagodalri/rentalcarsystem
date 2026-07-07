@@ -814,8 +814,7 @@ export default function AiPainel({
 
 
         {/* AI Briefing */}
-        {!hideBriefing && (
-        {(() => {
+        {!hideBriefing && (() => {
           const slugFor = (name?: string | null): string | undefined => {
             if (!name) return undefined;
             // try first 1-2 tokens
