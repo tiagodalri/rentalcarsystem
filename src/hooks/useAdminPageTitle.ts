@@ -4,6 +4,7 @@ const TITLE_MAP: Array<[RegExp, string]> = [
   [/^\/admin\/?$/, "Painel"],
   [/^\/admin\/ops-today/, "Operação"],
   [/^\/admin\/live/, "Live"],
+  [/^\/admin\/frota-inteligente/, "Frota Inteligente"],
   [/^\/admin\/bookings\/new/, "Nova Reserva"],
   [/^\/admin\/bookings\/[^/]+/, "Reserva"],
   [/^\/admin\/bookings/, "Reservas"],

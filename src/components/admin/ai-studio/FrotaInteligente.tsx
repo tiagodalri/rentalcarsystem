@@ -10,23 +10,44 @@ import {
   type PvBooking,
   type PvExpense,
 } from "@/lib/aiStudio/perVehicle";
-import { filterBookingsBySource, type BookingSource } from "@/lib/aiStudio/bookingSource";
+import {
+  filterBookingsBySource,
+  readBookingSource,
+  writeBookingSource,
+  SOURCE_LABEL,
+  type BookingSource,
+} from "@/lib/aiStudio/bookingSource";
 
 type Props = {
-  onBack: () => void;
-  bookingSource: BookingSource;
+  onBack?: () => void;
+  bookingSource?: BookingSource;
+  /** Se true, esconde o header interno (usado quando o wrapper já renderiza título/seletor). */
+  hideHeader?: boolean;
 };
 
 /**
- * Frota Inteligente — seção unificada do AI Studio.
- * Reúne o Briefing de IA narrado (topo) e o Simulador de realocação (abaixo)
- * em uma única tela, sem duplicar cálculos.
+ * Frota Inteligente — união COMPLETA do Hall Estratégico (AiPainel) + Simulador.
+ * Auto-suficiente: carrega bookings/vehicles/expenses e computa perVehicle.
+ * Aceita bookingSource controlado externamente (overlay do Brain) ou gerencia
+ * seletor local (rota standalone via sidebar).
  */
-export default function FrotaInteligente({ onBack, bookingSource }: Props) {
+export default function FrotaInteligente({
+  onBack,
+  bookingSource: bookingSourceProp,
+  hideHeader = false,
+}: Props) {
   const [bookings, setBookings] = useState<PvBooking[]>([]);
   const [vehicles, setVehicles] = useState<PvVehicle[]>([]);
   const [expenses, setExpenses] = useState<PvExpense[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Origem: se veio por prop, é controlada; senão, gerencia localmente com persistência.
+  const [localSource, setLocalSource] = useState<BookingSource>(() => readBookingSource());
+  const bookingSource = bookingSourceProp ?? localSource;
+  const showLocalSelector = bookingSourceProp === undefined && !hideHeader;
+  useEffect(() => {
+    if (bookingSourceProp === undefined) writeBookingSource(localSource);
+  }, [localSource, bookingSourceProp]);
 
   const load = useCallback(async () => {
     const [b, v, e] = await Promise.all([
@@ -63,49 +84,123 @@ export default function FrotaInteligente({ onBack, bookingSource }: Props) {
 
   return (
     <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
-      {/* Cabeçalho da seção */}
-      <div className="max-w-[1600px] mx-auto flex items-center gap-3 pt-2 pb-4 sm:pb-6">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center justify-center h-9 w-9 rounded-full transition-all active:scale-95 shrink-0"
-          style={{
-            background: "#ffffff",
-            border: "1px solid rgba(13,29,46,0.14)",
-            color: "#0d1d2e",
-            boxShadow: "0 4px 12px -6px rgba(13,29,46,0.25)",
-          }}
-          aria-label="Voltar ao AI Studio"
-        >
-          <ArrowLeft size={15} />
-        </button>
-        <div className="min-w-0">
-          <div
-            className="text-[10px] font-semibold uppercase tracking-[0.32em]"
-            style={{ color: "rgba(13,29,46,0.55)" }}
-          >
-            AI Studio
+      {!hideHeader && (
+        <div className="max-w-[1600px] mx-auto flex items-center gap-3 pt-2 pb-4 sm:pb-6">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="inline-flex items-center justify-center h-9 w-9 rounded-full transition-all active:scale-95 shrink-0"
+              style={{
+                background: "#ffffff",
+                border: "1px solid rgba(13,29,46,0.14)",
+                color: "#0d1d2e",
+                boxShadow: "0 4px 12px -6px rgba(13,29,46,0.25)",
+              }}
+              aria-label="Voltar"
+            >
+              <ArrowLeft size={15} />
+            </button>
+          )}
+          <div className="min-w-0 flex-1">
+            <div
+              className="text-[10px] font-semibold uppercase tracking-[0.32em]"
+              style={{ color: "rgba(13,29,46,0.55)" }}
+            >
+              Inteligência de frota
+            </div>
+            <h1
+              className="text-[20px] sm:text-[24px] leading-tight font-light tracking-[-0.01em] mt-0.5"
+              style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+            >
+              Frota Inteligente
+            </h1>
           </div>
-          <h1
-            className="text-[20px] sm:text-[24px] leading-tight font-light tracking-[-0.01em] mt-0.5"
-            style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
-          >
-            Frota Inteligente
-          </h1>
-        </div>
-      </div>
 
-      {/* Bloco 1 — Briefing narrado */}
-      <section aria-label="Briefing de IA" className="mb-6">
+          {showLocalSelector && (
+            <div
+              role="tablist"
+              aria-label="Origem das reservas"
+              className="hidden sm:inline-flex items-center gap-1 p-1 rounded-full shrink-0"
+              style={{
+                background: "rgba(13,29,46,0.05)",
+                border: "1px solid rgba(13,29,46,0.10)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.5)",
+              }}
+            >
+              {(["all", "zeus", "turo"] as const).map((s) => {
+                const active = localSource === s;
+                return (
+                  <button
+                    key={s}
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setLocalSource(s)}
+                    className="relative inline-flex items-center justify-center px-3 h-7 rounded-full text-[10px] font-semibold uppercase tracking-[0.18em] transition-all whitespace-nowrap"
+                    style={
+                      active
+                        ? {
+                            background: "linear-gradient(180deg, #14283d, #0d1d2e)",
+                            color: "#f3e6c4",
+                            boxShadow: "0 6px 14px -8px rgba(13,29,46,0.55), 0 0 0 1px rgba(154,122,58,0.45)",
+                          }
+                        : { color: "rgba(13,29,46,0.60)" }
+                    }
+                  >
+                    {SOURCE_LABEL[s]}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Mobile selector (quando standalone) */}
+      {showLocalSelector && (
+        <div className="max-w-[1600px] mx-auto sm:hidden flex justify-center mb-4">
+          <div
+            role="tablist"
+            className="inline-flex items-center gap-1 p-1 rounded-full"
+            style={{
+              background: "rgba(13,29,46,0.05)",
+              border: "1px solid rgba(13,29,46,0.10)",
+            }}
+          >
+            {(["all", "zeus", "turo"] as const).map((s) => {
+              const active = localSource === s;
+              return (
+                <button
+                  key={s}
+                  onClick={() => setLocalSource(s)}
+                  className="px-3 h-7 rounded-full text-[10px] font-semibold uppercase tracking-[0.18em] whitespace-nowrap"
+                  style={
+                    active
+                      ? {
+                          background: "linear-gradient(180deg, #14283d, #0d1d2e)",
+                          color: "#f3e6c4",
+                        }
+                      : { color: "rgba(13,29,46,0.60)" }
+                  }
+                >
+                  {SOURCE_LABEL[s]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Bloco 1 — Painel de inteligência COMPLETO (briefing + todas as métricas) */}
+      <section aria-label="Painel de inteligência" className="mb-6">
         <div className="max-w-[1600px] mx-auto flex items-center gap-2 mb-2 px-1">
           <Brain size={14} style={{ color: "#9a7a3a" }} />
           <span className="text-[10px] font-semibold uppercase tracking-[0.28em]" style={{ color: "rgba(13,29,46,0.55)" }}>
-            Briefing narrado
+            Painel de inteligência
           </span>
         </div>
         <AiPainel
           bookings={sourceFilteredBookings as any}
           vehicles={vehicles as any}
-          briefingOnly
         />
       </section>
 
