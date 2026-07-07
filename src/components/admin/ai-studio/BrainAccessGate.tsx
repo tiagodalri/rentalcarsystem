@@ -24,7 +24,6 @@ type Props = {
  * Always requires the private access code on every entry (no persistence).
  */
 export default function BrainAccessGate({ children, onCancel }: Props) {
-export default function BrainAccessGate({ children, onCancel }: Props) {
   const [unlocked, setUnlocked] = useState<boolean>(false);
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
