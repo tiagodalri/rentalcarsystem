@@ -2,6 +2,8 @@ import { Brain, ChevronDown, ChevronRight, FileDown, Loader2, TrendingDown, Tren
 import { useMemo, useState } from "react";
 import { CAR_BRANDS, carLogoUrl, findBrandByName } from "@/data/carBrands";
 import { exportPainelPdf } from "@/lib/exportPainelPdf";
+import { exportFleetReportPdf, type FleetReport } from "@/lib/exportFleetReportPdf";
+
 
 export type BriefingSnapshot = {
   rodandoAgora: number;
