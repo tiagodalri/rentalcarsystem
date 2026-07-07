@@ -390,6 +390,7 @@ export default function AdminPainel() {
             onOpenPainel={() => setHubView("painel")}
             onOpenMarketing={() => setHubView("marketing")}
             onOpenIa={() => setHubView("ia")}
+            onOpenFrotaInteligente={() => setHubView("frota-inteligente")}
           />
         )}
 
@@ -397,6 +398,13 @@ export default function AdminPainel() {
           <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
             <AiPainel bookings={filteredBookings as any} vehicles={vehicles as any} />
           </div>
+        )}
+
+        {hubView === "frota-inteligente" && (
+          <FrotaInteligente
+            onBack={() => setHubView("hub")}
+            bookingSource={bookingSource}
+          />
         )}
 
         {hubView === "marketing" && (
