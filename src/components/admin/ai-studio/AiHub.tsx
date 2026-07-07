@@ -13,17 +13,16 @@ if (typeof window !== "undefined") {
   });
 }
 
-export type HubModule = "painel" | "marketing" | "ia" | "frota-inteligente";
+export type HubModule = "marketing" | "ia" | "frota-inteligente";
 
 type Props = {
-  onOpenPainel: () => void;
   onOpenMarketing: () => void;
   onOpenIa: () => void;
   onOpenFrotaInteligente: () => void;
 };
 
 type Card = {
-  key: "painel" | "frota-inteligente" | "marketing" | "ia";
+  key: "frota-inteligente" | "marketing" | "ia";
   eyebrow: string;
   title: string;
   description: string;
@@ -33,25 +32,16 @@ type Card = {
   action: () => void;
 };
 
-export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa, onOpenFrotaInteligente }: Props) {
+export default function AiHub({ onOpenMarketing, onOpenIa, onOpenFrotaInteligente }: Props) {
   const navigate = useNavigate();
   void navigate;
 
   const cards: Card[] = [
     {
-      key: "painel",
-      eyebrow: "Inteligência operacional",
-      title: "Hall Estratégico",
-      description: "Painel completo da frota. Receita, reservas, operação, dinheiro e recomendações em tempo real.",
-      image: hallImg,
-      Icon: LayoutDashboard,
-      action: onOpenPainel,
-    },
-    {
       key: "frota-inteligente",
       eyebrow: "Inteligência de frota",
       title: "Frota Inteligente",
-      description: "Briefing narrado pela IA com highlights, ações sugeridas e um simulador interativo de compra e venda no mesmo lugar.",
+      description: "Painel completo da frota com briefing narrado pela IA, todas as métricas e um simulador interativo de compra e venda no mesmo lugar.",
       image: simImg,
       Icon: Gamepad2,
       badge: "IA + Simulador",
