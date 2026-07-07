@@ -44,6 +44,6 @@ export function filterBookingsBySource<T extends SrcBooking>(
 
 export const SOURCE_LABEL: Record<BookingSource, string> = {
   all: "Todas as reservas",
-  zeus: "Zeus particular",
+  zeus: "Frota própria",
   turo: "Turo",
 };
