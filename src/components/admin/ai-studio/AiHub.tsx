@@ -13,12 +13,13 @@ if (typeof window !== "undefined") {
   });
 }
 
-export type HubModule = "painel" | "marketing" | "ia";
+export type HubModule = "painel" | "marketing" | "ia" | "frota-inteligente";
 
 type Props = {
   onOpenPainel: () => void;
   onOpenMarketing: () => void;
   onOpenIa: () => void;
+  onOpenFrotaInteligente: () => void;
 };
 
 type Card = {
