@@ -14,6 +14,19 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const restrictedToastShown = useRef(false);
+  const autoLoginTried = useRef(false);
+
+  // Demo/whitelabel: bypass login screen for presentation purposes.
+  // Auto-signs in with the demo admin account if no session is active.
+  useEffect(() => {
+    if (loading || user || autoLoginTried.current) return;
+    autoLoginTried.current = true;
+    signIn("adm@adm.com", "admadm123").catch((err) => {
+      console.warn("[AdminLogin] auto-login falhou:", err?.message || err);
+    });
+  }, [loading, user, signIn]);
+
+
 
   useEffect(() => {
     if (loading || !user || authError) return;
