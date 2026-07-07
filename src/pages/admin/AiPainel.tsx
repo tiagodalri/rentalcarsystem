@@ -11,6 +11,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { computePerVehicle } from "@/lib/aiStudio/perVehicle";
 import { AiBriefingCard, type BriefingSnapshot, type BriefingHighlight, type BriefingAction } from "@/components/admin/ai-studio/AiBriefingCard";
+import type { FleetReport } from "@/lib/exportFleetReportPdf";
+
 import { findBrandByName } from "@/data/carBrands";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
