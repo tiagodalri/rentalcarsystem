@@ -21,6 +21,7 @@ import AiPainel from "./AiPainel";
 import AiHub from "@/components/admin/ai-studio/AiHub";
 import ComingSoonModule from "@/components/admin/ai-studio/ComingSoonModule";
 import MarketingStudio from "@/components/admin/ai-studio/MarketingStudio";
+import FrotaInteligente from "@/components/admin/ai-studio/FrotaInteligente";
 import BrainAccessGate from "@/components/admin/ai-studio/BrainAccessGate";
 import {
   type BookingSource,
