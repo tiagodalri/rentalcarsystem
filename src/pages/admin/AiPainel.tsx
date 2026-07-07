@@ -11,6 +11,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { computePerVehicle } from "@/lib/aiStudio/perVehicle";
 import { AiBriefingCard, type BriefingSnapshot, type BriefingHighlight, type BriefingAction } from "@/components/admin/ai-studio/AiBriefingCard";
+import type { FleetReport } from "@/lib/exportFleetReportPdf";
+
 import { findBrandByName } from "@/data/carBrands";
 import {
   differenceInDays, startOfMonth, endOfMonth, subMonths, format,
@@ -837,6 +839,53 @@ export default function AiPainel({
         </div>
 
 
+        {/* HERO BLOCK — 4 indicadores de venda (Pareto, Dinheiro perdido, Campeão×Pior, Margem) */}
+        {!briefingOnly && (() => {
+          const heroChampion = [...perVehicle]
+            .filter(p => p.purchase > 0 && p.daysInFleet > 30 && p.revenue > 0)
+            .sort((a, b) => b.roi - a.roi)[0] || null;
+          const heroWorst = [...perVehicle]
+            .filter(p => p.purchase > 0 && p.daysInFleet > 60)
+            .sort((a, b) => a.roi - b.roi)[0] || null;
+          const paretoCars = concentration?.topForRev.length ?? 0;
+          const paretoShare = Math.round(concentration?.topRevShare ?? 0);
+          const paretoTail = concentration?.tail.length ?? 0;
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+              <HeroKpi
+                eyebrow="Concentração de receita"
+                big={`${paretoShare}%`}
+                headline={`da receita vem de ${paretoCars} carro${paretoCars === 1 ? "" : "s"}`}
+                sub={`Os outros ${paretoTail} mal se pagam. Frota: ${concentration?.totalCount ?? perVehicle.length}.`}
+                icon={Layers}
+              />
+              <HeroKpi
+                eyebrow="Dinheiro que ficou na mesa"
+                big={fmtUSD(lostRevenue.total)}
+                headline="receita perdida sem perceber"
+                sub={`${fmtUSD(lostRevenue.cancelado)} em cancelamentos · ${fmtUSD(lostRevenue.janelas)} em dias ociosos.`}
+                icon={CircleDollarSign}
+                tone="alert"
+              />
+              <HeroKpi
+                eyebrow="Campeão × pior"
+                big={`${heroChampion ? heroChampion.roi.toFixed(0) : "—"}%  vs  ${heroWorst ? heroWorst.roi.toFixed(0) : "—"}%`}
+                headline={heroChampion && heroWorst ? `${heroChampion.v.name} × ${heroWorst.v.name}` : "Sem histórico suficiente"}
+                sub={heroChampion && heroWorst ? `Investido: ${fmtUSD(heroChampion.purchase)} × ${fmtUSD(heroWorst.purchase)}. Mesmo capital, mundos diferentes.` : "—"}
+                icon={Award}
+              />
+              <HeroKpi
+                eyebrow="Margem de lucro"
+                big={`${fleetMargin.toFixed(1)}%`}
+                headline="da receita vira lucro"
+                sub={`Receita ${fmtUSD(fleetRevenue)} · Despesas ${fmtUSD(fleetExpenses)}.`}
+                icon={Target}
+                tone={fleetMargin >= 25 ? "good" : "alert"}
+              />
+            </div>
+          );
+        })()}
+
         {/* Hero KPIs */}
         {!briefingOnly && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
@@ -846,6 +895,7 @@ export default function AiPainel({
           <AiKpi label="Receita do mês até hoje" sub={`No mesmo dia do mês passado: ${fmtUSD(pacing.lmtd)} (${pacing.delta >= 0 ? "+" : ""}${pacing.delta.toFixed(1)}%)`} value={fmtUSD(pacing.mtd)} icon={pacing.delta >= 0 ? ArrowUpRight : ArrowDownRight} hue={pacing.delta >= 0 ? "emerald" : "rose"} />
         </div>
         )}
+
 
 
         {/* AI Briefing */}
@@ -920,6 +970,63 @@ export default function AiPainel({
             };
           });
 
+          // Report data (used pelo botao "Salvar PDF" para gerar relatorio profissional)
+          const heroChampionR = [...perVehicle]
+            .filter(p => p.purchase > 0 && p.daysInFleet > 30 && p.revenue > 0)
+            .sort((a, b) => b.roi - a.roi)[0] || null;
+          const heroWorstR = [...perVehicle]
+            .filter(p => p.purchase > 0 && p.daysInFleet > 60)
+            .sort((a, b) => a.roi - b.roi)[0] || null;
+          const report: FleetReport = {
+            brandLabel: "Sua Marca",
+            generatedAt: new Date(),
+            hero: {
+              paretoShare: concentration?.topRevShare ?? 0,
+              paretoCars: concentration?.topForRev.length ?? 0,
+              paretoTail: concentration?.tail.length ?? 0,
+              totalCars: concentration?.totalCount ?? perVehicle.length,
+              lostRevenue: {
+                total: lostRevenue.total,
+                cancelled: lostRevenue.cancelado,
+                idle: lostRevenue.janelas,
+              },
+              champion: heroChampionR ? {
+                name: heroChampionR.v.name || "—",
+                roi: heroChampionR.roi,
+                invested: heroChampionR.purchase,
+                revenue: heroChampionR.revenue,
+              } : null,
+              worst: heroWorstR ? {
+                name: heroWorstR.v.name || "—",
+                roi: heroWorstR.roi,
+                invested: heroWorstR.purchase,
+                revenue: heroWorstR.revenue,
+              } : null,
+              margin: fleetMargin,
+            },
+            kpis: {
+              revPAC, adr: fleetADR, margin: fleetMargin,
+              mtd: pacing.mtd, lmtd: pacing.lmtd, deltaPct: pacing.delta,
+            },
+            fleet: {
+              revenue: fleetRevenue, expenses: fleetExpenses, invested: fleetInvested,
+              roi: fleetROI, occupancy: avgOccupancy, size: perVehicle.length,
+            },
+            topVehicles: [...perVehicle]
+              .filter(p => p.purchase > 0 && p.daysInFleet > 30 && p.revenue > 0)
+              .sort((a, b) => b.roi - a.roi)
+              .slice(0, 5)
+              .map(p => ({ name: p.v.name || "—", invested: p.purchase, revenue: p.revenue, roi: p.roi, days: p.daysInFleet })),
+            worstVehicles: [...perVehicle]
+              .filter(p => p.purchase > 0 && p.daysInFleet > 60)
+              .sort((a, b) => a.roi - b.roi)
+              .slice(0, 5)
+              .map(p => ({ name: p.v.name || "—", invested: p.purchase, revenue: p.revenue, roi: p.roi, days: p.daysInFleet })),
+            actions: weeklyDecisions.slice(0, 6).map(d => ({
+              titulo: d.titulo, detalhe: d.descricao, impacto: d.impacto, prioridade: d.prioridade,
+            })),
+          };
+
           return (
             <AiBriefingCard
               briefing={briefing}
@@ -928,8 +1035,10 @@ export default function AiPainel({
               snapshot={snapshot}
               highlights={highlights}
               actions={actionList}
+              report={report}
             />
           );
+
         })()}
 
         {!briefingOnly && (<>
@@ -2000,4 +2109,84 @@ function localBriefing(p: any): string {
   if (p.topCategory) parts.push(`A categoria que mais rende hoje é ${p.topCategory}.`);
   return parts.join(" ");
 }
+
+/* HERO KPI — cartao creme+dourado com numero grande (private-bank), destaque no topo do painel */
+function HeroKpi({
+  eyebrow, big, headline, sub, icon: Icon, tone = "neutral",
+}: {
+  eyebrow: string;
+  big: string;
+  headline: string;
+  sub: string;
+  icon: typeof Brain;
+  tone?: "neutral" | "good" | "alert";
+}) {
+  const accent =
+    tone === "alert" ? "#8a2433" : tone === "good" ? "#1f6b3a" : "#0d1d2e";
+  const goldBorder = "rgba(154,122,58,0.32)";
+  const goldText = "#9a7a3a";
+  return (
+    <div
+      className="relative overflow-hidden rounded-2xl p-4 sm:p-5"
+      style={{
+        background: "linear-gradient(180deg, #fbf7ee 0%, #f3ebd4 100%)",
+        border: `1px solid ${goldBorder}`,
+        boxShadow:
+          "0 1px 0 rgba(255,255,255,0.7) inset, 0 22px 50px -28px rgba(13,29,46,0.35)",
+      }}
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background:
+            "radial-gradient(500px circle at 100% 0%, rgba(154,122,58,0.10), transparent 55%)",
+        }}
+      />
+      <div className="relative">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <span
+            className="text-[9.5px] font-semibold uppercase leading-tight"
+            style={{ letterSpacing: "0.22em", color: goldText }}
+          >
+            {eyebrow}
+          </span>
+          <div
+            className="shrink-0 grid place-items-center rounded-lg"
+            style={{
+              width: 30,
+              height: 30,
+              background: "linear-gradient(135deg, #14283d, #0d1d2e)",
+              color: "#d6bf86",
+              border: "1px solid rgba(154,122,58,0.45)",
+            }}
+          >
+            <Icon size={14} />
+          </div>
+        </div>
+        <div
+          className="tabular-nums font-light leading-none"
+          style={{
+            color: accent,
+            fontSize: "clamp(28px, 5vw, 40px)",
+            fontFamily: "'Cormorant Garamond', 'Times New Roman', serif",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {big}
+        </div>
+        <div
+          className="mt-2 text-[12.5px] sm:text-[13px] font-semibold leading-snug"
+          style={{ color: "#0d1d2e" }}
+        >
+          {headline}
+        </div>
+        <div className="mt-1 text-[11px] sm:text-[11.5px] leading-snug" style={{ color: "#5d6a7c" }}>
+          {sub}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 

@@ -2,6 +2,8 @@ import { Brain, ChevronDown, ChevronRight, FileDown, Loader2, TrendingDown, Tren
 import { useMemo, useState } from "react";
 import { CAR_BRANDS, carLogoUrl, findBrandByName } from "@/data/carBrands";
 import { exportPainelPdf } from "@/lib/exportPainelPdf";
+import { exportFleetReportPdf, type FleetReport } from "@/lib/exportFleetReportPdf";
+
 
 export type BriefingSnapshot = {
   rodandoAgora: number;
@@ -45,7 +47,9 @@ type Props = {
   snapshot?: BriefingSnapshot;
   highlights?: BriefingHighlight[];
   actions?: BriefingAction[];
+  report?: FleetReport;
 };
+
 
 const brandSource =
   "\\b(" +
@@ -233,7 +237,7 @@ function StatusDot({ s }: { s: "destaque" | "atencao" | "critico" }) {
   );
 }
 
-export function AiBriefingCard({ briefing, loading, snapshot, highlights, actions }: Props) {
+export function AiBriefingCard({ briefing, loading, snapshot, highlights, actions, report }: Props) {
   const [exporting, setExporting] = useState(false);
   const [showFullText, setShowFullText] = useState(false);
 
@@ -249,13 +253,18 @@ export function AiBriefingCard({ briefing, loading, snapshot, highlights, action
   const handlePdf = async () => {
     setExporting(true);
     try {
-      const target =
-        (document.querySelector(".ai-shell") as HTMLElement | null) ?? (document.body as HTMLElement);
-      await exportPainelPdf({ target, filename: "ai-studio-painel.pdf" });
+      if (report) {
+        await exportFleetReportPdf(report, "relatorio-frota-inteligente.pdf");
+      } else {
+        const target =
+          (document.querySelector(".ai-shell") as HTMLElement | null) ?? (document.body as HTMLElement);
+        await exportPainelPdf({ target, filename: "ai-studio-painel.pdf" });
+      }
     } finally {
       setExporting(false);
     }
   };
+
 
   const hasStructured = !!(snapshot || (highlights && highlights.length) || (actions && actions.length));
 
