@@ -1,13 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, LayoutDashboard, Gamepad2, Megaphone, Sparkles } from "lucide-react";
-import hallImg from "@/assets/ai-studio/hall-estrategico.jpg?url";
 import simImg from "@/assets/ai-studio/simulador.jpg?url";
 import mktImg from "@/assets/ai-studio/marketing-studio.jpg?url";
 import iaImg from "@/assets/ai-studio/ai-hub.jpg?url";
 
 // Pre-cache as soon as module loads so cards aparecem instant.
 if (typeof window !== "undefined") {
-  [hallImg, simImg, mktImg, iaImg].forEach((src) => {
+  [simImg, mktImg, iaImg].forEach((src) => {
     const img = new Image();
     img.src = src;
   });
