@@ -311,10 +311,13 @@ export default function AiPainel({
 
   /* ───── Monthly trend (last 6 months) ───── */
   const monthlyTrend = useMemo(() => {
-    const out: { label: string; revenue: number; bookings: number; date: Date }[] = [];
+    const out: { label: string; revenue: number; bookings: number; date: Date; isCurrent: boolean }[] = [];
     for (let i = 5; i >= 0; i--) {
       const anchor = startOfMonth(subMonths(today, i));
-      const end = endOfMonth(anchor);
+      const isCurrent = i === 0;
+      // Mes corrente: fecha em HOJE (MTD), casando com o KPI "Receita do mes ate hoje".
+      // Meses anteriores: fecham no ultimo dia do mes.
+      const end = isCurrent ? today : endOfMonth(anchor);
       const inM = realBookings.filter(b => {
         const d = parseDateOnly(b.pickup_date);
         return d >= anchor && d <= end;
@@ -324,6 +327,7 @@ export default function AiPainel({
         date: anchor,
         revenue: inM.reduce((s, b) => s + (Number(b.total_price) || 0), 0),
         bookings: inM.length,
+        isCurrent,
       });
     }
     return out;
