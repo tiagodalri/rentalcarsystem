@@ -17,6 +17,7 @@ import {
   ScrollText,
   Receipt,
   Wallet,
+  Brain,
 } from "lucide-react";
 
 import BrandLogo from "@/components/BrandLogo";
@@ -49,6 +50,8 @@ type MenuItem = {
   url: string;
   icon: typeof LayoutDashboard;
   allowedRoles: AppRole[];
+  highlight?: "gold";
+  badge?: string;
 };
 
 type MenuSection = {
@@ -62,6 +65,7 @@ const menuSections: MenuSection[] = [
     items: [
       { title: "Painel",        url: "/admin",           icon: LayoutDashboard, allowedRoles: ["admin","finance","operations","support"] },
       { title: "Operação", url: "/admin/ops-today", icon: Sparkles,        allowedRoles: ["admin","operations","support","driver"] },
+      { title: "Frota Inteligente", url: "/admin/frota-inteligente", icon: Brain, allowedRoles: ["admin","operations","finance","support"], highlight: "gold", badge: "IA" },
       { title: "Live",          url: "/admin/live",      icon: Radio,           allowedRoles: ["admin","operations"] },
     ],
   },
