@@ -65,7 +65,6 @@ const menuSections: MenuSection[] = [
     items: [
       { title: "Painel",        url: "/admin",           icon: LayoutDashboard, allowedRoles: ["admin","finance","operations","support"] },
       { title: "Operação", url: "/admin/ops-today", icon: Sparkles,        allowedRoles: ["admin","operations","support","driver"] },
-      { title: "Frota Inteligente", url: "/admin/frota-inteligente", icon: Brain, allowedRoles: ["admin","operations","finance","support"], highlight: "gold", badge: "IA" },
       { title: "Live",          url: "/admin/live",      icon: Radio,           allowedRoles: ["admin","operations"] },
     ],
   },
@@ -90,6 +89,12 @@ const menuSections: MenuSection[] = [
       { title: "Financeiro", url: "/admin/finance", icon: DollarSign, allowedRoles: ["admin","finance"] },
       { title: "Central de Custos", url: "/admin/costs", icon: Wallet, allowedRoles: ["admin","operations","finance","driver"] },
       { title: "Relatórios", url: "/admin/report",  icon: BarChart3,  allowedRoles: ["admin","finance"] },
+    ],
+  },
+  {
+    label: "Frota Inteligente",
+    items: [
+      { title: "Frota Inteligente", url: "/admin/frota-inteligente", icon: Brain, allowedRoles: ["admin","operations","finance","support"], highlight: "gold", badge: "IA" },
     ],
   },
   {
