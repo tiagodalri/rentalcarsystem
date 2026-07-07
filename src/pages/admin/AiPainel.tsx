@@ -1459,32 +1459,33 @@ export default function AiPainel({
                     Carros que estão dando pouco retorno e qual carro da sua frota provou render mais no lugar.
                   </h3>
                   <p className="text-[12px] text-white/55 mb-4 leading-relaxed">
-                    A IA pareou cada carro parado com um carro parecido (mesma categoria ou marca) que está performando bem. O valor mostra quanto a mais por ano você poderia ganhar trocando um pelo outro.
+                    Cada troca compara carros de valor e categoria parecidos, mostrando quanto cada um rende e o retorno anual real sobre o dinheiro investido.
                   </p>
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-3">
                     {swapSuggestions.map((s, i) => (
-                      <li key={i} className="rounded-lg bg-white/[0.03] border border-white/10 p-3">
-                        <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <li key={i} className="rounded-lg bg-white/[0.03] border border-white/10 p-3.5">
+                        <div className="flex items-center justify-between gap-2 mb-2">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="text-[10px] uppercase tracking-wider text-rose-300/80 shrink-0">Trocar</span>
                             <span className="text-[13px] text-white/90 truncate">{s.weak.v.name}</span>
                           </div>
-                          <span className="text-[11px] tabular-nums text-rose-300 shrink-0">{fmtUSD(s.weak.revPerDayOwned)}/dia</span>
+                          <span className="text-[10px] uppercase tracking-wider text-emerald-300/80 shrink-0">
+                            por {s.star.v.name}
+                          </span>
                         </div>
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-[10px] uppercase tracking-wider text-emerald-300/80 shrink-0">Por algo como</span>
-                            <span className="text-[13px] text-white/90 truncate">{s.star.v.name}</span>
-                          </div>
-                          <span className="text-[11px] tabular-nums text-emerald-300 shrink-0">{fmtUSD(s.star.revPerDayOwned)}/dia</span>
-                        </div>
-                        <div className="flex items-center justify-between gap-2 text-[10.5px] text-white/55">
-                          <span>Critério: {s.reason} · {s.weak.occupancy.toFixed(0)}% de uso vs {s.star.occupancy.toFixed(0)}%</span>
-                          <span className="text-amber-200/95 tabular-nums">+{fmtUSD(s.annualUplift)}/ano</span>
+                        <ol className="space-y-1 text-[12px] text-white/80 leading-relaxed list-decimal list-inside marker:text-white/40">
+                          {s.lines.slice(0, 4).map((line, idx) => (
+                            <li key={idx}>{line}</li>
+                          ))}
+                        </ol>
+                        <div className="mt-2.5 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
+                          <span className="text-[10.5px] text-white/55">Critério: {s.reason}</span>
+                          <span className="text-[13px] text-amber-200 font-medium tabular-nums">{s.lines[4]}</span>
                         </div>
                       </li>
                     ))}
                   </ul>
+
                 </div>
               </div>
             )}
