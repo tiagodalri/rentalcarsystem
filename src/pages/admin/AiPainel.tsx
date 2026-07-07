@@ -558,7 +558,7 @@ export default function AiPainel({
     priceDownCandidates.slice(0, 1).forEach(p => {
       out.push({
         titulo: `Teste promo na ${p.v.name}`,
-        descricao: `Pouquíssimo uso (${p.occupancy.toFixed(0)}%) há ${p.daysInFleet} dias. ${fmtUSD(p.daily * 0.85)}/dia por 14 dias para gerar demanda.`,
+        descricao: `Pouquíssimo uso (${p.occupancy.toFixed(0)}%) e ${p.daysSinceLastBooking ?? '—'} dias sem receber. ${fmtUSD(p.daily * 0.85)}/dia por 14 dias para gerar demanda.`,
         impacto: `Cada dia parado custa ${fmtUSD(p.daily * 0.7)}`, impactoValor: p.daily * 0.7 * 7,
         prioridade: "baixa", categoria: "Preço",
       });
