@@ -41,8 +41,8 @@ const fmtUSD2 = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDi
 type TabKey = "revenue" | "demand" | "operations" | "financial" | "strategy";
 
 export default function AiPainel({
-  bookings, vehicles,
-}: { bookings: Booking[]; vehicles: Vehicle[] }) {
+  bookings, vehicles, briefingOnly = false, hideBriefing = false,
+}: { bookings: Booking[]; vehicles: Vehicle[]; briefingOnly?: boolean; hideBriefing?: boolean }) {
   const navigate = useNavigate();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
