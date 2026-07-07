@@ -311,10 +311,13 @@ export default function AiPainel({
 
   /* ───── Monthly trend (last 6 months) ───── */
   const monthlyTrend = useMemo(() => {
-    const out: { label: string; revenue: number; bookings: number; date: Date }[] = [];
+    const out: { label: string; revenue: number; bookings: number; date: Date; isCurrent: boolean }[] = [];
     for (let i = 5; i >= 0; i--) {
       const anchor = startOfMonth(subMonths(today, i));
-      const end = endOfMonth(anchor);
+      const isCurrent = i === 0;
+      // Mes corrente: fecha em HOJE (MTD), casando com o KPI "Receita do mes ate hoje".
+      // Meses anteriores: fecham no ultimo dia do mes.
+      const end = isCurrent ? today : endOfMonth(anchor);
       const inM = realBookings.filter(b => {
         const d = parseDateOnly(b.pickup_date);
         return d >= anchor && d <= end;
@@ -324,6 +327,7 @@ export default function AiPainel({
         date: anchor,
         revenue: inM.reduce((s, b) => s + (Number(b.total_price) || 0), 0),
         bookings: inM.length,
+        isCurrent,
       });
     }
     return out;
@@ -542,7 +546,7 @@ export default function AiPainel({
     swapSuggestions.slice(0, 1).forEach(s => {
       out.push({
         titulo: `Avalie trocar a ${s.weak.v.name}`,
-        descricao: `Carro parado há ${s.weak.daysInFleet} dias gera só ${fmtUSD(s.weak.revPerDayOwned)}/dia. Um ${s.star.v.name} (${s.reason}) rende ${fmtUSD(s.star.revPerDayOwned)}/dia.`,
+        descricao: `Carro parado há ${s.weak.daysSinceLastBooking ?? '—'} dias gera só ${fmtUSD(s.weak.revPerDayOwned)}/dia. Um ${s.star.v.name} (${s.reason}) rende ${fmtUSD(s.star.revPerDayOwned)}/dia.`,
         impacto: `+${fmtUSD(s.annualUplift)}/ano estimado`, impactoValor: s.annualUplift / 12,
         prioridade: "alta", categoria: "Frota",
       });
@@ -558,7 +562,7 @@ export default function AiPainel({
     priceDownCandidates.slice(0, 1).forEach(p => {
       out.push({
         titulo: `Teste promo na ${p.v.name}`,
-        descricao: `Pouquíssimo uso (${p.occupancy.toFixed(0)}%) há ${p.daysInFleet} dias. ${fmtUSD(p.daily * 0.85)}/dia por 14 dias para gerar demanda.`,
+        descricao: `Pouquíssimo uso (${p.occupancy.toFixed(0)}%) e ${p.daysSinceLastBooking ?? '—'} dias sem receber. ${fmtUSD(p.daily * 0.85)}/dia por 14 dias para gerar demanda.`,
         impacto: `Cada dia parado custa ${fmtUSD(p.daily * 0.7)}`, impactoValor: p.daily * 0.7 * 7,
         prioridade: "baixa", categoria: "Preço",
       });
@@ -1129,9 +1133,20 @@ export default function AiPainel({
                       <div key={i} className="flex-1 flex flex-col items-center gap-2">
                         <div className="text-[10px] tabular-nums text-white/60">{fmtUSD(m.revenue)}</div>
                         <div className="w-full relative" style={{ height: "120px" }}>
-                          <div className={`absolute bottom-0 left-0 right-0 rounded-t-md transition-all ${isMax ? "ai-bar-hot" : "ai-bar"}`} style={{ height: `${Math.max(h, 4)}%` }} />
+                          <div
+                            className={`absolute bottom-0 left-0 right-0 rounded-t-md transition-all ${isMax ? "ai-bar-hot" : "ai-bar"}`}
+                            style={{
+                              height: `${Math.max(h, 4)}%`,
+                              ...(m.isCurrent ? {
+                                backgroundImage: "repeating-linear-gradient(45deg, rgba(255,255,255,0.14) 0 4px, transparent 4px 8px)",
+                                opacity: 0.85,
+                              } : {}),
+                            }}
+                          />
                         </div>
-                        <div className="text-[11px] uppercase tracking-wider text-white/50">{m.label}</div>
+                        <div className="text-[11px] uppercase tracking-wider text-white/50">
+                          {m.label}{m.isCurrent ? " · até hoje" : ""}
+                        </div>
                       </div>
                     );
                   })}
