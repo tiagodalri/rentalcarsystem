@@ -57,9 +57,8 @@ export default function AdminLogin() {
           <div className="flex justify-center mb-4">
             <BrandLogo size="lg" />
           </div>
-          <h1 className="text-2xl font-medium tracking-tight">
-            <span className="text-primary font-semibold uppercase tracking-[0.25em]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>SUA MARCA</span>
-            <span className="text-muted-foreground font-light ml-1.5">ADMIN</span>
+          <h1 className="text-2xl font-medium tracking-tight text-muted-foreground font-light">
+            ADMIN
           </h1>
           <p className="text-muted-foreground text-sm mt-2">Acesso restrito à administração</p>
         </div>
