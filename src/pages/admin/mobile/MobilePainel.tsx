@@ -11,6 +11,7 @@ import { MobileList, MobileListItem } from "@/components/mobile/MobileListItem";
 import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 import { SwipeAction } from "@/components/mobile/SwipeAction";
 import PresentationModeButton from "@/components/admin/PresentationModeButton";
+import GuidedTourButton from "@/components/admin/guided-tour/GuidedTourButton";
 
 /* ============================================================
    PAINEL Mobile-first.
@@ -299,7 +300,8 @@ export default function MobilePainel({ bookings, vehicles, onRefresh, aiMode, on
           </button>
         )}
 
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <GuidedTourButton />
           <PresentationModeButton />
         </div>
 
