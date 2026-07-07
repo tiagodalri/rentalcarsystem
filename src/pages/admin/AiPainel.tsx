@@ -970,6 +970,63 @@ export default function AiPainel({
             };
           });
 
+          // Report data (used pelo botao "Salvar PDF" para gerar relatorio profissional)
+          const heroChampionR = [...perVehicle]
+            .filter(p => p.purchase > 0 && p.daysInFleet > 30 && p.revenue > 0)
+            .sort((a, b) => b.roi - a.roi)[0] || null;
+          const heroWorstR = [...perVehicle]
+            .filter(p => p.purchase > 0 && p.daysInFleet > 60)
+            .sort((a, b) => a.roi - b.roi)[0] || null;
+          const report: FleetReport = {
+            brandLabel: "Sua Marca",
+            generatedAt: new Date(),
+            hero: {
+              paretoShare: concentration?.topRevShare ?? 0,
+              paretoCars: concentration?.topForRev.length ?? 0,
+              paretoTail: concentration?.tail.length ?? 0,
+              totalCars: concentration?.totalCount ?? perVehicle.length,
+              lostRevenue: {
+                total: lostRevenue.total,
+                cancelled: lostRevenue.cancelado,
+                idle: lostRevenue.janelas,
+              },
+              champion: heroChampionR ? {
+                name: heroChampionR.v.name || "—",
+                roi: heroChampionR.roi,
+                invested: heroChampionR.purchase,
+                revenue: heroChampionR.revenue,
+              } : null,
+              worst: heroWorstR ? {
+                name: heroWorstR.v.name || "—",
+                roi: heroWorstR.roi,
+                invested: heroWorstR.purchase,
+                revenue: heroWorstR.revenue,
+              } : null,
+              margin: fleetMargin,
+            },
+            kpis: {
+              revPAC, adr: fleetADR, margin: fleetMargin,
+              mtd: pacing.mtd, lmtd: pacing.lmtd, deltaPct: pacing.delta,
+            },
+            fleet: {
+              revenue: fleetRevenue, expenses: fleetExpenses, invested: fleetInvested,
+              roi: fleetROI, occupancy: avgOccupancy, size: perVehicle.length,
+            },
+            topVehicles: [...perVehicle]
+              .filter(p => p.purchase > 0 && p.daysInFleet > 30 && p.revenue > 0)
+              .sort((a, b) => b.roi - a.roi)
+              .slice(0, 5)
+              .map(p => ({ name: p.v.name || "—", invested: p.purchase, revenue: p.revenue, roi: p.roi, days: p.daysInFleet })),
+            worstVehicles: [...perVehicle]
+              .filter(p => p.purchase > 0 && p.daysInFleet > 60)
+              .sort((a, b) => a.roi - b.roi)
+              .slice(0, 5)
+              .map(p => ({ name: p.v.name || "—", invested: p.purchase, revenue: p.revenue, roi: p.roi, days: p.daysInFleet })),
+            actions: weeklyDecisions.slice(0, 6).map(d => ({
+              titulo: d.titulo, detalhe: d.descricao, impacto: d.impacto, prioridade: d.prioridade,
+            })),
+          };
+
           return (
             <AiBriefingCard
               briefing={briefing}
@@ -978,8 +1035,10 @@ export default function AiPainel({
               snapshot={snapshot}
               highlights={highlights}
               actions={actionList}
+              report={report}
             />
           );
+
         })()}
 
         {!briefingOnly && (<>
