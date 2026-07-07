@@ -345,7 +345,7 @@ export default function AdminPainel() {
           </div>
 
           {/* Source selector — só aparece dentro do Hall Estratégico */}
-          {hubView === "painel" && (
+          {(hubView === "painel" || hubView === "frota-inteligente") && (
             <div className="flex justify-center">
               <div
                 role="tablist"
