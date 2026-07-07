@@ -87,6 +87,16 @@ export function computePerVehicle(
       ? addDays(today, breakEvenDays) : null;
     const customerCount = new Set(vb.map(b => b.customer_id || b.customer_name).filter(Boolean)).size;
 
+    // "Dias sem receber": diferenca entre hoje e a ULTIMA reserva ja concluida
+    // (return_date <= hoje). Corrige o antigo uso de daysInFleet no briefing.
+    const pastBookings = vb.filter(b => parseDateOnly(b.return_date).getTime() <= todayMs);
+    const lastReturnMs = pastBookings.length
+      ? Math.max(...pastBookings.map(b => parseDateOnly(b.return_date).getTime()))
+      : null;
+    const daysSinceLastBooking = lastReturnMs !== null
+      ? Math.max(0, Math.round((todayMs - lastReturnMs) / dayMs))
+      : null;
+
     return {
       v, revenue, exp, profit,
       daysBooked: daysBookedHistorical,
@@ -97,6 +107,7 @@ export function computePerVehicle(
       bookingsCount: vb.length,
       hasAcquiredDate: !!v.acquired_date,
       isNewToFleet: daysInFleet < 30,
+      daysSinceLastBooking,
     };
   });
 }
