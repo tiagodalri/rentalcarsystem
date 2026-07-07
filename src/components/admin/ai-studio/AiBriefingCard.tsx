@@ -237,7 +237,7 @@ function StatusDot({ s }: { s: "destaque" | "atencao" | "critico" }) {
   );
 }
 
-export function AiBriefingCard({ briefing, loading, snapshot, highlights, actions }: Props) {
+export function AiBriefingCard({ briefing, loading, snapshot, highlights, actions, report }: Props) {
   const [exporting, setExporting] = useState(false);
   const [showFullText, setShowFullText] = useState(false);
 
@@ -253,13 +253,18 @@ export function AiBriefingCard({ briefing, loading, snapshot, highlights, action
   const handlePdf = async () => {
     setExporting(true);
     try {
-      const target =
-        (document.querySelector(".ai-shell") as HTMLElement | null) ?? (document.body as HTMLElement);
-      await exportPainelPdf({ target, filename: "ai-studio-painel.pdf" });
+      if (report) {
+        await exportFleetReportPdf(report, "relatorio-frota-inteligente.pdf");
+      } else {
+        const target =
+          (document.querySelector(".ai-shell") as HTMLElement | null) ?? (document.body as HTMLElement);
+        await exportPainelPdf({ target, filename: "ai-studio-painel.pdf" });
+      }
     } finally {
       setExporting(false);
     }
   };
+
 
   const hasStructured = !!(snapshot || (highlights && highlights.length) || (actions && actions.length));
 
