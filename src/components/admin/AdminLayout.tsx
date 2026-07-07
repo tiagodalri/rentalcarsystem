@@ -122,7 +122,9 @@ export default function AdminLayout() {
             <AdminFab />
             <MobileFabDock />
             <AdminBottomNav />
+            <GuidedTour />
           </div>
+          </GuidedTourProvider>
           </ConfirmProvider>
         </AdminFabProvider>
       </AdminTabsProvider>
