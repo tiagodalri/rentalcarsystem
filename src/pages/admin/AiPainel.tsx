@@ -2110,3 +2110,83 @@ function localBriefing(p: any): string {
   return parts.join(" ");
 }
 
+/* HERO KPI — cartao creme+dourado com numero grande (private-bank), destaque no topo do painel */
+function HeroKpi({
+  eyebrow, big, headline, sub, icon: Icon, tone = "neutral",
+}: {
+  eyebrow: string;
+  big: string;
+  headline: string;
+  sub: string;
+  icon: typeof Brain;
+  tone?: "neutral" | "good" | "alert";
+}) {
+  const accent =
+    tone === "alert" ? "#8a2433" : tone === "good" ? "#1f6b3a" : "#0d1d2e";
+  const goldBorder = "rgba(154,122,58,0.32)";
+  const goldText = "#9a7a3a";
+  return (
+    <div
+      className="relative overflow-hidden rounded-2xl p-4 sm:p-5"
+      style={{
+        background: "linear-gradient(180deg, #fbf7ee 0%, #f3ebd4 100%)",
+        border: `1px solid ${goldBorder}`,
+        boxShadow:
+          "0 1px 0 rgba(255,255,255,0.7) inset, 0 22px 50px -28px rgba(13,29,46,0.35)",
+      }}
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background:
+            "radial-gradient(500px circle at 100% 0%, rgba(154,122,58,0.10), transparent 55%)",
+        }}
+      />
+      <div className="relative">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <span
+            className="text-[9.5px] font-semibold uppercase leading-tight"
+            style={{ letterSpacing: "0.22em", color: goldText }}
+          >
+            {eyebrow}
+          </span>
+          <div
+            className="shrink-0 grid place-items-center rounded-lg"
+            style={{
+              width: 30,
+              height: 30,
+              background: "linear-gradient(135deg, #14283d, #0d1d2e)",
+              color: "#d6bf86",
+              border: "1px solid rgba(154,122,58,0.45)",
+            }}
+          >
+            <Icon size={14} />
+          </div>
+        </div>
+        <div
+          className="tabular-nums font-light leading-none"
+          style={{
+            color: accent,
+            fontSize: "clamp(28px, 5vw, 40px)",
+            fontFamily: "'Cormorant Garamond', 'Times New Roman', serif",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {big}
+        </div>
+        <div
+          className="mt-2 text-[12.5px] sm:text-[13px] font-semibold leading-snug"
+          style={{ color: "#0d1d2e" }}
+        >
+          {headline}
+        </div>
+        <div className="mt-1 text-[11px] sm:text-[11.5px] leading-snug" style={{ color: "#5d6a7c" }}>
+          {sub}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
