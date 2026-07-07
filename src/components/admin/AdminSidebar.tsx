@@ -266,6 +266,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
             <SidebarMenu className={`gap-0.5 ${collapsed ? "items-center" : ""}`}>
               {section.items.map((item) => {
                 const active = isActive(item.url);
+                const isGold = item.highlight === "gold";
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton
@@ -278,20 +279,40 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                       } ${
                         active
                           ? "bg-sidebar-primary/12 text-sidebar-primary font-semibold hover:bg-sidebar-primary/15 hover:text-sidebar-primary"
-                          : "text-sidebar-foreground/65 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
+                          : isGold
+                            ? "text-sidebar-primary/90 hover:text-sidebar-primary hover:bg-sidebar-primary/10"
+                            : "text-sidebar-foreground/65 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
                       }`}
                     >
-                      {active && !collapsed && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full bg-sidebar-primary" />
+                      {(active || isGold) && !collapsed && (
+                        <span
+                          className={`absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full bg-sidebar-primary ${
+                            isGold && !active ? "opacity-80" : ""
+                          }`}
+                        />
                       )}
                       <item.icon
                         className={`h-[16px] w-[16px] shrink-0 ${
-                          active ? "text-sidebar-primary" : ""
+                          active || isGold ? "text-sidebar-primary" : ""
                         }`}
-                        strokeWidth={active ? 2.2 : 1.8}
+                        strokeWidth={active || isGold ? 2.2 : 1.8}
                       />
                       {!collapsed && (
-                        <span className="text-[12.5px] leading-none">{item.title}</span>
+                        <span className={`text-[12.5px] leading-none flex-1 ${isGold ? "font-semibold" : ""}`}>
+                          {item.title}
+                        </span>
+                      )}
+                      {!collapsed && item.badge && (
+                        <span
+                          className="ml-auto inline-flex items-center px-1.5 h-4 rounded-full text-[8.5px] font-semibold tracking-[0.14em] uppercase"
+                          style={{
+                            background: "linear-gradient(180deg, #14283d, #0d1d2e)",
+                            color: "#d6bf86",
+                            border: "1px solid rgba(214,191,134,0.40)",
+                          }}
+                        >
+                          {item.badge}
+                        </span>
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
