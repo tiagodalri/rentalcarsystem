@@ -109,34 +109,65 @@ export default function AiPainel({
   ).sort((a, b) => a.occupancy - b.occupancy).slice(0, 5);
 
 
-  /* ───── Sugestões de troca: pareia underperformer com top-star similar ───── */
+  /* ───── Sugestões de troca: pareia underperformer com top-star de valor parecido ───── */
   const swapSuggestions = useMemo(() => {
+    // ROI anualizado (%/ano): normaliza pelo tempo de posse — o que o cliente entende como "retorno".
+    const annualROI = (p: typeof perVehicle[number]) => {
+      if (!p.purchase || p.purchase <= 0) return 0;
+      const yrs = Math.max(p.daysInFleet / 365, 0.25);
+      return ((p.revenue - p.exp) / p.purchase) * 100 / yrs;
+    };
     const stars = [...perVehicle]
-      .filter(p => p.daysInFleet > 60 && p.revPerDayOwned > 0)
+      .filter(p => p.daysInFleet > 60 && p.revPerDayOwned > 0 && p.purchase > 0)
       .sort((a, b) => b.revPerDayOwned - a.revPerDayOwned)
-      .slice(0, 5);
+      .slice(0, 10);
     const weak = [...perVehicle]
       .filter(p => p.daysInFleet > 120 && p.occupancy < 35 && p.purchase > 0)
       .sort((a, b) => a.revPerDayOwned - b.revPerDayOwned)
       .slice(0, 4);
     return weak.map(w => {
-      // Match preferido: mesma categoria; depois mesma marca; depois melhor star geral
+      // Prioridade de match: mesma categoria + valor parecido (±40%); depois mesma categoria;
+      // depois valor parecido; depois melhor star geral.
+      const priceClose = (s: typeof perVehicle[number]) =>
+        Math.abs(s.purchase - w.purchase) / w.purchase <= 0.4;
+      const sameCatPrice = stars.find(s => s.v.id !== w.v.id && (s.v.category || "—") === (w.v.category || "—") && priceClose(s));
       const sameCat = stars.find(s => s.v.id !== w.v.id && (s.v.category || "—") === (w.v.category || "—"));
-      const sameBrand = stars.find(s => s.v.id !== w.v.id && (s.v.brand || "") === (w.v.brand || "") && (w.v.brand || ""));
+      const anyPrice = stars.find(s => s.v.id !== w.v.id && priceClose(s));
       const best = stars.find(s => s.v.id !== w.v.id);
-      const match = sameCat || sameBrand || best;
+      const match = sameCatPrice || sameCat || anyPrice || best;
       if (!match) return null;
       const upliftPerDay = Math.max(match.revPerDayOwned - w.revPerDayOwned, 0);
       const annualUplift = upliftPerDay * 365;
-      const reason = sameCat
+      const wROI = annualROI(w);
+      const sROI = annualROI(match);
+      const multiple = wROI > 0 ? sROI / wROI : (sROI > 0 ? Infinity : 0);
+      const reason = sameCatPrice
+        ? `${w.v.category || "categoria parecida"}, valor parecido`
+        : sameCat
         ? `mesma categoria (${w.v.category || "—"})`
-        : sameBrand
-        ? `mesma marca (${w.v.brand})`
+        : anyPrice
+        ? "valor de compra parecido"
         : "melhor desempenho da frota";
-      return { weak: w, star: match, upliftPerDay, annualUplift, reason };
+
+      // Frases mastigadas de venda (5 partes)
+      const daysIdle = w.daysSinceLastBooking ?? w.daysInFleet;
+      const wDays = Math.max(w.daysInFleet, 1);
+      const sDays = Math.max(match.daysInFleet, 1);
+      const lines = [
+        `Esta ${w.v.name} está há ${daysIdle} dias sem nenhuma locação.`,
+        `No histórico rendeu em média só ${fmtUSD(w.revPerDayOwned)}/dia na frota (= ${w.bookingsCount} locaç${w.bookingsCount === 1 ? "ão" : "ões"} somando ${fmtUSD(w.revenue)} em ${wDays} dias de posse).`,
+        `Ela custou ${fmtUSD(w.purchase)} — isso dá só ${wROI.toFixed(1)}% de retorno ao ano.`,
+        `Uma ${match.v.name} parecida (${reason}, custou ${fmtUSD(match.purchase)}) rende ${fmtUSD(match.revPerDayOwned)}/dia = ${sROI.toFixed(1)}% ao ano${
+          isFinite(multiple) && multiple >= 1.5 ? `, quase ${multiple.toFixed(1)}× mais retorno sobre investimento parecido` : ""
+        }.`,
+        `+${fmtUSD(annualUplift)}/ano se trocar.`,
+      ];
+
+      return { weak: w, star: match, upliftPerDay, annualUplift, reason, wROI, sROI, multiple, lines };
     }).filter(Boolean) as Array<{
       weak: typeof perVehicle[number]; star: typeof perVehicle[number];
       upliftPerDay: number; annualUplift: number; reason: string;
+      wROI: number; sROI: number; multiple: number; lines: string[];
     }>;
   }, [perVehicle]);
 
