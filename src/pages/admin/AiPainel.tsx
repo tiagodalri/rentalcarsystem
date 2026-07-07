@@ -1133,9 +1133,20 @@ export default function AiPainel({
                       <div key={i} className="flex-1 flex flex-col items-center gap-2">
                         <div className="text-[10px] tabular-nums text-white/60">{fmtUSD(m.revenue)}</div>
                         <div className="w-full relative" style={{ height: "120px" }}>
-                          <div className={`absolute bottom-0 left-0 right-0 rounded-t-md transition-all ${isMax ? "ai-bar-hot" : "ai-bar"}`} style={{ height: `${Math.max(h, 4)}%` }} />
+                          <div
+                            className={`absolute bottom-0 left-0 right-0 rounded-t-md transition-all ${isMax ? "ai-bar-hot" : "ai-bar"}`}
+                            style={{
+                              height: `${Math.max(h, 4)}%`,
+                              ...(m.isCurrent ? {
+                                backgroundImage: "repeating-linear-gradient(45deg, rgba(255,255,255,0.14) 0 4px, transparent 4px 8px)",
+                                opacity: 0.85,
+                              } : {}),
+                            }}
+                          />
                         </div>
-                        <div className="text-[11px] uppercase tracking-wider text-white/50">{m.label}</div>
+                        <div className="text-[11px] uppercase tracking-wider text-white/50">
+                          {m.label}{m.isCurrent ? " · até hoje" : ""}
+                        </div>
                       </div>
                     );
                   })}
