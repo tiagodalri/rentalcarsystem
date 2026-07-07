@@ -23,7 +23,7 @@ type Props = {
 };
 
 type Card = {
-  key: "painel" | "simulador" | "marketing" | "ia";
+  key: "painel" | "frota-inteligente" | "marketing" | "ia";
   eyebrow: string;
   title: string;
   description: string;
