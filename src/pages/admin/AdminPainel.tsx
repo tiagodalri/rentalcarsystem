@@ -95,7 +95,7 @@ export default function AdminPainel() {
   }, [aiMode]);
 
   // hub | painel | marketing | ia — view interna do overlay AI Studio
-  type HubView = "hub" | "painel" | "marketing" | "ia";
+  type HubView = "hub" | "painel" | "marketing" | "ia" | "frota-inteligente";
   const [hubView, setHubView] = useState<HubView>("hub");
   // Sempre que abre o Brain, volta ao hub
   useEffect(() => { if (aiMode) setHubView("hub"); }, [aiMode]);
