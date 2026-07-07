@@ -897,6 +897,7 @@ export default function AiPainel({
           );
         })()}
 
+        {!briefingOnly && (<>
         {/* HOJE NA SUA FROTA */}
         <div className="ai-card relative overflow-hidden">
           <div className="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-amber-300/10 blur-3xl pointer-events-none" />
