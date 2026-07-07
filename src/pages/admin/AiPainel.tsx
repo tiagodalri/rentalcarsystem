@@ -839,6 +839,53 @@ export default function AiPainel({
         </div>
 
 
+        {/* HERO BLOCK — 4 indicadores de venda (Pareto, Dinheiro perdido, Campeão×Pior, Margem) */}
+        {!briefingOnly && (() => {
+          const heroChampion = [...perVehicle]
+            .filter(p => p.purchase > 0 && p.daysInFleet > 30 && p.revenue > 0)
+            .sort((a, b) => b.roi - a.roi)[0] || null;
+          const heroWorst = [...perVehicle]
+            .filter(p => p.purchase > 0 && p.daysInFleet > 60)
+            .sort((a, b) => a.roi - b.roi)[0] || null;
+          const paretoCars = concentration?.topForRev.length ?? 0;
+          const paretoShare = Math.round(concentration?.topRevShare ?? 0);
+          const paretoTail = concentration?.tail.length ?? 0;
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+              <HeroKpi
+                eyebrow="Concentração de receita"
+                big={`${paretoShare}%`}
+                headline={`da receita vem de ${paretoCars} carro${paretoCars === 1 ? "" : "s"}`}
+                sub={`Os outros ${paretoTail} mal se pagam. Frota: ${concentration?.totalCount ?? perVehicle.length}.`}
+                icon={Layers}
+              />
+              <HeroKpi
+                eyebrow="Dinheiro que ficou na mesa"
+                big={fmtUSD(lostRevenue.total)}
+                headline="receita perdida sem perceber"
+                sub={`${fmtUSD(lostRevenue.cancelado)} em cancelamentos · ${fmtUSD(lostRevenue.janelas)} em dias ociosos.`}
+                icon={CircleDollarSign}
+                tone="alert"
+              />
+              <HeroKpi
+                eyebrow="Campeão × pior"
+                big={`${heroChampion ? heroChampion.roi.toFixed(0) : "—"}%  vs  ${heroWorst ? heroWorst.roi.toFixed(0) : "—"}%`}
+                headline={heroChampion && heroWorst ? `${heroChampion.v.name} × ${heroWorst.v.name}` : "Sem histórico suficiente"}
+                sub={heroChampion && heroWorst ? `Investido: ${fmtUSD(heroChampion.purchase)} × ${fmtUSD(heroWorst.purchase)}. Mesmo capital, mundos diferentes.` : "—"}
+                icon={Award}
+              />
+              <HeroKpi
+                eyebrow="Margem de lucro"
+                big={`${fleetMargin.toFixed(1)}%`}
+                headline="da receita vira lucro"
+                sub={`Receita ${fmtUSD(fleetRevenue)} · Despesas ${fmtUSD(fleetExpenses)}.`}
+                icon={Target}
+                tone={fleetMargin >= 25 ? "good" : "alert"}
+              />
+            </div>
+          );
+        })()}
+
         {/* Hero KPIs */}
         {!briefingOnly && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
@@ -848,6 +895,7 @@ export default function AiPainel({
           <AiKpi label="Receita do mês até hoje" sub={`No mesmo dia do mês passado: ${fmtUSD(pacing.lmtd)} (${pacing.delta >= 0 ? "+" : ""}${pacing.delta.toFixed(1)}%)`} value={fmtUSD(pacing.mtd)} icon={pacing.delta >= 0 ? ArrowUpRight : ArrowDownRight} hue={pacing.delta >= 0 ? "emerald" : "rose"} />
         </div>
         )}
+
 
 
         {/* AI Briefing */}
