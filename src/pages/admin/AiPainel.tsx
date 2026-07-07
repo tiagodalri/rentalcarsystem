@@ -41,8 +41,8 @@ const fmtUSD2 = (n: number) => `$${n.toLocaleString("en-US", { maximumFractionDi
 type TabKey = "revenue" | "demand" | "operations" | "financial" | "strategy";
 
 export default function AiPainel({
-  bookings, vehicles,
-}: { bookings: Booking[]; vehicles: Vehicle[] }) {
+  bookings, vehicles, briefingOnly = false, hideBriefing = false,
+}: { bookings: Booking[]; vehicles: Vehicle[]; briefingOnly?: boolean; hideBriefing?: boolean }) {
   const navigate = useNavigate();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -803,16 +803,18 @@ export default function AiPainel({
 
 
         {/* Hero KPIs */}
+        {!briefingOnly && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
           <AiKpi label="Receita por carro/dia" sub="Quanto cada carro gera, na média, por dia que está na frota" value={fmtUSD2(revPAC)} icon={Rocket} hue="violet" />
           <AiKpi label="Diária média cobrada" sub="Valor médio efetivamente recebido por dia alugado" value={fmtUSD(fleetADR)} icon={DollarSign} hue="amber" />
           <AiKpi label="Margem de lucro" sub="Receita menos despesas, em %" value={`${fleetMargin.toFixed(1)}%`} icon={Target} hue={fleetMargin >= 25 ? "emerald" : "rose"} />
           <AiKpi label="Receita do mês até hoje" sub={`No mesmo dia do mês passado: ${fmtUSD(pacing.lmtd)} (${pacing.delta >= 0 ? "+" : ""}${pacing.delta.toFixed(1)}%)`} value={fmtUSD(pacing.mtd)} icon={pacing.delta >= 0 ? ArrowUpRight : ArrowDownRight} hue={pacing.delta >= 0 ? "emerald" : "rose"} />
         </div>
+        )}
 
 
         {/* AI Briefing */}
-        {(() => {
+        {!hideBriefing && (() => {
           const slugFor = (name?: string | null): string | undefined => {
             if (!name) return undefined;
             // try first 1-2 tokens
@@ -895,6 +897,7 @@ export default function AiPainel({
           );
         })()}
 
+        {!briefingOnly && (<>
         {/* HOJE NA SUA FROTA */}
         <div className="ai-card relative overflow-hidden">
           <div className="absolute -top-12 -right-12 w-64 h-64 rounded-full bg-amber-300/10 blur-3xl pointer-events-none" />
@@ -1563,6 +1566,7 @@ export default function AiPainel({
             </div>
           </div>
         )}
+        </>)}
 
       </div>
 

@@ -13,16 +13,17 @@ if (typeof window !== "undefined") {
   });
 }
 
-export type HubModule = "painel" | "marketing" | "ia";
+export type HubModule = "painel" | "marketing" | "ia" | "frota-inteligente";
 
 type Props = {
   onOpenPainel: () => void;
   onOpenMarketing: () => void;
   onOpenIa: () => void;
+  onOpenFrotaInteligente: () => void;
 };
 
 type Card = {
-  key: "painel" | "simulador" | "marketing" | "ia";
+  key: "painel" | "frota-inteligente" | "marketing" | "ia";
   eyebrow: string;
   title: string;
   description: string;
@@ -32,8 +33,9 @@ type Card = {
   action: () => void;
 };
 
-export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props) {
+export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa, onOpenFrotaInteligente }: Props) {
   const navigate = useNavigate();
+  void navigate;
 
   const cards: Card[] = [
     {
@@ -46,14 +48,14 @@ export default function AiHub({ onOpenPainel, onOpenMarketing, onOpenIa }: Props
       action: onOpenPainel,
     },
     {
-      key: "simulador",
-      eyebrow: "Frota Inteligente",
-      title: "Simulador",
-      description: "Simule cenários de compra e venda com base no histórico real de cada carro da sua frota.",
+      key: "frota-inteligente",
+      eyebrow: "Inteligência de frota",
+      title: "Frota Inteligente",
+      description: "Briefing narrado pela IA com highlights, ações sugeridas e um simulador interativo de compra e venda no mesmo lugar.",
       image: simImg,
       Icon: Gamepad2,
-      badge: "Interativo",
-      action: () => navigate("/admin/ai-studio/simulador"),
+      badge: "IA + Simulador",
+      action: onOpenFrotaInteligente,
     },
     {
       key: "marketing",

@@ -21,6 +21,7 @@ import AiPainel from "./AiPainel";
 import AiHub from "@/components/admin/ai-studio/AiHub";
 import ComingSoonModule from "@/components/admin/ai-studio/ComingSoonModule";
 import MarketingStudio from "@/components/admin/ai-studio/MarketingStudio";
+import FrotaInteligente from "@/components/admin/ai-studio/FrotaInteligente";
 import BrainAccessGate from "@/components/admin/ai-studio/BrainAccessGate";
 import {
   type BookingSource,
@@ -95,7 +96,7 @@ export default function AdminPainel() {
   }, [aiMode]);
 
   // hub | painel | marketing | ia — view interna do overlay AI Studio
-  type HubView = "hub" | "painel" | "marketing" | "ia";
+  type HubView = "hub" | "painel" | "marketing" | "ia" | "frota-inteligente";
   const [hubView, setHubView] = useState<HubView>("hub");
   // Sempre que abre o Brain, volta ao hub
   useEffect(() => { if (aiMode) setHubView("hub"); }, [aiMode]);
@@ -344,7 +345,7 @@ export default function AdminPainel() {
           </div>
 
           {/* Source selector — só aparece dentro do Hall Estratégico */}
-          {hubView === "painel" && (
+          {(hubView === "painel" || hubView === "frota-inteligente") && (
             <div className="flex justify-center">
               <div
                 role="tablist"
@@ -389,6 +390,7 @@ export default function AdminPainel() {
             onOpenPainel={() => setHubView("painel")}
             onOpenMarketing={() => setHubView("marketing")}
             onOpenIa={() => setHubView("ia")}
+            onOpenFrotaInteligente={() => setHubView("frota-inteligente")}
           />
         )}
 
@@ -396,6 +398,13 @@ export default function AdminPainel() {
           <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
             <AiPainel bookings={filteredBookings as any} vehicles={vehicles as any} />
           </div>
+        )}
+
+        {hubView === "frota-inteligente" && (
+          <FrotaInteligente
+            onBack={() => setHubView("hub")}
+            bookingSource={bookingSource}
+          />
         )}
 
         {hubView === "marketing" && (
