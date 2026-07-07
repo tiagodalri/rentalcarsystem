@@ -396,7 +396,7 @@ export default function AdminPainel() {
 
         {hubView === "painel" && (
           <div className="px-3 sm:px-4 lg:px-6 pb-10 overflow-x-hidden">
-            <AiPainel bookings={filteredBookings as any} vehicles={vehicles as any} />
+            <AiPainel bookings={filteredBookings as any} vehicles={vehicles as any} hideBriefing />
           </div>
         )}
 
