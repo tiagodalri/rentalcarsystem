@@ -1,6 +1,5 @@
 // Roteiro do Tour Guiado de vendas — copy editável em um único lugar.
 // Cada ato navega para a rota real do app antes de exibir o cartão.
-// Estrutura de venda: 1 pergunta/título estratégico + 2-3 dores curtas + 1 teaser.
 
 export interface TourStep {
   id: string;
@@ -8,14 +7,19 @@ export interface TourStep {
   bullet: string;
   /** Rota que o app deve exibir por trás do overlay. */
   route: string;
-  /** Pergunta/título estratégico — headline grande do cartão. */
+  /** Pergunta/título estratégico. */
   title: string;
-  /** 2 a 3 dores curtas (bullets) — o que o Turo não resolve. */
+  /** Bullets de dor/diferencial. */
   pains: string[];
-  /** Uma linha de fecho que gera expectativa. */
+  /** Linha de fecho. */
   teaser: string;
-  /** Se este ato é o clímax (recebe destaque visual extra). */
+  /** Clímax recebe destaque extra. */
   climax?: boolean;
+  /** Layout especial para abertura. */
+  kind?: "intro";
+  eyebrow?: string;
+  brand?: string;
+  statement?: string;
 }
 
 export const TOUR_STEPS: TourStep[] = [
@@ -23,72 +27,94 @@ export const TOUR_STEPS: TourStep[] = [
     id: "abertura",
     bullet: "Abertura",
     route: "/admin",
-    title: "Quanto da sua frota você realmente enxerga?",
+    kind: "intro",
+    eyebrow: "Dados · Inteligência Artificial · Metrificação",
+    brand: "GoDalz Solutions",
+    statement:
+      "A gente não entrega um sistema. Entrega visão, informação e escala da sua operação.",
+    title: "",
     pains: [
-      "Carros que dormem parados — e ninguém soma o custo.",
-      "Um carro que parece dar lucro e, no fim do mês, não dá.",
-      "Decisão no achismo, porque no olho humano é impossível ver tudo.",
+      "Especialistas em transformar operação em dados.",
+      "O que hoje vive espalhado e desorganizado, a gente vira decisão.",
+      "Métricas agrupadas de um jeito que nenhuma plataforma entrega.",
     ],
-    teaser: "Nos próximos minutos, sua frota num raio-x.",
+    teaser: "Nos próximos minutos, a sua frota vista pela primeira vez de verdade.",
   },
   {
     id: "seguranca",
     bullet: "Segurança",
     route: "/admin/live",
-    title: "Onde está cada carro seu — agora?",
+    title: "Você sabe onde estão seus carros neste exato momento?",
     pains: [
-      "No Turo, entre uma locação e outra, você fica no escuro.",
-      "Aqui: cada carro no mapa, em tempo real, do sofá de casa.",
-      "Carro andou sem reserva? O sistema te avisa.",
+      "Cada carro no mapa, ao vivo, agora.",
+      "O trajeto de ontem inteiro: por onde andou, velocidade, freadas.",
+      "Aviso na hora quando um carro se move sem reserva.",
+      "Cerca virtual que avisa se o carro sai da região.",
+      "Saúde do veículo: combustível, bateria, quilometragem.",
+      "Inspeção com foto na entrega e na devolução.",
+      "A IA lê o combustível e o hodômetro direto da foto.",
+      "Quem pegou o carro fica registrado, com selfie e motivo.",
+      "Um prontuário completo de cada veículo, pra sempre.",
     ],
-    teaser: "Você para de depender da palavra dos outros.",
+    teaser: "Você para de confiar na palavra dos outros e passa a confiar nos fatos.",
   },
   {
     id: "gestao",
     bullet: "Gestão",
     route: "/admin/bookings",
-    title: "Sua operação inteira — numa tela só.",
+    title: "Sua operação inteira cabe numa tela só?",
     pains: [
-      "O Turo traz o cliente; aqui você comanda a operação.",
-      "Reservas, agenda, quem sai e quem volta, num lugar só.",
-      "Cada reserva com o resultado completo: ganho, caução, milhas, fotos.",
+      "Turo, reservas diretas e agenda, tudo junto.",
+      "Cada reserva com ganho, caução, combustível e milhas.",
+      "Fotos de entrega e devolução anexadas na reserva.",
+      "Calendário visual de quem sai e quem volta.",
+      "Base de clientes com histórico e aniversários.",
+      "Pedágios importados sozinhos.",
+      "Contratos gerados e assinados dentro do sistema.",
     ],
-    teaser: "Fim das cinco abas abertas ao mesmo tempo.",
+    teaser: "Acaba a bagunça de cinco planilhas abertas ao mesmo tempo.",
   },
   {
     id: "financeiro",
     bullet: "Financeiro",
     route: "/admin/costs",
-    title: "Qual carro te dá lucro — e qual te dá prejuízo?",
+    title: "Qual carro te dá lucro, e qual te dá prejuízo?",
     pains: [
-      "O Turo te mostra a diária. Não te mostra o LUCRO real de cada carro.",
-      "Aqui: lucro por veículo, custo da noite parada, dinheiro na mesa.",
-      "Cada carro é um ativo — com extrato próprio.",
+      "O sistema enxerga o lucro real de cada carro, não só a diária.",
+      "Mostra de onde sai a sua maior despesa.",
+      "Aponta os carros que mais rendem e os que só dão custo.",
+      "Calcula o preço de cada dia que o carro fica parado.",
+      "Soma o dinheiro perdido em cancelamento e ociosidade.",
+      "Payback e retorno de cada veículo.",
+      "Recibo lançado por foto, sem digitar nada.",
     ],
-    teaser: "É aqui que o dinheiro invisível começa a aparecer.",
+    teaser: "É aqui que o dinheiro invisível aparece.",
   },
   {
     id: "frota-inteligente",
     bullet: "Frota Inteligente",
     route: "/admin/frota-inteligente",
-    title: "E se a IA te dissesse exatamente o que trocar?",
+    title: "E se a inteligência artificial te dissesse o que fazer?",
     pains: [
-      "80% da sua receita vem de poucos carros — e alguns te sangram em silêncio.",
-      "A IA lê tudo e te diz o que fazer.",
-      "O simulador: venda os fracos, compre os campeões, e veja o ganho com os SEUS números.",
+      "A IA lê a frota inteira e resume em segundos.",
+      "Mostra que a maior parte da receita vem de poucos carros.",
+      "Aponta quais estão te sangrando em silêncio.",
+      "Recomenda o que trocar, promover e ajustar na semana.",
+      "O simulador testa vender os fracos e comprar os campeões.",
+      "E projeta quanto você ganharia a mais, com os seus números.",
     ],
-    teaser: "Sem achismo. A decisão na palma da mão.",
+    teaser: "A decisão que levava meses de conta, agora na palma da mão.",
     climax: true,
   },
   {
     id: "fechamento",
     bullet: "Fechamento",
     route: "/admin/frota-inteligente",
-    title: "Seguir no escuro, ou acender a luz hoje?",
+    title: "Continuar no escuro, ou crescer com dados?",
     pains: [
-      "No começo, você não sabia qual carro dava lucro ou prejuízo.",
-      "Agora sabe — e pra sempre.",
+      "Antes, decisão no achismo.",
+      "Agora, cada escolha com número por trás.",
     ],
-    teaser: "A luz já está acesa. Falta você decidir usá-la.",
+    teaser: "A inteligência já está pronta. Falta você usar.",
   },
 ];
