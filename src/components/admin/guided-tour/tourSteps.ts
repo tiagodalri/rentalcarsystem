@@ -15,11 +15,20 @@ export interface TourStep {
   teaser: string;
   /** Clímax recebe destaque extra. */
   climax?: boolean;
-  /** Layout especial para abertura. */
-  kind?: "intro";
+  /** Layout especial. "intro" abre o tour; "price" entra na Sala de Fechamento (tema escuro). */
+  kind?: "intro" | "price";
   eyebrow?: string;
   brand?: string;
   statement?: string;
+  /** Variante da tela de preço (usada quando kind === "price"). */
+  priceVariant?:
+    | "combined"
+    | "investment"
+    | "loss"
+    | "turn"
+    | "founder"
+    | "maintenance"
+    | "decision";
 }
 
 export const TOUR_STEPS: TourStep[] = [
