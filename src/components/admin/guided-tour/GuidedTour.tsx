@@ -498,7 +498,7 @@ export default function GuidedTour() {
                             Frota criada
                           </div>
                           <div className="text-[11.5px]" style={{ color: "rgba(244,234,209,0.7)" }}>
-                            {fleetDone} veículos prontos para a demonstração.
+                            {fleetDone} veículos prontos.
                           </div>
                         </div>
                         <button
