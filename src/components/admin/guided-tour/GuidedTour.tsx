@@ -176,6 +176,24 @@ export default function GuidedTour() {
           </div>
 
           {/* Cartão central — clicar fora esconde o overlay para explorar a tela real */}
+          {step.kind === "price" ? (
+            <div
+              className="flex-1 flex items-center justify-center"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) hideOverlay();
+              }}
+            >
+              <PriceCard
+                step={step}
+                index={index}
+                total={total}
+                onPrev={prev}
+                onNext={next}
+                onStop={stop}
+                intoFleetCount={parseInt(fleetCount, 10) || 15}
+              />
+            </div>
+          ) : (
           <div
             className="flex-1 flex items-center justify-center px-4 py-8 sm:py-10"
             onClick={(e) => {
