@@ -1,11 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, ArrowRight, Compass, Eye, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Compass, Loader2, Sparkles, X } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { TOUR_STEPS } from "./tourSteps";
 import { useGuidedTour } from "./GuidedTourContext";
 
 const NAVY = "#0d1d2e";
 const GOLD = "#9a7a3a";
+const MISSION =
+  "Não entregamos um sistema, entregamos visão, informação e escala da sua operação.";
+
 
 /**
  * GuidedTour — overlay de apresentação do sistema para vendas.
@@ -18,6 +23,29 @@ export default function GuidedTour() {
     useGuidedTour();
 
   const step = TOUR_STEPS[index];
+  const [fleetCount, setFleetCount] = useState<string>("15");
+  const [fleetBusy, setFleetBusy] = useState(false);
+  const [fleetDone, setFleetDone] = useState<number | null>(null);
+
+  const handleBuildFleet = async () => {
+    const n = parseInt(fleetCount, 10);
+    if (!Number.isFinite(n) || n < 1 || n > 105) {
+      toast.error("Digite um número entre 1 e 105");
+      return;
+    }
+    setFleetBusy(true);
+    const { data, error } = await supabase.rpc("demo_start_presentation" as any, { p_count: n });
+    if (error) {
+      setFleetBusy(false);
+      toast.error("Não foi possível montar a frota", { description: error.message });
+      return;
+    }
+    const kept = (data as any)?.kept ?? n;
+    toast.success(`Frota montada com ${kept} veículos`);
+    setFleetDone(kept);
+    setTimeout(() => window.location.reload(), 400);
+  };
+
 
   // Atalhos de teclado
   useEffect(() => {
@@ -106,10 +134,16 @@ export default function GuidedTour() {
             </div>
           </div>
 
-          {/* Cartão central */}
-          <div className="flex-1 flex items-center justify-center px-4 py-8 sm:py-10">
+          {/* Cartão central — clicar fora esconde o overlay para explorar a tela real */}
+          <div
+            className="flex-1 flex items-center justify-center px-4 py-8 sm:py-10"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) hideOverlay();
+            }}
+          >
             <div
               key={step.id}
+              onClick={(e) => e.stopPropagation()}
               className="relative w-full max-w-3xl animate-fade-in"
               style={{
                 background: "linear-gradient(180deg, #ffffff 0%, #faf7f0 100%)",
@@ -125,6 +159,34 @@ export default function GuidedTour() {
                 className="absolute inset-x-10 top-0 h-[3px] rounded-b-full"
                 style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }}
               />
+
+              {/* Bloco NOSSA MISSÃO (frase completa apenas fora do intro) */}
+              {step.kind !== "intro" && (
+                <div
+                  className="mb-6 pb-4 border-b"
+                  style={{ borderColor: "rgba(154,122,58,0.2)" }}
+                >
+                  <div
+                    className="text-[9.5px] font-semibold tracking-[0.32em] uppercase mb-1.5"
+                    style={{ color: GOLD }}
+                  >
+                    Nossa Missão
+                  </div>
+                  <p
+                    className="leading-snug"
+                    style={{
+                      color: "rgba(13,29,46,0.72)",
+                      fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                      fontSize: "clamp(11.5px, 1vw, 12.5px)",
+                      fontWeight: 500,
+                      maxWidth: "62ch",
+                    }}
+                  >
+                    {MISSION}
+                  </p>
+                </div>
+              )}
+
 
               <div className="flex items-center gap-3 mb-5">
                 <span
@@ -167,18 +229,26 @@ export default function GuidedTour() {
                     </h2>
                   )}
                   {step.statement && (
-                    <p
-                      className="mt-6 leading-[1.25]"
-                      style={{
-                        color: NAVY,
-                        fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
-                        fontSize: "clamp(18px, 2.1vw, 24px)",
-                        fontWeight: 600,
-                        maxWidth: "58ch",
-                      }}
-                    >
-                      {step.statement}
-                    </p>
+                    <div className="mt-6">
+                      <div
+                        className="text-[9.5px] font-semibold tracking-[0.32em] uppercase mb-2"
+                        style={{ color: GOLD }}
+                      >
+                        Nossa Missão
+                      </div>
+                      <p
+                        className="leading-[1.25]"
+                        style={{
+                          color: NAVY,
+                          fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                          fontSize: "clamp(18px, 2.1vw, 24px)",
+                          fontWeight: 600,
+                          maxWidth: "58ch",
+                        }}
+                      >
+                        {step.statement}
+                      </p>
+                    </div>
                   )}
                 </div>
               ) : (
@@ -251,6 +321,92 @@ export default function GuidedTour() {
                 {step.teaser}
               </p>
 
+              {/* Caixa "quantos carros" — apenas no ato de abertura */}
+              {step.kind === "intro" && (
+                <div
+                  className="mt-8 rounded-2xl overflow-hidden"
+                  style={{
+                    background: `linear-gradient(180deg, ${NAVY} 0%, #0a1726 100%)`,
+                    border: `1px solid ${GOLD}`,
+                    boxShadow: "0 20px 40px -20px rgba(0,0,0,0.35), 0 0 0 1px rgba(154,122,58,0.15) inset",
+                  }}
+                >
+                  <div className="p-5 sm:p-6">
+                    <div
+                      className="flex items-center gap-2 text-[9.5px] font-semibold tracking-[0.28em] uppercase mb-2"
+                      style={{ color: GOLD }}
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      Personalizar demonstração
+                    </div>
+                    <div
+                      className="leading-snug mb-4"
+                      style={{
+                        color: "#f4ead1",
+                        fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                        fontSize: "clamp(17px, 1.9vw, 21px)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Quantos carros você tem na frota hoje?
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
+                      <input
+                        type="number"
+                        min={1}
+                        max={105}
+                        value={fleetCount}
+                        onChange={(e) => setFleetCount(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") void handleBuildFleet();
+                        }}
+                        disabled={fleetBusy}
+                        placeholder="Ex: 15"
+                        className="h-11 w-full sm:w-32 rounded-md px-3 text-[15px] tabular-nums outline-none transition-colors"
+                        style={{
+                          background: "rgba(255,255,255,0.06)",
+                          border: `1px solid rgba(154,122,58,0.45)`,
+                          color: "#faf7f0",
+                          fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                          fontWeight: 600,
+                        }}
+                      />
+                      <button
+                        onClick={handleBuildFleet}
+                        disabled={fleetBusy}
+                        className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-md text-[13px] font-semibold transition-transform hover:-translate-y-[1px] disabled:opacity-60 disabled:cursor-not-allowed"
+                        style={{
+                          background: GOLD,
+                          color: NAVY,
+                          border: `1px solid ${GOLD}`,
+                        }}
+                      >
+                        {fleetBusy ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3.5 w-3.5" />
+                        )}
+                        {fleetBusy ? "Montando..." : "Montar minha frota"}
+                      </button>
+                      {fleetDone != null && !fleetBusy && (
+                        <span
+                          className="text-[11.5px] font-medium tracking-wide"
+                          style={{ color: "#d6bf86" }}
+                        >
+                          Frota com {fleetDone} veículos pronta.
+                        </span>
+                      )}
+                    </div>
+                    <p
+                      className="mt-3 text-[11px] leading-relaxed"
+                      style={{ color: "rgba(244,234,209,0.55)" }}
+                    >
+                      A IA seleciona um mix representativo: campeões, medianos e caroços da mesma frota, para o tamanho digitado (1 a 105).
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Ações */}
               <div className="mt-8 flex flex-wrap items-center gap-2 sm:gap-3">
                 <button
@@ -274,26 +430,22 @@ export default function GuidedTour() {
                     background: NAVY,
                     color: GOLD,
                     border: `1px solid ${GOLD}`,
+                    boxShadow:
+                      step.kind === "intro" && fleetDone != null
+                        ? `0 0 0 3px ${GOLD}33`
+                        : undefined,
                   }}
                 >
                   {index === total - 1 ? "Encerrar" : "Avançar"}
                   {index < total - 1 && <ArrowRight className="h-3.5 w-3.5" />}
                 </button>
 
-                <div className="ml-auto flex items-center gap-2">
-                  <button
-                    onClick={hideOverlay}
-                    className="inline-flex items-center gap-1.5 h-10 px-4 rounded-md text-[12.5px] font-medium transition-colors"
-                    style={{
-                      color: NAVY,
-                      background: `${GOLD}22`,
-                      border: `1px solid ${GOLD}`,
-                    }}
-                  >
-                    <Eye className="h-3.5 w-3.5" />
-                    Explorar ao vivo
-                  </button>
-                </div>
+                <span
+                  className="ml-auto text-[11px] leading-tight text-right"
+                  style={{ color: "rgba(13,29,46,0.55)" }}
+                >
+                  Clique fora do cartão para explorar esta tela ao vivo.
+                </span>
               </div>
 
               {/* Progresso */}
