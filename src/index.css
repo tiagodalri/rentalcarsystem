@@ -346,13 +346,19 @@
     box-shadow: 0 1px 0 hsl(var(--border) / 0.4), 0 8px 24px -18px hsl(0 0% 0% / 0.15);
   }
   .admin-kpi {
-    @apply text-[22px] leading-[1.05] font-light text-foreground tabular-nums tracking-[-0.01em];
+    font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+    font-variant-numeric: tabular-nums;
+    @apply text-[26px] lg:text-[30px] leading-[1.05] font-bold text-foreground tracking-[-0.02em];
   }
   .admin-kpi-sm {
-    @apply text-lg leading-[1.05] font-light text-foreground tabular-nums tracking-[-0.01em];
+    font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+    font-variant-numeric: tabular-nums;
+    @apply text-lg leading-[1.05] font-semibold text-foreground tracking-[-0.015em];
   }
   .admin-number {
-    @apply font-normal tabular-nums tracking-[-0.005em];
+    font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+    font-variant-numeric: tabular-nums;
+    @apply font-semibold tracking-[-0.01em];
   }
   .admin-muted {
     @apply text-muted-foreground/80;
