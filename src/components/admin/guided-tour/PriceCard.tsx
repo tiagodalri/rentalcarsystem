@@ -104,27 +104,13 @@ export default function PriceCard({
           >
             Ato {index + 1} de {total} · {step.bullet}
           </span>
-          {step.climax && (
-            <span
-              className="text-[9px] font-semibold tracking-[0.2em] uppercase px-2 py-0.5 rounded-full"
-              style={{
-                background: "rgba(154,122,58,0.15)",
-                color: GOLD_SOFT,
-                border: `1px solid ${GOLD}`,
-              }}
-            >
-              Clímax
-            </span>
-          )}
         </div>
 
         {/* Título */}
         <h2
           style={{
             color: OFFWHITE,
-            fontSize: step.climax
-              ? "clamp(26px, 3.8vw, 40px)"
-              : "clamp(22px, 3.2vw, 34px)",
+            fontSize: "clamp(22px, 3.2vw, 34px)",
             fontWeight: 700,
             lineHeight: 1.12,
             letterSpacing: "-0.02em",
@@ -228,10 +214,27 @@ function renderVariant(v: TourStep["priceVariant"], x: Vars) {
   switch (v) {
     case "combined":
       return (
-        <Paragraph>
-          No fim eu só te peço um sim ou não. Não tem problema se for não. Só
-          não pode ser talvez, porque a condição é de agora.
-        </Paragraph>
+        <div className="space-y-8">
+          <Paragraph>
+            No final, eu só te peço uma decisão:
+          </Paragraph>
+          <div
+            style={{
+              fontSize: "clamp(32px, 5vw, 56px)",
+              fontWeight: 800,
+              lineHeight: 1.05,
+              letterSpacing: "-0.03em",
+              color: GOLD_SOFT,
+              fontVariantNumeric: "tabular-nums",
+              textAlign: "center",
+            }}
+          >
+            SIM ou NÃO.
+          </div>
+          <Paragraph>
+            Não tem problema nenhum se for não. Só não pode ser talvez, porque a condição que você vai ver é de agora.
+          </Paragraph>
+        </div>
       );
 
     case "investment":
@@ -345,11 +348,14 @@ function renderVariant(v: TourStep["priceVariant"], x: Vars) {
 
     case "turn":
       return (
-        <Paragraph>
-          A gente está estruturando a GoDalz aqui nos Estados Unidos, agora. E
-          por isso existe uma condição pra crescer junto com as primeiras
-          operações.
-        </Paragraph>
+        <div className="space-y-5">
+          <Paragraph>
+            Estamos implantando o sistema aqui agora e montando o plano de crescimento.
+          </Paragraph>
+          <Paragraph>
+            Por isso existe uma condição de fundador, só para as primeiras operações que entram com a gente.
+          </Paragraph>
+        </div>
       );
 
     case "founder":
@@ -433,9 +439,9 @@ function renderVariant(v: TourStep["priceVariant"], x: Vars) {
 
     case "decision":
       return (
-        <div className="space-y-6">
-          <div>
-            <Label>Se for sim</Label>
+        <div className="space-y-10">
+          <div className="space-y-4">
+            <BigLabel>SE FOR SIM</BigLabel>
             <Paragraph>
               Parabéns. Você acaba de colocar na sua frota o melhor sistema de
               administração de locadoras, com inteligência artificial e métricas
@@ -444,10 +450,10 @@ function renderVariant(v: TourStep["priceVariant"], x: Vars) {
             </Paragraph>
           </div>
           <div
-            className="pt-5 border-t"
+            className="pt-8 border-t space-y-4"
             style={{ borderColor: "rgba(154,122,58,0.25)" }}
           >
-            <Label>Se for não</Label>
+            <BigLabel>SE FOR NÃO</BigLabel>
             <Paragraph>
               Tudo bem, seguimos juntos do mesmo jeito. Só não consigo te
               garantir esse valor: a cada operação que fecha, o preço sobe,
@@ -469,6 +475,17 @@ function Label({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="text-[10px] font-semibold tracking-[0.32em] uppercase mb-2"
+      style={{ color: GOLD }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function BigLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="text-[11px] font-semibold tracking-[0.28em] uppercase"
       style={{ color: GOLD }}
     >
       {children}

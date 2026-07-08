@@ -13,8 +13,6 @@ export interface TourStep {
   pains: string[];
   /** Linha de fecho. */
   teaser: string;
-  /** Clímax recebe destaque extra. */
-  climax?: boolean;
   /** Layout especial. "intro" abre o tour; "price" entra na Sala de Fechamento (tema escuro). */
   kind?: "intro" | "price";
   eyebrow?: string;
@@ -113,18 +111,18 @@ export const TOUR_STEPS: TourStep[] = [
       "E projeta quanto você ganharia a mais, com os seus números.",
     ],
     teaser: "A decisão que levava meses de conta, agora na palma da mão.",
-    climax: true,
   },
   {
     id: "fechamento",
     bullet: "Fechamento",
     route: "/admin/frota-inteligente",
-    title: "Continuar no escuro, ou crescer com dados?",
+    title: "Agora, a melhor parte.",
     pains: [
-      "Antes, decisão no achismo.",
-      "Agora, cada escolha com número por trás.",
+      "Cada carro da sua frota sob controle, ao vivo.",
+      "Cada real de lucro e de custo, visível pela primeira vez.",
+      "A inteligência te dizendo, toda semana, o que fazer.",
     ],
-    teaser: "A inteligência já está pronta. Falta você usar.",
+    teaser: "Agora vamos falar de quanto custa colocar tudo isso na sua operação. Prepara, porque o número vai te surpreender.",
   },
   {
     id: "preco-combinado",
@@ -162,7 +160,7 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/admin/frota-inteligente",
     kind: "price",
     priceVariant: "turn",
-    title: "Só que não é assim que a gente trabalha.",
+    title: "A GoDalz está em expansão nos Estados Unidos.",
     pains: [],
     teaser: "",
   },
@@ -175,7 +173,6 @@ export const TOUR_STEPS: TourStep[] = [
     title: "A sua condição de fundador.",
     pains: [],
     teaser: "",
-    climax: true,
   },
   {
     id: "preco-manutencao",
@@ -193,9 +190,8 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/admin/frota-inteligente",
     kind: "price",
     priceVariant: "decision",
-    title: "Como a gente combinou: sim ou não.",
+    title: "A decisão que combinamos no começo.",
     pains: [],
     teaser: "",
-    climax: true,
   },
 ];
