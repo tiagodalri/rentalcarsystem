@@ -126,6 +126,16 @@ export const TOUR_STEPS: TourStep[] = [
     teaser: "Agora vamos falar de quanto custa colocar tudo isso na sua operação. Prepara, porque o número vai te surpreender.",
   },
   {
+    id: "preco-confirmacao",
+    bullet: "Confirmação",
+    route: "/admin/frota-inteligente",
+    kind: "price",
+    priceVariant: "confirmacao",
+    title: "Antes de falar de preço, me responde com sinceridade.",
+    pains: [],
+    teaser: "",
+  },
+  {
     id: "preco-combinado",
     bullet: "Combinado",
     route: "/admin/frota-inteligente",
