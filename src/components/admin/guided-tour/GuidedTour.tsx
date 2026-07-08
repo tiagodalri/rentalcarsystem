@@ -420,7 +420,7 @@ export default function GuidedTour() {
                       style={{ color: GOLD }}
                     >
                       <Sparkles className="h-3 w-3" />
-                      Personalizar demonstração
+                      Personalizar sua frota
                     </div>
                     <div
                       className="leading-snug mb-4"
