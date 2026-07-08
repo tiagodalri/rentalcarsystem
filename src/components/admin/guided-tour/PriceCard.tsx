@@ -104,27 +104,13 @@ export default function PriceCard({
           >
             Ato {index + 1} de {total} · {step.bullet}
           </span>
-          {step.climax && (
-            <span
-              className="text-[9px] font-semibold tracking-[0.2em] uppercase px-2 py-0.5 rounded-full"
-              style={{
-                background: "rgba(154,122,58,0.15)",
-                color: GOLD_SOFT,
-                border: `1px solid ${GOLD}`,
-              }}
-            >
-              Clímax
-            </span>
-          )}
         </div>
 
         {/* Título */}
         <h2
           style={{
             color: OFFWHITE,
-            fontSize: step.climax
-              ? "clamp(26px, 3.8vw, 40px)"
-              : "clamp(22px, 3.2vw, 34px)",
+            fontSize: "clamp(22px, 3.2vw, 34px)",
             fontWeight: 700,
             lineHeight: 1.12,
             letterSpacing: "-0.02em",
