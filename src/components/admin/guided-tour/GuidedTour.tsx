@@ -134,10 +134,16 @@ export default function GuidedTour() {
             </div>
           </div>
 
-          {/* Cartão central */}
-          <div className="flex-1 flex items-center justify-center px-4 py-8 sm:py-10">
+          {/* Cartão central — clicar fora esconde o overlay para explorar a tela real */}
+          <div
+            className="flex-1 flex items-center justify-center px-4 py-8 sm:py-10"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) hideOverlay();
+            }}
+          >
             <div
               key={step.id}
+              onClick={(e) => e.stopPropagation()}
               className="relative w-full max-w-3xl animate-fade-in"
               style={{
                 background: "linear-gradient(180deg, #ffffff 0%, #faf7f0 100%)",
@@ -153,6 +159,34 @@ export default function GuidedTour() {
                 className="absolute inset-x-10 top-0 h-[3px] rounded-b-full"
                 style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }}
               />
+
+              {/* Bloco NOSSA MISSÃO (frase completa apenas fora do intro) */}
+              {step.kind !== "intro" && (
+                <div
+                  className="mb-6 pb-4 border-b"
+                  style={{ borderColor: "rgba(154,122,58,0.2)" }}
+                >
+                  <div
+                    className="text-[9.5px] font-semibold tracking-[0.32em] uppercase mb-1.5"
+                    style={{ color: GOLD }}
+                  >
+                    Nossa Missão
+                  </div>
+                  <p
+                    className="leading-snug"
+                    style={{
+                      color: "rgba(13,29,46,0.72)",
+                      fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                      fontSize: "clamp(11.5px, 1vw, 12.5px)",
+                      fontWeight: 500,
+                      maxWidth: "62ch",
+                    }}
+                  >
+                    {MISSION}
+                  </p>
+                </div>
+              )}
+
 
               <div className="flex items-center gap-3 mb-5">
                 <span
