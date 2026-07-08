@@ -229,18 +229,26 @@ export default function GuidedTour() {
                     </h2>
                   )}
                   {step.statement && (
-                    <p
-                      className="mt-6 leading-[1.25]"
-                      style={{
-                        color: NAVY,
-                        fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
-                        fontSize: "clamp(18px, 2.1vw, 24px)",
-                        fontWeight: 600,
-                        maxWidth: "58ch",
-                      }}
-                    >
-                      {step.statement}
-                    </p>
+                    <div className="mt-6">
+                      <div
+                        className="text-[9.5px] font-semibold tracking-[0.32em] uppercase mb-2"
+                        style={{ color: GOLD }}
+                      >
+                        Nossa Missão
+                      </div>
+                      <p
+                        className="leading-[1.25]"
+                        style={{
+                          color: NAVY,
+                          fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                          fontSize: "clamp(18px, 2.1vw, 24px)",
+                          fontWeight: 600,
+                          maxWidth: "58ch",
+                        }}
+                      >
+                        {step.statement}
+                      </p>
+                    </div>
                   )}
                 </div>
               ) : (
