@@ -393,59 +393,123 @@ export default function GuidedTour() {
                     >
                       Quantos carros você tem na frota hoje?
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
-                      <input
-                        type="number"
-                        min={1}
-                        max={105}
-                        value={fleetCount}
-                        onChange={(e) => setFleetCount(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") void handleBuildFleet();
-                        }}
-                        disabled={fleetBusy}
-                        placeholder="Ex: 15"
-                        className="h-11 w-full sm:w-32 rounded-md px-3 text-[15px] tabular-nums outline-none transition-colors"
+                    {fleetBusy ? (
+                      <div
+                        className="rounded-xl p-5 animate-fade-in"
                         style={{
-                          background: "rgba(255,255,255,0.06)",
-                          border: `1px solid rgba(154,122,58,0.45)`,
-                          color: "#faf7f0",
-                          fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
-                          fontWeight: 600,
+                          background: "rgba(255,255,255,0.04)",
+                          border: `1px solid rgba(154,122,58,0.35)`,
                         }}
-                      />
-                      <button
-                        onClick={handleBuildFleet}
-                        disabled={fleetBusy}
-                        className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-md text-[13px] font-semibold transition-transform hover:-translate-y-[1px] disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        <div className="flex items-center gap-3 mb-3">
+                          <Loader2 className="h-4 w-4 animate-spin" style={{ color: GOLD }} />
+                          <span
+                            className="text-[13px] font-semibold"
+                            style={{ color: "#f4ead1", fontFamily: "'Urbanist', 'Inter', sans-serif" }}
+                          >
+                            Montando sua frota...
+                          </span>
+                          <span
+                            className="ml-auto text-[12px] tabular-nums font-semibold"
+                            style={{ color: GOLD }}
+                          >
+                            {fleetProgress}%
+                          </span>
+                        </div>
+                        <div
+                          className="h-[6px] w-full rounded-full overflow-hidden mb-3"
+                          style={{ background: "rgba(255,255,255,0.08)" }}
+                        >
+                          <div
+                            className="h-full transition-all duration-300 ease-out"
+                            style={{
+                              width: `${fleetProgress}%`,
+                              background: `linear-gradient(90deg, ${GOLD}, #d6bf86)`,
+                              boxShadow: `0 0 12px ${GOLD}66`,
+                            }}
+                          />
+                        </div>
+                        <div
+                          className="text-[11.5px] tracking-wide"
+                          style={{ color: "rgba(244,234,209,0.7)" }}
+                        >
+                          {fleetStage}
+                        </div>
+                      </div>
+                    ) : fleetDone != null ? (
+                      <div
+                        className="rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3 animate-fade-in"
                         style={{
-                          background: GOLD,
-                          color: NAVY,
+                          background: "rgba(154,122,58,0.10)",
                           border: `1px solid ${GOLD}`,
                         }}
                       >
-                        {fleetBusy ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Sparkles className="h-3.5 w-3.5" />
-                        )}
-                        {fleetBusy ? "Montando..." : "Montar minha frota"}
-                      </button>
-                      {fleetDone != null && !fleetBusy && (
-                        <span
-                          className="text-[11.5px] font-medium tracking-wide"
-                          style={{ color: "#d6bf86" }}
+                        <div
+                          className="inline-flex items-center justify-center h-9 w-9 rounded-full shrink-0"
+                          style={{ background: GOLD, color: NAVY }}
                         >
-                          Frota com {fleetDone} veículos pronta.
-                        </span>
-                      )}
-                    </div>
-                    <p
-                      className="mt-3 text-[11px] leading-relaxed"
-                      style={{ color: "rgba(244,234,209,0.55)" }}
-                    >
-                      A IA seleciona um mix representativo: campeões, medianos e caroços da mesma frota, para o tamanho digitado (1 a 105).
-                    </p>
+                          <Check className="h-5 w-5" strokeWidth={3} />
+                        </div>
+                        <div className="flex-1">
+                          <div
+                            className="text-[13.5px] font-semibold"
+                            style={{ color: "#f4ead1", fontFamily: "'Urbanist', 'Inter', sans-serif" }}
+                          >
+                            Frota criada
+                          </div>
+                          <div className="text-[11.5px]" style={{ color: "rgba(244,234,209,0.7)" }}>
+                            {fleetDone} veículos prontos para a demonstração.
+                          </div>
+                        </div>
+                        <button
+                          onClick={next}
+                          className="inline-flex items-center justify-center gap-2 h-11 px-6 rounded-md text-[13px] font-semibold transition-transform hover:-translate-y-[1px]"
+                          style={{
+                            background: GOLD,
+                            color: NAVY,
+                            border: `1px solid ${GOLD}`,
+                            boxShadow: `0 0 0 3px ${GOLD}33`,
+                          }}
+                        >
+                          Iniciar
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
+                        <input
+                          type="number"
+                          min={1}
+                          max={105}
+                          value={fleetCount}
+                          onChange={(e) => setFleetCount(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") void handleBuildFleet();
+                          }}
+                          placeholder="Ex: 15"
+                          className="h-11 w-full sm:w-32 rounded-md px-3 text-[15px] tabular-nums outline-none transition-colors"
+                          style={{
+                            background: "rgba(255,255,255,0.06)",
+                            border: `1px solid rgba(154,122,58,0.45)`,
+                            color: "#faf7f0",
+                            fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                            fontWeight: 600,
+                          }}
+                        />
+                        <button
+                          onClick={handleBuildFleet}
+                          className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-md text-[13px] font-semibold transition-transform hover:-translate-y-[1px]"
+                          style={{
+                            background: GOLD,
+                            color: NAVY,
+                            border: `1px solid ${GOLD}`,
+                          }}
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                          Montar minha frota
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
