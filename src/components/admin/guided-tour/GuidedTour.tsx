@@ -22,11 +22,23 @@ const MISSION =
 export default function GuidedTour() {
   const { active, overlayVisible, index, next, prev, goTo, stop, hideOverlay, showOverlay } =
     useGuidedTour();
+  const queryClient = useQueryClient();
 
   const step = TOUR_STEPS[index];
   const [fleetCount, setFleetCount] = useState<string>("15");
   const [fleetBusy, setFleetBusy] = useState(false);
   const [fleetDone, setFleetDone] = useState<number | null>(null);
+  const [fleetProgress, setFleetProgress] = useState(0);
+  const [fleetStage, setFleetStage] = useState<string>("");
+  const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const stageTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearTimers = () => {
+    if (progressTimer.current) { clearInterval(progressTimer.current); progressTimer.current = null; }
+    if (stageTimer.current) { clearInterval(stageTimer.current); stageTimer.current = null; }
+  };
+
+  useEffect(() => () => clearTimers(), []);
 
   const handleBuildFleet = async () => {
     const n = parseInt(fleetCount, 10);
@@ -35,16 +47,43 @@ export default function GuidedTour() {
       return;
     }
     setFleetBusy(true);
+    setFleetDone(null);
+    setFleetProgress(4);
+    const stages = ["Analisando veículos", "Agrupando métricas", "Montando o cenário"];
+    setFleetStage(stages[0]);
+    let stageIdx = 0;
+    stageTimer.current = setInterval(() => {
+      stageIdx = (stageIdx + 1) % stages.length;
+      setFleetStage(stages[stageIdx]);
+    }, 900);
+    progressTimer.current = setInterval(() => {
+      setFleetProgress((p) => (p < 90 ? p + Math.max(1, Math.round((92 - p) / 12)) : p));
+    }, 180);
+
+    const startedAt = Date.now();
     const { data, error } = await supabase.rpc("demo_start_presentation" as any, { p_count: n });
+
+    // Tempo mínimo de 2s pra dar sensação de gamificação
+    const elapsed = Date.now() - startedAt;
+    if (elapsed < 2000) await new Promise((r) => setTimeout(r, 2000 - elapsed));
+
+    clearTimers();
+
     if (error) {
       setFleetBusy(false);
+      setFleetProgress(0);
+      setFleetStage("");
       toast.error("Não foi possível montar a frota", { description: error.message });
       return;
     }
+
+    setFleetProgress(100);
     const kept = (data as any)?.kept ?? n;
-    toast.success(`Frota montada com ${kept} veículos`);
     setFleetDone(kept);
-    setTimeout(() => window.location.reload(), 400);
+    setFleetBusy(false);
+    setFleetStage("Frota criada");
+    // Atualiza dados por baixo — sem recarregar a página
+    await queryClient.invalidateQueries();
   };
 
 
