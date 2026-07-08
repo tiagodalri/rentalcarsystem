@@ -23,6 +23,29 @@ export default function GuidedTour() {
     useGuidedTour();
 
   const step = TOUR_STEPS[index];
+  const [fleetCount, setFleetCount] = useState<string>("15");
+  const [fleetBusy, setFleetBusy] = useState(false);
+  const [fleetDone, setFleetDone] = useState<number | null>(null);
+
+  const handleBuildFleet = async () => {
+    const n = parseInt(fleetCount, 10);
+    if (!Number.isFinite(n) || n < 1 || n > 105) {
+      toast.error("Digite um número entre 1 e 105");
+      return;
+    }
+    setFleetBusy(true);
+    const { data, error } = await supabase.rpc("demo_start_presentation" as any, { p_count: n });
+    if (error) {
+      setFleetBusy(false);
+      toast.error("Não foi possível montar a frota", { description: error.message });
+      return;
+    }
+    const kept = (data as any)?.kept ?? n;
+    toast.success(`Frota montada com ${kept} veículos`);
+    setFleetDone(kept);
+    setTimeout(() => window.location.reload(), 400);
+  };
+
 
   // Atalhos de teclado
   useEffect(() => {
