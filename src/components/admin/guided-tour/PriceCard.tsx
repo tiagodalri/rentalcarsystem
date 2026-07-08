@@ -212,6 +212,18 @@ interface Vars {
 
 function renderVariant(v: TourStep["priceVariant"], x: Vars) {
   switch (v) {
+    case "confirmacao":
+      return (
+        <div className="space-y-8">
+          <Paragraph>
+            Tudo isso que você viu — o controle, a gestão, a inteligência — faz sentido pra sua operação hoje?
+          </Paragraph>
+          <Paragraph>
+            Ia te dar mais controle, mais segurança e mais lucro?
+          </Paragraph>
+        </div>
+      );
+
     case "combined":
       return (
         <div className="space-y-8">
