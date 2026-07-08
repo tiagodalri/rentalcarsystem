@@ -373,18 +373,19 @@
   letter-spacing: -0.008em;
 }
 
-/* Headings inside admin: editorial serif for page/section titles */
+/* Headings inside admin: sans moderna consistente (Urbanist) */
 .admin-shell h1 {
-  font-family: 'Instrument Serif', Georgia, serif;
-  @apply text-[26px] lg:text-[32px] font-normal tracking-[-0.005em] leading-[1.1];
+  font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+  @apply text-[24px] lg:text-[30px] font-bold tracking-[-0.02em] leading-[1.1];
 }
 .admin-shell h2 {
-  font-family: 'Instrument Serif', Georgia, serif;
-  @apply text-[19px] lg:text-[22px] font-normal tracking-[-0.003em] leading-[1.2];
+  font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+  @apply text-[18px] lg:text-[21px] font-semibold tracking-[-0.015em] leading-[1.2];
 }
 .admin-shell h3 {
-  font-weight: 500;
-  letter-spacing: -0.003em;
+  font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.012em;
 }
 
 /* Smooth entrance for direct main children (progressive editorial reveal) */
