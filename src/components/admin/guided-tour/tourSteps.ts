@@ -42,7 +42,7 @@ export const TOUR_STEPS: TourStep[] = [
       "Não entregamos um sistema. Entregamos visão, informação e escala pra sua operação.",
     title: "",
     pains: [
-      "Especialistas em transformar operação em dados.",
+      "Especialistas em transformar dados em decisões.",
       "O que hoje vive espalhado e desorganizado, a gente vira decisão.",
       "Métricas agrupadas de um jeito que nenhuma plataforma entrega.",
     ],
