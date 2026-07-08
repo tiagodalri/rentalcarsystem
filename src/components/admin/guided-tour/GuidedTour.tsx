@@ -11,7 +11,7 @@ import PriceCard from "./PriceCard";
 const NAVY = "#0d1d2e";
 const GOLD = "#9a7a3a";
 const MISSION =
-  "Não entregamos um sistema. Entregamos visão, informação e escala pra sua operação.";
+  "Não entregamos apenas um sistema. Nós entregamos visão, informação, controle e escala pra sua operação.";
 
 
 /**
