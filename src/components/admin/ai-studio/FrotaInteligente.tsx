@@ -109,8 +109,8 @@ export default function FrotaInteligente({
               Inteligência de frota
             </div>
             <h1
-              className="text-[20px] sm:text-[24px] leading-tight font-light tracking-[-0.01em] mt-0.5"
-              style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+              className="text-[20px] sm:text-[26px] leading-tight font-bold tracking-[-0.025em] mt-0.5"
+              style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
             >
               Frota Inteligente
             </h1>
