@@ -59,7 +59,7 @@ export default function ComingSoonModule({ title, description, bullets, onBack }
 
           <h1
             className="text-[28px] sm:text-[38px] leading-tight font-light tracking-[-0.01em]"
-            style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+            style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
           >
             {title}
           </h1>

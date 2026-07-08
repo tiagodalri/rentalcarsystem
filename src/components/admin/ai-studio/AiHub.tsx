@@ -85,7 +85,7 @@ export default function AiHub({ onOpenMarketing, onOpenIa, onOpenFrotaInteligent
         </div>
         <h1
           className="mt-2 text-[22px] sm:text-[26px] lg:text-[32px] leading-[1.1] font-light tracking-[-0.01em]"
-          style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+          style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
         >
           Para onde vamos hoje?
         </h1>
@@ -164,7 +164,7 @@ export default function AiHub({ onOpenMarketing, onOpenIa, onOpenFrotaInteligent
               <div className="flex items-start justify-between gap-3">
                 <h3
                   className="text-[16px] sm:text-[18px] leading-tight font-light tracking-[-0.005em]"
-                  style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+                  style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
                 >
                   {title}
                 </h3>

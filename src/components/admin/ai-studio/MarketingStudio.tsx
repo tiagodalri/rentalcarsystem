@@ -41,7 +41,7 @@ export default function MarketingStudio({ onBack }: Props) {
         </div>
         <h1
           className="mt-2 text-[24px] sm:text-[30px] font-light tracking-[-0.01em]"
-          style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+          style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
         >
           O estudio criativo da Zeus
         </h1>
@@ -80,7 +80,7 @@ export default function MarketingStudio({ onBack }: Props) {
           </div>
           <h3
             className="mt-3 text-[20px] font-light"
-            style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+            style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
           >
             Posts para redes sociais
           </h3>
@@ -118,7 +118,7 @@ export default function MarketingStudio({ onBack }: Props) {
           </div>
           <h3
             className="mt-3 text-[20px] font-light"
-            style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+            style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
           >
             Histórico de artes
           </h3>
@@ -143,7 +143,7 @@ export default function MarketingStudio({ onBack }: Props) {
           </span>
           <h3
             className="mt-3 text-[20px] font-light"
-            style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+            style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
           >
             Mais em breve
           </h3>

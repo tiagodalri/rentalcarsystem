@@ -2165,12 +2165,13 @@ function HeroKpi({
           </div>
         </div>
         <div
-          className="tabular-nums font-light leading-none"
+          className="tabular-nums font-bold leading-none"
           style={{
             color: accent,
             fontSize: "clamp(28px, 5vw, 40px)",
-            fontFamily: "'Cormorant Garamond', 'Times New Roman', serif",
-            letterSpacing: "-0.01em",
+            fontFamily: "'Urbanist', 'Inter', system-ui, -apple-system, sans-serif",
+            fontVariantNumeric: "tabular-nums",
+            letterSpacing: "-0.025em",
           }}
         >
           {big}

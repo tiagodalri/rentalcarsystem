@@ -144,12 +144,12 @@ export default function GuidedTour() {
               </div>
 
               <h2
-                className="font-serif leading-[1.1] tracking-tight"
+                className="leading-[1.05] tracking-[-0.025em]"
                 style={{
                   color: NAVY,
-                  fontFamily: '"Cormorant Garamond", "Playfair Display", Georgia, serif',
-                  fontSize: step.climax ? "clamp(32px, 5vw, 52px)" : "clamp(28px, 4.4vw, 44px)",
-                  fontWeight: 600,
+                  fontFamily: "'Urbanist', 'Inter', system-ui, -apple-system, sans-serif",
+                  fontSize: step.climax ? "clamp(30px, 4.6vw, 46px)" : "clamp(26px, 4vw, 40px)",
+                  fontWeight: 700,
                 }}
               >
                 {step.headline}

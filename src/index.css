@@ -311,14 +311,15 @@
    Scoped to .admin-shell so it never touches the public site.
    ============================================================ */
 @layer components {
-  /* Reusable typography utilities — explicit use in admin pages */
+  /* Reusable typography utilities — explicit use in admin pages.
+     100% sans (Urbanist) para cara de produto SaaS moderno. */
   .admin-h1 {
-    font-family: 'Instrument Serif', Georgia, serif;
-    @apply text-[26px] lg:text-[32px] font-normal text-foreground leading-[1.1] tracking-[-0.005em];
+    font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+    @apply text-[24px] lg:text-[30px] font-bold text-foreground leading-[1.1] tracking-[-0.02em];
   }
   .admin-h2 {
-    font-family: 'Instrument Serif', Georgia, serif;
-    @apply text-[19px] lg:text-[22px] font-normal text-foreground leading-[1.2] tracking-[-0.003em];
+    font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+    @apply text-[18px] lg:text-[21px] font-semibold text-foreground leading-[1.2] tracking-[-0.015em];
   }
   .admin-section-title {
     @apply text-[11px] font-medium text-foreground uppercase tracking-[0.2em];
@@ -345,13 +346,19 @@
     box-shadow: 0 1px 0 hsl(var(--border) / 0.4), 0 8px 24px -18px hsl(0 0% 0% / 0.15);
   }
   .admin-kpi {
-    @apply text-[22px] leading-[1.05] font-light text-foreground tabular-nums tracking-[-0.01em];
+    font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+    font-variant-numeric: tabular-nums;
+    @apply text-[26px] lg:text-[30px] leading-[1.05] font-bold text-foreground tracking-[-0.02em];
   }
   .admin-kpi-sm {
-    @apply text-lg leading-[1.05] font-light text-foreground tabular-nums tracking-[-0.01em];
+    font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+    font-variant-numeric: tabular-nums;
+    @apply text-lg leading-[1.05] font-semibold text-foreground tracking-[-0.015em];
   }
   .admin-number {
-    @apply font-normal tabular-nums tracking-[-0.005em];
+    font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+    font-variant-numeric: tabular-nums;
+    @apply font-semibold tracking-[-0.01em];
   }
   .admin-muted {
     @apply text-muted-foreground/80;
@@ -366,18 +373,19 @@
   letter-spacing: -0.008em;
 }
 
-/* Headings inside admin: editorial serif for page/section titles */
+/* Headings inside admin: sans moderna consistente (Urbanist) */
 .admin-shell h1 {
-  font-family: 'Instrument Serif', Georgia, serif;
-  @apply text-[26px] lg:text-[32px] font-normal tracking-[-0.005em] leading-[1.1];
+  font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+  @apply text-[24px] lg:text-[30px] font-bold tracking-[-0.02em] leading-[1.1];
 }
 .admin-shell h2 {
-  font-family: 'Instrument Serif', Georgia, serif;
-  @apply text-[19px] lg:text-[22px] font-normal tracking-[-0.003em] leading-[1.2];
+  font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+  @apply text-[18px] lg:text-[21px] font-semibold tracking-[-0.015em] leading-[1.2];
 }
 .admin-shell h3 {
-  font-weight: 500;
-  letter-spacing: -0.003em;
+  font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.012em;
 }
 
 /* Smooth entrance for direct main children (progressive editorial reveal) */
@@ -642,11 +650,11 @@
   .admin-h1 {
     font-size: 1.375rem !important;
     line-height: 1.15 !important;
-    letter-spacing: -0.015em !important;
+    letter-spacing: -0.02em !important;
   }
   .admin-kpi {
-    font-size: 1.25rem !important;
-    line-height: 1.2 !important;
+    font-size: 1.5rem !important;
+    line-height: 1.15 !important;
   }
 }
 
