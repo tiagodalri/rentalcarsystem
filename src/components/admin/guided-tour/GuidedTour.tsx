@@ -253,12 +253,15 @@ export default function GuidedTour() {
                 </div>
               ) : (
                 <h2
-                  className="leading-[1.05] tracking-[-0.025em]"
                   style={{
                     color: NAVY,
                     fontFamily: "'Urbanist', 'Inter', system-ui, -apple-system, sans-serif",
-                    fontSize: step.climax ? "clamp(30px, 4.6vw, 46px)" : "clamp(26px, 4vw, 40px)",
+                    fontSize: step.climax ? "clamp(26px, 3.8vw, 38px)" : "clamp(22px, 3.2vw, 33px)",
                     fontWeight: 700,
+                    lineHeight: 1.12,
+                    letterSpacing: "-0.02em",
+                    maxWidth: "24ch",
+                    textWrap: "balance",
                   }}
                 >
                   {step.title}
