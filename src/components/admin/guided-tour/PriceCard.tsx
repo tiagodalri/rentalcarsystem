@@ -482,6 +482,17 @@ function Label({ children }: { children: React.ReactNode }) {
   );
 }
 
+function BigLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="text-[11px] font-semibold tracking-[0.28em] uppercase"
+      style={{ color: GOLD }}
+    >
+      {children}
+    </div>
+  );
+}
+
 function HugeNumber({
   children,
   gold,
