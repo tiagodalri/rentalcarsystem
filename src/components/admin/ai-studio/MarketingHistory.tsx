@@ -90,7 +90,7 @@ export default function MarketingHistory({ onBack }: Props) {
           </div>
           <h1
             className="mt-1.5 text-[22px] sm:text-[28px] font-light tracking-[-0.01em]"
-            style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+            style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
           >
             Todas as artes geradas
           </h1>
@@ -256,7 +256,7 @@ export default function MarketingHistory({ onBack }: Props) {
                 </div>
                 <div>
                   <div className="text-[9px] uppercase tracking-[0.28em]" style={{ color: "rgba(13,29,46,0.55)" }}>Frase</div>
-                  <p className="text-[14px] mt-0.5" style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', serif" }}>
+                  <p className="text-[14px] mt-0.5" style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}>
                     {selected.phrase}
                   </p>
                 </div>

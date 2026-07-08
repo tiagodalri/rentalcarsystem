@@ -304,7 +304,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
         </div>
         <h1
           className="mt-1.5 text-[20px] sm:text-[26px] font-light tracking-[-0.01em]"
-          style={{ color: "#0d1d2e", fontFamily: "'Cormorant Garamond', 'Inter', serif" }}
+          style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
         >
           Crie uma arte com a marca em segundos
         </h1>
@@ -737,7 +737,7 @@ export default function SocialPostGenerator({ onBack }: { onBack: () => void }) 
                 <span className="text-[9px] uppercase tracking-[0.28em]" style={{ color: "rgba(214,191,134,0.75)" }}>
                   Frase
                 </span>
-                <p className="text-[13px] mt-0.5" style={{ color: "#fbf7ee", fontFamily: "'Cormorant Garamond', serif" }}>
+                <p className="text-[13px] mt-0.5" style={{ color: "#fbf7ee", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}>
                   {result.phrase}
                 </p>
               </div>
