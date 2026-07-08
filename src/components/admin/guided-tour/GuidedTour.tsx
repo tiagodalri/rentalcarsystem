@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TOUR_STEPS } from "./tourSteps";
 import { useGuidedTour } from "./GuidedTourContext";
+import PriceCard from "./PriceCard";
 
 const NAVY = "#0d1d2e";
 const GOLD = "#9a7a3a";
@@ -175,6 +176,24 @@ export default function GuidedTour() {
           </div>
 
           {/* Cartão central — clicar fora esconde o overlay para explorar a tela real */}
+          {step.kind === "price" ? (
+            <div
+              className="flex-1 flex items-center justify-center"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) hideOverlay();
+              }}
+            >
+              <PriceCard
+                step={step}
+                index={index}
+                total={total}
+                onPrev={prev}
+                onNext={next}
+                onStop={stop}
+                intoFleetCount={parseInt(fleetCount, 10) || 15}
+              />
+            </div>
+          ) : (
           <div
             className="flex-1 flex items-center justify-center px-4 py-8 sm:py-10"
             onClick={(e) => {
@@ -567,6 +586,7 @@ export default function GuidedTour() {
               </div>
             </div>
           </div>
+          )}
         </div>
       )}
 

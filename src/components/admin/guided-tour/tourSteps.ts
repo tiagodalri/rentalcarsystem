@@ -15,11 +15,20 @@ export interface TourStep {
   teaser: string;
   /** Clímax recebe destaque extra. */
   climax?: boolean;
-  /** Layout especial para abertura. */
-  kind?: "intro";
+  /** Layout especial. "intro" abre o tour; "price" entra na Sala de Fechamento (tema escuro). */
+  kind?: "intro" | "price";
   eyebrow?: string;
   brand?: string;
   statement?: string;
+  /** Variante da tela de preço (usada quando kind === "price"). */
+  priceVariant?:
+    | "combined"
+    | "investment"
+    | "loss"
+    | "turn"
+    | "founder"
+    | "maintenance"
+    | "decision";
 }
 
 export const TOUR_STEPS: TourStep[] = [
@@ -116,5 +125,77 @@ export const TOUR_STEPS: TourStep[] = [
       "Agora, cada escolha com número por trás.",
     ],
     teaser: "A inteligência já está pronta. Falta você usar.",
+  },
+  {
+    id: "preco-combinado",
+    bullet: "Combinado",
+    route: "/admin/frota-inteligente",
+    kind: "price",
+    priceVariant: "combined",
+    title: "Antes dos números, um acordo.",
+    pains: [],
+    teaser: "",
+  },
+  {
+    id: "preco-investimento",
+    bullet: "Investimento",
+    route: "/admin/frota-inteligente",
+    kind: "price",
+    priceVariant: "investment",
+    title: "Quanto custa ter um sistema desse nível na sua operação?",
+    pains: [],
+    teaser: "",
+  },
+  {
+    id: "preco-perda",
+    bullet: "Perda",
+    route: "/admin/frota-inteligente",
+    kind: "price",
+    priceVariant: "loss",
+    title: "E quanto isso está te custando, sem você ver?",
+    pains: [],
+    teaser: "",
+  },
+  {
+    id: "preco-virada",
+    bullet: "Virada",
+    route: "/admin/frota-inteligente",
+    kind: "price",
+    priceVariant: "turn",
+    title: "Só que não é assim que a gente trabalha.",
+    pains: [],
+    teaser: "",
+  },
+  {
+    id: "preco-fundador",
+    bullet: "Fundador",
+    route: "/admin/frota-inteligente",
+    kind: "price",
+    priceVariant: "founder",
+    title: "A sua condição de fundador.",
+    pains: [],
+    teaser: "",
+    climax: true,
+  },
+  {
+    id: "preco-manutencao",
+    bullet: "Manutenção",
+    route: "/admin/frota-inteligente",
+    kind: "price",
+    priceVariant: "maintenance",
+    title: "E pra manter tudo rodando, evoluindo e seguro.",
+    pains: [],
+    teaser: "",
+  },
+  {
+    id: "preco-decisao",
+    bullet: "Decisão",
+    route: "/admin/frota-inteligente",
+    kind: "price",
+    priceVariant: "decision",
+    title: "Como a gente combinou: sim ou não.",
+    pains: [],
+    teaser: "",
+    climax: true,
   },
 ];
