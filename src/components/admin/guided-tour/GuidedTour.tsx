@@ -1,11 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, ArrowRight, Compass, Eye, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Compass, Loader2, Sparkles, X } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { TOUR_STEPS } from "./tourSteps";
 import { useGuidedTour } from "./GuidedTourContext";
 
 const NAVY = "#0d1d2e";
 const GOLD = "#9a7a3a";
+const MISSION =
+  "Não entregamos um sistema, entregamos visão, informação e escala da sua operação.";
+
 
 /**
  * GuidedTour — overlay de apresentação do sistema para vendas.
