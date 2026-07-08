@@ -321,6 +321,92 @@ export default function GuidedTour() {
                 {step.teaser}
               </p>
 
+              {/* Caixa "quantos carros" — apenas no ato de abertura */}
+              {step.kind === "intro" && (
+                <div
+                  className="mt-8 rounded-2xl overflow-hidden"
+                  style={{
+                    background: `linear-gradient(180deg, ${NAVY} 0%, #0a1726 100%)`,
+                    border: `1px solid ${GOLD}`,
+                    boxShadow: "0 20px 40px -20px rgba(0,0,0,0.35), 0 0 0 1px rgba(154,122,58,0.15) inset",
+                  }}
+                >
+                  <div className="p-5 sm:p-6">
+                    <div
+                      className="flex items-center gap-2 text-[9.5px] font-semibold tracking-[0.28em] uppercase mb-2"
+                      style={{ color: GOLD }}
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      Personalizar demonstração
+                    </div>
+                    <div
+                      className="leading-snug mb-4"
+                      style={{
+                        color: "#f4ead1",
+                        fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                        fontSize: "clamp(17px, 1.9vw, 21px)",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Quantos carros você tem na frota hoje?
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 sm:items-center">
+                      <input
+                        type="number"
+                        min={1}
+                        max={105}
+                        value={fleetCount}
+                        onChange={(e) => setFleetCount(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") void handleBuildFleet();
+                        }}
+                        disabled={fleetBusy}
+                        placeholder="Ex: 15"
+                        className="h-11 w-full sm:w-32 rounded-md px-3 text-[15px] tabular-nums outline-none transition-colors"
+                        style={{
+                          background: "rgba(255,255,255,0.06)",
+                          border: `1px solid rgba(154,122,58,0.45)`,
+                          color: "#faf7f0",
+                          fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                          fontWeight: 600,
+                        }}
+                      />
+                      <button
+                        onClick={handleBuildFleet}
+                        disabled={fleetBusy}
+                        className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-md text-[13px] font-semibold transition-transform hover:-translate-y-[1px] disabled:opacity-60 disabled:cursor-not-allowed"
+                        style={{
+                          background: GOLD,
+                          color: NAVY,
+                          border: `1px solid ${GOLD}`,
+                        }}
+                      >
+                        {fleetBusy ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3.5 w-3.5" />
+                        )}
+                        {fleetBusy ? "Montando..." : "Montar minha frota"}
+                      </button>
+                      {fleetDone != null && !fleetBusy && (
+                        <span
+                          className="text-[11.5px] font-medium tracking-wide"
+                          style={{ color: "#d6bf86" }}
+                        >
+                          Frota com {fleetDone} veículos pronta.
+                        </span>
+                      )}
+                    </div>
+                    <p
+                      className="mt-3 text-[11px] leading-relaxed"
+                      style={{ color: "rgba(244,234,209,0.55)" }}
+                    >
+                      A IA seleciona um mix representativo: campeões, medianos e caroços da mesma frota, para o tamanho digitado (1 a 105).
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Ações */}
               <div className="mt-8 flex flex-wrap items-center gap-2 sm:gap-3">
                 <button
@@ -344,26 +430,22 @@ export default function GuidedTour() {
                     background: NAVY,
                     color: GOLD,
                     border: `1px solid ${GOLD}`,
+                    boxShadow:
+                      step.kind === "intro" && fleetDone != null
+                        ? `0 0 0 3px ${GOLD}33`
+                        : undefined,
                   }}
                 >
                   {index === total - 1 ? "Encerrar" : "Avançar"}
                   {index < total - 1 && <ArrowRight className="h-3.5 w-3.5" />}
                 </button>
 
-                <div className="ml-auto flex items-center gap-2">
-                  <button
-                    onClick={hideOverlay}
-                    className="inline-flex items-center gap-1.5 h-10 px-4 rounded-md text-[12.5px] font-medium transition-colors"
-                    style={{
-                      color: NAVY,
-                      background: `${GOLD}22`,
-                      border: `1px solid ${GOLD}`,
-                    }}
-                  >
-                    <Eye className="h-3.5 w-3.5" />
-                    Explorar ao vivo
-                  </button>
-                </div>
+                <span
+                  className="ml-auto text-[11px] leading-tight text-right"
+                  style={{ color: "rgba(13,29,46,0.55)" }}
+                >
+                  Clique fora do cartão para explorar esta tela ao vivo.
+                </span>
               </div>
 
               {/* Progresso */}
