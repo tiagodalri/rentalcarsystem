@@ -332,15 +332,86 @@ function renderVariant(v: TourStep["priceVariant"], x: Vars) {
           </div>
 
           <div
-            className="mt-7 pt-5 border-t"
+            className="mt-8 pt-6 border-t space-y-6"
             style={{ borderColor: "rgba(154,122,58,0.25)" }}
           >
             <Label>A conta</Label>
+
+            <CalcRow label="O sistema custa">
+              <span style={{ color: GOLD_SOFT, fontVariantNumeric: "tabular-nums" }}>
+                {formatUSD(x.C.sistemaValor)}
+              </span>
+              <span
+                className="ml-2"
+                style={{ color: "rgba(245,240,235,0.55)", fontSize: "0.85em" }}
+              >
+                uma vez
+              </span>
+            </CalcRow>
+
+            <CalcRow label={`Sua frota de ${x.N} carros para de perder`}>
+              <span style={{ color: GOLD_SOFT, fontVariantNumeric: "tabular-nums" }}>
+                {formatUSD(x.N * 988)}
+              </span>
+              <span
+                className="mx-1.5"
+                style={{ color: "rgba(245,240,235,0.45)", fontSize: "0.85em" }}
+              >
+                a
+              </span>
+              <span style={{ color: GOLD_SOFT, fontVariantNumeric: "tabular-nums" }}>
+                {formatUSD(x.N * 1726)}
+              </span>
+              <span
+                className="ml-2"
+                style={{ color: "rgba(245,240,235,0.55)", fontSize: "0.85em" }}
+              >
+                por ano
+              </span>
+            </CalcRow>
+
+            {(() => {
+              const annualMin = x.N * 988;
+              const annualMax = x.N * 1726;
+              const mesesRapido = Math.ceil((x.C.sistemaValor / annualMax) * 12);
+              const mesesLento = Math.ceil((x.C.sistemaValor / annualMin) * 12);
+              const prefix = mesesLento <= 12 ? "Em menos de um ano: " : "";
+              const same = mesesRapido === mesesLento;
+              return (
+                <div className="space-y-2">
+                  <div
+                    style={{
+                      fontSize: "clamp(12px, 1.1vw, 13px)",
+                      color: GOLD,
+                      fontWeight: 600,
+                      letterSpacing: "0.18em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Resultado
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "clamp(22px, 3vw, 34px)",
+                      fontWeight: 800,
+                      lineHeight: 1.15,
+                      letterSpacing: "-0.02em",
+                      color: GOLD_SOFT,
+                      fontVariantNumeric: "tabular-nums",
+                    }}
+                  >
+                    {prefix}Você recupera o investimento em{" "}
+                    <span style={{ color: GOLD }}>
+                      {same ? mesesRapido : `${mesesRapido} a ${mesesLento}`}
+                    </span>{" "}
+                    {same && mesesRapido === 1 ? "mês." : "meses."}
+                  </div>
+                </div>
+              );
+            })()}
+
             <Paragraph>
-              Faz a conta comigo. Mesmo pagando os{" "}
-              {formatUSD(x.C.sistemaValor)} que um sistema desses custa, uma
-              única vez, você recuperaria isso em cerca de um ano só parando de
-              perder. Depois, é lucro limpo, e você pagou uma vez só.
+              Depois disso, tudo é lucro limpo. E você pagou uma única vez.
             </Paragraph>
           </div>
         </div>
@@ -489,6 +560,35 @@ function BigLabel({ children }: { children: React.ReactNode }) {
       style={{ color: GOLD }}
     >
       {children}
+    </div>
+  );
+}
+
+function CalcRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div
+        className="text-[10px] font-semibold tracking-[0.28em] uppercase"
+        style={{ color: GOLD }}
+      >
+        {label}
+      </div>
+      <div
+        className="text-[clamp(18px,2.2vw,26px)] font-bold leading-tight"
+        style={{
+          color: OFFWHITE,
+          fontVariantNumeric: "tabular-nums",
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {children}
+      </div>
     </div>
   );
 }
