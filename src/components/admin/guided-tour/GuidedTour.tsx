@@ -41,6 +41,17 @@ export default function GuidedTour() {
 
   useEffect(() => () => clearTimers(), []);
 
+  // Warm-up: quando o ato de abertura aparece, dispara consulta leve
+  // pra acordar a conexão do banco antes do clique em "Montar minha frota".
+  const warmedRef = useRef(false);
+  useEffect(() => {
+    if (!active || warmedRef.current) return;
+    const stepId = TOUR_STEPS[index]?.id;
+    if (stepId !== "abertura") return;
+    warmedRef.current = true;
+    void supabase.from("vehicles").select("id").limit(1).then(() => {}, () => {});
+  }, [active, index]);
+
   const handleBuildFleet = async () => {
     const n = parseInt(fleetCount, 10);
     if (!Number.isFinite(n) || n < 1 || n > 105) {
@@ -62,7 +73,25 @@ export default function GuidedTour() {
     }, 180);
 
     const startedAt = Date.now();
-    const { data, error } = await supabase.rpc("demo_start_presentation" as any, { p_count: n });
+
+    // Retry transparente: a 1a tentativa costuma falhar por conexão fria
+    // (statement timeout). A RPC é idempotente — restaura e re-seleciona —
+    // então repetir é seguro. Só reportamos erro se as 3 tentativas falharem.
+    const MAX_ATTEMPTS = 3;
+    let data: any = null;
+    let lastError: any = null;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const res = await supabase.rpc("demo_start_presentation" as any, { p_count: n });
+      if (!res.error) {
+        data = res.data;
+        lastError = null;
+        break;
+      }
+      lastError = res.error;
+      if (attempt < MAX_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, 600));
+      }
+    }
 
     // Tempo mínimo de 2s pra dar sensação de gamificação
     const elapsed = Date.now() - startedAt;
@@ -70,11 +99,11 @@ export default function GuidedTour() {
 
     clearTimers();
 
-    if (error) {
+    if (lastError) {
       setFleetBusy(false);
       setFleetProgress(0);
       setFleetStage("");
-      toast.error("Não foi possível montar a frota", { description: error.message });
+      toast.error("Não foi possível montar a frota", { description: lastError.message });
       return;
     }
 
