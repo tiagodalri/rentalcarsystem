@@ -152,18 +152,45 @@ export default function GuidedTour() {
                   fontWeight: 700,
                 }}
               >
-                {step.headline}
+                {step.title}
               </h2>
 
+              <ul className="mt-6 space-y-3" style={{ maxWidth: "62ch" }}>
+                {step.pains.map((pain, i) => (
+                  <li
+                    key={i}
+                    className="flex gap-3 items-start leading-snug"
+                    style={{ color: "#2a2a2a", fontSize: "clamp(14.5px, 1.45vw, 16.5px)" }}
+                  >
+                    <span
+                      aria-hidden
+                      className="mt-[9px] shrink-0 rounded-full"
+                      style={{
+                        width: 6,
+                        height: 6,
+                        background: GOLD,
+                        boxShadow: `0 0 0 3px ${GOLD}22`,
+                      }}
+                    />
+                    <span>{pain}</span>
+                  </li>
+                ))}
+              </ul>
+
               <p
-                className="mt-5 leading-relaxed"
+                className="mt-6 pt-4 border-t leading-snug"
                 style={{
-                  color: "#3a3a3a",
-                  fontSize: "clamp(15px, 1.5vw, 17.5px)",
+                  color: NAVY,
+                  borderColor: "rgba(154,122,58,0.28)",
+                  fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                  fontSize: "clamp(14.5px, 1.5vw, 17px)",
+                  fontWeight: 600,
+                  fontStyle: "italic",
                   maxWidth: "62ch",
                 }}
               >
-                {step.subtext}
+                <span style={{ color: GOLD, marginRight: 8 }}>—</span>
+                {step.teaser}
               </p>
 
               {/* Ações */}
