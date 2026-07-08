@@ -620,6 +620,7 @@ export default function GuidedTour() {
               </div>
             </div>
           </div>
+          </div>
           )}
         </div>
       )}
