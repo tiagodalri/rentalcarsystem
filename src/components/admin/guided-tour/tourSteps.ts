@@ -20,6 +20,7 @@ export interface TourStep {
   statement?: string;
   /** Variante da tela de preço (usada quando kind === "price"). */
   priceVariant?:
+    | "confirmacao"
     | "combined"
     | "investment"
     | "loss"
