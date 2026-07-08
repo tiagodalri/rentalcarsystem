@@ -564,6 +564,35 @@ function BigLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+function CalcRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <div
+        className="text-[10px] font-semibold tracking-[0.28em] uppercase"
+        style={{ color: GOLD }}
+      >
+        {label}
+      </div>
+      <div
+        className="text-[clamp(18px,2.2vw,26px)] font-bold leading-tight"
+        style={{
+          color: OFFWHITE,
+          fontVariantNumeric: "tabular-nums",
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 function HugeNumber({
   children,
   gold,
