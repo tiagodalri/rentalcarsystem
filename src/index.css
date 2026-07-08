@@ -311,14 +311,15 @@
    Scoped to .admin-shell so it never touches the public site.
    ============================================================ */
 @layer components {
-  /* Reusable typography utilities — explicit use in admin pages */
+  /* Reusable typography utilities — explicit use in admin pages.
+     100% sans (Urbanist) para cara de produto SaaS moderno. */
   .admin-h1 {
-    font-family: 'Instrument Serif', Georgia, serif;
-    @apply text-[26px] lg:text-[32px] font-normal text-foreground leading-[1.1] tracking-[-0.005em];
+    font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+    @apply text-[24px] lg:text-[30px] font-bold text-foreground leading-[1.1] tracking-[-0.02em];
   }
   .admin-h2 {
-    font-family: 'Instrument Serif', Georgia, serif;
-    @apply text-[19px] lg:text-[22px] font-normal text-foreground leading-[1.2] tracking-[-0.003em];
+    font-family: 'Urbanist', 'Inter', system-ui, -apple-system, sans-serif;
+    @apply text-[18px] lg:text-[21px] font-semibold text-foreground leading-[1.2] tracking-[-0.015em];
   }
   .admin-section-title {
     @apply text-[11px] font-medium text-foreground uppercase tracking-[0.2em];
