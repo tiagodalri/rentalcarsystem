@@ -17,6 +17,7 @@
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.2.11",
     "@fontsource/epilogue": "^5.2.8",
+    "@fontsource/instrument-serif": "^5.2.8",
     "@fontsource/urbanist": "^5.2.7",
     "@hookform/resolvers": "^3.10.0",
     "@lovable.dev/cloud-auth-js": "^1.1.2",
@@ -59,7 +60,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^11",
+    "framer-motion": "^12.42.2",
     "html2canvas-pro": "^2.2.0",
     "input-otp": "^1.4.2",
     "jspdf": "^4.2.1",

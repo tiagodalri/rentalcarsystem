@@ -19,6 +19,7 @@ import {
   Wallet,
   Brain,
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 import BrandLogo from "@/components/BrandLogo";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -289,12 +290,15 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                             : "text-sidebar-foreground/65 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
                       }`}
                     >
-                      {(active || isGold) && !collapsed && (
-                        <span
-                          className={`absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full bg-sidebar-primary ${
-                            isGold && !active ? "opacity-80" : ""
-                          }`}
+                      {active && !collapsed && (
+                        <motion.span
+                          layoutId={`sb-active-${section.label}`}
+                          transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                          className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full bg-sidebar-primary"
                         />
+                      )}
+                      {isGold && !active && !collapsed && (
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full bg-sidebar-primary opacity-80" />
                       )}
                       <item.icon
                         className={`h-[16px] w-[16px] shrink-0 ${

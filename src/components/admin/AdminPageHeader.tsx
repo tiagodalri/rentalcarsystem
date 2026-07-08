@@ -12,19 +12,26 @@ type Props = {
 };
 
 /**
- * Standardized admin page header. Mobile-first density, scales up to desktop.
- * Use this on every admin page instead of hand-rolling the H1 layout.
+ * Editorial admin page header — Private Bank + serif display.
  */
 export function AdminPageHeader({ title, subtitle, actions, eyebrow, className }: Props) {
   return (
-    <header className={cn("flex items-start justify-between gap-3 pb-4 lg:pb-6", className)}>
+    <header
+      className={cn(
+        "flex items-start justify-between gap-3 pb-5 lg:pb-8 mb-1",
+        "border-b border-border/40",
+        className,
+      )}
+    >
       <div className="min-w-0 flex-1">
         {eyebrow && (
-          <div className="admin-label mb-1.5">{eyebrow}</div>
+          <div className="admin-eyebrow-line mb-2">{eyebrow}</div>
         )}
         <h1 className="admin-h1 truncate">{title}</h1>
         {subtitle && (
-          <p className="mt-1 text-[13px] text-muted-foreground lg:text-sm">{subtitle}</p>
+          <p className="mt-1.5 text-[13px] text-muted-foreground lg:text-[14px] font-light leading-relaxed max-w-2xl">
+            {subtitle}
+          </p>
         )}
       </div>
       {actions && (

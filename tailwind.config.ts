@@ -25,6 +25,8 @@ export default {
         sans: ['"Epilogue"', "Inter", "system-ui", "-apple-system", "sans-serif"],
         display: ['"Urbanist"', '"Epilogue"', "Inter", "system-ui", "sans-serif"],
         heading: ['"Urbanist"', '"Epilogue"', "Inter", "system-ui", "sans-serif"],
+        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+        editorial: ['"Instrument Serif"', 'Georgia', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
