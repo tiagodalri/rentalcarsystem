@@ -88,9 +88,14 @@ Deno.serve(async (req) => {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("[bouncie-devices] error:", e);
-    return new Response(JSON.stringify({ error: (e as Error).message }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    const msg = (e as Error).message ?? "unknown";
+    console.error("[bouncie-devices] error:", msg);
+    // Graceful fallback: no integration configured yet, or upstream unavailable.
+    // Return 200 with empty devices so the client UI (unlinked devices panel)
+    // simply renders nothing instead of blowing up with a 500.
+    return new Response(
+      JSON.stringify({ ok: true, devices: [], fallback: true, reason: msg }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
   }
 });
