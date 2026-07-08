@@ -207,24 +207,37 @@ export default function GuidedTour() {
           {/* Cartão central — clicar fora esconde o overlay para explorar a tela real */}
           {step.kind === "price" ? (
             <div
-              className="flex-1 flex items-center justify-center"
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
               onClick={(e) => {
                 if (e.target === e.currentTarget) hideOverlay();
               }}
             >
-              <PriceCard
-                step={step}
-                index={index}
-                total={total}
-                onPrev={prev}
-                onNext={next}
-                onStop={stop}
-                intoFleetCount={parseInt(fleetCount, 10) || 15}
-              />
+              <div
+                className="min-h-full flex items-center justify-center px-4 py-6 sm:py-10"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) hideOverlay();
+                }}
+              >
+                <PriceCard
+                  step={step}
+                  index={index}
+                  total={total}
+                  onPrev={prev}
+                  onNext={next}
+                  onStop={stop}
+                  intoFleetCount={parseInt(fleetCount, 10) || 15}
+                />
+              </div>
             </div>
           ) : (
           <div
-            className="flex-1 flex items-center justify-center px-4 py-8 sm:py-10"
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) hideOverlay();
+            }}
+          >
+          <div
+            className="min-h-full flex items-center justify-center px-4 py-8 sm:py-10"
             onClick={(e) => {
               if (e.target === e.currentTarget) hideOverlay();
             }}
@@ -606,6 +619,7 @@ export default function GuidedTour() {
                 />
               </div>
             </div>
+          </div>
           </div>
           )}
         </div>
