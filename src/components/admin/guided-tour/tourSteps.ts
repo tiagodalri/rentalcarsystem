@@ -39,7 +39,7 @@ export const TOUR_STEPS: TourStep[] = [
     eyebrow: "Dados · Inteligência Artificial · Metrificação",
     brand: "GoDalz Solutions",
     statement:
-      "Não entregamos um sistema. Entregamos visão, informação e escala pra sua operação.",
+      "Não entregamos apenas um sistema. Nós entregamos visão, informação, controle e escala pra sua operação.",
     title: "",
     pains: [
       "Especialistas em transformar dados em decisões.",
