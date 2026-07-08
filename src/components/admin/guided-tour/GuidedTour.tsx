@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowLeft, ArrowRight, Compass, Loader2, Sparkles, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Compass, Loader2, Sparkles, X } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TOUR_STEPS } from "./tourSteps";
 import { useGuidedTour } from "./GuidedTourContext";
@@ -9,7 +10,7 @@ import { useGuidedTour } from "./GuidedTourContext";
 const NAVY = "#0d1d2e";
 const GOLD = "#9a7a3a";
 const MISSION =
-  "Não entregamos um sistema, entregamos visão, informação e escala da sua operação.";
+  "Não entregamos um sistema. Entregamos visão, informação e escala pra sua operação.";
 
 
 /**
