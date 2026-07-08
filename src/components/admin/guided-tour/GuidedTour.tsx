@@ -143,24 +143,78 @@ export default function GuidedTour() {
                 )}
               </div>
 
-              <h2
-                className="leading-[1.05] tracking-[-0.025em]"
-                style={{
-                  color: NAVY,
-                  fontFamily: "'Urbanist', 'Inter', system-ui, -apple-system, sans-serif",
-                  fontSize: step.climax ? "clamp(30px, 4.6vw, 46px)" : "clamp(26px, 4vw, 40px)",
-                  fontWeight: 700,
-                }}
-              >
-                {step.title}
-              </h2>
+              {step.kind === "intro" ? (
+                <div>
+                  {step.eyebrow && (
+                    <div
+                      className="text-[10.5px] font-semibold tracking-[0.32em] uppercase mb-4"
+                      style={{ color: GOLD }}
+                    >
+                      {step.eyebrow}
+                    </div>
+                  )}
+                  {step.brand && (
+                    <h2
+                      className="leading-[1] tracking-[-0.03em]"
+                      style={{
+                        color: NAVY,
+                        fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                        fontSize: "clamp(38px, 6vw, 62px)",
+                        fontWeight: 800,
+                      }}
+                    >
+                      {step.brand}
+                    </h2>
+                  )}
+                  {step.statement && (
+                    <p
+                      className="mt-6 leading-[1.25]"
+                      style={{
+                        color: NAVY,
+                        fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif",
+                        fontSize: "clamp(18px, 2.1vw, 24px)",
+                        fontWeight: 600,
+                        maxWidth: "58ch",
+                      }}
+                    >
+                      {step.statement}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <h2
+                  className="leading-[1.05] tracking-[-0.025em]"
+                  style={{
+                    color: NAVY,
+                    fontFamily: "'Urbanist', 'Inter', system-ui, -apple-system, sans-serif",
+                    fontSize: step.climax ? "clamp(30px, 4.6vw, 46px)" : "clamp(26px, 4vw, 40px)",
+                    fontWeight: 700,
+                  }}
+                >
+                  {step.title}
+                </h2>
+              )}
 
-              <ul className="mt-6 space-y-3" style={{ maxWidth: "62ch" }}>
+              <ul
+                className={
+                  "mt-6 " +
+                  (step.pains.length >= 5
+                    ? "grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3"
+                    : "space-y-3")
+                }
+                style={step.pains.length >= 5 ? undefined : { maxWidth: "62ch" }}
+              >
                 {step.pains.map((pain, i) => (
                   <li
                     key={i}
                     className="flex gap-3 items-start leading-snug"
-                    style={{ color: "#2a2a2a", fontSize: "clamp(14.5px, 1.45vw, 16.5px)" }}
+                    style={{
+                      color: "#2a2a2a",
+                      fontSize:
+                        step.pains.length >= 5
+                          ? "clamp(13.5px, 1.25vw, 15px)"
+                          : "clamp(14.5px, 1.45vw, 16.5px)",
+                    }}
                   >
                     <span
                       aria-hidden
@@ -189,7 +243,11 @@ export default function GuidedTour() {
                   maxWidth: "62ch",
                 }}
               >
-                <span style={{ color: GOLD, marginRight: 8 }}>—</span>
+                <span
+                  aria-hidden
+                  className="inline-block mr-3 align-middle rounded-full"
+                  style={{ width: 6, height: 6, background: GOLD }}
+                />
                 {step.teaser}
               </p>
 
