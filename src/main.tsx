@@ -11,6 +11,7 @@ import "@fontsource/epilogue/600.css";
 import "@fontsource/epilogue/700.css";
 import "@fontsource/cormorant-garamond/500.css";
 import "@fontsource/cormorant-garamond/600.css";
+import "@fontsource/instrument-serif/400.css";
 import "./index.css";
 import { isRecoverableChunkLoadError, recoverFromStaleApp } from "@/lib/pwaRecovery";
 

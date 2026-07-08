@@ -33,11 +33,17 @@ export function KpiCard({
   compact = false,
 }: KpiCardProps) {
   return (
-    <Card className={cn("border-border/40 h-full", className)}>
+    <Card
+      className={cn(
+        "border-border/40 h-full transition-all duration-200 ease-out",
+        "hover:border-border hover:-translate-y-0.5 hover:shadow-[0_10px_30px_-18px_hsl(0_0%_0%/0.25)]",
+        className,
+      )}
+    >
       <div
         className={cn(
           "flex h-full flex-col items-center justify-center text-center",
-          compact ? "min-h-[112px] gap-1.5 px-3 py-4" : "min-h-[128px] gap-2 px-4 py-5",
+          compact ? "min-h-[124px] gap-2 px-4 py-5" : "min-h-[144px] gap-2.5 px-5 py-6",
         )}
       >
         <div className="flex min-h-[16px] items-center justify-center gap-1.5 leading-[1.15]">

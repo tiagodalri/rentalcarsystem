@@ -129,9 +129,13 @@
   }
 
   h1, h2, h3, h4, h5, h6,
-  .section-heading, .admin-h1, .admin-kpi, .admin-section-title {
+  .section-heading, .admin-kpi {
     font-family: 'Urbanist', 'Epilogue', 'Inter', system-ui, sans-serif;
     letter-spacing: -0.02em;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
 
@@ -309,16 +313,36 @@
 @layer components {
   /* Reusable typography utilities — explicit use in admin pages */
   .admin-h1 {
-    @apply text-xl font-medium text-foreground tracking-[-0.01em];
+    font-family: 'Instrument Serif', Georgia, serif;
+    @apply text-[26px] lg:text-[32px] font-normal text-foreground leading-[1.1] tracking-[-0.005em];
   }
   .admin-h2 {
-    @apply text-base font-medium text-foreground tracking-[-0.005em];
+    font-family: 'Instrument Serif', Georgia, serif;
+    @apply text-[19px] lg:text-[22px] font-normal text-foreground leading-[1.2] tracking-[-0.003em];
   }
   .admin-section-title {
-    @apply text-[11px] font-medium text-foreground uppercase tracking-[0.16em];
+    @apply text-[11px] font-medium text-foreground uppercase tracking-[0.2em];
   }
   .admin-label {
-    @apply text-[10px] font-medium text-muted-foreground/80 uppercase tracking-[0.16em] leading-[1.15];
+    @apply text-[10px] font-medium text-muted-foreground/80 uppercase tracking-[0.22em] leading-[1.15];
+  }
+  .admin-eyebrow-line {
+    @apply inline-flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.24em] text-muted-foreground/70;
+  }
+  .admin-eyebrow-line::before {
+    content: "";
+    display: inline-block;
+    width: 22px;
+    height: 1px;
+    background: linear-gradient(90deg, hsl(var(--primary) / 0.7), transparent);
+  }
+  .hairline {
+    height: 1px;
+    background: linear-gradient(90deg, hsl(var(--border) / 0.9), hsl(var(--border) / 0.1));
+  }
+  .surface-elevated {
+    background: hsl(var(--card));
+    box-shadow: 0 1px 0 hsl(var(--border) / 0.4), 0 8px 24px -18px hsl(0 0% 0% / 0.15);
   }
   .admin-kpi {
     @apply text-[22px] leading-[1.05] font-light text-foreground tabular-nums tracking-[-0.01em];
@@ -342,16 +366,30 @@
   letter-spacing: -0.008em;
 }
 
-/* Headings inside admin: drop the heavy default weights */
+/* Headings inside admin: editorial serif for page/section titles */
 .admin-shell h1 {
-  @apply text-xl font-medium tracking-[-0.01em];
+  font-family: 'Instrument Serif', Georgia, serif;
+  @apply text-[26px] lg:text-[32px] font-normal tracking-[-0.005em] leading-[1.1];
 }
 .admin-shell h2 {
-  @apply text-base font-medium tracking-[-0.005em];
+  font-family: 'Instrument Serif', Georgia, serif;
+  @apply text-[19px] lg:text-[22px] font-normal tracking-[-0.003em] leading-[1.2];
 }
 .admin-shell h3 {
   font-weight: 500;
   letter-spacing: -0.003em;
+}
+
+/* Smooth entrance for direct main children (progressive editorial reveal) */
+.admin-shell main > * {
+  animation: adminFadeUp 0.42s ease-out both;
+}
+@keyframes adminFadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell main > * { animation: none; }
 }
 
 /* Tame the brand gold-gradient inside admin → solid black "private bank" CTA */

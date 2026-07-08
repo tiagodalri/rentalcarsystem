@@ -24,6 +24,7 @@ import { AdminShellSkeleton } from "@/components/skeletons/AdminShellSkeleton";
 import { useThemeMode } from "@/i18n/ThemeContext";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageTransition } from "@/components/admin/motion/PageTransition";
 
 export default function AdminLayout() {
   const { user, roles, loading, signOut } = useAdminAuth();
@@ -109,8 +110,10 @@ export default function AdminLayout() {
                 <LanguageSwitcher className="h-9 w-9 justify-center rounded-full hover:bg-accent/60" />
               </div>
 
-              <main className="flex-1 px-4 pt-3 pb-[max(calc(64px+env(safe-area-inset-bottom,0px)+20px),1rem)] lg:p-6">
-                <Outlet />
+              <main className="flex-1 px-4 pt-4 pb-[max(calc(64px+env(safe-area-inset-bottom,0px)+20px),1rem)] lg:px-8 lg:pt-8 lg:pb-10">
+                <PageTransition>
+                  <Outlet />
+                </PageTransition>
               </main>
 
               <div className="hidden lg:block">

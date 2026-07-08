@@ -25,7 +25,10 @@ export function AdminMobileHeader() {
       }}
     >
       <SidebarTrigger className="admin-icon-btn" aria-label="Abrir menu" />
-      <h1 className="flex-1 min-w-0 truncate text-[15px] font-medium tracking-tight text-foreground">
+      <h1
+        className="flex-1 min-w-0 truncate text-[19px] leading-none text-foreground tracking-[-0.005em]"
+        style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontWeight: 400 }}
+      >
         {title}
       </h1>
       {/* Ação primária mora no MobileFabDock (zona do polegar) — não duplicar aqui. */}
