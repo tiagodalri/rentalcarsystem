@@ -43,7 +43,7 @@ export default function MarketingStudio({ onBack }: Props) {
           className="mt-2 text-[24px] sm:text-[30px] font-light tracking-[-0.01em]"
           style={{ color: "#0d1d2e", fontFamily: "'Urbanist', 'Inter', system-ui, sans-serif" }}
         >
-          O estudio criativo da Zeus
+          O estudio criativo
         </h1>
         <p className="mt-1.5 text-[12.5px]" style={{ color: "rgba(13,29,46,0.62)" }}>
           Ferramentas para producao de conteudo com a identidade premium da marca.
@@ -85,7 +85,7 @@ export default function MarketingStudio({ onBack }: Props) {
             Posts para redes sociais
           </h3>
           <p className="mt-1 text-[12.5px] leading-relaxed" style={{ color: "rgba(13,29,46,0.65)" }}>
-            Gere artes em formato feed e story usando IA. Foto do carro tratada com tom cinematografico, logotipo da Zeus aplicado de forma estrategica e frases de impacto humanizadas.
+            Gere artes em formato feed e story usando IA. Foto do carro tratada com tom cinematografico, logotipo da marca aplicado de forma estrategica e frases de impacto humanizadas.
           </p>
         </button>
 
