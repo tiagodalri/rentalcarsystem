@@ -1,78 +1,89 @@
-## Objetivo
+Auditoria de qualidade — apenas diagnóstico, nada foi editado. Cada item traz arquivo(s), problema e severidade.
 
-Elevar o painel admin (área logada `/admin/*`) para um acabamento **Editorial Premium** — mantendo a linguagem private-bank (navy `#0d1d2e` + dourado `#9a7a3a`) já consolidada, adicionando serifa display em headings, mais whitespace, micro-interações Framer Motion moderadas e responsividade impecável em mobile/tablet. **Zero mudança de funcionalidade, backend, rotas ou dados.** Site público (`/`, `/frota`, `/checkout`, etc.) fica intocado.
+## 1. Sobras da marca Zeus (crítico para demonstração)
+
+- **`src/components/WhyZeusSection.tsx`** + `src/i18n/translations.ts` (chaves `whyZeus.*` nos 6 idiomas): o nome do componente e todas as chaves de i18n ainda são `whyZeus`. O texto exibido já está como "Sua Marca", mas o identificador aparece em stack traces, no React DevTools e em qualquer print de código. **Médio.**
+- **`src/pages/admin/AdminInspectionReport.tsx:15,437`**: `import zeusLogo from "@/assets/zeus-logo-hd.png"` e `<img src={zeusLogo} alt="Sua Marca" />` — o PDF de vistoria continua carregando o logotipo antigo da Zeus (arquivo real de 482 KB). **Crítico** (o PDF gerado mostra a marca antiga).
+- **`src/assets/zeus-logo-*.png`** (8 arquivos): `zeus-logo-hd.png`, `-hd-opaque`, `-light`, `-mark`, `-new`, `-ultra`, `zeus-logo.png`, `zeus-z-mark.png`. Só `zeus-logo-hd.png` está referenciado (item acima); o restante é lixo. **Baixo.**
+- **`src/components/inspection/CarRealisticViewer.tsx:78-200`**: helpers `makeZeusPlateTexture`, nomes de mesh `__zeus_plate__`, `__zeus_badge__`, `__zeus_rear_overlay__`, e textos desenhados no canvas `SUA MARCA · ORLANDO FL`. Nome interno é ok, mas o overlay 3D mistura "SUA MARCA" com "ORLANDO FL" hardcoded. **Médio.**
+- **`src/components/admin/ai-studio/BrainAccessGate.tsx:94`**: título grande visível na UI `ZEUS BRAIN`. **Crítico** (aparece em tela para prospect).
+- **`src/lib/emails/sendZeusEmail.ts`**: nome do arquivo/função + `console.error("[zeus-email] ...")` em vários lugares. Só logs/nomes internos. **Baixo.**
+- **`src/hooks/useVehicleZeusContext.ts`** + `src/components/admin/live/tabs/DetailsTab.tsx`: hook e tipo `ZeusBooking` seguem com esse nome. Interno. **Baixo.**
+- **`src/pages/admin/AdminPainel.tsx:93,96,361`, `AdminInspection.tsx:331,416,513`, `Checkout.tsx:46,167`, `InstallPrompt.tsx:9`, `BookingWizard.tsx:41`, `MapControlsPanel.tsx:22`, `CarRealisticViewer.tsx:459`, `PublicInspection.tsx:269`**: chaves de `localStorage`/`sessionStorage` prefixadas com `zeus_...`/`zeus:...`/`zeus.*`. Não é visível ao usuário. **Baixo** (mas cuidado: renomear invalida drafts salvos em navegadores existentes).
+- **`src/pages/admin/AdminBookings.tsx:877`** e outros PDFs: strings `"SUA MARCA"` em caps são intencionais (é o nome usado nos PDFs whitelabel), sem problema.
+
+## 2. Sobras Orlando / brasileiros / Bruno / Corvette específicas
+
+A memória proíbe qualquer coisa "Orlando-specific" no whitelabel, mas o site público ainda está cheio disso:
+
+- **`src/i18n/translations.ts`** (pt, en, es, it, de, fr): descrição da empresa, tagline, `howItWorks.step3Desc`, `testimonials.t3–t6Text` (menções a Bruno, Corvette, Disney), `tagline: "Sua Marca. Concierge premium para brasileiros em Orlando."`, blocos `whyZeus.*`, `vehicleDetails["Corvette Stingray C8"]` etc. Textos aparecem na home, testimonials e vitrine. **Crítico** (o prospect vai ler "brasileiros em Orlando" e "atendimento do Bruno").
+- **`src/pages/VehicleDetail.tsx:173,174,356,377,384`**: SEO title/description e blocos "Aeroporto de Orlando (MCO)", "Um concierge da Sua Marca…". **Crítico.**
+- **`src/pages/AboutUs.tsx:55,56,109,127,130,188`**: página Sobre inteira falando "brasileiros em Orlando". **Crítico.**
+- **`src/pages/Contato.tsx:77`**: meta description menciona Orlando. **Médio.**
+- **`src/pages/admin/AdminContractTemplate.tsx:87,88`**: preview do contrato usa `Orlando International Airport (MCO)` como local. Interno, mas aparece na preview. **Baixo.**
+- **`public/llms.txt:3,6`**: descrição pública ainda fala "Orlando", "brasileiros", "Disney", frota "Corvette, Mustang…". **Crítico** para SEO/AI crawlers.
+- **`public/sitemap.xml:172,178`**: URLs `/veiculo/Corvette%20Stingray%20C8` e `/reserva/...`. Não é branding específico da Zeus, mas depende se essas rotas ainda existem/tem sentido. **Baixo.**
+
+## 3. Telefones/WhatsApp inconsistentes (crítico)
+
+A memória diz "NUNCA reintroduzir WhatsApp real (+1 689-298-1754)" e o placeholder oficial é `+1 555-000-0000`.
+
+- **Ainda com o número real da Zeus (`16892981754`)**:
+  - `src/pages/SearchResults.tsx:173`
+  - `src/pages/BookingDetails.tsx:470`
+  - `src/pages/BookingConfirmed.tsx:172`
+- **Com placeholder correto (`15550000000`)**:
+  - `src/components/WhatsAppBubble.tsx:3`
+  - `src/components/Footer.tsx:21`
+  - `src/pages/BookingDetailClient.tsx:425`
+
+**Crítico** — três páginas do fluxo público/cliente ainda mandam o prospect para o WhatsApp real da Zeus.
+
+## 4. E-mails transacionais indo para conta pessoal
+
+- **`src/lib/emails/sendZeusEmail.ts:6`**: `const TEST_RECIPIENT = "tiagodalri1@live.com"` e `recipientEmail: opts.recipientEmail ?? TEST_RECIPIENT`. Todos os disparos (`booking-confirmed`, `booking-updated`, `booking-cancelled`, `inspection-checkin`, `inspection-checkout`) chamados de `AdminBookings.tsx`, `BookingWizard.tsx` e `AdminInspection.tsx` **não passam `recipientEmail`** — então cada reserva feita numa demo dispara e-mail para uma caixa pessoal. **Crítico** (privacidade + confusão em demo).
+
+## 5. Bugs recorrentes das conversas anteriores
+
+- **Rotas "picadas" no mapa (Bouncie)**: `src/hooks/useTripTrail.tsx` já faz snapping (comentário linha 26 "no more cutting through…") e `src/hooks/useTripReplay.ts:268-364` faz downsample/interpolação. Aparentemente resolvido. **Sem ação** — vale confirmar em `AdminLive` com uma viagem real.
+- **Timeout na geração de frota fictícia do Tour Guiado**: `src/components/admin/guided-tour/GuidedTour.tsx:80-108` implementa retry 3× com backoff simples de 600 ms sobre `demo_start_presentation`. Aparentemente resolvido, mas o retry só espera 600 ms fixos — se o problema for cold-start >2 s do Postgres, ainda pode falhar. **Médio** (monitorar).
+- **Compartilhamento WhatsApp de vistoria**: `src/components/admin/ShareWhatsAppInspectionButton.tsx` — no fluxo mobile o botão dispara download automático das fotos em background enquanto redireciona o usuário via `window.location.href`. Em iOS Safari isso costuma bloquear os downloads porque a página perdeu foco; em Android o comportamento é irregular. Além disso, no wa.me sem número (`https://wa.me/?text=...`) o iOS às vezes abre o "escolher contato" e some com o texto. **Médio** — o fix atual funciona no desktop mas segue frágil em mobile.
+- **Clientes duplicados vindos do Turo**: não encontrei nenhuma lógica de dedupe de customers em `src/lib/turo/*` nem nas edge functions. `csvParser.ts` só dedupa por `reservationId`, e não vi nada como `findOrCreateCustomer` por e-mail/telefone. **Crítico** — o bug provavelmente continua.
+
+## 6. Fluxo público (o que um prospect vê)
+
+- **`src/pages/NotFound.tsx:15`**: `"Oops! Page not found"` em inglês misturado com resto pt-BR. **Baixo.**
+- **`src/pages/VehicleDetail.tsx`, `AboutUs.tsx`, `Contato.tsx`, `Frota.tsx`, `Checkout.tsx`, `Index.tsx`, `SearchResults.tsx`, `BookingConfirmed.tsx`**: nenhum problema técnico grave encontrado além dos listados acima (Orlando + WhatsApp). Todos os imports de imagem de frota apontam para assets existentes (`src/data/vehicleImages.ts`).
+- **`src/components/WhyZeusSection.tsx`** ainda é renderizado na home via `Index.tsx` — bloco chamado internamente de "Zeus" mas texto ok.
+- **`en-US` locale**: várias tabelas admin (`TuroDiffTable.tsx`, `MobileBookingCard.tsx`, `FleetCalendar/BookingBar.tsx`, `TransactionsTab.tsx`, `OverviewTab.tsx`) usam `toLocaleString("en-US")` para formatar USD. Consistente com moeda USD, ok. **Sem ação.**
+
+## 7. Capitalização e gramática "Sua Marca"
+
+- `src/pages/VehicleDetail.tsx`, `AboutUs.tsx`, `Contato.tsx`, `AdminBookingDetail.tsx`, `Unsubscribe.tsx`, `BookingDetailClient.tsx`, `AdminTutorials.tsx`, `AdminPainel.tsx`, `lib/whatsapp.ts`: usam construções como "a Sua Marca", "da Sua Marca", "à Sua Marca". Gramaticalmente estranhas — soam como "a Your Brand". Provavelmente resultado do replace automático "Rental Studio" → "Sua Marca". **Médio** (transparente que é whitelabel, mas fica pobre em demo).
+- **`src/i18n/translations.ts`**: `"Why Sua Marca?"`, `"¿Por qué Sua Marca?"`, `"Warum Sua Marca?"`, `"Pourquoi Sua Marca ?"` — mesma questão em todos os idiomas, o placeholder "Sua Marca" aparece cru em textos EN/ES/IT/DE/FR. **Médio.**
+
+## 8. Outros pontos
+
+- **`src/pages/admin/AdminContractTemplate.tsx:216`**: aviso visível "A pré-visualização usa dados fictícios apenas para demonstrar o layout." A memória do usuário mandou "remover qualquer texto que apareça NA TELA dizendo que os dados são fictícios/simulados/demonstração" no fluxo do tour. Está no admin (não no tour), mas o usuário pode ter querido isso globalmente. **Baixo** — vale confirmar.
+- **`src/components/demo/DemoBadge.tsx`**: componente com `aria-label="Ambiente de demonstração"`. Se estiver montado na UI pública, viola a mesma regra. Precisa checar onde é usado. **Baixo.**
+- **`src/pages/NotFound.tsx`** também não tem `<Seo>` — 404 aparece com o title default do index.html.
+
+## 9. O que NÃO encontrei de problema
+
+- `public/brand-mark.png` existe (verificado).
+- Nenhum `TODO`/`FIXME`/`lorem ipsum` esquecido em código.
+- Nenhum `<img src="">` vazio.
+- Nenhuma rota referenciada em `<Link>` sem entrada em `App.tsx` (varredura superficial).
+- `WhatsAppBubble.tsx` e `Footer.tsx` já usam o placeholder `+1 555-000-0000`.
 
 ---
 
-## Direção estética
+**Ranking sugerido para atacar depois:**
+1. Números reais de WhatsApp em 3 páginas públicas (§3) + TEST_RECIPIENT (§4) — vazamento de dados pessoais + confusão em demo.
+2. Textos "Orlando/Bruno/Corvette/brasileiros" em `translations.ts`, `AboutUs.tsx`, `VehicleDetail.tsx`, `Contato.tsx`, `llms.txt` (§2).
+3. `ZEUS BRAIN` visível no `BrainAccessGate` + `zeus-logo-hd.png` no PDF de vistoria (§1).
+4. Dedupe de customers no import Turo (§5).
+5. Frase "a Sua Marca" reescrita para soar natural (§7).
+6. Limpeza de assets `zeus-logo-*.png` órfãos, rename de hook/tipo/localStorage keys (§1 baixo).
 
-**Tipografia**
-- Headings (admin-h1, admin-section-title, títulos de KPI hero): `Instrument Serif` (via `@fontsource/instrument-serif`) — dá o ar editorial/luxuoso.
-- Body, tabelas, botões, labels: mantém `Urbanist`/`Epilogue` já instalado.
-- Números financeiros/KPIs: continua `tabular-nums`, agora com hierarquia maior (KPI hero em ~40–48px, valores secundários em 28px).
-- Ajuste de tracking: labels uppercase ganham `letter-spacing: 0.14em` (hoje 0.10em) para reforçar o registro editorial.
-
-**Cores (sem trocar identidade)**
-- Não mexer nos tokens HSL existentes.
-- Adicionar dois tokens auxiliares em `index.css`: `--surface-elevated` (card sobre card) e `--hairline` (divisor 1px, mais suave que `--border`).
-- Dourado (`.gold-text`, `.gold-gradient`) continua reservado a headings hero e accents pontuais — nunca em body/tabelas.
-
-**Espaçamento & densidade**
-- `admin-page`: aumentar padding vertical em desktop (`py-6` → `py-10`) e gap entre seções (`gap-6` → `gap-8`).
-- `AdminPageHeader`: `pb-4/pb-6` → `pb-6/pb-10`, com hairline dourado 1px opcional abaixo do título.
-- `KpiCard`: aumentar `min-height` compact 112→124, default 128→144; padding interno mais generoso.
-- Tabelas: linha `h-12` → `h-14` em desktop, com `divide-y` usando `--hairline`.
-
-**Motion (Framer Motion, nível 3 / moderado)**
-- Fade+slide-up de 8px em entrada de página (`main` do AdminLayout) com stagger de 40ms nos filhos diretos.
-- KPI cards: `whileHover={{ y: -2 }}` + sombra suave, transição 200ms ease-out.
-- Linhas de tabela: hover com highlight de fundo (150ms) — nada de layout shift.
-- Sidebar items: indicador ativo animado com `layoutId` (barrinha dourada desliza entre itens).
-- Sheets/Dialogs mobile: já usam Radix; adicionar `AnimatePresence` só onde faltar.
-- Sem parallax, sem scroll-linked. Scroll suave nativo via `scroll-behavior: smooth` no html + `overscroll-behavior: none` (já existe).
-- Respeitar `prefers-reduced-motion`: wrapper `useReducedMotionSafe` desativa transforms.
-
----
-
-## Arquivos a criar
-
-- `src/components/admin/motion/PageTransition.tsx` — wrapper `motion.div` para `<Outlet />`, aplica fade+slide-up com stagger.
-- `src/components/admin/motion/MotionKpiCard.tsx` — variante animada do `KpiCard` (não substitui; opt-in via prop `animated`).
-- `src/styles/admin-editorial.css` — camada CSS adicional importada por `index.css` com as novas utilities `.admin-editorial-heading`, `.hairline`, `.surface-elevated`.
-
-## Arquivos a editar
-
-- `src/main.tsx` — importar `@fontsource/instrument-serif/400.css` e `/500.css`.
-- `tailwind.config.ts` — adicionar `fontFamily.serif: ['"Instrument Serif"', 'serif']`.
-- `src/index.css` — adicionar tokens `--surface-elevated`, `--hairline`; ajustar `.admin-h1`/`.admin-section-title` para usar `font-serif` e novos tamanhos; aumentar letter-spacing de `.admin-label`.
-- `src/components/admin/AdminLayout.tsx` — envolver `<Outlet />` com `PageTransition`; refinar padding do `<main>`.
-- `src/components/admin/AdminPageHeader.tsx` — nova hierarquia visual (título maior, eyebrow com hairline dourado).
-- `src/components/admin/KpiCard.tsx` — novo `min-height`, tipografia refinada, hover sutil.
-- `src/components/admin/AdminSidebar.tsx` — indicador ativo com `layoutId` (Framer Motion).
-- `src/components/admin/AdminMobileHeader.tsx` — título em serifa, hairline dourado inferior.
-- `src/components/admin/AdminTabsBar.tsx` — transição suave de aba ativa.
-- Tabelas comuns: shells de `AdminBookings`, `AdminFleet`, `AdminCustomers` — aplicar `.hairline` e altura de linha maior (mudanças mínimas de classe).
-
-## Fora de escopo
-
-- Site público (`Index`, `Frota`, `Checkout`, `About`, `Contato`, `Login`, `MyAccount`, componentes `HeroSection`, `FleetSection` etc.).
-- Backend, edge functions, migrations, RLS.
-- Lógica de negócio, hooks de dados, cálculo de pricing/margem.
-- Guided Tour, PDF export, integrações Bouncie/Turo/EPass.
-
----
-
-## Como testar
-
-1. Navegar em `/admin` (Painel) — headings em serifa, KPIs com hover suave, transição de entrada.
-2. Alternar rotas admin (Painel → Frota Inteligente → Reservas) — cada página faz fade+slide-up.
-3. Sidebar: clicar em itens diferentes — barra dourada desliza entre eles.
-4. Mobile (390px, 768px): headers, KPIs e tabelas mantêm respiro; nada estoura viewport.
-5. Ativar `prefers-reduced-motion` no DevTools — animações caem para fade simples.
-6. Verificar que rotas públicas (`/`, `/frota`, `/checkout`) continuam idênticas.
-
-## Riscos
-
-- Instrument Serif em números pode ficar estranho — por isso KPI **value** continua em Urbanist tabular-nums; só o **label eyebrow** e headings de seção ganham serifa.
-- Motion excessivo em tabelas longas pode pesar — stagger só nos filhos diretos do `<main>`, não em cada `<tr>`.
-- Aumentar padding pode empurrar conteúdo abaixo da dobra em mobile — validar em 360px antes de fechar.
+Diagnóstico apenas — nenhuma alteração feita.
