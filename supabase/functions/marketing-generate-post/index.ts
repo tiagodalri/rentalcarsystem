@@ -29,7 +29,7 @@ type Body = {
   slidesCount?: number; // 3..5 when carousel
 };
 
-const ZEUS_LOGO_URL = "https://rentalcarsystem.lovable.app/zeus-logo-full.png";
+const ZEUS_LOGO_URL = "https://rentalcarsystem.lovable.app/brand-mark.png";
 
 function fmtDate(iso?: string): string {
   if (!iso) return "";
