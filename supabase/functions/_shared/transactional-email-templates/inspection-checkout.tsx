@@ -70,7 +70,7 @@ const Email = (p: Props) => (
 
 export const template = {
   component: Email,
-  subject: (d: Props) => `Check-out concluído · ${d.vehicleName ?? 'Rental Studio'} (${d.bookingNumber ?? ''})`,
+  subject: (d: Props) => `Check-out concluído · ${d.vehicleName ?? 'Sua Marca'} (${d.bookingNumber ?? ''})`,
   displayName: 'Inspeção de retorno',
   previewData: {
     bookingNumber: 'ZRC-0142',
@@ -84,8 +84,8 @@ export const template = {
     damagesCount: 1,
     photosCount: 24,
     paymentStatus: 'Pago',
-    inspectorName: 'Equipe Rental Studio',
+    inspectorName: 'Equipe Sua Marca',
     completedAt: '05/07/2026 · 10:18',
-    reportUrl: 'https://rentalstudio.demo/i/abc123',
+    reportUrl: 'https://rentalcarsystem.lovable.app/i/abc123',
   },
 } satisfies TemplateEntry

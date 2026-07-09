@@ -753,7 +753,7 @@ function AdminBookingsDesktop() {
     }
     toast({ title: "Status atualizado" });
 
-    // Dispara e-mail Rental Studio (não bloqueia a UI)
+    // Dispara e-mail Sua Marca (não bloqueia a UI)
     try {
       const { sendZeusEmail } = await import("@/lib/emails/sendZeusEmail");
       const statusLabel: Record<string, string> = {
@@ -870,7 +870,7 @@ function AdminBookingsDesktop() {
     doc.setFillColor(196, 160, 56);
     doc.rect(0, 28, pageW, 1.5, "F");
 
-    // Rental Studio branding
+    // Sua Marca branding
     doc.setTextColor(196, 160, 56);
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
@@ -984,7 +984,7 @@ function AdminBookingsDesktop() {
       doc.setTextColor(160, 160, 160);
       doc.setFontSize(6);
       doc.setFont("helvetica", "normal");
-      doc.text(`Rental Studio — rentalstudio.demo`, 15, pageH - 5);
+      doc.text(`Sua Marca — rentalcarsystem.lovable.app`, 15, pageH - 5);
       doc.text(`Página ${p} de ${totalPages}`, pageW - 15, pageH - 5, { align: "right" });
     }
 

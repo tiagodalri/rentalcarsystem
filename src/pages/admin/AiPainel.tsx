@@ -1389,7 +1389,7 @@ export default function AiPainel({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="ai-card">
                 <CardHeader title="De onde vem a receita" sub="Quanto cada canal gerou de aluguel" icon={Layers} />
-                <ChannelBar label="Site Rental Studio (Câmbio Real)" value={channelMix.stripe} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="cyan" />
+                <ChannelBar label="Site Sua Marca (Câmbio Real)" value={channelMix.stripe} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="cyan" />
                 <ChannelBar label="Turo" value={channelMix.turo} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="violet" />
                 <ChannelBar label="Outros (reserva manual)" value={channelMix.other} total={channelMix.stripe + channelMix.turo + channelMix.other} hue="amber" />
               </div>

@@ -37,7 +37,7 @@ const content = {
     },
     cta: "VER DETALHES DA RESERVA",
     closing: "Em caso de dúvidas ou alteração, responda este e-mail.",
-    team: "— Equipe Rental Studio",
+    team: "— Equipe Sua Marca",
   },
   en: {
     subject: (num: string) => `Booking confirmed — ${num}`,
@@ -53,7 +53,7 @@ const content = {
     },
     cta: "VIEW BOOKING DETAILS",
     closing: "For questions or changes, reply to this email.",
-    team: "— Rental Studio Team",
+    team: "— Sua Marca Team",
   },
 } as const;
 
@@ -73,7 +73,7 @@ export function renderBookingConfirmation(
   const returnTime = d.returnTime || "";
   const pickupLocation = d.pickupLocation || "—";
   const totalPrice = d.totalPrice || "—";
-  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalstudio.demo";
+  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalcarsystem.lovable.app";
 
   const pickupFull = pickupTime ? `${pickupDate} · ${pickupTime}` : pickupDate;
   const returnFull = returnTime ? `${returnDate} · ${returnTime}` : returnDate;

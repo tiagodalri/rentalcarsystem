@@ -11,8 +11,8 @@ import { renderPasswordChanged } from "./templates/password-changed.ts";
 import { buildCorsHeaders } from "../_shared/cors.ts";
 // Resend direct API
 const RESEND_API_URL = "https://api.resend.com/emails";
-const FROM_EMAIL = "Rental Studio <noreply@rentalstudio.demo>";
-const REPLY_TO = "contato@rentalstudio.demo";
+const FROM_EMAIL = "Sua Marca <noreply@rentalcarsystem.lovable.app>";
+const REPLY_TO = "contato@rentalcarsystem.lovable.app";
 
 // Retry config: 1s, 4s, 9s
 const RETRY_DELAYS = [1000, 4000, 9000];
@@ -261,7 +261,7 @@ function renderTemplate(
 
   const templates: Record<string, () => RenderedEmail> = {
     test: () => ({
-      subject: "Rental Studio — Test Email",
+      subject: "Sua Marca — Test Email",
       html: emailLayout(
         `
           <h1 style="margin: 0 0 16px; font-size: 22px; font-weight: 800; color: ${colors.textPrimary};">
@@ -269,10 +269,10 @@ function renderTemplate(
           </h1>
           <p style="margin: 0 0 12px; font-size: 15px; color: ${colors.textSecondary}; line-height: 1.6;">
             ${l === "pt"
-              ? "Este é um e-mail de teste da Edge Function send-email. O layout base Rental Studio está ativo."
-              : "This is a test email from the send-email Edge Function. The Rental Studio base layout is active."}
+              ? "Este é um e-mail de teste da Edge Function send-email. O layout base Sua Marca está ativo."
+              : "This is a test email from the send-email Edge Function. The Sua Marca base layout is active."}
           </p>
-          ${emailButton(l === "pt" ? "VISITAR SITE" : "VISIT WEBSITE", "https://rentalstudio.demo")}
+          ${emailButton(l === "pt" ? "VISITAR SITE" : "VISIT WEBSITE", "https://rentalcarsystem.lovable.app")}
           <p style="margin: 16px 0 0; font-size: 12px; color: ${colors.textMuted};">
             Template: test | Layout: emailLayout v1
           </p>

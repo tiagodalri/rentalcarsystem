@@ -297,7 +297,7 @@ export async function generateInspectionPDF(data: InspectionData): Promise<void>
     doc.rect(0, 290, pageW, 7, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(7);
-    doc.text("Rental Studio — Inspeção Veicular", margin, 294.5);
+    doc.text("Sua Marca — Inspeção Veicular", margin, 294.5);
     doc.text(`Página ${i} de ${pageCount}`, pageW - margin - 25, 294.5);
   }
 

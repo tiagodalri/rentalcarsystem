@@ -84,7 +84,7 @@ export async function exportPainelPdf(opts: {
     // Rodapé
     pdf.setFontSize(8);
     pdf.setTextColor(120, 140, 170);
-    pdf.text("Rental Studio · Análise gerada por IA com base no histórico real da frota", marginX, pageH - 12);
+    pdf.text("Sua Marca · Análise gerada por IA com base no histórico real da frota", marginX, pageH - 12);
     pdf.text(`${pageIdx} / ${totalPages}`, pageW - marginX, pageH - 12, { align: "right" });
   };
 

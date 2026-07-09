@@ -320,7 +320,7 @@ const FleetSection = () => {
                     Em breve
                   </p>
                   <h3 className="text-[13.5px] sm:text-[14.5px] font-black uppercase tracking-wide text-foreground/70 leading-tight mt-0.5">
-                    Novidade Rental Studio
+                    Novidade Sua Marca
                   </h3>
                   <p className="text-[11px] text-muted-foreground italic mt-0.5 truncate">
                     Surpresa exclusiva

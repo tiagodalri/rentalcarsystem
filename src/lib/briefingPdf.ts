@@ -142,7 +142,7 @@ export async function exportBriefingToPdf({ briefing, contextLabel }: Opts) {
     doc.setTextColor(140, 140, 140);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text("Confidencial · Rental Studio", marginX, pageH - marginBottom + 34);
+    doc.text("Confidencial · Sua Marca", marginX, pageH - marginBottom + 34);
     doc.text(`Página ${pageNum}`, pageW - marginX, pageH - marginBottom + 34, { align: "right" });
   };
 
@@ -270,9 +270,9 @@ export async function exportBriefingToPdf({ briefing, contextLabel }: Opts) {
   doc.setFont("times", "italic");
   doc.setFontSize(10);
   doc.setTextColor(110, 110, 110);
-  doc.text("Gerado por AI Studio · Inteligência operacional para a frota Rental Studio.", marginX, y);
+  doc.text("Gerado por AI Studio · Inteligência operacional para a frota Sua Marca.", marginX, y);
 
   // Save
-  const fileName = `Rental Studio-Brain-Briefing-${format(new Date(), "yyyy-MM-dd-HHmm")}.pdf`;
+  const fileName = `Sua Marca-Brain-Briefing-${format(new Date(), "yyyy-MM-dd-HHmm")}.pdf`;
   doc.save(fileName);
 }

@@ -142,7 +142,7 @@ export default function PublicTrack() {
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-[10px] uppercase tracking-[0.25em] font-bold" style={{ color: GOLD }}>
-            Rastreamento ao vivo · Rental Studio
+            Rastreamento ao vivo · Sua Marca
           </p>
           <h1 className="text-sm font-bold text-white truncate">
             {data?.vehicle?.name ?? (loading ? "Carregando…" : "")}

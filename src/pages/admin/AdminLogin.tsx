@@ -35,7 +35,7 @@ export default function AdminLogin() {
     } else {
       if (!restrictedToastShown.current) {
         restrictedToastShown.current = true;
-        sonnerToast.error("Esta área é restrita à equipe Rental Studio. Faça login com sua conta de equipe.");
+        sonnerToast.error("Esta área é restrita à equipe Sua Marca. Faça login com sua conta de equipe.");
       }
       navigate("/", { replace: true });
     }
@@ -88,7 +88,7 @@ export default function AdminLogin() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@rentalstudio.demo"
+                  placeholder="admin@rentalcarsystem.lovable.app"
                   required
                   className="w-full h-10 pl-10 pr-3 rounded-lg border border-border/60 bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
                 />
@@ -131,7 +131,7 @@ export default function AdminLogin() {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground/60 mt-6">
-          © {new Date().getFullYear()} Rental Studio · Painel Administrativo
+          © {new Date().getFullYear()} Sua Marca · Painel Administrativo
         </p>
       </div>
     </div>

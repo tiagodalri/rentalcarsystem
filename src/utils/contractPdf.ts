@@ -53,7 +53,7 @@ export type ContractTemplate = {
 };
 
 export const DEFAULT_CONTRACT_TEMPLATE: ContractTemplate = {
-  company_name: "Rental Studio LLC",
+  company_name: "Sua Marca LLC",
   company_address: "Orlando, FL — EUA",
   company_ein: "—",
   header_subtitle: "CONTRATO DE LOCAÇÃO DE VEÍCULO",
@@ -66,7 +66,7 @@ export const DEFAULT_CONTRACT_TEMPLATE: ContractTemplate = {
   ],
   disclaimer:
     "* As cláusulas acima são versão inicial e estão sujeitas a revisão jurídica final pela LOCADORA antes de serem consideradas vinculativas.",
-  footer_text: "Contrato gerado eletronicamente — Rental Studio",
+  footer_text: "Contrato gerado eletronicamente — Sua Marca",
 };
 
 const fmtDate = (d?: string | null) =>

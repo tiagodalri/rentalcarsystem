@@ -42,7 +42,7 @@ function buildMessage(args: {
   const lines = [
     `*RENTAL STUDIO — ${title}*`,
     ``,
-    `*Código Rental Studio:* ${args.bookingNumber || "—"}`,
+    `*Código Sua Marca:* ${args.bookingNumber || "—"}`,
     `*Código Turo:* ${args.turoReservationCode || "—"}`,
     `*Cliente:* ${args.customerName}`,
     `*Veículo:* ${args.vehicleLabel}${args.plate ? ` (${args.plate})` : ""}`,
@@ -60,7 +60,7 @@ function buildMessage(args: {
     `*Agente:* ${args.agent || "—"}`,
     `*Concluída em:* ${fmtDate(args.completedAt)}`,
     ``,
-    `_Mensagem gerada automaticamente pelo sistema Rental Studio._`,
+    `_Mensagem gerada automaticamente pelo sistema Sua Marca._`,
   ];
   return lines.join("\n");
 }

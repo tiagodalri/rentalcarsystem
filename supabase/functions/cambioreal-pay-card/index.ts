@@ -177,7 +177,7 @@ serve(async (req) => {
             qty: 1,
             ref: orderId,
             category: "Car Rental",
-            brand: "Rental Studio",
+            brand: "Sua Marca",
             sku: vehicle_id,
           },
         ],

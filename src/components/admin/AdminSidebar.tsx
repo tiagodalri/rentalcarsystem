@@ -244,7 +244,7 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
       ...s,
       items: s.items.filter((it) => {
         if (!hasAny(it.allowedRoles)) return false;
-        if (it.url === "/admin/logs" && email.toLowerCase() !== "admin@rentalstudio.demo") return false;
+        if (it.url === "/admin/logs" && email.toLowerCase() !== "admin@rentalcarsystem.lovable.app") return false;
         return true;
       }),
     }))

@@ -408,10 +408,10 @@ export default function AdminPainel() {
 
         {hubView === "ia" && (
           <ComingSoonModule
-            title="Rental Studio IA"
+            title="Sua Marca IA"
             description="Sua assistente cognitiva dedicada. Pergunte sobre a operação, peça análises, gere relatórios e tome decisões com apoio em tempo real."
             bullets={[
-              "Chat com a inteligência da Rental Studio, treinada nos seus dados",
+              "Chat com a inteligência da Sua Marca, treinada nos seus dados",
               "Resumos executivos, comparativos e respostas em segundos",
               "Sugestões proativas com base no que está acontecendo agora",
               "Memória persistente do contexto da sua frota",

@@ -1,6 +1,6 @@
 {
-  "name": "Rental Studio — Aluguel Premium em Orlando",
-  "short_name": "Rental Studio",
+  "name": "Sua Marca — Aluguel Premium em Orlando",
+  "short_name": "Sua Marca",
   "description": "Locadora de carros premium para brasileiros em Orlando. Atendimento 100% em português, frota de luxo e suporte concierge.",
   "id": "/",
   "start_url": "/?source=pwa",
@@ -66,7 +66,7 @@
     {
       "name": "Contato",
       "short_name": "Contato",
-      "description": "Falar com a Rental Studio",
+      "description": "Falar com a Sua Marca",
       "url": "/contato?source=pwa-shortcut",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }

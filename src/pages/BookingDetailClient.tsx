@@ -183,7 +183,7 @@ const BookingDetailClient = () => {
             refundAmount: "A definir",
             refundMethod: "Estorno via cartão de origem",
             refundDeadline: "Até 10 dias úteis",
-            bookingDetailsUrl: `https://rentalstudio.demo/minha-conta/reserva/${dbBooking.booking_number}`,
+            bookingDetailsUrl: `https://rentalcarsystem.lovable.app/minha-conta/reserva/${dbBooking.booking_number}`,
           },
         },
       });
@@ -428,7 +428,7 @@ const BookingDetailClient = () => {
                     className="w-full flex items-center justify-center gap-2 border border-border/50 rounded-lg px-4 py-3 text-sm font-medium text-foreground hover:bg-accent transition-colors"
                   >
                     <MessageCircle size={16} />
-                    Falar com a Rental Studio
+                    Falar com a Sua Marca
                   </a>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>

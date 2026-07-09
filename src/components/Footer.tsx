@@ -18,7 +18,7 @@ const Footer = () => {
         </p>
 
         <a
-          href={`https://wa.me/15550000000?text=${encodeURIComponent("Olá, venho do site da Rental Studio e gostaria de realizar uma reserva!")}`}
+          href={`https://wa.me/15550000000?text=${encodeURIComponent("Olá, venho do site da Sua Marca e gostaria de realizar uma reserva!")}`}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-8 inline-flex items-center gap-2.5 gold-gradient text-primary-foreground px-9 py-4 rounded-xl text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-opacity shadow-lg shadow-primary/10"

@@ -67,7 +67,7 @@ type CarModelProps = {
 
 // Meshes do Tiguan que contêm decalques específicos do mercado chinês
 // (texto 上汽大众, placa "New Tiguan L PHEV", marcações 430 PHEV).
-// Ocultamos e substituímos por uma placa branca da Rental Studio + label "TIGUAN".
+// Ocultamos e substituímos por uma placa branca da Sua Marca + label "TIGUAN".
 const TIGUAN_BADGES_TO_HIDE = new Set<string>([
   "46_trunk_map_c_badges_0",     // trunk: chinese text + plate + 430 PHEV
   "73_PHEV_blue_plastic_blue_plastic_0", // PHEV blue tag
@@ -128,7 +128,7 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
   const bboxRef = useRef<{ center: THREE.Vector3; half: THREE.Vector3; lengthAxis: "x" | "z"; widthAxis: "x" | "z" } | null>(null);
 
 
-  // Ocultar decalques chineses e injetar placa Rental Studio + emblema TIGUAN no traseiro.
+  // Ocultar decalques chineses e injetar placa Sua Marca + emblema TIGUAN no traseiro.
   useEffect(() => {
     if (!url.includes("tiguan")) return;
     scene.updateMatrixWorld(true);

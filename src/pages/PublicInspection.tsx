@@ -47,7 +47,7 @@ export default function PublicInspection() {
 
   useEffect(() => {
     if (!token) return;
-    document.title = "Inspeção do Veículo — Rental Studio";
+    document.title = "Inspeção do Veículo — Sua Marca";
     (async () => {
       try {
         const res = await fetch(`${SUPABASE_URL}/functions/v1/public-inspection-view?token=${encodeURIComponent(token)}`, {
@@ -79,7 +79,7 @@ export default function PublicInspection() {
   if (state.status === "error") {
     const errMap: Record<string, string> = {
       not_found: "Este link de inspeção não existe ou foi removido.",
-      revoked: "Este link foi revogado pela equipe Rental Studio.",
+      revoked: "Este link foi revogado pela equipe Sua Marca.",
       expired: "Este link expirou.",
       invalid_token: "Link inválido.",
     };
@@ -111,7 +111,7 @@ export default function PublicInspection() {
           <div className="flex items-center gap-3 min-w-0">
             <BrandLogo size="sm" dark showMark={false} className="print:invert-0" />
             <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-background/60 print:text-black/60">Rental Studio</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-background/60 print:text-black/60">Sua Marca</p>
               <h1 className="text-base sm:text-lg font-semibold truncate">
                 {isCheckin ? "Inspeção de Entrega" : "Inspeção de Devolução"}
               </h1>
@@ -301,7 +301,7 @@ export default function PublicInspection() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { url: inspection.agent_signature, label: "Agente Rental Studio", name: inspection.agent_name },
+              { url: inspection.agent_signature, label: "Agente Sua Marca", name: inspection.agent_name },
               { url: inspection.customer_signature, label: "Cliente", name: booking.customer_name },
             ].map((s, i) => (
               <div key={i} className="rounded-xl border border-border bg-background/50 p-3">
@@ -320,7 +320,7 @@ export default function PublicInspection() {
         </section>
 
         <footer className="text-center text-[11px] text-muted-foreground pt-2 pb-6">
-          Documento gerado por Rental Studio • Link público compartilhado pela equipe.
+          Documento gerado por Sua Marca • Link público compartilhado pela equipe.
         </footer>
       </div>
     </div>
