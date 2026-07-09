@@ -1,7 +1,7 @@
 {
-  "name": "Sua Marca — Aluguel Premium em Orlando",
-  "short_name": "Sua Marca",
-  "description": "Locadora de carros premium para brasileiros em Orlando. Atendimento 100% em português, frota de luxo e suporte concierge.",
+  "name": "Plataforma de Locação de Veículos",
+  "short_name": "Locação",
+  "description": "Plataforma whitelabel para gestão e reserva de frotas de locação de veículos.",
   "id": "/",
   "start_url": "/?source=pwa",
   "scope": "/",
@@ -66,7 +66,7 @@
     {
       "name": "Contato",
       "short_name": "Contato",
-      "description": "Falar com a Sua Marca",
+      "description": "Entrar em contato",
       "url": "/contato?source=pwa-shortcut",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }
