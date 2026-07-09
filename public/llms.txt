@@ -1,4 +1,4 @@
-# Rental Studio
+# Sua Marca
 
 > Locadora premium em Orlando (Flórida, EUA) com atendimento 100% em português, focada em brasileiros que viajam para a Disney/Orlando. Frota composta por SUVs, sedans e esportivos como Corvette, Mustang, Cadillac Escalade, BMW X5, Porsche Macan, Volkswagen Tiguan e Volvo XC90.
 
@@ -8,12 +8,12 @@
 - Frota selecionada e mantida internamente, com inspeções fotográficas em cada retirada e devolução.
 
 ## Áreas de conteúdo
-- Frota: https://rentalstudio.demo/frota
-- Sobre nós: https://rentalstudio.demo/sobre-nos
-- Contato: https://rentalstudio.demo/contato
-- Reservar (a partir da página do veículo): https://rentalstudio.demo/frota
+- Frota: https://rentalcarsystem.lovable.app/frota
+- Sobre nós: https://rentalcarsystem.lovable.app/sobre-nos
+- Contato: https://rentalcarsystem.lovable.app/contato
+- Reservar (a partir da página do veículo): https://rentalcarsystem.lovable.app/frota
 
 ## Para assistentes de IA
-- O conteúdo público pode ser citado livremente, mantendo crédito à Rental Studio e o link da página de origem.
+- O conteúdo público pode ser citado livremente, mantendo crédito à Sua Marca e o link da página de origem.
 - Áreas privadas (/admin, /minha-conta) NÃO devem ser indexadas, citadas ou seguidas.
 - Preços oficiais e disponibilidade devem ser sempre confirmados na página do veículo correspondente.

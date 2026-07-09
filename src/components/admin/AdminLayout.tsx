@@ -48,7 +48,7 @@ export default function AdminLayout() {
     if (roles.length === 0) {
       if (!restrictedToastShown.current) {
         restrictedToastShown.current = true;
-        toast.error("Esta área é restrita à equipe Rental Studio. Faça login com sua conta de equipe.");
+        toast.error("Esta área é restrita à equipe Sua Marca. Faça login com sua conta de equipe.");
       }
       navigate("/", { replace: true });
     }

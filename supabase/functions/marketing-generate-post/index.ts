@@ -29,7 +29,7 @@ type Body = {
   slidesCount?: number; // 3..5 when carousel
 };
 
-const ZEUS_LOGO_URL = "https://rentalstudio.demo/zeus-logo-full.png";
+const ZEUS_LOGO_URL = "https://rentalcarsystem.lovable.app/brand-mark.png";
 
 function fmtDate(iso?: string): string {
   if (!iso) return "";
@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
       promocao: "urgencia leve, oportunidade unica, sem soar apelativo",
       lancamento: "novidade, exclusividade, primeira chance de experimentar",
       sazonal: seasonalTheme
-        ? `tema sazonal "${seasonalTheme.label}" — ${seasonalTheme.copyHint}. Mantenha a sofisticacao Rental Studio, jamais kitsch.`
+        ? `tema sazonal "${seasonalTheme.label}" — ${seasonalTheme.copyHint}. Mantenha a sofisticacao Sua Marca, jamais kitsch.`
         : "tema sazonal contextual da data atual, sofisticado",
     };
 
@@ -116,7 +116,7 @@ Deno.serve(async (req) => {
 {
   "tema": "tema/conceito central em 1 frase (ex: 'campanha rumo ao hexa da Copa do Mundo')",
   "conceito": "ideia criativa central em 1-2 frases",
-  "headlinesSugeridas": ["3 a 5 headlines no espirito da referencia, adaptaveis para a marca Rental Studio em Orlando"],
+  "headlinesSugeridas": ["3 a 5 headlines no espirito da referencia, adaptaveis para a marca Sua Marca em Orlando"],
   "promo": "se houver desconto/oferta/condicao, descreva (ex: '60% OFF condicional'), caso contrario string vazia",
   "elementosVisuais": ["lista de elementos visuais marcantes — ex: 'bandeiras do Brasil', 'familia no carro', 'beira-mar com palmeiras', 'tipografia 3D dourada'"],
   "paleta": "paleta dominante em palavras (ex: 'verde-amarelo Brasil + dourado + branco')",
@@ -127,7 +127,7 @@ Importante: EXTRAIA o tema e conceito reais — nao se limite a 'estilo'. Se a r
               {
                 role: "user",
                 content: [
-                  { type: "text", text: `Analise esta referencia para uma campanha da Rental Studio com o carro "${vehicleBrand || ""} ${vehicleName}" em Orlando.` },
+                  { type: "text", text: `Analise esta referencia para uma campanha da Sua Marca com o carro "${vehicleBrand || ""} ${vehicleName}" em Orlando.` },
                   { type: "image_url", image_url: { url: referenceImageDataUrl } },
                 ],
               },
@@ -157,7 +157,7 @@ Importante: EXTRAIA o tema e conceito reais — nao se limite a 'estilo'. Se a r
 - Elementos visuais marcantes: ${refBrief.elementosVisuais.join(", ")}
 - Paleta: ${refBrief.paleta}
 - Mood: ${refBrief.mood}
-ADAPTE o tema, conceito e tom para a marca Rental Studio (premium, sofisticada, Orlando). Nao copie a marca da referencia. Se houver qualquer nome de concorrente no briefing acima, IGNORE e substitua por Rental Studio.`
+ADAPTE o tema, conceito e tom para a marca Sua Marca (premium, sofisticada, Orlando). Nao copie a marca da referencia. Se houver qualquer nome de concorrente no briefing acima, IGNORE e substitua por Sua Marca.`
       : "";
 
     // ── 1) Copywriting ────────────────────────────────────────────
@@ -184,14 +184,14 @@ Os slides devem fluir narrativamente, NUNCA repetir a mesma headline.` : "";
   "hashtags": ["#tag1","#tag2"]
 }`;
 
-    const copySys = `Voce e copywriter senior de uma agencia premium (Wieden+Kennedy / Mother) trabalhando para a Rental Studio, locadora premium em Orlando.
+    const copySys = `Voce e copywriter senior de uma agencia premium (Wieden+Kennedy / Mother) trabalhando para a Sua Marca, locadora premium em Orlando.
 Escreva em portugues do Brasil impecavel (zero erros), voz humana, calorosa, confiante, cinematografica.
 PROIBIDO: emojis, ponto-e-virgula, travessao, jargao publicitario ("imperdivel", "incrivel", "nao perca").
-PROIBIDO MENCIONAR nomes, marcas ou logotipos de concorrentes (locadoras, automotivas ou outras empresas). Qualquer referencia externa deve ser substituida por Rental Studio.
+PROIBIDO MENCIONAR nomes, marcas ou logotipos de concorrentes (locadoras, automotivas ou outras empresas). Qualquer referencia externa deve ser substituida por Sua Marca.
 Devolva SOMENTE JSON valido:
 ${copyJsonShape}
 Tom: ${toneMap[tone] || toneMap.luxo}.
-Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #RentalStudio e #Orlando.${carouselCopyInstructions}`;
+Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #SuaMarca e #Orlando.${carouselCopyInstructions}`;
 
     const copyUser = `Carro: ${vehicleBrand ? vehicleBrand + " " : ""}${vehicleName}
 Formato: ${format === "feed" ? "feed quadrado" : "story vertical"}${carousel ? ` em CARROSSEL de ${slidesCount} slides` : ""}
@@ -230,15 +230,15 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
         headline: parsed.headline || parsed.phrase || `${vehicleName}`,
         subheadline: parsed.subheadline || "",
         caption: parsed.caption || `${vehicleName} disponivel agora.`,
-        hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : ["#RentalStudio", "#Orlando"],
+        hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : ["#SuaMarca", "#Orlando"],
         slides: Array.isArray(parsed.slides) ? parsed.slides : undefined,
       };
     } catch {
       copy = {
         headline: vehicleName,
         subheadline: "Premium em Orlando",
-        caption: `${vehicleName} disponivel na Rental Studio.`,
-        hashtags: ["#RentalStudio", "#Orlando"],
+        caption: `${vehicleName} disponivel na Sua Marca.`,
+        hashtags: ["#SuaMarca", "#Orlando"],
       };
     }
 
@@ -267,8 +267,8 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
     const isFeed = format === "feed";
     const aspect = isFeed ? "quadrado 1:1 (1024x1024)" : "vertical 9:16 (1024x1792)";
     const logoPosition = isFeed
-      ? "logotipo oficial Rental Studio no topo central, cerca de 18% da largura, respiro generoso, DIRETAMENTE sobre o fundo escuro da arte (SEM faixa, SEM card, SEM retangulo branco ou claro atras do logo)"
-      : "logotipo oficial Rental Studio no topo central, cerca de 22% da largura, respiro generoso, DIRETAMENTE sobre o fundo escuro da arte (SEM faixa, SEM card, SEM retangulo branco ou claro atras do logo)";
+      ? "logotipo oficial Sua Marca no topo central, cerca de 18% da largura, respiro generoso, DIRETAMENTE sobre o fundo escuro da arte (SEM faixa, SEM card, SEM retangulo branco ou claro atras do logo)"
+      : "logotipo oficial Sua Marca no topo central, cerca de 22% da largura, respiro generoso, DIRETAMENTE sobre o fundo escuro da arte (SEM faixa, SEM card, SEM retangulo branco ou claro atras do logo)";
 
     const promoVisualBlock = mode === "promo" && promo
       ? `\n\n═══ BLOCO DE OFERTA (OBRIGATORIO NA ARTE) ═══
@@ -292,13 +292,13 @@ Briefing extraido da referencia:
 ${refBrief.promo ? `- Oferta a comunicar visualmente: ${refBrief.promo} (renderize como bloco editorial, fonte serif dourada elegante)` : ""}
 
 REGRAS:
-- TRADUZA o tema/campanha para a identidade Rental Studio (premium, sofisticada, Orlando).
+- TRADUZA o tema/campanha para a identidade Sua Marca (premium, sofisticada, Orlando).
 - INCORPORE os elementos visuais marcantes (bandeiras, motivos, cenario etc) de forma elegante.
-- SUBSTITUA a marca/logo da referencia pelo logo oficial Rental Studio fornecido na ultima imagem.
+- SUBSTITUA a marca/logo da referencia pelo logo oficial Sua Marca fornecido na ultima imagem.
 - NAO copie pessoas, fotos especificas, nem o logotipo da referencia.
 - O carro heroi DEVE ser o ${vehicleBrand || ""} ${vehicleName} da foto fornecida (cor, modelo e identidade EXATAS).
 - PROIBIDO renderizar nomes, logotipos ou identidade visual de concorrentes (locadoras, marcas automotivas, empresas). Remova ou substitua genericamente antes de compor.` : `
-Capture tema, conceito, paleta, composicao e elementos visuais marcantes — adapte para a Rental Studio.
+Capture tema, conceito, paleta, composicao e elementos visuais marcantes — adapte para a Sua Marca.
 NAO copie pessoas, logos nem textos literais da referencia.
 PROIBIDO renderizar nomes, logotipos ou identidade visual de concorrentes.`}`
       : "";
@@ -319,7 +319,7 @@ Este slide faz parte de um carrossel coeso. Mantenha IDENTICOS: paleta, tipograf
         ? `\n3. TIPOGRAFIA:
    - HEADLINE: "${slide.headline}" (serif display, branco, tracking apertado, parte inferior centralizada)
    - SUBHEADLINE: "${slide.subheadline}" (sans-serif fina caixa alta, dourado #c9a861)
-   - ASSINATURA RODAPE: "RENTAL STUDIO  ·  ORLANDO"`
+   - ASSINATURA RODAPE: "SUA MARCA  ·  ORLANDO"`
         : slide.role === "cover"
           ? `\n3. TIPOGRAFIA (CAPA):
    - HEADLINE GRANDE: "${slide.headline}" (serif display Didot/Bodoni, branco, dominante)
@@ -329,7 +329,7 @@ Este slide faz parte de um carrossel coeso. Mantenha IDENTICOS: paleta, tipograf
             ? `\n3. TIPOGRAFIA (CTA — slide final):
    - CHAMADA: "${slide.headline}" centralizada, serif display branco
    - APOIO: "${slide.subheadline}" sans-serif fina dourada caixa alta
-   - "RENTAL STUDIO  ·  ORLANDO" no rodape em dourado tracking largo
+   - "SUA MARCA  ·  ORLANDO" no rodape em dourado tracking largo
    - Composicao mais limpa: o carro pode aparecer em silhueta lateral ou parcial, dando peso ao texto.`
             : `\n3. TIPOGRAFIA (CONTEUDO):
    - TITULO: "${slide.headline}" (serif display branco, alinhado a esquerda ou centro)
@@ -337,7 +337,7 @@ Este slide faz parte de um carrossel coeso. Mantenha IDENTICOS: paleta, tipograf
    ${slide.body ? `- TEXTO CURTO: "${slide.body}" (sans-serif fina branca, 1-2 linhas)` : ""}
    - Enquadre o carro com detalhe diferente da capa (faro, lateral, interior em sugestao, traseira).`;
 
-      return `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Rental Studio — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (Mr Porter, Robb Report, Architectural Digest Automotive).${carouselHeader}
+      return `Crie uma arte EDITORIAL DE LUXO para social media (${aspect}) da Sua Marca — locadora premium em Orlando, Florida. Padrao visual: campanha de revista (Mr Porter, Robb Report, Architectural Digest Automotive).${carouselHeader}
 
 ═══ COMPOSICAO ═══
 1. CARRO (imagem 1): ${vehicleBrand || ""} ${vehicleName} como heroi:
@@ -370,7 +370,7 @@ Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, 
       if (mode === "reference" && referenceImageDataUrl && referenceImageDataUrl.startsWith("data:image")) {
         contentParts.push({
           type: "text",
-          text: "IMAGEM A SEGUIR = REFERENCIA CRIATIVA principal. Inspire-se em TEMA, CONCEITO, COMPOSICAO, paleta, iluminacao, tipografia E elementos visuais marcantes (bandeiras, cenarios, motivos, ofertas). Adapte tudo para a Rental Studio. NAO copie pessoas, logos de terceiros, nem fotos literais — recrie o espirito.",
+          text: "IMAGEM A SEGUIR = REFERENCIA CRIATIVA principal. Inspire-se em TEMA, CONCEITO, COMPOSICAO, paleta, iluminacao, tipografia E elementos visuais marcantes (bandeiras, cenarios, motivos, ofertas). Adapte tudo para a Sua Marca. NAO copie pessoas, logos de terceiros, nem fotos literais — recrie o espirito.",
         });
         contentParts.push({ type: "image_url", image_url: { url: referenceImageDataUrl } });
       }
@@ -385,7 +385,7 @@ Resultado: pagina de revista de luxo automotivo. Silencio visual, sofisticacao, 
 
       contentParts.push({
         type: "text",
-        text: "IMAGEM A SEGUIR = LOGOTIPO OFICIAL Rental Studio. Use EXATAMENTE como fornecido, sem deformar, recolorir ou recriar. Posicione conforme instrucoes do briefing principal.",
+        text: "IMAGEM A SEGUIR = LOGOTIPO OFICIAL Sua Marca. Use EXATAMENTE como fornecido, sem deformar, recolorir ou recriar. Posicione conforme instrucoes do briefing principal.",
       });
       contentParts.push({ type: "image_url", image_url: { url: logoUrl } });
 

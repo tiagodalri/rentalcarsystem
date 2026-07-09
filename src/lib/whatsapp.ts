@@ -9,6 +9,6 @@ export function buildWhatsAppUrl(phone: string | null | undefined, message?: str
 export function defaultClientMessage(name?: string | null): string {
   const firstName = (name || "").split(" ")[0] || "";
   return firstName
-    ? `Olá ${firstName}, aqui é da Rental Studio.`
-    : `Olá, aqui é da Rental Studio.`;
+    ? `Olá ${firstName}, aqui é da Sua Marca.`
+    : `Olá, aqui é da Sua Marca.`;
 }

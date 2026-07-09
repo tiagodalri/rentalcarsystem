@@ -35,7 +35,7 @@ const content = {
     },
     cta: "VER DETALHES DA RESERVA",
     closing: "Guarde este e-mail. Em caso de necessidade, ele serve como comprovante fiscal.",
-    team: "— Equipe Rental Studio",
+    team: "— Equipe Sua Marca",
   },
   en: {
     subject: (num: string) => `Payment receipt — ${num}`,
@@ -51,7 +51,7 @@ const content = {
     },
     cta: "VIEW BOOKING DETAILS",
     closing: "Keep this email. It can be used as a payment proof if needed.",
-    team: "— Rental Studio Team",
+    team: "— Sua Marca Team",
   },
 } as const;
 
@@ -69,7 +69,7 @@ export function renderPaymentReceipt(
   const paymentMethod = d.paymentMethod || "—";
   const paymentDate = d.paymentDate || "—";
   const transactionId = d.transactionId || "—";
-  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalstudio.demo";
+  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalcarsystem.lovable.app";
 
   const detailsHtml = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">

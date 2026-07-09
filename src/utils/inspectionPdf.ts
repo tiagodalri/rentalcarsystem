@@ -70,7 +70,7 @@ export async function generateInspectionPDF(data: InspectionData): Promise<void>
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text("RENTAL STUDIO", margin, 15);
+  doc.text("SUA MARCA", margin, 15);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.text(type === "checkin" ? "RELATÓRIO DE ENTREGA DO VEÍCULO" : "RELATÓRIO DE DEVOLUÇÃO DO VEÍCULO", margin, 23);
@@ -297,7 +297,7 @@ export async function generateInspectionPDF(data: InspectionData): Promise<void>
     doc.rect(0, 290, pageW, 7, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(7);
-    doc.text("Rental Studio — Inspeção Veicular", margin, 294.5);
+    doc.text("Sua Marca — Inspeção Veicular", margin, 294.5);
     doc.text(`Página ${i} de ${pageCount}`, pageW - margin - 25, 294.5);
   }
 

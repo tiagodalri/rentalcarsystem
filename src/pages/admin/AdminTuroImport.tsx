@@ -46,7 +46,7 @@ export default function AdminTuroImport() {
 
   useEffect(() => {
     const prev = document.title;
-    document.title = "Sincronizar Turo · Rental Studio";
+    document.title = "Sincronizar Turo · Sua Marca";
     return () => { document.title = prev; };
   }, []);
 
@@ -260,11 +260,11 @@ export default function AdminTuroImport() {
           {/* KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             <Kpi label="Total CSV" value={summary.total} tone="default" hint="Linhas válidas lidas dos arquivos enviados." />
-            <Kpi label="Novas" value={summary.newCount} tone="success" hint="Reservas que ainda não existem no Rental Studio — serão criadas." />
-            <Kpi label="Enriquecer" value={summary.enrichCount} tone="warning" hint="Já existem no Rental Studio, mas o CSV traz dados novos (ex: hora real de devolução, valor final, status que avançou para 'concluída')." />
+            <Kpi label="Novas" value={summary.newCount} tone="success" hint="Reservas que ainda não existem no Sua Marca — serão criadas." />
+            <Kpi label="Enriquecer" value={summary.enrichCount} tone="warning" hint="Já existem no Sua Marca, mas o CSV traz dados novos (ex: hora real de devolução, valor final, status que avançou para 'concluída')." />
             <Kpi label="Em dia" value={summary.identicalCount} tone="muted" hint="Reservas idênticas — não precisam de nada." />
             <Kpi label="Canceladas" value={summary.cancelledCount} tone="danger" hint="CSV marca como cancelada. Aplicar só atualiza status; não cria." />
-            <Kpi label="Sem veículo" value={summary.unmappedCount} tone="orange" hint="O modelo do CSV ainda não foi vinculado a um carro da frota Rental Studio." />
+            <Kpi label="Sem veículo" value={summary.unmappedCount} tone="orange" hint="O modelo do CSV ainda não foi vinculado a um carro da frota Sua Marca." />
           </div>
 
           {/* Explicação do que é 'Enriquecer' e por que tem pré-selecionadas */}
@@ -280,7 +280,7 @@ export default function AdminTuroImport() {
             <div className="rounded-xl border border-border/60 bg-card p-4">
               <div className="text-sm font-semibold mb-1">Onde estão as divergências</div>
               <div className="text-xs text-muted-foreground mb-3">
-                Cada barra mostra em quantas reservas aquele campo difere entre o CSV e o Rental Studio. "Auto" = será aplicado se você confirmar. "Manual" = só com seu opt-in.
+                Cada barra mostra em quantas reservas aquele campo difere entre o CSV e o Sua Marca. "Auto" = será aplicado se você confirmar. "Manual" = só com seu opt-in.
               </div>
               <div className="space-y-1.5">
                 {fieldBreakdown.map((f) => {

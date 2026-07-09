@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /minha-conta/
 
-Sitemap: https://rentalstudio.demo/sitemap.xml
+Sitemap: https://rentalcarsystem.lovable.app/sitemap.xml

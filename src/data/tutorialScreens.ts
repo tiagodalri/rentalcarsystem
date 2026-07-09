@@ -1,5 +1,5 @@
 // Screenshot registry for the guided tutorials.
-// Each entry resolves to a CDN-hosted image of the real Rental Studio admin screen.
+// Each entry resolves to a CDN-hosted image of the real Sua Marca admin screen.
 import painel from "@/assets/tutorials/painel.jpg.asset.json";
 import opsToday from "@/assets/tutorials/ops-today.jpg.asset.json";
 import bookings from "@/assets/tutorials/bookings.jpg.asset.json";

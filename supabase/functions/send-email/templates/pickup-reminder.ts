@@ -41,7 +41,7 @@ const content = {
     ],
     cta: "VER DETALHES",
     closing: "Em caso de imprevistos, responda este e-mail ou chame no WhatsApp.",
-    team: "— Equipe Rental Studio",
+    team: "— Equipe Sua Marca",
   },
   en: {
     subject: (num: string) => `Your pickup is tomorrow — ${num}`,
@@ -63,7 +63,7 @@ const content = {
     ],
     cta: "VIEW DETAILS",
     closing: "If anything comes up, reply to this email or text us on WhatsApp.",
-    team: "— Rental Studio Team",
+    team: "— Sua Marca Team",
   },
 } as const;
 
@@ -81,7 +81,7 @@ export function renderPickupReminder(
   const pickupTime = d.pickupTime || "";
   const pickupLocation = d.pickupLocation || "—";
   const pickupAddress = (d.pickupAddress || "").trim();
-  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalstudio.demo";
+  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalcarsystem.lovable.app";
 
   const dateTimeFull = pickupTime ? `${pickupDate} · ${pickupTime}` : pickupDate;
 

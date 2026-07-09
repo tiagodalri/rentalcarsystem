@@ -22,7 +22,7 @@ import {
 import { UserActivitySheet } from "@/components/admin/UserActivitySheet";
 import { ChevronRight } from "lucide-react";
 
-const ALLOWED_EMAIL = "admin@rentalstudio.demo";
+const ALLOWED_EMAIL = "admin@rentalcarsystem.lovable.app";
 
 type LogRow = {
   id: string;

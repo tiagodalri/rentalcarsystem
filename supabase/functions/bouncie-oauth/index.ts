@@ -8,8 +8,8 @@ const BOUNCIE_CLIENT_ID = Deno.env.get("BOUNCIE_CLIENT_ID")!;
 const BOUNCIE_CLIENT_SECRET = Deno.env.get("BOUNCIE_CLIENT_SECRET")!;
 const BOUNCIE_REDIRECT_URI = Deno.env.get("BOUNCIE_REDIRECT_URI")!;
 
-const REDIRECT_SUCCESS = "https://rentalstudio.demo/admin?bouncie=connected";
-const REDIRECT_ERROR = "https://rentalstudio.demo/admin?bouncie=error";
+const REDIRECT_SUCCESS = "https://rentalcarsystem.lovable.app/admin?bouncie=connected";
+const REDIRECT_ERROR = "https://rentalcarsystem.lovable.app/admin?bouncie=error";
 
 Deno.serve(async (req) => {
   try {

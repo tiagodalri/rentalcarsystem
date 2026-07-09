@@ -4,7 +4,7 @@ import {
   Body, Container, Head, Heading, Html, Img, Preview, Section, Text, Hr, Link, Row, Column,
 } from 'npm:@react-email/components@0.0.22'
 
-// Rental Studio — Private bank visual identity
+// Sua Marca — Private bank visual identity
 // Background sempre #ffffff (regra Lovable Emails)
 export const zeus = {
   black: '#0a0a0a',
@@ -233,7 +233,7 @@ export function ZeusLayout({ preview, eyebrow: eb, title, children }: LayoutProp
       <Body style={main}>
         <Container style={wrap}>
           <Section style={headerBar}>
-            <Text style={brand}>RENTAL STUDIO</Text>
+            <Text style={brand}>SUA MARCA</Text>
             <Text style={tagline}>Rental Car · Orlando &amp; Miami</Text>
           </Section>
           <div style={goldStripe}>&nbsp;</div>
@@ -245,12 +245,12 @@ export function ZeusLayout({ preview, eyebrow: eb, title, children }: LayoutProp
           </Section>
 
           <Section style={footer}>
-            <Text style={footerBrand}>Rental Studio</Text>
+            <Text style={footerBrand}>Sua Marca</Text>
             <Text style={footerText}>
               Atendimento concierge · WhatsApp <Link href="https://wa.me/15550000000" style={{ color: zeus.black, textDecoration: 'none' }}>+1 (555) 000-0000</Link>
             </Text>
             <Text style={footerText}>
-              <Link href="https://rentalstudio.demo" style={{ color: zeus.muted, textDecoration: 'none' }}>rentalstudio.demo</Link>
+              <Link href="https://rentalcarsystem.lovable.app" style={{ color: zeus.muted, textDecoration: 'none' }}>rentalcarsystem.lovable.app</Link>
             </Text>
           </Section>
         </Container>

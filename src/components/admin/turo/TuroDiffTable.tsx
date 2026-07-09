@@ -269,7 +269,7 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
                   {isOpen && c.kind === "unmapped" && (
                     <div className="mt-3 pl-7 pr-1">
                       <div className="text-xs text-muted-foreground mb-2">
-                        O veículo <span className="font-medium text-foreground">"{c.row.vehicleModel}"</span> ainda não foi vinculado a um carro da frota Rental Studio.
+                        O veículo <span className="font-medium text-foreground">"{c.row.vehicleModel}"</span> ainda não foi vinculado a um carro da frota Sua Marca.
                       </div>
                       <TuroVehicleMapper
                         turoVehicleName={c.row.vehicleModel}

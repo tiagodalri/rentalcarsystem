@@ -77,7 +77,7 @@ const Email = (p: Props) => (
 
 export const template = {
   component: Email,
-  subject: (d: Props) => `Reserva ${d.bookingNumber ?? 'confirmada'} · ${d.vehicleName ?? 'Rental Studio'}`,
+  subject: (d: Props) => `Reserva ${d.bookingNumber ?? 'confirmada'} · ${d.vehicleName ?? 'Sua Marca'}`,
   displayName: 'Reserva confirmada',
   previewData: {
     bookingNumber: 'ZRC-0142',
@@ -92,6 +92,6 @@ export const template = {
     returnLocation: 'MCO — Terminal A',
     totalPrice: 'USD 1.890,00',
     paymentStatus: 'Pago',
-    bookingUrl: 'https://rentalstudio.demo/admin/bookings/123',
+    bookingUrl: 'https://rentalcarsystem.lovable.app/admin/bookings/123',
   },
 } satisfies TemplateEntry

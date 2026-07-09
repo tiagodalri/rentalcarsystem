@@ -40,9 +40,9 @@ function buildMessage(args: {
   const fmtDate = (d?: string | null) =>
     d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
   const lines = [
-    `*RENTAL STUDIO — ${title}*`,
+    `*SUA MARCA — ${title}*`,
     ``,
-    `*Código Rental Studio:* ${args.bookingNumber || "—"}`,
+    `*Código Sua Marca:* ${args.bookingNumber || "—"}`,
     `*Código Turo:* ${args.turoReservationCode || "—"}`,
     `*Cliente:* ${args.customerName}`,
     `*Veículo:* ${args.vehicleLabel}${args.plate ? ` (${args.plate})` : ""}`,
@@ -60,7 +60,7 @@ function buildMessage(args: {
     `*Agente:* ${args.agent || "—"}`,
     `*Concluída em:* ${fmtDate(args.completedAt)}`,
     ``,
-    `_Mensagem gerada automaticamente pelo sistema Rental Studio._`,
+    `_Mensagem gerada automaticamente pelo sistema Sua Marca._`,
   ];
   return lines.join("\n");
 }

@@ -29,7 +29,7 @@ export default function AdminEpassImport() {
 
   useEffect(() => {
     const prev = document.title;
-    document.title = "Sincronizar E-Pass · Rental Studio";
+    document.title = "Sincronizar E-Pass · Sua Marca";
     return () => { document.title = prev; };
   }, []);
 

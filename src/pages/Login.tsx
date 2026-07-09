@@ -230,7 +230,7 @@ const Login = () => {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground/60 mt-6">
-          © {new Date().getFullYear()} Rental Studio. Todos os direitos reservados.
+          © {new Date().getFullYear()} Sua Marca. Todos os direitos reservados.
         </p>
       </div>
     </div>

@@ -40,7 +40,7 @@ const content = {
     },
     cta: "VER HISTÓRICO",
     closing: "Em caso de dúvidas sobre o reembolso, responda este e-mail ou chame no WhatsApp.",
-    team: "— Equipe Rental Studio",
+    team: "— Equipe Sua Marca",
   },
   en: {
     subject: (num: string) => `Booking canceled — ${num}`,
@@ -60,7 +60,7 @@ const content = {
     },
     cta: "VIEW HISTORY",
     closing: "For questions about your refund, reply to this email or text us on WhatsApp.",
-    team: "— Rental Studio Team",
+    team: "— Sua Marca Team",
   },
 } as const;
 
@@ -79,7 +79,7 @@ export function renderBookingCancellation(
   const refundAmount = d.refundAmount || "—";
   const refundMethod = d.refundMethod || "—";
   const refundDeadline = d.refundDeadline || "—";
-  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalstudio.demo";
+  const bookingDetailsUrl = d.bookingDetailsUrl || "https://rentalcarsystem.lovable.app";
 
   const bookingDetailsHtml = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">

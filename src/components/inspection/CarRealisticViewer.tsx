@@ -67,7 +67,7 @@ type CarModelProps = {
 
 // Meshes do Tiguan que contêm decalques específicos do mercado chinês
 // (texto 上汽大众, placa "New Tiguan L PHEV", marcações 430 PHEV).
-// Ocultamos e substituímos por uma placa branca da Rental Studio + label "TIGUAN".
+// Ocultamos e substituímos por uma placa branca da Sua Marca + label "TIGUAN".
 const TIGUAN_BADGES_TO_HIDE = new Set<string>([
   "46_trunk_map_c_badges_0",     // trunk: chinese text + plate + 430 PHEV
   "73_PHEV_blue_plastic_blue_plastic_0", // PHEV blue tag
@@ -93,11 +93,11 @@ function makeZeusPlateTexture(): THREE.CanvasTexture {
   ctx.font = "600 26px 'Inter', sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("RENTAL STUDIO · ORLANDO FL", W / 2, 38);
+  ctx.fillText("SUA MARCA · ORLANDO FL", W / 2, 38);
   // placa principal
   ctx.fillStyle = "#0a0a0a";
   ctx.font = "700 130px 'Inter', sans-serif";
-  ctx.fillText("RENTAL STUDIO", W / 2, 165);
+  ctx.fillText("SUA MARCA", W / 2, 165);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 8;
@@ -128,7 +128,7 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
   const bboxRef = useRef<{ center: THREE.Vector3; half: THREE.Vector3; lengthAxis: "x" | "z"; widthAxis: "x" | "z" } | null>(null);
 
 
-  // Ocultar decalques chineses e injetar placa Rental Studio + emblema TIGUAN no traseiro.
+  // Ocultar decalques chineses e injetar placa Sua Marca + emblema TIGUAN no traseiro.
   useEffect(() => {
     if (!url.includes("tiguan")) return;
     scene.updateMatrixWorld(true);
@@ -160,7 +160,7 @@ function CarModel({ url, hoveredLabel, damagedLabels, onHover, onPick, disabled,
     const group = new THREE.Group();
     group.name = "__zeus_rear_overlay__";
 
-    // PLACA RENTAL STUDIO
+    // PLACA SUA MARCA
     const plateW = carWidth * 0.28;
     const plateH = plateW * 0.25;
     const plateGeo = new THREE.PlaneGeometry(plateW, plateH);

@@ -128,8 +128,8 @@ serve(async (req) => {
       .single();
     if (bookErr) return json({ error: "Booking create failed: " + bookErr.message }, 500);
 
-    const orderId = `RENTAL STUDIO-${booking.id}`;
-    const origin = site_origin || req.headers.get("origin") || "https://rentalstudio.demo";
+    const orderId = `SUA MARCA-${booking.id}`;
+    const origin = site_origin || req.headers.get("origin") || "https://rentalcarsystem.lovable.app";
 
     const payload = {
       order_id: orderId,
@@ -155,7 +155,7 @@ serve(async (req) => {
           qty: 1,
           ref: orderId,
           category: "Car Rental",
-          brand: "Rental Studio",
+          brand: "Sua Marca",
           sku: vehicle_id,
         },
       ],

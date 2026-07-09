@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
     const signers = Array.isArray(csJson?.data) ? csJson.data : [];
 
     // Para clientes finais, devolver só o link do próprio signer (por e-mail).
-    // Para staff, devolver o link do signer cliente também (Rental Studio assina via API).
+    // Para staff, devolver o link do signer cliente também (Sua Marca assina via API).
     const targetEmail = (customer?.email ?? "").trim().toLowerCase();
     const customerSigner = signers.find((s: any) => {
       const e = (s?.attributes?.email ?? "").trim().toLowerCase();

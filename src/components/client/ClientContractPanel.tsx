@@ -81,7 +81,7 @@ const ClientContractPanel = ({ bookingId, contractStatus, signedAt, signedPdfPat
       body = (
         <>
           <p className="text-xs text-muted-foreground mb-3">
-            O contrato foi gerado e pré-assinado pela Rental Studio. Falta apenas a sua assinatura para concluir.
+            O contrato foi gerado e pré-assinado pela Sua Marca. Falta apenas a sua assinatura para concluir.
           </p>
           <button
             onClick={fetchSignUrl}
@@ -106,7 +106,7 @@ const ClientContractPanel = ({ bookingId, contractStatus, signedAt, signedPdfPat
       header = { icon: AlertTriangle, label: "Falha ao gerar contrato", tone: "text-red-600" };
       body = (
         <p className="text-xs text-muted-foreground">
-          Algo deu errado. Fale com a Rental Studio pelo WhatsApp e geraremos novamente.
+          Algo deu errado. Fale com a Sua Marca pelo WhatsApp e geraremos novamente.
         </p>
       );
       break;
@@ -118,7 +118,7 @@ const ClientContractPanel = ({ bookingId, contractStatus, signedAt, signedPdfPat
       header = { icon: Clock, label: "Aguardando confirmação do pagamento", tone: "text-muted-foreground" };
       body = (
         <p className="text-xs text-muted-foreground">
-          Assim que o pagamento for confirmado, o contrato é gerado, pré-assinado pela Rental Studio e enviado para sua assinatura.
+          Assim que o pagamento for confirmado, o contrato é gerado, pré-assinado pela Sua Marca e enviado para sua assinatura.
         </p>
       );
   }

@@ -15,7 +15,7 @@ import { clearFormDraft, useFormDraft } from "@/hooks/useFormDraft";
    CLIENTES — Mobile-first
    Lista estilo agenda do iPhone: avatares com inicial,
    agrupado por letra, swipe→ligar/whatsapp.
-   Segmento Regular (Rental Studio) / Turo igual ao desktop.
+   Segmento Regular (Sua Marca) / Turo igual ao desktop.
    ============================================================ */
 
 type Customer = {
@@ -206,10 +206,10 @@ export default function MobileCustomers() {
           <CustomersSubNav />
         </div>
         <div className="px-4">
-          {/* Segmento Rental Studio (Regular) / Turo */}
+          {/* Segmento Sua Marca (Regular) / Turo */}
           <div className="mt-1 grid grid-cols-2 gap-2">
             {([
-              { id: "regular" as const, label: "Rental Studio", icon: Users, count: counts.regular },
+              { id: "regular" as const, label: "Sua Marca", icon: Users, count: counts.regular },
               { id: "turo" as const, label: "Turo", icon: Car, count: counts.turo },
             ]).map((s) => {
               const Icon = s.icon;
@@ -351,7 +351,7 @@ export default function MobileCustomers() {
               <div className="px-4 py-4 space-y-4">
                 <div className="grid grid-cols-2 gap-2">
                   {([
-                    { id: "regular" as const, label: "Rental Studio", icon: Users },
+                    { id: "regular" as const, label: "Sua Marca", icon: Users },
                     { id: "turo" as const, label: "Turo", icon: Car },
                   ]).map((option) => {
                     const Icon = option.icon;

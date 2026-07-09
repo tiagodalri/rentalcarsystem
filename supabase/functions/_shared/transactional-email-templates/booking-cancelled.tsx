@@ -59,6 +59,6 @@ export const template = {
     returnDate: '05/07/2026 · 10:00',
     totalPrice: 'USD 1.890,00',
     cancelledAt: '27/06/2026 · 18:42',
-    bookingUrl: 'https://rentalstudio.demo/admin/bookings/123',
+    bookingUrl: 'https://rentalcarsystem.lovable.app/admin/bookings/123',
   },
 } satisfies TemplateEntry

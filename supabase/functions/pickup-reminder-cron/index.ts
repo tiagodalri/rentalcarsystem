@@ -101,7 +101,7 @@ serve(async (req) => {
               pickupDate: booking.pickup_date,
               pickupTime: booking.pickup_time || "10:00",
               pickupLocation: booking.pickup_location || "—",
-              bookingDetailsUrl: "https://rentalstudio.demo/minha-conta",
+              bookingDetailsUrl: "https://rentalcarsystem.lovable.app/minha-conta",
             },
           },
         });
