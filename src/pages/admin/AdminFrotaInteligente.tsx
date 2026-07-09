@@ -24,15 +24,21 @@ export default function AdminFrotaInteligente() {
     <>
       {/* Overrides globais só enquanto essa rota está montada */}
       <style>{`
-        body.frota-inteligente-route .admin-shell > div > header,
-        body.frota-inteligente-route .admin-shell > div > .hidden.lg\\:flex,
-        body.frota-inteligente-route .admin-shell > div > main {
-          background: ${BEIGE_BG} !important;
-          border-color: transparent !important;
+        body.frota-inteligente-route .admin-shell main,
+        body.frota-inteligente-route .admin-shell main > * {
+          background: transparent !important;
         }
         body.frota-inteligente-route .admin-shell > div > header {
+          background: ${BEIGE_BG} !important;
+          border-color: transparent !important;
           box-shadow: none !important;
           backdrop-filter: none !important;
+        }
+        body.frota-inteligente-route .admin-shell > div > div.hidden.lg\\:flex.h-10 {
+          background: ${BEIGE_BG} !important;
+        }
+        body.frota-inteligente-route .admin-shell > div > main {
+          background: ${BEIGE_BG} !important;
         }
       `}</style>
       <div className="min-h-full -mx-4 -mt-4 lg:-mx-8 lg:-mt-8 px-4 pt-4 lg:px-8 lg:pt-8" style={{ background: BEIGE_BG }}>
