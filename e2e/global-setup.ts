@@ -25,7 +25,7 @@ export default async function globalSetup(_config: FullConfig) {
         page.click('button[type="submit"]'),
       ]);
       // Sanity: sidebar logo / dashboard mounted
-      await page.waitForSelector('img[alt="Rental Studio"]', { timeout: 10_000 });
+      await page.waitForSelector('img[alt="Sua Marca"]', { timeout: 10_000 });
 
       const storagePath = `e2e/.auth/${acc.role}.json`;
       mkdirSync(dirname(storagePath), { recursive: true });

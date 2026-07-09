@@ -19,7 +19,7 @@ const BLOCKED_URL_BY_ROLE: Record<Exclude<Role, "admin">, string> = {
 
 async function gotoAdmin(page: Page) {
   await page.goto("/admin");
-  await page.waitForSelector('img[alt="Rental Studio"]', { timeout: 10_000 });
+  await page.waitForSelector('img[alt="Sua Marca"]', { timeout: 10_000 });
 }
 
 test.describe("RBAC", () => {
