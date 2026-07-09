@@ -124,7 +124,7 @@ export async function exportBriefingToPdf({ briefing, contextLabel }: Opts) {
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(13);
-    doc.text("RENTAL STUDIO", marginX, 34);
+    doc.text("SUA MARCA", marginX, 34);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(212, 175, 55);

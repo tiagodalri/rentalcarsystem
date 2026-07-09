@@ -326,7 +326,7 @@ export default function AdminPainel() {
                 textShadow: "0 1px 0 rgba(255,255,255,0.6)",
               }}
             >
-              RENTAL STUDIO BRAIN
+              SUA MARCA BRAIN
             </div>
             <div className="flex-1 flex justify-end">
               <button

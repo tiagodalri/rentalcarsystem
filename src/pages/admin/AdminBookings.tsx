@@ -874,7 +874,7 @@ function AdminBookingsDesktop() {
     doc.setTextColor(196, 160, 56);
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text("RENTAL STUDIO", 15, 14);
+    doc.text("SUA MARCA", 15, 14);
 
     doc.setTextColor(180, 180, 180);
     doc.setFontSize(8);

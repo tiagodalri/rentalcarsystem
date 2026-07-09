@@ -1,4 +1,4 @@
-# Rental Studio
+# Plataforma de Locação de Veículos
 
 Sistema completo de gestão de locação de veículos premium em Orlando, FL.
 

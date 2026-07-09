@@ -70,7 +70,7 @@ export async function generateInspectionPDF(data: InspectionData): Promise<void>
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text("RENTAL STUDIO", margin, 15);
+  doc.text("SUA MARCA", margin, 15);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.text(type === "checkin" ? "RELATÓRIO DE ENTREGA DO VEÍCULO" : "RELATÓRIO DE DEVOLUÇÃO DO VEÍCULO", margin, 23);

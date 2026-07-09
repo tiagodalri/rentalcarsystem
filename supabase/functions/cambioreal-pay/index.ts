@@ -141,7 +141,7 @@ serve(async (req) => {
       .single();
     if (bookErr) return json({ error: "Booking create failed: " + bookErr.message }, 500);
 
-    const orderId = `RENTAL STUDIO-${booking.id}`;
+    const orderId = `SUA MARCA-${booking.id}`;
 
     // Helper: detects "email already registered" errors from Câmbio Real
     function isEmailConflict(j: any, status: number): boolean {

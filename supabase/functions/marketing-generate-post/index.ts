@@ -191,7 +191,7 @@ PROIBIDO MENCIONAR nomes, marcas ou logotipos de concorrentes (locadoras, automo
 Devolva SOMENTE JSON valido:
 ${copyJsonShape}
 Tom: ${toneMap[tone] || toneMap.luxo}.
-Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #RentalStudio e #Orlando.${carouselCopyInstructions}`;
+Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #SuaMarca e #Orlando.${carouselCopyInstructions}`;
 
     const copyUser = `Carro: ${vehicleBrand ? vehicleBrand + " " : ""}${vehicleName}
 Formato: ${format === "feed" ? "feed quadrado" : "story vertical"}${carousel ? ` em CARROSSEL de ${slidesCount} slides` : ""}
@@ -230,7 +230,7 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
         headline: parsed.headline || parsed.phrase || `${vehicleName}`,
         subheadline: parsed.subheadline || "",
         caption: parsed.caption || `${vehicleName} disponivel agora.`,
-        hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : ["#RentalStudio", "#Orlando"],
+        hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : ["#SuaMarca", "#Orlando"],
         slides: Array.isArray(parsed.slides) ? parsed.slides : undefined,
       };
     } catch {
@@ -238,7 +238,7 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
         headline: vehicleName,
         subheadline: "Premium em Orlando",
         caption: `${vehicleName} disponivel na Sua Marca.`,
-        hashtags: ["#RentalStudio", "#Orlando"],
+        hashtags: ["#SuaMarca", "#Orlando"],
       };
     }
 
@@ -319,7 +319,7 @@ Este slide faz parte de um carrossel coeso. Mantenha IDENTICOS: paleta, tipograf
         ? `\n3. TIPOGRAFIA:
    - HEADLINE: "${slide.headline}" (serif display, branco, tracking apertado, parte inferior centralizada)
    - SUBHEADLINE: "${slide.subheadline}" (sans-serif fina caixa alta, dourado #c9a861)
-   - ASSINATURA RODAPE: "RENTAL STUDIO  ·  ORLANDO"`
+   - ASSINATURA RODAPE: "SUA MARCA  ·  ORLANDO"`
         : slide.role === "cover"
           ? `\n3. TIPOGRAFIA (CAPA):
    - HEADLINE GRANDE: "${slide.headline}" (serif display Didot/Bodoni, branco, dominante)
@@ -329,7 +329,7 @@ Este slide faz parte de um carrossel coeso. Mantenha IDENTICOS: paleta, tipograf
             ? `\n3. TIPOGRAFIA (CTA — slide final):
    - CHAMADA: "${slide.headline}" centralizada, serif display branco
    - APOIO: "${slide.subheadline}" sans-serif fina dourada caixa alta
-   - "RENTAL STUDIO  ·  ORLANDO" no rodape em dourado tracking largo
+   - "SUA MARCA  ·  ORLANDO" no rodape em dourado tracking largo
    - Composicao mais limpa: o carro pode aparecer em silhueta lateral ou parcial, dando peso ao texto.`
             : `\n3. TIPOGRAFIA (CONTEUDO):
    - TITULO: "${slide.headline}" (serif display branco, alinhado a esquerda ou centro)

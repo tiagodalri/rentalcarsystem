@@ -70,7 +70,7 @@ export async function exportPainelPdf(opts: {
     pdf.setTextColor(220, 230, 250);
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
-    pdf.text("RENTAL STUDIO BRAIN", marginX, 22);
+    pdf.text("SUA MARCA BRAIN", marginX, 22);
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(8);

@@ -107,7 +107,7 @@ export function generateContractPdf(
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text((template.company_name || "RENTAL STUDIO").toUpperCase(), margin, 15);
+  doc.text((template.company_name || "SUA MARCA").toUpperCase(), margin, 15);
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
   doc.text(template.header_subtitle || "CONTRATO DE LOCAÇÃO DE VEÍCULO", margin, 23);

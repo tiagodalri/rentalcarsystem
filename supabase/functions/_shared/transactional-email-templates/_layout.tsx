@@ -233,7 +233,7 @@ export function ZeusLayout({ preview, eyebrow: eb, title, children }: LayoutProp
       <Body style={main}>
         <Container style={wrap}>
           <Section style={headerBar}>
-            <Text style={brand}>RENTAL STUDIO</Text>
+            <Text style={brand}>SUA MARCA</Text>
             <Text style={tagline}>Rental Car · Orlando &amp; Miami</Text>
           </Section>
           <div style={goldStripe}>&nbsp;</div>

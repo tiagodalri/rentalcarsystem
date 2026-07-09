@@ -61,7 +61,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
   let cur: PageState;
 
   const drawHeader = (page: PDFPage, isFirst: boolean) => {
-    // RENTAL STUDIO — letterspaced via spacing
+    // SUA MARCA — letterspaced via spacing
     const titleStr = "Z E U S   R E N T A L   C A R";
     const tSize = 22;
     const tw = timesB.widthOfTextAtSize(titleStr, tSize);
