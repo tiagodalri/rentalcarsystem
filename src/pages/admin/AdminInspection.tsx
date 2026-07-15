@@ -1220,14 +1220,14 @@ export default function AdminInspection() {
             <button
               key={i}
               onClick={() => setStep(i)}
-              className={`flex items-center gap-2 px-4 py-2 min-h-[44px] rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+              className={`inline-flex items-center justify-center gap-2 px-4 min-h-[44px] leading-none rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
                 step === i
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "bg-muted/50 text-muted-foreground hover:bg-muted"
               }`}
             >
-              <Icon size={14} />
-              {s.label}
+              <Icon size={14} className="shrink-0" />
+              <span className="leading-none">{s.label}</span>
             </button>
           );
         })}
