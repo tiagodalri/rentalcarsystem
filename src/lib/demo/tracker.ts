@@ -53,25 +53,17 @@ let timerId: number | null = null;
 
 async function tick() {
   try {
-    // Buscamos apenas veículos com status "rented" (candidatos a estar em movimento).
-    const { data: rentedVehicles, error: vErr } = await supabase
-      .from("vehicles")
-      .select("id")
-      .eq("status", "rented")
-      .is("deleted_at", null);
-
-    if (vErr || !rentedVehicles || rentedVehicles.length === 0) return;
-    const rentedIds = rentedVehicles.map((v) => v.id);
-
+    // Movemos TODOS os veículos com telemetria — o mapa deve estar vivo
+    // desde o primeiro segundo em modo demo.
     const { data, error } = await supabase
       .from("vehicle_telemetry")
-      .select("vehicle_id, lat, lng, heading, speed, odometer, fuel_level, is_running")
-      .in("vehicle_id", rentedIds);
+      .select("vehicle_id, lat, lng, heading, speed, odometer, fuel_level, is_running");
 
     if (error || !data) return;
 
     const movers = data as TelemetryRow[];
     if (movers.length === 0) return;
+
 
     // Atualização em paralelo — TODOS os veículos alugados, nenhum "congelado".
     await Promise.all(
