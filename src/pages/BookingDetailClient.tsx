@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ClientBottomNav from "@/components/client/ClientBottomNav";
 
 import { useBookingByNumber } from "@/hooks/useBookingByNumber";
 import { adaptBookingFromDb } from "@/lib/bookingAdapter";
@@ -200,7 +201,7 @@ const BookingDetailClient = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto max-w-5xl px-3 sm:px-4 pt-20 sm:pt-24 pb-16">
+      <div className="container mx-auto max-w-5xl px-3 sm:px-4 pt-20 sm:pt-24 pb-16 pb-mobile-nav">
         {/* Back */}
         <button
           onClick={() => navigate("/minha-conta")}
@@ -491,7 +492,9 @@ const BookingDetailClient = () => {
         </div>
       </div>
       <Footer />
+      <ClientBottomNav />
     </div>
+
   );
 };
 

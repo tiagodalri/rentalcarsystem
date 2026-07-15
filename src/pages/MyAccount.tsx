@@ -15,10 +15,13 @@ import BookingCard from "@/components/client/BookingCard";
 import { AccountSkeleton } from "@/components/skeletons/AccountSkeleton";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { useAccountT } from "@/i18n/accountTranslations";
+import ClientBottomNav from "@/components/client/ClientBottomNav";
+import { PullToRefresh } from "@/components/mobile/PullToRefresh";
+
 
 const MyAccount = () => {
   const { user, customer, loading: authLoading, signOut } = useAuth();
-  const { bookings: dbBookings, loading: bookingsLoading } = useUserBookings();
+  const { bookings: dbBookings, loading: bookingsLoading, refetch } = useUserBookings();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const outerTab = searchParams.get("tab") === "perfil" ? "perfil" : "reservas";
@@ -77,7 +80,9 @@ const MyAccount = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto max-w-5xl px-3 sm:px-4 pt-20 sm:pt-24 pb-16">
+      <PullToRefresh onRefresh={refetch}>
+      <div className="container mx-auto max-w-5xl px-3 sm:px-4 pt-20 sm:pt-24 pb-16 pb-mobile-nav">
+
         {/* Header */}
         <ClientHeader user={user} onLogout={handleLogout} />
 
@@ -196,8 +201,11 @@ const MyAccount = () => {
           </TabsContent>
         </Tabs>
       </div>
+      </PullToRefresh>
       <Footer />
+      <ClientBottomNav />
     </div>
+
   );
 };
 

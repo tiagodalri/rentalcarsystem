@@ -914,3 +914,49 @@ body.simulator-immersive-top .admin-shell main {
 body.simulator-immersive-top .admin-shell {
   background: linear-gradient(180deg, #f6f1e6 0%, #efe9dc 220px, #efe9dc 100%) !important;
 }
+
+/* =========================================================================
+   Native-feel PWA layer — standalone mode + native chrome utilities.
+   Aplicado apenas em contexto mobile/standalone; desktop não é afetado.
+   ========================================================================= */
+
+/* Marca aplicada via JS quando display-mode: standalone. Permite esconder
+   elementos de "site" (banners, prompts) e alinhar chrome ao topo do app. */
+body.pwa-standalone .hide-in-standalone {
+  display: none !important;
+}
+
+/* Chrome de app (bottom nav, header, tab bar, FABs): não seleciona texto,
+   não abre menu de long-press, e não mostra highlight azul do toque. */
+.app-chrome,
+.app-chrome * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Scroll com momentum estilo iOS dentro de listas/panels internos.
+   Uso opt-in: adicione .native-scroll no container rolável. */
+.native-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+}
+
+/* Utilitário: padding-bottom que respeita safe-area + altura da bottom nav
+   (64px). Use em containers de conteúdo que ficam sob a tab bar mobile. */
+@media (max-width: 1023px) {
+  .pb-mobile-nav {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 16px) !important;
+  }
+}
+
+/* Splash de status bar: em standalone, garante que o header/hero
+   fique atrás do notch com fundo sólido (evita "faixa" translúcida). */
+@supports (padding: env(safe-area-inset-top)) {
+  body.pwa-standalone {
+    padding-top: 0;
+  }
+}
+

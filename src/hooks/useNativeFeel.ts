@@ -11,6 +11,24 @@ import { useEffect } from "react";
  * instantânea e estável a transição vistosa porém bugada.
  */
 export function useNativeFeel() {
+  // 1) Marca <body> com .pwa-standalone quando o app roda como PWA instalado.
+  //    Permite esconder banners de "site" (InstallPrompt, WhatsApp bubble, etc.)
+  //    e aplicar chrome mais próximo de nativo via CSS.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const read = () => {
+      const md = window.matchMedia?.("(display-mode: standalone)").matches === true;
+      // @ts-expect-error iOS Safari
+      const ios = window.navigator?.standalone === true;
+      const std = md || ios;
+      document.body.classList.toggle("pwa-standalone", std);
+    };
+    read();
+    const mql = window.matchMedia?.("(display-mode: standalone)");
+    mql?.addEventListener?.("change", read);
+    return () => mql?.removeEventListener?.("change", read);
+  }, []);
+
 
 
   // 2) Centralizar input focado quando teclado virtual abre.
