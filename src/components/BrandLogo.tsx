@@ -8,10 +8,10 @@ interface BrandLogoProps {
 // Altura visual do logo (em px). Como o PNG já contém o wordmark "GoDalz",
 // não precisamos renderizar texto separado — a marca inteira vive na imagem.
 const sizeMap: Record<NonNullable<BrandLogoProps["size"]>, number> = {
-  sm: 28,
-  md: 36,
-  lg: 48,
-  xl: 60,
+  sm: 36,
+  md: 48,
+  lg: 64,
+  xl: 80,
 };
 
 export default function BrandLogo({ size = "md", className = "" }: BrandLogoProps) {
