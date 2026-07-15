@@ -106,7 +106,7 @@ const Navbar = () => {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 safe-top will-change-transform ${
         scrolled
-          ? "bg-background/85 backdrop-blur-xl border-b border-border/30 shadow-lg shadow-foreground/10"
+          ? "bg-background/98 lg:bg-background/85 lg:backdrop-blur-xl border-b border-border/30 lg:shadow-lg lg:shadow-foreground/10"
           : "bg-transparent"
       } lg:!translate-y-0`}
       style={{
