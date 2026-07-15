@@ -15,6 +15,9 @@ import BookingCard from "@/components/client/BookingCard";
 import { AccountSkeleton } from "@/components/skeletons/AccountSkeleton";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { useAccountT } from "@/i18n/accountTranslations";
+import ClientBottomNav from "@/components/client/ClientBottomNav";
+import { PullToRefresh } from "@/components/mobile/PullToRefresh";
+
 
 const MyAccount = () => {
   const { user, customer, loading: authLoading, signOut } = useAuth();
