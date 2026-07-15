@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ClientBottomNav from "@/components/client/ClientBottomNav";
 
 import { useBookingByNumber } from "@/hooks/useBookingByNumber";
 import { adaptBookingFromDb } from "@/lib/bookingAdapter";
