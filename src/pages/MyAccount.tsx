@@ -21,7 +21,7 @@ import { PullToRefresh } from "@/components/mobile/PullToRefresh";
 
 const MyAccount = () => {
   const { user, customer, loading: authLoading, signOut } = useAuth();
-  const { bookings: dbBookings, loading: bookingsLoading } = useUserBookings();
+  const { bookings: dbBookings, loading: bookingsLoading, refetch } = useUserBookings();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const outerTab = searchParams.get("tab") === "perfil" ? "perfil" : "reservas";
