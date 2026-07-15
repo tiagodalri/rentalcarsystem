@@ -283,10 +283,10 @@ const Navbar = () => {
           </DropdownMenu>
         </div>
 
-        {/* Mobile — hambúrguer em pílulas suaves */}
-        <div className="flex lg:hidden items-center gap-2">
+        {/* Mobile — hambúrguer com mesma altura/área do ícone da esquerda */}
+        <div className="flex lg:hidden items-center gap-2 shrink-0">
           <button
-            className="h-10 w-10 flex items-center justify-center rounded-full bg-muted/60 backdrop-blur-md text-foreground"
+            className="h-11 w-11 flex items-center justify-center rounded-full bg-muted/60 text-foreground"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Abrir menu"
             aria-expanded={mobileOpen}
@@ -294,6 +294,7 @@ const Navbar = () => {
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
+
       </div>
 
 
