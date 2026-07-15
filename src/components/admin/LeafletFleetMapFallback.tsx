@@ -150,9 +150,6 @@ export function LeafletFleetMapFallback({ vehicles, selectedId, onSelect, onOpen
   return (
     <div className="relative w-full h-full bg-muted/30" data-no-swipe-back>
       <div ref={hostRef} className="absolute inset-0 [&_.leaflet-control-attribution]:text-[10px] [&_.leaflet-popup-content-wrapper]:rounded-lg [&_.leaflet-popup-content-wrapper]:border [&_.leaflet-popup-content-wrapper]:border-border/40 [&_.leaflet-popup-content-wrapper]:bg-background [&_.leaflet-popup-tip]:bg-background" />
-      <div className="absolute left-3 bottom-3 z-[450] rounded-lg border border-border/50 bg-background/90 px-3 py-2 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground shadow-sm backdrop-blur-sm">
-        Mapa demo sem chave externa
-      </div>
     </div>
   );
 }
