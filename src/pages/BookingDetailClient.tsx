@@ -492,7 +492,9 @@ const BookingDetailClient = () => {
         </div>
       </div>
       <Footer />
+      <ClientBottomNav />
     </div>
+
   );
 };
 
