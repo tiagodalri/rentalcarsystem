@@ -960,3 +960,55 @@ body.pwa-standalone .hide-in-standalone {
   }
 }
 
+
+/* =========================================================================
+   MOBILE PERFORMANCE LAYER
+   Kill expensive GPU effects (backdrop-blur, big shadows) e reduz animações
+   contínuas em telas ≤1023px. Desktop mantém a estética original.
+   ========================================================================= */
+@media (max-width: 1023px) {
+  /* backdrop-filter é o maior vilão de fluidez em iPhone/Android. Fundo
+     quase opaco preserva a legibilidade sem repintar o buffer a cada frame. */
+  .backdrop-blur,
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl,
+  .backdrop-blur-3xl {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Suaviza sombras grandes em mobile — economiza composite. */
+  .shadow-2xl { box-shadow: 0 8px 20px -12px hsl(var(--foreground) / 0.25) !important; }
+
+  /* Container padrão do site: padding lateral uniforme em mobile. */
+  .container { padding-left: 1rem !important; padding-right: 1rem !important; }
+}
+
+/* Animações contínuas caras: respeitam reduced-motion e são desligadas em
+   mobile pra economizar bateria/GPU sem quebrar o layout. */
+@media (max-width: 1023px), (prefers-reduced-motion: reduce) {
+  .animate-fleet-parallax,
+  .animate-gradient-shift,
+  .animate-float,
+  .animate-pulse-slow {
+    animation: none !important;
+  }
+}
+
+/* Alinhamento canônico do header mobile do site público:
+   home + hambúrguer sempre na mesma linha, mesma altura de toque. */
+.mobile-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  gap: 0.5rem;
+}
+.mobile-header-row > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
