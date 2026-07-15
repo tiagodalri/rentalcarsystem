@@ -50,17 +50,33 @@ export default function FrotaInteligente({
   }, [localSource, bookingSourceProp]);
 
   const load = useCallback(async () => {
-    const [b, v, e] = await Promise.all([
-      supabase.from("bookings")
-        .select("id, status, pickup_date, return_date, total_price, vehicle_id, customer_name, customer_id, stripe_session_id, turo_reservation_code, created_at, cancelled_at, payment_status")
-        .limit(2000),
+    // Bookings: paginado em lotes de 1000 para trazer TODAS as reservas
+    // (Supabase limita cada request a ~1000 linhas). Sem isso, a receita
+    // aparece truncada enquanto as despesas somam a frota inteira e a
+    // margem fica artificialmente negativa.
+    const bookingCols = "id, status, pickup_date, return_date, total_price, vehicle_id, customer_name, customer_id, stripe_session_id, turo_reservation_code, created_at, cancelled_at, payment_status";
+    const allBookings: PvBooking[] = [];
+    const pageSize = 1000;
+    for (let from = 0; from < 20000; from += pageSize) {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select(bookingCols)
+        .order("created_at", { ascending: false })
+        .range(from, from + pageSize - 1);
+      if (error) break;
+      const page = (data as PvBooking[]) || [];
+      allBookings.push(...page);
+      if (page.length < pageSize) break;
+    }
+
+    const [v, e] = await Promise.all([
       supabase.from("vehicles")
         .select("id, name, status, color, daily_price_usd, purchase_price, acquired_date, category, brand, model")
         .is("deleted_at", null),
       supabase.from("vehicle_expenses")
         .select("vehicle_id, amount, expense_date, type"),
     ]);
-    setBookings((b.data as PvBooking[]) || []);
+    setBookings(allBookings);
     setVehicles((v.data as PvVehicle[]) || []);
     setExpenses((e.data as PvExpense[]) || []);
     setLoading(false);
