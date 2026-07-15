@@ -44,7 +44,8 @@ export function AdminBottomNav() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-background/95 backdrop-blur-xl"
+      className="app-chrome lg:hidden fixed bottom-0 inset-x-0 z-30 bg-background/95 backdrop-blur-xl"
+
       style={{
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
         boxShadow:
