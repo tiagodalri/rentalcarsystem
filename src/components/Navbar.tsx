@@ -106,7 +106,7 @@ const Navbar = () => {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 safe-top will-change-transform ${
         scrolled
-          ? "bg-background/85 backdrop-blur-xl border-b border-border/30 shadow-lg shadow-foreground/10"
+          ? "bg-background/98 lg:bg-background/85 lg:backdrop-blur-xl border-b border-border/30 lg:shadow-lg lg:shadow-foreground/10"
           : "bg-transparent"
       } lg:!translate-y-0`}
       style={{
@@ -114,23 +114,23 @@ const Navbar = () => {
       }}
     >
       <div
-        className="container mx-auto relative flex items-center justify-between pt-3 pb-3 sm:py-4 lg:px-8"
+        className="container mx-auto relative flex items-center justify-between min-h-[56px] lg:min-h-0 lg:py-4 lg:px-8 gap-2"
         style={{
-          // Soma o padding base ao safe-area-inset em vez de deixar a utility
-          // .safe-x sobrescrever o px-* do Tailwind (bug que deixava os
-          // botões grudados na borda em iPhone/Android em portrait).
-          paddingLeft: "max(1.5rem, calc(env(safe-area-inset-left, 0px) + 1.25rem))",
-          paddingRight: "max(1.5rem, calc(env(safe-area-inset-right, 0px) + 1.25rem))",
+          // Padding lateral padronizado em mobile (px-4) e desktop (24px+),
+          // somando safe-area do notch. Nunca aplicar safe-area nos ícones.
+          paddingLeft: "max(1rem, calc(env(safe-area-inset-left, 0px) + 1rem))",
+          paddingRight: "max(1rem, calc(env(safe-area-inset-right, 0px) + 1rem))",
         }}
       >
 
         <a
           href="/#"
           aria-label="Início"
-          className="h-10 w-10 lg:h-auto lg:w-auto flex items-center justify-center rounded-full bg-muted/60 lg:bg-transparent backdrop-blur-md text-muted-foreground hover:text-primary transition-colors duration-300 relative z-10"
+          className="shrink-0 h-11 w-11 lg:h-auto lg:w-auto flex items-center justify-center rounded-full bg-muted/60 lg:bg-transparent text-muted-foreground hover:text-primary transition-colors duration-300 relative z-10"
         >
           <Home size={18} />
         </a>
+
 
         {/* Desktop links — centralizados absolutamente no meio da tela */}
         <div className="hidden lg:flex items-center gap-4 xl:gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
@@ -283,10 +283,10 @@ const Navbar = () => {
           </DropdownMenu>
         </div>
 
-        {/* Mobile — hambúrguer em pílulas suaves */}
-        <div className="flex lg:hidden items-center gap-2">
+        {/* Mobile — hambúrguer com mesma altura/área do ícone da esquerda */}
+        <div className="flex lg:hidden items-center gap-2 shrink-0">
           <button
-            className="h-10 w-10 flex items-center justify-center rounded-full bg-muted/60 backdrop-blur-md text-foreground"
+            className="h-11 w-11 flex items-center justify-center rounded-full bg-muted/60 text-foreground"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Abrir menu"
             aria-expanded={mobileOpen}
@@ -294,6 +294,7 @@ const Navbar = () => {
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
+
       </div>
 
 
