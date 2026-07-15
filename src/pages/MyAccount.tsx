@@ -201,8 +201,11 @@ const MyAccount = () => {
           </TabsContent>
         </Tabs>
       </div>
+      </PullToRefresh>
       <Footer />
+      <ClientBottomNav />
     </div>
+
   );
 };
 
