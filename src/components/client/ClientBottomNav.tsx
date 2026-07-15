@@ -42,7 +42,7 @@ export default function ClientBottomNav() {
   return (
     <nav
       aria-label="Navegação"
-      className="app-chrome lg:hidden fixed bottom-0 inset-x-0 z-30 bg-background/95 backdrop-blur-xl"
+      className="app-chrome lg:hidden fixed bottom-0 inset-x-0 z-30 bg-background/98 border-t border-border/40"
       style={{
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
         boxShadow:
