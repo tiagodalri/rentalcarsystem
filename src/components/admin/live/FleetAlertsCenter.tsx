@@ -17,7 +17,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { LiveVehicle } from "@/hooks/useFleetLive";
-import { getCoverImage } from "@/data/vehicleImages";
+import { getCoverImage, VEHICLE_PLACEHOLDER_IMAGE } from "@/data/vehicleImages";
 
 /* -------------------------------------------------------------------------- */
 /*  Central de Alertas da Frota — camada de apresentação (dados derivados)    */
