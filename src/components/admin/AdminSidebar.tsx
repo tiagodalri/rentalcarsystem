@@ -280,6 +280,12 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
               {section.items.map((item) => {
                 const active = isActive(item.url);
                 const isGold = item.highlight === "gold";
+                const isEmerald = item.highlight === "emerald";
+                const isHighlight = isGold || isEmerald;
+                const emeraldColor = "#0F9E7A";
+                const emeraldStyle: React.CSSProperties | undefined = isEmerald
+                  ? { color: emeraldColor }
+                  : undefined;
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton
@@ -287,21 +293,36 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                       onAuxClick={(e) => handleAuxClick(item.url, e)}
                       isActive={active}
                       tooltip={item.title}
+                      style={
+                        isEmerald && !active
+                          ? { color: emeraldColor }
+                          : active && isEmerald
+                            ? { color: emeraldColor, background: "rgba(15,158,122,0.12)" }
+                            : undefined
+                      }
                       className={`relative h-8 rounded-lg transition-all duration-150 ${
                         collapsed ? "mx-auto justify-center px-0 [&>svg]:mx-auto" : "px-3"
                       } ${
-                        active
+                        active && !isEmerald
                           ? "bg-sidebar-primary/12 text-sidebar-primary font-semibold hover:bg-sidebar-primary/15 hover:text-sidebar-primary"
                           : isGold
                             ? "text-sidebar-primary/90 hover:text-sidebar-primary hover:bg-sidebar-primary/10"
-                            : "text-sidebar-foreground/65 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
+                            : isEmerald
+                              ? "hover:bg-[rgba(15,158,122,0.12)]"
+                              : "text-sidebar-foreground/65 hover:text-sidebar-foreground hover:bg-sidebar-accent/60"
                       }`}
                     >
-                      {active && !collapsed && (
+                      {active && !collapsed && !isEmerald && (
                         <motion.span
                           layoutId={`sb-active-${section.label}`}
                           transition={{ type: "spring", stiffness: 500, damping: 40 }}
                           className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full bg-sidebar-primary"
+                        />
+                      )}
+                      {isEmerald && !collapsed && (
+                        <span
+                          className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full"
+                          style={{ background: emeraldColor, opacity: active ? 1 : 0.8 }}
                         />
                       )}
                       {isGold && !active && !collapsed && (
@@ -309,29 +330,38 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                       )}
                       <item.icon
                         className={`h-[16px] w-[16px] shrink-0 ${
-                          active || isGold ? "text-sidebar-primary" : ""
+                          (active || isGold) && !isEmerald ? "text-sidebar-primary" : ""
                         }`}
-                        strokeWidth={active || isGold ? 2.2 : 1.8}
+                        style={emeraldStyle}
+                        strokeWidth={active || isHighlight ? 2.2 : 1.8}
                       />
                       {!collapsed && (
-                        <span className={`text-[12.5px] leading-none flex-1 ${isGold ? "font-semibold" : ""}`}>
+                        <span className={`text-[12.5px] leading-none flex-1 ${isHighlight ? "font-semibold" : ""}`}>
                           {item.title}
                         </span>
                       )}
                       {!collapsed && item.badge && (
                         <span
                           className="ml-auto inline-flex items-center px-1.5 h-4 rounded-full text-[8.5px] font-semibold tracking-[0.14em] uppercase"
-                          style={{
-                            // GoDrive: badge dourado sobre grafite (era azul-marinho hardcoded)
-                            background: "linear-gradient(180deg, hsl(45 82% 60%), hsl(42 78% 50%))",
-                            color: "#0F0F0F",
-                            border: "1px solid rgba(232,185,53,0.55)",
-                          }}
+                          style={
+                            isEmerald
+                              ? {
+                                  background: "linear-gradient(180deg, #12b48a, #0d8a68)",
+                                  color: "#ffffff",
+                                  border: "1px solid rgba(15,158,122,0.55)",
+                                }
+                              : {
+                                  background: "linear-gradient(180deg, hsl(45 82% 60%), hsl(42 78% 50%))",
+                                  color: "#0F0F0F",
+                                  border: "1px solid rgba(232,185,53,0.55)",
+                                }
+                          }
                         >
                           {item.badge}
                         </span>
                       )}
                     </SidebarMenuButton>
+
                   </SidebarMenuItem>
                 );
               })}
