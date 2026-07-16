@@ -15,6 +15,7 @@ import { MapControlsPanel, useMapLayers } from "@/components/admin/live/MapContr
 import { TripPickerDialog } from "@/components/admin/live/TripPickerDialog";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { FleetAlertsCenter } from "@/components/admin/live/FleetAlertsCenter";
+import { AlertsScrollPill } from "@/components/admin/live/AlertsScrollPill";
 // Wave 3 perf: TripReplayOverlay tem ~1580 linhas e só carrega quando o
 // usuário escolhe uma viagem para reproduzir. Lazy split tira esse peso
 // do bundle inicial de /admin/live.
