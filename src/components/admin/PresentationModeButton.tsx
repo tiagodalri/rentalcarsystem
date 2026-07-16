@@ -15,7 +15,10 @@ type State = {
   started_at: string;
 } | null;
 
+import { SHOW_PRESENTATION_CONTROLS } from "@/lib/demo/config";
+
 export default function PresentationModeButton() {
+  if (!SHOW_PRESENTATION_CONTROLS) return null;
   const [open, setOpen] = useState(false);
   const [count, setCount] = useState<string>("15");
   const [busy, setBusy] = useState(false);

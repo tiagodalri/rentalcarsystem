@@ -10,6 +10,11 @@
 
 export const DEMO_MODE = true;
 
+/** Controles de demonstração comercial (Tour Guiado + Modo Apresentação).
+ *  false = ocultos (entrega ao cliente para teste autônomo).
+ *  Trocar para true reativa os botões instantaneamente, sem mexer em mais nada. */
+export const SHOW_PRESENTATION_CONTROLS = false;
+
 /** Configurações do simulador de rastreamento. */
 export const DEMO_TRACKER = {
   /** Intervalo entre "pings" simulados — 4s para movimento fluido em apresentação. */
