@@ -43,7 +43,7 @@ function birthdayGreeting(name: string, lang: string | null) {
   const first = formatPersonName(name).split(" ")[0] || "";
   switch ((lang || "pt").toLowerCase()) {
     case "en":
-      return `Hi ${first}! Everyone at GoDrive wishes you a happy birthday. a year full of safe roads, new adventures and unforgettable moments. We have a special treat waiting for you. Talk soon!`;
+      return `Hi ${first}! Everyone at GoDrive wishes you a happy birthday. A year full of safe roads, new adventures and unforgettable moments. We have a special treat waiting for you. Talk soon!`;
     case "es":
       return `¡Hola ${first}! Todo el equipo de GoDrive te desea un muy feliz cumpleaños. un año lleno de caminos seguros, nuevas aventuras y momentos inolvidables. Tenemos un mimo especial para ti. ¡Nos hablamos pronto!`;
     default:

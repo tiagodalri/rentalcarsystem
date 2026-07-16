@@ -442,7 +442,7 @@ function AdminCustomersDesktop() {
                     </p>
                   </div>
                   <div className="rounded-lg border border-purple-500/30 bg-purple-500/[0.04] p-3 text-[11px] text-muted-foreground">
-                    Hóspede importado da Turo. sem dados de contato direto. A tag <span className="font-semibold text-purple-500">Turo</span> será aplicada automaticamente.
+                    Hóspede importado da Turo. Sem dados de contato direto. A tag <span className="font-semibold text-purple-500">Turo</span> será aplicada automaticamente.
                   </div>
                 </>
               ) : (

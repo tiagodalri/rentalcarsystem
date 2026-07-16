@@ -229,7 +229,7 @@ export default function AdminCustomerDetail() {
                 {(customer as any).turo_guest_id && (
                   <span className="flex items-center gap-1 font-mono tabular-nums">Guest # {(customer as any).turo_guest_id}</span>
                 )}
-                <span className="italic">Hóspede importado da Turo. sem dados de contato</span>
+                <span className="italic">Hóspede importado da Turo. Sem dados de contato</span>
               </>
             ) : (
               <>
