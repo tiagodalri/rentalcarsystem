@@ -14,6 +14,7 @@ import { VehicleDetailDrawer } from "@/components/admin/live/VehicleDetailDrawer
 import { MapControlsPanel, useMapLayers } from "@/components/admin/live/MapControlsPanel";
 import { TripPickerDialog } from "@/components/admin/live/TripPickerDialog";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
+import { FleetAlertsCenter } from "@/components/admin/live/FleetAlertsCenter";
 // Wave 3 perf: TripReplayOverlay tem ~1580 linhas e só carrega quando o
 // usuário escolhe uma viagem para reproduzir. Lazy split tira esse peso
 // do bundle inicial de /admin/live.
@@ -62,6 +63,7 @@ function AdminLiveDesktop() {
   const [replayTripId, setReplayTripId] = useState<string | null>(null);
   const [runningBackfill, setRunningBackfill] = useState(false);
   const navigate = useNavigate();
+  const mapSectionRef = useRef<HTMLDivElement | null>(null);
 
   const onMap = useMemo(
     () => vehicles.filter((v) => v.lat !== null && v.lng !== null),
@@ -136,7 +138,7 @@ function AdminLiveDesktop() {
   }
 
   return (
-    <div className="space-y-4 lg:h-[calc(100dvh-10rem)] flex flex-col">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -173,9 +175,10 @@ function AdminLiveDesktop() {
       </div>
 
       {/* Main content */}
-      <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0 lg:h-[calc(100%-8rem)]">
+      <div ref={mapSectionRef} className="flex flex-col lg:flex-row gap-4 lg:h-[600px]">
         {/* Vehicle list sidebar */}
-        <div className="w-full lg:w-72 lg:shrink-0 flex flex-col gap-2 lg:overflow-hidden">
+        <div className="w-full lg:w-72 lg:shrink-0 flex flex-col gap-2 lg:overflow-hidden lg:h-full">
+
           <UnlinkedBouncieDevices />
 
           {/* Search with autocomplete */}
@@ -485,7 +488,17 @@ function AdminLiveDesktop() {
         </div>
       </div>
 
+      {/* Central de Alertas — visão consolidada de toda a frota */}
+      <FleetAlertsCenter
+        vehicles={vehicles}
+        onSelectVehicle={(id) => setSelected(id)}
+        onFocusMap={() =>
+          mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+        }
+      />
+
       {/* Trip picker + replay overlay */}
+
       {selectedVehicle && (
         <TripPickerDialog
           vehicleId={selectedVehicle.vehicle_id}
