@@ -55,7 +55,7 @@ export async function deleteBookingSafe(
         'Para cancelar, abra a reserva, use "Cancelar reserva" e processe o estorno ' +
         "no Câmbio Real. Só então a exclusão fica liberada."
     );
-    return { ok: false, reason: "paid", message: "Reserva paga — requer estorno." };
+    return { ok: false, reason: "paid", message: "Reserva paga .  requer estorno." };
   }
 
   const closedStatuses = [

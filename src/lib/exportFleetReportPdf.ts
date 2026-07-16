@@ -167,14 +167,14 @@ export async function exportFleetReportPdf(report: FleetReport, filename = "rela
   );
   y += cardH + gap;
 
-  const champTxt = h.champion ? `${h.champion.roi.toFixed(0)}%` : "—";
-  const worstTxt = h.worst ? `${h.worst.roi.toFixed(0)}%` : "—";
+  const champTxt = h.champion ? `${h.champion.roi.toFixed(0)}%` : ".";
+  const worstTxt = h.worst ? `${h.worst.roi.toFixed(0)}%` : ".";
   drawHeroCard(
     M,
     y,
     "Campeão × pior",
     `${champTxt}  vs  ${worstTxt}`,
-    h.champion && h.worst ? `${h.champion.name} × ${h.worst.name}` : "—",
+    h.champion && h.worst ? `${h.champion.name} × ${h.worst.name}` : ".",
     h.champion && h.worst
       ? `Investido: ${fmtUSD(h.champion.invested)} × ${fmtUSD(h.worst.invested)}. O mesmo capital rendendo mundos diferentes.`
       : "Frota ainda com pouco histórico.",

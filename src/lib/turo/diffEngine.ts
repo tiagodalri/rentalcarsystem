@@ -182,7 +182,7 @@ function buildDiff(field: keyof BookingSnapshot, current: any, next: any, opts: 
     newValue: next,
     autoSelected,
     protected: isProtected,
-    reason: opts.reason || (isAuthoritative && !currentEmpty ? "Turo é fonte de verdade — alteração detectada" : currentEmpty ? "Campo vazio no sistema" : "Divergência com CSV"),
+    reason: opts.reason || (isAuthoritative && !currentEmpty ? "Turo é fonte de verdade .  alteração detectada" : currentEmpty ? "Campo vazio no sistema" : "Divergência com CSV"),
   };
 }
 
@@ -301,7 +301,7 @@ export function classifyRow(row: TuroRow, opts: ClassifyOptions): Classification
         newValue: newStatus,
         autoSelected: false,
         protected: true,
-        reason: "Status regrediria — confirme manualmente",
+        reason: "Status regrediria .  confirme manualmente",
       });
     }
   }
@@ -327,7 +327,7 @@ export function classifyRow(row: TuroRow, opts: ClassifyOptions): Classification
   if (rloc) diffs.push(rloc);
 
   const nameDiff = buildDiff("customer_name", existing.customer_name, row.guestName, {
-    reason: existing.customer_name ? "Nome diferente — confirme manualmente" : "Sem nome no sistema",
+    reason: existing.customer_name ? "Nome diferente .  confirme manualmente" : "Sem nome no sistema",
   });
   if (nameDiff) diffs.push(nameDiff);
 
