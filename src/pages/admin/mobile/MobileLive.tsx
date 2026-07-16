@@ -16,6 +16,7 @@ import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 import { FleetAlertsCenter } from "@/components/admin/live/FleetAlertsCenter";
+import { AlertsScrollPill } from "@/components/admin/live/AlertsScrollPill";
 import { MobileSheet } from "@/components/mobile/MobileSheet";
 import { ShareTrackingDialog } from "@/components/admin/live/ShareTrackingDialog";
 import { TripsTab } from "@/components/admin/live/tabs/TripsTab";
@@ -108,13 +109,14 @@ export default function MobileLive() {
   }, []);
 
   const mapWrapRef = useRef<HTMLDivElement | null>(null);
+  const alertsRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <div
       className="relative z-10"
       style={{
         paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)",
-        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 96px)",
       }}
     >
       {/* Map: altura confortável, permite rolar a página */}
@@ -149,6 +151,13 @@ export default function MobileLive() {
           </div>
         </div>
 
+        {/* Pílula flutuante de alertas (acima do botão "Ver N veículos") */}
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <div className="pointer-events-auto">
+            <AlertsScrollPill vehicles={vehicles} targetRef={alertsRef} />
+          </div>
+        </div>
+
         {/* Bottom button to open list */}
         <button
           onClick={() => {
@@ -163,7 +172,7 @@ export default function MobileLive() {
       </div>
 
       {/* Central de Alertas abaixo do mapa */}
-      <div className="px-3 pt-4">
+      <div ref={alertsRef} className="px-3 pt-4">
         <FleetAlertsCenter
           vehicles={vehicles}
           onSelectVehicle={(id) => openVehicle(id)}

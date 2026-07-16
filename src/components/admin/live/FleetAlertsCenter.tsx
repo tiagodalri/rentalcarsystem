@@ -222,6 +222,22 @@ function buildAlerts(vehicles: LiveVehicle[]): Alert[] {
   });
 }
 
+/** Contagens agregadas usadas pela pílula flutuante de scroll (AlertsScrollPill). */
+export function getFleetAlertCounts(vehicles: LiveVehicle[]): {
+  total: number;
+  critical: number;
+  warning: number;
+} {
+  const alerts = buildAlerts(vehicles);
+  let critical = 0;
+  let warning = 0;
+  for (const a of alerts) {
+    if (a.severity === "critical") critical++;
+    else if (a.severity === "warning") warning++;
+  }
+  return { total: alerts.length, critical, warning };
+}
+
 function severityStyles(sev: Severity): { pill: string; iconWrap: string; ring: string } {
   if (sev === "critical") {
     return {
@@ -319,7 +335,7 @@ export function FleetAlertsCenter({ vehicles, onSelectVehicle, onFocusMap }: Fle
   if (!vehicles.length) return null;
 
   return (
-    <section className="admin-card p-4 sm:p-5" aria-label="Central de Alertas da Frota">
+    <section id="fleet-alerts-center" className="admin-card p-4 sm:p-5 scroll-mt-24" aria-label="Central de Alertas da Frota">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">

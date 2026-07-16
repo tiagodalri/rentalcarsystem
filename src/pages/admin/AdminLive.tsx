@@ -15,6 +15,7 @@ import { MapControlsPanel, useMapLayers } from "@/components/admin/live/MapContr
 import { TripPickerDialog } from "@/components/admin/live/TripPickerDialog";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { FleetAlertsCenter } from "@/components/admin/live/FleetAlertsCenter";
+import { AlertsScrollPill } from "@/components/admin/live/AlertsScrollPill";
 // Wave 3 perf: TripReplayOverlay tem ~1580 linhas e só carrega quando o
 // usuário escolhe uma viagem para reproduzir. Lazy split tira esse peso
 // do bundle inicial de /admin/live.
@@ -64,6 +65,7 @@ function AdminLiveDesktop() {
   const [runningBackfill, setRunningBackfill] = useState(false);
   const navigate = useNavigate();
   const mapSectionRef = useRef<HTMLDivElement | null>(null);
+  const alertsRef = useRef<HTMLDivElement | null>(null);
 
   const onMap = useMemo(
     () => vehicles.filter((v) => v.lat !== null && v.lng !== null),
@@ -485,17 +487,30 @@ function AdminLiveDesktop() {
               onClose={() => setDrawerOpen(false)}
             />
           )}
+
+          {/* Pílula flutuante — chama atenção para a Central de Alertas abaixo */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1100] pointer-events-none">
+            <div className="pointer-events-auto">
+              <AlertsScrollPill
+                vehicles={vehicles}
+                targetRef={alertsRef}
+                hidden={Boolean(selectedVehicle && !drawerOpen)}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Central de Alertas — visão consolidada de toda a frota */}
-      <FleetAlertsCenter
-        vehicles={vehicles}
-        onSelectVehicle={(id) => setSelected(id)}
-        onFocusMap={() =>
-          mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-        }
-      />
+      <div ref={alertsRef}>
+        <FleetAlertsCenter
+          vehicles={vehicles}
+          onSelectVehicle={(id) => setSelected(id)}
+          onFocusMap={() =>
+            mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+          }
+        />
+      </div>
 
       {/* Trip picker + replay overlay */}
 
