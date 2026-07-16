@@ -514,19 +514,19 @@
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.4);
+  background: rgba(232, 185, 53, 0.45);
   border-radius: 4px;
   transition: background 0.2s;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 175, 55, 0.7);
+  background: rgba(232, 185, 53, 0.75);
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(212, 175, 55, 0.4) rgba(26, 26, 26, 0.5);
+  scrollbar-color: rgba(232, 185, 53, 0.45) rgba(26, 26, 26, 0.5);
 }
 
 /* ============================================
@@ -883,7 +883,7 @@
     box-shadow: 0 8px 30px hsl(0 0% 0% / 0.08), 0 2px 8px hsl(0 0% 0% / 0.04);
   }
   .shadow-gold {
-    box-shadow: 0 0 24px hsl(162 80% 24% / 0.14), 0 0 60px hsl(162 80% 24% / 0.05);
+    box-shadow: 0 0 24px hsl(45 79% 56% / 0.22), 0 0 60px hsl(45 79% 56% / 0.08);
   }
 
   /* --- CORES SEMANTICAS DE STATUS --- */
