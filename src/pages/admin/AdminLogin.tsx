@@ -88,7 +88,7 @@ export default function AdminLogin() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@rentalcarsystem.lovable.app"
+                  placeholder="admin@godriverental.com"
                   required
                   className="w-full h-10 pl-10 pr-3 rounded-lg border border-border/60 bg-background text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 transition-all"
                 />
