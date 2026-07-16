@@ -315,9 +315,10 @@ export function AdminSidebar({ onSignOut }: AdminSidebarProps) {
                         <span
                           className="ml-auto inline-flex items-center px-1.5 h-4 rounded-full text-[8.5px] font-semibold tracking-[0.14em] uppercase"
                           style={{
-                            background: "linear-gradient(180deg, #14283d, #0d1d2e)",
-                            color: "#d6bf86",
-                            border: "1px solid rgba(214,191,134,0.40)",
+                            // GoDrive: badge dourado sobre grafite (era azul-marinho hardcoded)
+                            background: "linear-gradient(180deg, hsl(45 82% 60%), hsl(42 78% 50%))",
+                            color: "#0F0F0F",
+                            border: "1px solid rgba(232,185,53,0.55)",
                           }}
                         >
                           {item.badge}
