@@ -230,6 +230,22 @@ export default function GuidedTour() {
                 />
               </div>
             </div>
+          ) : step.kind === "market" ? (
+            <div
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) hideOverlay();
+              }}
+            >
+              <div
+                className="min-h-full flex items-center justify-center px-4 py-6 sm:py-10"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) hideOverlay();
+                }}
+              >
+                <MarketComparisonCard index={index} total={total} onPrev={prev} onNext={next} />
+              </div>
+            </div>
           ) : (
           <div
             className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
