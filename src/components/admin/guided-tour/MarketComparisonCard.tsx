@@ -209,7 +209,7 @@ export default function MarketComparisonCard({ index, total, onPrev, onNext }: P
           maxWidth: "62ch",
         }}
       >
-        Antes de começar, veja o que existe hoje no mercado. e o que só existe aqui.
+        Antes de começar, veja o que existe hoje no mercado e o que só existe aqui.
       </p>
 
       {/* Tabela */}
