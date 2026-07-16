@@ -230,7 +230,7 @@ export const translations: Record<Language, TranslationKeys> = {
       t6Text: "O Bruno transformou nossa experiência de aluguel de carro em algo especial. Ele nos deu dicas incríveis sobre Orlando e o carro estava impecável. Atendimento fora da curva!",
     },
     footer: {
-      tagline: "GoDrive. Concierge premium para brasileiros em Orlando.",
+      tagline: "GoDrive. Dirija o Extraordinário.",
       whatsapp: "Fale Conosco no WhatsApp",
       rights: "© 2026 GoDrive. Todos os direitos reservados.",
     },
@@ -357,7 +357,7 @@ export const translations: Record<Language, TranslationKeys> = {
       t6Text: "Bruno transformed our car rental experience into something special. He gave us amazing tips about Orlando and the car was impeccable. Outstanding service!",
     },
     footer: {
-      tagline: "GoDrive. Premium concierge for Brazilians in Orlando.",
+      tagline: "GoDrive. Drive the Extraordinary.",
       whatsapp: "Contact Us on WhatsApp",
       rights: "© 2026 GoDrive. All rights reserved.",
     },
@@ -484,7 +484,7 @@ export const translations: Record<Language, TranslationKeys> = {
       t6Text: "Bruno transformó nuestra experiencia de alquiler en algo especial. Nos dio consejos increíbles sobre Orlando y el auto estaba impecable. ¡Servicio fuera de serie!",
     },
     footer: {
-      tagline: "GoDrive. Concierge premium para brasileños en Orlando.",
+      tagline: "GoDrive. Conduce lo Extraordinario.",
       whatsapp: "Contáctenos por WhatsApp",
       rights: "© 2026 GoDrive. Todos los derechos reservados.",
     },
@@ -611,7 +611,7 @@ export const translations: Record<Language, TranslationKeys> = {
       t6Text: "Bruno ha trasformato la nostra esperienza di noleggio in qualcosa di speciale. Ci ha dato consigli incredibili su Orlando e l'auto era impeccabile. Servizio straordinario!",
     },
     footer: {
-      tagline: "GoDrive. Concierge premium per brasiliani a Orlando.",
+      tagline: "GoDrive. Guida lo Straordinario.",
       whatsapp: "Contattaci su WhatsApp",
       rights: "© 2026 GoDrive. Tutti i diritti riservati.",
     },
@@ -738,7 +738,7 @@ export const translations: Record<Language, TranslationKeys> = {
       t6Text: "Bruno hat unser Mietwagen-Erlebnis in etwas Besonderes verwandelt. Er gab uns tolle Tipps zu Orlando und das Auto war makellos. Außergewöhnlicher Service!",
     },
     footer: {
-      tagline: "GoDrive. Premium-Concierge für Brasilianer in Orlando.",
+      tagline: "GoDrive. Fahre das Außergewöhnliche.",
       whatsapp: "Kontaktieren Sie Uns auf WhatsApp",
       rights: "© 2026 GoDrive. Alle Rechte vorbehalten.",
     },
@@ -865,7 +865,7 @@ export const translations: Record<Language, TranslationKeys> = {
       t6Text: "Bruno a transformé notre expérience de location en quelque chose de spécial. Il nous a donné des conseils incroyables sur Orlando et la voiture était impeccable. Service exceptionnel !",
     },
     footer: {
-      tagline: "GoDrive. Concierge premium pour les Brésiliens à Orlando.",
+      tagline: "GoDrive. Conduisez l'Extraordinaire.",
       whatsapp: "Contactez-Nous sur WhatsApp",
       rights: "© 2026 GoDrive. Tous droits réservés.",
     },
