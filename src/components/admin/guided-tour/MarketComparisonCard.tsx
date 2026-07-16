@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 
 const NAVY = "#0d1d2e";
 const GOLD = "#9a7a3a";
-const PURPLE = "#7c3aed";
-const PURPLE_SOFT = "rgba(124,58,237,0.12)";
-const PURPLE_BORDER = "rgba(124,58,237,0.55)";
+const GOLD_SOFT = "rgba(154,122,58,0.12)";
+const GOLD_BORDER = "rgba(154,122,58,0.55)";
+const GOLD_DARK = "#7a5d2e";
 
 type Row = { label: string; hint?: string };
 type Section = { label: string; rows: Row[] };
@@ -150,7 +150,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="px-3 sm:px-5 pt-4 pb-2 text-[9.5px] sm:text-[10px] font-semibold tracking-[0.24em] uppercase"
-      style={{ color: PURPLE, background: "rgba(124,58,237,0.04)" }}
+      style={{ color: GOLD_DARK, background: "rgba(154,122,58,0.04)" }}
     >
       {children}
     </div>
@@ -199,7 +199,7 @@ export default function MarketComparisonCard({ index, total, onPrev, onNext }: P
         }}
       >
         O mercado vende sistemas.{" "}
-        <span style={{ color: PURPLE }}>A GoDals entrega um cérebro para o seu negócio.</span>
+        <span style={{ color: GOLD_DARK }}>A GoDalz entrega um cérebro para o seu negócio.</span>
       </h2>
       <p
         className="mt-3 leading-snug"
@@ -243,19 +243,19 @@ export default function MarketComparisonCard({ index, total, onPrev, onNext }: P
           <div
             className="relative -mx-1 sm:-mx-2 rounded-lg px-2 py-1 text-center"
             style={{
-              background: PURPLE_SOFT,
-              border: `1px solid ${PURPLE_BORDER}`,
+              background: GOLD_SOFT,
+              border: `1px solid ${GOLD_BORDER}`,
             }}
           >
             <div
               className="text-[10.5px] sm:text-[11px] font-semibold tracking-[0.2em] uppercase"
-              style={{ color: PURPLE }}
+              style={{ color: GOLD_DARK }}
             >
-              Ecossistema GoDals
+              Ecossistema GoDalz
             </div>
             <div
               className="mx-auto mt-0.5 inline-block text-[9px] font-semibold tracking-[0.2em] uppercase px-1.5 py-[1px] rounded"
-              style={{ background: PURPLE, color: "#fff" }}
+              style={{ background: GOLD_DARK, color: "#fff" }}
             >
               Exclusivo
             </div>
@@ -278,14 +278,14 @@ export default function MarketComparisonCard({ index, total, onPrev, onNext }: P
           <div
             className="absolute left-6 right-6 top-1/2 -translate-y-1/2"
             style={{
-              borderTop: `1px dashed ${PURPLE_BORDER}`,
+              borderTop: `1px dashed ${GOLD_BORDER}`,
             }}
           />
           <div
             className="absolute left-6 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full"
             style={{
-              background: PURPLE,
-              boxShadow: `0 0 0 6px rgba(124,58,237,0.15)`,
+              background: GOLD,
+              boxShadow: `0 0 0 6px rgba(154,122,58,0.15)`,
               animation: "pulse 2s cubic-bezier(0.4,0,0.6,1) infinite",
             }}
           />
@@ -293,8 +293,8 @@ export default function MarketComparisonCard({ index, total, onPrev, onNext }: P
             className="relative px-4 py-1.5 rounded-full text-[10.5px] font-semibold tracking-[0.24em] uppercase"
             style={{
               background: "#fff",
-              color: PURPLE,
-              border: `1px solid ${PURPLE_BORDER}`,
+              color: GOLD_DARK,
+              border: `1px solid ${GOLD_BORDER}`,
             }}
           >
             E o básico? Também está dentro
@@ -343,16 +343,16 @@ export default function MarketComparisonCard({ index, total, onPrev, onNext }: P
         <div
           className="rounded-xl p-4 sm:p-5 relative overflow-hidden"
           style={{
-            background: `linear-gradient(135deg, ${PURPLE_SOFT}, rgba(124,58,237,0.05))`,
-            border: `1.5px solid ${PURPLE_BORDER}`,
-            boxShadow: "0 10px 30px -12px rgba(124,58,237,0.4)",
+            background: `linear-gradient(135deg, ${GOLD_SOFT}, rgba(154,122,58,0.05))`,
+            border: `1.5px solid ${GOLD_BORDER}`,
+            boxShadow: "0 10px 30px -12px rgba(154,122,58,0.4)",
           }}
         >
           <div className="flex items-baseline gap-3">
             <div
               className="tabular-nums leading-none"
               style={{
-                color: PURPLE,
+                color: GOLD_DARK,
                 fontFamily: "'Urbanist', 'Inter', sans-serif",
                 fontSize: "clamp(34px, 4vw, 44px)",
                 fontWeight: 800,
@@ -362,9 +362,9 @@ export default function MarketComparisonCard({ index, total, onPrev, onNext }: P
             </div>
             <div className="flex-1">
               <div className="text-[12.5px] font-semibold leading-tight" style={{ color: NAVY }}>
-                funções no Ecossistema GoDals
+                funções no Ecossistema GoDalz
               </div>
-              <div className="text-[11.5px] mt-0.5" style={{ color: PURPLE, fontWeight: 600 }}>
+              <div className="text-[11.5px] mt-0.5" style={{ color: GOLD_DARK, fontWeight: 600 }}>
                 {EXCLUSIVE_COUNT} que nenhum sistema do mercado oferece
               </div>
             </div>
@@ -384,7 +384,7 @@ export default function MarketComparisonCard({ index, total, onPrev, onNext }: P
         }}
       >
         Isso não é um sistema.{" "}
-        <span style={{ color: PURPLE }}>É o cérebro do seu negócio.</span>
+        <span style={{ color: GOLD_DARK }}>É o cérebro do seu negócio.</span>
       </p>
 
       {/* Ações */}
