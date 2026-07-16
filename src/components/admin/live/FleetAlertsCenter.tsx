@@ -33,7 +33,7 @@ type AlertTemplate = {
   category: Category;
   title: string;
   descTemplate: string;                // {name}, {plate} substituídos
-  Icon: React.ComponentType<{ size?: number; className?: string }>;
+  Icon: LucideIcon;
   minutesAgo: number;                  // determinístico, últimas ~48h
 };
 
@@ -196,7 +196,7 @@ type Alert = {
   category: Category;
   title: string;
   desc: string;
-  Icon: React.ComponentType<{ size?: number; className?: string }>;
+  Icon: LucideIcon;
   occurredAt: Date;
 };
 
