@@ -123,8 +123,19 @@ export function GuidedTourProvider({ children }: { children: ReactNode }) {
   return <GuidedTourContext.Provider value={value}>{children}</GuidedTourContext.Provider>;
 }
 
+const NOOP_CTX: GuidedTourContextValue = {
+  active: false,
+  overlayVisible: false,
+  index: 0,
+  start: () => {},
+  stop: () => {},
+  next: () => {},
+  prev: () => {},
+  goTo: () => {},
+  hideOverlay: () => {},
+  showOverlay: () => {},
+};
+
 export function useGuidedTour() {
-  const ctx = useContext(GuidedTourContext);
-  if (!ctx) throw new Error("useGuidedTour deve ser usado dentro de GuidedTourProvider");
-  return ctx;
+  return useContext(GuidedTourContext) ?? NOOP_CTX;
 }
