@@ -13,8 +13,8 @@ export interface TourStep {
   pains: string[];
   /** Linha de fecho. */
   teaser: string;
-  /** Layout especial. "intro" abre o tour; "price" entra na Sala de Fechamento (tema escuro). */
-  kind?: "intro" | "price";
+  /** Layout especial. "intro" abre o tour; "market" mostra a comparação com o mercado; "price" entra na Sala de Fechamento (tema escuro). */
+  kind?: "intro" | "market" | "price";
   eyebrow?: string;
   brand?: string;
   statement?: string;
@@ -47,6 +47,15 @@ export const TOUR_STEPS: TourStep[] = [
       "Métricas agrupadas de um jeito que nenhuma plataforma entrega.",
     ],
     teaser: "Nos próximos minutos, a sua frota vista pela primeira vez de verdade.",
+  },
+  {
+    id: "mercado",
+    bullet: "Mercado",
+    route: "/admin",
+    kind: "market",
+    title: "O mercado vende sistemas. A GoDals entrega um cérebro para o seu negócio.",
+    pains: [],
+    teaser: "",
   },
   {
     id: "seguranca",

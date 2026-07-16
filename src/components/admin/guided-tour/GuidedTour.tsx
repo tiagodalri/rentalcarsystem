@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TOUR_STEPS } from "./tourSteps";
 import { useGuidedTour } from "./GuidedTourContext";
 import PriceCard from "./PriceCard";
+import MarketComparisonCard from "./MarketComparisonCard";
 
 const NAVY = "#0d1d2e";
 const GOLD = "#9a7a3a";
@@ -227,6 +228,22 @@ export default function GuidedTour() {
                   onStop={stop}
                   intoFleetCount={parseInt(fleetCount, 10) || 15}
                 />
+              </div>
+            </div>
+          ) : step.kind === "market" ? (
+            <div
+              className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) hideOverlay();
+              }}
+            >
+              <div
+                className="min-h-full flex items-center justify-center px-4 py-6 sm:py-10"
+                onClick={(e) => {
+                  if (e.target === e.currentTarget) hideOverlay();
+                }}
+              >
+                <MarketComparisonCard index={index} total={total} onPrev={prev} onNext={next} />
               </div>
             </div>
           ) : (
