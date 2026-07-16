@@ -169,7 +169,7 @@ const TimelineStep = ({ step, index, isLast }: { step: Step; index: number; isLa
             <div
               className={`relative rounded-xl overflow-hidden transition-all duration-400 bg-card/80 backdrop-blur-sm border group-hover:shadow-[0_4px_24px_hsl(0,0%,0%,0.15)] ${
                 step.isFinal
-                  ? "border-primary/30 shadow-[0_0_20px_hsl(162,80%,24%,0.10)]"
+                  ? "border-primary/30 shadow-[0_0_20px_hsl(45 79% 56% / 0.10)]"
                   : step.isStar
                   ? "border-primary/20 group-hover:border-primary/40"
                   : "border-border/50 group-hover:border-primary/25"
@@ -237,8 +237,8 @@ const TimelineStep = ({ step, index, isLast }: { step: Step; index: number; isLa
             transition={{ duration: 0.4, delay: 0.05, type: "spring", stiffness: 300 }}
             className={`relative z-10 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
               step.isFinal
-                ? "gold-gradient text-primary-foreground shadow-[0_0_20px_hsl(162,80%,24%,0.28)]"
-                : "bg-card border-2 border-primary/30 text-primary shadow-[0_0_16px_hsl(162,80%,24%,0.12)]"
+                ? "gold-gradient text-primary-foreground shadow-[0_0_20px_hsl(45 79% 56% / 0.28)]"
+                : "bg-card border-2 border-primary/30 text-primary shadow-[0_0_16px_hsl(45 79% 56% / 0.12)]"
             }`}
           >
             <Icon size={20} />
@@ -259,7 +259,7 @@ const TimelineStep = ({ step, index, isLast }: { step: Step; index: number; isLa
             transition={{ duration: 0.4, delay: 0.05, type: "spring", stiffness: 300 }}
             className={`relative z-10 w-12 h-12 rounded-full flex items-center justify-center ${
               step.isFinal
-                ? "gold-gradient text-primary-foreground shadow-[0_0_16px_hsl(162,80%,24%,0.28)]"
+                ? "gold-gradient text-primary-foreground shadow-[0_0_16px_hsl(45 79% 56% / 0.28)]"
                 : "bg-card border-2 border-primary/30 text-primary"
             }`}
           >

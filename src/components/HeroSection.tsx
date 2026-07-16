@@ -12,15 +12,15 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
       {/* Glow dourado deslocado para baixo — antes ficava bem atrás do logo e
           criava uma mancha esbranquiçada sobre ele. */}
-      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_bottom,_hsl(162,80%,24%,0.06)_0%,_transparent_65%)] pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_bottom,_hsl(45 79% 56% / 0.06)_0%,_transparent_65%)] pointer-events-none" />
 
 
       <svg className="absolute bottom-0 left-0 right-0 w-full opacity-[0.14]" viewBox="0 0 1440 200" fill="none">
         <path d="M0 200C240 100 480 50 720 80C960 110 1200 160 1440 120V200H0Z" fill="url(#emeraldGrad)" />
         <defs>
           <linearGradient id="emeraldGrad" x1="0" y1="0" x2="1440" y2="0">
-            <stop offset="0%" stopColor="hsl(162,80%,22%)" />
-            <stop offset="100%" stopColor="hsl(158,64%,42%)" />
+            <stop offset="0%" stopColor="hsl(45 82% 56%)" />
+            <stop offset="100%" stopColor="hsl(42 78% 50%)" />
           </linearGradient>
         </defs>
       </svg>
