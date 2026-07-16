@@ -1,5 +1,6 @@
 import { Compass } from "lucide-react";
 import { useGuidedTour } from "./GuidedTourContext";
+import { SHOW_PRESENTATION_CONTROLS } from "@/lib/demo/config";
 
 /**
  * Botão de gatilho do Tour Guiado — colocar no header do Painel,
