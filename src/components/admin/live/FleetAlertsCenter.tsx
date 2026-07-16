@@ -335,7 +335,7 @@ export function FleetAlertsCenter({ vehicles, onSelectVehicle, onFocusMap }: Fle
   if (!vehicles.length) return null;
 
   return (
-    <section className="admin-card p-4 sm:p-5" aria-label="Central de Alertas da Frota">
+    <section id="fleet-alerts-center" className="admin-card p-4 sm:p-5 scroll-mt-24" aria-label="Central de Alertas da Frota">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
