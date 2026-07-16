@@ -14,6 +14,7 @@ import {
   CircleDot,
   CarFront,
   PlaneLanding,
+  type LucideIcon,
 } from "lucide-react";
 import type { LiveVehicle } from "@/hooks/useFleetLive";
 import { getCoverImage } from "@/data/vehicleImages";
