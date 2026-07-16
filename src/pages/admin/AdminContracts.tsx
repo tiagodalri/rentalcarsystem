@@ -69,10 +69,10 @@ const FILTERS: { value: "all" | ContractStatus; label: string }[] = [
 ];
 
 const fmtDate = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleDateString("pt-BR") : "—";
+  iso ? new Date(iso).toLocaleDateString("pt-BR") : "";
 
 const fmtDateTime = (iso?: string | null) =>
-  iso ? new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
+  iso ? new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "";
 
 const AdminContracts = () => {
   const navigate = useNavigate();

@@ -129,7 +129,7 @@ export default function MobilePainel({ bookings, vehicles, onRefresh, aiMode, on
       className="h-full"
     >
       <div className="space-y-5 pb-4">
-        {/* ═══════════ HERO — Próxima ação ═══════════ */}
+        {/* ═══════════ HERO. Próxima ação ═══════════ */}
         <section>
           <SectionLabel>Próxima ação</SectionLabel>
           {proxima ? (

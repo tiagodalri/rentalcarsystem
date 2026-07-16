@@ -154,7 +154,7 @@ const Contato = () => {
                   )}
                 />
 
-                {/* Honeypot — hidden from real users */}
+                {/* Honeypot. hidden from real users */}
                 <div className="absolute opacity-0 -z-10 pointer-events-none" aria-hidden="true" tabIndex={-1}>
                   <FormField
                     control={form.control}

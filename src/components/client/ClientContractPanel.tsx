@@ -58,7 +58,7 @@ const ClientContractPanel = ({ bookingId, contractStatus, signedAt, signedPdfPat
       body = (
         <>
           <p className="text-xs text-muted-foreground mb-3">
-            Assinado em {signedAt ? new Date(signedAt).toLocaleDateString("pt-BR") : "—"}.
+            Assinado em {signedAt ? new Date(signedAt).toLocaleDateString("pt-BR") : ""}.
           </p>
           {signedPdfPath ? (
             <button

@@ -132,8 +132,8 @@ export default function AiPainel({
       // depois valor parecido; depois melhor star geral.
       const priceClose = (s: typeof perVehicle[number]) =>
         Math.abs(s.purchase - w.purchase) / w.purchase <= 0.4;
-      const sameCatPrice = stars.find(s => s.v.id !== w.v.id && (s.v.category || "—") === (w.v.category || "—") && priceClose(s));
-      const sameCat = stars.find(s => s.v.id !== w.v.id && (s.v.category || "—") === (w.v.category || "—"));
+      const sameCatPrice = stars.find(s => s.v.id !== w.v.id && (s.v.category || "") === (w.v.category || "") && priceClose(s));
+      const sameCat = stars.find(s => s.v.id !== w.v.id && (s.v.category || "") === (w.v.category || ""));
       const anyPrice = stars.find(s => s.v.id !== w.v.id && priceClose(s));
       const best = stars.find(s => s.v.id !== w.v.id);
       const match = sameCatPrice || sameCat || anyPrice || best;
@@ -146,7 +146,7 @@ export default function AiPainel({
       const reason = sameCatPrice
         ? `${w.v.category || "categoria parecida"}, valor parecido`
         : sameCat
-        ? `mesma categoria (${w.v.category || "—"})`
+        ? `mesma categoria (${w.v.category || ""})`
         : anyPrice
         ? "valor de compra parecido"
         : "melhor desempenho da frota";
@@ -158,7 +158,7 @@ export default function AiPainel({
       const lines = [
         `Esta ${w.v.name} está há ${daysIdle} dias sem nenhuma locação.`,
         `No histórico rendeu em média só ${fmtUSD(w.revPerDayOwned)}/dia na frota (= ${w.bookingsCount} locaç${w.bookingsCount === 1 ? "ão" : "ões"} somando ${fmtUSD(w.revenue)} em ${wDays} dias de posse).`,
-        `Ela custou ${fmtUSD(w.purchase)} — isso dá só ${wROI.toFixed(1)}% de retorno ao ano.`,
+        `Ela custou ${fmtUSD(w.purchase)}. isso dá só ${wROI.toFixed(1)}% de retorno ao ano.`,
         `Uma ${match.v.name} parecida (${reason}, custou ${fmtUSD(match.purchase)}) rende ${fmtUSD(match.revPerDayOwned)}/dia = ${sROI.toFixed(1)}% ao ano${
           isFinite(multiple) && multiple >= 1.5 ? `, quase ${multiple.toFixed(1)}× mais retorno sobre investimento parecido` : ""
         }.`,
@@ -280,7 +280,7 @@ export default function AiPainel({
     // Concentração de receita por marca
     const brandRev = new Map<string, number>();
     perVehicle.forEach(p => {
-      const k = p.v.brand || p.v.name?.split(" ")[0] || "—";
+      const k = p.v.brand || p.v.name?.split(" ")[0] || "";
       brandRev.set(k, (brandRev.get(k) || 0) + p.revenue);
     });
     const topBrand = Array.from(brandRev.entries()).sort((a, b) => b[1] - a[1])[0];
@@ -289,7 +289,7 @@ export default function AiPainel({
     // Concentração por cliente
     const custRev = new Map<string, number>();
     realBookings.forEach(b => {
-      const k = b.customer_id || b.customer_name || "—";
+      const k = b.customer_id || b.customer_name || "";
       custRev.set(k, (custRev.get(k) || 0) + (Number(b.total_price) || 0));
     });
     const custSorted = Array.from(custRev.values()).sort((a, b) => b - a);
@@ -310,7 +310,7 @@ export default function AiPainel({
   const byCategory = useMemo(() => {
     const map = new Map<string, { revenue: number; days: number; count: number; occ: number }>();
     perVehicle.forEach(p => {
-      const k = p.v.category || "—";
+      const k = p.v.category || "";
       const cur = map.get(k) || { revenue: 0, days: 0, count: 0, occ: 0 };
       cur.revenue += p.revenue;
       cur.days += p.daysInFleet;
@@ -330,7 +330,7 @@ export default function AiPainel({
   const byBrand = useMemo(() => {
     const map = new Map<string, { revenue: number; count: number; occupancy: number }>();
     perVehicle.forEach(p => {
-      const k = p.v.brand || p.v.name?.split(" ")[0] || "—";
+      const k = p.v.brand || p.v.name?.split(" ")[0] || "";
       const cur = map.get(k) || { revenue: 0, count: 0, occupancy: 0 };
       cur.revenue += p.revenue;
       cur.count += 1;
@@ -501,7 +501,7 @@ export default function AiPainel({
         if (gap >= 3 && gap <= 14) {
           const daily = Number(v.daily_price_usd) || 0;
           out.push({
-            vehicle: v.name || "—",
+            vehicle: v.name || "",
             vehicleId: v.id,
             gapStart: aEnd, gapEnd: bStart,
             nights: gap,
@@ -525,8 +525,8 @@ export default function AiPainel({
   const customers = useMemo(() => {
     const map = new Map<string, { name: string; trips: number; revenue: number; lastDate: Date | null; firstDate: Date | null }>();
     realBookings.forEach(b => {
-      const key = b.customer_id || b.customer_name || "—";
-      const cur = map.get(key) || { name: b.customer_name || "—", trips: 0, revenue: 0, lastDate: null, firstDate: null };
+      const key = b.customer_id || b.customer_name || "";
+      const cur = map.get(key) || { name: b.customer_name || "", trips: 0, revenue: 0, lastDate: null, firstDate: null };
       cur.trips += 1;
       cur.revenue += Number(b.total_price) || 0;
       const d = parseDateOnly(b.pickup_date);
@@ -595,7 +595,7 @@ export default function AiPainel({
     priceDownCandidates.slice(0, 1).forEach(p => {
       out.push({
         titulo: `Teste promo na ${p.v.name}`,
-        descricao: `Pouquíssimo uso (${p.occupancy.toFixed(0)}%) e ${p.daysSinceLastBooking ?? '—'} dias sem receber. ${fmtUSD(p.daily * 0.85)}/dia por 14 dias para gerar demanda.`,
+        descricao: `Pouquíssimo uso (${p.occupancy.toFixed(0)}%) e ${p.daysSinceLastBooking ?? ''} dias sem receber. ${fmtUSD(p.daily * 0.85)}/dia por 14 dias para gerar demanda.`,
         impacto: `Cada dia parado custa ${fmtUSD(p.daily * 0.7)}`, impactoValor: p.daily * 0.7 * 7,
         prioridade: "baixa", categoria: "Preço",
       });
@@ -831,7 +831,7 @@ export default function AiPainel({
       <div className="ai-bg-noise" />
 
       <div className="relative z-10 space-y-4 sm:space-y-6 max-w-[1600px] mx-auto">
-        {/* Header — apenas contagem de carros/reservas (Simulador agora vive no Hub AI Studio) */}
+        {/* Header. apenas contagem de carros/reservas (Simulador agora vive no Hub AI Studio) */}
         <div className="flex items-center justify-end gap-3 flex-wrap pt-1">
           <p className="ai-subtitle m-0 shrink-0 text-right">
             {perVehicle.length} carros · {realBookings.length} reservas
@@ -839,7 +839,7 @@ export default function AiPainel({
         </div>
 
 
-        {/* HERO BLOCK — 4 indicadores de venda (Pareto, Dinheiro perdido, Campeão×Pior, Margem) */}
+        {/* HERO BLOCK. 4 indicadores de venda (Pareto, Dinheiro perdido, Campeão×Pior, Margem) */}
         {!briefingOnly && (() => {
           const heroChampion = [...perVehicle]
             .filter(p => p.purchase > 0 && p.daysInFleet > 30 && p.revenue > 0)
@@ -869,9 +869,9 @@ export default function AiPainel({
               />
               <HeroKpi
                 eyebrow="Campeão × pior"
-                big={`${heroChampion ? heroChampion.roi.toFixed(0) : "—"}%  vs  ${heroWorst ? heroWorst.roi.toFixed(0) : "—"}%`}
+                big={`${heroChampion ? heroChampion.roi.toFixed(0) : ""}%  vs  ${heroWorst ? heroWorst.roi.toFixed(0) : ""}%`}
                 headline={heroChampion && heroWorst ? `${heroChampion.v.name} × ${heroWorst.v.name}` : "Sem histórico suficiente"}
-                sub={heroChampion && heroWorst ? `Investido: ${fmtUSD(heroChampion.purchase)} × ${fmtUSD(heroWorst.purchase)}. Mesmo capital, mundos diferentes.` : "—"}
+                sub={heroChampion && heroWorst ? `Investido: ${fmtUSD(heroChampion.purchase)} × ${fmtUSD(heroWorst.purchase)}. Mesmo capital, mundos diferentes.` : ""}
                 icon={Award}
               />
               <HeroKpi
@@ -929,7 +929,7 @@ export default function AiPainel({
             .sort((a, b) => b.roi - a.roi)
             .slice(0, 2)
             .map(p => ({
-              vehicleName: p.v.name || "—",
+              vehicleName: p.v.name || "",
               brandSlug: slugFor(p.v.brand || p.v.name),
               invested: p.purchase,
               days: p.daysInFleet,
@@ -943,7 +943,7 @@ export default function AiPainel({
             .sort((a, b) => a.roi - b.roi)
             .slice(0, 2)
             .map(p => ({
-              vehicleName: p.v.name || "—",
+              vehicleName: p.v.name || "",
               brandSlug: slugFor(p.v.brand || p.v.name),
               invested: p.purchase,
               days: p.daysInFleet,
@@ -991,13 +991,13 @@ export default function AiPainel({
                 idle: lostRevenue.janelas,
               },
               champion: heroChampionR ? {
-                name: heroChampionR.v.name || "—",
+                name: heroChampionR.v.name || "",
                 roi: heroChampionR.roi,
                 invested: heroChampionR.purchase,
                 revenue: heroChampionR.revenue,
               } : null,
               worst: heroWorstR ? {
-                name: heroWorstR.v.name || "—",
+                name: heroWorstR.v.name || "",
                 roi: heroWorstR.roi,
                 invested: heroWorstR.purchase,
                 revenue: heroWorstR.revenue,
@@ -1016,12 +1016,12 @@ export default function AiPainel({
               .filter(p => p.purchase > 0 && p.daysInFleet > 30 && p.revenue > 0)
               .sort((a, b) => b.roi - a.roi)
               .slice(0, 5)
-              .map(p => ({ name: p.v.name || "—", invested: p.purchase, revenue: p.revenue, roi: p.roi, days: p.daysInFleet })),
+              .map(p => ({ name: p.v.name || "", invested: p.purchase, revenue: p.revenue, roi: p.roi, days: p.daysInFleet })),
             worstVehicles: [...perVehicle]
               .filter(p => p.purchase > 0 && p.daysInFleet > 60)
               .sort((a, b) => a.roi - b.roi)
               .slice(0, 5)
-              .map(p => ({ name: p.v.name || "—", invested: p.purchase, revenue: p.revenue, roi: p.roi, days: p.daysInFleet })),
+              .map(p => ({ name: p.v.name || "", invested: p.purchase, revenue: p.revenue, roi: p.roi, days: p.daysInFleet })),
             actions: weeklyDecisions.slice(0, 6).map(d => ({
               titulo: d.titulo, detalhe: d.descricao, impacto: d.impacto, prioridade: d.prioridade,
             })),
@@ -1064,7 +1064,7 @@ export default function AiPainel({
           </div>
         </div>
 
-        {/* CONSELHOS DA SEMANA — Private bank palette */}
+        {/* CONSELHOS DA SEMANA. Private bank palette */}
         {weeklyDecisions.length > 0 && (
           <div
             className="relative overflow-hidden rounded-2xl"
@@ -1097,7 +1097,7 @@ export default function AiPainel({
                 Se você fizer só essas ações esta semana, é onde está o maior retorno.
               </h3>
 
-              {/* Legenda — explica o que significa cada coluna */}
+              {/* Legenda. explica o que significa cada coluna */}
               <div
                 className="hidden sm:grid grid-cols-[140px_1fr_220px] gap-x-5 px-5 pb-2 mb-2 text-[9.5px] font-semibold uppercase tracking-[0.18em]"
                 style={{ color: "rgba(13,29,46,0.40)", borderBottom: "1px solid rgba(13,29,46,0.06)" }}
@@ -1107,7 +1107,7 @@ export default function AiPainel({
                 <span className="text-right">Impacto estimado</span>
               </div>
 
-              {/* Decisions list — divided rows for clear separation */}
+              {/* Decisions list. divided rows for clear separation */}
               <ul className="rounded-xl overflow-hidden" style={{ border: "1px solid rgba(13,29,46,0.08)", background: "rgba(255,255,255,0.55)" }}>
                 {weeklyDecisions.map((d, i) => {
                   const isLast = i === weeklyDecisions.length - 1;
@@ -1151,7 +1151,7 @@ export default function AiPainel({
                       className="grid grid-cols-1 sm:grid-cols-[140px_1fr_220px] gap-x-5 gap-y-3 items-start px-4 sm:px-5 py-4 sm:py-5"
                       style={!isLast ? { borderBottom: "1px solid rgba(13,29,46,0.07)" } : undefined}
                     >
-                      {/* Coluna 1 — Prioridade + Categoria */}
+                      {/* Coluna 1. Prioridade + Categoria */}
                       <div className="flex sm:flex-col items-start gap-2 sm:gap-1.5">
                         <span
                           className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] px-2 py-[4px] rounded-md whitespace-nowrap"
@@ -1168,7 +1168,7 @@ export default function AiPainel({
                         </span>
                       </div>
 
-                      {/* Coluna 2 — Ação + contexto */}
+                      {/* Coluna 2. Ação + contexto */}
                       <div className="min-w-0">
                         <h4 className="text-[15px] sm:text-[16px] font-semibold leading-snug mb-2" style={{ color: "#0d1d2e", letterSpacing: "-0.005em" }}>
                           {d.titulo}
@@ -1185,7 +1185,7 @@ export default function AiPainel({
                         </div>
                       </div>
 
-                      {/* Coluna 3 — Impacto em "caixinha" clara */}
+                      {/* Coluna 3. Impacto em "caixinha" clara */}
                       <div
                         className="rounded-lg px-3.5 py-3 sm:py-3.5 sm:text-right"
                         style={{ background: "rgba(13,29,46,0.035)", border: "1px solid rgba(13,29,46,0.08)" }}
@@ -1437,7 +1437,7 @@ export default function AiPainel({
 
             {/* Receita por dia da semana */}
             <div className="ai-card">
-              <CardHeader title="Em que dia da semana você fatura mais" sub={`Receita histórica por dia da semana de retirada · melhor dia: ${dowRevenue.best?.label || "—"}`} icon={CalendarDays} />
+              <CardHeader title="Em que dia da semana você fatura mais" sub={`Receita histórica por dia da semana de retirada · melhor dia: ${dowRevenue.best?.label || ""}`} icon={CalendarDays} />
               <div className="flex items-end gap-2 h-32">
                 {dowRevenue.data.map((d, i) => {
                   const h = (d.rev / dowRevenue.max) * 100;
@@ -1454,7 +1454,7 @@ export default function AiPainel({
                 })}
               </div>
               <p className="text-[11px] text-white/55 mt-3 leading-relaxed">
-                A IA detectou que <span className="text-amber-200">{dowRevenue.best?.label}</span> é seu dia mais forte. Considere reservar a melhor frota e preços levemente mais altos para esse dia, e oferecer promo para o <span className="text-white/75">{dowRevenue.worst?.label || "—"}</span>.
+                A IA detectou que <span className="text-amber-200">{dowRevenue.best?.label}</span> é seu dia mais forte. Considere reservar a melhor frota e preços levemente mais altos para esse dia, e oferecer promo para o <span className="text-white/75">{dowRevenue.worst?.label || ""}</span>.
               </p>
             </div>
 
@@ -1528,7 +1528,7 @@ export default function AiPainel({
                       <ul className="space-y-1">
                         {fleetProjection.weak.slice(0, 5).map(p => (
                           <li key={p.v.id} className="flex items-center justify-between gap-2 text-[12px]">
-                            <span className="text-white/85 truncate">{p.v.name || "—"}</span>
+                            <span className="text-white/85 truncate">{p.v.name || ""}</span>
                             <span className="text-rose-200 tabular-nums shrink-0">{fmtUSD(p.revPerDayOwned)}/dia · {p.occupancy.toFixed(0)}%</span>
                           </li>
                         ))}
@@ -1539,7 +1539,7 @@ export default function AiPainel({
                       <ul className="space-y-1">
                         {fleetProjection.stars.slice(0, 5).map(p => (
                           <li key={p.v.id} className="flex items-center justify-between gap-2 text-[12px]">
-                            <span className="text-white/85 truncate">{p.v.name || "—"}</span>
+                            <span className="text-white/85 truncate">{p.v.name || ""}</span>
                             <span className="text-emerald-200 tabular-nums shrink-0">{fmtUSD(p.revPerDayOwned)}/dia · {p.occupancy.toFixed(0)}%</span>
                           </li>
                         ))}
@@ -1612,7 +1612,7 @@ export default function AiPainel({
                   <h3 className="text-lg md:text-xl font-light text-white leading-snug mb-3">
                     <span className="text-amber-200 font-medium tabular-nums">{concentration.topRevShare.toFixed(0)}%</span> da sua receita vem de{" "}
                     <span className="text-amber-200 font-medium tabular-nums">{concentration.topForRev.length} carro{concentration.topForRev.length > 1 ? "s" : ""}</span>
-                    {" "}— que representa apenas{" "}
+                    {" "} que representa apenas{" "}
                     <span className="text-amber-200 font-medium tabular-nums">{concentration.topCountShare.toFixed(0)}%</span> da frota
                     {concentration.topInvShare > 0 && (
                       <> e <span className="text-amber-200 font-medium tabular-nums">{concentration.topInvShare.toFixed(0)}%</span> do total investido</>
@@ -1688,11 +1688,11 @@ export default function AiPainel({
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <RecCard title="Carros para considerar vender" subtitle="Mais de 6 meses na frota com pouco uso e retorno baixo" icon={AlertTriangle} hue="rose" empty="Frota saudável. Nenhum carro nessa situação."
-                items={sellCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Já devolveu ${p.roi.toFixed(1)}% do investido · ${p.daysInFleet} dias na frota` }))} />
+                items={sellCandidates.map(p => ({ name: p.v.name || "", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Já devolveu ${p.roi.toFixed(1)}% do investido · ${p.daysInFleet} dias na frota` }))} />
               <RecCard title="Carros que aguentam preço maior" subtitle="Estão sempre alugados. Dá pra cobrar 12% a 18% a mais" icon={Flame} hue="amber" empty="Nenhum carro com demanda excedente."
-                items={priceUpCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 1.15)}/dia` }))} />
+                items={priceUpCandidates.map(p => ({ name: p.v.name || "", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 1.15)}/dia` }))} />
               <RecCard title="Carros parados. Testar promo" subtitle="Pouco alugados há mais de 90 dias" icon={Snowflake} hue="amber" empty="Nenhum carro nessa situação."
-                items={priceDownCandidates.map(p => ({ name: p.v.name || "—", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 0.85)}/dia em promo` }))} />
+                items={priceDownCandidates.map(p => ({ name: p.v.name || "", right: `${p.occupancy.toFixed(0)}% de uso`, sub: `Hoje ${fmtUSD(p.daily)}/dia → testar ${fmtUSD(p.daily * 0.85)}/dia em promo` }))} />
             </div>
             <div className="ai-card">
               <CardHeader title="Categorias que mais dão dinheiro" sub="Receita por dia que o carro está na sua frota" icon={TrendingUp} />

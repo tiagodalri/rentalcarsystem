@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { clearFormDraft, useFormDraft } from "@/hooks/useFormDraft";
 
 /* ============================================================
-   CLIENTES — Mobile-first
+   CLIENTES. Mobile-first
    Lista estilo agenda do iPhone: avatares com inicial,
    agrupado por letra, swipe→ligar/whatsapp.
    Segmento Regular (GoDrive) / Turo igual ao desktop.
@@ -302,7 +302,7 @@ export default function MobileCustomers() {
                         <div className="text-xs text-muted-foreground truncate">
                           {isTuro
                             ? (c.turo_guest_id ? `Guest #${c.turo_guest_id}` : "Hóspede Turo")
-                            : (c.phone || c.email || "—")}
+                            : (c.phone || c.email || "")}
                         </div>
                       </div>
                     </button>

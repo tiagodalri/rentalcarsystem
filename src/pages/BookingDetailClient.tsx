@@ -178,7 +178,7 @@ const BookingDetailClient = () => {
           templateData: {
             firstName: (dbBooking.customer_name || "").split(" ")[0] || "",
             bookingNumber: dbBooking.booking_number || "",
-            vehicleName: dbBooking.vehicle?.name || "—",
+            vehicleName: dbBooking.vehicle?.name || "",
             originalPickupDate: dbBooking.pickup_date,
             cancellationDate: new Date().toISOString().split("T")[0],
             refundAmount: "A definir",
@@ -334,7 +334,7 @@ const BookingDetailClient = () => {
               </div>
             </div>
 
-            {/* Fuel — only show if data exists */}
+            {/* Fuel. only show if data exists */}
             {hasFuelData && (
               <div className="glass-card rounded-xl p-5">
                 <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-4">
@@ -353,7 +353,7 @@ const BookingDetailClient = () => {
               </div>
             )}
 
-            {/* Extra charges — only show if data exists */}
+            {/* Extra charges. only show if data exists */}
             {hasExtraCharges && (
               <div className="glass-card rounded-xl p-5">
                 <ExtraChargesTable charges={booking.extraCharges} />
@@ -400,7 +400,7 @@ const BookingDetailClient = () => {
                 )}
               </div>
 
-              {/* Contract — sign / download */}
+              {/* Contract. sign / download */}
               <ClientContractPanel
                 bookingId={dbBooking.id}
                 contractStatus={(dbBooking as any).contract_status ?? null}
@@ -466,7 +466,7 @@ const BookingDetailClient = () => {
                 </div>
               )}
 
-              {/* Rating — only show for completed with rating */}
+              {/* Rating. only show for completed with rating */}
               {booking.status === "completed" && booking.rating && (
                 <div className="glass-card rounded-xl p-4 text-center">
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-2">

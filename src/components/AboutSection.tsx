@@ -74,7 +74,7 @@ const AboutSection = () => {
           ))}
         </div>
 
-        {/* CTAs — moved from hero to keep search as the primary focus above the fold */}
+        {/* CTAs. moved from hero to keep search as the primary focus above the fold */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

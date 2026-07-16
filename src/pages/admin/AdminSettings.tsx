@@ -41,7 +41,7 @@ export default function AdminSettings() {
         <CardContent className="space-y-4">
           <div>
             <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 block">E-mail</label>
-            <p className="text-sm text-foreground">{user?.email || "—"}</p>
+            <p className="text-sm text-foreground">{user?.email || ""}</p>
           </div>
 
           <div className="pt-4 border-t border-border/30 space-y-3">

@@ -49,9 +49,9 @@ function getProgress(pickup: string, ret: string, status: string): number {
 
 function parseLoc(raw: string | null) {
   if (!raw) return null;
-  const [addrRaw, ...termParts] = raw.split(" — ");
+  const [addrRaw, ...termParts] = raw.split(". ");
   const addr = (addrRaw || "").trim();
-  const terminal = termParts.join(" — ").trim();
+  const terminal = termParts.join(". ").trim();
   const isAirport = /airport|aeroporto|\bMCO\b|\bMIA\b|\bTPA\b|\bFLL\b|\bSFB\b|\bLAX\b|\bJFK\b/i.test(addr);
   // condense long address: keep last 2 meaningful tokens (city/state) for compactness
   const short = addr.split(",").slice(0, 2).join(",").trim();
@@ -87,7 +87,7 @@ export function MobileBookingCard({ booking, onOpen }: { booking: Booking; onOpe
             <PersonAvatar name={booking.customer_name} size="sm" />
             <div className="min-w-0 flex-1">
               <h3 className="text-[15px] font-semibold leading-tight text-foreground truncate">
-                {formatPersonName(booking.customer_name) || "—"}
+                {formatPersonName(booking.customer_name) || ""}
               </h3>
               <p className="mt-0.5 text-[11px] text-muted-foreground/80 truncate">
                 #{booking.id.slice(0, 8).toUpperCase()}
@@ -139,7 +139,7 @@ export function MobileBookingCard({ booking, onOpen }: { booking: Booking; onOpe
               {formatShortDate(booking.pickup_date)}
             </p>
             <p className="text-[11px] tabular-nums text-muted-foreground flex items-center gap-1 leading-tight mt-0.5">
-              <Clock className="w-2.5 h-2.5" /> {booking.pickup_time || "—"}
+              <Clock className="w-2.5 h-2.5" /> {booking.pickup_time || ""}
             </p>
           </div>
           <div className="min-w-0 border-l border-border/40 pl-2.5">
@@ -150,7 +150,7 @@ export function MobileBookingCard({ booking, onOpen }: { booking: Booking; onOpe
               {formatShortDate(booking.return_date)}
             </p>
             <p className="text-[11px] tabular-nums text-muted-foreground flex items-center gap-1 leading-tight mt-0.5">
-              <Clock className="w-2.5 h-2.5" /> {booking.return_time || "—"}
+              <Clock className="w-2.5 h-2.5" /> {booking.return_time || ""}
             </p>
           </div>
         </div>
@@ -171,9 +171,9 @@ export function MobileBookingCard({ booking, onOpen }: { booking: Booking; onOpe
                 </span>
               ) : (
                 <span className="flex items-center gap-1.5 truncate">
-                  <span className="truncate text-foreground/80">{pu?.short || "—"}</span>
+                  <span className="truncate text-foreground/80">{pu?.short || ""}</span>
                   <ArrowLeftRight className="w-3 h-3 text-muted-foreground/60 shrink-0" />
-                  <span className="truncate text-foreground/80">{rt?.short || "—"}</span>
+                  <span className="truncate text-foreground/80">{rt?.short || ""}</span>
                 </span>
               )}
             </div>

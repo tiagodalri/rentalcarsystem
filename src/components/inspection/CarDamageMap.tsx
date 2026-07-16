@@ -155,7 +155,7 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
 
   return (
     <div className="space-y-5">
-      {/* Header — private bank style */}
+      {/* Header. private bank style */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-border/40">
         <div className="flex items-center gap-3">
           <div className="w-[3px] h-7 bg-primary rounded-full" />
@@ -203,7 +203,7 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
         </div>
       </div>
 
-      {/* Visualização 3D real do veículo — modelo é escolhido pela categoria */}
+      {/* Visualização 3D real do veículo. modelo é escolhido pela categoria */}
       <CarRealisticViewer
         damageCountByLabel={damageCountByLabel}
         onAddDamage={onAddDamage}
@@ -213,7 +213,7 @@ export default function CarDamageMap({ damageCountByLabel, onAddDamage, disabled
 
 
 
-      {/* Legenda — bordas finas, sem cor crua */}
+      {/* Legenda. bordas finas, sem cor crua */}
       <div className="flex items-center justify-center gap-6 pt-1">
         <span className="flex items-center gap-2 text-[11px] text-muted-foreground tracking-wider uppercase font-medium">
           <span className="w-2.5 h-2.5 rounded-full border border-primary/35 bg-card inline-block" />

@@ -34,7 +34,7 @@ const ALL_THEMES: SeasonalTheme[] = [
   {
     key: "carnaval",
     label: "Carnaval",
-    palette: "dourado, marsala, esmeralda, ametista — joia profunda",
+    palette: "dourado, marsala, esmeralda, ametista .  joia profunda",
     motifs: "confete dourado em camera lenta, mascara veneziana sugerida em silhueta, plumas discretas",
     copyHint: "festa sofisticada, ritmo, energia brasileira em Orlando",
   },
@@ -48,7 +48,7 @@ const ALL_THEMES: SeasonalTheme[] = [
   {
     key: "pascoa",
     label: "Pascoa",
-    palette: "pastel sofisticado — verde-agua, lavanda, dourado champagne",
+    palette: "pastel sofisticado .  verde-agua, lavanda, dourado champagne",
     motifs: "luz suave matinal, flores brancas, ramos floridos discretos",
     copyHint: "tempo em familia, renovacao, feriado longo",
   },

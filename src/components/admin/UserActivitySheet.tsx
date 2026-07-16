@@ -121,7 +121,7 @@ export function UserActivitySheet({ open, onOpenChange, userKey, logs }: UserAct
   const locations = useMemo(() => {
     const m = new Map<string, { count: number; ip: string | null }>();
     userLogs.forEach((l) => {
-      const key = [l.city, l.region, l.country].filter(Boolean).join(", ") || "—";
+      const key = [l.city, l.region, l.country].filter(Boolean).join(", ") || "";
       const cur = m.get(key);
       if (cur) cur.count++;
       else m.set(key, { count: 1, ip: l.ip });
@@ -314,7 +314,7 @@ export function UserActivitySheet({ open, onOpenChange, userKey, logs }: UserAct
                         <div className="mt-1.5 text-xs text-muted-foreground flex flex-wrap gap-x-3 gap-y-0.5">
                           <span>Início: {fmtTime(s.start)}</span>
                           <span>Fim: {fmtTime(s.last)}</span>
-                          <span>Duração: {fmtDuration(dur) || "—"}</span>
+                          <span>Duração: {fmtDuration(dur) || ""}</span>
                         </div>
                       </div>
                     );

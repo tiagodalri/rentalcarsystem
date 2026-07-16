@@ -161,7 +161,7 @@ export default function StepPhotosAndPublish({
           <Info size={13} className="mt-0.5 shrink-0" />
           {tab === "registry" ? (
             <p>
-              Fotos completas do estado atual do veículo — 4 lados, painel, hodômetro, pneus e
+              Fotos completas do estado atual do veículo. 4 lados, painel, hodômetro, pneus e
               eventuais danos. <strong>Não aparecem no site público.</strong> Cada foto recebe
               automaticamente um carimbo com data, hora e quilometragem.
             </p>
@@ -193,7 +193,7 @@ export default function StepPhotosAndPublish({
             </p>
             <p className="text-[11px] text-muted-foreground">
               Envia para a aba <strong>{tab === "registry" ? "Registro interno" : "Vitrine pública"}</strong>.
-              JPG, PNG ou WEBP — múltiplos arquivos.
+              JPG, PNG ou WEBP. múltiplos arquivos.
             </p>
             <input
               type="file"

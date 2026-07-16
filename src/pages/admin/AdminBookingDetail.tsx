@@ -272,7 +272,7 @@ export default function AdminBookingDetail() {
   const DetailItem = ({ label, value, highlight }: { label: string; value: string | number | null | undefined; highlight?: boolean }) => (
     <div className="flex items-center justify-between py-2 border-b border-border/20 last:border-0">
       <span className="text-xs text-muted-foreground">{label}</span>
-      <span className={`text-sm font-medium ${highlight ? "text-primary" : "text-foreground"}`}>{value || "—"}</span>
+      <span className={`text-sm font-medium ${highlight ? "text-primary" : "text-foreground"}`}>{value || ""}</span>
     </div>
   );
 
@@ -343,8 +343,8 @@ export default function AdminBookingDetail() {
         <CardContent className="p-4 sm:p-5 space-y-5">
           {/* Metrics row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            <MetricCard icon={Gauge} label="Odômetro" value={insp.odometer_reading ? `${insp.odometer_reading.toLocaleString()} mi` : "—"} />
-            <MetricCard icon={Fuel} label="Combustível" value={insp.fuel_level ? (FUEL_LABELS[insp.fuel_level] || insp.fuel_level) : "—"} />
+            <MetricCard icon={Gauge} label="Odômetro" value={insp.odometer_reading ? `${insp.odometer_reading.toLocaleString()} mi` : ""} />
+            <MetricCard icon={Fuel} label="Combustível" value={insp.fuel_level ? (FUEL_LABELS[insp.fuel_level] || insp.fuel_level) : ""} />
             <MetricCard icon={AlertTriangle} label="Avarias" value={damages.length} color={damages.length > 0 ? "text-red-500" : "text-emerald-500"} />
             <MetricCard icon={CheckCircle2} label="Acessórios" value={`${accessoryOk}/${accessoryEntries.length}`} />
           </div>
@@ -563,7 +563,7 @@ export default function AdminBookingDetail() {
             {!hideFin && (
               <div className="min-w-0 bg-background px-3 py-2 sm:bg-transparent">
                 <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">Total</p>
-                <p className="truncate text-xs sm:text-xs font-medium text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}</p>
+                <p className="truncate text-xs sm:text-xs font-medium text-foreground tabular-nums">{booking.total_price ? `$${booking.total_price.toFixed(2)}` : ""}</p>
               </div>
             )}
           </div>
@@ -697,7 +697,7 @@ export default function AdminBookingDetail() {
               ) => {
                 const addr = (rawAddress || "").trim();
                 const parts = addr.split(",").map((s) => s.trim()).filter(Boolean);
-                let primary = parts[0] || (addr || "—");
+                let primary = parts[0] || (addr || "");
                 let terminal: string | null = null;
                 // Extract terminal info from any part (e.g. "Terminal B", "Terminal 2", "Terminal Norte")
                 const terminalRegex = /\bTerminal\b[\s\-]*[A-Za-z0-9ÀÁÂÃÉÊÍÓÔÕÚÇ]+/i;
@@ -707,7 +707,7 @@ export default function AdminBookingDetail() {
                   if (match) {
                     terminal = match[0].replace(/\s+/g, " ").trim();
                     // Remove the terminal token from that part
-                    parts[terminalIdx] = parts[terminalIdx].replace(terminalRegex, "").replace(/^[\s\-–—,]+|[\s\-–—,]+$/g, "");
+                    parts[terminalIdx] = parts[terminalIdx].replace(terminalRegex, "").replace(/^[\s\-,]+|[\s\-,]+$/g, "");
                     if (terminalIdx === 0) {
                       primary = parts[0] || primary;
                     }
@@ -723,7 +723,7 @@ export default function AdminBookingDetail() {
                         <span>{primary}</span>
                         {terminal && (
                           <span className="text-sm font-normal text-muted-foreground">
-                            <span className="mr-1.5">–</span>{terminal}
+                            <span className="mr-1.5"></span>{terminal}
                           </span>
                         )}
                       </h3>
@@ -731,7 +731,7 @@ export default function AdminBookingDetail() {
                         <p className="text-xs text-muted-foreground leading-snug max-w-xl">{secondary}</p>
                       )}
                       <p className="text-xs text-muted-foreground tabular-nums pt-0.5">{date.toLocaleDateString("pt-BR")}</p>
-                      {addr && addr !== "—" && (
+                      {addr && addr !== "" && (
                         <div className="pt-2 max-w-md">
                           <MiniLocationMap address={addr} height={140} />
                         </div>
@@ -758,28 +758,28 @@ export default function AdminBookingDetail() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-6 sm:gap-x-8 md:gap-x-12">
                 <div>
                   <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">Nome</label>
-                  <p className="text-sm font-medium text-foreground break-words">{formatPersonName(customer.full_name) || "—"}</p>
+                  <p className="text-sm font-medium text-foreground break-words">{formatPersonName(customer.full_name) || ""}</p>
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">E-mail</label>
-                  <p className="text-sm font-medium text-foreground break-all">{customer.email || "—"}</p>
+                  <p className="text-sm font-medium text-foreground break-all">{customer.email || ""}</p>
                 </div>
 
                 <div>
                   <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">Telefone</label>
-                  <p className="text-sm font-medium text-foreground tabular-nums">{customer.phone || "—"}</p>
+                  <p className="text-sm font-medium text-foreground tabular-nums">{customer.phone || ""}</p>
                 </div>
                 <div>
                   <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">Nacionalidade</label>
-                  <p className="text-sm font-medium text-foreground">{customer.nationality || "—"}</p>
+                  <p className="text-sm font-medium text-foreground">{customer.nationality || ""}</p>
                 </div>
                 <div>
                   <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">Documento</label>
-                  <p className="text-sm font-medium text-foreground tabular-nums">{customer.document_number || "—"}</p>
+                  <p className="text-sm font-medium text-foreground tabular-nums">{customer.document_number || ""}</p>
                 </div>
                 <div>
                   <label className="block text-[10px] text-muted-foreground/70 font-medium uppercase tracking-wider mb-1.5">CNH</label>
-                  <p className="text-sm font-medium text-foreground tabular-nums">{customer.driver_license || "—"}</p>
+                  <p className="text-sm font-medium text-foreground tabular-nums">{customer.driver_license || ""}</p>
                 </div>
               </div>
               {customer.notes && (
@@ -862,7 +862,7 @@ export default function AdminBookingDetail() {
             <div className="flex justify-between py-2 border-b border-border/30">
               <span className="text-sm text-muted-foreground">Idade do condutor</span>
               <span className="text-sm font-semibold text-foreground tabular-nums">
-                {booking.driver_age ? `${booking.driver_age} anos` : "—"}
+                {booking.driver_age ? `${booking.driver_age} anos` : ""}
               </span>
             </div>
             <div className="flex justify-between py-2 border-b border-border/30">
@@ -874,12 +874,12 @@ export default function AdminBookingDetail() {
             <div className="flex justify-between items-baseline py-5">
               <span className="text-base font-medium text-foreground">Total da Reserva</span>
               <span className="text-2xl font-medium tabular-nums text-primary">
-                {booking.total_price ? `$${booking.total_price.toFixed(2)}` : "—"}
+                {booking.total_price ? `$${booking.total_price.toFixed(2)}` : ""}
               </span>
             </div>
           </div>
 
-          {/* Detalhamento do pagamento — instrução para o operador */}
+          {/* Detalhamento do pagamento. instrução para o operador */}
           {(() => {
             const total = Number(booking.total_price || 0);
             const deposit = Number(booking.deposit_amount || 0);
@@ -936,7 +936,7 @@ export default function AdminBookingDetail() {
                   <div className="flex justify-between py-2 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Forma de pagamento</span>
                     <span className="text-sm font-semibold text-foreground">
-                      {booking.payment_method ? (methodMap[booking.payment_method] || booking.payment_method) : "—"}
+                      {booking.payment_method ? (methodMap[booking.payment_method] || booking.payment_method) : ""}
                     </span>
                   </div>
                   {booking.paid_at && (
@@ -956,7 +956,7 @@ export default function AdminBookingDetail() {
                   <div className="flex justify-between py-2 px-4 sm:px-5">
                     <span className="text-sm text-muted-foreground">Franquia (responsabilidade)</span>
                     <span className="text-sm font-semibold text-foreground tabular-nums">
-                      {franchise > 0 ? `$${franchise.toFixed(2)}` : "—"}
+                      {franchise > 0 ? `$${franchise.toFixed(2)}` : ""}
                     </span>
                   </div>
                 </div>
@@ -1006,7 +1006,7 @@ export default function AdminBookingDetail() {
                       </svg>
                       <div className="text-xs leading-relaxed">
                         <p className="font-medium text-emerald-700 dark:text-emerald-400">
-                          Reserva quitada — nenhum valor a cobrar na retirada.
+                          Reserva quitada. nenhum valor a cobrar na retirada.
                         </p>
                         <p className="text-muted-foreground mt-0.5">
                           {deposit > 0
@@ -1050,10 +1050,10 @@ export default function AdminBookingDetail() {
                 label="Milhas Rodadas"
                 value={checkin.odometer_reading && checkout.odometer_reading
                   ? `${(checkout.odometer_reading - checkin.odometer_reading).toLocaleString()} mi`
-                  : "—"}
+                  : ""}
               />
-              <MetricCard icon={Fuel} label="Combustível Entrega" value={checkin.fuel_level || "—"} />
-              <MetricCard icon={Fuel} label="Combustível Devolução" value={checkout.fuel_level || "—"} />
+              <MetricCard icon={Fuel} label="Combustível Entrega" value={checkin.fuel_level || ""} />
+              <MetricCard icon={Fuel} label="Combustível Devolução" value={checkout.fuel_level || ""} />
               <MetricCard
                 icon={AlertTriangle}
                 label="Novas Avarias"

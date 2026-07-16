@@ -167,7 +167,7 @@ function CarRig({
         <meshStandardMaterial color="#0a0a0a" metalness={0.6} roughness={0.5} />
       </mesh>
 
-      {/* === CARROCERIA — TOPO === */}
+      {/* === CARROCERIA. TOPO === */}
       <Part {...partProps("Capô")}
         position={[0, 0.72, 1.35]} size={[1.78, 0.18, 1.0]} />
       <Part {...partProps("Teto")}
@@ -189,7 +189,7 @@ function CarRig({
         position={[0, 1.05, -0.85]} rotation={[-Math.PI * 0.2, 0, 0]} size={[1.55, 0.05, 0.85]}
         baseColor="#0a1420" metalness={0.2} roughness={0.05} />
 
-      {/* === LATERAIS — ESQUERDA (X negativo) === */}
+      {/* === LATERAIS. ESQUERDA (X negativo) === */}
       <Part {...partProps("Para-lama dianteiro esquerdo")}
         position={[-0.93, 0.7, 1.35]} size={[0.08, 0.55, 0.9]} />
       <Part {...partProps("Porta dianteira esquerda")}
@@ -209,7 +209,7 @@ function CarRig({
       <Part {...partProps("Retrovisor esquerdo")}
         position={[-1.0, 0.95, 0.85]} size={[0.18, 0.12, 0.16]} />
 
-      {/* === LATERAIS — DIREITA (X positivo) === */}
+      {/* === LATERAIS. DIREITA (X positivo) === */}
       <Part {...partProps("Para-lama dianteiro direito")}
         position={[0.93, 0.7, 1.35]} size={[0.08, 0.55, 0.9]} />
       <Part {...partProps("Porta dianteira direita")}

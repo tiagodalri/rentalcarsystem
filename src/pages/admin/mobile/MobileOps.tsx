@@ -18,7 +18,7 @@ import { SwipeAction } from "@/components/mobile/SwipeAction";
 
 
 /* ============================================================
-   OPERAÇÃO — Mobile-first
+   OPERAÇÃO. Mobile-first
    Segmented control: Retiradas / Devoluções / Em preparo.
    Cards grandes (sem tabela), swipe-actions (ligar, WhatsApp).
    ============================================================ */
@@ -95,7 +95,7 @@ export default function MobileOps() {
 
   const renderItem = (b: Booking, kind: "in" | "out") => {
     const v = vehicles[b.vehicle_id];
-    const time = (kind === "in" ? b.pickup_time : b.return_time)?.slice(0, 5) || "—:—";
+    const time = (kind === "in" ? b.pickup_time : b.return_time)?.slice(0, 5) || ":";
     const actions = [];
     if (b.customer_phone) {
       actions.push({
@@ -135,7 +135,7 @@ export default function MobileOps() {
             <div className="text-sm font-medium truncate">{formatPersonName(b.customer_name)}</div>
             <div className="text-xs text-muted-foreground truncate flex items-center gap-1.5">
               <Car size={11} />
-              {v?.name || "Veículo —"}
+              {v?.name || "Veículo "}
               {b.booking_number && <span className="opacity-60">· #{b.booking_number}</span>}
             </div>
           </div>

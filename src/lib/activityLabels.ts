@@ -20,7 +20,7 @@ const ROUTE_LABELS: Array<[RegExp, string]> = [
   [/^\/admin\/pendencias$/, "Pendências da frota"],
   [/^\/admin\/settings$/, "Configurações"],
   [/^\/admin\/stamp-preview$/, "Pré-visualização de carimbo"],
-  [/^\/admin\/ai-studio\/simulador/, "AI Studio — Simulador"],
+  [/^\/admin\/ai-studio\/simulador/, "AI Studio .  Simulador"],
   [/^\/admin\/ai-studio/, "AI Studio"],
   [/^\/admin\/inspection/, "Inspeção de veículo"],
   [/^\/admin\/report\/fleet-pnl/, "Relatório de lucros da frota"],

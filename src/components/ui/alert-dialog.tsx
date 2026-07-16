@@ -44,7 +44,7 @@ const AlertDialogContent = React.forwardRef<
       )}
       {...props}
     >
-      {/* Grab handle (mobile only) — visual cue that this is a sheet */}
+      {/* Grab handle (mobile only). visual cue that this is a sheet */}
       <div
         className="sm:hidden absolute top-2 left-1/2 -translate-x-1/2 h-1 w-10 rounded-full bg-muted-foreground/30"
         aria-hidden

@@ -267,7 +267,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
       toast({
         title: "Dados extraídos",
         description: missing
-          ? `${missing} campo(s) ficaram pendentes — preencha em destaque amarelo.`
+          ? `${missing} campo(s) ficaram pendentes. preencha em destaque amarelo.`
           : "Todos os campos foram preenchidos. Revise antes de salvar.",
       });
     } catch (e: any) {
@@ -605,7 +605,7 @@ export function NewBookingDialog({ open, onOpenChange, onCreated, mode = "modal"
                   <SelectContent>
                     {vehicles.map((v) => (
                       <SelectItem key={v.id} value={v.id}>
-                        {v.name} — ${Number(v.daily_price_usd).toFixed(0)}/dia
+                        {v.name}. ${Number(v.daily_price_usd).toFixed(0)}/dia
                       </SelectItem>
                     ))}
                   </SelectContent>

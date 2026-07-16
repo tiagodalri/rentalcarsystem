@@ -532,7 +532,7 @@ const SearchResults = () => {
                           ou similar da categoria
                         </p>
 
-                        {/* Specs grid — Booking/Rentcars style */}
+                        {/* Specs grid. Booking/Rentcars style */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1 mt-2 text-[11px] text-foreground/80">
                           <span className="flex items-center gap-1.5">
                             <Users size={13} className="text-muted-foreground shrink-0" /> {v.passengers} passageiros

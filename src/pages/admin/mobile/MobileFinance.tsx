@@ -9,7 +9,7 @@ import { CategoriesTab } from "@/components/admin/finance/CategoriesTab";
 import { AccountsTab } from "@/components/admin/finance/AccountsTab";
 
 /* ============================================================
-   FINANCEIRO — Mobile-first
+   FINANCEIRO. Mobile-first
    Header compacto + segmented horizontal scrollable.
    Pull-to-refresh invalida todas as queries ativas da rota.
    ============================================================ */

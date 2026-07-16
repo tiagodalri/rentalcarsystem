@@ -34,7 +34,7 @@ interface Props {
 }
 
 function fmt(v: any): string {
-  if (v === null || v === undefined || v === "") return "—";
+  if (v === null || v === undefined || v === "") return "";
   if (typeof v === "number") return v.toLocaleString("en-US", { maximumFractionDigits: 2 });
   return String(v);
 }

@@ -54,7 +54,7 @@ export function OfflineBanner() {
         {offline ? (
           <>
             <WifiOff size={14} strokeWidth={2.2} />
-            <span>Você está offline — exibindo dados em cache</span>
+            <span>Você está offline. Exibindo dados em cache</span>
           </>
         ) : (
           <>

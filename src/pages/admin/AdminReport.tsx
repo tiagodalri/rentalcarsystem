@@ -23,7 +23,7 @@ export default function AdminReport() {
           <div>
             <h1 className="admin-h1 text-[22px]">Relatório Consolidado</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Visão estratégica única — desempenho operacional mensal e rentabilidade
+              Visão estratégica única. Desempenho operacional mensal e rentabilidade
               completa da frota lado a lado.
             </p>
           </div>

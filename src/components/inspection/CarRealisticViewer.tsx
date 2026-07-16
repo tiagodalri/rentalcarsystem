@@ -525,7 +525,7 @@ export default function CarRealisticViewer({
 
   return (
     <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
-      {/* Barra superior — controles + nome do modelo */}
+      {/* Barra superior. controles + nome do modelo */}
       <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2 sm:py-2.5 border-b border-border/40 bg-background/40">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <p className="admin-label text-[10px] flex items-center gap-2 shrink-0">
@@ -697,12 +697,12 @@ export default function CarRealisticViewer({
           </div>
         )}
 
-        {/* Watermark — Vista 360 */}
+        {/* Watermark. Vista 360 */}
         <div className="pointer-events-none absolute bottom-3 left-3 text-[9px] tracking-[0.22em] uppercase text-muted-foreground/70">
           Vista 360°
         </div>
 
-        {/* Atribuição (CC-BY) — discreta no canto */}
+        {/* Atribuição (CC-BY). discreta no canto */}
         <div className="absolute bottom-2 right-2 z-10">
           <button
             type="button"

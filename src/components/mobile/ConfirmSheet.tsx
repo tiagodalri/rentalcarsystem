@@ -128,7 +128,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
     <ConfirmCtx.Provider value={value}>
       {children}
 
-      {/* Mobile: bottom sheet — alcance de polegar */}
+      {/* Mobile: bottom sheet. alcance de polegar */}
       {isMobile ? (
         <Sheet
           open={open}

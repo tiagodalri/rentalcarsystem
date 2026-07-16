@@ -50,18 +50,18 @@ const CONTRACT_BADGE: Record<string, { label: string; cls: string }> = {
 };
 
 const fmtName = (n?: string | null) => {
-  if (!n) return "—";
+  if (!n) return "";
   const small = new Set(["da","de","do","das","dos","e","di","du"]);
   return n.toLowerCase().split(/\s+/).map(w =>
     small.has(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)
   ).join(" ");
 };
 const fmtMoney = (v?: number | null) =>
-  typeof v === "number" ? v.toLocaleString("en-US", { style: "currency", currency: "USD" }) : "—";
+  typeof v === "number" ? v.toLocaleString("en-US", { style: "currency", currency: "USD" }) : "";
 const fmtDate = (d?: string | null) =>
-  d ? new Date(d).toLocaleDateString("pt-BR") : "—";
+  d ? new Date(d).toLocaleDateString("pt-BR") : "";
 const fmtDateTime = (d?: string | null) =>
-  d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+  d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
 
 export default function AdminInspectionReport() {
   const { bookingId } = useParams();
@@ -145,7 +145,7 @@ export default function AdminInspectionReport() {
       items.push({
         label: `Avaria: ${d.position}`,
         amount: cost,
-        reason: `${SEVERITY_LABELS[d.severity] || d.severity} — ${d.description || "Reparo necessário"}`,
+        reason: `${SEVERITY_LABELS[d.severity] || d.severity}. ${d.description || "Reparo necessário"}`,
       });
     });
     missingAcc.forEach((k) => {
@@ -180,7 +180,7 @@ export default function AdminInspectionReport() {
       else parts.push(`O combustível foi devolvido ${Math.abs(fuelDiff)}% abaixo do entregue (${FUEL_LABELS[checkin.fuel_level]} → ${FUEL_LABELS[checkout.fuel_level]}), gerando cobrança de reabastecimento.`);
     }
     if (newDamages.length === 0) {
-      parts.push("A inspeção comparativa não identificou novas avarias no veículo — o estado externo e interno foi mantido conforme entrega.");
+      parts.push("A inspeção comparativa não identificou novas avarias no veículo. O estado externo e interno foi mantido conforme entrega.");
     } else {
       const sev = newDamages.reduce((acc: any, d: any) => { acc[d.severity] = (acc[d.severity] || 0) + 1; return acc; }, {});
       const lbl = Object.entries(sev).map(([s, n]) => `${n} ${SEVERITY_LABELS[s] || s}`.toLowerCase()).join(", ");
@@ -228,7 +228,7 @@ export default function AdminInspectionReport() {
   );
 
   const TrendBadge = ({ value, suffix, invertColor }: { value: number | null; suffix: string; invertColor?: boolean }) => {
-    if (value === null) return <Badge variant="outline">—</Badge>;
+    if (value === null) return <Badge variant="outline"></Badge>;
     const isUp = value > 0;
     const isDown = value < 0;
     const good = invertColor ? !isDown : isUp;
@@ -274,11 +274,11 @@ export default function AdminInspectionReport() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
                 <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><Gauge size={9}/> Odômetro</p>
-                <p className="text-sm font-medium text-foreground tabular-nums">{data.odometer_reading?.toLocaleString("pt-BR") || "—"} <span className="text-[10px] font-normal text-muted-foreground">mi</span></p>
+                <p className="text-sm font-medium text-foreground tabular-nums">{data.odometer_reading?.toLocaleString("pt-BR") || ""} <span className="text-[10px] font-normal text-muted-foreground">mi</span></p>
               </div>
               <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
                 <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><Fuel size={9}/> Combustível</p>
-                <p className="text-sm font-medium text-foreground">{FUEL_LABELS[data.fuel_level] || "—"}</p>
+                <p className="text-sm font-medium text-foreground">{FUEL_LABELS[data.fuel_level] || ""}</p>
               </div>
               <div className="rounded-lg border border-border/30 bg-background/60 p-2.5">
                 <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 flex items-center gap-1"><AlertTriangle size={9}/> Avarias</p>
@@ -521,7 +521,7 @@ export default function AdminInspectionReport() {
           </div>
           <div className="p-4 text-center">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Milhas Rodadas</p>
-            <p className="text-sm font-medium text-foreground tabular-nums">{odometerDiff !== null ? `${odometerDiff.toLocaleString("pt-BR")} mi` : "—"}</p>
+            <p className="text-sm font-medium text-foreground tabular-nums">{odometerDiff !== null ? `${odometerDiff.toLocaleString("pt-BR")} mi` : ""}</p>
             <p className="text-[10px] text-muted-foreground">no período</p>
           </div>
           <div className="p-4 text-center">
@@ -542,20 +542,20 @@ export default function AdminInspectionReport() {
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 flex items-center gap-1.5"><User size={11} /> Cliente</p>
               <p className="font-semibold text-foreground">{fmtName(booking.customer_name)}</p>
-              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1"><Mail size={10} />{booking.customer_email || "—"}</p>
-              <p className="text-xs text-muted-foreground flex items-center gap-1"><Phone size={10} />{booking.customer_phone || "—"}</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1"><Mail size={10} />{booking.customer_email || ""}</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1"><Phone size={10} />{booking.customer_phone || ""}</p>
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 flex items-center gap-1.5"><Car size={11} /> Veículo</p>
-              <p className="font-semibold text-foreground">{vehicle?.name || `${vehicle?.brand || ""} ${vehicle?.model || ""}`.trim() || "—"}</p>
-              <p className="text-xs text-muted-foreground">Placa <span className="font-mono">{vehicle?.license_plate || "—"}</span> • {vehicle?.year || "—"}</p>
+              <p className="font-semibold text-foreground">{vehicle?.name || `${vehicle?.brand || ""} ${vehicle?.model || ""}`.trim() || ""}</p>
+              <p className="text-xs text-muted-foreground">Placa <span className="font-mono">{vehicle?.license_plate || ""}</span> • {vehicle?.year || ""}</p>
               <p className="text-xs text-muted-foreground capitalize">{vehicle?.category || ""}</p>
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 flex items-center gap-1.5"><MapPin size={11} /> Logística</p>
-              <p className="text-xs text-foreground"><span className="text-muted-foreground">Retirada:</span> {booking.pickup_location || "—"}</p>
-              <p className="text-xs text-foreground mt-0.5"><span className="text-muted-foreground">Devolução:</span> {booking.return_location || "—"}</p>
-              <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">{booking.pickup_time || "—"} → {booking.return_time || "—"}</p>
+              <p className="text-xs text-foreground"><span className="text-muted-foreground">Retirada:</span> {booking.pickup_location || ""}</p>
+              <p className="text-xs text-foreground mt-0.5"><span className="text-muted-foreground">Devolução:</span> {booking.return_location || ""}</p>
+              <p className="text-[10px] text-muted-foreground mt-1 tabular-nums">{booking.pickup_time || ""} → {booking.return_time || ""}</p>
             </div>
           </div>
         </CardContent>
@@ -601,7 +601,7 @@ export default function AdminInspectionReport() {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">Envelope</p>
-              <p className="text-xs font-mono text-muted-foreground truncate" title={booking.clicksign_envelope_id || ""}>{booking.clicksign_envelope_id || "—"}</p>
+              <p className="text-xs font-mono text-muted-foreground truncate" title={booking.clicksign_envelope_id || ""}>{booking.clicksign_envelope_id || ""}</p>
             </div>
           </div>
           {booking.contract_error && (
@@ -675,7 +675,7 @@ export default function AdminInspectionReport() {
                     <div key={i} className="text-xs flex items-center gap-2 p-2.5 rounded-md bg-muted/40 border border-border/30">
                       <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLOR[d.severity] || ""}`}>{SEVERITY_LABELS[d.severity] || d.severity}</Badge>
                       <span className="font-semibold text-foreground">{d.position}</span>
-                      <span className="text-muted-foreground">— {normalizeDamageText(d.description || "") || "—"}</span>
+                      <span className="text-muted-foreground"> {normalizeDamageText(d.description || "") || ""}</span>
                     </div>
                   ))}
                 </div>
@@ -698,7 +698,7 @@ export default function AdminInspectionReport() {
                       <XCircle size={12} className="text-destructive shrink-0" />
                       <Badge variant="outline" className={`text-[10px] ${SEVERITY_COLOR[d.severity] || ""}`}>{SEVERITY_LABELS[d.severity] || d.severity}</Badge>
                       <span className="font-semibold text-foreground">{d.position}</span>
-                      <span className="text-muted-foreground flex-1 min-w-0 truncate">— {normalizeDamageText(d.description || "") || "—"}</span>
+                      <span className="text-muted-foreground flex-1 min-w-0 truncate"> {normalizeDamageText(d.description || "") || ""}</span>
                       {d.photoUrl && <SignedImage value={d.photoUrl} alt="" className="w-12 h-12 rounded object-contain border border-border/30 bg-muted/30 ml-auto" />}
                     </div>
                   ))}
@@ -800,7 +800,7 @@ export default function AdminInspectionReport() {
               { label: "Valor da Reserva", value: fmtMoney(Number(booking.total_price || 0)) },
               { label: "Caução", value: fmtMoney(Number(booking.deposit_amount || 0)) },
               { label: "Franquia", value: fmtMoney(Number(booking.franchise_amount || 0)) },
-              { label: "Pagamento", value: (booking.payment_status || "—").toUpperCase(), highlight: booking.payment_status === "paid" },
+              { label: "Pagamento", value: (booking.payment_status || "").toUpperCase(), highlight: booking.payment_status === "paid" },
             ].map((kpi) => (
               <div key={kpi.label} className="flex min-h-[82px] flex-col items-center justify-center rounded-lg border border-border/30 bg-muted/20 px-3 py-3 text-center">
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium leading-[1.15]">{kpi.label}</p>
@@ -896,7 +896,7 @@ export default function AdminInspectionReport() {
                       {s.data?.customer_signature ? (
                         <img src={s.data.customer_signature} alt="" className="w-full h-20 object-contain bg-white rounded border border-border/40" />
                       ) : (
-                        <div className="h-20 rounded border-2 border-dashed border-border/40 flex items-center justify-center text-[10px] text-muted-foreground">—</div>
+                        <div className="h-20 rounded border-2 border-dashed border-border/40 flex items-center justify-center text-[10px] text-muted-foreground"></div>
                       )}
                     </div>
                     <div>
@@ -904,7 +904,7 @@ export default function AdminInspectionReport() {
                       {s.data?.agent_signature ? (
                         <img src={s.data.agent_signature} alt="" className="w-full h-20 object-contain bg-white rounded border border-border/40" />
                       ) : (
-                        <div className="h-20 rounded border-2 border-dashed border-border/40 flex items-center justify-center text-[10px] text-muted-foreground">—</div>
+                        <div className="h-20 rounded border-2 border-dashed border-border/40 flex items-center justify-center text-[10px] text-muted-foreground"></div>
                       )}
                     </div>
                   </div>
@@ -916,7 +916,7 @@ export default function AdminInspectionReport() {
         </Card>
       )}
 
-      {/* Footer (screen only — print uses fixed footer) */}
+      {/* Footer (screen only. print uses fixed footer) */}
       <div className="text-center text-[10px] text-muted-foreground pt-4 border-t border-border/30 print:hidden">
         Laudo gerado em {fmtDateTime(new Date().toISOString())} • GoDrive • Documento {reportNumber}
       </div>

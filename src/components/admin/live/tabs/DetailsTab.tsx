@@ -11,15 +11,15 @@ import {
 } from "lucide-react";
 
 function fmtNum(v: number | null | undefined, d = 0): string {
-  if (v == null) return "—";
+  if (v == null) return "";
   return v.toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 function fmtDate(iso: string | null | undefined): string {
-  if (!iso) return "—";
+  if (!iso) return "";
   return new Date(iso + (iso.length === 10 ? "T00:00:00" : "")).toLocaleDateString("pt-BR");
 }
 function fmtMoney(v: number | null | undefined): string {
-  if (v == null) return "—";
+  if (v == null) return "";
   return v.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 function fmtDuration(s: number): string {
@@ -86,9 +86,9 @@ export function DetailsTab({ vehicle, vehicleId }: { vehicle: LiveVehicle; vehic
         )}
         <div className="grid grid-cols-2">
           <Cell label="Distância" value={`${fmtNum(today.dist, 1)} mi`} />
-          <Cell label="Duração" value={today.dur ? fmtDuration(today.dur) : "—"} />
-          <Cell label="Tempo parado" value={today.idle ? fmtDuration(today.idle) : "—"} />
-          <Cell label="Vel. máxima" value={today.maxS ? `${Math.round(today.maxS)} mph` : "—"} />
+          <Cell label="Duração" value={today.dur ? fmtDuration(today.dur) : ""} />
+          <Cell label="Tempo parado" value={today.idle ? fmtDuration(today.idle) : ""} />
+          <Cell label="Vel. máxima" value={today.maxS ? `${Math.round(today.maxS)} mph` : ""} />
         </div>
       </Section>
 
@@ -97,7 +97,7 @@ export function DetailsTab({ vehicle, vehicleId }: { vehicle: LiveVehicle; vehic
         {zeus?.current ? (
           <BookingBlock booking={zeus.current} onOpen={(id) => navigate(`/admin/bookings/${id}`)} />
         ) : (
-          <EmptyRow>Veículo disponível — sem reserva ativa hoje</EmptyRow>
+          <EmptyRow>Veículo disponível. sem reserva ativa hoje</EmptyRow>
         )}
       </Section>
 
@@ -155,24 +155,24 @@ export function DetailsTab({ vehicle, vehicleId }: { vehicle: LiveVehicle; vehic
       <Section title="Veículo" icon={<Car size={13} />}>
         <div className="grid grid-cols-2">
           <Cell label="Apelido" value={detail?.name ?? vehicle.name} />
-          <Cell label="Marca / Modelo" value={[detail?.brand, detail?.model].filter(Boolean).join(" ") || "—"} />
-          <Cell label="Ano" value={detail?.year ? String(detail.year) : detail?.manufacture_year ? String(detail.manufacture_year) : "—"} />
-          <Cell label="Cor" value={detail?.color ?? "—"} />
-          <Cell label="Placa" value={detail?.license_plate ?? "—"} mono />
-          <Cell label="VIN" value={detail?.vin ?? detail?.bouncie_vin ?? "—"} mono small />
-          <Cell label="IMEI Bouncie" value={detail?.bouncie_imei ?? "—"} mono small />
-          <Cell label="Odômetro" value={vehicle.odometer != null ? `${fmtNum(vehicle.odometer)} mi` : detail?.current_odometer ? `${fmtNum(detail.current_odometer)} mi` : "—"} />
-          <Cell label="Motor" value={detail?.engine_size ?? detail?.engine_type ?? "—"} />
-          <Cell label="Combustível" value={detail?.fuel ?? "—"} />
-          <Cell label="Câmbio" value={detail?.transmission ?? "—"} />
-          <Cell label="Categoria" value={detail?.category ?? "—"} />
+          <Cell label="Marca / Modelo" value={[detail?.brand, detail?.model].filter(Boolean).join(" ") || ""} />
+          <Cell label="Ano" value={detail?.year ? String(detail.year) : detail?.manufacture_year ? String(detail.manufacture_year) : ""} />
+          <Cell label="Cor" value={detail?.color ?? ""} />
+          <Cell label="Placa" value={detail?.license_plate ?? ""} mono />
+          <Cell label="VIN" value={detail?.vin ?? detail?.bouncie_vin ?? ""} mono small />
+          <Cell label="IMEI Bouncie" value={detail?.bouncie_imei ?? ""} mono small />
+          <Cell label="Odômetro" value={vehicle.odometer != null ? `${fmtNum(vehicle.odometer)} mi` : detail?.current_odometer ? `${fmtNum(detail.current_odometer)} mi` : ""} />
+          <Cell label="Motor" value={detail?.engine_size ?? detail?.engine_type ?? ""} />
+          <Cell label="Combustível" value={detail?.fuel ?? ""} />
+          <Cell label="Câmbio" value={detail?.transmission ?? ""} />
+          <Cell label="Categoria" value={detail?.category ?? ""} />
         </div>
       </Section>
 
       {/* Insurance */}
       <Section title="Seguro" icon={<Shield size={13} />}>
         <div className="grid grid-cols-2">
-          <Cell label="Apólice" value={detail?.insurance_policy ?? "—"} mono small />
+          <Cell label="Apólice" value={detail?.insurance_policy ?? ""} mono small />
           <Cell label="Vencimento" value={fmtDate(detail?.insurance_expiry)} />
         </div>
       </Section>
@@ -181,7 +181,7 @@ export function DetailsTab({ vehicle, vehicleId }: { vehicle: LiveVehicle; vehic
       <Section title="Manutenção" icon={<Wrench size={13} />}>
         <div className="grid grid-cols-2">
           <Cell label="Última revisão" value={fmtDate(detail?.last_service_date)} />
-          <Cell label="Próxima (mi)" value={detail?.next_service_km ? `${fmtNum(detail.next_service_km)} mi` : "—"} />
+          <Cell label="Próxima (mi)" value={detail?.next_service_km ? `${fmtNum(detail.next_service_km)} mi` : ""} />
           <Cell label="Licenciamento" value={fmtDate(detail?.registration_expiry)} />
         </div>
       </Section>
@@ -195,7 +195,7 @@ function BookingBlock({ booking, onOpen }: { booking: ZeusBooking; onOpen: (id: 
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-[11px] font-medium text-foreground truncate">{formatPersonName(booking.customer_name)}</p>
-          <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{booking.booking_number ?? "—"}</p>
+          <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{booking.booking_number ?? ""}</p>
         </div>
         <button
           onClick={() => onOpen(booking.id)}
@@ -209,8 +209,8 @@ function BookingBlock({ booking, onOpen }: { booking: ZeusBooking; onOpen: (id: 
         <Mini label="Devolução" value={fmtDate(booking.return_date)} />
         <Mini label="Status" value={STATUS_LABEL[booking.status] ?? booking.status} />
         <Mini label="Valor" value={fmtMoney(booking.total_price)} />
-        <Mini label="Contrato" value={booking.contract_status ?? "—"} />
-        <Mini label="Pagamento" value={booking.payment_status ?? "—"} />
+        <Mini label="Contrato" value={booking.contract_status ?? ""} />
+        <Mini label="Pagamento" value={booking.payment_status ?? ""} />
       </div>
       {booking.customer_phone && (
         <a
@@ -252,7 +252,7 @@ function Cell({
 function ConditionCell({ label, value }: { label: string; value: string | null | undefined }) {
   const key = value?.toLowerCase() ?? "";
   const cls = COND_COLOR[key] ?? "text-muted-foreground";
-  const display = value ? (COND_LABEL[key] ?? value) : "—";
+  const display = value ? (COND_LABEL[key] ?? value) : "";
   return <Cell label={label} value={display} valueClass={cls} />;
 }
 

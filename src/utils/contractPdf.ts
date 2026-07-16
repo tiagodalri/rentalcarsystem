@@ -54,8 +54,8 @@ export type ContractTemplate = {
 
 export const DEFAULT_CONTRACT_TEMPLATE: ContractTemplate = {
   company_name: "GoDrive LLC",
-  company_address: "Orlando, FL — EUA",
-  company_ein: "—",
+  company_address: "Orlando, FL .  EUA",
+  company_ein: ".",
   header_subtitle: "CONTRATO DE LOCAÇÃO DE VEÍCULO",
   clauses: [
     "1. O LOCATÁRIO declara possuir CNH válida durante toda a vigência da locação.",
@@ -66,16 +66,16 @@ export const DEFAULT_CONTRACT_TEMPLATE: ContractTemplate = {
   ],
   disclaimer:
     "* As cláusulas acima são versão inicial e estão sujeitas a revisão jurídica final pela LOCADORA antes de serem consideradas vinculativas.",
-  footer_text: "Contrato gerado eletronicamente — GoDrive",
+  footer_text: "Contrato gerado eletronicamente .  GoDrive",
 };
 
 const fmtDate = (d?: string | null) =>
-  d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : "—";
+  d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : ".";
 
 const fmtMoney = (v?: number | null) =>
   typeof v === "number"
     ? v.toLocaleString("en-US", { style: "currency", currency: "USD" })
-    : "—";
+    : ".";
 
 export function generateContractPdf(
   booking: ContractBooking,
@@ -122,7 +122,7 @@ export function generateContractPdf(
   doc.text("CONTRATO Nº", pageW - margin - 48, 15);
   doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text(booking.booking_number || "—", pageW - margin - 48, 23);
+  doc.text(booking.booking_number || ".", pageW - margin - 48, 23);
 
   y = 42;
 
@@ -145,7 +145,7 @@ export function generateContractPdf(
     doc.setTextColor(30, 30, 30);
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    const lines = doc.splitTextToSize(value || "—", colW - 2);
+    const lines = doc.splitTextToSize(value || ".", colW - 2);
     doc.text(lines, margin + xOffset, y + 4);
   };
 
@@ -172,19 +172,19 @@ export function generateContractPdf(
     customer.house_number,
     customer.complement,
     customer.zip_code,
-  ].filter(Boolean).join(", ") || "—";
+  ].filter(Boolean).join(", ") || ".";
 
   section("LOCATÁRIO");
-  twoCols("Nome completo", customer.full_name, "Nacionalidade", customer.nationality || "—");
-  twoCols("E-mail", customer.email || "—", "Telefone", customer.phone || "—");
-  twoCols("Documento (CPF / Passport / ID)", customer.document_number || "—", "CNH (número)", customer.driver_license || "—");
+  twoCols("Nome completo", customer.full_name, "Nacionalidade", customer.nationality || ".");
+  twoCols("E-mail", customer.email || ".", "Telefone", customer.phone || ".");
+  twoCols("Documento (CPF / Passport / ID)", customer.document_number || ".", "CNH (número)", customer.driver_license || ".");
   twoCols("Validade da CNH", fmtDate(customer.driver_license_expiry), "Endereço", fullAddress);
 
   // BLOCO 3 — VEÍCULO
   section("VEÍCULO");
-  twoCols("Marca / Modelo", vehicle.name, "Placa", vehicle.license_plate || "—");
-  twoCols("Ano", vehicle.year?.toString() || "—", "Cor", vehicle.color || "—");
-  twoCols("Categoria", vehicle.category || "—", "Odômetro inicial (mi)", vehicle.current_odometer?.toLocaleString("pt-BR") || "—");
+  twoCols("Marca / Modelo", vehicle.name, "Placa", vehicle.license_plate || ".");
+  twoCols("Ano", vehicle.year?.toString() || ".", "Cor", vehicle.color || ".");
+  twoCols("Categoria", vehicle.category || ".", "Odômetro inicial (mi)", vehicle.current_odometer?.toLocaleString("pt-BR") || ".");
 
   // BLOCO 4 — LOCAÇÃO
   const pickupMs = parseDateOnly(booking.pickup_date).getTime();
@@ -194,11 +194,11 @@ export function generateContractPdf(
   section("LOCAÇÃO");
   twoCols(
     "Retirada",
-    `${fmtDate(booking.pickup_date)} às ${booking.pickup_time || "—"}`,
+    `${fmtDate(booking.pickup_date)} às ${booking.pickup_time || "."}`,
     "Devolução",
-    `${fmtDate(booking.return_date)} às ${booking.return_time || "—"}`,
+    `${fmtDate(booking.return_date)} às ${booking.return_time || "."}`,
   );
-  twoCols("Local de retirada", booking.pickup_location || "—", "Local de devolução", booking.return_location || "—");
+  twoCols("Local de retirada", booking.pickup_location || ".", "Local de devolução", booking.return_location || ".");
   row("Total de dias", `${days} dia(s)`);
   y += 10;
 
@@ -260,13 +260,13 @@ export function generateContractPdf(
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.text(customer.full_name, margin, y + 10);
-  doc.text(`Doc.: ${customer.document_number || "—"}`, margin, y + 14);
+  doc.text(`Doc.: ${customer.document_number || "."}`, margin, y + 14);
   doc.text(template.company_name, margin + sigW + 10, y + 10);
   y += 22;
 
   doc.setTextColor(...gray);
   doc.setFontSize(8);
-  doc.text(`Orlando, FL — ${new Date().toLocaleDateString("pt-BR")}`, margin, y);
+  doc.text(`Orlando, FL .  ${new Date().toLocaleDateString("pt-BR")}`, margin, y);
 
   // Rodapé em todas as páginas
   const pageCount = doc.getNumberOfPages();
@@ -277,7 +277,7 @@ export function generateContractPdf(
     doc.rect(0, pageH - 7, pageW, 7, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(7);
-    doc.text(`${template.footer_text} — ${ts}`, margin, pageH - 2.5);
+    doc.text(`${template.footer_text} .  ${ts}`, margin, pageH - 2.5);
     doc.text(`Página ${i} de ${pageCount}`, pageW - margin - 25, pageH - 2.5);
   }
 

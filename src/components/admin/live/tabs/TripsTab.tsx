@@ -11,7 +11,7 @@ import { LoadingRows } from "@/components/skeletons/LoadingRows";
 const VEHICLE_TZ = "America/New_York";
 
 function fmtTime(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "";
   return new Date(iso).toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
@@ -19,11 +19,11 @@ function fmtTime(iso: string | null): string {
   });
 }
 function fmtMi(v: number | null | undefined, d = 1): string {
-  if (v == null) return "—";
+  if (v == null) return "";
   return v.toFixed(d).replace(".", ",");
 }
 function fmtDuration(s: number | null | undefined): string {
-  if (!s) return "—";
+  if (!s) return "";
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   return h ? `${h}h ${m}min` : `${m} min`;
@@ -127,7 +127,7 @@ export function TripsTab({ vehicleId }: { vehicleId: string }) {
                       <div className="flex items-center gap-2 min-w-0">
                         <ChevronRight size={12} className={`text-muted-foreground transition-transform ${isOpen ? "rotate-90" : ""}`} />
                         <span className="text-xs text-foreground tabular-nums">
-                          {fmtTime(t.started_at)} – {fmtTime(t.ended_at)}
+                          {fmtTime(t.started_at)}. {fmtTime(t.ended_at)}
                         </span>
                       </div>
                       <span className="text-xs font-medium text-foreground tabular-nums">
@@ -164,10 +164,10 @@ export function TripsTab({ vehicleId }: { vehicleId: string }) {
                         <div className="grid grid-cols-2 gap-1.5 pt-1">
                           <Metric icon={<Clock size={11} />} label="Duração" value={fmtDuration(t.duration_seconds)} />
                           <Metric icon={<Activity size={11} />} label="Parado" value={fmtDuration(t.idle_seconds)} />
-                          <Metric icon={<Gauge size={11} />} label="Vel. máx" value={t.max_speed_mph != null ? `${Math.round(t.max_speed_mph)} mph` : "—"} />
-                          <Metric icon={<Gauge size={11} />} label="Vel. média" value={t.avg_speed_mph != null ? `${Math.round(t.avg_speed_mph)} mph` : "—"} />
-                          <Metric icon={<Fuel size={11} />} label="Combustível" value={t.fuel_consumed_gal != null ? `${t.fuel_consumed_gal.toFixed(2)} gal` : "—"} />
-                          <Metric icon={<Fuel size={11} />} label="Consumo" value={t.average_mpg != null ? `${t.average_mpg.toFixed(1)} mpg` : "—"} />
+                          <Metric icon={<Gauge size={11} />} label="Vel. máx" value={t.max_speed_mph != null ? `${Math.round(t.max_speed_mph)} mph` : ""} />
+                          <Metric icon={<Gauge size={11} />} label="Vel. média" value={t.avg_speed_mph != null ? `${Math.round(t.avg_speed_mph)} mph` : ""} />
+                          <Metric icon={<Fuel size={11} />} label="Combustível" value={t.fuel_consumed_gal != null ? `${t.fuel_consumed_gal.toFixed(2)} gal` : ""} />
+                          <Metric icon={<Fuel size={11} />} label="Consumo" value={t.average_mpg != null ? `${t.average_mpg.toFixed(1)} mpg` : ""} />
                           <Metric icon={<AlertTriangle size={11} />} label="Freadas" value={(t.hard_braking ?? 0).toString()} alert={!!t.hard_braking} />
                           <Metric icon={<AlertTriangle size={11} />} label="Acelerações" value={(t.hard_accel ?? 0).toString()} alert={!!t.hard_accel} />
                         </div>

@@ -68,7 +68,7 @@ function VehicleLine({
 }) {
   const color = side === "sell" ? SELL : BUY;
   const bg = side === "sell" ? SELL_BG : BUY_BG;
-  const name = v.v.name || `${v.v.brand ?? ""} ${v.v.model ?? ""}`.trim() || "—";
+  const name = v.v.name || `${v.v.brand ?? ""} ${v.v.model ?? ""}`.trim() || "";
   return (
     <div
       className="flex items-center gap-2.5 rounded-lg px-2.5 py-2"

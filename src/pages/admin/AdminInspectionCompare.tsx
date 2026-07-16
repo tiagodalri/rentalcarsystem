@@ -100,7 +100,7 @@ export default function AdminInspectionCompare() {
           <div>
             <span className="text-xs text-muted-foreground">Odômetro</span>
             <p className="text-sm font-medium text-foreground">
-              {data.odometer_reading?.toLocaleString("pt-BR") || "—"} mi
+              {data.odometer_reading?.toLocaleString("pt-BR") || ""} mi
             </p>
           </div>
           <div>
@@ -113,7 +113,7 @@ export default function AdminInspectionCompare() {
                 />
               </div>
               <span className="text-xs font-medium text-foreground">
-                {FUEL_LABELS[data.fuel_level] || "—"}
+                {FUEL_LABELS[data.fuel_level] || ""}
               </span>
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function AdminInspectionCompare() {
         <div className="flex-1">
           <h1 className="admin-h1 text-2xl">Comparar Inspeções</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {booking?.customer_name} • {vehicle?.name || "—"} •{" "}
+            {booking?.customer_name} • {vehicle?.name || ""} •{" "}
             {booking && parseDateOnly(booking.pickup_date).toLocaleDateString("pt-BR")} →{" "}
             {booking && parseDateOnly(booking.return_date).toLocaleDateString("pt-BR")}
           </p>
@@ -202,7 +202,7 @@ export default function AdminInspectionCompare() {
                 </p>
               </div>
               <Badge variant="outline" className="text-lg font-medium">
-                {odometerDiff !== null ? `${odometerDiff.toLocaleString("pt-BR")} mi` : "—"}
+                {odometerDiff !== null ? `${odometerDiff.toLocaleString("pt-BR")} mi` : ""}
               </Badge>
             </CardContent>
           </Card>
@@ -221,7 +221,7 @@ export default function AdminInspectionCompare() {
                 variant="outline"
                 className={fuelDiff !== null && fuelDiff < 0 ? "text-destructive border-destructive/30" : ""}
               >
-                {fuelDiff !== null ? `${fuelDiff > 0 ? "+" : ""}${fuelDiff}%` : "—"}
+                {fuelDiff !== null ? `${fuelDiff > 0 ? "+" : ""}${fuelDiff}%` : ""}
               </Badge>
             </CardContent>
           </Card>
@@ -247,7 +247,7 @@ export default function AdminInspectionCompare() {
                       <div>
                         <p className="text-sm font-medium text-foreground">{d.position}</p>
                         <p className="text-xs text-muted-foreground">
-                          {SEVERITY_LABELS[d.severity] || d.severity} — {d.description || "Sem descrição"}
+                          {SEVERITY_LABELS[d.severity] || d.severity}. {d.description || "Sem descrição"}
                         </p>
                       </div>
                       {d.photoUrl && (

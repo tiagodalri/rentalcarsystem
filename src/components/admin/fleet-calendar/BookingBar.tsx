@@ -90,7 +90,7 @@ export function BookingBar({ booking, left, width, height }: Props) {
                   {formatPersonName(booking.customer_name)}
                 </div>
                 <div className="text-[9px] text-muted-foreground truncate tabular-nums leading-tight">
-                  {booking.booking_number || "—"} • {days}d
+                  {booking.booking_number || ""} • {days}d
                 </div>
               </div>
             )}

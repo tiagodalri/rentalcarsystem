@@ -79,7 +79,7 @@ export default function OcrReviewPanel({ extracted, current, fields, onApply, on
     <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-primary">
-          <Sparkles size={12} /> Dados lidos do documento — revise e confirme
+          <Sparkles size={12} /> Dados lidos do documento. revise e confirme
         </div>
         <button type="button" onClick={onDismiss} className="text-muted-foreground hover:text-foreground" title="Descartar">
           <X size={14} />
@@ -114,7 +114,7 @@ export default function OcrReviewPanel({ extracted, current, fields, onApply, on
                 </p>
               )}
               {it.isSame && (
-                <p className="text-[10px] text-muted-foreground mt-0.5">Já está preenchido — igual ao extraído.</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Já está preenchido. igual ao extraído.</p>
               )}
             </div>
           </label>

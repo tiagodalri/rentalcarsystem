@@ -13,7 +13,7 @@ import { SegmentedControl } from "@/components/mobile/SegmentedControl";
 import { useHideFinancials } from "@/hooks/useHideFinancials";
 
 /* ============================================================
-   RESERVAS — Mobile-first
+   RESERVAS. Mobile-first
    Cards (sem tabela), busca, filtros em bottom sheet, FAB nova reserva.
    ============================================================ */
 
@@ -182,7 +182,7 @@ export default function MobileBookings() {
                         <div className="min-w-0 flex-1">
                           <div className="text-sm font-medium truncate">{formatPersonName(b.customer_name)}</div>
                           <div className="text-xs text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
-                            <Car size={11} /> {b.vehicle_name || "—"}
+                            <Car size={11} /> {b.vehicle_name || ""}
                             {b.booking_number && <span className="opacity-60">· #{b.booking_number}</span>}
                           </div>
                         </div>

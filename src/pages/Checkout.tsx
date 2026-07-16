@@ -81,11 +81,11 @@ function maskPhone(s: string) {
 }
 
 function formatBRL(n?: number | null) {
-  if (n == null) return "—";
+  if (n == null) return "";
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n);
 }
 function formatUSD(n?: number | null) {
-  if (n == null) return "—";
+  if (n == null) return "";
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 }
 
@@ -522,7 +522,7 @@ const Checkout = () => {
   const isEstimated = activeQuote?.estimated === true;
   const totalLine = activeQuote?.result != null
     ? formatBRL(activeQuote.result)
-    : (activeLoading ? "Calculando câmbio…" : "—");
+    : (activeLoading ? "Calculando câmbio…" : "");
 
   const installmentsArr: Array<{ n: number; value: number; total: number; fee: number }> = useMemo(() => {
     const raw = quoteForMethod("card")?.installments;
@@ -562,7 +562,7 @@ const Checkout = () => {
           <p className="text-sm text-muted-foreground mb-6">Pagamento seguro · GoDrive</p>
 
           <div className="grid lg:grid-cols-[1fr_360px] gap-6">
-            {/* LEFT — main flow */}
+            {/* LEFT. main flow */}
             <div className="space-y-6">
               {step === "client" && (
                 <section className="rounded-xl border border-border bg-card p-5 sm:p-6">
@@ -618,7 +618,7 @@ const Checkout = () => {
                         <p className="text-muted-foreground">{clientPayload.email} · {clientPayload.phone}</p>
                         <p className="text-muted-foreground">
                           {clientPayload.address.street}, {clientPayload.address.number}
-                          {clientPayload.address.complement ? ` — ${clientPayload.address.complement}` : ""}
+                          {clientPayload.address.complement ? `. ${clientPayload.address.complement}` : ""}
                           {clientPayload.address.district ? ` · ${clientPayload.address.district}` : ""}
                           {" · "}{clientPayload.address.city}/{clientPayload.address.state} · CEP {clientPayload.address.zip_code}
                         </p>
@@ -660,7 +660,7 @@ const Checkout = () => {
                             ) : (
                               <>
                                 <span className="text-base font-bold leading-tight">
-                                  Pagar com Pix · {activeQuote?.result != null ? formatBRL(activeQuote.result) : "—"}
+                                  Pagar com Pix · {activeQuote?.result != null ? formatBRL(activeQuote.result) : ""}
                                 </span>
                                 <span className="text-[10px] font-normal opacity-80 leading-tight">
                                   equivalente a {formatUSD(state.amount_usd)}
@@ -736,7 +736,7 @@ const Checkout = () => {
                             ) : (
                               <>
                                 <span className="text-base font-bold leading-tight">
-                                  Gerar Boleto · {activeQuote?.result != null ? formatBRL(activeQuote.result) : "—"}
+                                  Gerar Boleto · {activeQuote?.result != null ? formatBRL(activeQuote.result) : ""}
                                 </span>
                                 <span className="text-[10px] font-normal opacity-80 leading-tight">
                                   equivalente a {formatUSD(state.amount_usd)}
@@ -918,7 +918,7 @@ const Checkout = () => {
               )}
             </div>
 
-            {/* RIGHT — summary */}
+            {/* RIGHT. summary */}
             <aside className="rounded-xl border border-border bg-card p-5 h-fit space-y-4 lg:sticky lg:top-24">
               <h3 className="text-sm font-semibold text-foreground">Resumo</h3>
 

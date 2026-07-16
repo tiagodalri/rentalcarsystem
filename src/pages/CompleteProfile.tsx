@@ -98,7 +98,7 @@ const CompleteProfile = () => {
                 Bem-vindo{firstName ? `, ${firstName}` : ""}!
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                Para finalizar reservas precisamos de alguns dados obrigatórios — telefone,
+                Para finalizar reservas precisamos de alguns dados obrigatórios. telefone,
                 documento (CPF ou passaporte), CNH e endereço. Leva menos de 2 minutos.
               </p>
             </div>

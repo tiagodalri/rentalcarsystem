@@ -188,12 +188,12 @@ function CalendarView({ bookings, navigate }: { bookings: Booking[]; navigate: (
                               key={b.id}
                               onClick={() => navigate(`/admin/bookings/${b.id}`)}
                               className={`text-[9px] leading-tight px-1.5 py-1 rounded-md cursor-pointer transition-all hover:scale-[1.02] hover:shadow-sm border ${sc.calBg} ${sc.calText} border-transparent hover:border-current/20`}
-                              title={`${b.vehicle_name || "—"} • ${b.customer_name} — ${sc.label}${isPickup ? ` (Retirada ${b.pickup_time || ""})` : ""}${isReturn ? ` (Devolução ${b.return_time || ""})` : ""}`}
+                              title={`${b.vehicle_name || ""} • ${b.customer_name}. ${sc.label}${isPickup ? ` (Retirada ${b.pickup_time || ""})` : ""}${isReturn ? ` (Devolução ${b.return_time || ""})` : ""}`}
                             >
                               <div className="font-medium truncate">
                                 {isPickup && <span className="opacity-60">→ </span>}
                                 {isReturn && <span className="opacity-60">← </span>}
-                                {vehicleShort || "—"}
+                                {vehicleShort || ""}
                               </div>
                               <div className="opacity-70 truncate flex items-center gap-0.5">
                                 {customerFirst}
@@ -295,7 +295,7 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
   const todayStr = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString().slice(0, 10);
 
   const weekEnd = weekDays[6];
-  const rangeLabel = `${weekDays[0].toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} — ${weekEnd.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}`;
+  const rangeLabel = `${weekDays[0].toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}. ${weekEnd.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}`;
 
   return (
     <div className="space-y-4">
@@ -348,11 +348,11 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
               {/* Bookings for this day */}
               <div className="space-y-2 min-h-[200px]">
                 {entries.length === 0 && (
-                  <div className="text-[10px] text-muted-foreground/40 text-center py-4">—</div>
+                  <div className="text-[10px] text-muted-foreground/40 text-center py-4"></div>
                 )}
                 {entries.map(({ booking: b, isPickup, isReturn, isMid }) => {
                   const sc = statusConfig[b.status] || statusConfig.pending;
-                  const vehicleShort = b.vehicle_name ? b.vehicle_name.split(" ").slice(0, 2).join(" ") : "—";
+                  const vehicleShort = b.vehicle_name ? b.vehicle_name.split(" ").slice(0, 2).join(" ") : "";
                   const customerFirst = formatName(b.customer_name).split(" ")[0];
 
                   const isMovement = isPickup || isReturn;
@@ -399,7 +399,7 @@ function WeeklyView({ bookings, navigate }: { bookings: Booking[]; navigate: (pa
                       {(isPickup || isReturn) && (
                         <div className="flex items-center gap-1 mt-1.5 text-[9px] opacity-60">
                           <Clock size={9} />
-                          <span>{isPickup ? (b.pickup_time || "—") : (b.return_time || "—")}</span>
+                          <span>{isPickup ? (b.pickup_time || "") : (b.return_time || "")}</span>
                         </div>
                       )}
 
@@ -453,7 +453,7 @@ function CalendarLegend() {
 // Format full names: capitalize each word, lowercase particles (da, de, do, das, dos, e)
 import { formatPersonName } from "@/lib/formatName";
 import { PersonAvatar } from "@/components/ui/PersonAvatar";
-const formatName = (raw: string | null | undefined): string => formatPersonName(raw) || "—";
+const formatName = (raw: string | null | undefined): string => formatPersonName(raw) || "";
 
 
 // ─── Filter types ───────────────────────────────────────────
@@ -765,8 +765,8 @@ function AdminBookingsDesktop() {
         cancelled: "Cancelada",
       };
       const fmtMoney = (n: any) =>
-        n == null ? "—" : `USD ${Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      const vehicleName = (prev as any)?.vehicle?.name || (prev as any)?.vehicle_name || "—";
+        n == null ? "" : `USD ${Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const vehicleName = (prev as any)?.vehicle?.name || (prev as any)?.vehicle_name || "";
       const baseUrl = `${window.location.origin}/admin/bookings/${id}`;
       const stamp = new Date().toISOString();
       if (status === "cancelled") {
@@ -774,11 +774,11 @@ function AdminBookingsDesktop() {
           templateName: "booking-cancelled",
           idempotencyKey: `booking-cancelled:${id}:${stamp.slice(0, 16)}`,
           templateData: {
-            bookingNumber: (prev as any)?.booking_number || "—",
-            customerName: (prev as any)?.customer_name || "—",
+            bookingNumber: (prev as any)?.booking_number || "",
+            customerName: (prev as any)?.customer_name || "",
             vehicleName,
-            pickupDate: `${(prev as any)?.pickup_date ?? "—"} · ${(prev as any)?.pickup_time ?? ""}`.trim(),
-            returnDate: `${(prev as any)?.return_date ?? "—"} · ${(prev as any)?.return_time ?? ""}`.trim(),
+            pickupDate: `${(prev as any)?.pickup_date ?? ""} · ${(prev as any)?.pickup_time ?? ""}`.trim(),
+            returnDate: `${(prev as any)?.return_date ?? ""} · ${(prev as any)?.return_time ?? ""}`.trim(),
             totalPrice: fmtMoney((prev as any)?.total_price),
             cancelledAt: new Date().toLocaleString("pt-BR"),
             bookingUrl: baseUrl,
@@ -789,14 +789,14 @@ function AdminBookingsDesktop() {
           templateName: "booking-updated",
           idempotencyKey: `booking-updated:${id}:${(prev as any).status}->${status}:${stamp.slice(0, 16)}`,
           templateData: {
-            bookingNumber: (prev as any).booking_number || "—",
-            customerName: (prev as any).customer_name || "—",
+            bookingNumber: (prev as any).booking_number || "",
+            customerName: (prev as any).customer_name || "",
             vehicleName,
             changeSummary: "Status alterado",
             previousStatus: statusLabel[(prev as any).status] || (prev as any).status,
             newStatus: statusLabel[status] || status,
-            pickupDate: `${(prev as any).pickup_date ?? "—"} · ${(prev as any).pickup_time ?? ""}`.trim(),
-            returnDate: `${(prev as any).return_date ?? "—"} · ${(prev as any).return_time ?? ""}`.trim(),
+            pickupDate: `${(prev as any).pickup_date ?? ""} · ${(prev as any).pickup_time ?? ""}`.trim(),
+            returnDate: `${(prev as any).return_date ?? ""} · ${(prev as any).return_time ?? ""}`.trim(),
             totalPrice: fmtMoney((prev as any).total_price),
             bookingUrl: baseUrl,
           },
@@ -947,13 +947,13 @@ function AdminBookingsDesktop() {
       xOffset = 10;
       const vals = [
         b.customer_name,
-        b.vehicle_name || "—",
+        b.vehicle_name || "",
         parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR"),
-        b.pickup_time || "—",
+        b.pickup_time || "",
         parseDateOnly(b.return_date).toLocaleDateString("pt-BR"),
-        b.return_time || "—",
-        b.pickup_location || "—",
-        b.return_location || "—",
+        b.return_time || "",
+        b.pickup_location || "",
+        b.return_location || "",
         `$${(b.total_price || 0).toFixed(2)}`,
         statusConfig[b.status]?.label || b.status,
       ];
@@ -984,7 +984,7 @@ function AdminBookingsDesktop() {
       doc.setTextColor(160, 160, 160);
       doc.setFontSize(6);
       doc.setFont("helvetica", "normal");
-      doc.text(`GoDrive — rentalcarsystem.lovable.app`, 15, pageH - 5);
+      doc.text(`GoDrive. rentalcarsystem.lovable.app`, 15, pageH - 5);
       doc.text(`Página ${p} de ${totalPages}`, pageW - 15, pageH - 5, { align: "right" });
     }
 
@@ -1024,7 +1024,7 @@ function AdminBookingsDesktop() {
           >
             <Plus size={14} /> <span>Nova reserva</span>
           </button>
-          {/* Export — esconde quando o usuário não pode ver valores (CSV/PDF contêm financeiro) */}
+          {/* Export. esconde quando o usuário não pode ver valores (CSV/PDF contêm financeiro) */}
           {!hideFin && (
             <Popover>
               <PopoverTrigger asChild>
@@ -1061,7 +1061,7 @@ function AdminBookingsDesktop() {
         </div>
       </div>
 
-      {/* Preset chips — only on table view */}
+      {/* Preset chips. only on table view */}
       {viewMode === "table" && (
         <div className="space-y-2">
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -1075,7 +1075,7 @@ function AdminBookingsDesktop() {
 
               if (key === "custom") {
                 const rangeLabel = filters.dateFrom && filters.dateTo
-                  ? `${format(filters.dateFrom, "dd/MM/yy")} — ${format(filters.dateTo, "dd/MM/yy")}`
+                  ? `${format(filters.dateFrom, "dd/MM/yy")}. ${format(filters.dateTo, "dd/MM/yy")}`
                   : filters.dateFrom
                     ? `Desde ${format(filters.dateFrom, "dd/MM/yy")}`
                     : PRESET_LABELS.custom;
@@ -1512,7 +1512,7 @@ function AdminBookingsDesktop() {
                                   <Car className="w-4 h-4 text-muted-foreground/50" />
                                 </div>
                               )}
-                              <span className="text-foreground text-[13px] font-medium truncate">{b.vehicle_name || "—"}</span>
+                              <span className="text-foreground text-[13px] font-medium truncate">{b.vehicle_name || ""}</span>
                             </div>
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
@@ -1522,7 +1522,7 @@ function AdminBookingsDesktop() {
                             </span>
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
-                            {b.pickup_time ? b.pickup_time.slice(0, 5) : "—"}
+                            {b.pickup_time ? b.pickup_time.slice(0, 5) : ""}
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
                             <span className="inline-flex items-center gap-1.5">
@@ -1531,15 +1531,15 @@ function AdminBookingsDesktop() {
                             </span>
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap">
-                            {b.return_time ? b.return_time.slice(0, 5) : "—"}
+                            {b.return_time ? b.return_time.slice(0, 5) : ""}
                           </td>
                           <td className="px-3 py-3.5 text-xs max-w-[240px] border-l-2 border-border/60 pl-5">
                             {(() => {
                               const parseLoc = (raw: string | null) => {
                                 if (!raw) return null;
-                                const [addrRaw, ...termParts] = raw.split(" — ");
+                                const [addrRaw, ...termParts] = raw.split(". ");
                                 const addr = (addrRaw || "").trim();
-                                const terminal = termParts.join(" — ").trim();
+                                const terminal = termParts.join(". ").trim();
                                 const isAirport = /airport|aeroporto|\bMCO\b|\bMIA\b|\bTPA\b|\bFLL\b|\bSFB\b/i.test(addr);
                                 return { addr, terminal, isAirport };
                               };
@@ -1566,7 +1566,7 @@ function AdminBookingsDesktop() {
                                   </div>
                                 </div>
                               );
-                              if (!pu && !rt) return <span className="text-muted-foreground/50">—</span>;
+                              if (!pu && !rt) return <span className="text-muted-foreground/50"></span>;
                               if (sameLocation && pu) {
                                 return (
                                   <div className="flex items-start gap-1.5 min-w-0">
@@ -1600,7 +1600,7 @@ function AdminBookingsDesktop() {
                             <td className="px-3 py-3.5 text-right tabular-nums whitespace-nowrap border-l-2 border-border/60 pl-5">
                               <div className="flex flex-col items-end gap-0.5">
                                 <span className="text-foreground font-semibold text-[13px]">
-                                  {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : "—"}
+                                  {b.total_price != null ? `$${Number(b.total_price).toFixed(2)}` : ""}
                                 </span>
                                 {tollTotals[b.id] > 0 && (
                                   <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400 font-medium" title="Pedágios E-Pass vinculados">
@@ -1620,7 +1620,7 @@ function AdminBookingsDesktop() {
                                   ) : null}
                                 </div>
                               ) : (
-                                <span className="text-muted-foreground/50 text-xs">—</span>
+                                <span className="text-muted-foreground/50 text-xs"></span>
                               )}
                             </td>
                           )}
@@ -1629,7 +1629,7 @@ function AdminBookingsDesktop() {
                               {(b.franchise_amount ?? 0) > 0 ? (
                                 <span className="text-[12px] text-foreground/80">${Number(b.franchise_amount).toFixed(0)}</span>
                               ) : (
-                                <span className="text-muted-foreground/50 text-xs">—</span>
+                                <span className="text-muted-foreground/50 text-xs"></span>
                               )}
                             </td>
                           )}
@@ -1707,7 +1707,7 @@ function AdminBookingsDesktop() {
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-border/30 bg-muted/10">
                   <div className="text-[11px] text-muted-foreground tabular-nums">
                     Mostrando <span className="text-foreground font-medium">{(currentPage - 1) * pageSize + 1}</span>
-                    {" – "}
+                    {". "}
                     <span className="text-foreground font-medium">{Math.min(currentPage * pageSize, filtered.length)}</span>
                     {" de "}
                     <span className="text-foreground font-medium">{filtered.length}</span>

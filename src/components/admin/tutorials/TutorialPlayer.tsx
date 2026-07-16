@@ -160,7 +160,7 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
                 }}
               />
 
-              {/* category chip — top-left */}
+              {/* category chip. top-left */}
               <div className="absolute left-7 top-7 z-10 flex items-center gap-2.5">
                 <div className="h-9 w-9 rounded-xl bg-background/80 backdrop-blur-md border border-border/40 flex items-center justify-center shadow-sm">
                   <Icon className="h-4 w-4 text-primary" strokeWidth={1.7} />
@@ -175,7 +175,7 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
                 </div>
               </div>
 
-              {/* hotspots count badge — bottom-left */}
+              {/* hotspots count badge. bottom-left */}
               {current.hotspots && current.hotspots.length > 0 && (
                 <div className="absolute left-7 bottom-6 z-10 inline-flex items-center gap-2 h-7 px-3 rounded-full bg-background/75 backdrop-blur-md border border-border/40 text-[10.5px] tracking-[0.18em] uppercase text-foreground/70">
                   <Sparkles className="h-3 w-3 text-primary" strokeWidth={2} />
@@ -183,7 +183,7 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
                 </div>
               )}
 
-              {/* Screenshot — fills the stage with breathing margins */}
+              {/* Screenshot. fills the stage with breathing margins */}
               <div className="absolute inset-0 pt-24 pb-20 px-8 lg:px-12 flex items-center justify-center">
                 <div className="relative w-full h-full max-w-[920px] flex items-center justify-center">
                   {/* halo glow behind */}
@@ -194,7 +194,7 @@ export function TutorialPlayer({ tutorial, open, onClose, onComplete }: Tutorial
                   <div className="relative w-full h-full rounded-[20px] overflow-hidden border border-border/40 bg-background shadow-[0_30px_80px_-25px_rgba(0,0,0,0.45)]">
                     <AnnotatedScreenshot
                       src={screenSrc!}
-                      alt={`Tela — ${current.title}`}
+                      alt={`Tela. ${current.title}`}
                       hotspots={current.hotspots}
                       activeN={activeHotspot}
                       onHotspotEnter={(n) => setHotspotSafe(n)}

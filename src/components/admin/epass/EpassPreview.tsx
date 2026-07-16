@@ -213,7 +213,7 @@ export function EpassPreview({
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                   Quando o extrato traz placa, modelo, cor ou ano, o sistema já sugere o veículo da
-                  frota — você só confere e aprova. Se vier apenas o número do transponder, escolha
+                  frota. você só confere e aprova. Se vier apenas o número do transponder, escolha
                   manualmente. Salvando, o vínculo grava no cadastro do veículo (campo "E-Pass") e
                   <strong> reatribui os pedágios automaticamente</strong>, inclusive em futuras
                   importações.
@@ -377,12 +377,12 @@ function TollTable({
               <td className="px-3 py-1.5 font-mono text-[11px]">{r.transponder_number}</td>
               {!hideVehicle && (
                 <td className="px-3 py-1.5">
-                  <div>{r.vehicle_name || "—"}</div>
+                  <div>{r.vehicle_name || ""}</div>
                   {r.vehicle_plate && <div className="text-[10px] text-muted-foreground">{r.vehicle_plate}</div>}
                 </td>
               )}
-              {showBooking && <td className="px-3 py-1.5 font-mono text-[11px]">{r.booking_number || "—"}</td>}
-              {showCustomer && <td className="px-3 py-1.5">{r.customer_name ? formatPersonName(r.customer_name) : "—"}</td>}
+              {showBooking && <td className="px-3 py-1.5 font-mono text-[11px]">{r.booking_number || ""}</td>}
+              {showCustomer && <td className="px-3 py-1.5">{r.customer_name ? formatPersonName(r.customer_name) : ""}</td>}
               <td className="px-3 py-1.5 text-muted-foreground">{r.location}</td>
               <td className="px-3 py-1.5 text-right tabular-nums">{fmtUsd(r.amount)}</td>
             </tr>

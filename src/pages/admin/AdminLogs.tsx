@@ -579,7 +579,7 @@ export default function AdminLogs() {
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground mt-2">
                                   <span className="inline-flex items-center gap-1">
                                     <ClipboardCheck className="h-3 w-3" />
-                                    Operador: <span className="text-foreground">{i.agent_name || "—"}</span>
+                                    Operador: <span className="text-foreground">{i.agent_name || ""}</span>
                                   </span>
                                   {i.odometer_reading != null && (
                                     <span className="inline-flex items-center gap-1 tabular-nums">

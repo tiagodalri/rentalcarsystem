@@ -207,7 +207,7 @@ export default function VehicleAgenda({ bookings }: { bookings: Booking[] }) {
                               <div className="flex items-start gap-1 text-muted-foreground">
                                 <MapPin size={8} className="shrink-0 mt-0.5" />
                                 <span className="truncate">
-                                  {b.pickup_location || "—"} → {b.return_location || "—"}
+                                  {b.pickup_location || ""} → {b.return_location || ""}
                                 </span>
                               </div>
                             )}

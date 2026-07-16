@@ -4,7 +4,7 @@ import { Settings2, X, Check, Database, Loader2 } from "lucide-react";
 export type MapLayers = {
   mapType: "roadmap" | "satellite" | "satellite3d";
   traffic: boolean;
-  carvatars: boolean; // deprecated, kept for type compat — always false
+  carvatars: boolean; // deprecated, kept for type compat. always false
   nwsAlerts: boolean;
   speedLegend: boolean;
   tripEvents: boolean;

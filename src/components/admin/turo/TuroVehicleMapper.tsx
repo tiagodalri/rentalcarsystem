@@ -41,7 +41,7 @@ export function TuroVehicleMapper({ turoVehicleName, onMapped }: Props) {
         disabled={loading || saving || saved}
         className="flex-1 h-8 text-xs rounded-md border border-border bg-background px-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
       >
-        <option value="">— escolher veículo da frota —</option>
+        <option value=""> escolher veículo da frota </option>
         {vehicles.map((v) => (
           <option key={v.id} value={v.id}>
             {v.name} {v.license_plate ? `(${v.license_plate})` : ""}

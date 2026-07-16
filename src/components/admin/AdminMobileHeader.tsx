@@ -31,7 +31,7 @@ export function AdminMobileHeader() {
       >
         {title}
       </h1>
-      {/* Ação primária mora no MobileFabDock (zona do polegar) — não duplicar aqui. */}
+      {/* Ação primária mora no MobileFabDock (zona do polegar). não duplicar aqui. */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button

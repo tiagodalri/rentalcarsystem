@@ -109,26 +109,26 @@ export async function generateInspectionPDF(data: InspectionData): Promise<void>
     doc.setTextColor(30, 30, 30);
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    doc.text(value || "—", margin + xOffset, y + 5);
+    doc.text(value || ".", margin + xOffset, y + 5);
   };
 
   // Booking Info
   section("DADOS DA RESERVA");
   labelValue("Cliente", booking.customer_name);
-  labelValue("E-mail", booking.customer_email || "—", contentW / 2);
+  labelValue("E-mail", booking.customer_email || ".", contentW / 2);
   y += 12;
-  labelValue("Telefone", booking.customer_phone || "—");
+  labelValue("Telefone", booking.customer_phone || ".");
   labelValue("Veículo", vehicle?.name || "Não vinculado", contentW / 2);
   y += 12;
-  labelValue("Retirada", `${parseDateOnly(booking.pickup_date).toLocaleDateString("pt-BR")} — ${booking.pickup_location || "—"}`);
+  labelValue("Retirada", `${parseDateOnly(booking.pickup_date).toLocaleDateString("pt-BR")} .  ${booking.pickup_location || "."}`);
   y += 7;
-  labelValue("Devolução", `${parseDateOnly(booking.return_date).toLocaleDateString("pt-BR")} — ${booking.return_location || "—"}`);
+  labelValue("Devolução", `${parseDateOnly(booking.return_date).toLocaleDateString("pt-BR")} .  ${booking.return_location || "."}`);
   y += 12;
 
   // Odometer & Fuel
   section("ODÔMETRO & COMBUSTÍVEL");
-  labelValue("Odômetro (mi)", inspection.odometer_reading?.toLocaleString("pt-BR") || "—");
-  labelValue("Nível de Combustível", FUEL_LABELS[inspection.fuel_level] || inspection.fuel_level || "—", contentW / 2);
+  labelValue("Odômetro (mi)", inspection.odometer_reading?.toLocaleString("pt-BR") || ".");
+  labelValue("Nível de Combustível", FUEL_LABELS[inspection.fuel_level] || inspection.fuel_level || ".", contentW / 2);
   y += 14;
 
   // Fuel gauge bar
@@ -178,7 +178,7 @@ export async function generateInspectionPDF(data: InspectionData): Promise<void>
       doc.setTextColor(200, 50, 50);
       doc.setFontSize(8);
       doc.setFont("helvetica", "bold");
-      doc.text(`⚠ ${d.position} — ${SEVERITY_LABELS[d.severity] || d.severity}`, margin + 3, y + 3);
+      doc.text(`⚠ ${d.position} .  ${SEVERITY_LABELS[d.severity] || d.severity}`, margin + 3, y + 3);
       doc.setTextColor(80, 80, 80);
       doc.setFont("helvetica", "normal");
       doc.text(d.description || "Sem descrição", margin + 3, y + 10);
@@ -264,7 +264,7 @@ export async function generateInspectionPDF(data: InspectionData): Promise<void>
   doc.text("Assinatura do Agente", margin, y + sigH + 4);
   doc.setTextColor(30, 30, 30);
   doc.setFontSize(8);
-  doc.text(inspection.agent_name || "—", margin, y + sigH + 9);
+  doc.text(inspection.agent_name || ".", margin, y + sigH + 9);
 
   // Customer
   doc.rect(margin + sigW + 10, y, sigW, sigH);
@@ -297,7 +297,7 @@ export async function generateInspectionPDF(data: InspectionData): Promise<void>
     doc.rect(0, 290, pageW, 7, "F");
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(7);
-    doc.text("GoDrive — Inspeção Veicular", margin, 294.5);
+    doc.text("GoDrive .  Inspeção Veicular", margin, 294.5);
     doc.text(`Página ${i} de ${pageCount}`, pageW - margin - 25, 294.5);
   }
 

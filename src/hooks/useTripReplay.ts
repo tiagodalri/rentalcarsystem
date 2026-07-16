@@ -190,14 +190,14 @@ export function useTripReplay(tripId: string | null) {
           const events: ReplayEvent[] = [
             {
               kind: "start", t: 0, lat: points[0].lat, lng: points[0].lng, speed: points[0].speed,
-              label: `Partida — ${startedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/New_York" })}`,
+              label: `Partida .  ${startedAt.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/New_York" })}`,
             },
           ];
           if (points[peakIdx].speed > 10) {
             events.push({
               kind: "peak_speed", t: points[peakIdx].t,
               lat: points[peakIdx].lat, lng: points[peakIdx].lng, speed: points[peakIdx].speed,
-              label: `Pico — ${Math.round(points[peakIdx].speed)} mph`,
+              label: `Pico .  ${Math.round(points[peakIdx].speed)} mph`,
             });
           }
           events.sort((a, b) => a.t - b.t);
@@ -423,7 +423,7 @@ export function useTripReplay(tripId: string | null) {
           lat: points[0].lat,
           lng: points[0].lng,
           speed: points[0].speed,
-          label: startShort ? `Partiu de ${startShort} — ${fmtHm(startedAt)}` : `Partida — ${fmtHm(startedAt)}`,
+          label: startShort ? `Partiu de ${startShort} .  ${fmtHm(startedAt)}` : `Partida .  ${fmtHm(startedAt)}`,
         });
         events.push({
           kind: "end",
@@ -431,7 +431,7 @@ export function useTripReplay(tripId: string | null) {
           lat: points[n - 1].lat,
           lng: points[n - 1].lng,
           speed: points[n - 1].speed,
-          label: endShort ? `Chegou em ${endShort} — ${fmtHm(endedAt)}` : `Chegada — ${fmtHm(endedAt)}`,
+          label: endShort ? `Chegou em ${endShort} .  ${fmtHm(endedAt)}` : `Chegada .  ${fmtHm(endedAt)}`,
         });
 
         // Peak speed (both levels)
@@ -444,7 +444,7 @@ export function useTripReplay(tripId: string | null) {
             lat: points[peakIdx].lat,
             lng: points[peakIdx].lng,
             speed: points[peakIdx].speed,
-            label: `Pico de velocidade — ${Math.round(points[peakIdx].speed)} mph`,
+            label: `Pico de velocidade .  ${Math.round(points[peakIdx].speed)} mph`,
           });
         }
 
@@ -467,7 +467,7 @@ export function useTripReplay(tripId: string | null) {
                   lat: points[i].lat,
                   lng: points[i].lng,
                   speed: points[i].speed,
-                  label: `Freada brusca — ${Math.round(points[back].speed)} → ${Math.round(points[i].speed)} mph`,
+                  label: `Freada brusca .  ${Math.round(points[back].speed)} → ${Math.round(points[i].speed)} mph`,
                 });
               }
             } else if (ds >= 10) {
@@ -479,7 +479,7 @@ export function useTripReplay(tripId: string | null) {
                   lat: points[i].lat,
                   lng: points[i].lng,
                   speed: points[i].speed,
-                  label: `Aceleração brusca — ${Math.round(points[back].speed)} → ${Math.round(points[i].speed)} mph`,
+                  label: `Aceleração brusca .  ${Math.round(points[back].speed)} → ${Math.round(points[i].speed)} mph`,
                 });
               }
             }

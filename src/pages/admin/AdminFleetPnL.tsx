@@ -256,7 +256,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
           { key: "totalRevenue", label: "Receita total", format: (v) => `$${fmt(v)}`, better: "high" },
           { key: "expenses", label: "Gastos", format: (v) => `$${fmt(v)}`, better: "low" },
           { key: "operatingProfit", label: "Lucro operacional", format: (v) => `${v >= 0 ? "" : "-"}$${fmt(Math.abs(v))}`, better: "high" },
-          { key: "roiPct", label: "ROI %", format: (v) => v === null ? "—" : `${v.toFixed(1)}%`, better: "high" },
+          { key: "roiPct", label: "ROI %", format: (v) => v === null ? "" : `${v.toFixed(1)}%`, better: "high" },
           { key: "daysOwned", label: "Dias na frota", format: (v) => String(v), better: "high" },
         ];
 
@@ -332,7 +332,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
         );
       })()}
 
-      {/* KPI cards — 3 cols desktop, 2 cols tablet, 1 col mobile */}
+      {/* KPI cards. 3 cols desktop, 2 cols tablet, 1 col mobile */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* 1. Investimento */}
         <Card className="border-border/40">
@@ -408,7 +408,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                   <div className="min-w-0 flex flex-col justify-center gap-1">
                     <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">Retorno sobre Investimento</p>
                     <p className={`text-[22px] font-medium tabular-nums leading-none ${globalRoiPct === null ? "text-muted-foreground" : (globalRoiPct >= 0 ? "text-emerald-700" : "text-destructive")}`}>
-                      {globalRoiPct === null ? "—" : `${globalRoiPct.toFixed(1)}%`}
+                      {globalRoiPct === null ? "" : `${globalRoiPct.toFixed(1)}%`}
                     </p>
                   </div>
                 </div>
@@ -432,7 +432,7 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                   <div className="min-w-0 flex flex-col justify-center gap-1">
                     <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">Payback Estimado</p>
                     <p className={`text-[22px] font-medium tabular-nums leading-none ${paybackMonths === "recovered" ? "text-emerald-700" : "text-foreground"}`}>
-                      {paybackMonths === null ? "—" : paybackMonths === "recovered" ? "Recuperado" : `${paybackMonths} meses`}
+                      {paybackMonths === null ? "" : paybackMonths === "recovered" ? "Recuperado" : `${paybackMonths} meses`}
                     </p>
                   </div>
                 </div>
@@ -526,14 +526,14 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                     <td className="px-3 py-3 whitespace-nowrap text-xs text-muted-foreground tabular-nums">
                       {r.acquired_date
                         ? format(parseISO(r.acquired_date), "dd/MM/yy")
-                        : "—"}
+                        : ""}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">
-                      {r.purchase_price > 0 ? `$${fmt(r.purchase_price)}` : "—"}
+                      {r.purchase_price > 0 ? `$${fmt(r.purchase_price)}` : ""}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">{r.bookings}</td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">
-                      {r.totalDays > 0 ? r.totalDays : <span className="text-muted-foreground">—</span>}
+                      {r.totalDays > 0 ? r.totalDays : <span className="text-muted-foreground"></span>}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums">
                       <span className={r.occupancyPct >= 70 ? "text-emerald-700 font-medium" : r.occupancyPct >= 40 ? "text-foreground" : "text-muted-foreground"}>
@@ -544,19 +544,19 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-muted-foreground">${fmt(r.addonRevenue)}</td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium text-foreground">${fmt(r.totalRevenue)}</td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">
-                      {r.expenses > 0 ? `-$${fmt(r.expenses)}` : "—"}
+                      {r.expenses > 0 ? `-$${fmt(r.expenses)}` : ""}
                     </td>
                     <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.operatingProfit >= 0 ? "text-emerald-700" : "text-destructive"}`}>
                       {r.operatingProfit >= 0 ? "" : "-"}${fmt(Math.abs(r.operatingProfit))}
                     </td>
                     <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${r.roiPct === null ? "text-muted-foreground" : (r.roiPct >= 0 ? "text-emerald-700" : "text-destructive")}`}>
-                      {r.roiPct === null ? "—" : `${r.roiPct.toFixed(1)}%`}
+                      {r.roiPct === null ? "" : `${r.roiPct.toFixed(1)}%`}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right">
                       {r.damageCount > 0 ? (
                         <Badge variant="outline" className="border-destructive/30 text-destructive text-[10px]">{r.damageCount}</Badge>
                       ) : (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground"></span>
                       )}
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-center">
@@ -589,13 +589,13 @@ export default function AdminFleetPnL({ embedded = false }: { embedded?: boolean
                     </td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-foreground">${fmt(totals.revenue)}</td>
                     <td className="px-3 py-3 whitespace-nowrap text-right tabular-nums text-destructive">
-                      {totals.expenses > 0 ? `-$${fmt(totals.expenses)}` : "—"}
+                      {totals.expenses > 0 ? `-$${fmt(totals.expenses)}` : ""}
                     </td>
                     <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums font-medium ${totals.opProfit >= 0 ? "text-emerald-700" : "text-destructive"}`}>
                       {totals.opProfit >= 0 ? "" : "-"}${fmt(Math.abs(totals.opProfit))}
                     </td>
                     <td className={`px-3 py-3 whitespace-nowrap text-right tabular-nums ${(globalRoiPct ?? 0) >= 0 ? "text-emerald-700" : "text-destructive"}`}>
-                      {globalRoiPct === null ? "—" : `${globalRoiPct.toFixed(1)}%`}
+                      {globalRoiPct === null ? "" : `${globalRoiPct.toFixed(1)}%`}
                     </td>
                     <td />
                   </tr>

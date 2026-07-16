@@ -305,7 +305,7 @@ export function VoiceRecorder({
           {mm}:{ss}
         </span>
 
-        {/* Waveform — flex-1 para preencher espaço */}
+        {/* Waveform. flex-1 para preencher espaço */}
         <div className="flex items-center gap-[2px] h-8 flex-1 min-w-0">
           {bars.map((b, i) => (
             <span

@@ -44,7 +44,7 @@ const SLOTS: Slot[] = [
   {
     type: "vehicle_registration",
     title: "Documento do veículo",
-    description: "CRLV, registration, title — o documento oficial.",
+    description: "CRLV, registration, title. O documento oficial.",
     Icon: FileText,
     showExpiry: true,
     customName: false,

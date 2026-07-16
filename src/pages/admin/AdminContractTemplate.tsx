@@ -53,7 +53,7 @@ const AdminContractTemplate = () => {
       const payload = {
         company_name: tpl.company_name.trim() || DEFAULT_CONTRACT_TEMPLATE.company_name,
         company_address: tpl.company_address.trim(),
-        company_ein: tpl.company_ein.trim() || "—",
+        company_ein: tpl.company_ein.trim() || "",
         header_subtitle: tpl.header_subtitle.trim() || DEFAULT_CONTRACT_TEMPLATE.header_subtitle,
         clauses: tpl.clauses.map((c) => c.trim()).filter(Boolean),
         disclaimer: tpl.disclaimer.trim(),

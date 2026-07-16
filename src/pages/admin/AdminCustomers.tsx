@@ -442,7 +442,7 @@ function AdminCustomersDesktop() {
                     </p>
                   </div>
                   <div className="rounded-lg border border-purple-500/30 bg-purple-500/[0.04] p-3 text-[11px] text-muted-foreground">
-                    Hóspede importado da Turo — sem dados de contato direto. A tag <span className="font-semibold text-purple-500">Turo</span> será aplicada automaticamente.
+                    Hóspede importado da Turo. Sem dados de contato direto. A tag <span className="font-semibold text-purple-500">Turo</span> será aplicada automaticamente.
                   </div>
                 </>
               ) : (
@@ -478,7 +478,7 @@ function AdminCustomersDesktop() {
                   {/* License file upload */}
                   <div>
                     <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                      Habilitação (CNH) — Foto ou PDF
+                      Habilitação (CNH). Foto ou PDF
                     </label>
                     <input
                       ref={fileRef}
@@ -613,7 +613,7 @@ function AdminCustomersDesktop() {
                           </div>
                         </td>
                         <td className="px-4 py-2.5 whitespace-nowrap text-muted-foreground text-xs font-mono tabular-nums">
-                          {c.turo_guest_id || <span className="text-muted-foreground/30">—</span>}
+                          {c.turo_guest_id || <span className="text-muted-foreground/30"></span>}
                         </td>
                         <td className="px-4 py-2.5 whitespace-nowrap">
                           <CustomerTagsInline customerId={c.id} />
@@ -671,7 +671,7 @@ function AdminCustomersDesktop() {
                         </div>
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap text-muted-foreground text-xs truncate max-w-[220px]">
-                        {c.email || <span className="text-muted-foreground/30">—</span>}
+                        {c.email || <span className="text-muted-foreground/30"></span>}
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         {c.phone ? (
@@ -693,13 +693,13 @@ function AdminCustomersDesktop() {
                               </a>
                             )}
                           </div>
-                        ) : <span className="text-muted-foreground/30 text-xs">—</span>}
+                        ) : <span className="text-muted-foreground/30 text-xs"></span>}
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap text-muted-foreground text-xs font-mono tabular-nums">
-                        {c.document_number || <span className="text-muted-foreground/30">—</span>}
+                        {c.document_number || <span className="text-muted-foreground/30"></span>}
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap text-muted-foreground text-xs font-mono tabular-nums">
-                        {c.driver_license || <span className="text-muted-foreground/30">—</span>}
+                        {c.driver_license || <span className="text-muted-foreground/30"></span>}
                       </td>
                       <td className="px-4 py-2.5 whitespace-nowrap">
                         <CustomerTagsInline customerId={c.id} />

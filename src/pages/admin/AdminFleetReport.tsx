@@ -314,7 +314,7 @@ export default function AdminFleetReport({
                 >
                   <CalendarRange size={16} />
                   {usingCustom
-                    ? `${format(customRange!.from!, "dd/MM/yy")} – ${format(customRange!.to!, "dd/MM/yy")}`
+                    ? `${format(customRange!.from!, "dd/MM/yy")}. ${format(customRange!.to!, "dd/MM/yy")}`
                     : "Período personalizado"}
                 </Button>
               </PopoverTrigger>
@@ -544,7 +544,7 @@ export default function AdminFleetReport({
         </Card>
       </div>
 
-      {/* Addon Revenue Breakdown — full width since Plano card was removed */}
+      {/* Addon Revenue Breakdown. full width since Plano card was removed */}
       <Card className="border-border/40">
           <CardHeader className="pb-2 pt-5">
             <CardTitle className="text-sm font-medium flex items-center gap-2 tracking-tight">
