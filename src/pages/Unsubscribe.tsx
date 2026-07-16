@@ -63,7 +63,7 @@ export default function Unsubscribe() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-[10px] tracking-[0.24em] uppercase text-primary font-semibold mb-2">
-            Sua Marca
+            GoDrive
           </div>
           <h1 className="text-2xl font-semibold tracking-tight">Cancelar inscrição</h1>
         </div>
@@ -79,7 +79,7 @@ export default function Unsubscribe() {
           {state.kind === "ready" && (
             <>
               <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-                Tem certeza que deseja parar de receber e-mails da Sua Marca?
+                Tem certeza que deseja parar de receber e-mails da GoDrive?
                 Você ainda receberá comunicações essenciais sobre reservas ativas.
               </p>
               <button

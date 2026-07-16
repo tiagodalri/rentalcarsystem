@@ -170,7 +170,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
       {!embedded && (
         <div className="hidden lg:block">
           <h1 className="admin-h1">Dashboard</h1>
-          <p className="text-sm text-muted-foreground/80 mt-1">Visão geral do sistema Sua Marca</p>
+          <p className="text-sm text-muted-foreground/80 mt-1">Visão geral do sistema GoDrive</p>
         </div>
       )}
 

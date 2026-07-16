@@ -40,9 +40,9 @@ function buildMessage(args: {
   const fmtDate = (d?: string | null) =>
     d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
   const lines = [
-    `*SUA MARCA — ${title}*`,
+    `*GODRIVE — ${title}*`,
     ``,
-    `*Código Sua Marca:* ${args.bookingNumber || "—"}`,
+    `*Código GoDrive:* ${args.bookingNumber || "—"}`,
     `*Código Turo:* ${args.turoReservationCode || "—"}`,
     `*Cliente:* ${args.customerName}`,
     `*Veículo:* ${args.vehicleLabel}${args.plate ? ` (${args.plate})` : ""}`,
@@ -60,7 +60,7 @@ function buildMessage(args: {
     `*Agente:* ${args.agent || "—"}`,
     `*Concluída em:* ${fmtDate(args.completedAt)}`,
     ``,
-    `_Mensagem gerada automaticamente pelo sistema Sua Marca._`,
+    `_Mensagem gerada automaticamente pelo sistema GoDrive._`,
   ];
   return lines.join("\n");
 }

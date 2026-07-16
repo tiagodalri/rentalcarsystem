@@ -53,7 +53,7 @@ export type ContractTemplate = {
 };
 
 export const DEFAULT_CONTRACT_TEMPLATE: ContractTemplate = {
-  company_name: "Sua Marca LLC",
+  company_name: "GoDrive LLC",
   company_address: "Orlando, FL — EUA",
   company_ein: "—",
   header_subtitle: "CONTRATO DE LOCAÇÃO DE VEÍCULO",
@@ -66,7 +66,7 @@ export const DEFAULT_CONTRACT_TEMPLATE: ContractTemplate = {
   ],
   disclaimer:
     "* As cláusulas acima são versão inicial e estão sujeitas a revisão jurídica final pela LOCADORA antes de serem consideradas vinculativas.",
-  footer_text: "Contrato gerado eletronicamente — Sua Marca",
+  footer_text: "Contrato gerado eletronicamente — GoDrive",
 };
 
 const fmtDate = (d?: string | null) =>
@@ -107,7 +107,7 @@ export function generateContractPdf(
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text((template.company_name || "SUA MARCA").toUpperCase(), margin, 15);
+  doc.text((template.company_name || "GODRIVE").toUpperCase(), margin, 15);
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
   doc.text(template.header_subtitle || "CONTRATO DE LOCAÇÃO DE VEÍCULO", margin, 23);

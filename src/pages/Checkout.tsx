@@ -559,7 +559,7 @@ const Checkout = () => {
           </button>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Finalizar Reserva</h1>
-          <p className="text-sm text-muted-foreground mb-6">Pagamento seguro · Sua Marca</p>
+          <p className="text-sm text-muted-foreground mb-6">Pagamento seguro · GoDrive</p>
 
           <div className="grid lg:grid-cols-[1fr_360px] gap-6">
             {/* LEFT — main flow */}

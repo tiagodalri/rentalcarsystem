@@ -438,7 +438,7 @@ const CustomerRegistration = () => {
         </form>
 
         <p className="text-center text-[10px] text-muted-foreground/50 mt-6">
-          Sua Marca · Orlando & Miami · Seus dados estão protegidos.
+          GoDrive · Orlando & Miami · Seus dados estão protegidos.
         </p>
       </div>
     </div>

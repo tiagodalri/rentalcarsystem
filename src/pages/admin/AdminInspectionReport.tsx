@@ -322,7 +322,7 @@ export default function AdminInspectionReport() {
   // ============================================================
   return (
     <>
-      {/* ============ PRINT STYLES (papel timbrado Sua Marca) ============ */}
+      {/* ============ PRINT STYLES (papel timbrado GoDrive) ============ */}
       <style>{`
         @media print {
           @page {
@@ -434,10 +434,10 @@ export default function AdminInspectionReport() {
       {/* ============ LETTERHEAD (print only) ============ */}
       <div className="laudo-letterhead hidden print:flex">
         <div className="flex items-center gap-3">
-          <img src={zeusLogo} alt="Sua Marca" style={{ height: "10mm", width: "auto" }} />
+          <img src={zeusLogo} alt="GoDrive" style={{ height: "10mm", width: "auto" }} />
           <div className="leading-tight">
             <p style={{ fontSize: "8pt", letterSpacing: "0.2em", textTransform: "uppercase", color: "#737373", fontWeight: 600 }}>
-              Sua Marca
+              GoDrive
             </p>
             <p style={{ fontSize: "7pt", color: "#737373", marginTop: "0.5mm" }}>
               Premium Concierge · +1 555 000 0000
@@ -457,7 +457,7 @@ export default function AdminInspectionReport() {
       {/* ============ FOOTER (print only) ============ */}
       <div className="laudo-footer hidden print:flex">
         <div>
-          <p style={{ fontWeight: 600, color: "#0a0a0a" }}>Sua Marca</p>
+          <p style={{ fontWeight: 600, color: "#0a0a0a" }}>GoDrive</p>
           <p style={{ marginTop: "0.5mm" }}>www.rentalcarsystem.lovable.app · contato@rentalcarsystem.lovable.app</p>
         </div>
         <div className="text-center">
@@ -497,7 +497,7 @@ export default function AdminInspectionReport() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <Sparkles size={12} className="text-primary" />
-                <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-medium">Sua Marca</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-medium">GoDrive</p>
               </div>
               <h2 className="admin-h1 text-2xl">Laudo Completo de Serviço</h2>
               <p className="text-xs text-muted-foreground mt-1 flex items-center gap-2 tabular-nums">
@@ -900,7 +900,7 @@ export default function AdminInspectionReport() {
                       )}
                     </div>
                     <div>
-                      <p className="text-[9px] uppercase text-muted-foreground mb-1">Agente Sua Marca</p>
+                      <p className="text-[9px] uppercase text-muted-foreground mb-1">Agente GoDrive</p>
                       {s.data?.agent_signature ? (
                         <img src={s.data.agent_signature} alt="" className="w-full h-20 object-contain bg-white rounded border border-border/40" />
                       ) : (
@@ -918,7 +918,7 @@ export default function AdminInspectionReport() {
 
       {/* Footer (screen only — print uses fixed footer) */}
       <div className="text-center text-[10px] text-muted-foreground pt-4 border-t border-border/30 print:hidden">
-        Laudo gerado em {fmtDateTime(new Date().toISOString())} • Sua Marca • Documento {reportNumber}
+        Laudo gerado em {fmtDateTime(new Date().toISOString())} • GoDrive • Documento {reportNumber}
       </div>
       </div>{/* /.laudo-content */}
       </div>{/* /.laudo-print */}

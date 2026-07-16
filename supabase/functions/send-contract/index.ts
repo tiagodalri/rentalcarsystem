@@ -15,7 +15,7 @@ const CLICKSIGN_API_TOKEN = Deno.env.get("CLICKSIGN_API_TOKEN")!;
 const CLICKSIGN_AUTH_TOKEN = CLICKSIGN_API_TOKEN.replace(/^Bearer\s+/i, "").trim();
 const CLICKSIGN_BASE_URL = (Deno.env.get("CLICKSIGN_BASE_URL") ?? "https://app.clicksign.com").replace(/\/$/, "");
 const ZEUS_SIGNER_EMAIL = Deno.env.get("ZEUS_SIGNER_EMAIL") ?? "zeusrentalcarorlando@gmail.com";
-const ZEUS_SIGNER_NAME = Deno.env.get("ZEUS_SIGNER_NAME") ?? "Sua Marca";
+const ZEUS_SIGNER_NAME = Deno.env.get("ZEUS_SIGNER_NAME") ?? "GoDrive";
 const ZEUS_AUTO_SIGN = (Deno.env.get("ZEUS_AUTO_SIGN") ?? "false").toLowerCase() === "true";
 
 const fmtDate = (d?: string | null) =>
@@ -61,7 +61,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
   let cur: PageState;
 
   const drawHeader = (page: PDFPage, isFirst: boolean) => {
-    // SUA MARCA — letterspaced via spacing
+    // GODRIVE — letterspaced via spacing
     const titleStr = "Z E U S   R E N T A L   C A R";
     const tSize = 22;
     const tw = timesB.widthOfTextAtSize(titleStr, tSize);
@@ -312,7 +312,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
   // 1. IDENTIFICAÇÃO DAS PARTES
   sectionTitle("1. Identificação das Partes");
   subTitle("1.1 Locadora");
-  para("Sua Marca · Orlando, Florida, United States", { gap: 8 });
+  para("GoDrive · Orlando, Florida, United States", { gap: 8 });
 
   subTitle("1.2 Locatário");
   const fullAddress = [customer.address, customer.house_number, customer.complement, customer.zip_code]
@@ -435,7 +435,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
   );
   subTitle("7.2 Card on File");
   para(
-    "O LOCATÁRIO AUTORIZA EXPRESSAMENTE a Sua Marca a: (i) armazenar de forma segura os dados do cartão informado; (ii) cobrar no cartão ou descontar da caução todos os valores referentes à locação; (iii) processar cobranças mesmo após a devolução do veículo, incluindo pedágios, multas, danos, combustível, extensão de locação, estacionamento, taxas administrativas e demais despesas relacionadas.",
+    "O LOCATÁRIO AUTORIZA EXPRESSAMENTE a GoDrive a: (i) armazenar de forma segura os dados do cartão informado; (ii) cobrar no cartão ou descontar da caução todos os valores referentes à locação; (iii) processar cobranças mesmo após a devolução do veículo, incluindo pedágios, multas, danos, combustível, extensão de locação, estacionamento, taxas administrativas e demais despesas relacionadas.",
     { gap: 8 }
   );
   para("O LOCATÁRIO declara que o cartão informado:", { gap: 4 });
@@ -448,7 +448,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
   cur.y -= 4;
   subTitle("7.3 Comprovação");
   para(
-    "A Sua Marca compromete-se a enviar comprovante detalhado de qualquer cobrança posterior em até 15 (quinze) dias.",
+    "A GoDrive compromete-se a enviar comprovante detalhado de qualquer cobrança posterior em até 15 (quinze) dias.",
     { gap: 8 }
   );
 
@@ -550,7 +550,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
   cur.page.drawText("Locadora", {
     x: margin + sigW + 30, y: sigY - 12, size: 10, font: helvB, color: COLOR_TEXT,
   });
-  cur.page.drawText("Sua Marca", {
+  cur.page.drawText("GoDrive", {
     x: margin + sigW + 30, y: sigY - 25, size: 9.5, font: helv, color: COLOR_BODY,
   });
   cur.y -= 50;
@@ -566,7 +566,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
   cur.y -= 30;
 
   para(
-    `Eu, ${customer.full_name || "_______________________________"}, portador(a) do documento ${customer.document_number || "_______________"}, na qualidade de locatário(a) do veículo objeto do Contrato Nº ${booking.booking_number || "_______"}, autorizo a Sua Marca a utilizar meu cartão de crédito abaixo identificado:`,
+    `Eu, ${customer.full_name || "_______________________________"}, portador(a) do documento ${customer.document_number || "_______________"}, na qualidade de locatário(a) do veículo objeto do Contrato Nº ${booking.booking_number || "_______"}, autorizo a GoDrive a utilizar meu cartão de crédito abaixo identificado:`,
     { gap: 10 }
   );
 
@@ -619,7 +619,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
   cur.page.drawText("Locadora", {
     x: margin + sigW + 30, y: sigY2 - 12, size: 10, font: helvB, color: COLOR_TEXT,
   });
-  cur.page.drawText("Sua Marca", {
+  cur.page.drawText("GoDrive", {
     x: margin + sigW + 30, y: sigY2 - 25, size: 9.5, font: helv, color: COLOR_BODY,
   });
 
@@ -633,7 +633,7 @@ async function buildPdf(booking: any, customer: any, vehicle: any): Promise<Uint
       thickness: 0.4,
       color: COLOR_TEXT,
     });
-    p.drawText("Sua Marca — Orlando, FL · USA", {
+    p.drawText("GoDrive — Orlando, FL · USA", {
       x: margin, y: 18, size: 8, font: helv, color: COLOR_MUTED,
     });
     const mid = `Contrato ${booking.booking_number || "—"}`;
@@ -819,7 +819,7 @@ Deno.serve(async (req) => {
       });
       const signerCustomerId = signerCustomerRes?.data?.id;
 
-      // 4) signer Sua Marca (locadora)
+      // 4) signer GoDrive (locadora)
       const signerZeusRes = await cs(`/api/v3/envelopes/${envelopeId}/signers`, "POST", {
         data: {
           type: "signers",
@@ -843,7 +843,7 @@ Deno.serve(async (req) => {
         // cliente
         { signer: signerCustomerId, action: "provide_evidence", auth: "email" },
         { signer: signerCustomerId, action: "agree", role: "sign" },
-        // Sua Marca (locadora)
+        // GoDrive (locadora)
         { signer: signerZeusId, action: "provide_evidence", auth: ZEUS_AUTO_SIGN ? "api" : "email" },
         { signer: signerZeusId, action: "agree", role: "sign" },
       ];
@@ -868,12 +868,12 @@ Deno.serve(async (req) => {
         data: { id: envelopeId, type: "envelopes", attributes: { status: "running" } },
       });
 
-      // 7) Auto-assina como Sua Marca (locadora) — desligado por padrão; ligar via ZEUS_AUTO_SIGN=true
+      // 7) Auto-assina como GoDrive (locadora) — desligado por padrão; ligar via ZEUS_AUTO_SIGN=true
       if (ZEUS_AUTO_SIGN) {
         try {
           await cs(`/api/v3/envelopes/${envelopeId}/signers/${signerZeusId}/sign`, "POST", undefined);
         } catch (signErr) {
-          console.warn("[send-contract] auto-sign Sua Marca falhou (envelope segue válido para cliente):", signErr instanceof Error ? signErr.message : signErr);
+          console.warn("[send-contract] auto-sign GoDrive falhou (envelope segue válido para cliente):", signErr instanceof Error ? signErr.message : signErr);
         }
       }
 

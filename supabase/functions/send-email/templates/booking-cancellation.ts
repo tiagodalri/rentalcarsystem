@@ -40,7 +40,7 @@ const content = {
     },
     cta: "VER HISTÓRICO",
     closing: "Em caso de dúvidas sobre o reembolso, responda este e-mail ou chame no WhatsApp.",
-    team: "— Equipe Sua Marca",
+    team: "— Equipe GoDrive",
   },
   en: {
     subject: (num: string) => `Booking canceled — ${num}`,
@@ -60,7 +60,7 @@ const content = {
     },
     cta: "VIEW HISTORY",
     closing: "For questions about your refund, reply to this email or text us on WhatsApp.",
-    team: "— Sua Marca Team",
+    team: "— GoDrive Team",
   },
 } as const;
 

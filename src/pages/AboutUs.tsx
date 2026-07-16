@@ -52,8 +52,8 @@ const AboutUs = () => {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <Seo
-        title="Sobre Nós | Sua Marca Orlando"
-        description="Conheça a Sua Marca: locadora premium em Orlando que une hospitalidade brasileira e padrão de serviço internacional. Confiança, transparência e excelência em cada detalhe."
+        title="Sobre Nós | GoDrive Orlando"
+        description="Conheça a GoDrive: locadora premium em Orlando que une hospitalidade brasileira e padrão de serviço internacional. Confiança, transparência e excelência em cada detalhe."
         path="/sobre-nos"
       />
       <Navbar />
@@ -78,7 +78,7 @@ const AboutUs = () => {
             className="max-w-3xl"
           >
             <p className="text-sm font-bold uppercase tracking-[0.25em] text-primary mb-4">
-              Sua Marca
+              GoDrive
             </p>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-wider leading-tight mb-2">
               Sobre <span className="gold-text">Nós</span>
@@ -127,7 +127,7 @@ const AboutUs = () => {
                 Ser a primeira escolha de todo brasileiro que decide viver Orlando do jeito que ele merece.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                Queremos que, quando alguém pensar em alugar carro em Orlando, pense primeiro na Sua Marca. Não pelo tamanho da frota, mas pela confiança. Não pelo preço mais baixo, mas pelo valor mais alto. Uma marca construída de brasileiro para brasileiro, com a excelência que o mundo reconhece e o calor humano que só a gente entende.
+                Queremos que, quando alguém pensar em alugar carro em Orlando, pense primeiro na GoDrive. Não pelo tamanho da frota, mas pela confiança. Não pelo preço mais baixo, mas pelo valor mais alto. Uma marca construída de brasileiro para brasileiro, com a excelência que o mundo reconhece e o calor humano que só a gente entende.
               </p>
             </motion.div>
           </div>
@@ -185,7 +185,7 @@ const AboutUs = () => {
 
             <div className="space-y-6 text-lg sm:text-xl leading-relaxed text-muted-foreground italic">
               <p className="text-foreground font-semibold not-italic text-2xl sm:text-3xl">
-                A Sua Marca existe porque alguém decidiu que brasileiro em Orlando merece mais.
+                A GoDrive existe porque alguém decidiu que brasileiro em Orlando merece mais.
               </p>
 
               <p>

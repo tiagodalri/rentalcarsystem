@@ -1,4 +1,4 @@
-// ─── Sua Marca — Reusable Email Components ───
+// ─── GoDrive — Reusable Email Components ───
 // Pure HTML string builders for Deno Edge Functions.
 // All 5 transactional templates inherit from emailLayout().
 
@@ -29,7 +29,7 @@ export function emailHeader(): string {
       <td align="center" style="padding: 40px 30px 24px;">
         <img
           src="${LOGO_URL}"
-          alt="Sua Marca"
+          alt="GoDrive"
           width="180"
           height="auto"
           style="display: block; max-width: 180px; height: auto;"
@@ -50,13 +50,13 @@ export function emailFooter(lang: "pt" | "en" = "pt"): string {
     pt: {
       address: "Orlando, FL, EUA",
       whatsapp: "WhatsApp: +1 (555) 000-0000",
-      rights: `© ${new Date().getFullYear()} Sua Marca. Todos os direitos reservados.`,
+      rights: `© ${new Date().getFullYear()} GoDrive. Todos os direitos reservados.`,
       unsubscribe: "Cancelar inscrição",
     },
     en: {
       address: "Orlando, FL, USA",
       whatsapp: "WhatsApp: +1 (555) 000-0000",
-      rights: `© ${new Date().getFullYear()} Sua Marca. All rights reserved.`,
+      rights: `© ${new Date().getFullYear()} GoDrive. All rights reserved.`,
       unsubscribe: "Unsubscribe",
     },
   };
@@ -150,7 +150,7 @@ export function emailLayout(bodyContent: string, lang: "pt" | "en" = "pt"): stri
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="color-scheme" content="dark" />
   <meta name="supported-color-schemes" content="dark" />
-  <title>Sua Marca</title>
+  <title>GoDrive</title>
   <!--[if mso]>
   <noscript>
     <xml>

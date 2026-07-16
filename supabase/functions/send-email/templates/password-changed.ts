@@ -52,7 +52,7 @@ export function renderPasswordChanged(
       ${greeting}
     </h1>
     <p style="margin: 0 0 20px; font-size: 15px; color: ${colors.textSecondary}; line-height: 1.7;">
-      Identificamos que a senha da sua conta Sua Marca foi alterada em
+      Identificamos que a senha da sua conta GoDrive foi alterada em
       <strong style="color: ${colors.textPrimary};">${when}</strong>
       (fuso horário de Orlando, EUA).
     </p>
@@ -66,12 +66,12 @@ export function renderPasswordChanged(
     </p>
 
     <p style="margin: 24px 0 0; font-size: 13px; color: ${colors.textMuted}; font-style: italic;">
-      — Equipe Sua Marca
+      — Equipe GoDrive
     </p>
   `;
 
   return {
-    subject: "Sua senha foi alterada — Sua Marca",
+    subject: "Sua senha foi alterada — GoDrive",
     html: emailLayout(body, "pt"),
   };
 }

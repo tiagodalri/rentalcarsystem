@@ -35,7 +35,7 @@ const content = {
     },
     cta: "VER DETALHES DA RESERVA",
     closing: "Guarde este e-mail. Em caso de necessidade, ele serve como comprovante fiscal.",
-    team: "— Equipe Sua Marca",
+    team: "— Equipe GoDrive",
   },
   en: {
     subject: (num: string) => `Payment receipt — ${num}`,
@@ -51,7 +51,7 @@ const content = {
     },
     cta: "VIEW BOOKING DETAILS",
     closing: "Keep this email. It can be used as a payment proof if needed.",
-    team: "— Sua Marca Team",
+    team: "— GoDrive Team",
   },
 } as const;
 

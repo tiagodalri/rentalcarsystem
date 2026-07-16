@@ -1,4 +1,4 @@
-// Sua Marca — Service Worker
+// GoDrive — Service Worker
 // Strategy (v9 — admin-safe shell):
 //  - HTML navigations: NetworkFirst com timeout de 2s. Online = sempre fresco.
 //    Offline ou rede travada = cai pro cache imediatamente. Sem race condition.

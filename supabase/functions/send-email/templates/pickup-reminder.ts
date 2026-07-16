@@ -41,7 +41,7 @@ const content = {
     ],
     cta: "VER DETALHES",
     closing: "Em caso de imprevistos, responda este e-mail ou chame no WhatsApp.",
-    team: "— Equipe Sua Marca",
+    team: "— Equipe GoDrive",
   },
   en: {
     subject: (num: string) => `Your pickup is tomorrow — ${num}`,
@@ -63,7 +63,7 @@ const content = {
     ],
     cta: "VIEW DETAILS",
     closing: "If anything comes up, reply to this email or text us on WhatsApp.",
-    team: "— Sua Marca Team",
+    team: "— GoDrive Team",
   },
 } as const;
 

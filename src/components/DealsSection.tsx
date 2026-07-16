@@ -16,7 +16,7 @@ const DealsSection = () => {
           className="text-center mb-10 sm:mb-14"
         >
           <p className="section-eyebrow">
-            <Sparkles size={12} strokeWidth={2.2} /> Vantagem Sua Marca
+            <Sparkles size={12} strokeWidth={2.2} /> Vantagem GoDrive
           </p>
           <h2 className="section-heading">
             {t.deals.title}

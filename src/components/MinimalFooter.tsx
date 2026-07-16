@@ -15,7 +15,7 @@ const MinimalFooter = () => {
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-2">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
             <span className="h-px w-6 bg-border" />
-            <span>Sua Marca</span>
+            <span>GoDrive</span>
             <span className="h-px w-6 bg-border" />
           </div>
           <p className="text-[11px] text-muted-foreground/60 text-center tabular-nums">

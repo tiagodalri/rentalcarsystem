@@ -15,12 +15,12 @@ interface WelcomeData {
 
 const content = {
   pt: {
-    subject: "Bem-vindo à Sua Marca",
+    subject: "Bem-vindo à GoDrive",
     greeting: (name: string) =>
       name ? `Olá, ${name}!` : "Olá!",
     intro:
-      "Seja muito bem-vindo à Sua Marca. Estamos felizes em tê-lo conosco! Sua conta foi criada com sucesso e você já pode explorar nossa frota premium em Orlando.",
-    benefitsTitle: "Por que a Sua Marca?",
+      "Seja muito bem-vindo à GoDrive. Estamos felizes em tê-lo conosco! Sua conta foi criada com sucesso e você já pode explorar nossa frota premium em Orlando.",
+    benefitsTitle: "Por que a GoDrive?",
     benefit1Label: "Atendimento 24/7",
     benefit1Value: "Suporte premium via WhatsApp, a qualquer hora",
     benefit2Label: "Frota Selecionada",
@@ -30,15 +30,15 @@ const content = {
     cta: "EXPLORAR FROTA",
     closing:
       "Se precisar de ajuda, fale conosco pelo WhatsApp. Estamos sempre disponíveis!",
-    team: "— Equipe Sua Marca",
+    team: "— Equipe GoDrive",
   },
   en: {
-    subject: "Welcome to Sua Marca",
+    subject: "Welcome to GoDrive",
     greeting: (name: string) =>
       name ? `Hello, ${name}!` : "Hello!",
     intro:
-      "Welcome to Sua Marca! We're thrilled to have you. Your account has been created successfully and you can now explore our premium fleet in Orlando.",
-    benefitsTitle: "Why Sua Marca?",
+      "Welcome to GoDrive! We're thrilled to have you. Your account has been created successfully and you can now explore our premium fleet in Orlando.",
+    benefitsTitle: "Why GoDrive?",
     benefit1Label: "24/7 Support",
     benefit1Value: "Premium support via WhatsApp, anytime",
     benefit2Label: "Curated Fleet",
@@ -48,7 +48,7 @@ const content = {
     cta: "EXPLORE FLEET",
     closing:
       "Need help? Reach out via WhatsApp. We're always available!",
-    team: "— Sua Marca Team",
+    team: "— GoDrive Team",
   },
 } as const;
 

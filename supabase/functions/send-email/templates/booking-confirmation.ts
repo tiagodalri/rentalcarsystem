@@ -37,7 +37,7 @@ const content = {
     },
     cta: "VER DETALHES DA RESERVA",
     closing: "Em caso de dúvidas ou alteração, responda este e-mail.",
-    team: "— Equipe Sua Marca",
+    team: "— Equipe GoDrive",
   },
   en: {
     subject: (num: string) => `Booking confirmed — ${num}`,
@@ -53,7 +53,7 @@ const content = {
     },
     cta: "VIEW BOOKING DETAILS",
     closing: "For questions or changes, reply to this email.",
-    team: "— Sua Marca Team",
+    team: "— GoDrive Team",
   },
 } as const;
 

@@ -1,7 +1,7 @@
 /**
  * Demo mode global configuration.
  *
- * Este projeto é uma cópia (remix) da plataforma real da Sua Marca,
+ * Este projeto é uma cópia (remix) da plataforma real da GoDrive,
  * usada exclusivamente como ambiente de demonstração para apresentações
  * comerciais. Nenhuma integração externa (Bouncie, Stripe, ClickSign,
  * CambioReal, Resend, Google Maps, E-Pass) está conectada — tudo é

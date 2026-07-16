@@ -77,7 +77,7 @@ const Email = (p: Props) => (
 
 export const template = {
   component: Email,
-  subject: (d: Props) => `Reserva ${d.bookingNumber ?? 'confirmada'} · ${d.vehicleName ?? 'Sua Marca'}`,
+  subject: (d: Props) => `Reserva ${d.bookingNumber ?? 'confirmada'} · ${d.vehicleName ?? 'GoDrive'}`,
   displayName: 'Reserva confirmada',
   previewData: {
     bookingNumber: 'ZRC-0142',
