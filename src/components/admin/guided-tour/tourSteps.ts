@@ -13,8 +13,8 @@ export interface TourStep {
   pains: string[];
   /** Linha de fecho. */
   teaser: string;
-  /** Layout especial. "intro" abre o tour; "price" entra na Sala de Fechamento (tema escuro). */
-  kind?: "intro" | "price";
+  /** Layout especial. "intro" abre o tour; "market" mostra a comparação com o mercado; "price" entra na Sala de Fechamento (tema escuro). */
+  kind?: "intro" | "market" | "price";
   eyebrow?: string;
   brand?: string;
   statement?: string;
