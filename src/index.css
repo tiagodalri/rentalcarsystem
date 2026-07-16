@@ -117,7 +117,7 @@
 
   body {
     @apply bg-background text-foreground font-sans;
-    font-family: 'Epilogue', 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
     letter-spacing: -0.011em;
     font-optical-sizing: auto;
     -webkit-tap-highlight-color: transparent;
@@ -134,7 +134,7 @@
 
   h1, h2, h3, h4, h5, h6,
   .section-heading, .admin-kpi {
-    font-family: 'Urbanist', 'Epilogue', 'Inter', system-ui, sans-serif;
+    font-family: 'Poppins', 'Inter', system-ui, sans-serif;
     letter-spacing: -0.02em;
   }
 
