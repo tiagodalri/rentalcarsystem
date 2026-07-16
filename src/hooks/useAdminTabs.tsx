@@ -176,28 +176,66 @@ const TITLE_MAP: Array<{ test: (p: string) => boolean; title: string }> = [
   { test: (p) => p === "/admin" || p === "/admin/", title: "Painel" },
   { test: (p) => p.startsWith("/admin/ops-today"), title: "Operação Hoje" },
   { test: (p) => p.startsWith("/admin/live"), title: "Live" },
-  { test: (p) => p.startsWith("/admin/bookings/new"), title: "Nova reserva" },
+  { test: (p) => p.startsWith("/admin/ai-studio/simulador"), title: "AI Studio" },
+  { test: (p) => p.startsWith("/admin/frota-inteligente"), title: "Frota Inteligente" },
+  { test: (p) => p.startsWith("/admin/bookings/new"), title: "Nova Reserva" },
   { test: (p) => /^\/admin\/bookings\/[^/]+/.test(p), title: "Reserva" },
   { test: (p) => p.startsWith("/admin/bookings"), title: "Reservas" },
   { test: (p) => p.startsWith("/admin/calendar"), title: "Agenda" },
-  { test: (p) => p.startsWith("/admin/fleet/new"), title: "Novo veículo" },
-  { test: (p) => /^\/admin\/fleet\/[^/]+\/history/.test(p), title: "Histórico do veículo" },
+  { test: (p) => p.startsWith("/admin/fleet/new"), title: "Novo Veículo" },
+  { test: (p) => /^\/admin\/fleet\/[^/]+\/history/.test(p), title: "Histórico do Veículo" },
   { test: (p) => /^\/admin\/fleet\/[^/]+/.test(p), title: "Veículo" },
   { test: (p) => p.startsWith("/admin/fleet"), title: "Frota" },
+  { test: (p) => p.startsWith("/admin/vehicle-history"), title: "Histórico do Veículo" },
+  { test: (p) => p.startsWith("/admin/customers/birthdays"), title: "Aniversariantes" },
   { test: (p) => /^\/admin\/customers\/[^/]+/.test(p), title: "Cliente" },
   { test: (p) => p.startsWith("/admin/customers"), title: "Clientes" },
   { test: (p) => p.startsWith("/admin/finance"), title: "Financeiro" },
   { test: (p) => p.startsWith("/admin/team"), title: "Equipe" },
-  { test: (p) => p.startsWith("/admin/report/fleet-pnl"), title: "Lucro Frota" },
+  { test: (p) => p.startsWith("/admin/report/fleet-pnl"), title: "Lucro da Frota" },
   { test: (p) => p.startsWith("/admin/report"), title: "Relatório" },
+  { test: (p) => p.startsWith("/admin/dashboard"), title: "Dashboard" },
   { test: (p) => p.startsWith("/admin/settings"), title: "Configurações" },
+  { test: (p) => p.startsWith("/admin/inspection/compare"), title: "Comparar Inspeção" },
+  { test: (p) => p.startsWith("/admin/inspection/report"), title: "Laudo de Inspeção" },
   { test: (p) => p.startsWith("/admin/inspection"), title: "Inspeção" },
+  { test: (p) => p.startsWith("/admin/contracts/template"), title: "Modelo de Contrato" },
+  { test: (p) => p.startsWith("/admin/contracts"), title: "Contratos" },
+  { test: (p) => p.startsWith("/admin/turo-import"), title: "Importar Turo" },
+  { test: (p) => p.startsWith("/admin/epass-import"), title: "Importar E-Pass" },
+  { test: (p) => p.startsWith("/admin/tolls"), title: "Pedágios" },
+  { test: (p) => p.startsWith("/admin/costs"), title: "Custos" },
+  { test: (p) => p.startsWith("/admin/tutoriais"), title: "Tutoriais" },
+  { test: (p) => p.startsWith("/admin/logs"), title: "Logs" },
+  { test: (p) => p.startsWith("/admin/pendencias"), title: "Pendências" },
+  { test: (p) => p.startsWith("/admin/stamp-preview"), title: "Prévia de Selo" },
 ];
+
+// Palavras que devem manter capitalização especial no fallback
+const SPECIAL_CASE: Record<string, string> = {
+  admin: "Admin",
+  ai: "AI",
+  pnl: "P&L",
+  turo: "Turo",
+  epass: "E-Pass",
+  ops: "Operação",
+  live: "Live",
+  id: "ID",
+  new: "Novo",
+};
+
+function prettifySlug(slug: string): string {
+  return slug
+    .split("-")
+    .map((w) => SPECIAL_CASE[w.toLowerCase()] ?? (w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()))
+    .join(" ");
+}
 
 export function getTabTitle(path: string): string {
   const cleanPath = path.split("?")[0];
   const match = TITLE_MAP.find((m) => m.test(cleanPath));
   if (match) return match.title;
   const last = cleanPath.split("/").filter(Boolean).pop() ?? "Admin";
-  return last.charAt(0).toUpperCase() + last.slice(1);
+  return prettifySlug(last);
 }
+
