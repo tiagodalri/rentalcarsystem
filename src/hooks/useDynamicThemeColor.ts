@@ -20,7 +20,7 @@ export function useDynamicThemeColor() {
     const prefersDark =
       window.matchMedia?.("(prefers-color-scheme: dark)").matches === true;
 
-    const target = isAdmin ? "#0a0a0a" : prefersDark ? "#0a0a0a" : "#fafafa";
+    const target = isAdmin ? "#0a0a0a" : prefersDark ? "#0a0a0a" : "#F7F5F0";
 
     // Remove os 2 meta theme-color estáticos do index.html (com media queries)
     // e usa um único dinâmico — assim o navegador respeita exatamente o que
