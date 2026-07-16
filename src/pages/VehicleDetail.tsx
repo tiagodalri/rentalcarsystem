@@ -170,7 +170,7 @@ const VehicleDetail = () => {
     );
   }
 
-  const seoTitle = `${decodedName} | Aluguel em Orlando — GoDrive`;
+  const seoTitle = `${decodedName} | Aluguel em Orlando. GoDrive`;
   const seoDescription = `Alugue ${decodedName} em Orlando com a GoDrive. Diária a partir de US$ ${basePrice}. Atendimento em português, retirada no aeroporto.`;
   const productJsonLd = {
     "@context": "https://schema.org",

@@ -132,7 +132,7 @@ const Navbar = () => {
         </a>
 
 
-        {/* Desktop links — centralizados absolutamente no meio da tela */}
+        {/* Desktop links. centralizados absolutamente no meio da tela */}
         <div className="hidden lg:flex items-center gap-4 xl:gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           {navLinks.map((link) =>
             link.isRoute ? (
@@ -166,7 +166,7 @@ const Navbar = () => {
             {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
 
-          {/* Menu agrupado — tema, idioma, moeda, reservar, conta, admin */}
+          {/* Menu agrupado. tema, idioma, moeda, reservar, conta, admin */}
           <DropdownMenu>
             <DropdownMenuTrigger
               className="flex items-center justify-center h-9 w-9 rounded-lg text-muted-foreground hover:text-primary hover:bg-muted/40 transition-colors outline-none"
@@ -179,7 +179,7 @@ const Navbar = () => {
               align="end"
               className="bg-background/95 backdrop-blur-xl border-border/40 min-w-[240px] p-1.5"
             >
-              {/* Reservar — destaque no topo */}
+              {/* Reservar. destaque no topo */}
               <a
                 href="https://wa.me/16892981754"
                 target="_blank"
@@ -223,7 +223,7 @@ const Navbar = () => {
                 </span>
               </DropdownMenuItem>
 
-              {/* Idioma — submenu in-place */}
+              {/* Idioma. submenu in-place */}
               <div className="px-2 py-1.5">
                 <div className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.18em] uppercase text-muted-foreground mb-1.5">
                   <Globe size={12} /> Idioma
@@ -283,7 +283,7 @@ const Navbar = () => {
           </DropdownMenu>
         </div>
 
-        {/* Mobile — hambúrguer com mesma altura/área do ícone da esquerda */}
+        {/* Mobile. hambúrguer com mesma altura/área do ícone da esquerda */}
         <div className="flex lg:hidden items-center gap-2 shrink-0">
           <button
             className="h-11 w-11 flex items-center justify-center rounded-full bg-muted/60 text-foreground"
@@ -312,7 +312,7 @@ const Navbar = () => {
           role="dialog"
           aria-modal="true"
         >
-          {/* Close button — fixed top-right inside the drawer */}
+          {/* Close button. fixed top-right inside the drawer */}
           <button
             onClick={() => setMobileOpen(false)}
             aria-label="Fechar menu"
@@ -327,7 +327,7 @@ const Navbar = () => {
 
           <div className="flex-1 overflow-y-auto overscroll-contain pt-1 pb-2 space-y-4">
 
-            {/* Reservar — destaque */}
+            {/* Reservar. destaque */}
             <a
               href="https://wa.me/16892981754"
               target="_blank"
@@ -436,7 +436,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* Admin — visível, ao final */}
+            {/* Admin. visível, ao final */}
             <button
               onClick={() => { navigate("/admin/login"); setMobileOpen(false); }}
               className="w-full h-12 flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/5 text-[11px] font-semibold tracking-[0.22em] uppercase text-primary active:bg-primary/15 transition-colors"

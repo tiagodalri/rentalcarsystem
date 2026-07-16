@@ -7,7 +7,7 @@ import { LoadingRows } from "@/components/skeletons/LoadingRows";
 const VEHICLE_TZ = "America/New_York";
 
 function fmtTime(iso: string | null) {
-  if (!iso) return "—";
+  if (!iso) return "";
   return new Date(iso).toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
@@ -15,7 +15,7 @@ function fmtTime(iso: string | null) {
   });
 }
 function fmtDur(s: number | null | undefined) {
-  if (!s) return "—";
+  if (!s) return "";
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   return h ? `${h}h ${m}min` : `${m} min`;
@@ -172,7 +172,7 @@ export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-3 py-3">
-          {/* LIVE trip entry — always rendered on top when detected */}
+          {/* LIVE trip entry. always rendered on top when detected */}
           {live && (
             <button
               onClick={() => onPick(`live:${vehicleId}`)}
@@ -247,7 +247,7 @@ export function TripPickerDialog({ vehicleId, vehicleName, open, onClose, onPick
                               </div>
                               <div className="min-w-0">
                                 <p className="text-xs font-semibold text-white tabular-nums">
-                                  {fmtTime(t.started_at)} – {fmtTime(t.ended_at)}
+                                  {fmtTime(t.started_at)}. {fmtTime(t.ended_at)}
                                 </p>
                                 <p className="text-[10px] text-white/50 flex items-center gap-2 mt-0.5">
                                   <span className="flex items-center gap-1"><Clock size={9} />{fmtDur(t.duration_seconds)}</span>

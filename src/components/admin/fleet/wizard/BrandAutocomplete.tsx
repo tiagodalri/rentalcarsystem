@@ -179,7 +179,7 @@ export default function BrandAutocomplete({ value, onChange, placeholder }: Prop
         >
           {results.length === 0 ? (
             <div className="px-3 py-4 text-xs text-muted-foreground text-center">
-              Nenhuma marca encontrada — você pode digitar manualmente.
+              Nenhuma marca encontrada. você pode digitar manualmente.
             </div>
           ) : (
             results.map((b, i) => {

@@ -7,7 +7,7 @@ import { SegmentedControl } from "@/components/mobile/SegmentedControl";
 import { coverImageMap } from "@/data/fleetAssets";
 
 /* ============================================================
-   FROTA — Mobile-first
+   FROTA. Mobile-first
    Grid 2 colunas com imagens, filtro segmented, busca.
    ============================================================ */
 
@@ -145,7 +145,7 @@ export default function MobileFleet() {
                 <div className="p-3 space-y-1">
                   <div className="text-[13px] font-semibold leading-tight truncate">{v.name}</div>
                   <div className="text-[11px] text-muted-foreground truncate leading-tight">
-                    {v.license_plate || v.category || "—"}
+                    {v.license_plate || v.category || ""}
                   </div>
                   {v.daily_price_usd != null && (
                     <div className="text-sm font-semibold pt-1 tabular-nums leading-none">

@@ -377,7 +377,7 @@ export function AiBriefingCard({ briefing, loading, snapshot, highlights, action
               />
               <MiniKpi
                 label="Payback médio"
-                value={snapshot.paybackMeses !== null ? `${snapshot.paybackMeses} meses` : "—"}
+                value={snapshot.paybackMeses !== null ? `${snapshot.paybackMeses} meses` : ""}
                 sub="tempo médio para o carro se pagar"
               />
               <MiniKpi
@@ -400,7 +400,7 @@ export function AiBriefingCard({ briefing, loading, snapshot, highlights, action
                 <span>
                   <strong style={{ fontWeight: 650 }}>80% da receita</strong> vem de{" "}
                   <strong style={{ fontWeight: 650 }}>{snapshot.paretoCarros} carros</strong> ({snapshot.paretoFrotaPct.toFixed(0)}% da
-                  frota). Os outros {snapshot.paretoTotal - snapshot.paretoCarros} carros geram pouco — vale revisar.
+                  frota). Os outros {snapshot.paretoTotal - snapshot.paretoCarros} carros geram pouco. vale revisar.
                 </span>
               </div>
             )}
@@ -540,7 +540,7 @@ export function AiBriefingCard({ briefing, loading, snapshot, highlights, action
           </div>
         )}
 
-        {/* Briefing prose — collapsed when structured data exists */}
+        {/* Briefing prose. collapsed when structured data exists */}
         {paragraphs.length > 0 && (
           <div className="mt-2">
             {hasStructured && (

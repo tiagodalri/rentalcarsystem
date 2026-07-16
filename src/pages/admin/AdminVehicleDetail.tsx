@@ -396,13 +396,13 @@ export default function AdminVehicleDetail() {
   }
   bookings.sort((a, b) => parseDateOnly(a.pickup_date).getTime() - parseDateOnly(b.pickup_date).getTime()).forEach(b => {
     const sc = statusConfig[b.status] || statusConfig.pending;
-    timelineEvents.push({ date: b.pickup_date, icon: Calendar, title: `Locação — ${b.customer_name}`,
+    timelineEvents.push({ date: b.pickup_date, icon: Calendar, title: `Locação. ${b.customer_name}`,
       desc: `${parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR")} → ${parseDateOnly(b.return_date).toLocaleDateString("pt-BR")}${b.total_price ? ` • $${b.total_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : ""} • ${sc.label}`,
       color: b.status === "completed" ? "text-emerald-500" : b.status === "active" || b.status === "in_progress" ? "text-blue-500" : "text-muted-foreground" });
   });
   expenses.forEach(e => {
     const et = expenseTypeLabels[e.type] || expenseTypeLabels.other;
-    timelineEvents.push({ date: e.expense_date, icon: et.icon, title: `${et.label} — $${e.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+    timelineEvents.push({ date: e.expense_date, icon: et.icon, title: `${et.label}. $${e.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
       desc: e.description || e.supplier || "", color: "text-orange-500" });
   });
   incidents.forEach(i => {
@@ -442,12 +442,12 @@ export default function AdminVehicleDetail() {
         </div>
       </div>
 
-      {/* KPI Cards — Primary */}
+      {/* KPI Cards. Primary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { icon: DollarSign, label: "Receita Total", value: `$${totalRevenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, sub: `${bookings.length} locações`, color: "text-emerald-500" },
           { icon: TrendingDown, label: "Custo Total", value: `$${totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, sub: `Compra + gastos + ocorrências`, color: "text-orange-500" },
-          { icon: netProfit >= 0 ? TrendingUp : TrendingDown, label: "Lucro Líquido", value: `$${netProfit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, sub: vehicle.purchase_price ? `ROI: ${((netProfit / vehicle.purchase_price) * 100).toFixed(1)}%` : "—", color: netProfit >= 0 ? "text-emerald-500" : "text-destructive" },
+          { icon: netProfit >= 0 ? TrendingUp : TrendingDown, label: "Lucro Líquido", value: `$${netProfit.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`, sub: vehicle.purchase_price ? `ROI: ${((netProfit / vehicle.purchase_price) * 100).toFixed(1)}%` : "", color: netProfit >= 0 ? "text-emerald-500" : "text-destructive" },
           { icon: Heart, label: "Saúde do Veículo", value: `${healthScore}/100`, sub: healthScore >= 80 ? "Excelente estado" : healthScore >= 50 ? "Atenção necessária" : "Estado crítico", color: healthColor },
         ].map((s, i) => {
           const Icon = s.icon;
@@ -466,7 +466,7 @@ export default function AdminVehicleDetail() {
         })}
       </div>
 
-      {/* KPI Cards — Secondary (collapsible no mobile) */}
+      {/* KPI Cards. Secondary (collapsible no mobile) */}
       <details className="group sm:open:!block" open={typeof window !== "undefined" && window.innerWidth >= 640}>
         <summary className="sm:hidden flex items-center justify-between gap-2 cursor-pointer list-none px-4 h-10 rounded-lg border border-border/40 bg-card/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:bg-muted/30 transition-colors">
           <span className="flex items-center gap-2"><BarChart3 size={13} className="text-primary" /> Métricas operacionais</span>
@@ -474,11 +474,11 @@ export default function AdminVehicleDetail() {
         </summary>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3 sm:mt-0">
           {[
-            { icon: Gauge, label: "Odômetro Entrada", value: vehicle.initial_odometer ? `${vehicle.initial_odometer.toLocaleString("pt-BR")} mi` : "—" },
-            { icon: Gauge, label: "Odômetro Atual", value: lastOdometer ? `${lastOdometer.toLocaleString("pt-BR")} mi` : "—" },
-            { icon: Car, label: "Milhas Rodadas", value: kmTotal ? `${kmTotal.toLocaleString("pt-BR")} mi` : "—" },
-            { icon: Calendar, label: "Na Frota", value: daysSinceAcquired ? `${daysSinceAcquired} dias` : "—" },
-            { icon: BarChart3, label: "Ocupação", value: utilizationRate ? `${utilizationRate}%` : "—" },
+            { icon: Gauge, label: "Odômetro Entrada", value: vehicle.initial_odometer ? `${vehicle.initial_odometer.toLocaleString("pt-BR")} mi` : "" },
+            { icon: Gauge, label: "Odômetro Atual", value: lastOdometer ? `${lastOdometer.toLocaleString("pt-BR")} mi` : "" },
+            { icon: Car, label: "Milhas Rodadas", value: kmTotal ? `${kmTotal.toLocaleString("pt-BR")} mi` : "" },
+            { icon: Calendar, label: "Na Frota", value: daysSinceAcquired ? `${daysSinceAcquired} dias` : "" },
+            { icon: BarChart3, label: "Ocupação", value: utilizationRate ? `${utilizationRate}%` : "" },
           ].map((s, i) => {
             const Icon = s.icon;
             return (
@@ -598,7 +598,7 @@ export default function AdminVehicleDetail() {
                             <Upload size={28} className={dragOver ? "text-primary" : "text-muted-foreground"} />
                             <p className="text-sm font-semibold text-foreground">Arraste fotos aqui</p>
                             <p className="text-[11px] text-muted-foreground">ou clique para selecionar do dispositivo</p>
-                            <p className="text-[10px] text-muted-foreground mt-1">JPG, PNG ou WEBP — múltiplos arquivos</p>
+                            <p className="text-[10px] text-muted-foreground mt-1">JPG, PNG ou WEBP. múltiplos arquivos</p>
                           </>
                         )}
                         <input
@@ -777,7 +777,7 @@ export default function AdminVehicleDetail() {
           <Card className="border-border/40">
             <CardContent className="p-6">
               <h3 className="font-medium text-foreground flex items-center gap-2 mb-4">
-                <Heart size={16} className={healthColor} /> Condição Geral — {healthScore}/100
+                <Heart size={16} className={healthColor} /> Condição Geral. {healthScore}/100
               </h3>
               <div className="w-full h-3 rounded-full bg-muted overflow-hidden mb-6">
                 <div className={`h-full rounded-full transition-all duration-700 ${healthScore >= 80 ? "bg-emerald-500" : healthScore >= 50 ? "bg-yellow-500" : "bg-destructive"}`}
@@ -812,13 +812,13 @@ export default function AdminVehicleDetail() {
             <Card className="border-border/40">
               <CardContent className="p-4">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Última Revisão</p>
-                <p className="font-medium text-foreground">{vehicle.last_service_date ? new Date(vehicle.last_service_date).toLocaleDateString("pt-BR") : "—"}</p>
+                <p className="font-medium text-foreground">{vehicle.last_service_date ? new Date(vehicle.last_service_date).toLocaleDateString("pt-BR") : ""}</p>
               </CardContent>
             </Card>
             <Card className="border-border/40">
               <CardContent className="p-4">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Próxima Revisão (mi)</p>
-                <p className="font-medium text-foreground">{vehicle.next_service_km ? `${vehicle.next_service_km.toLocaleString("pt-BR")} mi` : "—"}</p>
+                <p className="font-medium text-foreground">{vehicle.next_service_km ? `${vehicle.next_service_km.toLocaleString("pt-BR")} mi` : ""}</p>
               </CardContent>
             </Card>
             <Card className="border-border/40">
@@ -974,7 +974,7 @@ export default function AdminVehicleDetail() {
                             </button>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground truncate">{e.description || e.supplier || "—"}</p>
+                        <p className="text-xs text-muted-foreground truncate">{e.description || e.supplier || ""}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-foreground">${e.amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
@@ -1126,7 +1126,7 @@ export default function AdminVehicleDetail() {
                         <div className="flex items-center gap-6 text-sm">
                           <div className="text-center">
                             <p className="text-[10px] text-muted-foreground">Valor</p>
-                            <p className="font-medium text-foreground">${b.total_price?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "—"}</p>
+                            <p className="font-medium text-foreground">${b.total_price?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || ""}</p>
                           </div>
                           {kmDriven !== null && <div className="text-center"><p className="text-[10px] text-muted-foreground">Milhas</p><p className="font-medium text-foreground">{kmDriven.toLocaleString("pt-BR")}</p></div>}
                         </div>
@@ -1182,9 +1182,9 @@ export default function AdminVehicleDetail() {
               {/* Comercial */}
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Comercial</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                {renderField("Diária (USD)", "daily_price_usd", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—")}
-                {renderField("Caução padrão (USD)", "default_deposit_amount", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—")}
-                {renderField("Franquia padrão (USD)", "default_franchise_amount", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—")}
+                {renderField("Diária (USD)", "daily_price_usd", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "")}
+                {renderField("Caução padrão (USD)", "default_deposit_amount", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "")}
+                {renderField("Franquia padrão (USD)", "default_franchise_amount", "number", v => v != null ? `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "")}
               </div>
               <div className="mb-6">
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Listado na Turo</p>
@@ -1212,17 +1212,17 @@ export default function AdminVehicleDetail() {
               {/* Financial */}
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Financeiro</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {renderField("Valor de Compra (USD)", "purchase_price", "number", v => v ? `$${Number(v).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—")}
-                {renderField("Data de Aquisição", "acquired_date", "date", v => v ? new Date(v).toLocaleDateString("pt-BR") : "—")}
+                {renderField("Valor de Compra (USD)", "purchase_price", "number", v => v ? `$${Number(v).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "")}
+                {renderField("Data de Aquisição", "acquired_date", "date", v => v ? new Date(v).toLocaleDateString("pt-BR") : "")}
                 {renderField("Apólice de Seguro", "insurance_policy", "text")}
               </div>
 
               {/* Odometer */}
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Odômetro</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {renderField("Odômetro Aquisição (mi)", "initial_odometer", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} mi` : "—")}
-                {renderField("Odômetro Atual (mi)", "current_odometer", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} mi` : "—")}
-                {renderField("Próxima Revisão (mi)", "next_service_km", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} mi` : "—")}
+                {renderField("Odômetro Aquisição (mi)", "initial_odometer", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} mi` : "")}
+                {renderField("Odômetro Atual (mi)", "current_odometer", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} mi` : "")}
+                {renderField("Próxima Revisão (mi)", "next_service_km", "number", v => v ? `${Number(v).toLocaleString("pt-BR")} mi` : "")}
               </div>
 
               {/* Technical */}
@@ -1231,14 +1231,14 @@ export default function AdminVehicleDetail() {
                 {renderField("Motor", "engine_type", "text")}
                 {renderField("Cilindrada", "engine_size", "text")}
                 {renderField("Portas", "doors", "number")}
-                {renderField("Última Revisão", "last_service_date", "date", v => v ? new Date(v).toLocaleDateString("pt-BR") : "—")}
+                {renderField("Última Revisão", "last_service_date", "date", v => v ? new Date(v).toLocaleDateString("pt-BR") : "")}
               </div>
 
               {/* Documents */}
               <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Documentação</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {renderField("Vencimento Seguro", "insurance_expiry", "date", v => v ? new Date(v).toLocaleDateString("pt-BR") : "—")}
-                {renderField("Vencimento Registro", "registration_expiry", "date", v => v ? new Date(v).toLocaleDateString("pt-BR") : "—")}
+                {renderField("Vencimento Seguro", "insurance_expiry", "date", v => v ? new Date(v).toLocaleDateString("pt-BR") : "")}
+                {renderField("Vencimento Registro", "registration_expiry", "date", v => v ? new Date(v).toLocaleDateString("pt-BR") : "")}
               </div>
 
               {/* Condition */}
@@ -1256,7 +1256,7 @@ export default function AdminVehicleDetail() {
                 <textarea value={editForm.notes ?? ""} onChange={e => setEditForm({ ...editForm, notes: e.target.value })} rows={3}
                   className="w-full px-3 py-2 rounded-lg border border-border/60 bg-background text-sm text-foreground resize-none" />
               ) : (
-                <p className="text-sm text-foreground">{vehicle.notes || "—"}</p>
+                <p className="text-sm text-foreground">{vehicle.notes || ""}</p>
               )}
             </CardContent>
           </Card>
@@ -1274,7 +1274,7 @@ export default function AdminVehicleDetail() {
             onChange={e => setEditForm({ ...editForm, [key]: type === "number" ? Number(e.target.value) : e.target.value })}
             className="w-full h-9 px-3 rounded-lg border border-border/60 bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30" />
         ) : (
-          <p className="text-sm font-medium text-foreground">{format ? format((vehicle as any)[key]) : ((vehicle as any)[key] || "—")}</p>
+          <p className="text-sm font-medium text-foreground">{format ? format((vehicle as any)[key]) : ((vehicle as any)[key] || "")}</p>
         )}
       </div>
     );

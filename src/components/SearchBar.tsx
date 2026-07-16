@@ -180,7 +180,7 @@ const SearchBar = () => {
       className="mt-6 md:mt-10 w-full max-w-5xl mx-auto"
     >
       <div className="glass-card p-3 sm:p-5 md:p-7 rounded-2xl border border-border/15">
-        {/* ============ MOBILE LAYOUT — Booking/Kayak inspired ============ */}
+        {/* ============ MOBILE LAYOUT. Booking/Kayak inspired ============ */}
         <MobileSearch
           pickupLocation={pickupLocation}
           returnLocation={returnLocation}

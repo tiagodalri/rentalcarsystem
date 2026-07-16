@@ -174,19 +174,19 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
         </div>
       )}
 
-      {/* Bloco 1 — Operacional */}
+      {/* Bloco 1. Operacional */}
       <section className="space-y-3">
         <h2 className="admin-section-title">Operacional</h2>
         {renderCardGrid(operationalCards)}
       </section>
 
-      {/* Bloco 2 — Frota */}
+      {/* Bloco 2. Frota */}
       <section className="space-y-3">
         <h2 className="admin-section-title">Frota</h2>
         {renderCardGrid(fleetCards)}
       </section>
 
-      {/* Bloco 3 — Investimento (apenas indicadores únicos da Visão Geral) */}
+      {/* Bloco 3. Investimento (apenas indicadores únicos da Visão Geral) */}
       {showFinancial && (
         <section className="space-y-3">
           <h2 className="admin-section-title">Investimento</h2>
@@ -227,7 +227,7 @@ export default function AdminDashboard({ periodMonth, embedded = false }: AdminD
                         <td className="px-5 py-3.5 text-foreground font-medium">{formatPersonName(b.customer_name)}</td>
                         <td className="px-5 py-3.5 text-muted-foreground tabular-nums">{parseDateOnly(b.pickup_date).toLocaleDateString("pt-BR")}</td>
                         <td className="px-5 py-3.5 text-muted-foreground tabular-nums">{parseDateOnly(b.return_date).toLocaleDateString("pt-BR")}</td>
-                        <td className="px-5 py-3.5 text-foreground font-medium text-right tabular-nums">${b.total_price?.toFixed(2) || "—"}</td>
+                        <td className="px-5 py-3.5 text-foreground font-medium text-right tabular-nums">${b.total_price?.toFixed(2) || ""}</td>
                         <td className="px-5 py-3.5">
                           <span className={`text-[10px] px-2 py-1 rounded-md font-semibold ${st.className}`}>{st.label}</span>
                         </td>

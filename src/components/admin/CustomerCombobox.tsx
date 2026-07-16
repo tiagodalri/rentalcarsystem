@@ -84,7 +84,7 @@ export function CustomerCombobox({ selected, onSelect }: Props) {
           <div className="text-[10px] uppercase tracking-wider text-primary font-semibold">Cliente vinculado</div>
           <div className="text-sm font-medium text-foreground truncate">{selected.full_name}</div>
           <div className="text-xs text-muted-foreground truncate">
-            {[selected.email, selected.phone].filter(Boolean).join(" · ") || "—"}
+            {[selected.email, selected.phone].filter(Boolean).join(" · ") || ""}
           </div>
         </div>
         <Button variant="ghost" size="sm" onClick={() => onSelect(null)} className="shrink-0">
@@ -130,7 +130,7 @@ export function CustomerCombobox({ selected, onSelect }: Props) {
                           <div className="min-w-0">
                             <div className="text-sm font-medium truncate">{c.full_name}</div>
                             <div className="text-xs text-muted-foreground truncate">
-                              {[c.email, c.phone].filter(Boolean).join(" · ") || "—"}
+                              {[c.email, c.phone].filter(Boolean).join(" · ") || ""}
                             </div>
                           </div>
                         </CommandItem>

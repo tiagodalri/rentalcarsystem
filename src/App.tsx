@@ -103,7 +103,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 30, // 30 min — mantém cache vivo entre navegações
+      gcTime: 1000 * 60 * 30, // 30 min. mantém cache vivo entre navegações
       refetchOnWindowFocus: false,
       // Wave 2: PWA fica horas em background. Quando volta a ter rede, refaz
       // queries para o usuário não ficar olhando dado de ontem sem aviso.

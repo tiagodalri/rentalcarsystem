@@ -92,7 +92,7 @@ export default function FleetGrid({ vehicles, onTogglePublished, onDelete }: Pro
             <div className="flex items-start justify-between">
               <div className="min-w-0">
                 <h3 className="font-semibold text-foreground truncate">{v.name}</h3>
-                <p className="text-xs text-muted-foreground">{v.category} · {v.year || "—"}</p>
+                <p className="text-xs text-muted-foreground">{v.category} · {v.year || ""}</p>
               </div>
               <div className="flex flex-col items-end gap-1 shrink-0">
                 <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColors[v.status] || "bg-muted text-muted-foreground"}`}>
@@ -107,7 +107,7 @@ export default function FleetGrid({ vehicles, onTogglePublished, onDelete }: Pro
               <span>{v.transmission === "Automatic" ? "Automático" : "Manual"}</span>
             </div>
 
-            {/* Publish switch — prominent per row */}
+            {/* Publish switch. prominent per row */}
             <div
               onClick={(e) => e.stopPropagation()}
               className="flex items-center justify-between pt-2 border-t border-border/30"

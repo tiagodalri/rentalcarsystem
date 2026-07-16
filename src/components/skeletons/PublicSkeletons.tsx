@@ -105,7 +105,7 @@ export function BookingDetailsSkeleton() {
               </div>
             </div>
 
-            {/* RIGHT col — pricing sidebar */}
+            {/* RIGHT col. pricing sidebar */}
             <div className="lg:col-span-2 space-y-5">
               {/* Trip summary */}
               <div className="rounded-xl border border-border/40 bg-card p-5 space-y-3">

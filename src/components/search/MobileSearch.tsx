@@ -100,7 +100,7 @@ export default function MobileSearch(p: Props) {
 
   return (
     <div className="md:hidden">
-      {/* ───────── Card 1 — Localização ───────── */}
+      {/* ───────── Card 1. Localização ───────── */}
       <SectionCard>
         <FieldRow
           icon={MapPin}
@@ -141,7 +141,7 @@ export default function MobileSearch(p: Props) {
         )}
       </SectionCard>
 
-      {/* ───────── Card 2 — Datas + Horários ───────── */}
+      {/* ───────── Card 2. Datas + Horários ───────── */}
       <SectionCard className="mt-3">
         <button
           type="button"
@@ -549,7 +549,7 @@ function DateRangeSheet({
             />
           </div>
 
-          {/* Times — appear only after both dates set */}
+          {/* Times. appear only after both dates set */}
           {canConfirm && (
             <div className="mt-3 mx-3 rounded-2xl border border-border/50 bg-card/70 overflow-hidden">
               <div className="grid grid-cols-2">
@@ -621,7 +621,7 @@ function DateChip({
           date ? "text-foreground" : "text-muted-foreground/60",
         )}
       >
-        {date ? format(date, "dd MMM yyyy", { locale: pt }) : "—"}
+        {date ? format(date, "dd MMM yyyy", { locale: pt }) : ""}
       </p>
     </div>
   );

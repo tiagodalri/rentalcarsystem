@@ -154,7 +154,7 @@ export function WebcamCaptureDialog({
             />
           )}
 
-          {/* Carimbo ao vivo — visível na pré-visualização da câmera. */}
+          {/* Carimbo ao vivo. visível na pré-visualização da câmera. */}
           {showStampOverlay && (
             <div className="pointer-events-none absolute inset-x-0 bottom-0 px-3 pb-3 text-right sm:px-5 sm:pb-5">
               <div className="ml-auto max-w-[94%] rounded-md bg-black/70 px-3 py-2 shadow-2xl ring-1 ring-white/15 sm:max-w-[82%] sm:px-5 sm:py-4">

@@ -623,7 +623,7 @@ function BookingRowCard({
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2 flex-wrap">
               <span className="text-base font-medium tabular-nums text-foreground leading-none">
-                {time ? time.slice(0, 5) : "—"}
+                {time ? time.slice(0, 5) : ""}
               </span>
               <span className="text-[13px] font-semibold text-foreground truncate">
                 {formatPersonName(booking.customer_name)}
@@ -636,7 +636,7 @@ function BookingRowCard({
             <div className="mt-1 flex items-center gap-3 text-[11px] text-muted-foreground min-w-0">
               <span className="inline-flex items-center gap-1 truncate">
                 <Car size={10} className="shrink-0" />
-                <span className="truncate">{vehicle?.name || "—"}</span>
+                <span className="truncate">{vehicle?.name || ""}</span>
               </span>
               {loc && (
                 <span className="inline-flex items-center gap-1 truncate">
@@ -769,7 +769,7 @@ function SunriseBackdrop() {
         <path d="M305 32 q 4 -4 8 0 q 4 -4 8 0" />
       </g>
 
-      {/* Art Deco Ocean Drive skyline — stepped/rounded rooftops, antennas */}
+      {/* Art Deco Ocean Drive skyline. stepped/rounded rooftops, antennas */}
       <g>
         {/* low rounded hotel */}
         <path d="M30 170 L30 130 Q30 122 38 122 L70 122 Q78 122 78 130 L78 170 Z" />

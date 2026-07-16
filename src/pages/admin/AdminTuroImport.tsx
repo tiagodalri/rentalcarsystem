@@ -223,7 +223,7 @@ export default function AdminTuroImport() {
         ))}
       </div>
 
-      {/* STEP 1 — Upload */}
+      {/* STEP 1. Upload */}
       {step === 1 && (
         <div className="space-y-4">
           <div className="bg-card border border-border/60 rounded-xl p-4 lg:p-6">
@@ -239,7 +239,7 @@ export default function AdminTuroImport() {
         </div>
       )}
 
-      {/* STEP 2 — Revisar */}
+      {/* STEP 2. Revisar */}
       {step === 2 && (
         <div className="space-y-4">
           {/* Resumo do que foi lido */}
@@ -260,9 +260,9 @@ export default function AdminTuroImport() {
           {/* KPIs */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             <Kpi label="Total CSV" value={summary.total} tone="default" hint="Linhas válidas lidas dos arquivos enviados." />
-            <Kpi label="Novas" value={summary.newCount} tone="success" hint="Reservas que ainda não existem no GoDrive — serão criadas." />
+            <Kpi label="Novas" value={summary.newCount} tone="success" hint="Reservas que ainda não existem no GoDrive. serão criadas." />
             <Kpi label="Enriquecer" value={summary.enrichCount} tone="warning" hint="Já existem no GoDrive, mas o CSV traz dados novos (ex: hora real de devolução, valor final, status que avançou para 'concluída')." />
-            <Kpi label="Em dia" value={summary.identicalCount} tone="muted" hint="Reservas idênticas — não precisam de nada." />
+            <Kpi label="Em dia" value={summary.identicalCount} tone="muted" hint="Reservas idênticas. não precisam de nada." />
             <Kpi label="Canceladas" value={summary.cancelledCount} tone="danger" hint="CSV marca como cancelada. Aplicar só atualiza status; não cria." />
             <Kpi label="Sem veículo" value={summary.unmappedCount} tone="orange" hint="O modelo do CSV ainda não foi vinculado a um carro da frota GoDrive." />
           </div>
@@ -271,11 +271,11 @@ export default function AdminTuroImport() {
           <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs leading-relaxed">
             <div className="font-semibold text-foreground mb-1">Como funciona a pré-seleção</div>
             <div className="text-muted-foreground">
-              Das <span className="tabular-nums font-medium text-foreground">{summary.enrichCount}</span> linhas em "Enriquecer", <span className="tabular-nums font-medium text-emerald-600 dark:text-emerald-400">{enrichAutoCount}</span> têm pelo menos um campo seguro auto-marcado e <span className="tabular-nums font-medium text-amber-600 dark:text-amber-400">{enrichManualOnly}</span> estão só com campos "protegidos" (ex: nome do cliente já preenchido, status que regrediria) — essas <span className="font-medium text-foreground">só sincronizam se você marcar manualmente</span>. Nada é sobrescrito sem seu opt-in.
+              Das <span className="tabular-nums font-medium text-foreground">{summary.enrichCount}</span> linhas em "Enriquecer", <span className="tabular-nums font-medium text-emerald-600 dark:text-emerald-400">{enrichAutoCount}</span> têm pelo menos um campo seguro auto-marcado e <span className="tabular-nums font-medium text-amber-600 dark:text-amber-400">{enrichManualOnly}</span> estão só com campos "protegidos" (ex: nome do cliente já preenchido, status que regrediria). essas <span className="font-medium text-foreground">só sincronizam se você marcar manualmente</span>. Nada é sobrescrito sem seu opt-in.
             </div>
           </div>
 
-          {/* Breakdown por campo — explica QUAIS campos estão divergindo */}
+          {/* Breakdown por campo. explica QUAIS campos estão divergindo */}
           {fieldBreakdown.length > 0 && (
             <div className="rounded-xl border border-border/60 bg-card p-4">
               <div className="text-sm font-semibold mb-1">Onde estão as divergências</div>

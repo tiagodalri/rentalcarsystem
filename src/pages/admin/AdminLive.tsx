@@ -25,9 +25,9 @@ const TripReplayOverlay = lazy(() =>
 
 
 function formatRelative(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "";
   const diff = Date.now() - new Date(iso).getTime();
-  if (diff < 0 || Number.isNaN(diff)) return "—";
+  if (diff < 0 || Number.isNaN(diff)) return "";
   const s = Math.floor(diff / 1000);
   if (s < 60) return `há ${s}s`;
   const m = Math.floor(s / 60);
@@ -274,7 +274,7 @@ function AdminLiveDesktop() {
                               {v.name}
                             </div>
                             <div className="text-[10px] text-muted-foreground font-mono leading-tight">
-                              {v.plate ?? "—"}
+                              {v.plate ?? ""}
                             </div>
                           </div>
                           <span
@@ -343,7 +343,7 @@ function AdminLiveDesktop() {
                         />
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                        <span className="font-mono">{v.plate ?? "—"}</span>
+                        <span className="font-mono">{v.plate ?? ""}</span>
                         <span className="flex items-center gap-1 tabular-nums">
                           <Gauge size={10} />
                           {Math.round(v.speed ?? 0)} mph
@@ -434,7 +434,7 @@ function AdminLiveDesktop() {
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="min-w-0">
                     <p className="font-medium text-foreground text-sm leading-tight truncate">{selectedVehicle.name}</p>
-                    <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{selectedVehicle.plate ?? "—"}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{selectedVehicle.plate ?? ""}</p>
                   </div>
                   <span
                     className={`text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0 ${
@@ -488,7 +488,7 @@ function AdminLiveDesktop() {
             />
           )}
 
-          {/* Pílula flutuante — chama atenção para a Central de Alertas abaixo */}
+          {/* Pílula flutuante. chama atenção para a Central de Alertas abaixo */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1100] pointer-events-none">
             <div className="pointer-events-auto">
               <AlertsScrollPill
@@ -501,7 +501,7 @@ function AdminLiveDesktop() {
         </div>
       </div>
 
-      {/* Central de Alertas — visão consolidada de toda a frota */}
+      {/* Central de Alertas. visão consolidada de toda a frota */}
       <div ref={alertsRef}>
         <FleetAlertsCenter
           vehicles={vehicles}

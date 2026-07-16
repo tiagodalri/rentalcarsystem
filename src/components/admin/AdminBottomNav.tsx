@@ -55,7 +55,7 @@ export function AdminBottomNav() {
       <div className="relative h-16">
         {/* Pill animado que desliza entre as abas (estilo Instagram/Threads).
             Wrapper tem largura EXATA de uma coluna (100%/count) e desliza
-            translateX(activeIndex * 100%) — assim cada passo é exatamente
+            translateX(activeIndex * 100%). assim cada passo é exatamente
             uma coluna. Margens visuais ficam por dentro (inset). */}
         <span
           aria-hidden="true"

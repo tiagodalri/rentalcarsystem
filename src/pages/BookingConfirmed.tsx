@@ -60,7 +60,7 @@ const BookingConfirmed = () => {
     fetchBooking();
   }, [bookingNumberParam]);
 
-  const bookingNumber = booking?.booking_number || "—";
+  const bookingNumber = booking?.booking_number || "";
 
   return (
     <div className="min-h-screen bg-background text-foreground">

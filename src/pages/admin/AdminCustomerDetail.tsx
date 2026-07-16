@@ -190,7 +190,7 @@ export default function AdminCustomerDetail() {
   const DetailItem = ({ label, value }: { label: string; value: string | number | null | undefined }) => (
     <div className="flex items-center justify-between py-2.5 border-b border-border/20 last:border-0">
       <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium text-foreground">{value || "—"}</span>
+      <span className="text-sm font-medium text-foreground">{value || ""}</span>
     </div>
   );
 
@@ -229,7 +229,7 @@ export default function AdminCustomerDetail() {
                 {(customer as any).turo_guest_id && (
                   <span className="flex items-center gap-1 font-mono tabular-nums">Guest # {(customer as any).turo_guest_id}</span>
                 )}
-                <span className="italic">Hóspede importado da Turo — sem dados de contato</span>
+                <span className="italic">Hóspede importado da Turo. sem dados de contato</span>
               </>
             ) : (
               <>
@@ -270,7 +270,7 @@ export default function AdminCustomerDetail() {
         <MetricCard icon={CreditCard} label="Canceladas" value={cancelledBookings} color={cancelledBookings > 0 ? "text-red-400" : "text-muted-foreground"} />
       </div>
 
-      {/* Customer metrics section — visible to admin, support, operations */}
+      {/* Customer metrics section. visible to admin, support, operations */}
       {hasAny(["admin", "support", "operations"]) && (
         <div className="space-y-3">
           <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.1em]">Metricas do Cliente</h2>
@@ -278,7 +278,7 @@ export default function AdminCustomerDetail() {
             <MetricCard
               icon={Star}
               label="Categoria Favorita"
-              value={favoriteCategory || "—"}
+              value={favoriteCategory || ""}
               color="text-primary"
             />
             <MetricCard
@@ -440,7 +440,7 @@ export default function AdminCustomerDetail() {
                           <div className="flex items-center gap-3">
                             <Badge className={`${sc.color} border text-[10px] px-2 py-0.5 font-semibold`}>{sc.label}</Badge>
                             <span className="text-sm font-medium text-foreground tabular-nums">
-                              {b.total_price ? `$${b.total_price.toFixed(2)}` : "—"}
+                              {b.total_price ? `$${b.total_price.toFixed(2)}` : ""}
                             </span>
                           </div>
                         </div>
@@ -463,10 +463,10 @@ export default function AdminCustomerDetail() {
                         {(checkin || checkout || bkNewDamages.length > 0) && (
                           <div className="flex items-center gap-4 text-[10px] text-muted-foreground ml-11 mt-2">
                             {checkin && (
-                              <span>Entrega: {checkin.odometer_reading?.toLocaleString() || "—"} mi · {checkin.fuel_level || "—"}</span>
+                              <span>Entrega: {checkin.odometer_reading?.toLocaleString() || ""} mi · {checkin.fuel_level || ""}</span>
                             )}
                             {checkout && (
-                              <span>Devolução: {checkout.odometer_reading?.toLocaleString() || "—"} mi · {checkout.fuel_level || "—"}</span>
+                              <span>Devolução: {checkout.odometer_reading?.toLocaleString() || ""} mi · {checkout.fuel_level || ""}</span>
                             )}
                             {checkin && checkout && checkin.odometer_reading && checkout.odometer_reading && (
                               <span className="font-medium text-foreground">

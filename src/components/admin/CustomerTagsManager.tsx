@@ -187,7 +187,7 @@ export function CustomerTagsInline({ customerId }: { customerId: string }) {
       setTags((data || []).map((r: any) => r.customer_tags).filter(Boolean));
     })();
   }, [customerId]);
-  if (tags.length === 0) return <span className="text-[10px] text-muted-foreground/40">—</span>;
+  if (tags.length === 0) return <span className="text-[10px] text-muted-foreground/40"></span>;
   return (
     <div className="flex flex-wrap gap-1">
       {tags.map((t, i) => (

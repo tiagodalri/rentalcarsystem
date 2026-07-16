@@ -166,7 +166,7 @@ export function VehicleEpassTolls({ vehicleId }: { vehicleId: string }) {
                       ) : t.booking_id ? (
                         <span className="text-amber-600 dark:text-amber-400 text-[11px]">Pendente</span>
                       ) : (
-                        <span className="text-muted-foreground text-[11px]">—</span>
+                        <span className="text-muted-foreground text-[11px]"></span>
                       )}
                     </td>
                   </tr>

@@ -720,7 +720,7 @@ export default function AdminInspection() {
       }
       toast({
         title: "Painel analisado",
-        description: `Odômetro: ${result.odometer_miles ?? "—"} mi · Tanque: ${result.fuel_level ?? "—"}. Revise antes de avançar.`,
+        description: `Odômetro: ${result.odometer_miles ?? ""} mi · Tanque: ${result.fuel_level ?? ""}. Revise antes de avançar.`,
       });
     } catch (err: any) {
       console.error("ocr-dashboard error", err);
@@ -1024,24 +1024,24 @@ export default function AdminInspection() {
         const miles =
           odometerStart != null && odoEnd != null && odoEnd >= odometerStart
             ? `${(odoEnd - odometerStart).toLocaleString("pt-BR")} mi`
-            : "—";
+            : "";
 
         sendZeusEmail({
           templateName: tpl,
           idempotencyKey: `${tpl}:${bookingId}:${Date.now()}`,
           templateData: {
-            bookingNumber: (booking as any).booking_number || "—",
-            customerName: (booking as any).customer_name || "—",
-            vehicleName: (vehicle as any)?.name || "—",
-            vehiclePlate: (vehicle as any)?.license_plate || (vehicle as any)?.plate || "—",
-            odometer: odoEnd != null ? `${odoEnd.toLocaleString("pt-BR")} mi` : "—",
-            odometerStart: odometerStart != null ? `${odometerStart.toLocaleString("pt-BR")} mi` : "—",
-            odometerEnd: odoEnd != null ? `${odoEnd.toLocaleString("pt-BR")} mi` : "—",
+            bookingNumber: (booking as any).booking_number || "",
+            customerName: (booking as any).customer_name || "",
+            vehicleName: (vehicle as any)?.name || "",
+            vehiclePlate: (vehicle as any)?.license_plate || (vehicle as any)?.plate || "",
+            odometer: odoEnd != null ? `${odoEnd.toLocaleString("pt-BR")} mi` : "",
+            odometerStart: odometerStart != null ? `${odometerStart.toLocaleString("pt-BR")} mi` : "",
+            odometerEnd: odoEnd != null ? `${odoEnd.toLocaleString("pt-BR")} mi` : "",
             milesDriven: miles,
-            fuelLevel: fuelLevel || "—",
+            fuelLevel: fuelLevel || "",
             damagesCount: damages?.length ?? 0,
             photosCount,
-            paymentStatus: type === "checkout" ? "Pago" : ((booking as any).payment_status || "—"),
+            paymentStatus: type === "checkout" ? "Pago" : ((booking as any).payment_status || ""),
             inspectorName: "Equipe GoDrive",
             completedAt,
             reportUrl,
@@ -1078,7 +1078,7 @@ export default function AdminInspection() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Camera-capture inputs — capture="environment" opens rear camera on mobile.
+      {/* Camera-capture inputs. capture="environment" opens rear camera on mobile.
           NOTE: iOS Safari (and standalone PWA) ignore programmatic .click() on
           inputs with display:none. Use sr-only so the input stays in the layout
           tree and the click reliably opens the camera. */}
@@ -1087,7 +1087,7 @@ export default function AdminInspection() {
       <input ref={odometerPhotoRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleOdometerPhoto} />
       <input ref={fuelPhotoRef} type="file" accept="image/*" capture="environment" className="sr-only" onChange={handleFuelPhoto} />
 
-      {/* Gallery inputs — no capture attribute → opens file/photo picker (existing photos). */}
+      {/* Gallery inputs. no capture attribute → opens file/photo picker (existing photos). */}
       <input ref={fileInputGalRef} type="file" accept="image/*" multiple className="sr-only" onChange={handleFileCapture} />
       <input ref={damageFileGalRef} type="file" accept="image/*" className="sr-only" onChange={handleDamageFile} />
       <input ref={odometerPhotoGalRef} type="file" accept="image/*" className="sr-only" onChange={handleOdometerPhoto} />
@@ -1109,7 +1109,7 @@ export default function AdminInspection() {
       />
 
 
-      {/* Webcam dialog — only used on desktop/notebook (no touch). Mobile uses native camera via input capture. */}
+      {/* Webcam dialog. only used on desktop/notebook (no touch). Mobile uses native camera via input capture. */}
       <WebcamCaptureDialog
         open={!!webcamTarget}
         onClose={() => setWebcamTarget(null)}
@@ -1171,7 +1171,7 @@ export default function AdminInspection() {
         </div>
       </div>
 
-      {/* Booking info card — visível pra equipe na hora da inspeção */}
+      {/* Booking info card. visível pra equipe na hora da inspeção */}
       <Card className="admin-card border-primary/20">
         <CardContent className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -1236,7 +1236,7 @@ export default function AdminInspection() {
       {/* Step 0: Odometer & Fuel */}
       {step === 0 && (
         <div className="space-y-4">
-          {/* 1) Inspection location — own card, comes first */}
+          {/* 1) Inspection location. own card, comes first */}
           <Card className="border-primary/30 bg-primary/5">
             <CardContent className="p-4 sm:p-5 space-y-3">
               <div className="flex items-center gap-2">
@@ -1255,7 +1255,7 @@ export default function AdminInspection() {
             </CardContent>
           </Card>
 
-          {/* 2) Odometer & Fuel — photo first (OCR), then editable fields */}
+          {/* 2) Odometer & Fuel. photo first (OCR), then editable fields */}
           <Card className="border-border/40">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
@@ -1263,7 +1263,7 @@ export default function AdminInspection() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Step A — Dashboard photo (drives auto-fill via OCR) */}
+              {/* Step A. Dashboard photo (drives auto-fill via OCR) */}
               <div className="flex flex-col">
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs text-muted-foreground flex items-center gap-1">
@@ -1309,7 +1309,7 @@ export default function AdminInspection() {
                 )}
               </div>
 
-              {/* Step B — Auto-filled, editable fields */}
+              {/* Step B. Auto-filled, editable fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-foreground">2. Leitura do Odômetro (mi)</label>
@@ -1723,7 +1723,7 @@ export default function AdminInspection() {
 
                             <div className="relative">
                               <Textarea
-                                placeholder="Descreva a avaria — localização exata, tamanho aproximado, profundidade, observações relevantes..."
+                                placeholder="Descreva a avaria. localização exata, tamanho aproximado, profundidade, observações relevantes..."
                                 value={d.description}
                                 onChange={(e) => updateDamage(d.id, "description", e.target.value)}
                                 onBlur={(e) => {
@@ -1854,7 +1854,7 @@ export default function AdminInspection() {
                 <canvas
                   ref={agentCanvasRef}
                   role="img"
-                  aria-label="Área de assinatura do agente — desenhe sua assinatura com o dedo ou mouse"
+                  aria-label="Área de assinatura do agente. desenhe sua assinatura com o dedo ou mouse"
                   width={400}
                   height={150}
                   className="border-2 border-dashed border-border/60 rounded-lg bg-white cursor-crosshair touch-none w-full max-w-md"
@@ -1890,7 +1890,7 @@ export default function AdminInspection() {
                 <canvas
                   ref={customerCanvasRef}
                   role="img"
-                  aria-label="Área de assinatura do cliente — desenhe a assinatura com o dedo ou mouse"
+                  aria-label="Área de assinatura do cliente. desenhe a assinatura com o dedo ou mouse"
                   width={400}
                   height={150}
                   className="border-2 border-dashed border-border/60 rounded-lg bg-white cursor-crosshair touch-none w-full max-w-md"

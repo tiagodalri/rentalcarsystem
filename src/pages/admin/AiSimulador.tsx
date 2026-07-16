@@ -76,7 +76,7 @@ export default function AiSimulador() {
           "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(154,122,58,0.10), transparent 60%), linear-gradient(180deg, #f6f1e6 0%, #efe9dc 60%, #e9e2d2 100%)",
       }}
     >
-      {/* Header dedicado — integrado ao topo do admin shell */}
+      {/* Header dedicado. integrado ao topo do admin shell */}
       <div
         className="relative"
         style={{
@@ -109,7 +109,7 @@ export default function AiSimulador() {
             </div>
           </div>
 
-          {/* Source selector — centralizado na mesma linha */}
+          {/* Source selector. centralizado na mesma linha */}
           <div className="flex-1 flex justify-center">
             <div
               role="tablist"

@@ -177,7 +177,7 @@ export default function AdminCosts() {
             <Wallet className="h-5 w-5 text-primary shrink-0" /> Central de Custos
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            Registre todo custo por veículo — manutenção, combustível, lavagem, peças e mais.
+            Registre todo custo por veículo. manutenção, combustível, lavagem, peças e mais.
           </p>
         </div>
         <Button onClick={() => setOpenForm(true)} className="w-full sm:w-auto h-11 sm:h-9">
@@ -190,7 +190,7 @@ export default function AdminCosts() {
         <KpiCard label="Total (filtro)" value={`$${kpis.total.toFixed(2)}`} hint={`${kpis.count} lançamentos`} />
         <KpiCard
           label="Maior categoria"
-          value={kpis.topType ? `$${kpis.topType[1].toFixed(2)}` : "—"}
+          value={kpis.topType ? `$${kpis.topType[1].toFixed(2)}` : ""}
           hint={kpis.topType ? TYPE_LABEL[kpis.topType[0]] : undefined}
         />
         <KpiCard
@@ -342,7 +342,7 @@ export default function AdminCosts() {
                               <div className="font-medium">{r.vehicles.name}</div>
                               {r.vehicles.license_plate && <div className="text-[10px] text-muted-foreground">{r.vehicles.license_plate}</div>}
                             </button>
-                          ) : "—"}
+                          ) : ""}
                         </td>
                         <td className="px-3 py-2">
                           <div className="font-medium">{TYPE_LABEL[r.type] || r.type}</div>

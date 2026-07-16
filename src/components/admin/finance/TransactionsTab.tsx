@@ -196,7 +196,7 @@ export function TransactionsTab() {
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="font-normal">
                 <CalendarIcon size={12} className="mr-2" />
-                De: {customFrom ? format(new Date(customFrom + "T00:00:00"), "dd/MM/yyyy") : "—"}
+                De: {customFrom ? format(new Date(customFrom + "T00:00:00"), "dd/MM/yyyy") : ""}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -208,7 +208,7 @@ export function TransactionsTab() {
             <PopoverTrigger asChild>
               <Button variant="outline" size="sm" className="font-normal">
                 <CalendarIcon size={12} className="mr-2" />
-                Até: {customTo ? format(new Date(customTo + "T00:00:00"), "dd/MM/yyyy") : "—"}
+                Até: {customTo ? format(new Date(customTo + "T00:00:00"), "dd/MM/yyyy") : ""}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -311,9 +311,9 @@ export function TransactionsTab() {
                             <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: cat.color || "#6b7280" }} />
                             {cat.name}
                           </span>
-                        ) : <span className="text-xs text-muted-foreground">—</span>}
+                        ) : <span className="text-xs text-muted-foreground"></span>}
                       </TableCell>
-                      <TableCell className="text-xs">{acc?.name || "—"}</TableCell>
+                      <TableCell className="text-xs">{acc?.name || ""}</TableCell>
                       <TableCell className={cn("text-right tabular-nums font-semibold", t.type === "income" ? "text-emerald-500" : "text-red-500")}>
                         {t.type === "income" ? "+" : "−"} {fmtUSD(Number(t.amount))}
                       </TableCell>

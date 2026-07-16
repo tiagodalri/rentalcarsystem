@@ -38,26 +38,26 @@ function buildMessage(args: {
 }): string {
   const title = args.type === "checkin" ? "INSPEÇÃO DE ENTREGA" : "INSPEÇÃO DE DEVOLUÇÃO";
   const fmtDate = (d?: string | null) =>
-    d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+    d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
   const lines = [
-    `*GODRIVE — ${title}*`,
+    `*GODRIVE. ${title}*`,
     ``,
-    `*Código GoDrive:* ${args.bookingNumber || "—"}`,
-    `*Código Turo:* ${args.turoReservationCode || "—"}`,
+    `*Código GoDrive:* ${args.bookingNumber || ""}`,
+    `*Código Turo:* ${args.turoReservationCode || ""}`,
     `*Cliente:* ${args.customerName}`,
     `*Veículo:* ${args.vehicleLabel}${args.plate ? ` (${args.plate})` : ""}`,
     `*Retirada:* ${fmtDate(args.pickupDate)}`,
-    `*Local de retirada:* ${args.pickupLocation || "—"}`,
+    `*Local de retirada:* ${args.pickupLocation || ""}`,
     `*Devolução:* ${fmtDate(args.returnDate)}`,
-    `*Local de devolução:* ${args.returnLocation || "—"}`,
+    `*Local de devolução:* ${args.returnLocation || ""}`,
     ``,
-    `*Odômetro:* ${args.odometer != null ? `${args.odometer.toLocaleString("pt-BR")} mi` : "—"}`,
-    `*Combustível:* ${args.fuel || "—"}`,
+    `*Odômetro:* ${args.odometer != null ? `${args.odometer.toLocaleString("pt-BR")} mi` : ""}`,
+    `*Combustível:* ${args.fuel || ""}`,
     `*Avarias registradas:* ${args.damagesCount}`,
     `*Fotos:* ${args.photosCount}`,
     ``,
-    `*Local da inspeção:* ${args.address || "—"}`,
-    `*Agente:* ${args.agent || "—"}`,
+    `*Local da inspeção:* ${args.address || ""}`,
+    `*Agente:* ${args.agent || ""}`,
     `*Concluída em:* ${fmtDate(args.completedAt)}`,
     ``,
     `_Mensagem gerada automaticamente pelo sistema GoDrive._`,
@@ -165,7 +165,7 @@ export function ShareWhatsAppInspectionButton({
 
         toast({
           title: "WhatsApp aberto com a mensagem",
-          description: `Baixando ${photos.length} foto(s) — anexe pela galeria do WhatsApp.`,
+          description: `Baixando ${photos.length} foto(s). anexe pela galeria do WhatsApp.`,
         });
 
         // Baixa as fotos em background (não bloqueia a abertura do WhatsApp).
@@ -205,7 +205,7 @@ export function ShareWhatsAppInspectionButton({
       }
 
       // 3) Em paralelo, baixa as fotos para o usuário anexar manualmente no WhatsApp Web.
-      toast({ title: "Baixando fotos…", description: `${photos.length} imagem(ns) — anexe no WhatsApp Web.` });
+      toast({ title: "Baixando fotos…", description: `${photos.length} imagem(ns). anexe no WhatsApp Web.` });
       const files: File[] = [];
       const signed = await Promise.all(
         photos.map(async (p, idx) => {
@@ -230,7 +230,7 @@ export function ShareWhatsAppInspectionButton({
 
       toast({
         title: "WhatsApp aberto",
-        description: `Mensagem pronta. ${files.length} foto(s) baixada(s) — arraste para a conversa.`,
+        description: `Mensagem pronta. ${files.length} foto(s) baixada(s). arraste para a conversa.`,
       });
     } catch (e: any) {
       // se já abrimos a janela em branco e deu erro, fecha pra não deixar lixo

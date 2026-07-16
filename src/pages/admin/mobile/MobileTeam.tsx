@@ -7,7 +7,7 @@ import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { TeamMemberProfileSheet, type TeamMember as ProfileMember } from "@/components/admin/TeamMemberProfileSheet";
 
 /* ============================================================
-   EQUIPE — Mobile-first
+   EQUIPE. Mobile-first
    Lista contato-style com função, status e ações rápidas.
    ============================================================ */
 
@@ -98,7 +98,7 @@ export default function MobileTeam() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <div className="text-sm font-medium truncate">{formatPersonName(m.full_name)}</div>
-                      <div className="text-xs text-muted-foreground truncate">{m.position || "—"}</div>
+                      <div className="text-xs text-muted-foreground truncate">{m.position || ""}</div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {m.role === "admin" && (

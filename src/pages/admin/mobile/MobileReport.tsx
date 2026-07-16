@@ -9,7 +9,7 @@ const AdminFleetReport = lazy(() => import("../AdminFleetReport"));
 const AdminFleetPnL = lazy(() => import("../AdminFleetPnL"));
 
 /* ============================================================
-   RELATÓRIO — Mobile-first
+   RELATÓRIO. Mobile-first
    Tabs em segmented para evitar scroll vertical longo.
    ============================================================ */
 

@@ -70,7 +70,7 @@ const BookingCard = ({ booking, index, featured }: BookingCardProps) => {
               <div className="flex flex-col sm:flex-row gap-3 mt-4 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5">
                   <Calendar size={14} className="text-primary" />
-                  {formatDate(booking.pickupDate)} — {formatDate(booking.dropoffDate)}
+                  {formatDate(booking.pickupDate)}. {formatDate(booking.dropoffDate)}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <MapPin size={14} className="text-primary" />
@@ -134,7 +134,7 @@ const BookingCard = ({ booking, index, featured }: BookingCardProps) => {
           </div>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1.5">
             <Calendar size={12} />
-            {formatDate(booking.pickupDate)} — {formatDate(booking.dropoffDate)}
+            {formatDate(booking.pickupDate)}. {formatDate(booking.dropoffDate)}
           </div>
           <p className="text-xs text-muted-foreground/70 mt-0.5">{booking.pickupLocation}</p>
           {/* Progress bar */}

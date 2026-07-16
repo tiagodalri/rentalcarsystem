@@ -137,7 +137,7 @@ const CustomerRegistration = () => {
     if (!form.phone.trim()) return setError("Telefone é obrigatório.");
     if (!form.driver_license.trim()) return setError("Número da CNH / Driver License é obrigatório.");
     if (!form.driver_license_expiry) return setError("Validade da CNH é obrigatória.");
-    if (new Date(form.driver_license_expiry) <= new Date()) return setError("CNH vencida — informe uma data válida.");
+    if (new Date(form.driver_license_expiry) <= new Date()) return setError("CNH vencida. informe uma data válida.");
 
     const pwdParse = passwordSchema.safeParse(form.password);
     if (!pwdParse.success) return setError(pwdParse.error.errors[0].message);
@@ -360,7 +360,7 @@ const CustomerRegistration = () => {
           <div>
             <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
               <FileText size={11} className="text-primary/60" />
-              Habilitação (CNH) — Foto ou PDF
+              Habilitação (CNH). Foto ou PDF
             </label>
             <input
               ref={fileRef}

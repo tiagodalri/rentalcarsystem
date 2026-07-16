@@ -280,11 +280,11 @@ export function TeamMemberProfileSheet({ open, onOpenChange, member, canEdit = t
             {!editing ? (
               <div className="space-y-3">
                 <Field label="Nome completo" value={formatPersonName(form.full_name)} />
-                <Field label="E-mail" value={form.email || "—"} />
-                <Field label="Telefone" value={form.phone || "—"} />
+                <Field label="E-mail" value={form.email || ""} />
+                <Field label="Telefone" value={form.phone || ""} />
                 <Field label="Função" value={ROLE_LABELS[form.role] || form.role} />
-                <Field label="Cargo" value={form.position || "—"} />
-                <Field label="Observações" value={form.notes || "—"} multiline />
+                <Field label="Cargo" value={form.position || ""} />
+                <Field label="Observações" value={form.notes || ""} multiline />
               </div>
             ) : (
               <div className="space-y-3">

@@ -210,7 +210,7 @@ export function EditBookingDialog({ open, onOpenChange, booking, onSaved }: Prop
               </div>
               <div>
                 <Label className="text-xs">Idade do condutor</Label>
-                <Input type="number" inputMode="numeric" placeholder="—" value={form.driver_age} onChange={(e) => set("driver_age", e.target.value)} className="tabular-nums" />
+                <Input type="number" inputMode="numeric" placeholder="" value={form.driver_age} onChange={(e) => set("driver_age", e.target.value)} className="tabular-nums" />
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <input

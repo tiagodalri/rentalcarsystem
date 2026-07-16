@@ -151,7 +151,7 @@ export function UnlinkedBouncieDevices({ onLinked }: { onLinked?: () => void }) 
                     {availableVehicles.map((v) => (
                       <option key={v.id} value={v.id}>
                         {v.name}
-                        {v.license_plate ? ` — ${v.license_plate}` : ""}
+                        {v.license_plate ? `. ${v.license_plate}` : ""}
                       </option>
                     ))}
                   </select>

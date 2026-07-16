@@ -10,7 +10,7 @@ const HeroSection = () => {
   return (
     <section className="relative min-h-screen min-h-[100svh] flex flex-col items-center justify-start overflow-hidden pt-28 sm:pt-32 pb-8 sm:pb-12 gap-3 sm:gap-4">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
-      {/* Glow dourado deslocado para baixo — antes ficava bem atrás do logo e
+      {/* Glow dourado deslocado para baixo. antes ficava bem atrás do logo e
           criava uma mancha esbranquiçada sobre ele. */}
       <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[radial-gradient(ellipse_at_bottom,_hsl(45 79% 56% / 0.06)_0%,_transparent_65%)] pointer-events-none" />
 
@@ -59,7 +59,7 @@ const HeroSection = () => {
           <span className="gold-text">{t.hero.titleHighlight}</span>
         </motion.h1>
 
-        {/* Subtitle — hidden on mobile to fit search bar above the fold */}
+        {/* Subtitle. hidden on mobile to fit search bar above the fold */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

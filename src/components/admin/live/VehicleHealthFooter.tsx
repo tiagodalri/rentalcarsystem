@@ -74,14 +74,14 @@ export function VehicleHealthFooter({ vehicle }: { vehicle: LiveVehicle }) {
       key: "fuel",
       icon: <Fuel size={14} />,
       label: "Combustível",
-      value: fuel != null ? `${Math.round(fuel)}%` : "—",
+      value: fuel != null ? `${Math.round(fuel)}%` : "",
       color: fuelColor(fuel),
     },
     {
       key: "battery",
       icon: <Battery size={14} />,
       label: "Bateria",
-      value: battery ? battery : "—",
+      value: battery ? battery : "",
       color: batteryOk === false ? "text-red-500 bg-red-500/15" : batteryOk ? "text-green-500 bg-green-500/15" : "text-muted-foreground bg-muted/40",
     },
     {

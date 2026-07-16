@@ -116,7 +116,7 @@ export default function AdminTutorials() {
                 <div className="text-[12px] text-muted-foreground mt-0.5">
                   {stats.done === stats.total
                     ? "Você dominou todos os fluxos. Excelente!"
-                    : "Continue de onde parou — leva poucos minutos cada um."}
+                    : "Continue de onde parou. leva poucos minutos cada um."}
                 </div>
               </div>
             </div>

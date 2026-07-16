@@ -141,7 +141,7 @@ function VehicleRow({
       <BrandLogo v={p.v} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5 text-[13px] truncate" style={{ color: NAVY }}>
-          <span className="truncate font-semibold">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}</span>
+          <span className="truncate font-semibold">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || ""}</span>
           <ColorDot color={p.v.color} />
         </div>
         <div className="text-[10.5px] tabular-nums truncate flex items-center gap-1.5 mt-0.5" style={{ color: NAVY_55 }}>
@@ -566,7 +566,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                         <BrandLogo v={p.v} />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 text-[13px] truncate" style={{ color: NAVY }}>
-                            <span className="truncate font-semibold">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}</span>
+                            <span className="truncate font-semibold">{p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || ""}</span>
                             <ColorDot color={p.v.color} />
                           </div>
                           <div className="text-[10.5px] tabular-nums truncate flex items-center gap-1.5 mt-0.5" style={{ color: NAVY_55 }}>
@@ -906,7 +906,7 @@ export default function FleetSimulator({ perVehicle }: { perVehicle: SimVehicle[
                       className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium"
                       style={{ background: IVORY, color: NAVY, border: `1px solid ${NAVY_10}` }}
                     >
-                      {p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || "—"}
+                      {p.v.name || `${p.v.brand ?? ""} ${p.v.model ?? ""}`.trim() || ""}
                     </span>
                   ))}
                   {missingPrice.length > 12 && (

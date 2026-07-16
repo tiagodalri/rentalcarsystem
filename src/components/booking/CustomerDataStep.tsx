@@ -266,7 +266,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
           </div>
         </div>
 
-        {/* Date of birth — mobile wheel picker / desktop calendar */}
+        {/* Date of birth. mobile wheel picker / desktop calendar */}
         <div>
           <FieldLabel>Data de nascimento</FieldLabel>
           <BirthDatePicker
@@ -355,7 +355,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
 
         {/* License upload */}
         <div>
-          <FieldLabel>Habilitação (CNH) — foto ou PDF</FieldLabel>
+          <FieldLabel>Habilitação (CNH). foto ou PDF</FieldLabel>
           <input
             ref={fileRef}
             type="file"
@@ -411,8 +411,8 @@ export default function CustomerDataStep({ data, onChange }: Props) {
         icon={MapPin}
         title="Endereço"
         subtitle={
-          country === "BR" ? "Comece pelo CEP — preenchemos o resto"
-          : country === "US" ? "Start with your ZIP code — we'll fill the rest"
+          country === "BR" ? "Comece pelo CEP. preenchemos o resto"
+          : country === "US" ? "Start with your ZIP code. we'll fill the rest"
           : "Preencha seu endereço"
         }
         status={addressComplete ? "complete" : "default"}
@@ -504,7 +504,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
                     type="text"
                     value={data.zip_code || ""}
                     onChange={(e) => update("zip_code", e.target.value)}
-                    placeholder="—"
+                    placeholder=""
                     className={cn(FIELD_BASE, FIELD_OK)}
                   />
                 </div>
@@ -514,7 +514,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
                     type="text"
                     value={data.city || ""}
                     onChange={(e) => update("city", e.target.value)}
-                    placeholder="—"
+                    placeholder=""
                     className={cn(FIELD_BASE, FIELD_OK)}
                   />
                 </div>
@@ -583,7 +583,7 @@ export default function CustomerDataStep({ data, onChange }: Props) {
                 value={data.state || ""}
                 maxLength={country === "OTHER" ? undefined : 2}
                 onChange={(e) => update("state", e.target.value.toUpperCase())}
-                placeholder={country === "BR" ? "SP" : country === "US" ? "FL" : "—"}
+                placeholder={country === "BR" ? "SP" : country === "US" ? "FL" : ""}
                 className={cn(FIELD_BASE, FIELD_OK, "uppercase tracking-widest")}
               />
             </div>

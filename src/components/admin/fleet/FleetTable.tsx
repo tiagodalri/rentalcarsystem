@@ -65,9 +65,9 @@ const STATUS_COLOR: Record<string, string> = {
   unavailable: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
-const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("pt-BR") : "—");
+const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("pt-BR") : "");
 const fmtMoney = (n: number | null | undefined) =>
-  n != null ? `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "—";
+  n != null ? `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 0 })}` : "";
 
 const isExpiring = (d: string | null) => {
   if (!d) return false;
@@ -148,7 +148,7 @@ export default function FleetTable({ vehicles, onTogglePublished, onInlineSave, 
                       <span className="font-normal text-foreground whitespace-nowrap tracking-[-0.005em]">{v.name}</span>
                     </button>
                   </td>
-                  <td className="px-3 py-2.5 font-mono text-[11px] text-muted-foreground/80 uppercase tracking-wider whitespace-nowrap">{v.license_plate || "—"}</td>
+                  <td className="px-3 py-2.5 font-mono text-[11px] text-muted-foreground/80 uppercase tracking-wider whitespace-nowrap">{v.license_plate || ""}</td>
                   <td className="px-3 py-2.5 text-muted-foreground whitespace-nowrap">{v.category}</td>
                   <td className="px-3 py-2 whitespace-nowrap">
                     {isEditingCell("status") ? (

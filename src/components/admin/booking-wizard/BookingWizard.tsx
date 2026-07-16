@@ -397,7 +397,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       if (firstInvalidIdx >= 0) setStepIdx(firstInvalidIdx);
       flagErrors(issues);
       toast({
-        title: "Reserva incompleta — nada foi apagado",
+        title: "Reserva incompleta. nada foi apagado",
         description: `Te levamos para a etapa que falta. Preencha: ${formatIssues(issues)}.`,
         variant: "destructive",
       });
@@ -422,10 +422,10 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       return_date: form.return_date,
       return_time: form.return_time,
       pickup_location: form.pickup_location
-        ? form.pickup_location + (form.pickup_location_type === "airport" && form.pickup_terminal ? ` — ${form.pickup_terminal}` : "")
+        ? form.pickup_location + (form.pickup_location_type === "airport" && form.pickup_terminal ? `. ${form.pickup_terminal}` : "")
         : null,
       return_location: form.return_location
-        ? form.return_location + (form.return_location_type === "airport" && form.return_terminal ? ` — ${form.return_terminal}` : "")
+        ? form.return_location + (form.return_location_type === "airport" && form.return_terminal ? `. ${form.return_terminal}` : "")
         : null,
 
       plan_id: "unico",
@@ -474,10 +474,10 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
         const { sendZeusEmail } = await import("@/lib/emails/sendZeusEmail");
         const veh = vehicles.find((v) => v.id === form.vehicle_id);
         const vehicleLabel = veh?.name || "";
-        const vehiclePlate = (veh as any)?.license_plate || (veh as any)?.plate || "—";
+        const vehiclePlate = (veh as any)?.license_plate || (veh as any)?.plate || "";
         const currencySym = form.currency === "USD" ? "USD " : (form.currency || "") + " ";
         const fmtMoney = (n: number | null | undefined) =>
-          n == null ? "—" : `${currencySym}${Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          n == null ? "" : `${currencySym}${Number(n).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         const paymentStatusLabel: Record<string, string> = {
           paid: "Pago",
           pending: "Pendente",
@@ -488,16 +488,16 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
           templateName: "booking-confirmed",
           idempotencyKey: `booking-confirmed:${created.id}`,
           templateData: {
-            bookingNumber: created.booking_number || "—",
+            bookingNumber: created.booking_number || "",
             customerName: form.customer_name,
             vehicleName: vehicleLabel,
             vehiclePlate: vehiclePlate,
             pickupDate: form.pickup_date,
             pickupTime: form.pickup_time,
-            pickupLocation: form.pickup_location || "—",
+            pickupLocation: form.pickup_location || "",
             returnDate: form.return_date,
             returnTime: form.return_time,
-            returnLocation: form.return_location || "—",
+            returnLocation: form.return_location || "",
             totalPrice: fmtMoney(Number(form.total_price)),
             paymentStatus: paymentStatusLabel[form.payment_status] || form.payment_status,
             bookingUrl: `${window.location.origin}/admin/bookings/${created.id}`,
@@ -903,9 +903,9 @@ function VehicleStep({ form, set, aiKeys, errorFields, onAdvance }: StepProps & 
                 <p className="text-xs text-muted-foreground">{previewVeh.category}</p>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <InfoRow icon={Calendar} label="Ano" value={String(previewVeh.year || previewVeh.model_year || "—")} />
-                <InfoRow icon={Palette} label="Cor" value={previewVeh.color || "—"} />
-                <InfoRow icon={Hash} label="Placa" value={previewVeh.license_plate || "—"} mono />
+                <InfoRow icon={Calendar} label="Ano" value={String(previewVeh.year || previewVeh.model_year || "")} />
+                <InfoRow icon={Palette} label="Cor" value={previewVeh.color || ""} />
+                <InfoRow icon={Hash} label="Placa" value={previewVeh.license_plate || ""} mono />
                 <InfoRow icon={Users} label="Passageiros" value={String(previewVeh.passengers)} />
                 <InfoRow icon={Cog} label="Câmbio" value={previewVeh.transmission} />
                 <InfoRow icon={Fuel} label="Combustível" value={previewVeh.fuel} />
@@ -915,7 +915,7 @@ function VehicleStep({ form, set, aiKeys, errorFields, onAdvance }: StepProps & 
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-foreground">Diária (USD)</p>
                     <p className="text-[10px] text-muted-foreground">
-                      Padrão: ${Number(previewVeh.daily_price_usd).toFixed(2)} — ajuste se necessário
+                      Padrão: ${Number(previewVeh.daily_price_usd).toFixed(2)}. ajuste se necessário
                     </p>
                   </div>
                   <div className="relative w-32 shrink-0">
@@ -1468,7 +1468,7 @@ function ReviewStep({ form, days, jumpTo, aiKeys, vehicles }: { form: WizardForm
         {label}
         {aiKey && aiKeys.has(aiKey) && AI_BADGE}
       </span>
-      <span className="text-sm font-medium text-right tabular-nums">{value || <span className="text-muted-foreground">—</span>}</span>
+      <span className="text-sm font-medium text-right tabular-nums">{value || <span className="text-muted-foreground"></span>}</span>
     </div>
   );
 
@@ -1503,10 +1503,10 @@ function ReviewStep({ form, days, jumpTo, aiKeys, vehicles }: { form: WizardForm
       </Block>
 
       <Block title="Retirada e devolução" target="schedule">
-        <Row label="Retirada" value={`${form.pickup_date || "—"} ${form.pickup_time}`} aiKey="pickup_date" />
+        <Row label="Retirada" value={`${form.pickup_date || ""} ${form.pickup_time}`} aiKey="pickup_date" />
         <Row label="Local retirada" value={form.pickup_location} aiKey="pickup_location" />
         {form.pickup_notes && <Row label="Obs. retirada" value={form.pickup_notes} />}
-        <Row label="Devolução" value={`${form.return_date || "—"} ${form.return_time}`} aiKey="return_date" />
+        <Row label="Devolução" value={`${form.return_date || ""} ${form.return_time}`} aiKey="return_date" />
         <Row label="Local devolução" value={form.return_location} aiKey="return_location" />
         {form.return_notes && <Row label="Obs. devolução" value={form.return_notes} />}
         <Row label="Duração" value={`${days} ${days === 1 ? "dia" : "dias"}`} />
@@ -1550,7 +1550,7 @@ function ReviewStep({ form, days, jumpTo, aiKeys, vehicles }: { form: WizardForm
               ? `Pago${form.paid_date ? ` em ${form.paid_date}` : ""}`
               : form.payment_status === "partial"
                 ? `Sinal ${form.currency === "USD" ? "$" : "R$"} ${(Number(form.deposit_paid_amount) || 0).toFixed(2)}${form.deposit_paid_date ? ` (${form.deposit_paid_date})` : ""} • restante ${form.currency === "USD" ? "$" : "R$"} ${Math.max((Number(form.total_price) || 0) - (Number(form.deposit_paid_amount) || 0), 0).toFixed(2)}${form.payment_due_date ? ` até ${form.payment_due_date}` : ""}`
-                : `Pendente${form.payment_due_date ? ` — previsto ${form.payment_due_date}` : ""}`
+                : `Pendente${form.payment_due_date ? `. previsto ${form.payment_due_date}` : ""}`
           }
         />
         <Row label="Observações" value={form.notes} aiKey="notes" />
@@ -1561,9 +1561,9 @@ function ReviewStep({ form, days, jumpTo, aiKeys, vehicles }: { form: WizardForm
         {form.payment_status === "paid"
           ? <span className="font-semibold text-foreground"> Pagamento concluído</span>
           : form.payment_status === "partial"
-            ? <span className="font-semibold text-foreground"> Sinal recebido — restante pendente</span>
+            ? <span className="font-semibold text-foreground"> Sinal recebido. restante pendente</span>
             : <span className="font-semibold text-foreground"> Pagamento pendente</span>}.
-        O <span className="font-semibold text-foreground">contrato é opcional</span> nesta fase — pode ser enviado depois pela tela da reserva, sem bloquear entrega ou devolução.
+        O <span className="font-semibold text-foreground">contrato é opcional</span> nesta fase. pode ser enviado depois pela tela da reserva, sem bloquear entrega ou devolução.
       </div>
 
     </div>

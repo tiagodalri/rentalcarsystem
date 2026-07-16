@@ -20,7 +20,7 @@ import {
  */
 
 const RATE_CACHE_KEY = "painel_widget_rate";
-const RATE_TTL = 5 * 60 * 1000; // 5 min — AwesomeAPI atualiza em quase tempo real
+const RATE_TTL = 5 * 60 * 1000; // 5 min. AwesomeAPI atualiza em quase tempo real
 const WEATHER_CACHE_KEY = "painel_widget_weather";
 const WEATHER_TTL = 15 * 60 * 1000;
 
@@ -196,12 +196,12 @@ export function PainelHeaderWidgets() {
       <TickerItem
         icon={DollarSign}
         label="USD → BRL"
-        value={rate ? `R$ ${rate.toFixed(2).replace(".", ",")}` : "—"}
+        value={rate ? `R$ ${rate.toFixed(2).replace(".", ",")}` : ""}
       />
       <TickerItem
         icon={WIcon}
         label="Orlando"
-        value={weather ? `${Math.round(weather.tempC)}°C` : "—"}
+        value={weather ? `${Math.round(weather.tempC)}°C` : ""}
       />
     </>
   );
@@ -212,7 +212,7 @@ export function PainelHeaderWidgets() {
       role="status"
       aria-label="Informações ao vivo"
     >
-      {/* AO VIVO pill — usa primary do tema */}
+      {/* AO VIVO pill. usa primary do tema */}
       <div className="relative flex items-center gap-2 px-3.5 bg-primary shrink-0">
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full rounded-full bg-primary-foreground opacity-75 animate-ping" />

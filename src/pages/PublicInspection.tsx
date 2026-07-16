@@ -32,12 +32,12 @@ const SEVERITY_COLOR: Record<string, string> = {
 };
 
 const fmtName = (n?: string | null) => {
-  if (!n) return "—";
+  if (!n) return "";
   const s = new Set(["da","de","do","das","dos","e","di","du"]);
   return n.toLowerCase().split(/\s+/).map(w => s.has(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 };
-const fmtDate = (d?: string | null) => d ? new Date(d).toLocaleDateString("pt-BR") : "—";
-const fmtDateTime = (d?: string | null) => d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+const fmtDate = (d?: string | null) => d ? new Date(d).toLocaleDateString("pt-BR") : "";
+const fmtDateTime = (d?: string | null) => d ? new Date(d).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
 
 type State = { status: "loading" | "ok" | "error"; error?: string; data?: any };
 
@@ -47,7 +47,7 @@ export default function PublicInspection() {
 
   useEffect(() => {
     if (!token) return;
-    document.title = "Inspeção do Veículo — GoDrive";
+    document.title = "Inspeção do Veículo. GoDrive";
     (async () => {
       try {
         const res = await fetch(`${SUPABASE_URL}/functions/v1/public-inspection-view?token=${encodeURIComponent(token)}`, {
@@ -135,7 +135,7 @@ export default function PublicInspection() {
                 <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold">Reserva</p>
                 <p className="text-sm font-medium text-foreground tabular-nums flex items-center gap-1.5">
                   <Hash size={12} className="text-muted-foreground" />
-                  {booking.booking_number || "—"}
+                  {booking.booking_number || ""}
                 </p>
               </div>
               <div>
@@ -162,7 +162,7 @@ export default function PublicInspection() {
                   {fmtDate(isCheckin ? booking.pickup_date : booking.return_date)}
                 </p>
                 <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                  <MapPin size={11} /> {(isCheckin ? booking.pickup_location : booking.return_location) || "—"}
+                  <MapPin size={11} /> {(isCheckin ? booking.pickup_location : booking.return_location) || ""}
                 </p>
               </div>
               <div>
@@ -184,7 +184,7 @@ export default function PublicInspection() {
               <Gauge size={11} /> Odômetro
             </p>
             <p className="text-2xl font-semibold text-foreground tabular-nums">
-              {inspection.odometer_reading?.toLocaleString("pt-BR") ?? "—"}
+              {inspection.odometer_reading?.toLocaleString("pt-BR") ?? ""}
               <span className="text-xs font-normal text-muted-foreground ml-1">mi</span>
             </p>
           </div>
@@ -192,7 +192,7 @@ export default function PublicInspection() {
             <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
               <Fuel size={11} /> Combustível
             </p>
-            <p className="text-2xl font-semibold text-foreground">{FUEL_LABELS[inspection.fuel_level] || "—"}</p>
+            <p className="text-2xl font-semibold text-foreground">{FUEL_LABELS[inspection.fuel_level] || ""}</p>
             <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
               <div
                 className="h-full bg-foreground/80 transition-all"
@@ -309,7 +309,7 @@ export default function PublicInspection() {
                   {s.url ? (
                     <img src={s.url} alt={`Assinatura ${s.label}`} className="max-h-full max-w-full object-contain" />
                   ) : (
-                    <span className="text-[11px] text-muted-foreground">— sem assinatura —</span>
+                    <span className="text-[11px] text-muted-foreground"> sem assinatura </span>
                   )}
                 </div>
                 <p className="text-[10px] uppercase tracking-wide text-muted-foreground mt-2">{s.label}</p>

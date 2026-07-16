@@ -174,7 +174,7 @@ export function FleetCalendar() {
   };
 
   const rangeLabel =
-    `${format(startDate, "dd MMM", { locale: ptBR })} – ${format(addDays(startDate, DAYS_WINDOW - 1), "dd MMM yyyy", { locale: ptBR })}`;
+    `${format(startDate, "dd MMM", { locale: ptBR })}. ${format(addDays(startDate, DAYS_WINDOW - 1), "dd MMM yyyy", { locale: ptBR })}`;
 
   const clearFilters = () => {
     setSearch(""); setStatusFilter("all"); setCategoryFilter("all"); setBrandFilter("all");
@@ -339,7 +339,7 @@ export function FleetCalendar() {
         ) : (
           <div className="overflow-x-auto">
             <div className="inline-block min-w-full">
-              {/* Header — days */}
+              {/* Header. days */}
               <div className="flex border-b border-border/40 bg-muted/30 sticky top-0 z-20">
                 <div
                   className="shrink-0 px-3 py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground border-r border-border/40 flex items-center"

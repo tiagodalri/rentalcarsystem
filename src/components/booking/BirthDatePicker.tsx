@@ -31,7 +31,7 @@ const MONTHS_PT = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
-const ITEM_H = 44; // px per wheel item — tuned for thumb-friendly tap
+const ITEM_H = 44; // px per wheel item. tuned for thumb-friendly tap
 
 /**
  * Reusable iOS-style scroll-wheel column.

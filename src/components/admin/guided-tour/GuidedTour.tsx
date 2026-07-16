@@ -205,7 +205,7 @@ export default function GuidedTour() {
             </div>
           </div>
 
-          {/* Cartão central — clicar fora esconde o overlay para explorar a tela real */}
+          {/* Cartão central. clicar fora esconde o overlay para explorar a tela real */}
           {step.kind === "price" ? (
             <div
               className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
@@ -434,7 +434,7 @@ export default function GuidedTour() {
                 {step.teaser}
               </p>
 
-              {/* Caixa "quantos carros" — apenas no ato de abertura */}
+              {/* Caixa "quantos carros". apenas no ato de abertura */}
               {step.kind === "intro" && (
                 <div
                   className="mt-8 rounded-2xl overflow-hidden"

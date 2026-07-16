@@ -206,7 +206,7 @@ export default function FrotaInteligente({
         </div>
       )}
 
-      {/* Bloco 1 — Painel de inteligência COMPLETO (briefing + todas as métricas) */}
+      {/* Bloco 1. Painel de inteligência COMPLETO (briefing + todas as métricas) */}
       <section aria-label="Painel de inteligência" className="mb-6">
         <div className="max-w-[1600px] mx-auto flex items-center gap-2 mb-2 px-1">
           <Brain size={14} style={{ color: "#9a7a3a" }} />
@@ -229,7 +229,7 @@ export default function FrotaInteligente({
         }}
       />
 
-      {/* Bloco 2 — Simulador */}
+      {/* Bloco 2. Simulador */}
       <section aria-label="Simulador de realocação" className="max-w-[1600px] mx-auto">
         <div className="flex items-center gap-2 mb-3 px-1">
           <Gamepad2 size={14} style={{ color: "#9a7a3a" }} />

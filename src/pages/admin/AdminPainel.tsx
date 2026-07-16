@@ -38,7 +38,7 @@ import GuidedTourButton from "@/components/admin/guided-tour/GuidedTourButton";
 
 
 /* ============================================================
-   PAINEL — Cockpit executivo
+   PAINEL. Cockpit executivo
    Single screen, no tabs. Reads top→bottom in 3 zones:
    AGORA (status em tempo real) → HOJE (agenda + ação)
    → MÊS (KPIs com comparação vs. mês anterior).
@@ -345,7 +345,7 @@ export default function AdminPainel() {
             </div>
           </div>
 
-          {/* Source selector — só aparece dentro do Hall Estratégico */}
+          {/* Source selector. só aparece dentro do Hall Estratégico */}
           {hubView === "frota-inteligente" && (
             <div className="flex justify-center">
               <div
@@ -506,7 +506,7 @@ export default function AdminPainel() {
               <div className="space-y-1">
                 <div className="flex items-baseline gap-2">
                   <span className="text-[28px] font-light text-foreground leading-none tabular-nums">
-                    {proximaAcao.t?.slice(0, 5) || "—"}
+                    {proximaAcao.t?.slice(0, 5) || ""}
                   </span>
                   <span className={`text-[10px] uppercase tracking-[0.14em] font-medium ${
                     proximaAcao.kind === "in" ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"
@@ -518,7 +518,7 @@ export default function AdminPainel() {
                   {vehicleLabel(proximaAcao.b.vehicle_id)}
                 </p>
                 <p className="text-[11px] text-muted-foreground/70 truncate">
-                  {formatPersonName(proximaAcao.b.customer_name || "—")}
+                  {formatPersonName(proximaAcao.b.customer_name || "")}
                 </p>
               </div>
             ) : (
@@ -534,7 +534,7 @@ export default function AdminPainel() {
             accent="emerald"
             items={checkinsHoje.slice(0, 3).map(b => ({
               id: b.id,
-              left: b.pickup_time?.slice(0, 5) || "—",
+              left: b.pickup_time?.slice(0, 5) || "",
               right: vehicleLabel(b.vehicle_id),
               sub: formatPersonName(b.customer_name || ""),
             }))}
@@ -549,7 +549,7 @@ export default function AdminPainel() {
             accent="blue"
             items={checkoutsHoje.slice(0, 3).map(b => ({
               id: b.id,
-              left: b.return_time?.slice(0, 5) || "—",
+              left: b.return_time?.slice(0, 5) || "",
               right: vehicleLabel(b.vehicle_id),
               sub: formatPersonName(b.customer_name || ""),
             }))}

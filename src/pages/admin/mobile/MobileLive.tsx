@@ -36,7 +36,7 @@ const DETAIL_TABS: { id: DetailTab; label: string }[] = [
 ];
 
 /* ============================================================
-   LIVE — Mobile-first (native app feel)
+   LIVE. Mobile-first (native app feel)
    - Mapa fullscreen respeitando safe-area (notch + bottom nav)
    - Tap em veículo abre bottom-sheet com ações (rastreador, ficha)
    - Lista compacta com busca + filtro de status
@@ -45,9 +45,9 @@ const DETAIL_TABS: { id: DetailTab; label: string }[] = [
 type StatusFilter = "all" | "moving" | "idle" | "parked";
 
 function formatRelative(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "";
   const diff = Date.now() - new Date(iso).getTime();
-  if (diff < 0) return "—";
+  if (diff < 0) return "";
   const s = Math.floor(diff / 1000);
   if (s < 60) return `${s}s`;
   const m = Math.floor(s / 60);
@@ -264,7 +264,7 @@ export default function MobileLive() {
                 >
                   <span className={`w-2 h-2 rounded-full shrink-0 ${m.dot}`} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-[14px] font-medium truncate">{v.name || "—"}</div>
+                    <div className="text-[14px] font-medium truncate">{v.name || ""}</div>
                     <div className="text-[11px] text-muted-foreground truncate flex items-center gap-2 mt-0.5">
                       {v.plate && <span className="font-mono">{v.plate}</span>}
                       {v.speed != null && (
@@ -328,7 +328,7 @@ export default function MobileLive() {
 }
 
 /* ============================================================
-   Conteúdo do bottom-sheet de detalhe — mesma riqueza do desktop:
+   Conteúdo do bottom-sheet de detalhe. mesma riqueza do desktop:
    hero + ações + tabs (Viagens/Estatísticas/Notificações/Detalhes)
    + health footer fixo no fim.
    ============================================================ */
@@ -370,7 +370,7 @@ function VehicleDetailSheetContent({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-[17px] font-semibold tracking-tight truncate">{vehicle.name}</h2>
-            <p className="text-[12px] font-mono text-muted-foreground mt-0.5">{vehicle.plate ?? "—"}</p>
+            <p className="text-[12px] font-mono text-muted-foreground mt-0.5">{vehicle.plate ?? ""}</p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <button
@@ -417,7 +417,7 @@ function VehicleDetailSheetContent({
           <div className="rounded-lg bg-muted/40 px-2.5 py-2">
             <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Combustível</div>
             <div className="text-sm font-semibold tabular-nums leading-none mt-1">
-              {vehicle.fuel_level != null ? `${Math.round(vehicle.fuel_level)}%` : "—"}
+              {vehicle.fuel_level != null ? `${Math.round(vehicle.fuel_level)}%` : ""}
             </div>
           </div>
           <div className="rounded-lg bg-muted/40 px-2.5 py-2">
@@ -449,7 +449,7 @@ function VehicleDetailSheetContent({
         })}
       </div>
 
-      {/* Conteúdo da tab — único scroller */}
+      {/* Conteúdo da tab. único scroller */}
       <div className="flex-1 overflow-y-auto overscroll-contain">
         {tab === "trips" && <TripsTab vehicleId={vehicle.vehicle_id} />}
         {tab === "stats" && <StatsTab vehicleId={vehicle.vehicle_id} />}

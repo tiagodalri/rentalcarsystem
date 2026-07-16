@@ -3,7 +3,7 @@
 // suave para garantir leitura em qualquer fundo. Falha = devolve o arquivo original.
 
 export interface InspectionStampOptions {
-  address?: string | null; // pode conter quebras de linha (\n) — uma por linha
+  address?: string | null; // pode conter quebras de linha (\n). uma por linha
   date?: Date;
   /** Opcional: só reduz se informado. Por padrão preserva os pixels originais. */
   maxDim?: number;

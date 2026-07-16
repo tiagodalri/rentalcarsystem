@@ -43,7 +43,7 @@ function bindPopup(marker: LeafletMarker, vehicle: LiveVehicle): void {
   marker.bindPopup(
     `<div style="min-width:190px;font-family:Inter,system-ui,sans-serif;color:hsl(var(--foreground));">
       <div style="font-size:13px;font-weight:650;margin-bottom:3px;">${vehicle.name}</div>
-      <div style="font-size:11px;color:hsl(var(--muted-foreground));font-family:ui-monospace,monospace;margin-bottom:8px;">${vehicle.plate ?? "—"}</div>
+      <div style="font-size:11px;color:hsl(var(--muted-foreground));font-family:ui-monospace,monospace;margin-bottom:8px;">${vehicle.plate ?? ""}</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
         <div><span style="color:hsl(var(--muted-foreground));">Vel.</span><br/><b>${Math.round(vehicle.speed ?? 0)} mph</b></div>
         <div><span style="color:hsl(var(--muted-foreground));">Status</span><br/><b>${vehicle.status === "moving" ? "Movimento" : vehicle.status === "idle" ? "Parado" : "Estacionado"}</b></div>

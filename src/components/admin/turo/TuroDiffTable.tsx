@@ -25,7 +25,7 @@ interface Props {
 }
 
 function fmtValue(v: any): string {
-  if (v === null || v === undefined || v === "") return "—";
+  if (v === null || v === undefined || v === "") return "";
   if (typeof v === "number") return v.toLocaleString("en-US", { maximumFractionDigits: 2 });
   return String(v);
 }
@@ -153,7 +153,7 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
 
       {filter === "selected" && counts.selected > 0 && (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
-          Mostrando as <span className="font-semibold">{counts.selected}</span> reservas pré-selecionadas. Cada chip embaixo da linha é um campo que será alterado — clique para marcar/desmarcar.
+          Mostrando as <span className="font-semibold">{counts.selected}</span> reservas pré-selecionadas. Cada chip embaixo da linha é um campo que será alterado. clique para marcar/desmarcar.
         </div>
       )}
 
@@ -239,7 +239,7 @@ export function TuroDiffTable({ classifications, onToggleSelected, onToggleField
                         )}
                       </div>
 
-                      {/* CHIPS INLINE — sempre visíveis pra enrich */}
+                      {/* CHIPS INLINE. sempre visíveis pra enrich */}
                       {hasDiffs && (
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           {c.diffs.map((diff) => (

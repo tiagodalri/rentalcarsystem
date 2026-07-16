@@ -161,7 +161,7 @@ export default function AdminPendencias() {
                           <div className="min-w-0">
                             <p className="text-sm font-medium truncate">{v.name}</p>
                             <p className="text-xs text-muted-foreground truncate">
-                              {[v.brand, v.model, v.year].filter(Boolean).join(" • ") || "—"}
+                              {[v.brand, v.model, v.year].filter(Boolean).join(" • ") || ""}
                               {v.license_plate ? ` • ${v.license_plate}` : ""}
                             </p>
                           </div>
@@ -197,7 +197,7 @@ export default function AdminPendencias() {
                       <Badge variant="outline" className="tabular-nums">{missing.length} pendência{missing.length > 1 ? "s" : ""}</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {[v.brand, v.model, v.year].filter(Boolean).join(" • ") || "—"}
+                      {[v.brand, v.model, v.year].filter(Boolean).join(" • ") || ""}
                       {v.license_plate ? ` • ${v.license_plate}` : ""}
                     </p>
                     <div className="flex flex-wrap gap-1.5 mt-2">

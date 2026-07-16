@@ -838,9 +838,9 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
         drawText("VELOCIDADE NO TRAJETO", lgX + 14, lgY + 20, { size: 9, weight: 700, color: "rgba(255,255,255,0.55)", tracking: 1.2 });
         const legendRows = [
           { c: "#f59e0b", t: "até 35 mph" },
-          { c: "#22c55e", t: "35–45 mph" },
-          { c: "#3b82f6", t: "45–50 mph" },
-          { c: "#ec4899", t: "50–65 mph" },
+          { c: "#22c55e", t: "3545 mph" },
+          { c: "#3b82f6", t: "4550 mph" },
+          { c: "#ec4899", t: "5065 mph" },
           { c: "#ef4444", t: "acima de 65 mph" },
         ];
         for (let i = 0; i < legendRows.length; i++) {
@@ -1082,7 +1082,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
             </div>
           )}
 
-          {/* Instrument panel — top-left over map */}
+          {/* Instrument panel. top-left over map */}
           {data && hud && (
             <div className="absolute top-3 left-3 z-10 w-[230px] rounded-2xl bg-black/80 backdrop-blur-md border border-white/10 p-3 shadow-2xl"
                  style={{ borderColor: "rgba(212,175,55,0.25)" }}>
@@ -1127,12 +1127,12 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
           )}
 
 
-          {/* Speed bands legend — bottom-left */}
+          {/* Speed bands legend. bottom-left */}
           <div className="absolute bottom-3 left-3 z-10 rounded-lg bg-black/75 backdrop-blur-sm border border-white/10 px-3 py-2">
             <p className="text-[9px] uppercase tracking-wider text-white/60 font-semibold mb-1.5">Velocidade no trajeto</p>
             {[
-              { l: "até 35", c: "#f59e0b" },{ l: "35–45", c: "#22c55e" },
-              { l: "45–50", c: "#3b82f6" },{ l: "50–65", c: "#ec4899" },{ l: "acima de 65", c: "#ef4444" },
+              { l: "até 35", c: "#f59e0b" },{ l: "3545", c: "#22c55e" },
+              { l: "4550", c: "#3b82f6" },{ l: "5065", c: "#ec4899" },{ l: "acima de 65", c: "#ef4444" },
             ].map((b) => (
               <div key={b.l} className="flex items-center gap-2 text-[10px] text-white/80">
                 <span className="w-4 h-1 rounded-full" style={{ backgroundColor: b.c }} />
@@ -1266,7 +1266,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
           )}
         </div>
 
-        {/* Right panel — narration timeline */}
+        {/* Right panel. narration timeline */}
         {data && (
           <div className="lg:w-[280px] lg:border-l border-t lg:border-t-0 border-white/5 bg-black/70 backdrop-blur-md flex flex-col max-h-[40vh] lg:max-h-none">
             <div className="px-4 py-3 border-b border-white/5">
@@ -1312,7 +1312,7 @@ export function TripReplayOverlay({ vehicleName, tripId, onClose }: Props) {
         )}
       </div>
 
-      {/* Bottom — chart + player controls */}
+      {/* Bottom. chart + player controls */}
       {data && (
         <div className="border-t border-white/5 bg-black/80 backdrop-blur-md">
           {/* Chart */}

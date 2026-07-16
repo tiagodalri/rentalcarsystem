@@ -248,7 +248,7 @@ export function ExpenseFormSheet({ open, onOpenChange, onSaved, defaultVehicleId
               <SelectContent>
                 {vehicles.map((v) => (
                   <SelectItem key={v.id} value={v.id}>
-                    {v.name}{v.license_plate ? ` — ${v.license_plate}` : ""}
+                    {v.name}{v.license_plate ? `. ${v.license_plate}` : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -262,7 +262,7 @@ export function ExpenseFormSheet({ open, onOpenChange, onSaved, defaultVehicleId
                 <SelectItem value="none">Sem reserva (custo geral do carro)</SelectItem>
                 {bookings.map((b) => (
                   <SelectItem key={b.id} value={b.id}>
-                    {b.booking_number || b.id.slice(0, 6)} — {formatPersonName(b.customer_name)} ({b.pickup_date} → {b.return_date})
+                    {b.booking_number || b.id.slice(0, 6)}. {formatPersonName(b.customer_name)} ({b.pickup_date} → {b.return_date})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -289,9 +289,9 @@ export function ExpenseFormSheet({ open, onOpenChange, onSaved, defaultVehicleId
             </Field>
             <Field label="Pagamento">
               <Select value={form.payment_method || "__none"} onValueChange={(v) => setForm({ ...form, payment_method: v === "__none" ? "" : v })}>
-                <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__none">—</SelectItem>
+                  <SelectItem value="__none"></SelectItem>
                   {PAYMENT_METHODS.map((p) => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
                 </SelectContent>
               </Select>

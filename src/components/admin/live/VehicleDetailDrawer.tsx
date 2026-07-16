@@ -82,7 +82,7 @@ export function VehicleDetailDrawer({
           <div className="flex items-start justify-between gap-3 mb-1.5">
             <div className="min-w-0">
               <h2 className="text-base font-medium text-foreground leading-tight truncate">{vehicle.name}</h2>
-              <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{vehicle.plate ?? "—"}</p>
+              <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{vehicle.plate ?? ""}</p>
             </div>
             <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium uppercase tracking-wider shrink-0 ${statusColor}`}>
               {statusLabel}
