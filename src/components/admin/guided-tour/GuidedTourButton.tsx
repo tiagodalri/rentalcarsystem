@@ -7,6 +7,7 @@ import { SHOW_PRESENTATION_CONTROLS } from "@/lib/demo/config";
  * ao lado do PresentationModeButton.
  */
 export default function GuidedTourButton() {
+  if (!SHOW_PRESENTATION_CONTROLS) return null;
   const { start } = useGuidedTour();
   return (
     <button
