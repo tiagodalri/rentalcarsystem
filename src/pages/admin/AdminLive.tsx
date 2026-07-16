@@ -63,6 +63,7 @@ function AdminLiveDesktop() {
   const [replayTripId, setReplayTripId] = useState<string | null>(null);
   const [runningBackfill, setRunningBackfill] = useState(false);
   const navigate = useNavigate();
+  const mapSectionRef = useRef<HTMLDivElement | null>(null);
 
   const onMap = useMemo(
     () => vehicles.filter((v) => v.lat !== null && v.lng !== null),
