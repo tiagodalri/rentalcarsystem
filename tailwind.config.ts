@@ -105,6 +105,10 @@ export default {
           "0%": { transform: "translateX(0)" },
           "100%": { transform: "translateX(-50%)" },
         },
+        "nudge-down": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(4px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -113,6 +117,7 @@ export default {
         "fade-in-left": "fade-in-left 0.6s ease-out forwards",
         shimmer: "shimmer 3s linear infinite",
         marquee: "marquee 40s linear infinite",
+        "nudge-down": "nudge-down 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite",
       },
     },
   },
