@@ -180,7 +180,7 @@ export default function AdminInspectionReport() {
       else parts.push(`O combustível foi devolvido ${Math.abs(fuelDiff)}% abaixo do entregue (${FUEL_LABELS[checkin.fuel_level]} → ${FUEL_LABELS[checkout.fuel_level]}), gerando cobrança de reabastecimento.`);
     }
     if (newDamages.length === 0) {
-      parts.push("A inspeção comparativa não identificou novas avarias no veículo. o estado externo e interno foi mantido conforme entrega.");
+      parts.push("A inspeção comparativa não identificou novas avarias no veículo. O estado externo e interno foi mantido conforme entrega.");
     } else {
       const sev = newDamages.reduce((acc: any, d: any) => { acc[d.severity] = (acc[d.severity] || 0) + 1; return acc; }, {});
       const lbl = Object.entries(sev).map(([s, n]) => `${n} ${SEVERITY_LABELS[s] || s}`.toLowerCase()).join(", ");
