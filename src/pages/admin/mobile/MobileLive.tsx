@@ -109,6 +109,7 @@ export default function MobileLive() {
   }, []);
 
   const mapWrapRef = useRef<HTMLDivElement | null>(null);
+  const alertsRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <div
