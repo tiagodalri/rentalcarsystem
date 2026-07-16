@@ -116,7 +116,7 @@ export default function MobileLive() {
       className="relative z-10"
       style={{
         paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)",
-        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 96px)",
       }}
     >
       {/* Map: altura confortável, permite rolar a página */}
