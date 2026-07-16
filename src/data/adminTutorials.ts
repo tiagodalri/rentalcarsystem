@@ -39,7 +39,7 @@ export const adminTutorials: Tutorial[] = [
   // ────────────────────────────────────────────────────────────────────────────
   {
     id: "primeiro-dia",
-    title: "Boas-vindas: seu primeiro dia na Sua Marca",
+    title: "Boas-vindas: seu primeiro dia na GoDrive",
     summary:
       "Visão geral do painel, do menu lateral e o que olhar nos primeiros minutos do expediente.",
     icon: Sparkles,
@@ -49,14 +49,14 @@ export const adminTutorials: Tutorial[] = [
       {
         title: "Bem-vindo, Rui",
         body:
-          "Este painel é o seu posto de comando. Tudo que acontece com os carros e clientes da Sua Marca passa por aqui. Vou te mostrar exatamente onde olhar e por quê — leve no seu ritmo, pode pausar e voltar quando quiser.",
+          "Este painel é o seu posto de comando. Tudo que acontece com os carros e clientes da GoDrive passa por aqui. Vou te mostrar exatamente onde olhar e por quê — leve no seu ritmo, pode pausar e voltar quando quiser.",
         imageRef: "opsToday",
         hotspots: [
-          { n: 1, x: 8.5, y: 5, w: 16, h: 7, label: "Logo Sua Marca — clique para voltar ao painel a qualquer momento" },
+          { n: 1, x: 8.5, y: 5, w: 16, h: 7, label: "Logo GoDrive — clique para voltar ao painel a qualquer momento" },
           { n: 2, x: 8.5, y: 96, w: 17, h: 6, label: "Seu usuário e atalho para sair" },
         ],
         caption:
-          "Regra de ouro: na dúvida, registre. Foto, observação, marcação de avaria — registrar sempre protege você, o cliente e a Sua Marca.",
+          "Regra de ouro: na dúvida, registre. Foto, observação, marcação de avaria — registrar sempre protege você, o cliente e a GoDrive.",
       },
       {
         title: "Conheça o menu lateral",
@@ -67,7 +67,7 @@ export const adminTutorials: Tutorial[] = [
           { n: 1, x: 8.5, y: 19, w: 17, h: 4.5, label: "Operação — agenda do dia (use ao chegar)" },
           { n: 2, x: 8.5, y: 30, w: 17, h: 4.5, label: "Reservas — busca completa por nome ou ID" },
           { n: 3, x: 8.5, y: 41, w: 17, h: 4.5, label: "Agenda — visão semanal/mensal de todos os carros" },
-          { n: 4, x: 8.5, y: 45.5, w: 17, h: 4.5, label: "Frota — situação de cada veículo da Sua Marca" },
+          { n: 4, x: 8.5, y: 45.5, w: 17, h: 4.5, label: "Frota — situação de cada veículo da GoDrive" },
           { n: 5, x: 8.5, y: 66.5, w: 17, h: 4.5, label: "Tutoriais — você está aqui agora" },
         ],
       },
@@ -438,7 +438,7 @@ export const adminTutorials: Tutorial[] = [
     id: "duvidas-comuns",
     title: "Dúvidas comuns do dia a dia",
     summary:
-      "Respostas rápidas para as situações que mais aparecem no balcão da Sua Marca.",
+      "Respostas rápidas para as situações que mais aparecem no balcão da GoDrive.",
     icon: CircleHelp,
     duration: 5,
     category: "Diário",

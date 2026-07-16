@@ -130,7 +130,7 @@ const VehicleDetail = () => {
   }, [isFullscreen, nextImage, prevImage]);
 
   useEffect(() => {
-    document.title = decodedName ? `${decodedName} | Sua Marca` : "Veículo | Sua Marca";
+    document.title = decodedName ? `${decodedName} | GoDrive` : "Veículo | GoDrive";
   }, [decodedName]);
 
   const handleShare = async () => {
@@ -170,8 +170,8 @@ const VehicleDetail = () => {
     );
   }
 
-  const seoTitle = `${decodedName} | Aluguel em Orlando — Sua Marca`;
-  const seoDescription = `Alugue ${decodedName} em Orlando com a Sua Marca. Diária a partir de US$ ${basePrice}. Atendimento em português, retirada no aeroporto.`;
+  const seoTitle = `${decodedName} | Aluguel em Orlando — GoDrive`;
+  const seoDescription = `Alugue ${decodedName} em Orlando com a GoDrive. Diária a partir de US$ ${basePrice}. Atendimento em português, retirada no aeroporto.`;
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -381,7 +381,7 @@ const VehicleDetail = () => {
                     <div className="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 text-xs font-semibold tabular-nums">2</div>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground">Recepção em português</p>
-                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Um concierge da Sua Marca recebe você, faz a vistoria de entrega em conjunto e explica todos os detalhes do veículo, dos seguros e dos opcionais contratados.</p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Um concierge da GoDrive recebe você, faz a vistoria de entrega em conjunto e explica todos os detalhes do veículo, dos seguros e dos opcionais contratados.</p>
                     </div>
                   </div>
                   <div className="flex gap-3 p-4">

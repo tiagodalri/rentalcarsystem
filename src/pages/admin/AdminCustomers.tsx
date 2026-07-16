@@ -385,7 +385,7 @@ function AdminCustomersDesktop() {
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {([
-                    { id: "regular" as const, label: "Sua Marca (regular)", icon: User, desc: "Cliente direto Sua Marca" },
+                    { id: "regular" as const, label: "GoDrive (regular)", icon: User, desc: "Cliente direto GoDrive" },
                     { id: "turo" as const, label: "Turo", icon: Car, desc: "Hóspede importado" },
                   ]).map((opt) => {
                     const Icon = opt.icon;

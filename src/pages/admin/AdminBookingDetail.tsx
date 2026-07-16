@@ -574,7 +574,7 @@ export default function AdminBookingDetail() {
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:justify-end">
             {booking.customer_phone && (
               <a
-                href={`https://wa.me/${booking.customer_phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá ${formatPersonName(booking.customer_name) || ""}, aqui é da Sua Marca sobre sua reserva ${booking.booking_number || ""}.`)}`}
+                href={`https://wa.me/${booking.customer_phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá ${formatPersonName(booking.customer_name) || ""}, aqui é da GoDrive sobre sua reserva ${booking.booking_number || ""}.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 title={`WhatsApp: ${booking.customer_phone}`}

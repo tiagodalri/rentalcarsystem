@@ -64,7 +64,7 @@ const Email = (p: Props) => (
 
 export const template = {
   component: Email,
-  subject: (d: Props) => `Check-in concluído · ${d.vehicleName ?? 'Sua Marca'} (${d.bookingNumber ?? ''})`,
+  subject: (d: Props) => `Check-in concluído · ${d.vehicleName ?? 'GoDrive'} (${d.bookingNumber ?? ''})`,
   displayName: 'Inspeção de entrega',
   previewData: {
     bookingNumber: 'ZRC-0142',
@@ -75,7 +75,7 @@ export const template = {
     fuelLevel: '8/8',
     damagesCount: 0,
     photosCount: 18,
-    inspectorName: 'Equipe Sua Marca',
+    inspectorName: 'Equipe GoDrive',
     completedAt: '28/06/2026 · 14:47',
     reportUrl: 'https://rentalcarsystem.lovable.app/i/abc123',
   },

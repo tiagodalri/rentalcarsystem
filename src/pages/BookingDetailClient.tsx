@@ -429,7 +429,7 @@ const BookingDetailClient = () => {
                     className="w-full flex items-center justify-center gap-2 border border-border/50 rounded-lg px-4 py-3 text-sm font-medium text-foreground hover:bg-accent transition-colors"
                   >
                     <MessageCircle size={16} />
-                    Falar com a Sua Marca
+                    Falar com a GoDrive
                   </a>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>

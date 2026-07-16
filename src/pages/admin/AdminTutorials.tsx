@@ -30,7 +30,7 @@ export default function AdminTutorials() {
   const [completed, setCompleted] = useState<string[]>(() => loadCompleted());
 
   useEffect(() => {
-    document.title = "Tutoriais · Sua Marca";
+    document.title = "Tutoriais · GoDrive";
   }, []);
 
   const handleComplete = (id: string) => {
@@ -72,7 +72,7 @@ export default function AdminTutorials() {
               <GraduationCap className="h-3.5 w-3.5" />
               Central de Tutoriais
             </div>
-            <h1 className="admin-h1 mt-1">Aprenda a operar a Sua Marca, no seu ritmo</h1>
+            <h1 className="admin-h1 mt-1">Aprenda a operar a GoDrive, no seu ritmo</h1>
             <p className="text-[13px] text-muted-foreground mt-1.5 max-w-2xl leading-relaxed">
               Tours guiados passo a passo para o dia a dia: receber clientes, registrar inspeções,
               fechar devoluções e tudo o que aparece no balcão.

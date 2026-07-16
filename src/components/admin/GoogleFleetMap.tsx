@@ -12,7 +12,7 @@ import { type MapLayers, DEFAULT_LAYERS } from "@/components/admin/live/MapContr
 import { DEMO_MODE } from "@/lib/demo/config";
 import { LeafletFleetMapFallback } from "@/components/admin/LeafletFleetMapFallback";
 
-// --- Dark theme for Google Maps that matches Sua Marca admin (off-black) ---
+// --- Dark theme for Google Maps that matches GoDrive admin (off-black) ---
 const DARK_STYLE: any[] = [
   { elementType: "geometry", stylers: [{ color: "#0f0f10" }] },
   { elementType: "labels.text.stroke", stylers: [{ color: "#0f0f10" }] },
@@ -489,7 +489,7 @@ export function GoogleFleetMap({ vehicles, selectedId, onSelect, onOpen, layers 
           backgroundColor: "#e5e3df",
           gestureHandling: "greedy",
           scrollwheel: true,
-          // Smooth wheel/pinch zoom. Heavy Sua Marca overlays are paused during the
+          // Smooth wheel/pinch zoom. Heavy GoDrive overlays are paused during the
           // gesture below, so the map can animate continuously instead of
           // snapping between integer zoom levels.
           isFractionalZoomEnabled: true,

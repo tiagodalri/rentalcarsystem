@@ -128,7 +128,7 @@ serve(async (req) => {
       .single();
     if (bookErr) return json({ error: "Booking create failed: " + bookErr.message }, 500);
 
-    const orderId = `SUA MARCA-${booking.id}`;
+    const orderId = `GODRIVE-${booking.id}`;
     const origin = site_origin || req.headers.get("origin") || "https://rentalcarsystem.lovable.app";
 
     const payload = {
@@ -155,7 +155,7 @@ serve(async (req) => {
           qty: 1,
           ref: orderId,
           category: "Car Rental",
-          brand: "Sua Marca",
+          brand: "GoDrive",
           sku: vehicle_id,
         },
       ],

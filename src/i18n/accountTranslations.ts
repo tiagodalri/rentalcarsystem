@@ -88,7 +88,7 @@ export type AccountDict = {
 const dicts: Record<Language, AccountDict> = {
   pt: {
     greeting: (n) => `Olá, ${n}!`,
-    subtitle: "Aqui você acompanha todas as suas reservas com a Sua Marca",
+    subtitle: "Aqui você acompanha todas as suas reservas com a GoDrive",
     logout: "Sair",
     completeProfileTitle: "Complete seu cadastro",
     completeProfileDesc: "Para reservar veículos, precisamos de telefone, documento e endereço.",
@@ -165,7 +165,7 @@ const dicts: Record<Language, AccountDict> = {
   },
   en: {
     greeting: (n) => `Hi, ${n}!`,
-    subtitle: "Track all your reservations with Sua Marca in one place.",
+    subtitle: "Track all your reservations with GoDrive in one place.",
     logout: "Sign out",
     completeProfileTitle: "Complete your profile",
     completeProfileDesc: "To book vehicles we need your phone, document and address.",
@@ -242,7 +242,7 @@ const dicts: Record<Language, AccountDict> = {
   },
   es: {
     greeting: (n) => `¡Hola, ${n}!`,
-    subtitle: "Aquí acompañas todas tus reservas con Sua Marca",
+    subtitle: "Aquí acompañas todas tus reservas con GoDrive",
     logout: "Salir",
     completeProfileTitle: "Completa tu registro",
     completeProfileDesc: "Para reservar vehículos necesitamos teléfono, documento y dirección.",
@@ -319,7 +319,7 @@ const dicts: Record<Language, AccountDict> = {
   },
   it: {
     greeting: (n) => `Ciao, ${n}!`,
-    subtitle: "Qui segui tutte le tue prenotazioni con Sua Marca",
+    subtitle: "Qui segui tutte le tue prenotazioni con GoDrive",
     logout: "Esci",
     completeProfileTitle: "Completa la registrazione",
     completeProfileDesc: "Per prenotare veicoli servono telefono, documento e indirizzo.",
@@ -396,7 +396,7 @@ const dicts: Record<Language, AccountDict> = {
   },
   de: {
     greeting: (n) => `Hallo, ${n}!`,
-    subtitle: "Hier verfolgen Sie alle Ihre Buchungen bei Sua Marca",
+    subtitle: "Hier verfolgen Sie alle Ihre Buchungen bei GoDrive",
     logout: "Abmelden",
     completeProfileTitle: "Profil vervollständigen",
     completeProfileDesc: "Für Buchungen benötigen wir Telefon, Dokument und Adresse.",
@@ -473,7 +473,7 @@ const dicts: Record<Language, AccountDict> = {
   },
   fr: {
     greeting: (n) => `Bonjour, ${n}!`,
-    subtitle: "Suivez toutes vos réservations Sua Marca ici",
+    subtitle: "Suivez toutes vos réservations GoDrive ici",
     logout: "Déconnexion",
     completeProfileTitle: "Complétez votre profil",
     completeProfileDesc: "Pour réserver un véhicule, nous avons besoin du téléphone, document et adresse.",

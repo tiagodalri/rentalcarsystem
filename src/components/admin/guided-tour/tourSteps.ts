@@ -37,7 +37,7 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/admin",
     kind: "intro",
     eyebrow: "Dados · Inteligência Artificial · Metrificação",
-    brand: "GoDalz Solutions",
+    brand: "GoDrive Solutions",
     statement:
       "Não entregamos apenas um sistema. Nós entregamos visão, informação, controle e escala pra sua operação.",
     title: "",
@@ -171,7 +171,7 @@ export const TOUR_STEPS: TourStep[] = [
     route: "/admin/frota-inteligente",
     kind: "price",
     priceVariant: "turn",
-    title: "A GoDalz está em expansão nos Estados Unidos.",
+    title: "A GoDrive está em expansão nos Estados Unidos.",
     pains: [],
     teaser: "",
   },

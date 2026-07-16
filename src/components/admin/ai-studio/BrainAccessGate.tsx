@@ -91,7 +91,7 @@ export default function BrainAccessGate({ children, onCancel }: Props) {
             className="text-[13px] tracking-[0.42em] font-light"
             style={{ color: "#0d1d2e" }}
           >
-            ZEUS BRAIN
+            GODRIVE BRAIN
           </div>
           <div
             className="text-[10.5px] uppercase tracking-[0.28em] mt-1"

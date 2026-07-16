@@ -70,7 +70,7 @@ export async function exportPainelPdf(opts: {
     pdf.setTextColor(220, 230, 250);
     pdf.setFont("helvetica", "bold");
     pdf.setFontSize(10);
-    pdf.text("SUA MARCA BRAIN", marginX, 22);
+    pdf.text("GODRIVE BRAIN", marginX, 22);
 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(8);
@@ -84,7 +84,7 @@ export async function exportPainelPdf(opts: {
     // Rodapé
     pdf.setFontSize(8);
     pdf.setTextColor(120, 140, 170);
-    pdf.text("Sua Marca · Análise gerada por IA com base no histórico real da frota", marginX, pageH - 12);
+    pdf.text("GoDrive · Análise gerada por IA com base no histórico real da frota", marginX, pageH - 12);
     pdf.text(`${pageIdx} / ${totalPages}`, pageW - marginX, pageH - 12, { align: "right" });
   };
 

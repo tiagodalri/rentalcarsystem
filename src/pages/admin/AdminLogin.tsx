@@ -35,7 +35,7 @@ export default function AdminLogin() {
     } else {
       if (!restrictedToastShown.current) {
         restrictedToastShown.current = true;
-        sonnerToast.error("Esta área é restrita à equipe Sua Marca. Faça login com sua conta de equipe.");
+        sonnerToast.error("Esta área é restrita à equipe GoDrive. Faça login com sua conta de equipe.");
       }
       navigate("/", { replace: true });
     }
@@ -131,7 +131,7 @@ export default function AdminLogin() {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground/60 mt-6">
-          © {new Date().getFullYear()} Sua Marca · Painel Administrativo
+          © {new Date().getFullYear()} GoDrive · Painel Administrativo
         </p>
       </div>
     </div>

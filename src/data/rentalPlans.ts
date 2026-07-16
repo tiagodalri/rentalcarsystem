@@ -23,7 +23,7 @@ export interface RentalPlan {
 export const PLANS: Record<PlanId, RentalPlan> = {
   unico: {
     id: "unico",
-    name: "Sua Marca",
+    name: "GoDrive",
     dailyExtra: 0,
     insurance: "basic",
     deposit: 300,

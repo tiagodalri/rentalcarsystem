@@ -73,8 +73,8 @@ const Contato = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="Contato | Sua Marca Orlando"
-        description="Fale com a Sua Marca. Atendimento em português para reservas, dúvidas e suporte de aluguel de carros premium em Orlando."
+        title="Contato | GoDrive Orlando"
+        description="Fale com a GoDrive. Atendimento em português para reservas, dúvidas e suporte de aluguel de carros premium em Orlando."
         path="/contato"
       />
       <Navbar />

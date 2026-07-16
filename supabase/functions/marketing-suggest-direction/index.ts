@@ -1,7 +1,7 @@
 // Marketing Studio - Direction Suggestion
 // Returns a concise, high-impact creative direction string crafted in the
 // voice of senior brand designers/marketers (Apple, Aesop, Mr Porter, W+K),
-// tailored to the Sua Marca brand and current generator context.
+// tailored to the GoDrive brand and current generator context.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 type Body = {
@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
         : "",
     ].filter(Boolean).join("\n");
 
-    const sys = `Voce e diretor de criacao senior (Apple, Aesop, Mr Porter, Wieden+Kennedy) trabalhando para a Sua Marca — locadora premium em Orlando, publico brasileiro.
+    const sys = `Voce e diretor de criacao senior (Apple, Aesop, Mr Porter, Wieden+Kennedy) trabalhando para a GoDrive — locadora premium em Orlando, publico brasileiro.
 Sua tarefa: gerar UM unico paragrafo curto de DIRECIONAMENTO CRIATIVO para a IA que vai criar a arte. Tom editorial de revista, sofisticado, calmo, cinematografico.
 Inclua quando fizer sentido: angulo/enquadramento do carro, luz e hora do dia, cenario/atmosfera de Orlando ou Florida, paleta complementar, mood emocional, e UMA ideia de copy curta (headline 3-6 palavras) ENTRE ASPAS.
 Portugues do Brasil impecavel, sem emojis, sem travessao, sem ponto-e-virgula, sem jargao publicitario ("imperdivel", "incrivel", "nao perca", "garanta ja").

@@ -72,7 +72,7 @@ const Login = () => {
               <BrandLogo size="lg" />
             </div>
             <h1 className="text-3xl font-bold tracking-tight">
-              <span className="text-primary font-semibold uppercase tracking-[0.25em]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>SUA MARCA</span>
+              <span className="text-primary font-semibold uppercase tracking-[0.25em]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>GODRIVE</span>
               <span className="text-muted-foreground font-light ml-1">RENTAL CAR</span>
             </h1>
           </a>
@@ -230,7 +230,7 @@ const Login = () => {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground/60 mt-6">
-          © {new Date().getFullYear()} Sua Marca. Todos os direitos reservados.
+          © {new Date().getFullYear()} GoDrive. Todos os direitos reservados.
         </p>
       </div>
     </div>
