@@ -18,6 +18,7 @@ import {
   Receipt,
   Wallet,
   Brain,
+  Handshake,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
