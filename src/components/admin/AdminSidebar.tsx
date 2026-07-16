@@ -100,6 +100,12 @@ const menuSections: MenuSection[] = [
     ],
   },
   {
+    label: "GoDalz Rent",
+    items: [
+      { title: "GoDalz Rent", url: "/admin/godalz-rent", icon: Handshake, allowedRoles: ["admin","operations","finance","support"], highlight: "emerald", badge: "Novo" },
+    ],
+  },
+  {
     label: "Aprenda",
     items: [
       { title: "Tutoriais", url: "/admin/tutoriais", icon: GraduationCap, allowedRoles: ["admin","operations","support","driver","finance"] },
