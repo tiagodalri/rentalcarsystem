@@ -74,7 +74,7 @@ const GREEN_SECONDARY = "hsl(170 60% 38%)";
 
 // Private-bank inspired palette for category donut — gold, slate, petrol, warm accents
 const CATEGORY_PALETTE = [
-  "hsl(162 80% 24%)",   // gold primary
+  "hsl(45 79% 56%)",   // gold primary
   "hsl(220 14% 35%)",  // slate
   "hsl(175 60% 38%)",  // petrol teal
   "hsl(12 65% 52%)",   // terracotta

@@ -1,7 +1,7 @@
 {
-  "name": "Plataforma de Locação de Veículos",
-  "short_name": "Locação",
-  "description": "Plataforma whitelabel para gestão e reserva de frotas de locação de veículos.",
+  "name": "GoDrive — Locadora Premium",
+  "short_name": "GoDrive",
+  "description": "GoDrive — locadora premium de veículos na Flórida. Dirija o extraordinário: SUVs, esportivos e sedans exclusivos.",
   "id": "/",
   "start_url": "/?source=pwa",
   "scope": "/",
@@ -12,8 +12,8 @@
   "dir": "ltr",
   "prefer_related_applications": false,
   "launch_handler": { "client_mode": "navigate-existing" },
-  "background_color": "#0a0a0a",
-  "theme_color": "#0a0a0a",
+  "background_color": "#0A0A0A",
+  "theme_color": "#0A0A0A",
   "categories": ["travel", "lifestyle", "business"],
   "icons": [
     {
@@ -45,28 +45,28 @@
     {
       "name": "Minha Conta",
       "short_name": "Conta",
-      "description": "Acessar área do cliente",
+      "description": "Acessar área do cliente GoDrive",
       "url": "/minha-conta?source=pwa-shortcut",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Frota",
       "short_name": "Frota",
-      "description": "Ver veículos disponíveis",
+      "description": "Ver veículos GoDrive disponíveis",
       "url": "/frota?source=pwa-shortcut",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Reservar",
       "short_name": "Reservar",
-      "description": "Buscar e reservar um veículo",
+      "description": "Buscar e reservar um veículo GoDrive",
       "url": "/buscar?source=pwa-shortcut",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Contato",
       "short_name": "Contato",
-      "description": "Entrar em contato",
+      "description": "Entrar em contato com a GoDrive",
       "url": "/contato?source=pwa-shortcut",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }

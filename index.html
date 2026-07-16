@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content" />
-    <title>Plataforma de Locação de Veículos</title>
-    <meta name="description" content="Tecnologia para gestão de frotas - locadoras de carros.">
+    <title>GoDrive — Locadora Premium</title>
+    <meta name="description" content="GoDrive — locadora premium de veículos na Flórida. Dirija o extraordinário: SUVs, esportivos e sedans exclusivos com atendimento em português, inglês e espanhol.">
     <meta name="robots" content="index, follow" />
     <!-- Per-route canonical is injected by <Seo /> (react-helmet-async). -->
     <link rel="alternate" hreflang="pt-BR" href="https://rentalcarsystem.lovable.app/" />
@@ -15,7 +15,7 @@
     <link rel="icon" type="image/png" href="/brand-mark.png">
     <link rel="shortcut icon" type="image/png" href="/brand-mark.png" />
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#F7F5F0" media="(prefers-color-scheme: light)" />
 
     <!-- iOS / iPadOS — installable app appearance -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -24,8 +24,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Plataforma de Locação" />
-    <meta name="application-name" content="Plataforma de Locação" />
+    <meta name="apple-mobile-web-app-title" content="GoDrive" />
+    <meta name="application-name" content="GoDrive" />
     <meta name="format-detection" content="telephone=no" />
 
     <!-- iOS splash screens (elimina tela branca no cold start do PWA instalado) -->
@@ -55,9 +55,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://synnmssbvwbmlcxfgbwu.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="https://synnmssbvwbmlcxfgbwu.supabase.co" />
-    <!-- Inter via <link> (não @import CSS) — não bloqueia o First Paint. -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <!-- GoDrive: Poppins (equivalente Google Fonts mais próxima ao wordmark oficial). -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
     <!-- Default OG/Twitter (per-route values override via react-helmet-async). -->
     
     
@@ -69,10 +69,10 @@
 
     <!-- Brand / LocalBusiness structured data (sitewide). -->
     <script type="application/ld+json">
-      {"@context":"https://schema.org","@type":["AutoRental","LocalBusiness"],"name":"Plataforma de Locação de Veículos","url":"https://rentalcarsystem.lovable.app","logo":"https://rentalcarsystem.lovable.app/brand-mark.png","image":"https://rentalcarsystem.lovable.app/brand-mark.png","description":"Plataforma whitelabel de gestão de locação de veículos."}
+      {"@context":"https://schema.org","@type":["AutoRental","LocalBusiness"],"name":"GoDrive","url":"https://rentalcarsystem.lovable.app","logo":"https://rentalcarsystem.lovable.app/brand/logo-black.png","image":"https://rentalcarsystem.lovable.app/brand-mark.png","description":"GoDrive — locadora premium de veículos na Flórida. Dirija o extraordinário."}
     </script>
     <script type="application/ld+json">
-      {"@context":"https://schema.org","@type":"WebSite","name":"Plataforma de Locação de Veículos","url":"https://rentalcarsystem.lovable.app","inLanguage":["pt-BR","en","es"]}
+      {"@context":"https://schema.org","@type":"WebSite","name":"GoDrive","url":"https://rentalcarsystem.lovable.app","inLanguage":["pt-BR","en","es"]}
     </script>
 
   <!-- Google Tag Manager (apenas site público — exclui /admin e /minha-conta) -->
@@ -156,10 +156,11 @@
       }
     }
   </script>
-  <meta property="og:title" content="Plataforma de Locação de Veículos">
-  <meta name="twitter:title" content="Plataforma de Locação de Veículos">
-  <meta property="og:description" content="Tecnologia para gestão de frotas - locadoras de carros.">
-  <meta name="twitter:description" content="Tecnologia para gestão de frotas - locadoras de carros.">
+  <meta property="og:title" content="GoDrive — Locadora Premium">
+  <meta name="twitter:title" content="GoDrive — Locadora Premium">
+  <meta property="og:description" content="GoDrive — locadora premium de veículos na Flórida. Dirija o extraordinário.">
+  <meta name="twitter:description" content="GoDrive — locadora premium de veículos na Flórida. Dirija o extraordinário.">
+
 </head>
   <body>
     <!-- Boot splash: paints brand background + logo instantly, before React/CSS bundle.
@@ -168,7 +169,7 @@
     <style>
       html, body { background-color: #0a0a0a; }
       @media (prefers-color-scheme: light) {
-        html, body { background-color: #fafafa; }
+        html, body { background-color: #F7F5F0; }
       }
       #boot-splash {
         position: fixed; inset: 0; z-index: 2147483647;
@@ -178,10 +179,10 @@
         -webkit-tap-highlight-color: transparent;
       }
       @media (prefers-color-scheme: light) {
-        #boot-splash { background-color: #fafafa; }
+        #boot-splash { background-color: #F7F5F0; }
       }
       #boot-splash img {
-        width: 84px; height: 84px; object-fit: contain;
+        width: 96px; height: 96px; object-fit: contain;
         animation: bootPulse 1400ms ease-in-out infinite;
         opacity: 0.95;
       }
