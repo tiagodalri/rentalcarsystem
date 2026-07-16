@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import MinimalFooter from "@/components/MinimalFooter";
 import FullscreenFab from "./FullscreenFab";
-import PresentationModeButton from "./PresentationModeButton";
+import GuidedTourIconButton from "./GuidedTourIconButton";
 import { AdminBottomNav } from "./AdminBottomNav";
 import { AdminFab } from "./AdminFab";
 import { AdminMobileHeader } from "./AdminMobileHeader";
