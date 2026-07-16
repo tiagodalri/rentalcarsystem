@@ -17,8 +17,10 @@ type State = {
 
 import { SHOW_PRESENTATION_CONTROLS } from "@/lib/demo/config";
 
-export default function PresentationModeButton() {
-  if (!SHOW_PRESENTATION_CONTROLS) return null;
+type Props = { variant?: "pill" | "icon" };
+
+export default function PresentationModeButton({ variant = "pill" }: Props) {
+  if (variant === "pill" && !SHOW_PRESENTATION_CONTROLS) return null;
   const [open, setOpen] = useState(false);
   const [count, setCount] = useState<string>("15");
   const [busy, setBusy] = useState(false);
@@ -70,28 +72,48 @@ export default function PresentationModeButton() {
     setTimeout(() => window.location.reload(), 350);
   };
 
+  const triggerLabel = active ? "Apresentação em andamento" : "Iniciar apresentação";
+
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        title={active ? "Apresentação em andamento" : "Iniciar apresentação"}
-        aria-label={active ? "Apresentação em andamento" : "Iniciar apresentação"}
-        className={`group relative inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] uppercase tracking-[0.18em] font-medium transition-all ${
-          active
-            ? "text-white border shadow-[0_8px_20px_-10px_rgba(13,29,46,0.45)]"
-            : "border border-border/50 text-muted-foreground hover:text-foreground hover:border-foreground/30"
-        }`}
-        style={active ? {
-          background: "linear-gradient(180deg, #14283d, #0d1d2e)",
-          borderColor: "rgba(154,122,58,0.45)",
-        } : undefined}
-      >
-        <Presentation size={14} strokeWidth={1.75} style={active ? { color: "#d6bf86" } : undefined} />
-        <span>{active ? `Apresentação · ${state?.target_count}` : "Iniciar apresentação"}</span>
-        {active && (
-          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full" style={{ background: "#9a7a3a", boxShadow: "0 0 8px rgba(154,122,58,0.7)" }} />
-        )}
-      </button>
+      {variant === "icon" ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          title={triggerLabel}
+          aria-label={triggerLabel}
+          className="relative h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors flex items-center justify-center"
+        >
+          <Play className="h-4 w-4" strokeWidth={1.75} style={active ? { color: "#d6bf86" } : undefined} />
+          {active && (
+            <span
+              className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full"
+              style={{ background: "#9a7a3a", boxShadow: "0 0 6px rgba(154,122,58,0.7)" }}
+            />
+          )}
+        </button>
+      ) : (
+        <button
+          onClick={() => setOpen(true)}
+          title={triggerLabel}
+          aria-label={triggerLabel}
+          className={`group relative inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] uppercase tracking-[0.18em] font-medium transition-all ${
+            active
+              ? "text-white border shadow-[0_8px_20px_-10px_rgba(13,29,46,0.45)]"
+              : "border border-border/50 text-muted-foreground hover:text-foreground hover:border-foreground/30"
+          }`}
+          style={active ? {
+            background: "linear-gradient(180deg, #14283d, #0d1d2e)",
+            borderColor: "rgba(154,122,58,0.45)",
+          } : undefined}
+        >
+          <Presentation size={14} strokeWidth={1.75} style={active ? { color: "#d6bf86" } : undefined} />
+          <span>{active ? `Apresentação · ${state?.target_count}` : "Iniciar apresentação"}</span>
+          {active && (
+            <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full" style={{ background: "#9a7a3a", boxShadow: "0 0 8px rgba(154,122,58,0.7)" }} />
+          )}
+        </button>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[440px]">

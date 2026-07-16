@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import MinimalFooter from "@/components/MinimalFooter";
 import FullscreenFab from "./FullscreenFab";
+import PresentationModeButton from "./PresentationModeButton";
 import { AdminBottomNav } from "./AdminBottomNav";
 import { AdminFab } from "./AdminFab";
 import { AdminMobileHeader } from "./AdminMobileHeader";
@@ -96,6 +97,7 @@ export default function AdminLayout() {
               </header>
               {/* Utilitários (tema, idioma, fullscreen) — abaixo da divisão */}
               <div className="hidden lg:flex h-10 items-center justify-end gap-1.5 px-3 sm:px-4">
+                <PresentationModeButton variant="icon" />
                 <FullscreenFab />
                 <Button
                   variant="ghost"
