@@ -107,53 +107,72 @@ export default function MobileLive() {
     setListOpen(false);
   }, []);
 
+  const mapWrapRef = useRef<HTMLDivElement | null>(null);
+
   return (
     <div
-      className="fixed inset-x-0 z-10"
+      className="relative z-10"
       style={{
-        top: "calc(env(safe-area-inset-top, 0px) + 56px)",
-        bottom: "calc(env(safe-area-inset-bottom, 0px) + 64px)",
+        paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)",
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 80px)",
       }}
     >
-      {/* Map fills entire viewport between header & bottom nav */}
-      <div className="absolute inset-0">
-        <GoogleFleetMap
-          vehicles={onMap}
-          selectedId={selectedId}
-          onSelect={openVehicle}
-          onOpen={openVehicle}
+      {/* Map: altura confortável, permite rolar a página */}
+      <div
+        ref={mapWrapRef}
+        className="relative h-[70vh] min-h-[420px] overflow-hidden"
+      >
+        <div className="absolute inset-0">
+          <GoogleFleetMap
+            vehicles={onMap}
+            selectedId={selectedId}
+            onSelect={openVehicle}
+            onOpen={openVehicle}
+          />
+        </div>
+
+        {/* Floating KPI strip */}
+        <div className="absolute top-3 left-3 right-3 flex gap-2 pointer-events-none">
+          <div className="pointer-events-auto flex-1 bg-card/90 backdrop-blur rounded-xl px-3 py-2 border border-border/50 shadow-lg">
+            <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">No mapa</div>
+            <div className="text-lg font-semibold tabular-nums leading-none mt-0.5">{onMap.length}</div>
+          </div>
+          <div className="pointer-events-auto flex-1 bg-card/90 backdrop-blur rounded-xl px-3 py-2 border border-border/50 shadow-lg">
+            <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Em movimento</div>
+            <div className="text-lg font-semibold tabular-nums leading-none mt-0.5 text-emerald-500">
+              {counts.moving}
+            </div>
+          </div>
+          <div className="pointer-events-auto flex-1 bg-card/90 backdrop-blur rounded-xl px-3 py-2 border border-border/50 shadow-lg">
+            <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Total</div>
+            <div className="text-lg font-semibold tabular-nums leading-none mt-0.5">{vehicles.length}</div>
+          </div>
+        </div>
+
+        {/* Bottom button to open list */}
+        <button
+          onClick={() => {
+            haptic.tick();
+            setListOpen(true);
+          }}
+          aria-label="Abrir lista de veículos"
+          className="absolute bottom-4 left-4 right-4 h-12 rounded-2xl bg-primary text-primary-foreground font-semibold shadow-2xl inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
+        >
+          <Car size={16} /> Ver {onMap.length} {onMap.length === 1 ? "veículo" : "veículos"}
+        </button>
+      </div>
+
+      {/* Central de Alertas abaixo do mapa */}
+      <div className="px-3 pt-4">
+        <FleetAlertsCenter
+          vehicles={vehicles}
+          onSelectVehicle={(id) => openVehicle(id)}
+          onFocusMap={() =>
+            mapWrapRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+          }
         />
       </div>
 
-      {/* Floating KPI strip */}
-      <div className="absolute top-3 left-3 right-3 flex gap-2 pointer-events-none">
-        <div className="pointer-events-auto flex-1 bg-card/90 backdrop-blur rounded-xl px-3 py-2 border border-border/50 shadow-lg">
-          <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">No mapa</div>
-          <div className="text-lg font-semibold tabular-nums leading-none mt-0.5">{onMap.length}</div>
-        </div>
-        <div className="pointer-events-auto flex-1 bg-card/90 backdrop-blur rounded-xl px-3 py-2 border border-border/50 shadow-lg">
-          <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Em movimento</div>
-          <div className="text-lg font-semibold tabular-nums leading-none mt-0.5 text-emerald-500">
-            {counts.moving}
-          </div>
-        </div>
-        <div className="pointer-events-auto flex-1 bg-card/90 backdrop-blur rounded-xl px-3 py-2 border border-border/50 shadow-lg">
-          <div className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Total</div>
-          <div className="text-lg font-semibold tabular-nums leading-none mt-0.5">{vehicles.length}</div>
-        </div>
-      </div>
-
-      {/* Bottom button to open list */}
-      <button
-        onClick={() => {
-          haptic.tick();
-          setListOpen(true);
-        }}
-        aria-label="Abrir lista de veículos"
-        className="absolute bottom-4 left-4 right-4 h-12 rounded-2xl bg-primary text-primary-foreground font-semibold shadow-2xl inline-flex items-center justify-center gap-2 active:scale-[0.98] transition-transform"
-      >
-        <Car size={16} /> Ver {onMap.length} {onMap.length === 1 ? "veículo" : "veículos"}
-      </button>
 
       {/* ===== Bottom-sheet: lista de veículos ===== */}
       <MobileSheet
