@@ -502,13 +502,15 @@ function AdminLiveDesktop() {
       </div>
 
       {/* Central de Alertas — visão consolidada de toda a frota */}
-      <FleetAlertsCenter
-        vehicles={vehicles}
-        onSelectVehicle={(id) => setSelected(id)}
-        onFocusMap={() =>
-          mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
-        }
-      />
+      <div ref={alertsRef}>
+        <FleetAlertsCenter
+          vehicles={vehicles}
+          onSelectVehicle={(id) => setSelected(id)}
+          onFocusMap={() =>
+            mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+          }
+        />
+      </div>
 
       {/* Trip picker + replay overlay */}
 
