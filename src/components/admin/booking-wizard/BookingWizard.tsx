@@ -397,7 +397,7 @@ export function BookingWizard({ aiMode, onDone, onCancel }: Props) {
       if (firstInvalidIdx >= 0) setStepIdx(firstInvalidIdx);
       flagErrors(issues);
       toast({
-        title: "Reserva incompleta. nada foi apagado",
+        title: "Reserva incompleta. Nada foi apagado",
         description: `Te levamos para a etapa que falta. Preencha: ${formatIssues(issues)}.`,
         variant: "destructive",
       });
@@ -915,7 +915,7 @@ function VehicleStep({ form, set, aiKeys, errorFields, onAdvance }: StepProps & 
                   <div className="min-w-0">
                     <p className="text-xs font-medium text-foreground">Diária (USD)</p>
                     <p className="text-[10px] text-muted-foreground">
-                      Padrão: ${Number(previewVeh.daily_price_usd).toFixed(2)}. ajuste se necessário
+                      Padrão: ${Number(previewVeh.daily_price_usd).toFixed(2)}. Ajuste se necessário
                     </p>
                   </div>
                   <div className="relative w-32 shrink-0">
