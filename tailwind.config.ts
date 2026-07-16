@@ -22,11 +22,13 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Epilogue"', "Inter", "system-ui", "-apple-system", "sans-serif"],
-        display: ['"Urbanist"', '"Epilogue"', "Inter", "system-ui", "sans-serif"],
-        heading: ['"Urbanist"', '"Epilogue"', "Inter", "system-ui", "sans-serif"],
-        serif: ['"Instrument Serif"', 'Georgia', 'serif'],
-        editorial: ['"Instrument Serif"', 'Georgia', 'serif'],
+        // GoDrive: Poppins escolhida como equivalente Google Fonts mais fiel ao
+        // wordmark oficial (geométrica arredondada). Inter/system-ui como fallback.
+        sans: ['"Poppins"', "Inter", "system-ui", "-apple-system", "sans-serif"],
+        display: ['"Poppins"', "Inter", "system-ui", "sans-serif"],
+        heading: ['"Poppins"', "Inter", "system-ui", "sans-serif"],
+        serif: ['"Instrument Serif"', "Georgia", "serif"],
+        editorial: ['"Instrument Serif"', "Georgia", "serif"],
       },
       colors: {
         border: "hsl(var(--border))",
