@@ -17,8 +17,10 @@ type State = {
 
 import { SHOW_PRESENTATION_CONTROLS } from "@/lib/demo/config";
 
-export default function PresentationModeButton() {
-  if (!SHOW_PRESENTATION_CONTROLS) return null;
+type Props = { variant?: "pill" | "icon" };
+
+export default function PresentationModeButton({ variant = "pill" }: Props) {
+  if (variant === "pill" && !SHOW_PRESENTATION_CONTROLS) return null;
   const [open, setOpen] = useState(false);
   const [count, setCount] = useState<string>("15");
   const [busy, setBusy] = useState(false);
