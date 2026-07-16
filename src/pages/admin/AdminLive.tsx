@@ -487,6 +487,17 @@ function AdminLiveDesktop() {
               onClose={() => setDrawerOpen(false)}
             />
           )}
+
+          {/* Pílula flutuante — chama atenção para a Central de Alertas abaixo */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1100] pointer-events-none">
+            <div className="pointer-events-auto">
+              <AlertsScrollPill
+                vehicles={vehicles}
+                targetRef={alertsRef}
+                hidden={Boolean(selectedVehicle && !drawerOpen)}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
