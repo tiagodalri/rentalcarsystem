@@ -16,6 +16,7 @@ import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
 import { FleetAlertsCenter } from "@/components/admin/live/FleetAlertsCenter";
+import { AlertsScrollPill } from "@/components/admin/live/AlertsScrollPill";
 import { MobileSheet } from "@/components/mobile/MobileSheet";
 import { ShareTrackingDialog } from "@/components/admin/live/ShareTrackingDialog";
 import { TripsTab } from "@/components/admin/live/tabs/TripsTab";
