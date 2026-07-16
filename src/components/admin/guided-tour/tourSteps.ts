@@ -53,7 +53,7 @@ export const TOUR_STEPS: TourStep[] = [
     bullet: "Mercado",
     route: "/admin",
     kind: "market",
-    title: "O mercado vende sistemas. A GoDals entrega um cérebro para o seu negócio.",
+    title: "O mercado vende sistemas. A GoDalz entrega um cérebro para o seu negócio.",
     pains: [],
     teaser: "",
   },
