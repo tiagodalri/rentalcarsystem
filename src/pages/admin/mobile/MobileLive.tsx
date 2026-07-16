@@ -151,6 +151,13 @@ export default function MobileLive() {
           </div>
         </div>
 
+        {/* Pílula flutuante de alertas (acima do botão "Ver N veículos") */}
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <div className="pointer-events-auto">
+            <AlertsScrollPill vehicles={vehicles} targetRef={alertsRef} />
+          </div>
+        </div>
+
         {/* Bottom button to open list */}
         <button
           onClick={() => {
