@@ -191,7 +191,7 @@ PROIBIDO MENCIONAR nomes, marcas ou logotipos de concorrentes (locadoras, automo
 Devolva SOMENTE JSON valido:
 ${copyJsonShape}
 Tom: ${toneMap[tone] || toneMap.luxo}.
-Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #SuaMarca e #Orlando.${carouselCopyInstructions}`;
+Hashtags: 6 a 10, misture portugues e ingles, sempre incluir #GoDrive e #Orlando.${carouselCopyInstructions}`;
 
     const copyUser = `Carro: ${vehicleBrand ? vehicleBrand + " " : ""}${vehicleName}
 Formato: ${format === "feed" ? "feed quadrado" : "story vertical"}${carousel ? ` em CARROSSEL de ${slidesCount} slides` : ""}
@@ -230,7 +230,7 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
         headline: parsed.headline || parsed.phrase || `${vehicleName}`,
         subheadline: parsed.subheadline || "",
         caption: parsed.caption || `${vehicleName} disponivel agora.`,
-        hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : ["#SuaMarca", "#Orlando"],
+        hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : ["#GoDrive", "#Orlando"],
         slides: Array.isArray(parsed.slides) ? parsed.slides : undefined,
       };
     } catch {
@@ -238,7 +238,7 @@ ${customPrompt ? `Direcionamento extra do usuario: ${customPrompt}` : ""}`;
         headline: vehicleName,
         subheadline: "Premium em Orlando",
         caption: `${vehicleName} disponivel na GoDrive.`,
-        hashtags: ["#SuaMarca", "#Orlando"],
+        hashtags: ["#GoDrive", "#Orlando"],
       };
     }
 
