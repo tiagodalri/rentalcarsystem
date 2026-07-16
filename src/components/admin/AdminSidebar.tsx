@@ -52,7 +52,7 @@ type MenuItem = {
   url: string;
   icon: typeof LayoutDashboard;
   allowedRoles: AppRole[];
-  highlight?: "gold";
+  highlight?: "gold" | "emerald";
   badge?: string;
 };
 
