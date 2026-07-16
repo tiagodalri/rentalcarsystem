@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TOUR_STEPS } from "./tourSteps";
 import { useGuidedTour } from "./GuidedTourContext";
 import PriceCard from "./PriceCard";
+import MarketComparisonCard from "./MarketComparisonCard";
 
 const NAVY = "#0d1d2e";
 const GOLD = "#9a7a3a";
