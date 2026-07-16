@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 
 const NAVY = "#0d1d2e";
 const GOLD = "#9a7a3a";
-const PURPLE = "#7c3aed";
-const PURPLE_SOFT = "rgba(124,58,237,0.12)";
-const PURPLE_BORDER = "rgba(124,58,237,0.55)";
+const GOLD_SOFT = "rgba(154,122,58,0.12)";
+const GOLD_BORDER = "rgba(154,122,58,0.55)";
+const GOLD_DARK = "#7a5d2e";
 
 type Row = { label: string; hint?: string };
 type Section = { label: string; rows: Row[] };
