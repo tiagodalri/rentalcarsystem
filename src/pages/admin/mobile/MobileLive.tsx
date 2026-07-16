@@ -172,7 +172,7 @@ export default function MobileLive() {
       </div>
 
       {/* Central de Alertas abaixo do mapa */}
-      <div className="px-3 pt-4">
+      <div ref={alertsRef} className="px-3 pt-4">
         <FleetAlertsCenter
           vehicles={vehicles}
           onSelectVehicle={(id) => openVehicle(id)}
