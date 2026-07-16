@@ -222,6 +222,22 @@ function buildAlerts(vehicles: LiveVehicle[]): Alert[] {
   });
 }
 
+/** Contagens agregadas usadas pela pílula flutuante de scroll (AlertsScrollPill). */
+export function getFleetAlertCounts(vehicles: LiveVehicle[]): {
+  total: number;
+  critical: number;
+  warning: number;
+} {
+  const alerts = buildAlerts(vehicles);
+  let critical = 0;
+  let warning = 0;
+  for (const a of alerts) {
+    if (a.severity === "critical") critical++;
+    else if (a.severity === "warning") warning++;
+  }
+  return { total: alerts.length, critical, warning };
+}
+
 function severityStyles(sev: Severity): { pill: string; iconWrap: string; ring: string } {
   if (sev === "critical") {
     return {
