@@ -116,13 +116,15 @@ export default function MobileLive() {
       className="relative z-10"
       style={{
         paddingTop: "calc(env(safe-area-inset-top, 0px) + 56px)",
-        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 96px)",
+        paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 112px)",
       }}
     >
-      {/* Map: altura confortável, permite rolar a página */}
+      {/* Map: usa dvh (iOS Safari) para respeitar a barra de URL dinâmica.
+          Altura menor garante que a pílula, o botão e o topo da Central de
+          Alertas caibam na mesma dobra. */}
       <div
         ref={mapWrapRef}
-        className="relative h-[70vh] min-h-[420px] overflow-hidden"
+        className="relative h-[52dvh] min-h-[320px] max-h-[560px] overflow-hidden"
       >
         <div className="absolute inset-0">
           <GoogleFleetMap
