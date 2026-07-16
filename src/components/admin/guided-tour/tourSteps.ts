@@ -49,6 +49,15 @@ export const TOUR_STEPS: TourStep[] = [
     teaser: "Nos próximos minutos, a sua frota vista pela primeira vez de verdade.",
   },
   {
+    id: "mercado",
+    bullet: "Mercado",
+    route: "/admin",
+    kind: "market",
+    title: "O mercado vende sistemas. A GoDals entrega um cérebro para o seu negócio.",
+    pains: [],
+    teaser: "",
+  },
+  {
     id: "seguranca",
     bullet: "Segurança",
     route: "/admin/live",
