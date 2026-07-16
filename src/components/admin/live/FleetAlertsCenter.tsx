@@ -402,7 +402,10 @@ export function FleetAlertsCenter({ vehicles, onSelectVehicle, onFocusMap }: Fle
                       loading="lazy"
                       className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-border/30 shrink-0 bg-muted"
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
+                        const img = e.currentTarget as HTMLImageElement;
+                        if (img.src !== VEHICLE_PLACEHOLDER_IMAGE) {
+                          img.src = VEHICLE_PLACEHOLDER_IMAGE;
+                        }
                       }}
                     />
 
