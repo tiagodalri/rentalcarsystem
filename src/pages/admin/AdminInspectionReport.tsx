@@ -12,7 +12,7 @@ import {
   TrendingUp, TrendingDown, Minus, Sparkles, Hash, Phone, Mail,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import zeusLogo from "@/assets/zeus-logo-hd.png";
+const zeusLogo = "/brand/logo-black.png";
 import { SignedImage } from "@/components/admin/SignedImage";
 import { normalizeDamageText } from "@/lib/damageTextNormalizer";
 import { ShareInspectionButton } from "@/components/admin/ShareInspectionButton";
