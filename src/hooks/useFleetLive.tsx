@@ -70,19 +70,54 @@ export function useFleetLive() {
   const [loading, setLoading] = useState(true);
   // Cache estático de nome/placa por vehicle_id — não vem no payload realtime.
   const metaRef = useRef<Map<string, { name: string; plate: string | null; image_url: string | null }>>(new Map());
+  const activeBookingsRef = useRef<Map<string, ActiveBooking>>(new Map());
 
   useEffect(() => {
     let cancelled = false;
 
+    async function loadActiveBookings() {
+      // Reservas em andamento HOJE — mesma fonte que o AdminPainel usa para
+      // calcular "Frota rodando 21/28": status ativos + período cobrindo hoje.
+      const today = new Date().toISOString().slice(0, 10);
+      const { data } = await supabase
+        .from("bookings")
+        .select("id, booking_number, customer_name, pickup_date, return_date, status, vehicle_id")
+        .is("deleted_at", null)
+        .in("status", ["confirmed", "active", "in_progress"])
+        .lte("pickup_date", today)
+        .gte("return_date", today);
+      const map = new Map<string, ActiveBooking>();
+      for (const b of (data ?? []) as any[]) {
+        if (!b.vehicle_id) continue;
+        // Se um veículo tiver mais de uma "ativa" (raro), preserva a que termina
+        // depois — costuma ser a real em andamento.
+        const existing = map.get(b.vehicle_id);
+        if (existing && existing.return_date >= b.return_date) continue;
+        map.set(b.vehicle_id, {
+          booking_id: b.id,
+          booking_number: b.booking_number ?? null,
+          customer_name: b.customer_name ?? null,
+          pickup_date: b.pickup_date,
+          return_date: b.return_date,
+          status: b.status,
+        });
+      }
+      activeBookingsRef.current = map;
+    }
+
     async function load() {
-      const { data, error } = await supabase
-        .from("vehicle_telemetry")
-        .select(
-          "vehicle_id, imei, lat, lng, heading, speed, is_running, odometer, fuel_level, battery_status, mil_on, address, last_event, reported_at, vehicles!inner ( name, license_plate, image_url, deleted_at )"
-        )
-        .is("vehicles.deleted_at", null);
+      const [_, telemetryRes] = await Promise.all([
+        loadActiveBookings(),
+        supabase
+          .from("vehicle_telemetry")
+          .select(
+            "vehicle_id, imei, lat, lng, heading, speed, is_running, odometer, fuel_level, battery_status, mil_on, address, last_event, reported_at, vehicles!inner ( name, license_plate, image_url, deleted_at )"
+          )
+          .is("vehicles.deleted_at", null),
+      ]);
 
       if (cancelled) return;
+      const { data, error } = telemetryRes;
       if (error) {
         console.error("[useFleetLive] load error:", error.message);
         setLoading(false);
@@ -91,6 +126,7 @@ export function useFleetLive() {
 
       const rows = (data ?? []) as unknown as Row[];
       const meta = metaRef.current;
+      const bookings = activeBookingsRef.current;
       const list: LiveVehicle[] = [];
       for (const r of rows) {
         if (!r.vehicles) continue;
@@ -114,14 +150,22 @@ export function useFleetLive() {
           last_event: r.last_event,
           reported_at: r.reported_at,
           status: deriveStatus(r),
+          activeBooking: bookings.get(r.vehicle_id) ?? null,
         });
       }
       setVehicles(list);
       setLoading(false);
-      // Ativa a camada de simulação de movimento (demo) assim que temos
-      // a frota carregada. `initLiveSimulation` é idempotente.
-      void initLiveSimulation(list.map((v) => ({ vehicle_id: v.vehicle_id, name: v.name })));
+      // Ativa a camada de simulação de movimento (demo) restrita à frota
+      // que tem RESERVA ATIVA agora — coerência com o AdminPainel.
+      const eligibleIds = list
+        .filter((v) => bookings.has(v.vehicle_id))
+        .map((v) => v.vehicle_id);
+      void initLiveSimulation(
+        list.map((v) => ({ vehicle_id: v.vehicle_id, name: v.name })),
+        { eligibleIds },
+      );
     }
+
 
     load();
     // Fallback polling de 10s para garantir frescor mesmo se um pacote realtime cair.
