@@ -2,7 +2,9 @@ import { useEffect, useState, useMemo, useRef, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 import MobileLive from "./mobile/MobileLive";
-import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play, Loader2, Search } from "lucide-react";
+import { Signal, Gauge, Clock, MapPin, Activity, X, ChevronRight, Play, Loader2, Search, CalendarCheck } from "lucide-react";
+import { formatPersonName } from "@/lib/formatName";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { getCoverImage } from "@/data/vehicleImages";
@@ -463,6 +465,22 @@ function AdminLiveDesktop() {
                     <MapPin size={11} className="text-primary mt-0.5 shrink-0" />
                     <span className="block truncate min-w-0">{selectedVehicle.address}</span>
                   </p>
+                )}
+                {selectedVehicle.activeBooking && (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/admin/bookings/${selectedVehicle.activeBooking!.booking_id}`)}
+                    className="w-full flex items-center gap-2 px-2.5 py-1.5 mb-2.5 rounded-md bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors text-left"
+                  >
+                    <CalendarCheck size={12} className="text-primary shrink-0" />
+                    <span className="text-[11px] text-foreground leading-tight min-w-0 truncate">
+                      <span className="font-medium">Reserva ativa</span>
+                      {selectedVehicle.activeBooking.customer_name && (
+                        <> · {formatPersonName(selectedVehicle.activeBooking.customer_name)}</>
+                      )}
+                      <span className="text-muted-foreground"> · até {parseDateOnly(selectedVehicle.activeBooking.return_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</span>
+                    </span>
+                  </button>
                 )}
                 <button
                   onClick={() => setDrawerOpen(true)}
