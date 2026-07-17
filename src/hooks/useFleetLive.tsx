@@ -220,6 +220,7 @@ export function useFleetLive() {
                   is_running: row.is_running ?? null,
                   speed: row.speed ?? null,
                 }),
+                activeBooking: activeBookingsRef.current.get(row.vehicle_id) ?? null,
               };
               return [...prev, next];
             }
