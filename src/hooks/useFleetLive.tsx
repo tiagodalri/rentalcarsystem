@@ -8,6 +8,15 @@ import {
 
 export type LiveStatus = "moving" | "idle" | "parked";
 
+export type ActiveBooking = {
+  booking_id: string;
+  booking_number: string | null;
+  customer_name: string | null;
+  pickup_date: string;
+  return_date: string;
+  status: string;
+};
+
 export type LiveVehicle = {
   vehicle_id: string;
   name: string;
@@ -27,6 +36,7 @@ export type LiveVehicle = {
   last_event: string | null;
   reported_at: string | null;
   status: LiveStatus;
+  activeBooking: ActiveBooking | null;
 };
 
 function deriveStatus(t: { is_running: boolean | null; speed: number | null }): LiveStatus {
