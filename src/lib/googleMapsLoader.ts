@@ -6,34 +6,25 @@
 //   Google Maps corretamente" screen).
 // - Remembers which key worked in sessionStorage for stability across navigations.
 
-// v2: bumped after remix to invalidate stale cached keys from source project.
-const KEY_CACHE_STORAGE = "zeus:gmaps:working-key:v2";
+// v3: bumped after key consolidation — invalidates any stale key cached under v2.
+const KEY_CACHE_STORAGE = "zeus:gmaps:working-key:v3";
+
+// Single source of truth for the Google Maps browser key. Referrer-restricted
+// in Google Cloud (godalz.com, www.godalz.com, *.lovable.app,
+// rentalcarsystem.lovable.app), so it is safe to embed in the bundle.
+const GOOGLE_MAPS_BROWSER_KEY = "AIzaSyCJpffmY5NsZSzo_gHniRSEdPlE16jlBeA";
 
 let loaderPromise: Promise<any> | null = null;
 let resolvedKey: string | undefined;
 
-function readEnvKeys(): { preview?: string; custom?: string; connector?: string } {
-  return {
-    preview: import.meta.env.VITE_ZEUS_GOOGLE_MAPS_PREVIEW_BROWSER_KEY as string | undefined,
-    custom: import.meta.env.VITE_ZEUS_GOOGLE_MAPS_CUSTOM_BROWSER_KEY as string | undefined,
-    connector: import.meta.env.VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY as string | undefined,
-  };
-}
-
 function getCandidateKeys(): string[] {
   if (typeof window === "undefined") return [];
-  const hostname = window.location.hostname;
-  const isLovableHost =
-    hostname.endsWith(".lovableproject.com") ||
-    hostname.endsWith(".lovable.app") ||
-    hostname === "localhost";
 
-  const { preview, custom, connector } = readEnvKeys();
-  const ordered = isLovableHost
-    ? [preview, connector, custom]
-    : [custom, connector, preview];
+  const envCustom = import.meta.env.VITE_ZEUS_GOOGLE_MAPS_CUSTOM_BROWSER_KEY as string | undefined;
+  const ordered = [GOOGLE_MAPS_BROWSER_KEY, envCustom].filter(
+    (k): k is string => !!k,
+  );
 
-  // Deduplicate, drop empty, prepend the cached working key if still valid.
   const seen = new Set<string>();
   const out: string[] = [];
 
@@ -46,7 +37,7 @@ function getCandidateKeys(): string[] {
   } catch (_) { /* ignore */ }
 
   for (const k of ordered) {
-    if (!k || seen.has(k)) continue;
+    if (seen.has(k)) continue;
     seen.add(k);
     out.push(k);
   }
