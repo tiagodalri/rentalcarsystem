@@ -466,6 +466,22 @@ function AdminLiveDesktop() {
                     <span className="block truncate min-w-0">{selectedVehicle.address}</span>
                   </p>
                 )}
+                {selectedVehicle.activeBooking && (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/admin/bookings/${selectedVehicle.activeBooking!.booking_id}`)}
+                    className="w-full flex items-center gap-2 px-2.5 py-1.5 mb-2.5 rounded-md bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors text-left"
+                  >
+                    <CalendarCheck size={12} className="text-primary shrink-0" />
+                    <span className="text-[11px] text-foreground leading-tight min-w-0 truncate">
+                      <span className="font-medium">Reserva ativa</span>
+                      {selectedVehicle.activeBooking.customer_name && (
+                        <> · {formatPersonName(selectedVehicle.activeBooking.customer_name)}</>
+                      )}
+                      <span className="text-muted-foreground"> · até {parseDateOnly(selectedVehicle.activeBooking.return_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</span>
+                    </span>
+                  </button>
+                )}
                 <button
                   onClick={() => setDrawerOpen(true)}
                   className="w-full flex items-center justify-center gap-2 rounded-lg gold-gradient text-primary-foreground hover:opacity-90 transition-opacity py-2 text-xs font-medium"
