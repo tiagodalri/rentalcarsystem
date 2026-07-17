@@ -1,5 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  initLiveSimulation,
+  subscribeSim,
+  getSimOverride,
+} from "@/lib/demo/liveSimulation";
 
 export type LiveStatus = "moving" | "idle" | "parked";
 
