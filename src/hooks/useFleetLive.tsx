@@ -287,8 +287,15 @@ export function useFleetLive() {
       const o = getSimOverride(v.vehicle_id);
       if (!o) return v;
       changed = true;
-      const status: LiveStatus =
-        o.is_running && o.speed > 3 ? "moving" : o.is_running ? "idle" : "parked";
+      // inTransit: veículo em viagem (mesmo parado em semáforo). Trata como
+      // "moving" para não rebaralhar a lista/KPIs a cada parada momentânea.
+      const status: LiveStatus = o.inTransit
+        ? "moving"
+        : o.is_running && o.speed > 3
+          ? "moving"
+          : o.is_running
+            ? "idle"
+            : "parked";
       return {
         ...v,
         lat: o.lat,
