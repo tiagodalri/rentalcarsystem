@@ -348,6 +348,7 @@ function VehicleDetailSheetContent({
 }) {
   const m = statusMeta(vehicle.status);
   const [tab, setTab] = useState<DetailTab>("trips");
+  const navigate = useNavigate();
 
   return (
     <div className="flex flex-col h-full">
