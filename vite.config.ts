@@ -19,9 +19,12 @@ export default defineConfig(({ mode }) => ({
     mode === "analyze" && visualizer({ filename: "dist/stats.html", template: "treemap", gzipSize: true, brotliSize: true }),
   ].filter(Boolean),
   define: {
-    "import.meta.env.VITE_ZEUS_GOOGLE_MAPS_PREVIEW_BROWSER_KEY": JSON.stringify(process.env.GOOGLE_MAPS_BROWSER_KEY ?? ""),
-    "import.meta.env.VITE_ZEUS_GOOGLE_MAPS_CUSTOM_BROWSER_KEY": JSON.stringify(process.env.GOOGLE_MAPS_BROWSER_KEY_1 ?? ""),
-    "import.meta.env.VITE_ZEUS_GOOGLE_MAPS_TRACKING_ID": JSON.stringify(process.env.GOOGLE_MAPS_TRACKING_ID ?? ""),
+    // Referrer-restricted browser key (safe in bundle). Single source of truth
+    // for all Google Maps usage in the app — allowlist covers godalz.com,
+    // www.godalz.com, *.lovable.app and rentalcarsystem.lovable.app.
+    "import.meta.env.VITE_ZEUS_GOOGLE_MAPS_PREVIEW_BROWSER_KEY": JSON.stringify(process.env.GOOGLE_MAPS_BROWSER_KEY || "AIzaSyCJpffmY5NsZSzo_gHniRSEdPlE16jlBeA"),
+    "import.meta.env.VITE_ZEUS_GOOGLE_MAPS_CUSTOM_BROWSER_KEY": JSON.stringify(process.env.GOOGLE_MAPS_BROWSER_KEY_1 || "AIzaSyCJpffmY5NsZSzo_gHniRSEdPlE16jlBeA"),
+    "import.meta.env.VITE_ZEUS_GOOGLE_MAPS_TRACKING_ID": JSON.stringify(process.env.GOOGLE_MAPS_TRACKING_ID || "d336d41c63628490a13e917925cfd256"),
   },
   resolve: {
     alias: {
