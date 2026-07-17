@@ -513,41 +513,49 @@ function RoadmapStep({
 }
 
 // ============================================================
-// Mapa Google real - mesma stack do AdminLive (loadGoogleMaps)
+// Mapa Google real. Mesmo visual/config do AdminLive (GoogleFleetMap):
+// tema claro padrão (roadmap), controles idênticos, marcadores em
+// "puck" branco com ícone dentro, InfoWindow ao clicar.
 // ============================================================
 
-// Estilo escuro discreto, alinhado com o admin GoDrive.
-const MAP_STYLE: any[] = [
-  { elementType: "geometry", stylers: [{ color: "#0f1113" }] },
-  { elementType: "labels.text.stroke", stylers: [{ color: "#0f1113" }] },
-  { elementType: "labels.text.fill", stylers: [{ color: "#8a8f97" }] },
-  { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#1f2428" }] },
-  { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#0F9E7A" }] },
-  { featureType: "poi", stylers: [{ visibility: "off" }] },
-  { featureType: "road", elementType: "geometry", stylers: [{ color: "#1a1e22" }] },
-  { featureType: "road", elementType: "labels", stylers: [{ visibility: "off" }] },
-  { featureType: "transit", stylers: [{ visibility: "off" }] },
-  { featureType: "water", elementType: "geometry", stylers: [{ color: "#0a1418" }] },
-  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#131619" }] },
-];
+const GOLD = "#D4AF37";
 
-function agencyMarkerIcon(primary: boolean): any {
-  const size = primary ? 34 : 26;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 34 34">
+function agencyMarkerIcon(primary: boolean, initial: string): any {
+  const size = primary ? 52 : 46;
+  const ringStroke = primary ? GOLD : "#0f9e7a";
+  const ringWidth = primary ? 3.4 : 2.8;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 44 44" shape-rendering="geometricPrecision">
     <defs>
       <filter id="s" x="-40%" y="-40%" width="180%" height="180%">
-        <feDropShadow dx="0" dy="1.5" stdDeviation="1.8" flood-color="#000" flood-opacity="0.55"/>
+        <feDropShadow dx="0" dy="1.8" stdDeviation="2" flood-color="#000" flood-opacity="0.55"/>
       </filter>
     </defs>
-    <circle cx="17" cy="17" r="14" fill="${EM.base}" opacity="0.22"/>
-    <circle cx="17" cy="17" r="${primary ? 9 : 7}" fill="${EM.base}" stroke="#fff" stroke-width="${primary ? 2.5 : 2}" filter="url(#s)"/>
-    ${primary ? `<circle cx="17" cy="17" r="3" fill="#fff"/>` : ""}
+    <circle cx="22" cy="22" r="19" fill="${ringStroke}" opacity="0.18" />
+    <g filter="url(#s)">
+      <circle cx="22" cy="22" r="14" fill="#ffffff" stroke="${ringStroke}" stroke-width="${ringWidth}" />
+    </g>
+    <!-- Ícone de agência (prédio) -->
+    <g transform="translate(14 14)" fill="${ringStroke}">
+      <rect x="1" y="3" width="14" height="12" rx="1.2" />
+      <rect x="3" y="5.5" width="2" height="2" fill="#fff" />
+      <rect x="7" y="5.5" width="2" height="2" fill="#fff" />
+      <rect x="11" y="5.5" width="2" height="2" fill="#fff" />
+      <rect x="3" y="9" width="2" height="2" fill="#fff" />
+      <rect x="7" y="9" width="2" height="2" fill="#fff" />
+      <rect x="11" y="9" width="2" height="2" fill="#fff" />
+      <rect x="6.5" y="12" width="3" height="3" fill="#fff" />
+    </g>
   </svg>`;
+  const g = (window as any).google;
   return {
     url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
-    scaledSize: { width: size, height: size } as any,
-    anchor: { x: size / 2, y: size / 2 } as any,
+    scaledSize: g?.maps?.Size ? new g.maps.Size(size, size) : ({ width: size, height: size } as any),
+    anchor: g?.maps?.Point ? new g.maps.Point(size / 2, size / 2) : ({ x: size / 2, y: size / 2 } as any),
   };
+}
+
+function esc(s: any): string {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 }
 
 function FloridaGoogleMap({ points }: { points: AgencyPoint[] }) {
@@ -561,41 +569,70 @@ function FloridaGoogleMap({ points }: { points: AgencyPoint[] }) {
         const google = await loadGoogleMaps();
         if (cancelled || !ref.current) return;
 
-        // Enquadramento da Flórida (centro geográfico aproximado).
+        // Mesmo preset visual do AdminLive: tema claro padrão (roadmap),
+        // controles no canto inferior direito, gestos "greedy".
         const map = new google.maps.Map(ref.current, {
           center: { lat: 27.9, lng: -82.0 },
           zoom: 6,
+          mapTypeId: "roadmap",
+          tilt: 0,
+          restriction: {
+            latLngBounds: { north: 50, south: 7, east: -60, west: -125 },
+            strictBounds: false,
+          },
+          minZoom: 5,
+          maxZoom: 21,
           disableDefaultUI: true,
           zoomControl: true,
-          gestureHandling: "cooperative",
-          clickableIcons: false,
-          backgroundColor: "#0f1113",
-          styles: MAP_STYLE,
+          zoomControlOptions: { position: (window as any).google?.maps?.ControlPosition?.RIGHT_BOTTOM },
+          streetViewControl: false,
+          fullscreenControl: false,
+          rotateControl: true,
+          rotateControlOptions: { position: (window as any).google?.maps?.ControlPosition?.RIGHT_BOTTOM },
+          backgroundColor: "#e5e3df",
+          gestureHandling: "greedy",
+          scrollwheel: true,
+          isFractionalZoomEnabled: true,
+          clickableIcons: true,
+          keyboardShortcuts: true,
+          draggableCursor: "grab",
+          draggingCursor: "grabbing",
         });
 
+        const infoWindow = new google.maps.InfoWindow();
         const bounds = new google.maps.LatLngBounds();
+
         points.forEach((p) => {
+          const initial = (p.name || p.city || "?").trim().charAt(0).toUpperCase();
           const marker = new google.maps.Marker({
             position: { lat: p.lat, lng: p.lng },
             map,
-            icon: agencyMarkerIcon(!!p.primary),
+            icon: agencyMarkerIcon(!!p.primary, initial),
             title: `${p.city} · ${p.name}`,
             zIndex: p.primary ? 10 : 1,
+            optimized: false,
           });
-          const info = new google.maps.InfoWindow({
-            content: `<div style="font-family:'Inter',sans-serif;color:#111;padding:2px 4px;min-width:160px">
-              <div style="font-weight:700;font-size:13px">${p.name}</div>
-              <div style="font-size:11px;color:#6b7280;margin-top:2px">${p.city} · Flórida</div>
-              <div style="font-size:11px;color:#0F9E7A;margin-top:6px;font-weight:600">${p.requests} solicitações este mês</div>
-            </div>`,
+          const statusDot = p.primary ? GOLD : "#0f9e7a";
+          const statusLabel = p.primary ? "Agência principal" : "Ativa";
+          const content = `
+            <div style="font-family:'Inter',sans-serif;color:#111;padding:4px 6px;min-width:200px">
+              <div style="font-weight:700;font-size:14px;line-height:1.25">${esc(p.name)}</div>
+              <div style="font-size:11px;color:#6b7280;margin-top:2px">${esc(p.city)} · Flórida</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:8px">
+                <span style="display:inline-block;width:8px;height:8px;border-radius:9999px;background:${statusDot}"></span>
+                <span style="font-size:11px;font-weight:600;color:#111">${statusLabel}</span>
+              </div>
+              <div style="font-size:11px;color:#0f9e7a;margin-top:6px;font-weight:600">${p.requests} solicitações este mês</div>
+            </div>`;
+          marker.addListener("click", () => {
+            infoWindow.setContent(content);
+            infoWindow.open({ anchor: marker, map });
           });
-          marker.addListener("click", () => info.open({ anchor: marker, map }));
           bounds.extend({ lat: p.lat, lng: p.lng });
         });
 
-        // Ajusta enquadramento para caber todos os pontos com margem.
         if (points.length > 1) {
-          map.fitBounds(bounds, { top: 30, right: 30, bottom: 30, left: 30 });
+          map.fitBounds(bounds, { top: 40, right: 40, bottom: 40, left: 40 });
         }
 
         setState("ok");
@@ -613,7 +650,6 @@ function FloridaGoogleMap({ points }: { points: AgencyPoint[] }) {
       className="relative w-full rounded-lg overflow-hidden border border-border/60"
       style={{ background: "hsl(var(--muted) / 0.35)" }}
     >
-      {/* Alturas mobile-first: compacto no celular, generoso no desktop. */}
       <div ref={ref} className="w-full h-[260px] sm:h-[320px] lg:h-[380px]" />
       {state !== "ok" && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-muted/60 backdrop-blur-sm">
@@ -636,3 +672,4 @@ function FloridaGoogleMap({ points }: { points: AgencyPoint[] }) {
     </div>
   );
 }
+
