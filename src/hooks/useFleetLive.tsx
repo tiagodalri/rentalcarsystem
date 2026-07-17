@@ -108,6 +108,9 @@ export function useFleetLive() {
       }
       setVehicles(list);
       setLoading(false);
+      // Ativa a camada de simulação de movimento (demo) assim que temos
+      // a frota carregada. `initLiveSimulation` é idempotente.
+      void initLiveSimulation(list.map((v) => ({ vehicle_id: v.vehicle_id, name: v.name })));
     }
 
     load();
