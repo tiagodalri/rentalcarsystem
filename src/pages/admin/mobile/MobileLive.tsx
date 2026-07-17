@@ -11,7 +11,10 @@ import {
   ExternalLink,
   Crosshair,
   Clock,
+  CalendarCheck,
 } from "lucide-react";
+import { formatPersonName } from "@/lib/formatName";
+import { parseDateOnly } from "@/lib/dateOnly";
 import { useFleetLive, type LiveVehicle } from "@/hooks/useFleetLive";
 import { LoadingRows } from "@/components/skeletons/LoadingRows";
 import { GoogleFleetMap } from "@/components/admin/GoogleFleetMap";
