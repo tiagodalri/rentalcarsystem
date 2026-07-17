@@ -218,5 +218,37 @@ export function useFleetLive() {
     };
   }, []);
 
-  return { vehicles, loading };
+  // Overlay de simulação (demo): sobrepõe lat/lng/heading/speed dos
+  // veículos escolhidos pela camada de simulação, sem gravar nada no banco.
+  const [simTick, setSimTick] = useState(0);
+  useEffect(() => {
+    return subscribeSim(() => setSimTick((n) => (n + 1) % 1_000_000));
+  }, []);
+
+  const merged = useMemo(() => {
+    if (vehicles.length === 0) return vehicles;
+    let changed = false;
+    const out = vehicles.map((v) => {
+      const o = getSimOverride(v.vehicle_id);
+      if (!o) return v;
+      changed = true;
+      const status: LiveStatus =
+        o.is_running && o.speed > 3 ? "moving" : o.is_running ? "idle" : "parked";
+      return {
+        ...v,
+        lat: o.lat,
+        lng: o.lng,
+        heading: o.heading,
+        speed: o.speed,
+        is_running: o.is_running,
+        address: o.address,
+        reported_at: o.reported_at,
+        status,
+      };
+    });
+    return changed ? out : vehicles;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vehicles, simTick]);
+
+  return { vehicles: merged, loading };
 }
