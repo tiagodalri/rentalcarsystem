@@ -1,29 +1,34 @@
 /**
  * Live Tracking — camada de simulação em tempo real (DEMO).
  *
- * Objetivo: em modo demonstração, garantir que ao abrir /admin/live
- * uma parte da frota (5-8 veículos) esteja SE MOVIMENTANDO sobre ruas
- * reais (Waze/Uber-like), enquanto o restante permanece parado.
+ * Máquina de estados por veículo (runner):
  *
- * Como funciona:
- * - Ao ser inicializada com a lista de veículos, sorteia 5-8 e associa
- *   cada um a uma rota fixa origem→destino em Orlando/Miami.
- * - Para cada rota, chama `google.maps.DirectionsService.route()` UMA
- *   única vez e cacheia o polyline decodificado em memória +
- *   sessionStorage. Chamadas subsequentes (nova sessão, hot-reload)
- *   reutilizam o cache — máximo ~8-10 requests de Directions no pior
- *   caso, zero se cache válido.
- * - Um único loop de `requestAnimationFrame` interpola a posição de
- *   cada veículo ao longo do polyline com velocidade realista
- *   (25-45 mph urbano, 55-70 mph rodovia), com desacelerações e paradas
- *   ocasionais simulando semáforo/estacionamento.
- * - Publica overrides {lat, lng, heading, speed, is_running, address}
- *   via `subscribeSim` — nada é gravado no banco, 100% client-side.
- * - O hook `useFleetLive` faz merge: veículos com override são
- *   substituídos, os demais preservam a telemetria do banco.
+ *   ┌──────────┐   fim de rota &&    ┌────────────────┐
+ *   │ dirigindo│ ─── tempo mínimo? ─▶│ inverte sentido│──┐
+ *   └────┬─────┘   NÃO cumprido      └────────────────┘  │
+ *        │                                                 │
+ *        │  chance rara (~a cada minutos)                  │
+ *        ▼                                                 │
+ *   ┌────────────┐  4-10s                                  │
+ *   │ semáforo   │ ─────────▶ dirigindo (mesma direção) ◀──┘
+ *   │ (inTransit)│
+ *   └────────────┘
+ *        │
+ *        │ fim de rota && tempo mínimo cumprido
+ *        ▼
+ *   ┌──────────┐  substituição espaçada (>= 3-5 min entre trocas,
+ *   │ estacionou│  imediato se contagem cair abaixo do piso)
+ *   │ (retired) │  ── spawn de um novo runner em outro veículo
+ *   └──────────┘
  *
- * Fácil de desligar: basta setar `DEMO_MODE = false` em
- * `src/lib/demo/config.ts` que o módulo se torna no-op.
+ * Regras de estabilidade:
+ * - Spawn de progresso 0-30% da rota (nunca perto do destino).
+ * - MIN_DRIVE_MS ≥ 8 min antes de qualquer parada real; se a rota
+ *   é curta, o veículo faz ida-e-volta contínua até cumprir o tempo.
+ * - "Semáforo" mantém `inTransit=true` — o consumidor trata como
+ *   moving na lista/KPI (não rebaralha a ordenação).
+ * - Substituições respeitam SWAP_COOLDOWN_MS; só entra outro
+ *   antecipado se moving cair abaixo de MIN_MOVING.
  */
 
 import { loadGoogleMaps } from "@/lib/googleMapsLoader";
@@ -40,7 +45,6 @@ type RouteDef = {
   targetSpeed: number;
 };
 
-/** Pares origem→destino plausíveis. Orlando é maioria; 2 pares em Miami. */
 const ROUTES: RouteDef[] = [
   { id: "mco-idrive", label: "MCO · sentido International Drive", from: { lat: 28.4312, lng: -81.3081 }, to: { lat: 28.4432, lng: -81.4691 }, targetSpeed: 42 },
   { id: "kissimmee-winterpark", label: "Kissimmee · sentido Winter Park", from: { lat: 28.2919, lng: -81.4076 }, to: { lat: 28.5999, lng: -81.3392 }, targetSpeed: 55 },
@@ -58,6 +62,14 @@ const ROUTES: RouteDef[] = [
 type CachedRoute = { path: LatLng[]; cumDist: number[]; totalDist: number };
 const CACHE_KEY = "godalz:live-sim:routes:v1";
 const routeCache = new Map<string, CachedRoute>();
+
+const MIN_MOVING = 5;                     // piso do KPI "Em movimento"
+const TARGET_MIN = 6;                     // alvo inferior de runners ativos
+const TARGET_MAX = 8;                     // alvo superior
+const MIN_DRIVE_MS = 8 * 60_000;          // 8 min
+const MAX_DRIVE_MS = 15 * 60_000;         // 15 min
+const SWAP_COOLDOWN_MIN_MS = 3 * 60_000;  // 3 min
+const SWAP_COOLDOWN_MAX_MS = 5 * 60_000;  // 5 min
 
 function loadCache(): void {
   try {
@@ -89,7 +101,6 @@ function buildCached(path: LatLng[]): CachedRoute {
   return { path, cumDist: cum, totalDist: total };
 }
 
-/** Decodifica polyline no formato do Google (algoritmo padrão). */
 function decodePolyline(str: string): LatLng[] {
   const out: LatLng[] = [];
   let index = 0, lat = 0, lng = 0;
@@ -134,7 +145,6 @@ async function fetchRoute(ds: any, r: RouteDef): Promise<CachedRoute | null> {
     });
     const route = res?.routes?.[0];
     if (!route) return null;
-    // Preferir path detalhado (steps) se disponível — mais fiel ao traçado.
     let path: LatLng[] = [];
     const encoded = route.overview_polyline?.points ?? route.overview_polyline;
     if (typeof encoded === "string" && encoded.length > 0) {
@@ -158,6 +168,8 @@ export type SimOverride = {
   heading: number;
   speed: number; // mph, inteiro
   is_running: boolean;
+  /** true durante trajeto (mesmo parado no semáforo) — consumidor trata como "moving". */
+  inTransit: boolean;
   address: string;
   reported_at: string;
 };
@@ -170,31 +182,119 @@ type Runner = {
   totalDist: number;
   progressM: number;
   direction: 1 | -1;
-  parkedUntil: number;
+  drivingSince: number;
+  minDriveMs: number;
+  trafficLightUntil: number;
   currentMph: number;
   targetMph: number;
   nextTargetSwitchAt: number;
-  /** timestamp em que fica "estacionado" no final antes de reverter */
-  finalParkUntil: number;
+  /** quando true, foi aposentado — permanece com override "parado" no lugar. */
+  retired: boolean;
 };
 
 const overrides = new Map<string, SimOverride>();
 const listeners = new Set<() => void>();
 const runners: Runner[] = [];
+
+// Contexto de spawn/substituição
 let initialized = false;
 let rafId: number | null = null;
 let lastFrameTs = 0;
 let lastNotifyTs = 0;
+let lastSwapAt = 0;
+let swapCooldownMs = SWAP_COOLDOWN_MIN_MS;
+let targetCount = TARGET_MIN;
+let dsRef: any = null;
+let vehiclePoolRef: { vehicle_id: string; name?: string | null }[] = [];
+let routeQueueRef: RouteDef[] = [];
+let spawning = false;
 
 function notifyThrottled(now: number) {
-  if (now - lastNotifyTs < 250) return; // ~4Hz é suficiente para animação suave via CSS/marker
+  if (now - lastNotifyTs < 250) return;
   lastNotifyTs = now;
   listeners.forEach((cb) => { try { cb(); } catch { /* ignore */ } });
 }
 
+function pickNextRoute(): RouteDef | null {
+  if (routeQueueRef.length === 0) {
+    routeQueueRef = [...ROUTES].sort(() => Math.random() - 0.5);
+  }
+  const usedIds = new Set(runners.filter((r) => !r.retired).map((r) => r.route.id));
+  const idx = routeQueueRef.findIndex((r) => !usedIds.has(r.id));
+  if (idx === -1) return routeQueueRef.shift() ?? null;
+  const [r] = routeQueueRef.splice(idx, 1);
+  return r;
+}
+
+function pickNextVehicleId(): string | null {
+  const busy = new Set(runners.map((r) => r.vehicleId));
+  for (const v of vehiclePoolRef) {
+    if (!busy.has(v.vehicle_id)) return v.vehicle_id;
+  }
+  return null;
+}
+
+function activeMovingCount(): number {
+  return runners.filter((r) => !r.retired).length;
+}
+
+async function spawnRunner(now: number): Promise<boolean> {
+  if (spawning || !dsRef) return false;
+  const vehId = pickNextVehicleId();
+  if (!vehId) return false;
+  const route = pickNextRoute();
+  if (!route) return false;
+  spawning = true;
+  try {
+    const rc = await fetchRoute(dsRef, route);
+    if (!rc) return false;
+    // Spawn 0-30% da rota, sentido "ida" (1) para começar longe do destino.
+    const startProgress = rc.totalDist * (Math.random() * 0.3);
+    const runner: Runner = {
+      vehicleId: vehId,
+      route,
+      path: rc.path,
+      cumDist: rc.cumDist,
+      totalDist: rc.totalDist,
+      progressM: startProgress,
+      direction: 1,
+      drivingSince: now,
+      minDriveMs: MIN_DRIVE_MS + Math.random() * (MAX_DRIVE_MS - MIN_DRIVE_MS),
+      trafficLightUntil: 0,
+      currentMph: route.targetSpeed * (0.7 + Math.random() * 0.3),
+      targetMph: route.targetSpeed,
+      nextTargetSwitchAt: now + 3000 + Math.random() * 6000,
+      retired: false,
+    };
+    runners.push(runner);
+    commitPosition(runner, now);
+    lastSwapAt = now;
+    swapCooldownMs = SWAP_COOLDOWN_MIN_MS + Math.random() * (SWAP_COOLDOWN_MAX_MS - SWAP_COOLDOWN_MIN_MS);
+    listeners.forEach((cb) => { try { cb(); } catch { /* ignore */ } });
+    return true;
+  } finally {
+    spawning = false;
+  }
+}
+
+function retireRunner(r: Runner, now: number) {
+  r.retired = true;
+  r.currentMph = 0;
+  // Fixa override no último ponto como "estacionado".
+  const last = overrides.get(r.vehicleId);
+  if (last) {
+    overrides.set(r.vehicleId, {
+      ...last,
+      speed: 0,
+      is_running: false,
+      inTransit: false,
+      reported_at: new Date(now).toISOString(),
+    });
+  }
+}
+
 function commitPosition(r: Runner, now: number) {
   const p = Math.max(0, Math.min(r.totalDist, r.progressM));
-  // busca binária pelo segmento
   let lo = 0, hi = r.cumDist.length - 1;
   while (lo < hi - 1) {
     const mid = (lo + hi) >> 1;
@@ -207,55 +307,71 @@ function commitPosition(r: Runner, now: number) {
   const lat = a.lat + (b.lat - a.lat) * t;
   const lng = a.lng + (b.lng - a.lng) * t;
   const heading = r.direction === 1 ? bearing(a, b) : bearing(b, a);
-  const parked = now < r.parkedUntil || now < r.finalParkUntil;
+  const inLight = now < r.trafficLightUntil;
   overrides.set(r.vehicleId, {
     lat,
     lng,
     heading,
-    speed: parked ? 0 : Math.max(0, Math.round(r.currentMph)),
-    is_running: !parked,
+    speed: inLight ? 0 : Math.max(0, Math.round(r.currentMph)),
+    is_running: true,       // mesmo no semáforo: motor ligado
+    inTransit: true,        // consumidor entende como "moving"
     address: r.route.label,
     reported_at: new Date(now).toISOString(),
   });
 }
 
 function stepRunner(r: Runner, dtMs: number, now: number) {
-  if (now < r.finalParkUntil || now < r.parkedUntil) {
-    // ao terminar a parada final, inverte sentido
-    if (now >= r.finalParkUntil && r.finalParkUntil > 0) {
-      r.finalParkUntil = 0;
-      r.direction = r.direction === 1 ? -1 : 1;
-      r.currentMph = 0;
-      r.targetMph = r.route.targetSpeed * (0.85 + Math.random() * 0.3);
-    }
-    if (now >= r.parkedUntil) r.currentMph = Math.max(0, r.currentMph - 5);
+  if (r.retired) return;
+
+  // Semáforo momentâneo: desacelera pra 0, mantém inTransit.
+  if (now < r.trafficLightUntil) {
+    r.currentMph = Math.max(0, r.currentMph - dtMs * 0.03);
     commitPosition(r, now);
     return;
   }
-  // Trocar alvo de velocidade a cada 6-12s para dar variação natural.
+
+  // Chance rara de semáforo (~a cada ~2-4 min em média).
+  if (Math.random() < 0.00025) {
+    r.trafficLightUntil = now + 4000 + Math.random() * 6000;
+    r.targetMph = 0;
+    commitPosition(r, now);
+    return;
+  }
+
   if (now >= r.nextTargetSwitchAt) {
-    r.targetMph = r.route.targetSpeed * (0.75 + Math.random() * 0.4);
+    r.targetMph = r.route.targetSpeed * (0.8 + Math.random() * 0.35);
     r.nextTargetSwitchAt = now + 6000 + Math.random() * 6000;
   }
-  // Chance rara de parar (semáforo).
-  if (Math.random() < 0.0015) {
-    r.parkedUntil = now + 4000 + Math.random() * 6000;
-    r.targetMph = 0;
-  }
-  // Ease atual → alvo
+  // Ease para alvo
   r.currentMph += (r.targetMph - r.currentMph) * Math.min(1, dtMs / 1400);
-  const mps = r.currentMph * 0.44704;
+  const mps = Math.max(2, r.currentMph) * 0.44704; // nunca abaixo de ~4mph em trânsito
   r.progressM += mps * (dtMs / 1000) * r.direction;
-  if (r.progressM >= r.totalDist) {
-    r.progressM = r.totalDist;
-    r.finalParkUntil = now + 60_000 + Math.random() * 120_000; // 1-3 min "estacionado"
-    r.currentMph = 0;
-  } else if (r.progressM <= 0) {
-    r.progressM = 0;
-    r.finalParkUntil = now + 60_000 + Math.random() * 120_000;
-    r.currentMph = 0;
+
+  const atEnd = r.progressM >= r.totalDist;
+  const atStart = r.progressM <= 0;
+  if (atEnd || atStart) {
+    r.progressM = atEnd ? r.totalDist : 0;
+    const droveEnough = now - r.drivingSince >= r.minDriveMs;
+    if (droveEnough) {
+      retireRunner(r, now);
+      return;
+    }
+    // Ainda não cumpriu o tempo mínimo → ida-e-volta contínua.
+    r.direction = r.direction === 1 ? -1 : 1;
+    r.currentMph = Math.max(8, r.currentMph * 0.6);
+    r.targetMph = r.route.targetSpeed * (0.8 + Math.random() * 0.3);
   }
   commitPosition(r, now);
+}
+
+function maintainFleet(now: number) {
+  const active = activeMovingCount();
+  if (active >= targetCount) return;
+  // Piso: se cair abaixo do MIN_MOVING, promover IMEDIATAMENTE (sem cooldown).
+  const belowFloor = active < MIN_MOVING;
+  const cooldownOk = now - lastSwapAt >= swapCooldownMs;
+  if (!belowFloor && !cooldownOk) return;
+  void spawnRunner(now);
 }
 
 function loop(ts: number) {
@@ -263,30 +379,24 @@ function loop(ts: number) {
   lastFrameTs = ts;
   const now = Date.now();
   for (const r of runners) stepRunner(r, dtMs, now);
+  maintainFleet(now);
   notifyThrottled(now);
   rafId = window.requestAnimationFrame(loop);
 }
 
-/** Retorna override atual do veículo, se houver. */
 export function getSimOverride(vehicleId: string): SimOverride | undefined {
   return overrides.get(vehicleId);
 }
 
-/** IDs sob controle da simulação (para o hook decidir onde aplicar merge). */
 export function getSimVehicleIds(): Set<string> {
   return new Set(overrides.keys());
 }
 
-/** Assinatura de atualizações. Retorna função de unsubscribe. */
 export function subscribeSim(cb: () => void): () => void {
   listeners.add(cb);
   return () => { listeners.delete(cb); };
 }
 
-/**
- * Inicializa a simulação com a lista atual de veículos. Idempotente:
- * chamar múltiplas vezes é seguro (só executa na primeira).
- */
 export async function initLiveSimulation(
   vehicles: { vehicle_id: string; name?: string | null }[],
   options?: { eligibleIds?: string[] },
@@ -294,9 +404,6 @@ export async function initLiveSimulation(
   if (!DEMO_MODE || initialized || typeof window === "undefined") return;
   if (!vehicles || vehicles.length === 0) return;
 
-  // Coerência com as reservas: só veículos com booking ativo hoje podem se
-  // mover. Se a lista de elegíveis ainda não chegou, aguarda uma próxima
-  // chamada (initialized permanece false).
   const eligible = options?.eligibleIds;
   if (!eligible || eligible.length === 0) return;
   const eligibleSet = new Set(eligible);
@@ -308,61 +415,39 @@ export async function initLiveSimulation(
   try {
     google = await loadGoogleMaps();
   } catch {
-    initialized = false; // permite retry se o mapa carregar depois
+    initialized = false;
     return;
   }
   if (!google?.maps?.DirectionsService) {
     initialized = false;
     return;
   }
-  const ds = new google.maps.DirectionsService();
+  dsRef = new google.maps.DirectionsService();
 
-  // 5-8 veículos aleatórios por sessão, restrito à frota rodando.
-  const count = 5 + Math.floor(Math.random() * 4);
-  const pool = [...vehicles].filter((v) => !!v.vehicle_id && eligibleSet.has(v.vehicle_id));
+  // Pool de veículos elegíveis, embaralhado (uso durante toda a sessão).
+  const pool = vehicles.filter((v) => !!v.vehicle_id && eligibleSet.has(v.vehicle_id));
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  const chosen = pool.slice(0, Math.min(count, pool.length));
+  vehiclePoolRef = pool;
+  routeQueueRef = [...ROUTES].sort(() => Math.random() - 0.5);
 
-  const shuffledRoutes = [...ROUTES];
-  for (let i = shuffledRoutes.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffledRoutes[i], shuffledRoutes[j]] = [shuffledRoutes[j], shuffledRoutes[i]];
-  }
+  targetCount = Math.min(pool.length, TARGET_MIN + Math.floor(Math.random() * (TARGET_MAX - TARGET_MIN + 1)));
 
   const now = Date.now();
-  // Sequencial com pequeno delay entre requests para respeitar quota.
-  for (let i = 0; i < chosen.length; i++) {
-    const veh = chosen[i];
-    const route = shuffledRoutes[i % shuffledRoutes.length];
-    const rc = await fetchRoute(ds, route);
-    if (!rc) continue;
-    const startProgress = Math.random() * rc.totalDist * 0.8;
-    const runner: Runner = {
-      vehicleId: veh.vehicle_id,
-      route,
-      path: rc.path,
-      cumDist: rc.cumDist,
-      totalDist: rc.totalDist,
-      progressM: startProgress,
-      direction: Math.random() < 0.5 ? 1 : -1,
-      parkedUntil: 0,
-      currentMph: route.targetSpeed * (0.6 + Math.random() * 0.4),
-      targetMph: route.targetSpeed,
-      nextTargetSwitchAt: now + 3000 + Math.random() * 6000,
-      finalParkUntil: 0,
-    };
-    runners.push(runner);
-    commitPosition(runner, now);
-    // Emite override inicial imediatamente para não esperar 1º frame.
-    listeners.forEach((cb) => { try { cb(); } catch { /* ignore */ } });
-    // Rate-limit gentil entre requests (só quando ainda vamos buscar mais).
-    if (i < chosen.length - 1 && !routeCache.has(shuffledRoutes[(i + 1) % shuffledRoutes.length].id)) {
+  lastSwapAt = now - swapCooldownMs; // permite spawns iniciais imediatos
+  // Spawn inicial em série (respeitando quota do Directions).
+  for (let i = 0; i < targetCount; i++) {
+    const ok = await spawnRunner(now);
+    if (!ok) break;
+    if (i < targetCount - 1) {
       await new Promise((r) => setTimeout(r, 180));
     }
   }
+
+  // Após spawn inicial, seta cooldown normal.
+  lastSwapAt = Date.now();
 
   if (runners.length === 0) {
     initialized = false;
@@ -371,7 +456,6 @@ export async function initLiveSimulation(
   rafId = window.requestAnimationFrame(loop);
 }
 
-/** Para a simulação (útil em hot-reload/testes). */
 export function stopLiveSimulation(): void {
   if (rafId !== null) {
     window.cancelAnimationFrame(rafId);
@@ -379,5 +463,8 @@ export function stopLiveSimulation(): void {
   }
   runners.length = 0;
   overrides.clear();
+  vehiclePoolRef = [];
+  routeQueueRef = [];
+  dsRef = null;
   initialized = false;
 }
