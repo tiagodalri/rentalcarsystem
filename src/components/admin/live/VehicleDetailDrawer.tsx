@@ -96,7 +96,24 @@ export function VehicleDetailDrawer({
               <span className="block truncate min-w-0">{vehicle.address}</span>
             </p>
           )}
+          {vehicle.activeBooking && (
+            <button
+              type="button"
+              onClick={() => navigate(`/admin/bookings/${vehicle.activeBooking!.booking_id}`)}
+              className="mt-2 w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors text-left"
+            >
+              <CalendarCheck size={12} className="text-primary shrink-0" />
+              <span className="text-[11px] text-foreground leading-tight min-w-0 truncate">
+                <span className="font-medium">Reserva ativa</span>
+                {vehicle.activeBooking.customer_name && (
+                  <> · {formatPersonName(vehicle.activeBooking.customer_name)}</>
+                )}
+                <span className="text-muted-foreground"> · até {parseDateOnly(vehicle.activeBooking.return_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</span>
+              </span>
+            </button>
+          )}
         </div>
+
 
         {/* Tabs */}
         <div className="flex border-t border-border/20">
