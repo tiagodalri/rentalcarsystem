@@ -287,9 +287,20 @@ export function subscribeSim(cb: () => void): () => void {
  * Inicializa a simulação com a lista atual de veículos. Idempotente:
  * chamar múltiplas vezes é seguro (só executa na primeira).
  */
-export async function initLiveSimulation(vehicles: { vehicle_id: string; name?: string | null }[]): Promise<void> {
+export async function initLiveSimulation(
+  vehicles: { vehicle_id: string; name?: string | null }[],
+  options?: { eligibleIds?: string[] },
+): Promise<void> {
   if (!DEMO_MODE || initialized || typeof window === "undefined") return;
   if (!vehicles || vehicles.length === 0) return;
+
+  // Coerência com as reservas: só veículos com booking ativo hoje podem se
+  // mover. Se a lista de elegíveis ainda não chegou, aguarda uma próxima
+  // chamada (initialized permanece false).
+  const eligible = options?.eligibleIds;
+  if (!eligible || eligible.length === 0) return;
+  const eligibleSet = new Set(eligible);
+
   initialized = true;
   loadCache();
 
@@ -306,9 +317,9 @@ export async function initLiveSimulation(vehicles: { vehicle_id: string; name?: 
   }
   const ds = new google.maps.DirectionsService();
 
-  // 5-8 veículos aleatórios por sessão.
+  // 5-8 veículos aleatórios por sessão, restrito à frota rodando.
   const count = 5 + Math.floor(Math.random() * 4);
-  const pool = [...vehicles].filter((v) => !!v.vehicle_id);
+  const pool = [...vehicles].filter((v) => !!v.vehicle_id && eligibleSet.has(v.vehicle_id));
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
