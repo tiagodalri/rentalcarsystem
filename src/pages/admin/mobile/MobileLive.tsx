@@ -408,6 +408,23 @@ function VehicleDetailSheetContent({
           </p>
         )}
 
+        {vehicle.activeBooking && (
+          <button
+            type="button"
+            onClick={() => { haptic.tick(); navigate(`/admin/bookings/${vehicle.activeBooking!.booking_id}`); }}
+            className="mt-2 w-full flex items-center gap-2 px-2.5 py-2 rounded-md bg-primary/10 border border-primary/20 active:bg-primary/15 transition-colors text-left"
+          >
+            <CalendarCheck size={13} className="text-primary shrink-0" />
+            <span className="text-[12px] text-foreground leading-tight min-w-0 truncate">
+              <span className="font-medium">Reserva ativa</span>
+              {vehicle.activeBooking.customer_name && (
+                <> · {formatPersonName(vehicle.activeBooking.customer_name)}</>
+              )}
+              <span className="text-muted-foreground"> · até {parseDateOnly(vehicle.activeBooking.return_date).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</span>
+            </span>
+          </button>
+        )}
+
         {/* KPI rápidos */}
         <div className="grid grid-cols-3 gap-2 mt-3">
           <div className="rounded-lg bg-muted/40 px-2.5 py-2">
