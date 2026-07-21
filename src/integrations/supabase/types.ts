@@ -2768,6 +2768,9 @@ export type Database = {
           failure_reason: string | null
           forwarded_from_message_id: string | null
           id: string
+          location_label: string | null
+          location_lat: number | null
+          location_lng: number | null
           media_mimetype: string | null
           media_url: string | null
           message_type: string
@@ -2789,6 +2792,9 @@ export type Database = {
           failure_reason?: string | null
           forwarded_from_message_id?: string | null
           id?: string
+          location_label?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
           media_mimetype?: string | null
           media_url?: string | null
           message_type?: string
@@ -2810,6 +2816,9 @@ export type Database = {
           failure_reason?: string | null
           forwarded_from_message_id?: string | null
           id?: string
+          location_label?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
           media_mimetype?: string | null
           media_url?: string | null
           message_type?: string
