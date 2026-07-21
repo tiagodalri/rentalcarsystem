@@ -86,6 +86,8 @@ export default function AdminSettings() {
         </div>
       )}
 
+      {hasAny(["admin"]) && <WhatsAppSettingsSection />}
+
       <ChangePasswordDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
