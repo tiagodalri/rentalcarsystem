@@ -520,7 +520,7 @@ function MessageThread({
     onJumpTo: jumpToMessage,
   };
 
-  const groups = groupByDate(messages);
+  const groups = groupByDate(visibleMessages);
   const stage = stageInfo(conversation.stage);
   const currentPinned = pinnedMessages[pinnedIndex % Math.max(pinnedMessages.length, 1)];
 
