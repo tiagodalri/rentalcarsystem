@@ -2520,7 +2520,9 @@ export type Database = {
           last_message_at: string | null
           last_message_preview: string | null
           phone: string
+          stage: string
           status: string
+          tags: string[]
           unread_count: number
           updated_at: string
         }
@@ -2535,7 +2537,9 @@ export type Database = {
           last_message_at?: string | null
           last_message_preview?: string | null
           phone: string
+          stage?: string
           status?: string
+          tags?: string[]
           unread_count?: number
           updated_at?: string
         }
@@ -2550,7 +2554,9 @@ export type Database = {
           last_message_at?: string | null
           last_message_preview?: string | null
           phone?: string
+          stage?: string
           status?: string
+          tags?: string[]
           unread_count?: number
           updated_at?: string
         }
@@ -2665,6 +2671,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      whatsapp_quick_replies: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          id: string
+          shortcut: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          shortcut?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          shortcut?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       zapi_contacts: {
         Row: {
@@ -2810,6 +2846,10 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      find_customer_by_phone_digits: {
+        Args: { p_digits: string }
+        Returns: string
       }
       get_occupancy_rate: { Args: never; Returns: number }
       get_vehicle_basic: {
