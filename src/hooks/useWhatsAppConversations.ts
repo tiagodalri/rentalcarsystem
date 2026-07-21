@@ -23,6 +23,8 @@ export interface WhatsAppConversation {
   assigned_to: string | null;
   stage: FunnelStage;
   tags: string[];
+  is_vip: boolean;
+  is_urgent: boolean;
   created_at: string;
   updated_at: string;
 }
