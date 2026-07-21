@@ -2754,33 +2754,74 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_link_clicks: {
+        Row: {
+          clicked_at: string
+          id: string
+          link_id: string
+          referrer: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          clicked_at?: string
+          id?: string
+          link_id: string
+          referrer?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          clicked_at?: string
+          id?: string
+          link_id?: string
+          referrer?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_link_clicks_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_links: {
         Row: {
           click_count: number
           created_at: string
           created_by: string | null
           id: string
+          is_active: boolean
+          label: string | null
           prefilled_message: string | null
           slug: string
           target_phone: string | null
+          updated_at: string
         }
         Insert: {
           click_count?: number
           created_at?: string
           created_by?: string | null
           id?: string
+          is_active?: boolean
+          label?: string | null
           prefilled_message?: string | null
           slug: string
           target_phone?: string | null
+          updated_at?: string
         }
         Update: {
           click_count?: number
           created_at?: string
           created_by?: string | null
           id?: string
+          is_active?: boolean
+          label?: string | null
           prefilled_message?: string | null
           slug?: string
           target_phone?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
