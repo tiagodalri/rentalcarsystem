@@ -156,45 +156,48 @@ function ConversationList({
               const displayName = c.contact_name ? formatPersonName(c.contact_name) : formatPhone(c.phone);
               const stage = stageInfo(c.stage);
               return (
-                <li key={c.id}>
+                <li key={c.id} className="relative">
+                  {isActive && (
+                    <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-primary" aria-hidden />
+                  )}
                   <button
                     onClick={() => onSelect(c.id)}
-                    className={`w-full flex items-start gap-3 px-3 py-3 border-b border-border/60 text-left transition-colors ${
-                      isActive ? "bg-muted" : "hover:bg-muted/50"
+                    className={`w-full flex items-start gap-3 px-3 py-3 border-b border-border/40 text-left transition-colors overflow-hidden ${
+                      isActive ? "bg-muted/70" : "hover:bg-muted/40"
                     }`}
                   >
                     <PersonAvatar name={c.contact_name || c.phone} size="lg" tone="gold" />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-semibold truncate">{displayName}</span>
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-sm font-semibold truncate min-w-0 flex-1">{displayName}</span>
                         {c.last_message_at && (
-                          <span className={`text-[10px] shrink-0 ${c.unread_count > 0 ? "text-emerald-600 font-medium" : "text-muted-foreground"}`}>
+                          <span className={`text-[10px] shrink-0 tabular-nums ${c.unread_count > 0 ? "text-primary font-semibold" : "text-muted-foreground"}`}>
                             {formatDistanceToNow(new Date(c.last_message_at), { addSuffix: false, locale: ptBR })}
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <p className="text-xs text-muted-foreground truncate flex-1">
+                      <div className="flex items-center gap-2 mt-1 min-w-0">
+                        <p className="text-xs text-muted-foreground truncate min-w-0 flex-1">
                           {c.last_message_preview || "—"}
                         </p>
                         {c.unread_count > 0 && (
-                          <Badge className="h-[18px] min-w-[18px] px-1.5 rounded-full text-[10px] bg-primary text-primary-foreground hover:bg-primary border-0">
+                          <Badge className="h-[18px] min-w-[18px] px-1.5 rounded-full text-[10px] bg-primary text-primary-foreground hover:bg-primary border-0 shrink-0">
                             {c.unread_count}
                           </Badge>
                         )}
                       </div>
-                      <div className="flex flex-wrap items-center gap-1 mt-1.5">
-                        <span className={`${STAGE_BADGE_BASE} ${stage.cls}`}>
+                      <div className="flex items-center gap-1 mt-2 min-w-0 overflow-hidden">
+                        <span className={`${STAGE_BADGE_BASE} ${stage.cls} shrink-0`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${stage.dot}`} />
                           {stage.label}
                         </span>
-                        {c.tags.slice(0, 2).map((t) => (
-                          <span key={t} className={`${STAGE_BADGE_BASE} ${tagClass(t)}`}>
+                        {c.tags.slice(0, 1).map((t) => (
+                          <span key={t} className={`${STAGE_BADGE_BASE} ${tagClass(t)} shrink-0 truncate max-w-[110px]`}>
                             {t}
                           </span>
                         ))}
-                        {c.tags.length > 2 && (
-                          <span className="text-[10px] text-muted-foreground">+{c.tags.length - 2}</span>
+                        {c.tags.length > 1 && (
+                          <span className="text-[10px] text-muted-foreground shrink-0">+{c.tags.length - 1}</span>
                         )}
                       </div>
                     </div>
