@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock, UsersRound, ScrollText, ChevronRight, FileSignature, FileWarning } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import ChangePasswordDialog from "@/components/admin/ChangePasswordDialog";
+import WhatsAppSettingsSection from "@/components/admin/whatsapp/WhatsAppSettingsSection";
 
 export default function AdminSettings() {
   const { user, hasAny } = useAdminAuth();
