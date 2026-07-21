@@ -16,6 +16,10 @@ export interface WhatsAppMessage {
   sender_phone: string | null;
   timestamp: string | null;
   created_at: string;
+  pinned?: boolean;
+  edited_at?: string | null;
+  reply_to_message_id?: string | null;
+  forwarded_from_message_id?: string | null;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
