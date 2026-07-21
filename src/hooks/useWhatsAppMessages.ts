@@ -10,7 +10,7 @@ export interface WhatsAppMessage {
   content: string | null;
   media_url: string | null;
   media_mimetype: string | null;
-  status: "pending" | "sent" | "delivered" | "read" | "failed";
+  status: "pending" | "sent" | "delivered" | "read" | "failed" | "queued";
   failure_reason: string | null;
   sender_name: string | null;
   sender_phone: string | null;
