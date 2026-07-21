@@ -91,11 +91,23 @@ export const getWhatsAppPhone = () =>
 export const disconnectWhatsApp = () => callProxy("disconnect");
 export const restartWhatsAppInstance = () => callProxy("restart");
 
-export const sendWhatsAppText = (phone: string, message: string, conversationId?: string) =>
+export interface SendExtras {
+  replyToMessageId?: string | null;
+  forwardedFromMessageId?: string | null;
+}
+
+export const sendWhatsAppText = (
+  phone: string,
+  message: string,
+  conversationId?: string,
+  extras?: SendExtras,
+) =>
   callProxy<{ externalId?: string; messageId?: string; zaapId?: string }>("send-text", {
     phone,
     message,
     conversationId,
+    replyToMessageId: extras?.replyToMessageId ?? null,
+    forwardedFromMessageId: extras?.forwardedFromMessageId ?? null,
   });
 
 export const sendWhatsAppImage = (
@@ -103,7 +115,12 @@ export const sendWhatsAppImage = (
   image: string,
   caption?: string,
   conversationId?: string,
-) => callProxy("send-image", { phone, image, caption, conversationId });
+  extras?: SendExtras,
+) => callProxy("send-image", {
+  phone, image, caption, conversationId,
+  replyToMessageId: extras?.replyToMessageId ?? null,
+  forwardedFromMessageId: extras?.forwardedFromMessageId ?? null,
+});
 
 export const sendWhatsAppDocument = (
   phone: string,
@@ -111,7 +128,12 @@ export const sendWhatsAppDocument = (
   extension: string,
   fileName?: string,
   conversationId?: string,
-) => callProxy("send-document", { phone, document, extension, fileName, conversationId });
+  extras?: SendExtras,
+) => callProxy("send-document", {
+  phone, document, extension, fileName, conversationId,
+  replyToMessageId: extras?.replyToMessageId ?? null,
+  forwardedFromMessageId: extras?.forwardedFromMessageId ?? null,
+});
 
 export const sendWhatsAppAudio = (phone: string, audio: string) =>
   callProxy("send-audio", { phone, audio });
