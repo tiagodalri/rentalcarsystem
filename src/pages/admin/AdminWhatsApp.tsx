@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -32,8 +31,8 @@ import {
   sendWhatsAppText,
 } from "@/lib/zapi";
 import { formatPersonName } from "@/lib/formatName";
-import { ContactAvatar } from "@/components/admin/whatsapp/Avatar";
-import { stageInfo, tagStyle } from "@/components/admin/whatsapp/stage";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
+import { stageInfo, tagClass, STAGE_BADGE_BASE } from "@/components/admin/whatsapp/stage";
 import { MessageBubble, DateSeparator, dateLabel } from "@/components/admin/whatsapp/MessageBubble";
 import { ContextPanel } from "@/components/admin/whatsapp/ContextPanel";
 import { QuickReplyMenu, applyPlaceholders } from "@/components/admin/whatsapp/QuickReplies";
@@ -135,14 +134,15 @@ function ConversationList({
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-background">
-      <div className="p-3 border-b">
+      <div className="p-3 border-b border-border/40">
         <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
             placeholder="Buscar por nome, telefone ou tag"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9 h-9 bg-muted/40 border-transparent focus-visible:bg-background"
+            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/40 bg-card/50 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
           />
         </div>
       </div>
@@ -163,7 +163,7 @@ function ConversationList({
                       isActive ? "bg-muted" : "hover:bg-muted/50"
                     }`}
                   >
-                    <ContactAvatar name={c.contact_name} phone={c.phone} size={48} />
+                    <PersonAvatar name={c.contact_name || c.phone} size="lg" tone="gold" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-sm font-semibold truncate">{displayName}</span>
@@ -178,18 +178,18 @@ function ConversationList({
                           {c.last_message_preview || "—"}
                         </p>
                         {c.unread_count > 0 && (
-                          <Badge className="h-[18px] min-w-[18px] px-1.5 rounded-full text-[10px] bg-emerald-600 hover:bg-emerald-600 border-0">
+                          <Badge className="h-[18px] min-w-[18px] px-1.5 rounded-full text-[10px] bg-primary text-primary-foreground hover:bg-primary border-0">
                             {c.unread_count}
                           </Badge>
                         )}
                       </div>
                       <div className="flex flex-wrap items-center gap-1 mt-1.5">
-                        <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border ${stage.cls}`}>
+                        <span className={`${STAGE_BADGE_BASE} ${stage.cls}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${stage.dot}`} />
                           {stage.label}
                         </span>
                         {c.tags.slice(0, 2).map((t) => (
-                          <span key={t} className="text-[10px] px-1.5 py-0.5 rounded-full border" style={tagStyle(t)}>
+                          <span key={t} className={`${STAGE_BADGE_BASE} ${tagClass(t)}`}>
                             {t}
                           </span>
                         ))}
@@ -325,7 +325,7 @@ function MessageThread({
           </Button>
         )}
         <button className="flex items-center gap-3 flex-1 min-w-0 text-left" onClick={onToggleContext}>
-          <ContactAvatar name={conversation.contact_name} phone={conversation.phone} size={40} />
+          <PersonAvatar name={conversation.contact_name || conversation.phone} size="md" tone="gold" />
           <div className="min-w-0 flex-1">
             <div className="text-sm font-semibold truncate">{displayName}</div>
             <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -414,43 +414,45 @@ export default function AdminWhatsApp() {
   );
 
   return (
-    <div className="-mx-4 -mt-4 lg:-mx-8 lg:-mt-8 -mb-[max(calc(64px+env(safe-area-inset-bottom,0px)+20px),1rem)] lg:-mb-10 h-[calc(100dvh-56px)] lg:h-[calc(100dvh-40px)] flex flex-col bg-background overflow-hidden">
-      <div className="flex items-center justify-between gap-4 px-4 md:px-5 py-2.5 border-b shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <h1 className="admin-h1 text-lg md:text-xl truncate">WhatsApp</h1>
-          <span className="hidden md:inline text-xs text-muted-foreground truncate">
-            Central de conversas · CRM · funil de vendas
-          </span>
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="admin-h1 text-2xl md:text-3xl">WhatsApp</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Central de conversas conectada via Z-API, com CRM, funil de vendas e respostas rápidas.
+          </p>
         </div>
         <HeaderStatusBadge />
       </div>
 
-      <div className="flex-1 min-h-0 flex">
-        <div className={`w-full lg:w-[340px] xl:w-[380px] border-r shrink-0 ${selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
-          <ConversationList
-            conversations={conversations}
-            selectedId={selectedId}
-            onSelect={(id) => { setSelectedId(id); setContextOpen(false); }}
-            search={search}
-            onSearchChange={setSearch}
-          />
-        </div>
-
-        <div className={`flex-1 min-w-0 ${!selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
-          <MessageThread
-            conversation={selected}
-            onBack={() => setSelectedId(null)}
-            onToggleContext={() => setContextOpen((v) => !v)}
-            contextOpen={contextOpen}
-          />
-        </div>
-
-        {selected && contextOpen && (
-          <div className="hidden lg:flex w-[340px] xl:w-[380px] border-l shrink-0 flex-col min-h-0">
-            <ContextPanel conversation={selected} onClose={() => setContextOpen(false)} />
+      <Card className="bg-card/80 border-border/30 overflow-hidden h-[calc(100vh-220px)] min-h-[560px]">
+        <div className="flex h-full min-h-0">
+          <div className={`w-full lg:w-[340px] xl:w-[380px] border-r border-border/40 shrink-0 ${selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
+            <ConversationList
+              conversations={conversations}
+              selectedId={selectedId}
+              onSelect={(id) => { setSelectedId(id); setContextOpen(false); }}
+              search={search}
+              onSearchChange={setSearch}
+            />
           </div>
-        )}
-      </div>
+
+          <div className={`flex-1 min-w-0 ${!selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
+            <MessageThread
+              conversation={selected}
+              onBack={() => setSelectedId(null)}
+              onToggleContext={() => setContextOpen((v) => !v)}
+              contextOpen={contextOpen}
+            />
+          </div>
+
+          {selected && contextOpen && (
+            <div className="hidden lg:flex w-[340px] xl:w-[380px] border-l border-border/40 shrink-0 flex-col min-h-0">
+              <ContextPanel conversation={selected} onClose={() => setContextOpen(false)} />
+            </div>
+          )}
+        </div>
+      </Card>
 
       {selected && contextOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setContextOpen(false)}>
