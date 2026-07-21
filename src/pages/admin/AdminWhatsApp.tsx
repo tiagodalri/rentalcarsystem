@@ -747,7 +747,11 @@ export default function AdminWhatsApp() {
   useEffect(() => {
     if (!configured) return;
     if (connection?.status !== "connected") return;
-    if (queueHook.getPendingCount() === 0) return;
+    const pendingCount = queueHook.getPendingCount();
+    if (pendingCount === 0) return;
+    toast.success("WhatsApp reconectado", {
+      description: `Enviando ${pendingCount} mensagem(ns) pendente(s)...`,
+    });
     queueHook.processQueue(async (item) => {
       const res = await sendWhatsAppText(item.phone, item.text, item.conversationId, {
         replyToMessageId: item.replyToMessageId ?? null,
