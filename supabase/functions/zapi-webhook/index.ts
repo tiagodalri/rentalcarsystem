@@ -84,7 +84,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
 
-  const secret = Deno.env.get("ZAPI_WEBHOOK_SECRET");
+  const secret = await readWebhookSecretAsync();
   if (!secret) {
     // Accept the request but do nothing — avoids leaking configuration state to callers
     return json({ ok: false, reason: "not_configured" });
