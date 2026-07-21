@@ -866,7 +866,7 @@ function MessageThread({
 
 // ---------------- Page ----------------
 export default function AdminWhatsApp() {
-  const { conversations } = useWhatsAppConversations();
+  const { conversations, mergeExtraConversations } = useWhatsAppConversations();
   const { connection } = useWhatsAppConnection();
   const { rawUser } = useAuth();
   const currentUserId = rawUser?.id ?? null;
@@ -876,6 +876,55 @@ export default function AdminWhatsApp() {
   const [contextOpen, setContextOpen] = useState(false);
   const [configured, setConfigured] = useState(false);
   const [assignmentFilter, setAssignmentFilter] = useState<AssignmentFilter>("all");
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersState>(DEFAULT_ADVANCED_FILTERS);
+  const [contentMatchIds, setContentMatchIds] = useState<Set<string> | null>(null);
+  const [contentSearching, setContentSearching] = useState(false);
+
+  // Debounced server-side search across message contents; hydrates missing conversations.
+  useEffect(() => {
+    const q = search.trim();
+    if (q.length < 2) {
+      setContentMatchIds(null);
+      setContentSearching(false);
+      return;
+    }
+    let cancelled = false;
+    setContentSearching(true);
+    const t = setTimeout(async () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase as any)
+          .from("whatsapp_messages")
+          .select("conversation_id")
+          .ilike("content", `%${q}%`)
+          .limit(200);
+        if (cancelled) return;
+        if (error) {
+          setContentMatchIds(new Set());
+          setContentSearching(false);
+          return;
+        }
+        const ids = new Set<string>(
+          (data || [])
+            .map((r: { conversation_id: string | null }) => r.conversation_id)
+            .filter((v: string | null): v is string => !!v),
+        );
+        setContentMatchIds(ids);
+        // Hydrate any matched conversations not already in memory
+        const known = new Set(conversations.map((c) => c.id));
+        const missing = [...ids].filter((id) => !known.has(id));
+        if (missing.length > 0) {
+          try {
+            const extras = await fetchConversationsByIds(missing);
+            if (!cancelled) mergeExtraConversations(extras);
+          } catch { /* silent — search still shows already-loaded matches */ }
+        }
+      } finally {
+        if (!cancelled) setContentSearching(false);
+      }
+    }, 300);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [search, conversations, mergeExtraConversations]);
 
   const filterCounts = useMemo(
     () => ({
