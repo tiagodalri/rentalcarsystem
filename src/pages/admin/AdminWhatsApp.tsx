@@ -272,12 +272,38 @@ function MessageThread({
   async function handleSend() {
     if (!draft.trim() || !conversation) return;
     setSending(true);
-    const res = await sendWhatsAppText(conversation.phone, draft.trim());
+    const res = await sendWhatsAppText(conversation.phone, draft.trim(), conversation.id);
     setSending(false);
-    if (isNotConfigured(res)) return toast.error("Integração não configurada");
-    if (isDeviceOffline(res)) return toast.error("Celular offline — verifique o WhatsApp no aparelho");
-    if (!res.ok) return toast.error("Falha ao enviar");
+    if (res.ok && res.simulated) {
+      toast.success("Mensagem enviada", {
+        description: "Modo demonstração — configure a Z-API em Configurações para envio real.",
+      });
+      setDraft("");
+      return;
+    }
+    if (!res.ok) {
+      if (isNotConfigured(res)) return toast.error("Integração não configurada");
+      if (isDeviceOffline(res)) return toast.error("Celular offline — verifique o WhatsApp no aparelho");
+      return toast.error("Falha ao enviar");
+    }
     setDraft("");
+  }
+
+  function insertEmoji(emoji: string) {
+    const el = textareaRef.current;
+    if (!el) {
+      setDraft((d) => d + emoji);
+      return;
+    }
+    const start = el.selectionStart ?? draft.length;
+    const end = el.selectionEnd ?? draft.length;
+    const next = draft.slice(0, start) + emoji + draft.slice(end);
+    setDraft(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + emoji.length;
+      el.setSelectionRange(pos, pos);
+    });
   }
 
   function insertQuickReply(content: string) {
