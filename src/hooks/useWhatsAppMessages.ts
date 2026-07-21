@@ -20,6 +20,9 @@ export interface WhatsAppMessage {
   edited_at?: string | null;
   reply_to_message_id?: string | null;
   forwarded_from_message_id?: string | null;
+  location_lat?: number | null;
+  location_lng?: number | null;
+  location_label?: string | null;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
