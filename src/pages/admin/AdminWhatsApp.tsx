@@ -275,12 +275,20 @@ function MessageThread({
   onBack,
   onToggleContext,
   contextOpen,
+  connectionStatus,
+  configured,
+  queueHook,
+  presenceStatus,
 }: {
   conversation: WhatsAppConversation | null;
   conversations: WhatsAppConversation[];
   onBack?: () => void;
   onToggleContext: () => void;
   contextOpen: boolean;
+  connectionStatus: "disconnected" | "connecting" | "connected" | undefined;
+  configured: boolean;
+  queueHook: ReturnType<typeof useMessageQueue>;
+  presenceStatus: PresenceStatus;
 }) {
   const { messages, loading } = useWhatsAppMessages(conversation?.id ?? null);
   const messageIds = useMemo(() => messages.map((m) => m.id), [messages]);
@@ -291,6 +299,47 @@ function MessageThread({
     return map;
   }, [messages]);
   const pinnedMessages = useMemo(() => messages.filter((m) => m.pinned), [messages]);
+
+  // ---- Offline queue: merge queued items into the visible thread ----
+  const queuedForConv = conversation
+    ? queueHook.getQueuedForConversation(conversation.id)
+    : [];
+  const queuedAsMessages: WhatsAppMessage[] = useMemo(
+    () =>
+      queuedForConv.map<WhatsAppMessage>((q: QueuedMessage) => ({
+        id: q.id,
+        conversation_id: q.conversationId,
+        external_message_id: null,
+        direction: "outbound",
+        message_type: "text",
+        content: q.text,
+        media_url: null,
+        media_mimetype: null,
+        status:
+          q.sendStatus === "failed"
+            ? "failed"
+            : q.sendStatus === "sent"
+            ? "sent"
+            : "queued",
+        failure_reason: q.errorMessage || null,
+        sender_name: null,
+        sender_phone: q.phone,
+        timestamp: new Date(q.createdAt).toISOString(),
+        created_at: new Date(q.createdAt).toISOString(),
+        reply_to_message_id: q.replyToMessageId ?? null,
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(queuedForConv)],
+  );
+  const visibleMessages = useMemo(() => {
+    const merged = [...messages, ...queuedAsMessages];
+    merged.sort((a, b) => {
+      const ta = new Date(a.timestamp || a.created_at).getTime();
+      const tb = new Date(b.timestamp || b.created_at).getTime();
+      return ta - tb;
+    });
+    return merged;
+  }, [messages, queuedAsMessages]);
 
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
