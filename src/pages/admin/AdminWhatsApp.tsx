@@ -10,6 +10,8 @@ import {
   ArrowLeft,
   Info,
   Settings2,
+  Pin,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -24,20 +26,33 @@ import {
   type WhatsAppConversation,
 } from "@/hooks/useWhatsAppConversations";
 import { useWhatsAppMessages, type WhatsAppMessage } from "@/hooks/useWhatsAppMessages";
+import { useMessageReactions } from "@/hooks/useMessageReactions";
 import {
   checkWhatsAppStatus,
   isDeviceOffline,
   isNotConfigured,
   sendWhatsAppText,
 } from "@/lib/zapi";
+import {
+  togglePinMessage,
+  editMessageContent,
+  deleteFailedMessage,
+  toggleReaction,
+} from "@/lib/whatsappActions";
 import { formatPersonName } from "@/lib/formatName";
 import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { stageInfo, tagClass, STAGE_BADGE_BASE } from "@/components/admin/whatsapp/stage";
-import { MessageBubble, DateSeparator, dateLabel } from "@/components/admin/whatsapp/MessageBubble";
+import {
+  MessageBubble,
+  DateSeparator,
+  dateLabel,
+  type MessageBubbleActions,
+} from "@/components/admin/whatsapp/MessageBubble";
 import { ContextPanel } from "@/components/admin/whatsapp/ContextPanel";
 import { QuickReplyMenu, applyPlaceholders } from "@/components/admin/whatsapp/QuickReplies";
 import { EmojiPickerButton } from "@/components/admin/whatsapp/EmojiPickerButton";
 import { AttachmentButton } from "@/components/admin/whatsapp/AttachmentButton";
+import { ForwardDialog } from "@/components/admin/whatsapp/ForwardDialog";
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -231,18 +246,34 @@ function groupByDate(messages: WhatsAppMessage[]) {
 // ---------------- Message Thread (WhatsApp-like) ----------------
 function MessageThread({
   conversation,
+  conversations,
   onBack,
   onToggleContext,
   contextOpen,
 }: {
   conversation: WhatsAppConversation | null;
+  conversations: WhatsAppConversation[];
   onBack?: () => void;
   onToggleContext: () => void;
   contextOpen: boolean;
 }) {
   const { messages, loading } = useWhatsAppMessages(conversation?.id ?? null);
+  const messageIds = useMemo(() => messages.map((m) => m.id), [messages]);
+  const { byMessage, currentUserId } = useMessageReactions(conversation?.id ?? null, messageIds);
+  const messagesById = useMemo(() => {
+    const map = new Map<string, WhatsAppMessage>();
+    for (const m of messages) map.set(m.id, m);
+    return map;
+  }, [messages]);
+  const pinnedMessages = useMemo(() => messages.filter((m) => m.pinned), [messages]);
+
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [replyTo, setReplyTo] = useState<WhatsAppMessage | null>(null);
+  const [editing, setEditing] = useState<WhatsAppMessage | null>(null);
+  const [forwardMsg, setForwardMsg] = useState<WhatsAppMessage | null>(null);
+  const [pinnedIndex, setPinnedIndex] = useState(0);
+
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -253,6 +284,14 @@ function MessageThread({
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages.length]);
+
+  useEffect(() => {
+    // reset local composer state when switching conversation
+    setDraft("");
+    setReplyTo(null);
+    setEditing(null);
+    setPinnedIndex(0);
+  }, [conversation?.id]);
 
   if (!conversation) {
     return (
@@ -272,16 +311,42 @@ function MessageThread({
     ? formatPersonName(conversation.contact_name)
     : formatPhone(conversation.phone);
 
+  function jumpToMessage(id: string) {
+    const el = document.getElementById(`msg-${id}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("ring-2", "ring-primary/60", "rounded-lg");
+      setTimeout(() => el.classList.remove("ring-2", "ring-primary/60", "rounded-lg"), 1400);
+    }
+  }
+
   async function handleSend() {
     if (!draft.trim() || !conversation) return;
+
+    // Edit mode: update content instead of sending new
+    if (editing) {
+      const res = await editMessageContent(editing.id, draft.trim());
+      if (!res.ok) return toast.error("Falha ao editar");
+      toast.success("Mensagem editada");
+      setEditing(null);
+      setDraft("");
+      return;
+    }
+
     setSending(true);
-    const res = await sendWhatsAppText(conversation.phone, draft.trim(), conversation.id);
+    const res = await sendWhatsAppText(
+      conversation.phone,
+      draft.trim(),
+      conversation.id,
+      { replyToMessageId: replyTo?.id ?? null },
+    );
     setSending(false);
     if (res.ok && res.simulated) {
       toast.success("Mensagem enviada", {
         description: "Modo demonstração — configure a integração em Configurações para envio real.",
       });
       setDraft("");
+      setReplyTo(null);
       return;
     }
     if (!res.ok) {
@@ -290,6 +355,7 @@ function MessageThread({
       return toast.error("Falha ao enviar");
     }
     setDraft("");
+    setReplyTo(null);
   }
 
   function insertEmoji(emoji: string) {
@@ -315,8 +381,51 @@ function MessageThread({
     setTimeout(() => textareaRef.current?.focus(), 50);
   }
 
+  const bubbleActions: MessageBubbleActions = {
+    onReply: (m) => { setReplyTo(m); setEditing(null); setTimeout(() => textareaRef.current?.focus(), 50); },
+    onForward: (m) => setForwardMsg(m),
+    onCopy: async (m) => {
+      if (!m.content) return;
+      try {
+        await navigator.clipboard.writeText(m.content);
+        toast.success("Copiado");
+      } catch { toast.error("Não foi possível copiar"); }
+    },
+    onTogglePin: async (m) => {
+      const res = await togglePinMessage(m.id, !m.pinned);
+      if (!res.ok) toast.error("Falha ao fixar");
+      else toast.success(m.pinned ? "Desafixada" : "Fixada");
+    },
+    onReact: async (m, emoji) => {
+      const res = await toggleReaction(m.id, emoji);
+      if (!res.ok) toast.error("Falha ao reagir");
+    },
+    onEdit: (m) => {
+      setEditing(m);
+      setReplyTo(null);
+      setDraft(m.content || "");
+      setTimeout(() => textareaRef.current?.focus(), 50);
+    },
+    onRetry: async (m) => {
+      // For text: delete the failed message and resend
+      if (m.message_type === "text" && m.content) {
+        await deleteFailedMessage(m.id);
+        const res = await sendWhatsAppText(conversation.phone, m.content, conversation.id, {
+          replyToMessageId: m.reply_to_message_id ?? null,
+          forwardedFromMessageId: m.forwarded_from_message_id ?? null,
+        });
+        if (!res.ok && !res.simulated) toast.error("Falha ao reenviar");
+        else toast.success("Reenviada");
+      } else {
+        toast.info("Reenvio disponível apenas para texto");
+      }
+    },
+    onJumpTo: jumpToMessage,
+  };
+
   const groups = groupByDate(messages);
   const stage = stageInfo(conversation.stage);
+  const currentPinned = pinnedMessages[pinnedIndex % Math.max(pinnedMessages.length, 1)];
 
   return (
     <div className="flex flex-col h-full min-h-0">
@@ -352,6 +461,29 @@ function MessageThread({
         </Button>
       </div>
 
+      {/* Pinned bar */}
+      {pinnedMessages.length > 0 && currentPinned && (
+        <button
+          onClick={() => {
+            jumpToMessage(currentPinned.id);
+            if (pinnedMessages.length > 1) setPinnedIndex((i) => (i + 1) % pinnedMessages.length);
+          }}
+          className="flex items-center gap-2 px-3 py-1.5 border-b bg-primary/5 hover:bg-primary/10 transition text-left"
+        >
+          <Pin className="w-3.5 h-3.5 text-primary shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] uppercase tracking-wider text-primary font-semibold">
+              {pinnedMessages.length > 1
+                ? `${pinnedIndex + 1} de ${pinnedMessages.length} fixadas`
+                : "Mensagem fixada"}
+            </div>
+            <div className="text-xs text-muted-foreground truncate">
+              {currentPinned.content || "[mídia]"}
+            </div>
+          </div>
+        </button>
+      )}
+
       {/* Messages */}
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto wa-chat-bg py-3 space-y-1">
         {loading ? (
@@ -365,12 +497,43 @@ function MessageThread({
             <div key={gi}>
               <DateSeparator label={g.label} />
               <div className="space-y-1">
-                {g.items.map((m) => <MessageBubble key={m.id} m={m} />)}
+                {g.items.map((m) => (
+                  <MessageBubble
+                    key={m.id}
+                    m={m}
+                    repliedTo={m.reply_to_message_id ? messagesById.get(m.reply_to_message_id) ?? null : null}
+                    reactions={byMessage.get(m.id) || []}
+                    currentUserId={currentUserId}
+                    actions={bubbleActions}
+                  />
+                ))}
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* Reply/edit preview */}
+      {(replyTo || editing) && (
+        <div className="px-3 py-2 border-t bg-muted/30 flex items-start gap-2">
+          <div className="w-0.5 self-stretch bg-primary rounded-full" />
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] uppercase tracking-wider font-semibold text-primary">
+              {editing ? "Editando mensagem" : `Respondendo a ${replyTo?.direction === "outbound" ? "você" : (replyTo?.sender_name || "contato")}`}
+            </div>
+            <div className="text-xs text-muted-foreground line-clamp-2">
+              {(editing?.content || replyTo?.content || "").slice(0, 200) || "[mídia]"}
+            </div>
+          </div>
+          <Button
+            variant="ghost" size="icon" className="h-6 w-6 shrink-0"
+            onClick={() => { setReplyTo(null); setEditing(null); if (editing) setDraft(""); }}
+            title="Cancelar"
+          >
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      )}
 
       {/* Composer */}
       <div className="px-2 py-2 border-t bg-background">
@@ -385,7 +548,7 @@ function MessageThread({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
             }}
-            placeholder="Digite uma mensagem"
+            placeholder={editing ? "Editar mensagem" : "Digite uma mensagem"}
             rows={1}
             className="min-h-[40px] max-h-[140px] resize-none rounded-2xl px-4 py-2 bg-muted/40 border-transparent focus-visible:bg-background"
           />
@@ -394,12 +557,20 @@ function MessageThread({
             disabled={sending || !draft.trim()}
             size="icon"
             className="h-10 w-10 rounded-full shrink-0"
-            title="Enviar"
+            title={editing ? "Salvar" : "Enviar"}
           >
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
         </div>
       </div>
+
+      <ForwardDialog
+        open={!!forwardMsg}
+        onOpenChange={(v) => { if (!v) setForwardMsg(null); }}
+        message={forwardMsg}
+        conversations={conversations}
+        excludeConversationId={conversation.id}
+      />
     </div>
   );
 }
@@ -443,6 +614,7 @@ export default function AdminWhatsApp() {
           <div className={`flex-1 min-w-0 ${!selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
             <MessageThread
               conversation={selected}
+              conversations={conversations}
               onBack={() => setSelectedId(null)}
               onToggleContext={() => setContextOpen((v) => !v)}
               contextOpen={contextOpen}

@@ -95,6 +95,8 @@ interface RecordOutboundInput {
   mediaUrl?: string | null;
   mediaMimetype?: string | null;
   senderName?: string | null;
+  replyToMessageId?: string | null;
+  forwardedFromMessageId?: string | null;
 }
 
 /**
@@ -159,6 +161,8 @@ async function recordOutboundMessage(svc: SupabaseClient, input: RecordOutboundI
       status: input.status,
       sender_name: input.senderName ?? "GoDalz",
       timestamp: now,
+      reply_to_message_id: input.replyToMessageId ?? null,
+      forwarded_from_message_id: input.forwardedFromMessageId ?? null,
     });
 
     await svc
@@ -185,6 +189,13 @@ interface SendResult {
   simulated?: boolean;
 }
 
+function extractExtras(payload: Record<string, unknown>) {
+  return {
+    replyToMessageId: (payload.replyToMessageId as string) || null,
+    forwardedFromMessageId: (payload.forwardedFromMessageId as string) || null,
+  };
+}
+
 async function handleSendText(
   cfg: ZapiConfig | null,
   svc: SupabaseClient,
@@ -194,18 +205,14 @@ async function handleSendText(
   const phone = normalizePhone(String(payload.phone || ""));
   const message = String(payload.message || "");
   const conversationId = (payload.conversationId as string) || null;
+  const extras = extractExtras(payload);
   if (!phone || !message) return { ok: false, status: 400, data: { error: "missing_fields" } };
 
   if (!cfg) {
     const externalId = `demo-${crypto.randomUUID()}`;
     await recordOutboundMessage(svc, {
-      conversationId,
-      phone,
-      content: message,
-      externalId,
-      status: "sent",
-      messageType: "text",
-      senderName,
+      conversationId, phone, content: message, externalId,
+      status: "sent", messageType: "text", senderName, ...extras,
     });
     return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
   }
@@ -218,13 +225,8 @@ async function handleSendText(
     const d = (res.data ?? {}) as { messageId?: string; zaapId?: string };
     const externalId = d.messageId || d.zaapId || `sent-${crypto.randomUUID()}`;
     await recordOutboundMessage(svc, {
-      conversationId,
-      phone,
-      content: message,
-      externalId,
-      status: "sent",
-      messageType: "text",
-      senderName,
+      conversationId, phone, content: message, externalId,
+      status: "sent", messageType: "text", senderName, ...extras,
     });
   }
   return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
@@ -240,19 +242,14 @@ async function handleSendImage(
   const image = String(payload.image || "");
   const caption = payload.caption ? String(payload.caption) : "";
   const conversationId = (payload.conversationId as string) || null;
+  const extras = extractExtras(payload);
   if (!phone || !image) return { ok: false, status: 400, data: { error: "missing_fields" } };
 
   if (!cfg) {
     const externalId = `demo-${crypto.randomUUID()}`;
     await recordOutboundMessage(svc, {
-      conversationId,
-      phone,
-      content: caption,
-      externalId,
-      status: "sent",
-      messageType: "image",
-      mediaUrl: image,
-      senderName,
+      conversationId, phone, content: caption, externalId,
+      status: "sent", messageType: "image", mediaUrl: image, senderName, ...extras,
     });
     return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
   }
@@ -265,14 +262,8 @@ async function handleSendImage(
     const d = (res.data ?? {}) as { messageId?: string; zaapId?: string };
     const externalId = d.messageId || d.zaapId || `sent-${crypto.randomUUID()}`;
     await recordOutboundMessage(svc, {
-      conversationId,
-      phone,
-      content: caption,
-      externalId,
-      status: "sent",
-      messageType: "image",
-      mediaUrl: image,
-      senderName,
+      conversationId, phone, content: caption, externalId,
+      status: "sent", messageType: "image", mediaUrl: image, senderName, ...extras,
     });
   }
   return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
@@ -289,19 +280,14 @@ async function handleSendDocument(
   const fileName = payload.fileName ? String(payload.fileName) : "documento";
   const ext = String(payload.extension || "pdf").replace(/[^a-z0-9]/gi, "");
   const conversationId = (payload.conversationId as string) || null;
+  const extras = extractExtras(payload);
   if (!phone || !document) return { ok: false, status: 400, data: { error: "missing_fields" } };
 
   if (!cfg) {
     const externalId = `demo-${crypto.randomUUID()}`;
     await recordOutboundMessage(svc, {
-      conversationId,
-      phone,
-      content: fileName,
-      externalId,
-      status: "sent",
-      messageType: "document",
-      mediaUrl: document,
-      senderName,
+      conversationId, phone, content: fileName, externalId,
+      status: "sent", messageType: "document", mediaUrl: document, senderName, ...extras,
     });
     return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
   }
@@ -314,14 +300,8 @@ async function handleSendDocument(
     const d = (res.data ?? {}) as { messageId?: string; zaapId?: string };
     const externalId = d.messageId || d.zaapId || `sent-${crypto.randomUUID()}`;
     await recordOutboundMessage(svc, {
-      conversationId,
-      phone,
-      content: fileName,
-      externalId,
-      status: "sent",
-      messageType: "document",
-      mediaUrl: document,
-      senderName,
+      conversationId, phone, content: fileName, externalId,
+      status: "sent", messageType: "document", mediaUrl: document, senderName, ...extras,
     });
   }
   return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
