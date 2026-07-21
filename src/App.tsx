@@ -101,6 +101,8 @@ const AdminStampPreview = lazy(() => import("./pages/admin/AdminStampPreview.tsx
 const AdminWhatsApp = lazy(() => import("./pages/admin/AdminWhatsApp.tsx"));
 const AdminWhatsAppScheduled = lazy(() => import("./pages/admin/AdminWhatsAppScheduled.tsx"));
 const AdminWhatsAppPipeline = lazy(() => import("./pages/admin/AdminWhatsAppPipeline.tsx"));
+const AdminWhatsAppLinks = lazy(() => import("./pages/admin/AdminWhatsAppLinks.tsx"));
+const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect.tsx"));
 
 
 const queryClient = new QueryClient({
