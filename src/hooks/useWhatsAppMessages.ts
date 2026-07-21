@@ -6,7 +6,7 @@ export interface WhatsAppMessage {
   conversation_id: string;
   external_message_id: string | null;
   direction: "inbound" | "outbound";
-  message_type: "text" | "image" | "audio" | "video" | "document" | "sticker" | "location" | "other";
+  message_type: "text" | "image" | "audio" | "video" | "document" | "sticker" | "location" | "contact" | "other";
   content: string | null;
   media_url: string | null;
   media_mimetype: string | null;
@@ -20,6 +20,9 @@ export interface WhatsAppMessage {
   edited_at?: string | null;
   reply_to_message_id?: string | null;
   forwarded_from_message_id?: string | null;
+  location_lat?: number | null;
+  location_lng?: number | null;
+  location_label?: string | null;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -53,6 +53,10 @@ import { QuickReplyMenu, applyPlaceholders } from "@/components/admin/whatsapp/Q
 import { EmojiPickerButton } from "@/components/admin/whatsapp/EmojiPickerButton";
 import { AttachmentButton } from "@/components/admin/whatsapp/AttachmentButton";
 import { ForwardDialog } from "@/components/admin/whatsapp/ForwardDialog";
+import { AudioRecorderButton } from "@/components/admin/whatsapp/AudioRecorderButton";
+import { StickerPicker } from "@/components/admin/whatsapp/StickerPicker";
+import { LocationDialog } from "@/components/admin/whatsapp/LocationDialog";
+import { ContactShareDialog } from "@/components/admin/whatsapp/ContactShareDialog";
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -273,6 +277,8 @@ function MessageThread({
   const [editing, setEditing] = useState<WhatsAppMessage | null>(null);
   const [forwardMsg, setForwardMsg] = useState<WhatsAppMessage | null>(null);
   const [pinnedIndex, setPinnedIndex] = useState(0);
+  const [locationOpen, setLocationOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -539,7 +545,13 @@ function MessageThread({
       <div className="px-2 py-2 border-t bg-background">
         <div className="flex items-end gap-1">
           <EmojiPickerButton onSelect={insertEmoji} />
-          <AttachmentButton phone={conversation.phone} conversationId={conversation.id} />
+          <StickerPicker phone={conversation.phone} conversationId={conversation.id} />
+          <AttachmentButton
+            phone={conversation.phone}
+            conversationId={conversation.id}
+            onRequestLocation={() => setLocationOpen(true)}
+            onRequestContact={() => setContactOpen(true)}
+          />
           <QuickReplyMenu onInsert={insertQuickReply} />
           <Textarea
             ref={textareaRef}
@@ -552,15 +564,19 @@ function MessageThread({
             rows={1}
             className="min-h-[40px] max-h-[140px] resize-none rounded-2xl px-4 py-2 bg-muted/40 border-transparent focus-visible:bg-background"
           />
-          <Button
-            onClick={handleSend}
-            disabled={sending || !draft.trim()}
-            size="icon"
-            className="h-10 w-10 rounded-full shrink-0"
-            title={editing ? "Salvar" : "Enviar"}
-          >
-            {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-          </Button>
+          {draft.trim() || editing ? (
+            <Button
+              onClick={handleSend}
+              disabled={sending || !draft.trim()}
+              size="icon"
+              className="h-10 w-10 rounded-full shrink-0"
+              title={editing ? "Salvar" : "Enviar"}
+            >
+              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            </Button>
+          ) : (
+            <AudioRecorderButton phone={conversation.phone} conversationId={conversation.id} />
+          )}
         </div>
       </div>
 
@@ -570,6 +586,20 @@ function MessageThread({
         message={forwardMsg}
         conversations={conversations}
         excludeConversationId={conversation.id}
+      />
+
+      <LocationDialog
+        open={locationOpen}
+        onOpenChange={setLocationOpen}
+        phone={conversation.phone}
+        conversationId={conversation.id}
+      />
+
+      <ContactShareDialog
+        open={contactOpen}
+        onOpenChange={setContactOpen}
+        phone={conversation.phone}
+        conversationId={conversation.id}
       />
     </div>
   );

@@ -1,7 +1,8 @@
 import { useState, forwardRef } from "react";
 import {
-  Check, CheckCheck, FileText, Mic, Video, MoreVertical,
+  Check, CheckCheck, FileText, MoreVertical,
   Reply, Forward, Copy, Pin, PinOff, Pencil, Smile, RotateCw, CornerUpLeft,
+  MapPin, User as UserIcon, ExternalLink,
 } from "lucide-react";
 import type { WhatsAppMessage } from "@/hooks/useWhatsAppMessages";
 import type { WhatsAppReaction } from "@/hooks/useMessageReactions";
@@ -226,6 +227,20 @@ export const MessageBubble = forwardRef<HTMLDivElement, Props>(function MessageB
               className="rounded-md mb-1 max-w-full max-h-[300px] object-cover"
             />
           )}
+          {m.media_url && m.message_type === "video" && (
+            <video
+              src={m.media_url}
+              controls
+              preload="metadata"
+              className="rounded-md mb-1 max-w-full max-h-[320px] bg-black/80"
+            />
+          )}
+          {m.media_url && m.message_type === "sticker" && (
+            <img
+              src={m.media_url} alt="figurinha" loading="lazy"
+              className="mb-1 w-32 h-32 object-contain bg-transparent"
+            />
+          )}
           {m.message_type === "document" && (
             <a
               href={m.media_url ?? undefined} target="_blank" rel="noreferrer"
@@ -235,18 +250,43 @@ export const MessageBubble = forwardRef<HTMLDivElement, Props>(function MessageB
               <span className="truncate">{m.content || "Documento"}</span>
             </a>
           )}
-          {m.message_type === "audio" && (
-            <div className="flex items-center gap-2 mb-1 text-xs">
-              <Mic className="w-4 h-4 opacity-70" /> Áudio
-            </div>
+          {m.message_type === "audio" && m.media_url && (
+            <audio
+              src={m.media_url}
+              controls
+              preload="metadata"
+              className="mb-1 h-10 max-w-[260px] w-full"
+            />
           )}
-          {m.message_type === "video" && (
-            <div className="flex items-center gap-2 mb-1 text-xs">
-              <Video className="w-4 h-4 opacity-70" /> Vídeo
-            </div>
+          {m.message_type === "location" && (
+            <a
+              href={m.location_lat != null && m.location_lng != null
+                ? `https://www.google.com/maps?q=${m.location_lat},${m.location_lng}`
+                : undefined}
+              target="_blank" rel="noreferrer"
+              className="flex items-center gap-2 mb-1 text-xs bg-black/5 dark:bg-white/5 rounded px-2 py-2 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+            >
+              <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                <MapPin className="w-4 h-4 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <div className="font-semibold text-foreground truncate">
+                  {m.location_label || "Localização"}
+                </div>
+                {m.location_lat != null && m.location_lng != null && (
+                  <div className="text-[10px] text-muted-foreground tabular-nums">
+                    {m.location_lat.toFixed(5)}, {m.location_lng.toFixed(5)}
+                  </div>
+                )}
+              </div>
+              <ExternalLink className="w-3.5 h-3.5 opacity-60 ml-auto shrink-0" />
+            </a>
+          )}
+          {m.message_type === "contact" && (
+            <ContactCard content={m.content} />
           )}
 
-          {m.content && m.message_type !== "document" && (
+          {m.content && m.message_type !== "document" && m.message_type !== "location" && m.message_type !== "contact" && m.message_type !== "sticker" && (
             <div className="whitespace-pre-wrap break-words text-foreground">
               {m.content}
             </div>
@@ -294,6 +334,35 @@ export const MessageBubble = forwardRef<HTMLDivElement, Props>(function MessageB
     </div>
   );
 });
+
+function ContactCard({ content }: { content: string | null }) {
+  // stored as "Name · +digits"
+  const parts = (content || "").split("·").map((s) => s.trim());
+  const name = parts[0] || "Contato";
+  const phone = parts[1]?.replace(/\D/g, "") || "";
+  const waUrl = phone ? `https://wa.me/${phone}` : null;
+  return (
+    <div className="mb-1 rounded-md border border-border/40 bg-black/5 dark:bg-white/5 p-2 min-w-[180px]">
+      <div className="flex items-center gap-2">
+        <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+          <UserIcon className="w-4 h-4 text-primary" />
+        </div>
+        <div className="min-w-0">
+          <div className="font-semibold text-sm truncate">{name}</div>
+          {phone && <div className="text-[11px] text-muted-foreground tabular-nums">+{phone}</div>}
+        </div>
+      </div>
+      {waUrl && (
+        <a
+          href={waUrl} target="_blank" rel="noreferrer"
+          className="mt-2 block text-center text-[11px] uppercase tracking-wider font-semibold text-primary hover:underline"
+        >
+          Conversar
+        </a>
+      )}
+    </div>
+  );
+}
 
 export function DateSeparator({ label }: { label: string }) {
   return (

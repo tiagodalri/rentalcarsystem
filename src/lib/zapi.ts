@@ -10,8 +10,12 @@ export type ZapiAction =
   | "restart"
   | "send-text"
   | "send-image"
+  | "send-video"
   | "send-document"
   | "send-audio"
+  | "send-sticker"
+  | "send-location"
+  | "send-contact"
   | "list-chats"
   | "list-contacts"
   | "read-message"
@@ -122,6 +126,18 @@ export const sendWhatsAppImage = (
   forwardedFromMessageId: extras?.forwardedFromMessageId ?? null,
 });
 
+export const sendWhatsAppVideo = (
+  phone: string,
+  video: string,
+  caption?: string,
+  conversationId?: string,
+  extras?: SendExtras,
+) => callProxy("send-video", {
+  phone, video, caption, conversationId,
+  replyToMessageId: extras?.replyToMessageId ?? null,
+  forwardedFromMessageId: extras?.forwardedFromMessageId ?? null,
+});
+
 export const sendWhatsAppDocument = (
   phone: string,
   document: string,
@@ -135,14 +151,53 @@ export const sendWhatsAppDocument = (
   forwardedFromMessageId: extras?.forwardedFromMessageId ?? null,
 });
 
-export const sendWhatsAppAudio = (phone: string, audio: string) =>
-  callProxy("send-audio", { phone, audio });
+export const sendWhatsAppAudio = (
+  phone: string,
+  audio: string,
+  conversationId?: string,
+  extras?: SendExtras,
+) => callProxy("send-audio", {
+  phone, audio, conversationId,
+  replyToMessageId: extras?.replyToMessageId ?? null,
+  forwardedFromMessageId: extras?.forwardedFromMessageId ?? null,
+});
 
-export const readWhatsAppMessage = (phone: string, messageId: string) =>
-  callProxy("read-message", { phone, messageId });
+export const sendWhatsAppSticker = (
+  phone: string,
+  sticker: string,
+  conversationId?: string,
+  extras?: SendExtras,
+) => callProxy("send-sticker", {
+  phone, sticker, conversationId,
+  replyToMessageId: extras?.replyToMessageId ?? null,
+  forwardedFromMessageId: extras?.forwardedFromMessageId ?? null,
+});
+
+export const sendWhatsAppLocation = (
+  phone: string,
+  latitude: number,
+  longitude: number,
+  label?: string,
+  address?: string,
+  conversationId?: string,
+) => callProxy("send-location", {
+  phone, latitude, longitude, label, address, conversationId,
+});
+
+export const sendWhatsAppContact = (
+  phone: string,
+  contactName: string,
+  contactPhone: string,
+  conversationId?: string,
+) => callProxy("send-contact", {
+  phone, contactName, contactPhone, conversationId,
+});
 
 export const listWhatsAppChats = () => callProxy("list-chats");
 export const listWhatsAppContacts = () => callProxy("list-contacts");
+
+export const readWhatsAppMessage = (phone: string, messageId: string) =>
+  callProxy("read-message", { phone, messageId });
 
 export async function runWhatsAppHeartbeat(): Promise<ZapiResponse<{ connected: boolean; phone: string | null }>> {
   const { data, error } = await supabase.functions.invoke("zapi-heartbeat", { body: {} });
