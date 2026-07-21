@@ -10,6 +10,8 @@ import {
   ArrowLeft,
   Info,
   Settings2,
+  Pin,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -24,20 +26,33 @@ import {
   type WhatsAppConversation,
 } from "@/hooks/useWhatsAppConversations";
 import { useWhatsAppMessages, type WhatsAppMessage } from "@/hooks/useWhatsAppMessages";
+import { useMessageReactions } from "@/hooks/useMessageReactions";
 import {
   checkWhatsAppStatus,
   isDeviceOffline,
   isNotConfigured,
   sendWhatsAppText,
 } from "@/lib/zapi";
+import {
+  togglePinMessage,
+  editMessageContent,
+  deleteFailedMessage,
+  toggleReaction,
+} from "@/lib/whatsappActions";
 import { formatPersonName } from "@/lib/formatName";
 import { PersonAvatar } from "@/components/ui/PersonAvatar";
 import { stageInfo, tagClass, STAGE_BADGE_BASE } from "@/components/admin/whatsapp/stage";
-import { MessageBubble, DateSeparator, dateLabel } from "@/components/admin/whatsapp/MessageBubble";
+import {
+  MessageBubble,
+  DateSeparator,
+  dateLabel,
+  type MessageBubbleActions,
+} from "@/components/admin/whatsapp/MessageBubble";
 import { ContextPanel } from "@/components/admin/whatsapp/ContextPanel";
 import { QuickReplyMenu, applyPlaceholders } from "@/components/admin/whatsapp/QuickReplies";
 import { EmojiPickerButton } from "@/components/admin/whatsapp/EmojiPickerButton";
 import { AttachmentButton } from "@/components/admin/whatsapp/AttachmentButton";
+import { ForwardDialog } from "@/components/admin/whatsapp/ForwardDialog";
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
