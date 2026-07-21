@@ -533,14 +533,6 @@ async function routeReadOnly(action: Action, payload: Record<string, unknown>, c
       return await callZapi(cfg, "/chats", { method: "GET" });
     case "list-contacts":
       return await callZapi(cfg, "/contacts", { method: "GET" });
-    case "send-audio": {
-      const body = {
-        phone: normalizePhone(String(payload.phone || "")),
-        audio: String(payload.audio || ""),
-      };
-      if (!body.phone || !body.audio) return { ok: false, status: 400, data: { error: "missing_fields" } };
-      return await callZapi(cfg, "/send-audio", { method: "POST", body: JSON.stringify(body) });
-    }
     case "read-message": {
       const body = {
         phone: normalizePhone(String(payload.phone || "")),
