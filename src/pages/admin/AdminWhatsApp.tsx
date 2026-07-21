@@ -7,8 +7,6 @@ import {
   Send,
   Loader2,
   Search,
-  Paperclip,
-  Smile,
   ArrowLeft,
   Info,
   Settings2,
@@ -39,6 +37,8 @@ import { stageInfo, tagStyle } from "@/components/admin/whatsapp/stage";
 import { MessageBubble, DateSeparator, dateLabel } from "@/components/admin/whatsapp/MessageBubble";
 import { ContextPanel } from "@/components/admin/whatsapp/ContextPanel";
 import { QuickReplyMenu, applyPlaceholders } from "@/components/admin/whatsapp/QuickReplies";
+import { EmojiPickerButton } from "@/components/admin/whatsapp/EmojiPickerButton";
+import { AttachmentButton } from "@/components/admin/whatsapp/AttachmentButton";
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
