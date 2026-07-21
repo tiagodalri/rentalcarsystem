@@ -22,8 +22,8 @@ serve(async (req) => {
     Deno.env.get("SUPABASE_ANON_KEY")!,
     { global: { headers: { Authorization: authHeader } } },
   );
-  const { data: claims, error: cErr } = await anon.auth.getClaims(token);
-  if (cErr || !claims?.claims?.sub) {
+  const { data: userData, error: cErr } = await anon.auth.getUser(token);
+  if (cErr || !userData?.user?.id) {
     return new Response(JSON.stringify({ ok: false, error: "unauthorized" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -38,7 +38,7 @@ serve(async (req) => {
   const { data: roles } = await admin
     .from("user_roles")
     .select("role")
-    .eq("user_id", claims.claims.sub);
+    .eq("user_id", userData.user.id);
   const hasRole = (roles || []).some((r: { role: string }) => ALLOWED_ROLES.has(r.role));
   if (!hasRole) {
     return new Response(JSON.stringify({ ok: false, error: "forbidden" }), {

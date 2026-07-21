@@ -48,11 +48,11 @@ async function ensureCaller(req: Request): Promise<{ userId: string } | Response
     Deno.env.get("SUPABASE_ANON_KEY")!,
     { global: { headers: { Authorization: authHeader } } },
   );
-  const { data, error } = await supabase.auth.getClaims(token);
-  if (error || !data?.claims?.sub) {
+  const { data, error } = await supabase.auth.getUser(token);
+  if (error || !data?.user?.id) {
     return jsonResponse({ ok: false, error: "unauthorized" }, { status: 401 }, corsHeaders);
   }
-  const userId = data.claims.sub as string;
+  const userId = data.user.id;
 
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,

@@ -207,20 +207,16 @@ serve(async (req) => {
           .eq("phone", phone)
           .maybeSingle();
 
-        // try to match a customer by phone (last 8+ digits fuzzy match kept simple)
+        // Match customer by last 10 digits of phone via SECURITY DEFINER RPC.
+        // Filters at the DB with a normalized suffix, so it works regardless of
+        // the format stored in customers.phone (with/without DDI, formatting).
         let customerId: string | null = convExisting?.customer_id ?? null;
-        if (!customerId) {
-          const { data: cust } = await supabase
-            .from("customers")
-            .select("id, phone")
-            .not("phone", "is", null)
-            .limit(50);
-          if (cust) {
-            const match = (cust as { id: string; phone: string }[]).find(
-              (c) => normalizePhone(c.phone) === phone,
-            );
-            if (match) customerId = match.id;
-          }
+        if (!customerId && phone.length >= 10) {
+          const { data: matchedId } = await supabase.rpc(
+            "find_customer_by_phone_digits",
+            { p_digits: phone },
+          );
+          if (typeof matchedId === "string") customerId = matchedId;
         }
 
         const preview =
@@ -281,8 +277,8 @@ serve(async (req) => {
           timestamp: momentTs,
         });
 
-        // conflict on unique index = idempotent duplicate; treat as success
-        if (insertErr && !String(insertErr.message).toLowerCase().includes("duplicate")) {
+        // Postgres unique_violation (23505) = idempotent duplicate; treat as success
+        if (insertErr && (insertErr as { code?: string }).code !== "23505") {
           await markProcessed(insertErr.message);
           return json({ ok: false, error: insertErr.message });
         }

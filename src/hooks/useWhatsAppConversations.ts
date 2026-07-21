@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+export type FunnelStage =
+  | "novo_lead"
+  | "atendimento"
+  | "proposta_enviada"
+  | "negociacao"
+  | "reserva_confirmada"
+  | "perdido";
+
 export interface WhatsAppConversation {
   id: string;
   phone: string;
@@ -13,6 +21,8 @@ export interface WhatsAppConversation {
   last_message_at: string | null;
   last_message_preview: string | null;
   assigned_to: string | null;
+  stage: FunnelStage;
+  tags: string[];
   created_at: string;
   updated_at: string;
 }
