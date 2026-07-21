@@ -16,6 +16,7 @@ import {
   Mic,
   Clock,
   Kanban,
+  Link2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -1009,6 +1010,12 @@ export default function AdminWhatsApp() {
             <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
               <Kanban className="w-3.5 h-3.5" />
               Funil
+            </Button>
+          </Link>
+          <Link to="/admin/whatsapp/links">
+            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+              <Link2 className="w-3.5 h-3.5" />
+              Links
             </Button>
           </Link>
           <Link to="/admin/whatsapp/agendadas">
