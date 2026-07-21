@@ -138,12 +138,14 @@ function ConversationList({
   onSelect,
   search,
   onSearchChange,
+  getPresence,
 }: {
   conversations: WhatsAppConversation[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   search: string;
   onSearchChange: (v: string) => void;
+  getPresence?: (phone: string) => PresenceStatus;
 }) {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -201,9 +203,23 @@ function ConversationList({
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-1 min-w-0">
-                        <p className="text-xs text-muted-foreground truncate min-w-0 flex-1">
-                          {c.last_message_preview || "—"}
-                        </p>
+                        {(() => {
+                          const presence = getPresence?.(c.phone) ?? null;
+                          if (presence) {
+                            const label = presence === "recording" ? "gravando áudio" : "digitando";
+                            return (
+                              <p className="text-xs text-primary truncate min-w-0 flex-1 inline-flex items-center gap-1.5">
+                                <span className="italic">{label}</span>
+                                <TypingDots dotClassName="bg-primary" />
+                              </p>
+                            );
+                          }
+                          return (
+                            <p className="text-xs text-muted-foreground truncate min-w-0 flex-1">
+                              {c.last_message_preview || "—"}
+                            </p>
+                          );
+                        })()}
                         {c.unread_count > 0 && (
                           <Badge className="h-[18px] min-w-[18px] px-1.5 rounded-full text-[10px] bg-primary text-primary-foreground hover:bg-primary border-0 shrink-0">
                             {c.unread_count}
