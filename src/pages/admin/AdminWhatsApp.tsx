@@ -27,8 +27,14 @@ import { useWhatsAppConnection } from "@/hooks/useWhatsAppConnection";
 import {
   useWhatsAppConversations,
   markConversationRead,
+  filterConversationsByAssignment,
+  type AssignmentFilter,
   type WhatsAppConversation,
 } from "@/hooks/useWhatsAppConversations";
+import { useAuth } from "@/hooks/useAuth";
+import { AssigneeSelector } from "@/components/admin/whatsapp/AssigneeSelector";
+import { ParticipantsDialog } from "@/components/admin/whatsapp/ParticipantsDialog";
+import { SegmentedControl } from "@/components/mobile/SegmentedControl";
 import { useWhatsAppMessages, type WhatsAppMessage } from "@/hooks/useWhatsAppMessages";
 import { useMessageReactions } from "@/hooks/useMessageReactions";
 import {
@@ -148,6 +154,9 @@ function ConversationList({
   search,
   onSearchChange,
   getPresence,
+  assignmentFilter,
+  onAssignmentFilterChange,
+  counts,
 }: {
   conversations: WhatsAppConversation[];
   selectedId: string | null;
@@ -155,6 +164,9 @@ function ConversationList({
   search: string;
   onSearchChange: (v: string) => void;
   getPresence?: (phone: string) => PresenceStatus;
+  assignmentFilter: AssignmentFilter;
+  onAssignmentFilterChange: (v: AssignmentFilter) => void;
+  counts: { all: number; mine: number; unassigned: number };
 }) {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -169,7 +181,7 @@ function ConversationList({
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-background">
-      <div className="p-3 border-b border-border/40">
+      <div className="p-3 border-b border-border/40 space-y-2">
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input
@@ -180,6 +192,16 @@ function ConversationList({
             className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/40 bg-card/50 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
           />
         </div>
+        <SegmentedControl<AssignmentFilter>
+          size="sm"
+          value={assignmentFilter}
+          onChange={onAssignmentFilterChange}
+          options={[
+            { value: "all", label: "Todas", badge: counts.all },
+            { value: "mine", label: "Minhas", badge: counts.mine },
+            { value: "unassigned", label: "Sem dono", badge: counts.unassigned },
+          ]}
+        />
       </div>
       <ScrollArea className="flex-1 min-h-0">
         {filtered.length === 0 ? (
@@ -195,9 +217,12 @@ function ConversationList({
                   {isActive && (
                     <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-primary" aria-hidden />
                   )}
-                  <button
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => onSelect(c.id)}
-                    className={`w-full flex items-start gap-3 pl-4 pr-5 py-3 border-b border-border/40 text-left transition-colors overflow-hidden ${
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(c.id); } }}
+                    className={`w-full flex items-start gap-3 pl-4 pr-5 py-3 border-b border-border/40 text-left transition-colors overflow-hidden cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
                       isActive ? "bg-muted/70" : "hover:bg-muted/40"
                     }`}
                   >
@@ -248,9 +273,16 @@ function ConversationList({
                         {c.tags.length > 1 && (
                           <span className="text-[10px] text-muted-foreground shrink-0">+{c.tags.length - 1}</span>
                         )}
+                        <div className="ml-auto shrink-0" onClick={(e) => e.stopPropagation()}>
+                          <AssigneeSelector
+                            conversationId={c.id}
+                            assignedTo={c.assigned_to}
+                            variant="compact"
+                          />
+                        </div>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 </li>
               );
             })}
@@ -601,15 +633,22 @@ function MessageThread({
             </div>
           </div>
         </button>
-        <Button
-          variant={contextOpen ? "secondary" : "ghost"}
-          size="icon"
-          className="h-9 w-9"
-          onClick={onToggleContext}
-          title="Contexto"
-        >
-          <Info className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <AssigneeSelector
+            conversationId={conversation.id}
+            assignedTo={conversation.assigned_to}
+          />
+          <ParticipantsDialog conversationId={conversation.id} />
+          <Button
+            variant={contextOpen ? "secondary" : "ghost"}
+            size="icon"
+            className="h-9 w-9"
+            onClick={onToggleContext}
+            title="Contexto"
+          >
+            <Info className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Pinned bar */}
@@ -785,11 +824,30 @@ function MessageThread({
 export default function AdminWhatsApp() {
   const { conversations } = useWhatsAppConversations();
   const { connection } = useWhatsAppConnection();
+  const { rawUser } = useAuth();
+  const currentUserId = rawUser?.id ?? null;
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [contextOpen, setContextOpen] = useState(false);
   const [configured, setConfigured] = useState(false);
+  const [assignmentFilter, setAssignmentFilter] = useState<AssignmentFilter>("all");
+
+  const filterCounts = useMemo(
+    () => ({
+      all: conversations.length,
+      mine: currentUserId
+        ? conversations.filter((c) => c.assigned_to === currentUserId).length
+        : 0,
+      unassigned: conversations.filter((c) => !c.assigned_to).length,
+    }),
+    [conversations, currentUserId],
+  );
+
+  const visibleConversations = useMemo(
+    () => filterConversationsByAssignment(conversations, assignmentFilter, currentUserId),
+    [conversations, assignmentFilter, currentUserId],
+  );
 
   // Pre-select conversation from ?conversation=<id> query param (e.g., from pipeline).
   useEffect(() => {
@@ -874,12 +932,15 @@ export default function AdminWhatsApp() {
         <div className="flex h-full min-h-0">
           <div className={`w-full lg:w-[340px] xl:w-[380px] border-r border-border shrink-0 ${selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
             <ConversationList
-              conversations={conversations}
+              conversations={visibleConversations}
               selectedId={selectedId}
               onSelect={(id) => { setSelectedId(id); setContextOpen(false); }}
               search={search}
               onSearchChange={setSearch}
               getPresence={getActivePresence}
+              assignmentFilter={assignmentFilter}
+              onAssignmentFilterChange={setAssignmentFilter}
+              counts={filterCounts}
             />
           </div>
 

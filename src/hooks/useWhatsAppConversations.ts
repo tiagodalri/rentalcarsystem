@@ -84,3 +84,16 @@ export async function updateConversationStage(id: string, stage: FunnelStage) {
     .eq("id", id);
   if (error) throw error;
 }
+
+export type AssignmentFilter = "all" | "mine" | "unassigned";
+
+export function filterConversationsByAssignment(
+  conversations: WhatsAppConversation[],
+  filter: AssignmentFilter,
+  userId: string | null | undefined,
+): WhatsAppConversation[] {
+  if (filter === "all") return conversations;
+  if (filter === "unassigned") return conversations.filter((c) => !c.assigned_to);
+  if (filter === "mine" && userId) return conversations.filter((c) => c.assigned_to === userId);
+  return conversations;
+}
