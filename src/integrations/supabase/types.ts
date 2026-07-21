@@ -2481,6 +2481,218 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_connection_status: {
+        Row: {
+          connected_phone: string | null
+          id: string
+          last_checked_at: string | null
+          last_heartbeat_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          connected_phone?: string | null
+          id?: string
+          last_checked_at?: string | null
+          last_heartbeat_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          connected_phone?: string | null
+          id?: string
+          last_checked_at?: string | null
+          last_heartbeat_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      whatsapp_conversations: {
+        Row: {
+          assigned_to: string | null
+          contact_name: string | null
+          created_at: string
+          customer_id: string | null
+          external_conversation_id: string | null
+          id: string
+          is_group: boolean
+          last_message_at: string | null
+          last_message_preview: string | null
+          phone: string
+          status: string
+          unread_count: number
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          contact_name?: string | null
+          created_at?: string
+          customer_id?: string | null
+          external_conversation_id?: string | null
+          id?: string
+          is_group?: boolean
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          phone: string
+          status?: string
+          unread_count?: number
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          contact_name?: string | null
+          created_at?: string
+          customer_id?: string | null
+          external_conversation_id?: string | null
+          id?: string
+          is_group?: boolean
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          phone?: string
+          status?: string
+          unread_count?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_conversations_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_conversations_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_events_raw: {
+        Row: {
+          error: string | null
+          event_type: string | null
+          external_message_id: string | null
+          id: string
+          payload: Json
+          phone: string | null
+          processed: boolean
+          received_at: string
+        }
+        Insert: {
+          error?: string | null
+          event_type?: string | null
+          external_message_id?: string | null
+          id?: string
+          payload: Json
+          phone?: string | null
+          processed?: boolean
+          received_at?: string
+        }
+        Update: {
+          error?: string | null
+          event_type?: string | null
+          external_message_id?: string | null
+          id?: string
+          payload?: Json
+          phone?: string | null
+          processed?: boolean
+          received_at?: string
+        }
+        Relationships: []
+      }
+      whatsapp_messages: {
+        Row: {
+          content: string | null
+          conversation_id: string
+          created_at: string
+          direction: string
+          external_message_id: string | null
+          failure_reason: string | null
+          id: string
+          media_mimetype: string | null
+          media_url: string | null
+          message_type: string
+          raw_payload: Json | null
+          sender_name: string | null
+          sender_phone: string | null
+          status: string
+          timestamp: string | null
+        }
+        Insert: {
+          content?: string | null
+          conversation_id: string
+          created_at?: string
+          direction: string
+          external_message_id?: string | null
+          failure_reason?: string | null
+          id?: string
+          media_mimetype?: string | null
+          media_url?: string | null
+          message_type?: string
+          raw_payload?: Json | null
+          sender_name?: string | null
+          sender_phone?: string | null
+          status?: string
+          timestamp?: string | null
+        }
+        Update: {
+          content?: string | null
+          conversation_id?: string
+          created_at?: string
+          direction?: string
+          external_message_id?: string | null
+          failure_reason?: string | null
+          id?: string
+          media_mimetype?: string | null
+          media_url?: string | null
+          message_type?: string
+          raw_payload?: Json | null
+          sender_name?: string | null
+          sender_phone?: string | null
+          status?: string
+          timestamp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      zapi_contacts: {
+        Row: {
+          id: string
+          lid: string | null
+          name: string | null
+          phone: string
+          profile_picture_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          lid?: string | null
+          name?: string | null
+          phone: string
+          profile_picture_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          lid?: string | null
+          name?: string | null
+          phone?: string
+          profile_picture_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       vehicles_public: {
