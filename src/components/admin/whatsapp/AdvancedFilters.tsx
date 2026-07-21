@@ -266,5 +266,3 @@ function toInputDate(d: Date): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-// Suppress unused import warning for Calendar (kept for future inline picker)
-void Calendar;
