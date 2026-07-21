@@ -245,7 +245,7 @@ function ConnectionCard() {
           <div>
             <h3 className="text-sm font-semibold">Conexão WhatsApp</h3>
             <div className="flex items-center gap-2 mt-1">
-              <StatusPill status={connection?.status} configured={configured !== false} />
+              <StatusPill status={connection?.status} configured />
               {connection?.connected_phone && (
                 <span className="text-xs text-muted-foreground">{formatPhone(connection.connected_phone)}</span>
               )}
