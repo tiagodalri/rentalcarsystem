@@ -14,7 +14,42 @@ export type ZapiAction =
   | "send-audio"
   | "list-chats"
   | "list-contacts"
-  | "read-message";
+  | "read-message"
+  | "save-config"
+  | "get-config-status";
+
+export interface ZapiConfigStatus {
+  configured: boolean;
+  source: "db" | "env";
+  updated_at: string | null;
+  values: {
+    instance_id: string | null;
+    token: string | null;
+    client_token: string | null;
+    webhook_secret: string | null;
+  };
+  has: {
+    instance_id: boolean;
+    token: boolean;
+    client_token: boolean;
+    webhook_secret: boolean;
+  };
+}
+
+export interface ZapiConfigInput {
+  instance_id?: string;
+  token?: string;
+  client_token?: string;
+  webhook_secret?: string;
+}
+
+export const getZapiConfigStatus = () =>
+  callProxy<never>("get-config-status") as Promise<
+    ZapiResponse<never> & Partial<ZapiConfigStatus>
+  >;
+
+export const saveZapiConfig = (payload: ZapiConfigInput) =>
+  callProxy<{ updated: number }>("save-config", payload as Record<string, unknown>);
 
 export interface ZapiResponse<T = unknown> {
   ok: boolean;

@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { buildCorsHeaders } from "../_shared/cors.ts";
-import { callZapi, normalizePhone, readZapiConfig } from "../_shared/zapi.ts";
+import { callZapi, normalizePhone, readZapiConfigAsync } from "../_shared/zapi.ts";
 
 const ALLOWED_ROLES = new Set(["admin", "operations", "support"]);
 
@@ -47,7 +47,7 @@ serve(async (req) => {
     });
   }
 
-  const cfg = readZapiConfig();
+  const cfg = await readZapiConfigAsync();
   if (!cfg) {
     return new Response(JSON.stringify({ ok: false, reason: "not_configured" }), {
       status: 200,

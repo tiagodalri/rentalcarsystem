@@ -2702,6 +2702,36 @@ export type Database = {
         }
         Relationships: []
       }
+      zapi_config: {
+        Row: {
+          client_token: string | null
+          id: number
+          instance_id: string | null
+          token: string | null
+          updated_at: string
+          updated_by: string | null
+          webhook_secret: string | null
+        }
+        Insert: {
+          client_token?: string | null
+          id?: number
+          instance_id?: string | null
+          token?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          webhook_secret?: string | null
+        }
+        Update: {
+          client_token?: string | null
+          id?: number
+          instance_id?: string | null
+          token?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          webhook_secret?: string | null
+        }
+        Relationships: []
+      }
       zapi_contacts: {
         Row: {
           id: string

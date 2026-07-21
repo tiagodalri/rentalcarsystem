@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Lock, UsersRound, ScrollText, ChevronRight, FileSignature, FileWarning } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import ChangePasswordDialog from "@/components/admin/ChangePasswordDialog";
+import WhatsAppSettingsSection from "@/components/admin/whatsapp/WhatsAppSettingsSection";
 
 export default function AdminSettings() {
   const { user, hasAny } = useAdminAuth();
@@ -25,7 +26,7 @@ export default function AdminSettings() {
   ];
 
   return (
-    <div className="space-y-6 max-w-xl">
+    <div className="space-y-6 max-w-2xl">
       <div>
         <h1 className="admin-h1 text-2xl">Configurações</h1>
         <p className="text-sm text-muted-foreground mt-1">Gerencie sua conta de administrador</p>
@@ -84,6 +85,8 @@ export default function AdminSettings() {
           </div>
         </div>
       )}
+
+      {hasAny(["admin"]) && <WhatsAppSettingsSection />}
 
       <ChangePasswordDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>

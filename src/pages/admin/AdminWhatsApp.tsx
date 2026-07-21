@@ -1,21 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   MessageSquare,
-  Phone,
-  RefreshCw,
-  Power,
-  RotateCcw,
   Send,
-  QrCode,
   Loader2,
-  AlertCircle,
   Search,
   Paperclip,
   Smile,
   ArrowLeft,
   Info,
+  Settings2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -33,12 +29,8 @@ import {
 import { useWhatsAppMessages, type WhatsAppMessage } from "@/hooks/useWhatsAppMessages";
 import {
   checkWhatsAppStatus,
-  disconnectWhatsApp,
-  getWhatsAppQrCode,
   isDeviceOffline,
   isNotConfigured,
-  restartWhatsAppInstance,
-  runWhatsAppHeartbeat,
   sendWhatsAppText,
 } from "@/lib/zapi";
 import { formatPersonName } from "@/lib/formatName";
@@ -59,30 +51,10 @@ function formatPhone(phone: string): string {
   return `+${digits}`;
 }
 
-function StatusPill({ status, configured }: { status: string | undefined; configured: boolean }) {
-  if (!configured) {
-    return <Badge variant="outline" className="text-muted-foreground">Não configurado</Badge>;
-  }
-  const map: Record<string, { label: string; cls: string }> = {
-    connected: { label: "Conectado", cls: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30" },
-    connecting: { label: "Conectando", cls: "bg-amber-500/15 text-amber-600 border-amber-500/30" },
-    disconnected: { label: "Desconectado", cls: "bg-muted text-muted-foreground border-border" },
-  };
-  const info = map[status || "disconnected"];
-  return <Badge variant="outline" className={info.cls}>{info.label}</Badge>;
-}
-
-// ---------------- Connection Card (preserved) ----------------
-function ConnectionCard() {
-  const { connection, loading } = useWhatsAppConnection();
+/** Small inline status pill for the page header (no big banner). */
+function HeaderStatusBadge() {
+  const { connection } = useWhatsAppConnection();
   const [configured, setConfigured] = useState<boolean | null>(null);
-  const [qrCode, setQrCode] = useState<string | null>(null);
-  const [busy, setBusy] = useState<string | null>(null);
-  const [qrExpiresIn, setQrExpiresIn] = useState<number>(20);
-  const pollingRef = useRef<number | null>(null);
-  const pollingStartedAt = useRef<number>(0);
-  const qrTimerRef = useRef<number | null>(null);
-  const isConnected = connection?.status === "connected";
 
   useEffect(() => {
     (async () => {
@@ -91,147 +63,50 @@ function ConnectionCard() {
     })();
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (pollingRef.current) window.clearInterval(pollingRef.current);
-      if (qrTimerRef.current) window.clearInterval(qrTimerRef.current);
-    };
-  }, []);
-
-  async function loadQrCode() {
-    setBusy("qr");
-    const res = await getWhatsAppQrCode();
-    setBusy(null);
-    if (isNotConfigured(res)) { setConfigured(false); return; }
-    const raw = res.data as { value?: string; qrcode?: string } | string | undefined;
-    let img: string | null = null;
-    if (typeof raw === "string") img = raw.startsWith("data:") ? raw : `data:image/png;base64,${raw}`;
-    else if (raw?.value) img = raw.value.startsWith("data:") ? raw.value : `data:image/png;base64,${raw.value}`;
-    else if (raw?.qrcode) img = raw.qrcode.startsWith("data:") ? raw.qrcode : `data:image/png;base64,${raw.qrcode}`;
-    if (!img) { toast.error("Não foi possível gerar QR Code"); return; }
-    setQrCode(img);
-    setQrExpiresIn(20);
-    if (qrTimerRef.current) window.clearInterval(qrTimerRef.current);
-    qrTimerRef.current = window.setInterval(() => {
-      setQrExpiresIn((v) => { if (v <= 1) { loadQrCode(); return 20; } return v - 1; });
-    }, 1000);
-    if (pollingRef.current) window.clearInterval(pollingRef.current);
-    pollingStartedAt.current = Date.now();
-    pollingRef.current = window.setInterval(async () => {
-      if (Date.now() - pollingStartedAt.current > 3 * 60 * 1000) {
-        window.clearInterval(pollingRef.current!); return;
-      }
-      const s = await runWhatsAppHeartbeat();
-      if (s.data && (s.data as { connected?: boolean }).connected) {
-        window.clearInterval(pollingRef.current!);
-        if (qrTimerRef.current) window.clearInterval(qrTimerRef.current);
-        setQrCode(null);
-        toast.success("WhatsApp conectado");
-      }
-    }, 3000);
-  }
-
-  async function handleHeartbeat() {
-    setBusy("heartbeat");
-    const res = await runWhatsAppHeartbeat();
-    setBusy(null);
-    if (isNotConfigured(res)) { setConfigured(false); toast.error("Integração não configurada"); return; }
-    if (isDeviceOffline(res)) { toast.warning("Celular sem resposta (offline)"); return; }
-    toast.success(res.data?.connected ? "Conectado" : "Desconectado");
-  }
-  async function handleDisconnect() {
-    if (!confirm("Desconectar o WhatsApp?")) return;
-    setBusy("disconnect");
-    const res = await disconnectWhatsApp();
-    setBusy(null);
-    if (res.ok) toast.success("Desconectado"); else toast.error("Falha ao desconectar");
-  }
-  async function handleRestart() {
-    setBusy("restart");
-    const res = await restartWhatsAppInstance();
-    setBusy(null);
-    if (res.ok) toast.success("Instância reiniciada"); else toast.error("Falha ao reiniciar");
-  }
-
-  if (configured === false) {
-    return (
-      <Card className="p-6 border-amber-500/30 bg-amber-500/5">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <div className="min-w-0">
-            <h3 className="text-sm font-semibold mb-1">Integração WhatsApp não configurada</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Adicione os seguintes segredos em <strong>Configurações do Projeto → Secrets</strong> para ativar a
-              integração com a Z-API:
-            </p>
-            <ul className="text-xs text-muted-foreground mt-2 space-y-1 font-mono">
-              <li>• ZAPI_INSTANCE_ID</li>
-              <li>• ZAPI_TOKEN</li>
-              <li>• ZAPI_CLIENT_TOKEN</li>
-              <li>• ZAPI_WEBHOOK_SECRET</li>
-            </ul>
-          </div>
-        </div>
-      </Card>
-    );
+  const status = connection?.status;
+  let label = "Não configurado";
+  let dot = "bg-muted-foreground/60";
+  let cls = "text-muted-foreground";
+  if (configured) {
+    if (status === "connected") {
+      label = "Conectado";
+      dot = "bg-emerald-500";
+      cls = "text-emerald-600";
+    } else if (status === "connecting") {
+      label = "Conectando";
+      dot = "bg-amber-500";
+      cls = "text-amber-600";
+    } else {
+      label = "Desconectado";
+      dot = "bg-muted-foreground/60";
+      cls = "text-muted-foreground";
+    }
   }
 
   return (
-    <Card className="p-5">
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <MessageSquare className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold">Conexão WhatsApp</h3>
-            <div className="flex items-center gap-2 mt-1">
-              <StatusPill status={connection?.status} configured />
-              {connection?.connected_phone && (
-                <span className="text-xs text-muted-foreground">{formatPhone(connection.connected_phone)}</span>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={handleHeartbeat} disabled={!!busy}>
-            {busy === "heartbeat" ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-            <span className="ml-2 hidden sm:inline">Testar</span>
-          </Button>
-          {isConnected && (
-            <>
-              <Button size="sm" variant="outline" onClick={handleRestart} disabled={!!busy}>
-                <RotateCcw className="w-4 h-4" /><span className="ml-2 hidden sm:inline">Reiniciar</span>
-              </Button>
-              <Button size="sm" variant="outline" onClick={handleDisconnect} disabled={!!busy}>
-                <Power className="w-4 h-4" /><span className="ml-2 hidden sm:inline">Desconectar</span>
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {!isConnected && !loading && (
-        <div className="border-t pt-4 mt-2">
-          {qrCode ? (
-            <div className="flex flex-col items-center gap-3">
-              <img src={qrCode} alt="QR Code WhatsApp" className="w-56 h-56 rounded-lg border" />
-              <p className="text-xs text-muted-foreground">
-                Abra WhatsApp → Configurações → Aparelhos conectados → Conectar aparelho
-              </p>
-              <p className="text-[11px] text-muted-foreground">Atualiza em {qrExpiresIn}s</p>
-            </div>
-          ) : (
-            <Button onClick={loadQrCode} disabled={busy === "qr"} className="w-full sm:w-auto">
-              {busy === "qr" ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <QrCode className="w-4 h-4 mr-2" />}
-              Conectar via QR Code
-            </Button>
-          )}
-        </div>
+    <div className="flex items-center gap-2 flex-wrap">
+      <span className={`inline-flex items-center gap-1.5 text-[11px] ${cls}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
+        {label}
+      </span>
+      {connection?.connected_phone && configured && status === "connected" && (
+        <span className="text-[11px] text-muted-foreground">
+          {formatPhone(connection.connected_phone)}
+        </span>
       )}
-    </Card>
+      {(!configured || status !== "connected") && (
+        <Link
+          to="/admin/settings"
+          className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+        >
+          <Settings2 className="w-3 h-3" />
+          Configurar
+        </Link>
+      )}
+    </div>
   );
 }
+
 
 // ---------------- Conversation List (WhatsApp-like) ----------------
 function ConversationList({
@@ -517,16 +392,17 @@ export default function AdminWhatsApp() {
 
   return (
     <div className="p-4 md:p-6 space-y-4 max-w-[1600px] mx-auto">
-      <div>
-        <h1 className="admin-h1 text-2xl md:text-3xl">WhatsApp</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Central de conversas conectada via Z-API, com CRM, funil de vendas e respostas rápidas.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="admin-h1 text-2xl md:text-3xl">WhatsApp</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Central de conversas conectada via Z-API, com CRM, funil de vendas e respostas rápidas.
+          </p>
+        </div>
+        <HeaderStatusBadge />
       </div>
 
-      <ConnectionCard />
-
-      <Card className="overflow-hidden h-[calc(100vh-320px)] min-h-[560px]">
+      <Card className="overflow-hidden h-[calc(100vh-220px)] min-h-[560px]">
         <div className="flex h-full min-h-0">
           {/* Left: list */}
           <div className={`w-full lg:w-[360px] border-r shrink-0 ${selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
