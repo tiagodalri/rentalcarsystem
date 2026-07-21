@@ -9,6 +9,11 @@ import {
   readZapiConfigAsync,
   type ZapiConfig,
 } from "../_shared/zapi.ts";
+import {
+  ensureConversation,
+  recordOutboundMessage,
+  type RecordOutboundInput,
+} from "../_shared/whatsappRecord.ts";
 
 type Action =
   | "get-qrcode"
