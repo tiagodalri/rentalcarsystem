@@ -396,12 +396,16 @@ function MessageThread({
     }
   }
 
+  const shouldQueueOffline =
+    configured && connectionStatus !== "connected";
+
   async function handleSend() {
     if (!draft.trim() || !conversation) return;
+    const text = draft.trim();
 
     // Edit mode: update content instead of sending new
     if (editing) {
-      const res = await editMessageContent(editing.id, draft.trim());
+      const res = await editMessageContent(editing.id, text);
       if (!res.ok) return toast.error("Falha ao editar");
       toast.success("Mensagem editada");
       setEditing(null);
@@ -409,10 +413,27 @@ function MessageThread({
       return;
     }
 
+    // Offline path: queue instead of sending. Demo mode (not configured) never queues.
+    if (shouldQueueOffline) {
+      queueHook.enqueue({
+        conversationId: conversation.id,
+        phone: conversation.phone,
+        text,
+        replyToMessageId: replyTo?.id ?? null,
+      });
+      toast("Mensagem na fila", {
+        description:
+          "WhatsApp desconectado. A mensagem será enviada automaticamente quando a conexão voltar.",
+      });
+      setDraft("");
+      setReplyTo(null);
+      return;
+    }
+
     setSending(true);
     const res = await sendWhatsAppText(
       conversation.phone,
-      draft.trim(),
+      text,
       conversation.id,
       { replyToMessageId: replyTo?.id ?? null },
     );
