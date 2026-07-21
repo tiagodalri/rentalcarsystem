@@ -217,9 +217,12 @@ function ConversationList({
                   {isActive && (
                     <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-primary" aria-hidden />
                   )}
-                  <button
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => onSelect(c.id)}
-                    className={`w-full flex items-start gap-3 pl-4 pr-5 py-3 border-b border-border/40 text-left transition-colors overflow-hidden ${
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(c.id); } }}
+                    className={`w-full flex items-start gap-3 pl-4 pr-5 py-3 border-b border-border/40 text-left transition-colors overflow-hidden cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
                       isActive ? "bg-muted/70" : "hover:bg-muted/40"
                     }`}
                   >
