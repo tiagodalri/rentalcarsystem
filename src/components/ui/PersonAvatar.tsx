@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
  * - tone="gold" for emphasis in headers / hero contexts.
  */
 
-type Size = "xs" | "sm" | "md" | "lg" | "xl";
+type Size = "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
 
 const SIZE_MAP: Record<Size, string> = {
   xs: "h-6 w-6 text-[10px]",
@@ -18,6 +18,7 @@ const SIZE_MAP: Record<Size, string> = {
   md: "h-10 w-10 text-sm",
   lg: "h-12 w-12 text-base",
   xl: "h-16 w-16 text-lg",
+  "2xl": "h-20 w-20 text-xl",
 };
 
 export function getPersonInitials(rawName?: string | null): string {
