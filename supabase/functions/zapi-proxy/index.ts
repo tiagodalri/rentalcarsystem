@@ -98,12 +98,15 @@ interface RecordOutboundInput {
   content: string;
   externalId: string;
   status: "pending" | "sent" | "delivered" | "read" | "failed";
-  messageType?: "text" | "image" | "audio" | "video" | "document";
+  messageType?: "text" | "image" | "audio" | "video" | "document" | "sticker" | "location" | "contact";
   mediaUrl?: string | null;
   mediaMimetype?: string | null;
   senderName?: string | null;
   replyToMessageId?: string | null;
   forwardedFromMessageId?: string | null;
+  locationLat?: number | null;
+  locationLng?: number | null;
+  locationLabel?: string | null;
 }
 
 /**
