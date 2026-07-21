@@ -716,7 +716,7 @@ function MessageThread({
             onRequestLocation={() => setLocationOpen(true)}
             onRequestContact={() => setContactOpen(true)}
           />
-          <QuickReplyMenu onInsert={insertQuickReply} />
+          <QuickReplyMenu onUseQuickReply={handleUseQuickReply} />
           <Textarea
             ref={textareaRef}
             value={draft}
