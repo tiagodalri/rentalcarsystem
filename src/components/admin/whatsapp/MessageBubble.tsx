@@ -335,6 +335,35 @@ export const MessageBubble = forwardRef<HTMLDivElement, Props>(function MessageB
   );
 });
 
+function ContactCard({ content }: { content: string | null }) {
+  // stored as "Name · +digits"
+  const parts = (content || "").split("·").map((s) => s.trim());
+  const name = parts[0] || "Contato";
+  const phone = parts[1]?.replace(/\D/g, "") || "";
+  const waUrl = phone ? `https://wa.me/${phone}` : null;
+  return (
+    <div className="mb-1 rounded-md border border-border/40 bg-black/5 dark:bg-white/5 p-2 min-w-[180px]">
+      <div className="flex items-center gap-2">
+        <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+          <UserIcon className="w-4 h-4 text-primary" />
+        </div>
+        <div className="min-w-0">
+          <div className="font-semibold text-sm truncate">{name}</div>
+          {phone && <div className="text-[11px] text-muted-foreground tabular-nums">+{phone}</div>}
+        </div>
+      </div>
+      {waUrl && (
+        <a
+          href={waUrl} target="_blank" rel="noreferrer"
+          className="mt-2 block text-center text-[11px] uppercase tracking-wider font-semibold text-primary hover:underline"
+        >
+          Conversar
+        </a>
+      )}
+    </div>
+  );
+}
+
 export function DateSeparator({ label }: { label: string }) {
   return (
     <div className="flex justify-center my-3">
