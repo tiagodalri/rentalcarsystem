@@ -434,6 +434,7 @@ function MessageThread({
   const [pinnedIndex, setPinnedIndex] = useState(0);
   const [locationOpen, setLocationOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const quickRepliesHook = useWhatsAppQuickReplies();
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -556,8 +557,6 @@ function MessageThread({
       el.setSelectionRange(pos, pos);
     });
   }
-
-  const quickRepliesHook = useWhatsAppQuickReplies();
 
   async function handleUseQuickReply(reply: QuickReply) {
     // Fire-and-forget usage bump
