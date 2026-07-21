@@ -21,13 +21,8 @@ async function readScheduledSecret(): Promise<string | null> {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
-    const { data } = await svc
-      .from("vault.decrypted_secrets" as never)
-      .select("decrypted_secret")
-      .eq("name", "scheduled_messages_secret")
-      .maybeSingle();
-    const v = (data as { decrypted_secret?: string } | null)?.decrypted_secret;
-    if (v) return v;
+    const { data, error } = await svc.rpc("get_scheduled_messages_secret");
+    if (!error && typeof data === "string" && data.length > 0) return data;
   } catch (_) {
     /* fall through */
   }
