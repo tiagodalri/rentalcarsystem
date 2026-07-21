@@ -52,6 +52,12 @@ import {
 } from "@/components/admin/whatsapp/MessageBubble";
 import { ContextPanel } from "@/components/admin/whatsapp/ContextPanel";
 import { QuickReplyMenu, applyPlaceholders } from "@/components/admin/whatsapp/QuickReplies";
+import { useWhatsAppQuickReplies, type QuickReply } from "@/hooks/useWhatsAppQuickReplies";
+import {
+  sendWhatsAppImage,
+  sendWhatsAppVideo,
+  sendWhatsAppDocument,
+} from "@/lib/zapi";
 import { EmojiPickerButton } from "@/components/admin/whatsapp/EmojiPickerButton";
 import { AttachmentButton } from "@/components/admin/whatsapp/AttachmentButton";
 import { ForwardDialog } from "@/components/admin/whatsapp/ForwardDialog";
