@@ -47,7 +47,7 @@ serve(async (req) => {
     });
   }
 
-  const cfg = readZapiConfig();
+  const cfg = await readZapiConfigAsync();
   if (!cfg) {
     return new Response(JSON.stringify({ ok: false, reason: "not_configured" }), {
       status: 200,
