@@ -677,6 +677,7 @@ function MessageThread({
           </div>
         </button>
         <div className="flex items-center gap-1">
+          <ConversationFlagsControls conversation={conversation} />
           <AssigneeSelector
             conversationId={conversation.id}
             assignedTo={conversation.assigned_to}
