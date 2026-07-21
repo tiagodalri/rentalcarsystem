@@ -16,6 +16,7 @@ import {
   Mic,
   Clock,
   Kanban,
+  Link2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
