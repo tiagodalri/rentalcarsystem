@@ -633,15 +633,22 @@ function MessageThread({
             </div>
           </div>
         </button>
-        <Button
-          variant={contextOpen ? "secondary" : "ghost"}
-          size="icon"
-          className="h-9 w-9"
-          onClick={onToggleContext}
-          title="Contexto"
-        >
-          <Info className="w-5 h-5" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <AssigneeSelector
+            conversationId={conversation.id}
+            assignedTo={conversation.assigned_to}
+          />
+          <ParticipantsDialog conversationId={conversation.id} />
+          <Button
+            variant={contextOpen ? "secondary" : "ghost"}
+            size="icon"
+            className="h-9 w-9"
+            onClick={onToggleContext}
+            title="Contexto"
+          >
+            <Info className="w-5 h-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Pinned bar */}
