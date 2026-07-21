@@ -37,6 +37,8 @@ export function useWhatsAppConversations() {
   const [conversations, setConversations] = useState<WhatsAppConversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Extras merged from search-by-content (conversations not in the initial 200)
+  const [extras, setExtras] = useState<WhatsAppConversation[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -60,7 +62,6 @@ export function useWhatsAppConversations() {
         "postgres_changes",
         { event: "*", schema: "public", table: "whatsapp_conversations" },
         () => {
-          // Simple refresh strategy; volume is low for an inbox
           load();
         },
       )
@@ -72,7 +73,13 @@ export function useWhatsAppConversations() {
     };
   }, []);
 
-  return { conversations, loading, error };
+  const merged = useMemo(() => {
+    if (extras.length === 0) return conversations;
+    const seen = new Set(conversations.map((c) => c.id));
+    return [...conversations, ...extras.filter((e) => !seen.has(e.id))];
+  }, [conversations, extras]);
+
+  return { conversations: merged, loading, error, mergeExtraConversations: setExtras };
 }
 
 export async function markConversationRead(id: string) {
@@ -85,6 +92,27 @@ export async function updateConversationStage(id: string, stage: FunnelStage) {
     .update({ stage })
     .eq("id", id);
   if (error) throw error;
+}
+
+export async function updateConversationFlags(
+  id: string,
+  patch: Partial<Pick<WhatsAppConversation, "is_vip" | "is_urgent" | "status">>,
+) {
+  const { error } = await anyClient
+    .from("whatsapp_conversations")
+    .update(patch)
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function fetchConversationsByIds(ids: string[]): Promise<WhatsAppConversation[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await anyClient
+    .from("whatsapp_conversations")
+    .select("*")
+    .in("id", ids);
+  if (error) throw error;
+  return (data || []) as WhatsAppConversation[];
 }
 
 export type AssignmentFilter = "all" | "mine" | "unassigned";
