@@ -666,17 +666,16 @@ serve(async (req) => {
     if (SEND_ACTIONS.has(body.action)) {
       const payload = body.payload || {};
       let res: SendResult;
-      if (body.action === "send-text") {
-        res = await handleSendText(cfg, svc, payload, senderName);
-      } else if (body.action === "send-image") {
-        res = await handleSendImage(cfg, svc, payload, senderName);
-      } else if (body.action === "send-document") {
-        res = await handleSendDocument(cfg, svc, payload, senderName);
-      } else {
-        // send-audio: not persisted (rarely used, real-only for now)
-        if (!cfg) return jsonResponse({ ok: false, reason: "not_configured" }, { status: 200 }, corsHeaders);
-        const r = await routeReadOnly(body.action, payload, cfg);
-        res = { ok: r.ok, status: r.status, data: r.data, reason: r.reason };
+      switch (body.action) {
+        case "send-text":     res = await handleSendText(cfg, svc, payload, senderName); break;
+        case "send-image":    res = await handleSendImage(cfg, svc, payload, senderName); break;
+        case "send-video":    res = await handleSendVideo(cfg, svc, payload, senderName); break;
+        case "send-document": res = await handleSendDocument(cfg, svc, payload, senderName); break;
+        case "send-audio":    res = await handleSendAudio(cfg, svc, payload, senderName); break;
+        case "send-sticker":  res = await handleSendSticker(cfg, svc, payload, senderName); break;
+        case "send-location": res = await handleSendLocation(cfg, svc, payload, senderName); break;
+        case "send-contact":  res = await handleSendContact(cfg, svc, payload, senderName); break;
+        default:              res = { ok: false, status: 400, data: { error: "unknown_send_action" } };
       }
       if (res.reason === "device_offline") {
         return jsonResponse({ ok: false, reason: "device_offline", data: res.data }, { status: 200 }, corsHeaders);
