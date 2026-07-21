@@ -46,7 +46,7 @@ export function useWhatsAppConnection() {
     load();
 
     const channel = supabase
-      .channel("whatsapp_connection_status")
+      .channel(`whatsapp_connection_status:${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "whatsapp_connection_status" },
