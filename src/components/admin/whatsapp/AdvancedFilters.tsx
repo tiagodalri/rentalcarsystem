@@ -3,7 +3,7 @@ import { Calendar as CalendarIcon, Filter, Star, AlertTriangle, MailOpen, Archiv
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/components/ui/calendar";
+// Calendar import removed: preset + native date inputs cover the UX for now.
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
