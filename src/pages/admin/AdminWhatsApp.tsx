@@ -587,28 +587,50 @@ function MessageThread({
           <div className="flex justify-center py-8">
             <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
-        ) : messages.length === 0 ? (
+        ) : visibleMessages.length === 0 ? (
           <div className="text-center text-xs text-muted-foreground py-8">Nenhuma mensagem ainda</div>
         ) : (
-          groups.map((g, gi) => (
-            <div key={gi}>
-              <DateSeparator label={g.label} />
-              <div className="space-y-1">
-                {g.items.map((m) => (
-                  <MessageBubble
-                    key={m.id}
-                    m={m}
-                    repliedTo={m.reply_to_message_id ? messagesById.get(m.reply_to_message_id) ?? null : null}
-                    reactions={byMessage.get(m.id) || []}
-                    currentUserId={currentUserId}
-                    actions={bubbleActions}
-                  />
-                ))}
+          <>
+            {groups.map((g, gi) => (
+              <div key={gi}>
+                <DateSeparator label={g.label} />
+                <div className="space-y-1">
+                  {g.items.map((m) => (
+                    <MessageBubble
+                      key={m.id}
+                      m={m}
+                      repliedTo={m.reply_to_message_id ? messagesById.get(m.reply_to_message_id) ?? null : null}
+                      reactions={byMessage.get(m.id) || []}
+                      currentUserId={currentUserId}
+                      actions={bubbleActions}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+            {presenceStatus === "COMPOSING" || presenceStatus === "RECORDING" ? (
+              <div className="px-3 pt-1">
+                <div className="inline-flex items-center gap-2 rounded-2xl bg-background border border-border/60 px-3 py-2 shadow-sm">
+                  <TypingDots />
+                  <span className="text-[11px] text-muted-foreground">
+                    {presenceStatus === "RECORDING" ? "gravando áudio..." : "digitando..."}
+                  </span>
+                </div>
+              </div>
+            ) : null}
+          </>
         )}
       </div>
+
+      {/* Offline banner */}
+      {shouldQueueOffline && (
+        <div className="px-3 py-1.5 border-t bg-amber-500/10 text-[11px] text-amber-700 dark:text-amber-400 flex items-center gap-2">
+          <WifiOff className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">
+            WhatsApp desconectado. Mensagens serão enviadas assim que a conexão voltar.
+          </span>
+        </div>
+      )}
 
       {/* Reply/edit preview */}
       {(replyTo || editing) && (
