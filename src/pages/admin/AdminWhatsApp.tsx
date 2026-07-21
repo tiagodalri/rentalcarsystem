@@ -12,6 +12,8 @@ import {
   Settings2,
   Pin,
   X,
+  WifiOff,
+  Mic,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -57,6 +59,9 @@ import { AudioRecorderButton } from "@/components/admin/whatsapp/AudioRecorderBu
 import { StickerPicker } from "@/components/admin/whatsapp/StickerPicker";
 import { LocationDialog } from "@/components/admin/whatsapp/LocationDialog";
 import { ContactShareDialog } from "@/components/admin/whatsapp/ContactShareDialog";
+import { TypingDots } from "@/components/admin/whatsapp/TypingDots";
+import { useMessageQueue, type QueuedMessage } from "@/hooks/useMessageQueue";
+import { usePresenceByPhone, type PresenceStatus } from "@/hooks/usePresenceByPhone";
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
