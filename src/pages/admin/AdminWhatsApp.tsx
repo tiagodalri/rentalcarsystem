@@ -478,10 +478,55 @@ function MessageThread({
     });
   }
 
-  function insertQuickReply(content: string) {
-    const applied = applyPlaceholders(content, conversation?.contact_name);
-    setDraft((d) => (d ? d + "\n" + applied : applied));
-    setTimeout(() => textareaRef.current?.focus(), 50);
+  const quickRepliesHook = useWhatsAppQuickReplies();
+
+  async function handleUseQuickReply(reply: QuickReply) {
+    // Fire-and-forget usage bump
+    quickRepliesHook.incrementUsage(reply.id);
+
+    if (!reply.media_url) {
+      const applied = applyPlaceholders(reply.content ?? "", conversation?.contact_name);
+      setDraft((d) => (d ? d + "\n" + applied : applied));
+      setTimeout(() => textareaRef.current?.focus(), 50);
+      return;
+    }
+
+    if (!conversation) return;
+    const phone = conversation.contact_phone;
+    const caption = applyPlaceholders(reply.content ?? "", conversation.contact_name);
+    const mime = reply.media_mimetype ?? "";
+    const isVideo = mime.startsWith("video/");
+    const isImage = mime.startsWith("image/");
+    try {
+      const res = isVideo
+        ? await sendWhatsAppVideo(phone, reply.media_url, caption, conversation.id)
+        : isImage
+        ? await sendWhatsAppImage(phone, reply.media_url, caption, conversation.id)
+        : await sendWhatsAppDocument(
+            phone,
+            reply.media_url,
+            (mime.split("/")[1] || "bin"),
+            reply.title || "arquivo",
+            conversation.id,
+          );
+      const label = isVideo ? "Vídeo" : isImage ? "Imagem" : "Documento";
+      if (res.ok && res.simulated) {
+        toast.success(`${label} enviado`, {
+          description: "Modo demonstração — configure a integração em Configurações para envio real.",
+        });
+      } else if (res.ok) {
+        toast.success(`${label} enviado`);
+      } else if (isNotConfigured(res)) {
+        toast.error("Integração não configurada");
+      } else if (isDeviceOffline(res)) {
+        toast.error("Celular offline — verifique o WhatsApp no aparelho");
+      } else {
+        toast.error(`Falha ao enviar ${label.toLowerCase()}`);
+      }
+    } catch (err) {
+      console.error("[wa] quick reply media send failed", err);
+      toast.error("Falha ao enviar mídia");
+    }
   }
 
   const bubbleActions: MessageBubbleActions = {
