@@ -102,15 +102,6 @@ export function DateSeparator({ label }: { label: string }) {
   );
 }
 
-export function DateSeparator({ label }: { label: string }) {
-  return (
-    <div className="flex justify-center my-3">
-      <span className="text-[11px] px-2.5 py-1 rounded-md bg-white/80 dark:bg-neutral-800/80 text-neutral-600 dark:text-neutral-300 shadow-sm">
-        {label}
-      </span>
-    </div>
-  );
-}
 
 export function dateLabel(d: Date): string {
   const today = new Date();
