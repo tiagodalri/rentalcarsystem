@@ -95,6 +95,8 @@ interface RecordOutboundInput {
   mediaUrl?: string | null;
   mediaMimetype?: string | null;
   senderName?: string | null;
+  replyToMessageId?: string | null;
+  forwardedFromMessageId?: string | null;
 }
 
 /**
@@ -159,6 +161,8 @@ async function recordOutboundMessage(svc: SupabaseClient, input: RecordOutboundI
       status: input.status,
       sender_name: input.senderName ?? "GoDalz",
       timestamp: now,
+      reply_to_message_id: input.replyToMessageId ?? null,
+      forwarded_from_message_id: input.forwardedFromMessageId ?? null,
     });
 
     await svc
