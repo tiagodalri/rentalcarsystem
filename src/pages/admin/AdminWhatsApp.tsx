@@ -414,43 +414,45 @@ export default function AdminWhatsApp() {
   );
 
   return (
-    <div className="-mx-4 -mt-4 lg:-mx-8 lg:-mt-8 -mb-[max(calc(64px+env(safe-area-inset-bottom,0px)+20px),1rem)] lg:-mb-10 h-[calc(100dvh-56px)] lg:h-[calc(100dvh-40px)] flex flex-col bg-background overflow-hidden">
-      <div className="flex items-center justify-between gap-4 px-4 md:px-5 py-2.5 border-b shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <h1 className="admin-h1 text-lg md:text-xl truncate">WhatsApp</h1>
-          <span className="hidden md:inline text-xs text-muted-foreground truncate">
-            Central de conversas · CRM · funil de vendas
-          </span>
+    <div className="space-y-6">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="admin-h1 text-2xl md:text-3xl">WhatsApp</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Central de conversas conectada via Z-API, com CRM, funil de vendas e respostas rápidas.
+          </p>
         </div>
         <HeaderStatusBadge />
       </div>
 
-      <div className="flex-1 min-h-0 flex">
-        <div className={`w-full lg:w-[340px] xl:w-[380px] border-r shrink-0 ${selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
-          <ConversationList
-            conversations={conversations}
-            selectedId={selectedId}
-            onSelect={(id) => { setSelectedId(id); setContextOpen(false); }}
-            search={search}
-            onSearchChange={setSearch}
-          />
-        </div>
-
-        <div className={`flex-1 min-w-0 ${!selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
-          <MessageThread
-            conversation={selected}
-            onBack={() => setSelectedId(null)}
-            onToggleContext={() => setContextOpen((v) => !v)}
-            contextOpen={contextOpen}
-          />
-        </div>
-
-        {selected && contextOpen && (
-          <div className="hidden lg:flex w-[340px] xl:w-[380px] border-l shrink-0 flex-col min-h-0">
-            <ContextPanel conversation={selected} onClose={() => setContextOpen(false)} />
+      <Card className="bg-card/80 border-border/30 overflow-hidden h-[calc(100vh-220px)] min-h-[560px]">
+        <div className="flex h-full min-h-0">
+          <div className={`w-full lg:w-[340px] xl:w-[380px] border-r border-border/40 shrink-0 ${selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
+            <ConversationList
+              conversations={conversations}
+              selectedId={selectedId}
+              onSelect={(id) => { setSelectedId(id); setContextOpen(false); }}
+              search={search}
+              onSearchChange={setSearch}
+            />
           </div>
-        )}
-      </div>
+
+          <div className={`flex-1 min-w-0 ${!selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
+            <MessageThread
+              conversation={selected}
+              onBack={() => setSelectedId(null)}
+              onToggleContext={() => setContextOpen((v) => !v)}
+              contextOpen={contextOpen}
+            />
+          </div>
+
+          {selected && contextOpen && (
+            <div className="hidden lg:flex w-[340px] xl:w-[380px] border-l border-border/40 shrink-0 flex-col min-h-0">
+              <ContextPanel conversation={selected} onClose={() => setContextOpen(false)} />
+            </div>
+          )}
+        </div>
+      </Card>
 
       {selected && contextOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-black/50" onClick={() => setContextOpen(false)}>

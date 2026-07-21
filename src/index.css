@@ -1019,13 +1019,9 @@ body.pwa-standalone .hide-in-standalone {
   justify-content: center;
 }
 
-/* WhatsApp-style chat background (subtle dotted pattern) */
+/* Chat background — token-based, adapts to light/dark via --muted */
 .wa-chat-bg {
-  background-color: #efeae2;
-  background-image: radial-gradient(rgba(0,0,0,0.045) 1px, transparent 1px);
+  background-color: hsl(var(--muted) / 0.4);
+  background-image: radial-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
-}
-.dark .wa-chat-bg {
-  background-color: #0b141a;
-  background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
 }
