@@ -28,13 +28,22 @@ import {
   useWhatsAppConversations,
   markConversationRead,
   filterConversationsByAssignment,
+  fetchConversationsByIds,
   type AssignmentFilter,
   type WhatsAppConversation,
 } from "@/hooks/useWhatsAppConversations";
 import { useAuth } from "@/hooks/useAuth";
 import { AssigneeSelector } from "@/components/admin/whatsapp/AssigneeSelector";
 import { ParticipantsDialog } from "@/components/admin/whatsapp/ParticipantsDialog";
+import { ConversationFlagsControls } from "@/components/admin/whatsapp/ConversationFlagsControls";
+import {
+  AdvancedFiltersButton,
+  DEFAULT_ADVANCED_FILTERS,
+  resolveDateRange,
+  type AdvancedFiltersState,
+} from "@/components/admin/whatsapp/AdvancedFilters";
 import { SegmentedControl } from "@/components/mobile/SegmentedControl";
+import { supabase } from "@/integrations/supabase/client";
 import { useWhatsAppMessages, type WhatsAppMessage } from "@/hooks/useWhatsAppMessages";
 import { useMessageReactions } from "@/hooks/useMessageReactions";
 import {
@@ -157,6 +166,10 @@ function ConversationList({
   assignmentFilter,
   onAssignmentFilterChange,
   counts,
+  advancedFilters,
+  onAdvancedFiltersChange,
+  contentMatchIds,
+  contentSearching,
 }: {
   conversations: WhatsAppConversation[];
   selectedId: string | null;
@@ -167,17 +180,39 @@ function ConversationList({
   assignmentFilter: AssignmentFilter;
   onAssignmentFilterChange: (v: AssignmentFilter) => void;
   counts: { all: number; mine: number; unassigned: number };
+  advancedFilters: AdvancedFiltersState;
+  onAdvancedFiltersChange: (v: AdvancedFiltersState) => void;
+  contentMatchIds: Set<string> | null;
+  contentSearching: boolean;
 }) {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return conversations;
-    return conversations.filter(
-      (c) =>
-        (c.contact_name || "").toLowerCase().includes(q) ||
-        c.phone.includes(q.replace(/\D/g, "")) ||
-        c.tags.some((t) => t.toLowerCase().includes(q)),
-    );
-  }, [conversations, search]);
+    const dateRange = resolveDateRange(advancedFilters);
+    return conversations.filter((c) => {
+      // Archived filter — by default hide archived; only show when toggle is on.
+      if (advancedFilters.archived) {
+        if (c.status !== "archived") return false;
+      } else {
+        if (c.status === "archived") return false;
+      }
+      if (advancedFilters.unread && c.unread_count <= 0) return false;
+      if (advancedFilters.vip && !c.is_vip) return false;
+      if (advancedFilters.urgent && !c.is_urgent) return false;
+      if (dateRange) {
+        if (!c.last_message_at) return false;
+        const t = new Date(c.last_message_at).getTime();
+        if (t < dateRange.from.getTime() || t > dateRange.to.getTime()) return false;
+      }
+      if (q) {
+        const nameHit = (c.contact_name || "").toLowerCase().includes(q);
+        const phoneHit = c.phone.includes(q.replace(/\D/g, ""));
+        const tagHit = c.tags.some((t) => t.toLowerCase().includes(q));
+        const contentHit = contentMatchIds?.has(c.id) ?? false;
+        if (!(nameHit || phoneHit || tagHit || contentHit)) return false;
+      }
+      return true;
+    });
+  }, [conversations, search, advancedFilters, contentMatchIds]);
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-background">
@@ -186,22 +221,30 @@ function ConversationList({
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input
             type="text"
-            placeholder="Buscar por nome, telefone ou tag"
+            placeholder="Buscar por nome, telefone, tag ou mensagem"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/40 bg-card/50 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
+            className="w-full h-9 pl-9 pr-8 rounded-lg border border-border/40 bg-card/50 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
           />
+          {contentSearching && (
+            <Loader2 className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground animate-spin" />
+          )}
         </div>
-        <SegmentedControl<AssignmentFilter>
-          size="sm"
-          value={assignmentFilter}
-          onChange={onAssignmentFilterChange}
-          options={[
-            { value: "all", label: "Todas", badge: counts.all },
-            { value: "mine", label: "Minhas", badge: counts.mine },
-            { value: "unassigned", label: "Sem dono", badge: counts.unassigned },
-          ]}
-        />
+        <div className="flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <SegmentedControl<AssignmentFilter>
+              size="sm"
+              value={assignmentFilter}
+              onChange={onAssignmentFilterChange}
+              options={[
+                { value: "all", label: "Todas", badge: counts.all },
+                { value: "mine", label: "Minhas", badge: counts.mine },
+                { value: "unassigned", label: "Sem dono", badge: counts.unassigned },
+              ]}
+            />
+          </div>
+          <AdvancedFiltersButton value={advancedFilters} onChange={onAdvancedFiltersChange} />
+        </div>
       </div>
       <ScrollArea className="flex-1 min-h-0">
         {filtered.length === 0 ? (
@@ -634,6 +677,7 @@ function MessageThread({
           </div>
         </button>
         <div className="flex items-center gap-1">
+          <ConversationFlagsControls conversation={conversation} />
           <AssigneeSelector
             conversationId={conversation.id}
             assignedTo={conversation.assigned_to}
@@ -822,7 +866,7 @@ function MessageThread({
 
 // ---------------- Page ----------------
 export default function AdminWhatsApp() {
-  const { conversations } = useWhatsAppConversations();
+  const { conversations, mergeExtraConversations } = useWhatsAppConversations();
   const { connection } = useWhatsAppConnection();
   const { rawUser } = useAuth();
   const currentUserId = rawUser?.id ?? null;
@@ -832,6 +876,55 @@ export default function AdminWhatsApp() {
   const [contextOpen, setContextOpen] = useState(false);
   const [configured, setConfigured] = useState(false);
   const [assignmentFilter, setAssignmentFilter] = useState<AssignmentFilter>("all");
+  const [advancedFilters, setAdvancedFilters] = useState<AdvancedFiltersState>(DEFAULT_ADVANCED_FILTERS);
+  const [contentMatchIds, setContentMatchIds] = useState<Set<string> | null>(null);
+  const [contentSearching, setContentSearching] = useState(false);
+
+  // Debounced server-side search across message contents; hydrates missing conversations.
+  useEffect(() => {
+    const q = search.trim();
+    if (q.length < 2) {
+      setContentMatchIds(null);
+      setContentSearching(false);
+      return;
+    }
+    let cancelled = false;
+    setContentSearching(true);
+    const t = setTimeout(async () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const { data, error } = await (supabase as any)
+          .from("whatsapp_messages")
+          .select("conversation_id")
+          .ilike("content", `%${q}%`)
+          .limit(200);
+        if (cancelled) return;
+        if (error) {
+          setContentMatchIds(new Set());
+          setContentSearching(false);
+          return;
+        }
+        const ids = new Set<string>(
+          (data || [])
+            .map((r: { conversation_id: string | null }) => r.conversation_id)
+            .filter((v: string | null): v is string => !!v),
+        );
+        setContentMatchIds(ids);
+        // Hydrate any matched conversations not already in memory
+        const known = new Set(conversations.map((c) => c.id));
+        const missing = [...ids].filter((id) => !known.has(id));
+        if (missing.length > 0) {
+          try {
+            const extras = await fetchConversationsByIds(missing);
+            if (!cancelled) mergeExtraConversations(extras);
+          } catch { /* silent — search still shows already-loaded matches */ }
+        }
+      } finally {
+        if (!cancelled) setContentSearching(false);
+      }
+    }, 300);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [search, conversations, mergeExtraConversations]);
 
   const filterCounts = useMemo(
     () => ({
@@ -941,6 +1034,10 @@ export default function AdminWhatsApp() {
               assignmentFilter={assignmentFilter}
               onAssignmentFilterChange={setAssignmentFilter}
               counts={filterCounts}
+              advancedFilters={advancedFilters}
+              onAdvancedFiltersChange={setAdvancedFilters}
+              contentMatchIds={contentMatchIds}
+              contentSearching={contentSearching}
             />
           </div>
 
