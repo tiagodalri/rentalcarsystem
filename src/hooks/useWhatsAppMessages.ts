@@ -6,7 +6,7 @@ export interface WhatsAppMessage {
   conversation_id: string;
   external_message_id: string | null;
   direction: "inbound" | "outbound";
-  message_type: "text" | "image" | "audio" | "video" | "document" | "sticker" | "location" | "other";
+  message_type: "text" | "image" | "audio" | "video" | "document" | "sticker" | "location" | "contact" | "other";
   content: string | null;
   media_url: string | null;
   media_mimetype: string | null;
