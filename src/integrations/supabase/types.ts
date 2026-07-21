@@ -411,6 +411,38 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_participants: {
+        Row: {
+          added_at: string
+          conversation_id: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          conversation_id: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          conversation_id?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_notes: {
         Row: {
           author_id: string | null
@@ -1321,6 +1353,59 @@ export type Database = {
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      scheduled_messages: {
+        Row: {
+          content: string | null
+          conversation_id: string
+          created_at: string
+          created_by: string | null
+          failure_reason: string | null
+          id: string
+          media_mimetype: string | null
+          media_url: string | null
+          message_type: string
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          content?: string | null
+          conversation_id: string
+          created_at?: string
+          created_by?: string | null
+          failure_reason?: string | null
+          id?: string
+          media_mimetype?: string | null
+          media_url?: string | null
+          message_type?: string
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          content?: string | null
+          conversation_id?: string
+          created_at?: string
+          created_by?: string | null
+          failure_reason?: string | null
+          id?: string
+          media_mimetype?: string | null
+          media_url?: string | null
+          message_type?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduled_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -2610,19 +2695,85 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_links: {
+        Row: {
+          click_count: number
+          created_at: string
+          created_by: string | null
+          id: string
+          prefilled_message: string | null
+          slug: string
+          target_phone: string | null
+        }
+        Insert: {
+          click_count?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          prefilled_message?: string | null
+          slug: string
+          target_phone?: string | null
+        }
+        Update: {
+          click_count?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          prefilled_message?: string | null
+          slug?: string
+          target_phone?: string | null
+        }
+        Relationships: []
+      }
+      whatsapp_message_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_message_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_messages: {
         Row: {
           content: string | null
           conversation_id: string
           created_at: string
           direction: string
+          edited_at: string | null
           external_message_id: string | null
           failure_reason: string | null
+          forwarded_from_message_id: string | null
           id: string
           media_mimetype: string | null
           media_url: string | null
           message_type: string
+          pinned: boolean
           raw_payload: Json | null
+          reply_to_message_id: string | null
           sender_name: string | null
           sender_phone: string | null
           status: string
@@ -2633,13 +2784,17 @@ export type Database = {
           conversation_id: string
           created_at?: string
           direction: string
+          edited_at?: string | null
           external_message_id?: string | null
           failure_reason?: string | null
+          forwarded_from_message_id?: string | null
           id?: string
           media_mimetype?: string | null
           media_url?: string | null
           message_type?: string
+          pinned?: boolean
           raw_payload?: Json | null
+          reply_to_message_id?: string | null
           sender_name?: string | null
           sender_phone?: string | null
           status?: string
@@ -2650,13 +2805,17 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           direction?: string
+          edited_at?: string | null
           external_message_id?: string | null
           failure_reason?: string | null
+          forwarded_from_message_id?: string | null
           id?: string
           media_mimetype?: string | null
           media_url?: string | null
           message_type?: string
+          pinned?: boolean
           raw_payload?: Json | null
+          reply_to_message_id?: string | null
           sender_name?: string | null
           sender_phone?: string | null
           status?: string
@@ -2670,35 +2829,61 @@ export type Database = {
             referencedRelation: "whatsapp_conversations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "whatsapp_messages_forwarded_from_message_id_fkey"
+            columns: ["forwarded_from_message_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_messages_reply_to_message_id_fkey"
+            columns: ["reply_to_message_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_messages"
+            referencedColumns: ["id"]
+          },
         ]
       }
       whatsapp_quick_replies: {
         Row: {
+          category: string | null
           content: string
           created_at: string
           created_by: string | null
           id: string
+          media_mimetype: string | null
+          media_url: string | null
           shortcut: string | null
           title: string
           updated_at: string
+          usage_count: number
         }
         Insert: {
+          category?: string | null
           content: string
           created_at?: string
           created_by?: string | null
           id?: string
+          media_mimetype?: string | null
+          media_url?: string | null
           shortcut?: string | null
           title: string
           updated_at?: string
+          usage_count?: number
         }
         Update: {
+          category?: string | null
           content?: string
           created_at?: string
           created_by?: string | null
           id?: string
+          media_mimetype?: string | null
+          media_url?: string | null
           shortcut?: string | null
           title?: string
           updated_at?: string
+          usage_count?: number
         }
         Relationships: []
       }
