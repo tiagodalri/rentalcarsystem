@@ -492,7 +492,7 @@ function MessageThread({
     }
 
     if (!conversation) return;
-    const phone = conversation.contact_phone;
+    const phone = conversation.phone;
     const caption = applyPlaceholders(reply.content ?? "", conversation.contact_name);
     const mime = reply.media_mimetype ?? "";
     const isVideo = mime.startsWith("video/");
