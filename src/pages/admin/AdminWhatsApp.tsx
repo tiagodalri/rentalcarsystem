@@ -53,6 +53,10 @@ import { QuickReplyMenu, applyPlaceholders } from "@/components/admin/whatsapp/Q
 import { EmojiPickerButton } from "@/components/admin/whatsapp/EmojiPickerButton";
 import { AttachmentButton } from "@/components/admin/whatsapp/AttachmentButton";
 import { ForwardDialog } from "@/components/admin/whatsapp/ForwardDialog";
+import { AudioRecorderButton } from "@/components/admin/whatsapp/AudioRecorderButton";
+import { StickerPicker } from "@/components/admin/whatsapp/StickerPicker";
+import { LocationDialog } from "@/components/admin/whatsapp/LocationDialog";
+import { ContactShareDialog } from "@/components/admin/whatsapp/ContactShareDialog";
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
