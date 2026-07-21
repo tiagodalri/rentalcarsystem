@@ -1,21 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   MessageSquare,
-  Phone,
-  RefreshCw,
-  Power,
-  RotateCcw,
   Send,
-  QrCode,
   Loader2,
-  AlertCircle,
   Search,
   Paperclip,
   Smile,
   ArrowLeft,
   Info,
+  Settings2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -33,12 +29,8 @@ import {
 import { useWhatsAppMessages, type WhatsAppMessage } from "@/hooks/useWhatsAppMessages";
 import {
   checkWhatsAppStatus,
-  disconnectWhatsApp,
-  getWhatsAppQrCode,
   isDeviceOffline,
   isNotConfigured,
-  restartWhatsAppInstance,
-  runWhatsAppHeartbeat,
   sendWhatsAppText,
 } from "@/lib/zapi";
 import { formatPersonName } from "@/lib/formatName";
