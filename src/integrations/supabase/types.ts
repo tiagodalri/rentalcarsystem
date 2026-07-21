@@ -3078,6 +3078,29 @@ export type Database = {
         }
         Returns: boolean
       }
+      claim_scheduled_messages: {
+        Args: { p_limit?: number }
+        Returns: {
+          content: string | null
+          conversation_id: string
+          created_at: string
+          created_by: string | null
+          failure_reason: string | null
+          id: string
+          media_mimetype: string | null
+          media_url: string | null
+          message_type: string
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "scheduled_messages"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -3094,6 +3117,7 @@ export type Database = {
         Returns: string
       }
       get_occupancy_rate: { Args: never; Returns: number }
+      get_scheduled_messages_secret: { Args: never; Returns: string }
       get_vehicle_basic: {
         Args: { p_vehicle_id: string }
         Returns: {

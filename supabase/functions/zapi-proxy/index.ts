@@ -9,6 +9,11 @@ import {
   readZapiConfigAsync,
   type ZapiConfig,
 } from "../_shared/zapi.ts";
+import {
+  ensureConversation,
+  recordOutboundMessage,
+  type RecordOutboundInput,
+} from "../_shared/whatsappRecord.ts";
 
 type Action =
   | "get-qrcode"
@@ -90,106 +95,6 @@ async function authenticate(
     return jsonResponse({ ok: false, error: "forbidden" }, { status: 403 }, corsHeaders);
   }
   return { userId, email };
-}
-
-interface RecordOutboundInput {
-  conversationId?: string | null;
-  phone: string;
-  content: string;
-  externalId: string;
-  status: "pending" | "sent" | "delivered" | "read" | "failed";
-  messageType?: "text" | "image" | "audio" | "video" | "document" | "sticker" | "location" | "contact";
-  mediaUrl?: string | null;
-  mediaMimetype?: string | null;
-  senderName?: string | null;
-  replyToMessageId?: string | null;
-  forwardedFromMessageId?: string | null;
-  locationLat?: number | null;
-  locationLng?: number | null;
-  locationLabel?: string | null;
-}
-
-/**
- * Ensure a conversation exists for a given phone. Returns its id.
- */
-async function ensureConversation(svc: SupabaseClient, phone: string): Promise<string | null> {
-  const digits = normalizePhone(phone);
-  if (!digits) return null;
-  const externalId = `wa_${digits}`;
-  const { data: existing } = await svc
-    .from("whatsapp_conversations")
-    .select("id")
-    .eq("phone", digits)
-    .maybeSingle();
-  if (existing?.id) return existing.id as string;
-  const { data: created } = await svc
-    .from("whatsapp_conversations")
-    .insert({
-      phone: digits,
-      external_conversation_id: externalId,
-      is_group: false,
-      status: "open",
-      unread_count: 0,
-    })
-    .select("id")
-    .maybeSingle();
-  return (created?.id as string) ?? null;
-}
-
-/** Insert outbound message + bump conversation preview. Never throws. */
-async function recordOutboundMessage(svc: SupabaseClient, input: RecordOutboundInput) {
-  try {
-    let convId = input.conversationId ?? null;
-    if (!convId) {
-      convId = await ensureConversation(svc, input.phone);
-    }
-    if (!convId) return null;
-
-    const now = new Date().toISOString();
-    const messageType = input.messageType ?? "text";
-    const preview =
-      messageType === "text" ? (input.content || "").slice(0, 120)
-      : messageType === "image" ? "[imagem]"
-      : messageType === "video" ? "[vídeo]"
-      : messageType === "audio" ? "[áudio]"
-      : messageType === "sticker" ? "[figurinha]"
-      : messageType === "location" ? `[localização] ${input.locationLabel || ""}`.trim()
-      : messageType === "contact" ? `[contato] ${input.content || ""}`.trim()
-      : messageType === "document" ? `[documento] ${input.content || ""}`.trim()
-      : (input.content || "").slice(0, 120);
-
-    await svc.from("whatsapp_messages").insert({
-      conversation_id: convId,
-      external_message_id: input.externalId,
-      direction: "outbound",
-      message_type: messageType,
-      content: input.content || null,
-      media_url: input.mediaUrl ?? null,
-      media_mimetype: input.mediaMimetype ?? null,
-      status: input.status,
-      sender_name: input.senderName ?? "GoDalz",
-      timestamp: now,
-      reply_to_message_id: input.replyToMessageId ?? null,
-      forwarded_from_message_id: input.forwardedFromMessageId ?? null,
-      location_lat: input.locationLat ?? null,
-      location_lng: input.locationLng ?? null,
-      location_label: input.locationLabel ?? null,
-    });
-
-    await svc
-      .from("whatsapp_conversations")
-      .update({
-        last_message_at: now,
-        last_message_preview: preview,
-        updated_at: now,
-      })
-      .eq("id", convId);
-
-    return convId;
-  } catch (err) {
-    console.error("[zapi-proxy] recordOutboundMessage failed", err);
-    return null;
-  }
 }
 
 interface SendResult {

@@ -14,6 +14,7 @@ import {
   X,
   WifiOff,
   Mic,
+  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -66,6 +67,7 @@ import { StickerPicker } from "@/components/admin/whatsapp/StickerPicker";
 import { LocationDialog } from "@/components/admin/whatsapp/LocationDialog";
 import { ContactShareDialog } from "@/components/admin/whatsapp/ContactShareDialog";
 import { TypingDots } from "@/components/admin/whatsapp/TypingDots";
+import { ScheduleMessagePopover } from "@/components/admin/whatsapp/ScheduleMessagePopover";
 import { useMessageQueue, type QueuedMessage } from "@/hooks/useMessageQueue";
 import { usePresenceByPhone, type PresenceStatus } from "@/hooks/usePresenceByPhone";
 
@@ -729,15 +731,24 @@ function MessageThread({
             className="min-h-[40px] max-h-[140px] resize-none rounded-2xl px-4 py-2 bg-muted/40 border-transparent focus-visible:bg-background"
           />
           {draft.trim() || editing ? (
-            <Button
-              onClick={handleSend}
-              disabled={sending || !draft.trim()}
-              size="icon"
-              className="h-10 w-10 rounded-full shrink-0"
-              title={editing ? "Salvar" : "Enviar"}
-            >
-              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </Button>
+            <>
+              {!editing && (
+                <ScheduleMessagePopover
+                  conversationId={conversation.id}
+                  draft={draft}
+                  onScheduled={() => setDraft("")}
+                />
+              )}
+              <Button
+                onClick={handleSend}
+                disabled={sending || !draft.trim()}
+                size="icon"
+                className="h-10 w-10 rounded-full shrink-0"
+                title={editing ? "Salvar" : "Enviar"}
+              >
+                {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </Button>
+            </>
           ) : (
             <AudioRecorderButton phone={conversation.phone} conversationId={conversation.id} />
           )}
@@ -828,7 +839,15 @@ export default function AdminWhatsApp() {
             Central de conversas conectada via WhatsApp, com CRM, funil de vendas e respostas rápidas.
           </p>
         </div>
-        <HeaderStatusBadge />
+        <div className="flex items-center gap-3 flex-wrap">
+          <Link to="/admin/whatsapp/agendadas">
+            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+              <Clock className="w-3.5 h-3.5" />
+              Agendadas
+            </Button>
+          </Link>
+          <HeaderStatusBadge />
+        </div>
       </div>
 
       <Card className="bg-card/80 border-border/30 overflow-hidden h-[calc(100vh-220px)] min-h-[560px]">
