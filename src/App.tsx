@@ -100,6 +100,7 @@ const AdminPendencias = lazy(() => import("./pages/admin/AdminPendencias.tsx"));
 const AdminStampPreview = lazy(() => import("./pages/admin/AdminStampPreview.tsx"));
 const AdminWhatsApp = lazy(() => import("./pages/admin/AdminWhatsApp.tsx"));
 const AdminWhatsAppScheduled = lazy(() => import("./pages/admin/AdminWhatsAppScheduled.tsx"));
+const AdminWhatsAppPipeline = lazy(() => import("./pages/admin/AdminWhatsAppPipeline.tsx"));
 
 
 const queryClient = new QueryClient({
@@ -314,6 +315,7 @@ const App = () => (
                 <Route path="stamp-preview" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminStampPreview /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsApp /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp/agendadas" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppScheduled /></AdminSuspense></RequireRole>} />
+                <Route path="whatsapp/pipeline" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppPipeline /></AdminSuspense></RequireRole>} />
               </Route>
 
 

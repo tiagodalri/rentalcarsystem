@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
@@ -15,6 +15,7 @@ import {
   WifiOff,
   Mic,
   Clock,
+  Kanban,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -784,10 +785,23 @@ function MessageThread({
 export default function AdminWhatsApp() {
   const { conversations } = useWhatsAppConversations();
   const { connection } = useWhatsAppConnection();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [contextOpen, setContextOpen] = useState(false);
   const [configured, setConfigured] = useState(false);
+
+  // Pre-select conversation from ?conversation=<id> query param (e.g., from pipeline).
+  useEffect(() => {
+    const cid = searchParams.get("conversation");
+    if (!cid) return;
+    if (conversations.some((c) => c.id === cid)) {
+      setSelectedId(cid);
+      // clear the param so browser back doesn't re-trigger
+      searchParams.delete("conversation");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [conversations, searchParams, setSearchParams]);
 
   const queueHook = useMessageQueue();
   const { getActivePresence } = usePresenceByPhone();
@@ -840,6 +854,12 @@ export default function AdminWhatsApp() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
+          <Link to="/admin/whatsapp/pipeline">
+            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+              <Kanban className="w-3.5 h-3.5" />
+              Funil
+            </Button>
+          </Link>
           <Link to="/admin/whatsapp/agendadas">
             <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
               <Clock className="w-3.5 h-3.5" />
