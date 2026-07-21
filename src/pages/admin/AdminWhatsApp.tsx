@@ -162,7 +162,7 @@ function ConversationList({
                   )}
                   <button
                     onClick={() => onSelect(c.id)}
-                    className={`w-full flex items-start gap-3 px-3 py-3 border-b border-border/40 text-left transition-colors overflow-hidden ${
+                    className={`w-full flex items-start gap-3 pl-4 pr-5 py-3 border-b border-border/40 text-left transition-colors overflow-hidden ${
                       isActive ? "bg-muted/70" : "hover:bg-muted/40"
                     }`}
                   >
