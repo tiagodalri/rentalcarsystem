@@ -614,6 +614,7 @@ export default function AdminWhatsApp() {
           <div className={`flex-1 min-w-0 ${!selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
             <MessageThread
               conversation={selected}
+              conversations={conversations}
               onBack={() => setSelectedId(null)}
               onToggleContext={() => setContextOpen((v) => !v)}
               contextOpen={contextOpen}
