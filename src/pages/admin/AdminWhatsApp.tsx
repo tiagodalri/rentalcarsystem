@@ -154,6 +154,9 @@ function ConversationList({
   search,
   onSearchChange,
   getPresence,
+  assignmentFilter,
+  onAssignmentFilterChange,
+  counts,
 }: {
   conversations: WhatsAppConversation[];
   selectedId: string | null;
@@ -161,6 +164,9 @@ function ConversationList({
   search: string;
   onSearchChange: (v: string) => void;
   getPresence?: (phone: string) => PresenceStatus;
+  assignmentFilter: AssignmentFilter;
+  onAssignmentFilterChange: (v: AssignmentFilter) => void;
+  counts: { all: number; mine: number; unassigned: number };
 }) {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -175,7 +181,7 @@ function ConversationList({
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-background">
-      <div className="p-3 border-b border-border/40">
+      <div className="p-3 border-b border-border/40 space-y-2">
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
           <input
@@ -186,6 +192,16 @@ function ConversationList({
             className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/40 bg-card/50 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
           />
         </div>
+        <SegmentedControl<AssignmentFilter>
+          size="sm"
+          value={assignmentFilter}
+          onChange={onAssignmentFilterChange}
+          options={[
+            { value: "all", label: "Todas", badge: counts.all },
+            { value: "mine", label: "Minhas", badge: counts.mine },
+            { value: "unassigned", label: "Sem dono", badge: counts.unassigned },
+          ]}
+        />
       </div>
       <ScrollArea className="flex-1 min-h-0">
         {filtered.length === 0 ? (
