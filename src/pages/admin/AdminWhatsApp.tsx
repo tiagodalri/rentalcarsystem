@@ -731,15 +731,24 @@ function MessageThread({
             className="min-h-[40px] max-h-[140px] resize-none rounded-2xl px-4 py-2 bg-muted/40 border-transparent focus-visible:bg-background"
           />
           {draft.trim() || editing ? (
-            <Button
-              onClick={handleSend}
-              disabled={sending || !draft.trim()}
-              size="icon"
-              className="h-10 w-10 rounded-full shrink-0"
-              title={editing ? "Salvar" : "Enviar"}
-            >
-              {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            </Button>
+            <>
+              {!editing && (
+                <ScheduleMessagePopover
+                  conversationId={conversation.id}
+                  draft={draft}
+                  onScheduled={() => setDraft("")}
+                />
+              )}
+              <Button
+                onClick={handleSend}
+                disabled={sending || !draft.trim()}
+                size="icon"
+                className="h-10 w-10 rounded-full shrink-0"
+                title={editing ? "Salvar" : "Enviar"}
+              >
+                {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </Button>
+            </>
           ) : (
             <AudioRecorderButton phone={conversation.phone} conversationId={conversation.id} />
           )}
