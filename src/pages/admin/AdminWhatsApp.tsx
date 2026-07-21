@@ -67,6 +67,7 @@ import { StickerPicker } from "@/components/admin/whatsapp/StickerPicker";
 import { LocationDialog } from "@/components/admin/whatsapp/LocationDialog";
 import { ContactShareDialog } from "@/components/admin/whatsapp/ContactShareDialog";
 import { TypingDots } from "@/components/admin/whatsapp/TypingDots";
+import { ScheduleMessagePopover } from "@/components/admin/whatsapp/ScheduleMessagePopover";
 import { useMessageQueue, type QueuedMessage } from "@/hooks/useMessageQueue";
 import { usePresenceByPhone, type PresenceStatus } from "@/hooks/usePresenceByPhone";
 
