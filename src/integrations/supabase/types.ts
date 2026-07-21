@@ -429,6 +429,41 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_assignment_log: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          conversation_id: string
+          id: string
+          new_assigned_to: string | null
+          previous_assigned_to: string | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          conversation_id: string
+          id?: string
+          new_assigned_to?: string | null
+          previous_assigned_to?: string | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          conversation_id?: string
+          id?: string
+          new_assigned_to?: string | null
+          previous_assigned_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_assignment_log_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversation_participants: {
         Row: {
           added_at: string
@@ -3115,6 +3150,15 @@ export type Database = {
       find_customer_by_phone_digits: {
         Args: { p_digits: string }
         Returns: string
+      }
+      get_assignable_staff: {
+        Args: never
+        Returns: {
+          email: string
+          full_name: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }[]
       }
       get_occupancy_rate: { Args: never; Returns: number }
       get_scheduled_messages_secret: { Args: never; Returns: string }
