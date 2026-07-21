@@ -414,7 +414,7 @@ export default function AdminWhatsApp() {
   );
 
   return (
-    <div className="-mx-4 -mt-4 lg:-mx-8 lg:-mt-8 -mb-[max(calc(64px+env(safe-area-inset-bottom,0px)+20px),1rem)] lg:-mb-10 h-[calc(100dvh-var(--admin-header-h,56px))] w-[calc(100%+2rem)] lg:w-[calc(100%+4rem)] flex flex-col bg-background overflow-hidden">
+    <div className="-mx-4 -mt-4 lg:-mx-8 lg:-mt-8 -mb-[max(calc(64px+env(safe-area-inset-bottom,0px)+20px),1rem)] lg:-mb-10 h-[calc(100dvh-56px)] lg:h-[calc(100dvh-40px)] flex flex-col bg-background overflow-hidden">
       <div className="flex items-center justify-between gap-4 px-4 md:px-5 py-2.5 border-b shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <h1 className="admin-h1 text-lg md:text-xl truncate">WhatsApp</h1>
