@@ -27,8 +27,14 @@ import { useWhatsAppConnection } from "@/hooks/useWhatsAppConnection";
 import {
   useWhatsAppConversations,
   markConversationRead,
+  filterConversationsByAssignment,
+  type AssignmentFilter,
   type WhatsAppConversation,
 } from "@/hooks/useWhatsAppConversations";
+import { useAuth } from "@/hooks/useAuth";
+import { AssigneeSelector } from "@/components/admin/whatsapp/AssigneeSelector";
+import { ParticipantsDialog } from "@/components/admin/whatsapp/ParticipantsDialog";
+import { SegmentedControl } from "@/components/mobile/SegmentedControl";
 import { useWhatsAppMessages, type WhatsAppMessage } from "@/hooks/useWhatsAppMessages";
 import { useMessageReactions } from "@/hooks/useMessageReactions";
 import {
