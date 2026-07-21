@@ -48,7 +48,7 @@ export function AttachmentButton({ phone, conversationId, disabled }: Props) {
 
       if (res.ok && res.simulated) {
         toast.success(kind === "image" ? "Imagem enviada" : "Documento enviado", {
-          description: "Modo demonstração — configure a Z-API em Configurações para envio real.",
+          description: "Modo demonstração — configure a integração em Configurações para envio real.",
         });
       } else if (res.ok) {
         toast.success(kind === "image" ? "Imagem enviada" : "Documento enviado");

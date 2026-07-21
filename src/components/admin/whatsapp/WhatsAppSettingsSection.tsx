@@ -258,7 +258,7 @@ export default function WhatsAppSettingsSection() {
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
             <MessageSquare size={16} className="text-primary" />
-            WhatsApp (Z-API)
+            WhatsApp
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -302,7 +302,7 @@ export default function WhatsAppSettingsSection() {
           <div className="pt-4 border-t border-border/40 space-y-4">
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-primary" />
-              <p className="text-sm font-medium">Credenciais Z-API</p>
+              <p className="text-sm font-medium">Credenciais da integração</p>
             </div>
             <p className="text-xs text-muted-foreground -mt-2">
               Os valores existentes ficam mascarados. Só reenvie o campo se realmente quiser trocar.
@@ -375,7 +375,7 @@ export default function WhatsAppSettingsSection() {
           <div className="pt-4 border-t border-border/40 space-y-2">
             <p className="text-sm font-medium">URL do webhook</p>
             <p className="text-xs text-muted-foreground">
-              Cole esta URL no painel da Z-API (todos os eventos: On Message Received, On Message Status,
+              Cole esta URL no painel do provedor (todos os eventos: On Message Received, On Message Status,
               On Connected, On Disconnected). Se o Webhook Secret ainda não estiver salvo, salve primeiro para gerar a URL.
             </p>
             {webhookUrl ? (
