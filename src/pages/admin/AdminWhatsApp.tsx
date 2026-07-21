@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -32,8 +31,8 @@ import {
   sendWhatsAppText,
 } from "@/lib/zapi";
 import { formatPersonName } from "@/lib/formatName";
-import { ContactAvatar } from "@/components/admin/whatsapp/Avatar";
-import { stageInfo, tagStyle } from "@/components/admin/whatsapp/stage";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
+import { stageInfo, tagClass, STAGE_BADGE_BASE } from "@/components/admin/whatsapp/stage";
 import { MessageBubble, DateSeparator, dateLabel } from "@/components/admin/whatsapp/MessageBubble";
 import { ContextPanel } from "@/components/admin/whatsapp/ContextPanel";
 import { QuickReplyMenu, applyPlaceholders } from "@/components/admin/whatsapp/QuickReplies";
@@ -135,14 +134,15 @@ function ConversationList({
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-background">
-      <div className="p-3 border-b">
+      <div className="p-3 border-b border-border/40">
         <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          <input
+            type="text"
             placeholder="Buscar por nome, telefone ou tag"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-9 h-9 bg-muted/40 border-transparent focus-visible:bg-background"
+            className="w-full h-9 pl-9 pr-3 rounded-lg border border-border/40 bg-card/50 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/30 transition-all"
           />
         </div>
       </div>
@@ -163,7 +163,7 @@ function ConversationList({
                       isActive ? "bg-muted" : "hover:bg-muted/50"
                     }`}
                   >
-                    <ContactAvatar name={c.contact_name} phone={c.phone} size={48} />
+                    <PersonAvatar name={c.contact_name || c.phone} size="lg" tone="gold" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-sm font-semibold truncate">{displayName}</span>
@@ -178,18 +178,18 @@ function ConversationList({
                           {c.last_message_preview || "—"}
                         </p>
                         {c.unread_count > 0 && (
-                          <Badge className="h-[18px] min-w-[18px] px-1.5 rounded-full text-[10px] bg-emerald-600 hover:bg-emerald-600 border-0">
+                          <Badge className="h-[18px] min-w-[18px] px-1.5 rounded-full text-[10px] bg-primary text-primary-foreground hover:bg-primary border-0">
                             {c.unread_count}
                           </Badge>
                         )}
                       </div>
                       <div className="flex flex-wrap items-center gap-1 mt-1.5">
-                        <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border ${stage.cls}`}>
+                        <span className={`${STAGE_BADGE_BASE} ${stage.cls}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${stage.dot}`} />
                           {stage.label}
                         </span>
                         {c.tags.slice(0, 2).map((t) => (
-                          <span key={t} className="text-[10px] px-1.5 py-0.5 rounded-full border" style={tagStyle(t)}>
+                          <span key={t} className={`${STAGE_BADGE_BASE} ${tagClass(t)}`}>
                             {t}
                           </span>
                         ))}
@@ -325,7 +325,7 @@ function MessageThread({
           </Button>
         )}
         <button className="flex items-center gap-3 flex-1 min-w-0 text-left" onClick={onToggleContext}>
-          <ContactAvatar name={conversation.contact_name} phone={conversation.phone} size={40} />
+          <PersonAvatar name={conversation.contact_name || conversation.phone} size="md" tone="gold" />
           <div className="min-w-0 flex-1">
             <div className="text-sm font-semibold truncate">{displayName}</div>
             <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
