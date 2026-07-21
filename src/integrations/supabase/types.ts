@@ -2655,6 +2655,8 @@ export type Database = {
           external_conversation_id: string | null
           id: string
           is_group: boolean
+          is_urgent: boolean
+          is_vip: boolean
           last_message_at: string | null
           last_message_preview: string | null
           phone: string
@@ -2672,6 +2674,8 @@ export type Database = {
           external_conversation_id?: string | null
           id?: string
           is_group?: boolean
+          is_urgent?: boolean
+          is_vip?: boolean
           last_message_at?: string | null
           last_message_preview?: string | null
           phone: string
@@ -2689,6 +2693,8 @@ export type Database = {
           external_conversation_id?: string | null
           id?: string
           is_group?: boolean
+          is_urgent?: boolean
+          is_vip?: boolean
           last_message_at?: string | null
           last_message_preview?: string | null
           phone?: string
@@ -3258,6 +3264,8 @@ export type Database = {
         }[]
       }
       record_last_login: { Args: never; Returns: undefined }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
     }
     Enums: {
       app_role:
