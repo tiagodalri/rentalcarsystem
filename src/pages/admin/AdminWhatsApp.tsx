@@ -392,16 +392,17 @@ export default function AdminWhatsApp() {
 
   return (
     <div className="p-4 md:p-6 space-y-4 max-w-[1600px] mx-auto">
-      <div>
-        <h1 className="admin-h1 text-2xl md:text-3xl">WhatsApp</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Central de conversas conectada via Z-API, com CRM, funil de vendas e respostas rápidas.
-        </p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="admin-h1 text-2xl md:text-3xl">WhatsApp</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Central de conversas conectada via Z-API, com CRM, funil de vendas e respostas rápidas.
+          </p>
+        </div>
+        <HeaderStatusBadge />
       </div>
 
-      <ConnectionCard />
-
-      <Card className="overflow-hidden h-[calc(100vh-320px)] min-h-[560px]">
+      <Card className="overflow-hidden h-[calc(100vh-220px)] min-h-[560px]">
         <div className="flex h-full min-h-0">
           {/* Left: list */}
           <div className={`w-full lg:w-[360px] border-r shrink-0 ${selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
