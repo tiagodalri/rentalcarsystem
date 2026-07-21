@@ -7,8 +7,6 @@ import {
   Send,
   Loader2,
   Search,
-  Paperclip,
-  Smile,
   ArrowLeft,
   Info,
   Settings2,
@@ -39,6 +37,8 @@ import { stageInfo, tagStyle } from "@/components/admin/whatsapp/stage";
 import { MessageBubble, DateSeparator, dateLabel } from "@/components/admin/whatsapp/MessageBubble";
 import { ContextPanel } from "@/components/admin/whatsapp/ContextPanel";
 import { QuickReplyMenu, applyPlaceholders } from "@/components/admin/whatsapp/QuickReplies";
+import { EmojiPickerButton } from "@/components/admin/whatsapp/EmojiPickerButton";
+import { AttachmentButton } from "@/components/admin/whatsapp/AttachmentButton";
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -272,12 +272,38 @@ function MessageThread({
   async function handleSend() {
     if (!draft.trim() || !conversation) return;
     setSending(true);
-    const res = await sendWhatsAppText(conversation.phone, draft.trim());
+    const res = await sendWhatsAppText(conversation.phone, draft.trim(), conversation.id);
     setSending(false);
-    if (isNotConfigured(res)) return toast.error("Integração não configurada");
-    if (isDeviceOffline(res)) return toast.error("Celular offline — verifique o WhatsApp no aparelho");
-    if (!res.ok) return toast.error("Falha ao enviar");
+    if (res.ok && res.simulated) {
+      toast.success("Mensagem enviada", {
+        description: "Modo demonstração — configure a Z-API em Configurações para envio real.",
+      });
+      setDraft("");
+      return;
+    }
+    if (!res.ok) {
+      if (isNotConfigured(res)) return toast.error("Integração não configurada");
+      if (isDeviceOffline(res)) return toast.error("Celular offline — verifique o WhatsApp no aparelho");
+      return toast.error("Falha ao enviar");
+    }
     setDraft("");
+  }
+
+  function insertEmoji(emoji: string) {
+    const el = textareaRef.current;
+    if (!el) {
+      setDraft((d) => d + emoji);
+      return;
+    }
+    const start = el.selectionStart ?? draft.length;
+    const end = el.selectionEnd ?? draft.length;
+    const next = draft.slice(0, start) + emoji + draft.slice(end);
+    setDraft(next);
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + emoji.length;
+      el.setSelectionRange(pos, pos);
+    });
   }
 
   function insertQuickReply(content: string) {
@@ -344,14 +370,10 @@ function MessageThread({
       </div>
 
       {/* Composer */}
-      <div className="p-2 border-t bg-background">
-        <div className="flex items-end gap-1.5">
-          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Emoji" disabled>
-            <Smile className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Anexar" disabled>
-            <Paperclip className="w-5 h-5" />
-          </Button>
+      <div className="px-2 py-2 border-t bg-background">
+        <div className="flex items-end gap-1">
+          <EmojiPickerButton onSelect={insertEmoji} />
+          <AttachmentButton phone={conversation.phone} conversationId={conversation.id} />
           <QuickReplyMenu onInsert={insertQuickReply} />
           <Textarea
             ref={textareaRef}
@@ -362,13 +384,14 @@ function MessageThread({
             }}
             placeholder="Digite uma mensagem"
             rows={1}
-            className="min-h-[40px] max-h-[140px] resize-none rounded-full px-4 py-2 bg-muted/40 border-transparent focus-visible:bg-background"
+            className="min-h-[40px] max-h-[140px] resize-none rounded-2xl px-4 py-2 bg-muted/40 border-transparent focus-visible:bg-background"
           />
           <Button
             onClick={handleSend}
             disabled={sending || !draft.trim()}
             size="icon"
             className="h-10 w-10 rounded-full shrink-0"
+            title="Enviar"
           >
             {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </Button>
