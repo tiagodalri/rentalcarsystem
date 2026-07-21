@@ -270,6 +270,13 @@ function ConversationList({
                         {c.tags.length > 1 && (
                           <span className="text-[10px] text-muted-foreground shrink-0">+{c.tags.length - 1}</span>
                         )}
+                        <div className="ml-auto shrink-0" onClick={(e) => e.stopPropagation()}>
+                          <AssigneeSelector
+                            conversationId={c.id}
+                            assignedTo={c.assigned_to}
+                            variant="compact"
+                          />
+                        </div>
                       </div>
                     </div>
                   </button>
