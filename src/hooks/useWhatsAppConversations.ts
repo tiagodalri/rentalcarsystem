@@ -76,3 +76,11 @@ export function useWhatsAppConversations() {
 export async function markConversationRead(id: string) {
   await anyClient.from("whatsapp_conversations").update({ unread_count: 0 }).eq("id", id);
 }
+
+export async function updateConversationStage(id: string, stage: FunnelStage) {
+  const { error } = await anyClient
+    .from("whatsapp_conversations")
+    .update({ stage })
+    .eq("id", id);
+  if (error) throw error;
+}
