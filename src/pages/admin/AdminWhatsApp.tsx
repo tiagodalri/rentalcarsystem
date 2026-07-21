@@ -1034,6 +1034,10 @@ export default function AdminWhatsApp() {
               assignmentFilter={assignmentFilter}
               onAssignmentFilterChange={setAssignmentFilter}
               counts={filterCounts}
+              advancedFilters={advancedFilters}
+              onAdvancedFiltersChange={setAdvancedFilters}
+              contentMatchIds={contentMatchIds}
+              contentSearching={contentSearching}
             />
           </div>
 
