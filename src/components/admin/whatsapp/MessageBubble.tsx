@@ -1,7 +1,8 @@
 import { useState, forwardRef } from "react";
 import {
-  Check, CheckCheck, FileText, Mic, Video, MoreVertical,
+  Check, CheckCheck, FileText, MoreVertical,
   Reply, Forward, Copy, Pin, PinOff, Pencil, Smile, RotateCw, CornerUpLeft,
+  MapPin, User as UserIcon, ExternalLink,
 } from "lucide-react";
 import type { WhatsAppMessage } from "@/hooks/useWhatsAppMessages";
 import type { WhatsAppReaction } from "@/hooks/useMessageReactions";
