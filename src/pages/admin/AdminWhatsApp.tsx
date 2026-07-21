@@ -824,11 +824,30 @@ function MessageThread({
 export default function AdminWhatsApp() {
   const { conversations } = useWhatsAppConversations();
   const { connection } = useWhatsAppConnection();
+  const { rawUser } = useAuth();
+  const currentUserId = rawUser?.id ?? null;
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [contextOpen, setContextOpen] = useState(false);
   const [configured, setConfigured] = useState(false);
+  const [assignmentFilter, setAssignmentFilter] = useState<AssignmentFilter>("all");
+
+  const filterCounts = useMemo(
+    () => ({
+      all: conversations.length,
+      mine: currentUserId
+        ? conversations.filter((c) => c.assigned_to === currentUserId).length
+        : 0,
+      unassigned: conversations.filter((c) => !c.assigned_to).length,
+    }),
+    [conversations, currentUserId],
+  );
+
+  const visibleConversations = useMemo(
+    () => filterConversationsByAssignment(conversations, assignmentFilter, currentUserId),
+    [conversations, assignmentFilter, currentUserId],
+  );
 
   // Pre-select conversation from ?conversation=<id> query param (e.g., from pipeline).
   useEffect(() => {
