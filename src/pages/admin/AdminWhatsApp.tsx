@@ -608,12 +608,12 @@ function MessageThread({
                 </div>
               </div>
             ))}
-            {presenceStatus === "COMPOSING" || presenceStatus === "RECORDING" ? (
+            {presenceStatus === "composing" || presenceStatus === "recording" ? (
               <div className="px-3 pt-1">
                 <div className="inline-flex items-center gap-2 rounded-2xl bg-background border border-border/60 px-3 py-2 shadow-sm">
                   <TypingDots />
                   <span className="text-[11px] text-muted-foreground">
-                    {presenceStatus === "RECORDING" ? "gravando áudio..." : "digitando..."}
+                    {presenceStatus === "recording" ? "gravando áudio..." : "digitando..."}
                   </span>
                 </div>
               </div>
