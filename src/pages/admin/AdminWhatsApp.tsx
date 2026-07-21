@@ -279,7 +279,7 @@ function MessageThread({
     setSending(false);
     if (res.ok && res.simulated) {
       toast.success("Mensagem enviada", {
-        description: "Modo demonstração — configure a Z-API em Configurações para envio real.",
+        description: "Modo demonstração — configure a integração em Configurações para envio real.",
       });
       setDraft("");
       return;
@@ -422,7 +422,7 @@ export default function AdminWhatsApp() {
         <div>
           <h1 className="admin-h1 text-2xl md:text-3xl">WhatsApp</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Central de conversas conectada via Z-API, com CRM, funil de vendas e respostas rápidas.
+            Central de conversas conectada via WhatsApp, com CRM, funil de vendas e respostas rápidas.
           </p>
         </div>
         <HeaderStatusBadge />
