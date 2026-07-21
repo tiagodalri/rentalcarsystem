@@ -430,7 +430,7 @@ export default function AdminWhatsApp() {
 
       <Card className="bg-card/80 border-border/30 overflow-hidden h-[calc(100vh-220px)] min-h-[560px]">
         <div className="flex h-full min-h-0">
-          <div className={`w-full lg:w-[340px] xl:w-[380px] border-r border-border/40 shrink-0 ${selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
+          <div className={`w-full lg:w-[340px] xl:w-[380px] border-r border-border shrink-0 ${selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
             <ConversationList
               conversations={conversations}
               selectedId={selectedId}
