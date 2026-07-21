@@ -28,13 +28,22 @@ import {
   useWhatsAppConversations,
   markConversationRead,
   filterConversationsByAssignment,
+  fetchConversationsByIds,
   type AssignmentFilter,
   type WhatsAppConversation,
 } from "@/hooks/useWhatsAppConversations";
 import { useAuth } from "@/hooks/useAuth";
 import { AssigneeSelector } from "@/components/admin/whatsapp/AssigneeSelector";
 import { ParticipantsDialog } from "@/components/admin/whatsapp/ParticipantsDialog";
+import { ConversationFlagsControls } from "@/components/admin/whatsapp/ConversationFlagsControls";
+import {
+  AdvancedFiltersButton,
+  DEFAULT_ADVANCED_FILTERS,
+  resolveDateRange,
+  type AdvancedFiltersState,
+} from "@/components/admin/whatsapp/AdvancedFilters";
 import { SegmentedControl } from "@/components/mobile/SegmentedControl";
+import { supabase } from "@/integrations/supabase/client";
 import { useWhatsAppMessages, type WhatsAppMessage } from "@/hooks/useWhatsAppMessages";
 import { useMessageReactions } from "@/hooks/useMessageReactions";
 import {
