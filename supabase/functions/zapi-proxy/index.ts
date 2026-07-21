@@ -318,6 +318,205 @@ async function handleSendDocument(
   return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
 }
 
+async function handleSendVideo(
+  cfg: ZapiConfig | null,
+  svc: SupabaseClient,
+  payload: Record<string, unknown>,
+  senderName: string | null,
+): Promise<SendResult> {
+  const phone = normalizePhone(String(payload.phone || ""));
+  const video = String(payload.video || "");
+  const caption = payload.caption ? String(payload.caption) : "";
+  const conversationId = (payload.conversationId as string) || null;
+  const extras = extractExtras(payload);
+  if (!phone || !video) return { ok: false, status: 400, data: { error: "missing_fields" } };
+
+  if (!cfg) {
+    const externalId = `demo-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content: caption, externalId,
+      status: "sent", messageType: "video", mediaUrl: video, senderName, ...extras,
+    });
+    return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
+  }
+
+  const res = await callZapi(cfg, "/send-video", {
+    method: "POST",
+    body: JSON.stringify({ phone, video, caption: caption || undefined }),
+  });
+  if (res.ok) {
+    const d = (res.data ?? {}) as { messageId?: string; zaapId?: string };
+    const externalId = d.messageId || d.zaapId || `sent-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content: caption, externalId,
+      status: "sent", messageType: "video", mediaUrl: video, senderName, ...extras,
+    });
+  }
+  return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
+}
+
+async function handleSendAudio(
+  cfg: ZapiConfig | null,
+  svc: SupabaseClient,
+  payload: Record<string, unknown>,
+  senderName: string | null,
+): Promise<SendResult> {
+  const phone = normalizePhone(String(payload.phone || ""));
+  const audio = String(payload.audio || "");
+  const conversationId = (payload.conversationId as string) || null;
+  const extras = extractExtras(payload);
+  if (!phone || !audio) return { ok: false, status: 400, data: { error: "missing_fields" } };
+
+  if (!cfg) {
+    const externalId = `demo-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content: "", externalId,
+      status: "sent", messageType: "audio", mediaUrl: audio, senderName, ...extras,
+    });
+    return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
+  }
+
+  const res = await callZapi(cfg, "/send-audio", {
+    method: "POST",
+    body: JSON.stringify({ phone, audio }),
+  });
+  if (res.ok) {
+    const d = (res.data ?? {}) as { messageId?: string; zaapId?: string };
+    const externalId = d.messageId || d.zaapId || `sent-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content: "", externalId,
+      status: "sent", messageType: "audio", mediaUrl: audio, senderName, ...extras,
+    });
+  }
+  return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
+}
+
+async function handleSendSticker(
+  cfg: ZapiConfig | null,
+  svc: SupabaseClient,
+  payload: Record<string, unknown>,
+  senderName: string | null,
+): Promise<SendResult> {
+  const phone = normalizePhone(String(payload.phone || ""));
+  const sticker = String(payload.sticker || "");
+  const conversationId = (payload.conversationId as string) || null;
+  const extras = extractExtras(payload);
+  if (!phone || !sticker) return { ok: false, status: 400, data: { error: "missing_fields" } };
+
+  if (!cfg) {
+    const externalId = `demo-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content: "", externalId,
+      status: "sent", messageType: "sticker", mediaUrl: sticker, senderName, ...extras,
+    });
+    return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
+  }
+
+  // Z-API: /send-sticker. Falls back to /send-image if sticker endpoint unavailable.
+  let res = await callZapi(cfg, "/send-sticker", {
+    method: "POST",
+    body: JSON.stringify({ phone, sticker }),
+  });
+  if (!res.ok && res.status === 404) {
+    res = await callZapi(cfg, "/send-image", {
+      method: "POST",
+      body: JSON.stringify({ phone, image: sticker }),
+    });
+  }
+  if (res.ok) {
+    const d = (res.data ?? {}) as { messageId?: string; zaapId?: string };
+    const externalId = d.messageId || d.zaapId || `sent-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content: "", externalId,
+      status: "sent", messageType: "sticker", mediaUrl: sticker, senderName, ...extras,
+    });
+  }
+  return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
+}
+
+async function handleSendLocation(
+  cfg: ZapiConfig | null,
+  svc: SupabaseClient,
+  payload: Record<string, unknown>,
+  senderName: string | null,
+): Promise<SendResult> {
+  const phone = normalizePhone(String(payload.phone || ""));
+  const lat = Number(payload.latitude ?? payload.lat);
+  const lng = Number(payload.longitude ?? payload.lng);
+  const label = payload.label ? String(payload.label) : "";
+  const address = payload.address ? String(payload.address) : label;
+  const conversationId = (payload.conversationId as string) || null;
+  const extras = extractExtras(payload);
+  if (!phone || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return { ok: false, status: 400, data: { error: "missing_fields" } };
+  }
+
+  if (!cfg) {
+    const externalId = `demo-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content: label, externalId,
+      status: "sent", messageType: "location", senderName,
+      locationLat: lat, locationLng: lng, locationLabel: label || address, ...extras,
+    });
+    return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
+  }
+
+  const res = await callZapi(cfg, "/send-location", {
+    method: "POST",
+    body: JSON.stringify({ phone, latitude: lat, longitude: lng, title: label || undefined, address: address || undefined }),
+  });
+  if (res.ok) {
+    const d = (res.data ?? {}) as { messageId?: string; zaapId?: string };
+    const externalId = d.messageId || d.zaapId || `sent-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content: label, externalId,
+      status: "sent", messageType: "location", senderName,
+      locationLat: lat, locationLng: lng, locationLabel: label || address, ...extras,
+    });
+  }
+  return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
+}
+
+async function handleSendContact(
+  cfg: ZapiConfig | null,
+  svc: SupabaseClient,
+  payload: Record<string, unknown>,
+  senderName: string | null,
+): Promise<SendResult> {
+  const phone = normalizePhone(String(payload.phone || ""));
+  const contactName = String(payload.contactName || "").trim();
+  const contactPhone = normalizePhone(String(payload.contactPhone || ""));
+  const conversationId = (payload.conversationId as string) || null;
+  const extras = extractExtras(payload);
+  if (!phone || !contactName || !contactPhone) {
+    return { ok: false, status: 400, data: { error: "missing_fields" } };
+  }
+  const content = `${contactName} · +${contactPhone}`;
+
+  if (!cfg) {
+    const externalId = `demo-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content, externalId,
+      status: "sent", messageType: "contact", senderName, ...extras,
+    });
+    return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
+  }
+
+  const res = await callZapi(cfg, "/send-contact", {
+    method: "POST",
+    body: JSON.stringify({ phone, contactName, contactPhone }),
+  });
+  if (res.ok) {
+    const d = (res.data ?? {}) as { messageId?: string; zaapId?: string };
+    const externalId = d.messageId || d.zaapId || `sent-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content, externalId,
+      status: "sent", messageType: "contact", senderName, ...extras,
+    });
+  }
+  return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
+}
+
 async function routeReadOnly(action: Action, payload: Record<string, unknown>, cfg: ZapiConfig) {
   switch (action) {
     case "get-qrcode":
