@@ -932,12 +932,15 @@ export default function AdminWhatsApp() {
         <div className="flex h-full min-h-0">
           <div className={`w-full lg:w-[340px] xl:w-[380px] border-r border-border shrink-0 ${selected ? "hidden lg:flex" : "flex"} flex-col min-h-0`}>
             <ConversationList
-              conversations={conversations}
+              conversations={visibleConversations}
               selectedId={selectedId}
               onSelect={(id) => { setSelectedId(id); setContextOpen(false); }}
               search={search}
               onSearchChange={setSearch}
               getPresence={getActivePresence}
+              assignmentFilter={assignmentFilter}
+              onAssignmentFilterChange={setAssignmentFilter}
+              counts={filterCounts}
             />
           </div>
 
