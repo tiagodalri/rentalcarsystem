@@ -99,6 +99,7 @@ const AdminLogs = lazy(() => import("./pages/admin/AdminLogs.tsx"));
 const AdminPendencias = lazy(() => import("./pages/admin/AdminPendencias.tsx"));
 const AdminStampPreview = lazy(() => import("./pages/admin/AdminStampPreview.tsx"));
 const AdminWhatsApp = lazy(() => import("./pages/admin/AdminWhatsApp.tsx"));
+const AdminWhatsAppScheduled = lazy(() => import("./pages/admin/AdminWhatsAppScheduled.tsx"));
 
 
 const queryClient = new QueryClient({
