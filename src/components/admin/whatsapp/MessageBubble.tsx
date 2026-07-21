@@ -12,10 +12,9 @@ function StatusTicks({ status }: { status: WhatsAppMessage["status"] }) {
 
 /** WhatsApp-style tail SVG (curved). Mirrored via CSS for outbound. */
 function BubbleTail({ isOut }: { isOut: boolean }) {
-  // Two fill colors: incoming = card white/neutral, outgoing = green.
   const fillClass = isOut
-    ? "fill-[#d9fdd3] dark:fill-emerald-900/40"
-    : "fill-white dark:fill-neutral-800";
+    ? "fill-primary/15 dark:fill-primary/25"
+    : "fill-card dark:fill-card";
   return (
     <svg
       aria-hidden
@@ -23,7 +22,6 @@ function BubbleTail({ isOut }: { isOut: boolean }) {
       width="8"
       height="13"
       className={`absolute top-0 ${isOut ? "-right-[7px]" : "-left-[7px] -scale-x-100"} ${fillClass}`}
-      style={{ filter: "drop-shadow(0 1px 0.5px rgba(0,0,0,0.08))" }}
     >
       <path d="M8 0L0 0C0 0 4 0 4 4C4 8 0 13 0 13C0 13 8 8 8 4L8 0Z" />
     </svg>
@@ -41,10 +39,10 @@ export function MessageBubble({ m }: { m: WhatsAppMessage }) {
       <div
         className={`
           relative max-w-[75%] min-w-[64px] px-2.5 py-1.5 text-[14px] leading-[1.35]
-          shadow-[0_1px_0.5px_rgba(0,0,0,0.13)]
+          shadow-sm border border-border/30
           ${isOut
-            ? "bg-[#d9fdd3] dark:bg-emerald-900/40 rounded-lg rounded-tr-[2px]"
-            : "bg-white dark:bg-neutral-800 rounded-lg rounded-tl-[2px]"}
+            ? "bg-primary/15 dark:bg-primary/25 rounded-lg rounded-tr-[2px]"
+            : "bg-card rounded-lg rounded-tl-[2px]"}
         `}
       >
         <BubbleTail isOut={isOut} />
@@ -80,16 +78,26 @@ export function MessageBubble({ m }: { m: WhatsAppMessage }) {
         )}
 
         {m.content && m.message_type !== "document" && (
-          <div className="whitespace-pre-wrap break-words text-neutral-900 dark:text-neutral-100">
+          <div className="whitespace-pre-wrap break-words text-foreground">
             {m.content}
           </div>
         )}
 
-        <div className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-neutral-500 dark:text-neutral-400">
+        <div className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-muted-foreground">
           <span>{time}</span>
           {isOut && <StatusTicks status={m.status} />}
         </div>
       </div>
+    </div>
+  );
+}
+
+export function DateSeparator({ label }: { label: string }) {
+  return (
+    <div className="flex justify-center my-3">
+      <span className="text-[11px] px-2.5 py-1 rounded-md bg-card border border-border/40 text-muted-foreground shadow-sm">
+        {label}
+      </span>
     </div>
   );
 }

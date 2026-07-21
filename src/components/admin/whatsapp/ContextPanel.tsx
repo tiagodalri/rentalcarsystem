@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ContactAvatar } from "./Avatar";
-import { STAGES, stageInfo, tagStyle } from "./stage";
+import { PersonAvatar } from "@/components/ui/PersonAvatar";
+import { STAGES, stageInfo, tagClass, STAGE_BADGE_BASE } from "./stage";
 import type { WhatsAppConversation, FunnelStage } from "@/hooks/useWhatsAppConversations";
 import { formatPersonName } from "@/lib/formatName";
 
@@ -114,7 +114,7 @@ export function ContextPanel({
 
       <div className="flex-1 min-h-0 overflow-y-auto">
         <div className="p-5 flex flex-col items-center border-b">
-          <ContactAvatar name={conversation.contact_name} phone={conversation.phone} size={80} />
+          <PersonAvatar name={conversation.contact_name || conversation.phone} size="2xl" tone="gold" />
           <div className="mt-3 text-base font-semibold text-center">{display}</div>
           <div className="text-xs text-muted-foreground">{conversation.phone}</div>
         </div>
@@ -160,8 +160,7 @@ export function ContextPanel({
               <button
                 key={t}
                 onClick={() => removeTag(t)}
-                className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border transition-opacity hover:opacity-80"
-                style={tagStyle(t)}
+                className={`${STAGE_BADGE_BASE} ${tagClass(t)} transition-opacity hover:opacity-80`}
                 title="Clique para remover"
               >
                 {t}
