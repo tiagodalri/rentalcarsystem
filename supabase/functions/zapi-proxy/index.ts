@@ -148,17 +148,15 @@ async function recordOutboundMessage(svc: SupabaseClient, input: RecordOutboundI
     const now = new Date().toISOString();
     const messageType = input.messageType ?? "text";
     const preview =
-      messageType === "text"
-        ? (input.content || "").slice(0, 120)
-        : messageType === "image"
-        ? "[imagem]"
-        : messageType === "document"
-        ? `[documento] ${input.content || ""}`.trim()
-        : messageType === "audio"
-        ? "[áudio]"
-        : messageType === "video"
-        ? "[vídeo]"
-        : (input.content || "").slice(0, 120);
+      messageType === "text" ? (input.content || "").slice(0, 120)
+      : messageType === "image" ? "[imagem]"
+      : messageType === "video" ? "[vídeo]"
+      : messageType === "audio" ? "[áudio]"
+      : messageType === "sticker" ? "[figurinha]"
+      : messageType === "location" ? `[localização] ${input.locationLabel || ""}`.trim()
+      : messageType === "contact" ? `[contato] ${input.content || ""}`.trim()
+      : messageType === "document" ? `[documento] ${input.content || ""}`.trim()
+      : (input.content || "").slice(0, 120);
 
     await svc.from("whatsapp_messages").insert({
       conversation_id: convId,
@@ -173,6 +171,9 @@ async function recordOutboundMessage(svc: SupabaseClient, input: RecordOutboundI
       timestamp: now,
       reply_to_message_id: input.replyToMessageId ?? null,
       forwarded_from_message_id: input.forwardedFromMessageId ?? null,
+      location_lat: input.locationLat ?? null,
+      location_lng: input.locationLng ?? null,
+      location_label: input.locationLabel ?? null,
     });
 
     await svc
