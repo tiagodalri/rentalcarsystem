@@ -257,6 +257,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/share/track/:token" element={<PublicSuspense><PublicTrack /></PublicSuspense>} />
               <Route path="/share/inspection/:token" element={<PublicSuspense><PublicInspection /></PublicSuspense>} />
+              <Route path="/l/:slug" element={<PublicSuspense><PublicWhatsAppRedirect /></PublicSuspense>} />
 
               <Route path="/sobre-nos" element={<PublicSuspense><AboutUs /></PublicSuspense>} />
               <Route path="/frota" element={<PublicSuspense><Frota /></PublicSuspense>} />
@@ -318,6 +319,7 @@ const App = () => (
                 <Route path="whatsapp" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsApp /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp/agendadas" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppScheduled /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp/pipeline" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppPipeline /></AdminSuspense></RequireRole>} />
+                <Route path="whatsapp/links" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppLinks /></AdminSuspense></RequireRole>} />
               </Route>
 
 

@@ -1011,6 +1011,12 @@ export default function AdminWhatsApp() {
               Funil
             </Button>
           </Link>
+          <Link to="/admin/whatsapp/links">
+            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+              <Link2 className="w-3.5 h-3.5" />
+              Links
+            </Button>
+          </Link>
           <Link to="/admin/whatsapp/agendadas">
             <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
               <Clock className="w-3.5 h-3.5" />
