@@ -839,7 +839,15 @@ export default function AdminWhatsApp() {
             Central de conversas conectada via WhatsApp, com CRM, funil de vendas e respostas rápidas.
           </p>
         </div>
-        <HeaderStatusBadge />
+        <div className="flex items-center gap-3 flex-wrap">
+          <Link to="/admin/whatsapp/agendadas">
+            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+              <Clock className="w-3.5 h-3.5" />
+              Agendadas
+            </Button>
+          </Link>
+          <HeaderStatusBadge />
+        </div>
       </div>
 
       <Card className="bg-card/80 border-border/30 overflow-hidden h-[calc(100vh-220px)] min-h-[560px]">
