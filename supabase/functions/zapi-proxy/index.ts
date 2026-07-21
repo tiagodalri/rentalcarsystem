@@ -18,8 +18,12 @@ type Action =
   | "restart"
   | "send-text"
   | "send-image"
+  | "send-video"
   | "send-document"
   | "send-audio"
+  | "send-sticker"
+  | "send-location"
+  | "send-contact"
   | "list-chats"
   | "list-contacts"
   | "read-message"
@@ -34,7 +38,10 @@ interface ProxyBody {
 const MESSAGING_ROLES = new Set(["admin", "operations", "support"]);
 const CONFIG_ROLES = new Set(["admin"]);
 const ADMIN_ACTIONS = new Set<Action>(["save-config", "get-config-status"]);
-const SEND_ACTIONS = new Set<Action>(["send-text", "send-image", "send-document", "send-audio"]);
+const SEND_ACTIONS = new Set<Action>([
+  "send-text", "send-image", "send-video", "send-document",
+  "send-audio", "send-sticker", "send-location", "send-contact",
+]);
 
 function jsonResponse(body: unknown, init: ResponseInit, corsHeaders: Record<string, string>) {
   return new Response(JSON.stringify(body), {
