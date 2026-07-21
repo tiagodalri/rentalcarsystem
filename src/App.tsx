@@ -98,6 +98,7 @@ const AdminTutorials = lazy(() => import("./pages/admin/AdminTutorials.tsx"));
 const AdminLogs = lazy(() => import("./pages/admin/AdminLogs.tsx"));
 const AdminPendencias = lazy(() => import("./pages/admin/AdminPendencias.tsx"));
 const AdminStampPreview = lazy(() => import("./pages/admin/AdminStampPreview.tsx"));
+const AdminWhatsApp = lazy(() => import("./pages/admin/AdminWhatsApp.tsx"));
 
 
 const queryClient = new QueryClient({
@@ -310,6 +311,7 @@ const App = () => (
                 <Route path="logs" element={<RequireRole roles={["admin"]}><AdminSuspense><AdminLogs /></AdminSuspense></RequireRole>} />
                 <Route path="pendencias" element={<RequireRole roles={["admin","operations","finance"]}><AdminSuspense><AdminPendencias /></AdminSuspense></RequireRole>} />
                 <Route path="stamp-preview" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminStampPreview /></AdminSuspense></RequireRole>} />
+                <Route path="whatsapp" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsApp /></AdminSuspense></RequireRole>} />
               </Route>
 
 

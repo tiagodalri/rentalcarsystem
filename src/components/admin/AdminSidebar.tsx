@@ -19,6 +19,7 @@ import {
   Wallet,
   Brain,
   Handshake,
+  MessageSquare,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -82,6 +83,7 @@ const menuSections: MenuSection[] = [
       { title: "Agenda", url: "/admin/calendar",  icon: CalendarDays,  allowedRoles: ["admin","operations","support"] },
       { title: "Frota",      url: "/admin/fleet",     icon: Car,           allowedRoles: ["admin","operations"] },
       { title: "Clientes",   url: "/admin/customers", icon: Users,         allowedRoles: ["admin","operations","support"] },
+      { title: "WhatsApp",   url: "/admin/whatsapp",  icon: MessageSquare, allowedRoles: ["admin","operations","support"] },
 
     ],
   },
