@@ -12,6 +12,8 @@ import {
   Settings2,
   Pin,
   X,
+  WifiOff,
+  Mic,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -57,6 +59,9 @@ import { AudioRecorderButton } from "@/components/admin/whatsapp/AudioRecorderBu
 import { StickerPicker } from "@/components/admin/whatsapp/StickerPicker";
 import { LocationDialog } from "@/components/admin/whatsapp/LocationDialog";
 import { ContactShareDialog } from "@/components/admin/whatsapp/ContactShareDialog";
+import { TypingDots } from "@/components/admin/whatsapp/TypingDots";
+import { useMessageQueue, type QueuedMessage } from "@/hooks/useMessageQueue";
+import { usePresenceByPhone, type PresenceStatus } from "@/hooks/usePresenceByPhone";
 
 function formatPhone(phone: string): string {
   const digits = phone.replace(/\D/g, "");
@@ -133,12 +138,14 @@ function ConversationList({
   onSelect,
   search,
   onSearchChange,
+  getPresence,
 }: {
   conversations: WhatsAppConversation[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   search: string;
   onSearchChange: (v: string) => void;
+  getPresence?: (phone: string) => PresenceStatus;
 }) {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -196,9 +203,23 @@ function ConversationList({
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-1 min-w-0">
-                        <p className="text-xs text-muted-foreground truncate min-w-0 flex-1">
-                          {c.last_message_preview || "—"}
-                        </p>
+                        {(() => {
+                          const presence = getPresence?.(c.phone) ?? null;
+                          if (presence) {
+                            const label = presence === "recording" ? "gravando áudio" : "digitando";
+                            return (
+                              <p className="text-xs text-primary truncate min-w-0 flex-1 inline-flex items-center gap-1.5">
+                                <span className="italic">{label}</span>
+                                <TypingDots dotClassName="bg-primary" />
+                              </p>
+                            );
+                          }
+                          return (
+                            <p className="text-xs text-muted-foreground truncate min-w-0 flex-1">
+                              {c.last_message_preview || "—"}
+                            </p>
+                          );
+                        })()}
                         {c.unread_count > 0 && (
                           <Badge className="h-[18px] min-w-[18px] px-1.5 rounded-full text-[10px] bg-primary text-primary-foreground hover:bg-primary border-0 shrink-0">
                             {c.unread_count}
@@ -254,12 +275,20 @@ function MessageThread({
   onBack,
   onToggleContext,
   contextOpen,
+  connectionStatus,
+  configured,
+  queueHook,
+  presenceStatus,
 }: {
   conversation: WhatsAppConversation | null;
   conversations: WhatsAppConversation[];
   onBack?: () => void;
   onToggleContext: () => void;
   contextOpen: boolean;
+  connectionStatus: "disconnected" | "connecting" | "connected" | undefined;
+  configured: boolean;
+  queueHook: ReturnType<typeof useMessageQueue>;
+  presenceStatus: PresenceStatus;
 }) {
   const { messages, loading } = useWhatsAppMessages(conversation?.id ?? null);
   const messageIds = useMemo(() => messages.map((m) => m.id), [messages]);
@@ -270,6 +299,47 @@ function MessageThread({
     return map;
   }, [messages]);
   const pinnedMessages = useMemo(() => messages.filter((m) => m.pinned), [messages]);
+
+  // ---- Offline queue: merge queued items into the visible thread ----
+  const queuedForConv = conversation
+    ? queueHook.getQueuedForConversation(conversation.id)
+    : [];
+  const queuedAsMessages: WhatsAppMessage[] = useMemo(
+    () =>
+      queuedForConv.map<WhatsAppMessage>((q: QueuedMessage) => ({
+        id: q.id,
+        conversation_id: q.conversationId,
+        external_message_id: null,
+        direction: "outbound",
+        message_type: "text",
+        content: q.text,
+        media_url: null,
+        media_mimetype: null,
+        status:
+          q.sendStatus === "failed"
+            ? "failed"
+            : q.sendStatus === "sent"
+            ? "sent"
+            : "queued",
+        failure_reason: q.errorMessage || null,
+        sender_name: null,
+        sender_phone: q.phone,
+        timestamp: new Date(q.createdAt).toISOString(),
+        created_at: new Date(q.createdAt).toISOString(),
+        reply_to_message_id: q.replyToMessageId ?? null,
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(queuedForConv)],
+  );
+  const visibleMessages = useMemo(() => {
+    const merged = [...messages, ...queuedAsMessages];
+    merged.sort((a, b) => {
+      const ta = new Date(a.timestamp || a.created_at).getTime();
+      const tb = new Date(b.timestamp || b.created_at).getTime();
+      return ta - tb;
+    });
+    return merged;
+  }, [messages, queuedAsMessages]);
 
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -326,12 +396,16 @@ function MessageThread({
     }
   }
 
+  const shouldQueueOffline =
+    configured && connectionStatus !== "connected";
+
   async function handleSend() {
     if (!draft.trim() || !conversation) return;
+    const text = draft.trim();
 
     // Edit mode: update content instead of sending new
     if (editing) {
-      const res = await editMessageContent(editing.id, draft.trim());
+      const res = await editMessageContent(editing.id, text);
       if (!res.ok) return toast.error("Falha ao editar");
       toast.success("Mensagem editada");
       setEditing(null);
@@ -339,10 +413,27 @@ function MessageThread({
       return;
     }
 
+    // Offline path: queue instead of sending. Demo mode (not configured) never queues.
+    if (shouldQueueOffline) {
+      queueHook.enqueue({
+        conversationId: conversation.id,
+        phone: conversation.phone,
+        text,
+        replyToMessageId: replyTo?.id ?? null,
+      });
+      toast("Mensagem na fila", {
+        description:
+          "WhatsApp desconectado. A mensagem será enviada automaticamente quando a conexão voltar.",
+      });
+      setDraft("");
+      setReplyTo(null);
+      return;
+    }
+
     setSending(true);
     const res = await sendWhatsAppText(
       conversation.phone,
-      draft.trim(),
+      text,
       conversation.id,
       { replyToMessageId: replyTo?.id ?? null },
     );
@@ -429,7 +520,7 @@ function MessageThread({
     onJumpTo: jumpToMessage,
   };
 
-  const groups = groupByDate(messages);
+  const groups = groupByDate(visibleMessages);
   const stage = stageInfo(conversation.stage);
   const currentPinned = pinnedMessages[pinnedIndex % Math.max(pinnedMessages.length, 1)];
 
@@ -496,28 +587,50 @@ function MessageThread({
           <div className="flex justify-center py-8">
             <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           </div>
-        ) : messages.length === 0 ? (
+        ) : visibleMessages.length === 0 ? (
           <div className="text-center text-xs text-muted-foreground py-8">Nenhuma mensagem ainda</div>
         ) : (
-          groups.map((g, gi) => (
-            <div key={gi}>
-              <DateSeparator label={g.label} />
-              <div className="space-y-1">
-                {g.items.map((m) => (
-                  <MessageBubble
-                    key={m.id}
-                    m={m}
-                    repliedTo={m.reply_to_message_id ? messagesById.get(m.reply_to_message_id) ?? null : null}
-                    reactions={byMessage.get(m.id) || []}
-                    currentUserId={currentUserId}
-                    actions={bubbleActions}
-                  />
-                ))}
+          <>
+            {groups.map((g, gi) => (
+              <div key={gi}>
+                <DateSeparator label={g.label} />
+                <div className="space-y-1">
+                  {g.items.map((m) => (
+                    <MessageBubble
+                      key={m.id}
+                      m={m}
+                      repliedTo={m.reply_to_message_id ? messagesById.get(m.reply_to_message_id) ?? null : null}
+                      reactions={byMessage.get(m.id) || []}
+                      currentUserId={currentUserId}
+                      actions={bubbleActions}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+            {presenceStatus === "composing" || presenceStatus === "recording" ? (
+              <div className="px-3 pt-1">
+                <div className="inline-flex items-center gap-2 rounded-2xl bg-background border border-border/60 px-3 py-2 shadow-sm">
+                  <TypingDots />
+                  <span className="text-[11px] text-muted-foreground">
+                    {presenceStatus === "recording" ? "gravando áudio..." : "digitando..."}
+                  </span>
+                </div>
+              </div>
+            ) : null}
+          </>
         )}
       </div>
+
+      {/* Offline banner */}
+      {shouldQueueOffline && (
+        <div className="px-3 py-1.5 border-t bg-amber-500/10 text-[11px] text-amber-700 dark:text-amber-400 flex items-center gap-2">
+          <WifiOff className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">
+            WhatsApp desconectado. Mensagens serão enviadas assim que a conexão voltar.
+          </span>
+        </div>
+      )}
 
       {/* Reply/edit preview */}
       {(replyTo || editing) && (
@@ -608,14 +721,48 @@ function MessageThread({
 // ---------------- Page ----------------
 export default function AdminWhatsApp() {
   const { conversations } = useWhatsAppConversations();
+  const { connection } = useWhatsAppConnection();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [contextOpen, setContextOpen] = useState(false);
+  const [configured, setConfigured] = useState(false);
+
+  const queueHook = useMessageQueue();
+  const { getActivePresence } = usePresenceByPhone();
 
   const selected = useMemo(
     () => conversations.find((c) => c.id === selectedId) ?? null,
     [conversations, selectedId],
   );
+
+  // Detect config once (used to gate offline queue vs demo mode)
+  useEffect(() => {
+    (async () => {
+      const res = await checkWhatsAppStatus();
+      setConfigured(!isNotConfigured(res));
+    })();
+  }, []);
+
+  // Drain the offline queue whenever the connection is back
+  useEffect(() => {
+    if (!configured) return;
+    if (connection?.status !== "connected") return;
+    if (queueHook.getPendingCount() === 0) return;
+    queueHook.processQueue(async (item) => {
+      const res = await sendWhatsAppText(item.phone, item.text, item.conversationId, {
+        replyToMessageId: item.replyToMessageId ?? null,
+      });
+      if (res.ok) return { ok: true };
+      if (isDeviceOffline(res)) return { ok: false, error: "Celular offline" };
+      if (isNotConfigured(res)) return { ok: false, error: "Não configurado" };
+      return { ok: false, error: "Falha ao enviar" };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connection?.status, configured]);
+
+  const selectedPresence: PresenceStatus = selected
+    ? getActivePresence(selected.phone)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -638,6 +785,7 @@ export default function AdminWhatsApp() {
               onSelect={(id) => { setSelectedId(id); setContextOpen(false); }}
               search={search}
               onSearchChange={setSearch}
+              getPresence={getActivePresence}
             />
           </div>
 
@@ -648,6 +796,10 @@ export default function AdminWhatsApp() {
               onBack={() => setSelectedId(null)}
               onToggleContext={() => setContextOpen((v) => !v)}
               contextOpen={contextOpen}
+              connectionStatus={connection?.status}
+              configured={configured}
+              queueHook={queueHook}
+              presenceStatus={selectedPresence}
             />
           </div>
 

@@ -1,6 +1,6 @@
 import { useState, forwardRef } from "react";
 import {
-  Check, CheckCheck, FileText, MoreVertical,
+  Check, CheckCheck, Clock, FileText, MoreVertical,
   Reply, Forward, Copy, Pin, PinOff, Pencil, Smile, RotateCw, CornerUpLeft,
   MapPin, User as UserIcon, ExternalLink,
 } from "lucide-react";
@@ -16,7 +16,14 @@ import { EmojiPickerButton } from "./EmojiPickerButton";
 
 const QUICK_EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
 
-function StatusTicks({ status }: { status: WhatsAppMessage["status"] }) {
+function StatusTicks({ status }: { status: WhatsAppMessage["status"] | "queued" }) {
+  if (status === "queued") {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+        <Clock className="w-3 h-3" /> na fila
+      </span>
+    );
+  }
   if (status === "pending") return <Check className="w-3.5 h-3.5 opacity-50" />;
   if (status === "sent") return <Check className="w-3.5 h-3.5 opacity-70" />;
   if (status === "delivered") return <CheckCheck className="w-3.5 h-3.5 opacity-70" />;
