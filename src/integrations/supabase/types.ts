@@ -3151,6 +3151,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_quick_reply_usage: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
       list_vehicles_basic: {
         Args: never
         Returns: {
