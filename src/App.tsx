@@ -313,6 +313,7 @@ const App = () => (
                 <Route path="pendencias" element={<RequireRole roles={["admin","operations","finance"]}><AdminSuspense><AdminPendencias /></AdminSuspense></RequireRole>} />
                 <Route path="stamp-preview" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminStampPreview /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsApp /></AdminSuspense></RequireRole>} />
+                <Route path="whatsapp/agendadas" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppScheduled /></AdminSuspense></RequireRole>} />
               </Route>
 
 
