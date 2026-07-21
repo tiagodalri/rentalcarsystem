@@ -112,6 +112,23 @@ serve(async (req) => {
   const externalMessageId = pickString(payload, "messageId", "ids");
   const phone = normalizePhone(pickString(payload, "phone", "chatId") || "");
 
+  // -------- PresenceChatCallback: high-frequency, does NOT enter raw log --------
+  if (eventType === "PresenceChatCallback") {
+    if (!phone) return json({ ok: true, type: "presence", skipped: "missing_phone" });
+    const status = (pickString(payload, "status") || "AVAILABLE").toUpperCase();
+    try {
+      await supabase
+        .from("chat_presence")
+        .upsert(
+          { phone, status, updated_at: new Date().toISOString() },
+          { onConflict: "phone" },
+        );
+    } catch (err) {
+      console.warn("[zapi-webhook] chat_presence upsert failed", err);
+    }
+    return json({ ok: true, type: "presence" });
+  }
+
   // 1) Always persist the raw payload first (zero-loss)
   let rawId: string | null = null;
   try {
