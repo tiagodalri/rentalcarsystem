@@ -282,7 +282,7 @@ function ConversationList({
                         </div>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 </li>
               );
             })}
