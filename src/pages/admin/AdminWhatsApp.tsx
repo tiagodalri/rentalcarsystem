@@ -721,14 +721,48 @@ function MessageThread({
 // ---------------- Page ----------------
 export default function AdminWhatsApp() {
   const { conversations } = useWhatsAppConversations();
+  const { connection } = useWhatsAppConnection();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [contextOpen, setContextOpen] = useState(false);
+  const [configured, setConfigured] = useState(false);
+
+  const queueHook = useMessageQueue();
+  const { getActivePresence } = usePresenceByPhone();
 
   const selected = useMemo(
     () => conversations.find((c) => c.id === selectedId) ?? null,
     [conversations, selectedId],
   );
+
+  // Detect config once (used to gate offline queue vs demo mode)
+  useEffect(() => {
+    (async () => {
+      const res = await checkWhatsAppStatus();
+      setConfigured(!isNotConfigured(res));
+    })();
+  }, []);
+
+  // Drain the offline queue whenever the connection is back
+  useEffect(() => {
+    if (!configured) return;
+    if (connection?.status !== "connected") return;
+    if (queueHook.getPendingCount() === 0) return;
+    queueHook.processQueue(async (item) => {
+      const res = await sendWhatsAppText(item.phone, item.text, item.conversationId, {
+        replyToMessageId: item.replyToMessageId ?? null,
+      });
+      if (res.ok) return { ok: true };
+      if (isDeviceOffline(res)) return { ok: false, error: "Celular offline" };
+      if (isNotConfigured(res)) return { ok: false, error: "Não configurado" };
+      return { ok: false, error: "Falha ao enviar" };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connection?.status, configured]);
+
+  const selectedPresence: PresenceStatus = selected
+    ? getActivePresence(selected.phone)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -751,6 +785,7 @@ export default function AdminWhatsApp() {
               onSelect={(id) => { setSelectedId(id); setContextOpen(false); }}
               search={search}
               onSearchChange={setSearch}
+              getPresence={getActivePresence}
             />
           </div>
 
@@ -761,6 +796,10 @@ export default function AdminWhatsApp() {
               onBack={() => setSelectedId(null)}
               onToggleContext={() => setContextOpen((v) => !v)}
               contextOpen={contextOpen}
+              connectionStatus={connection?.status}
+              configured={configured}
+              queueHook={queueHook}
+              presenceStatus={selectedPresence}
             />
           </div>
 
