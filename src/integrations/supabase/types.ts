@@ -3117,6 +3117,7 @@ export type Database = {
         Returns: string
       }
       get_occupancy_rate: { Args: never; Returns: number }
+      get_scheduled_messages_secret: { Args: never; Returns: string }
       get_vehicle_basic: {
         Args: { p_vehicle_id: string }
         Returns: {
