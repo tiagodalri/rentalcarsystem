@@ -111,8 +111,38 @@ export default function ParceiroBuscar() {
 
   const sortedResults = useMemo(() => {
     if (!results) return null;
-    return [...results].sort((a, b) => a.daily_price_usd - b.daily_price_usd);
-  }, [results]);
+    const withCommission = (v: SearchResult) => {
+      if (v.commission_type === "percent" && v.commission_value != null) {
+        return (v.daily_price_usd * days * Number(v.commission_value)) / 100;
+      }
+      if (v.commission_type === "fixed" && v.commission_value != null) return Number(v.commission_value);
+      return null;
+    };
+    const arr = [...results];
+    if (sortMode === "price_asc") arr.sort((a, b) => a.daily_price_usd - b.daily_price_usd);
+    else if (sortMode === "price_desc") arr.sort((a, b) => b.daily_price_usd - a.daily_price_usd);
+    else if (sortMode === "commission_amount") {
+      arr.sort((a, b) => {
+        const ca = withCommission(a); const cb = withCommission(b);
+        if (ca == null && cb == null) return a.daily_price_usd - b.daily_price_usd;
+        if (ca == null) return 1;
+        if (cb == null) return -1;
+        return cb - ca;
+      });
+    } else if (sortMode === "commission_pct") {
+      arr.sort((a, b) => {
+        const totalA = a.daily_price_usd * days; const totalB = b.daily_price_usd * days;
+        const ca = withCommission(a); const cb = withCommission(b);
+        const pctA = ca != null && totalA > 0 ? (ca / totalA) * 100 : null;
+        const pctB = cb != null && totalB > 0 ? (cb / totalB) * 100 : null;
+        if (pctA == null && pctB == null) return a.daily_price_usd - b.daily_price_usd;
+        if (pctA == null) return 1;
+        if (pctB == null) return -1;
+        return pctB - pctA;
+      });
+    }
+    return arr;
+  }, [results, sortMode, days]);
 
   if (authorizing) {
     return (
