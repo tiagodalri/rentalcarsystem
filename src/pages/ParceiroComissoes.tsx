@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { ArrowLeft, Loader2, TrendingUp, Wallet, Clock, Inbox, Search } from "lucide-react";
+import { ArrowLeft, Loader2, TrendingUp, Wallet, Clock, Inbox, Search, X } from "lucide-react";
 import PartnerHeader from "@/components/parceiro/PartnerHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { parseDateOnly } from "@/lib/dateOnly";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { formatPersonName } from "@/lib/formatName";
 import { fmtUSD } from "@/lib/partnerFormat";
 
 type Row = {
@@ -31,6 +33,8 @@ export default function ParceiroComissoes() {
   const [authorizing, setAuthorizing] = useState(true);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
     (async () => {
@@ -75,6 +79,26 @@ export default function ParceiroComissoes() {
     return { total, paid, pending, count };
   }, [rows]);
 
+  const statusOptions = useMemo(() => {
+    const s = new Set<string>();
+    for (const r of rows) if (r.status) s.add(r.status);
+    return Array.from(s).sort();
+  }, [rows]);
+
+  const filteredRows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return rows.filter(r => {
+      if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (!q) return true;
+      const hay = [
+        r.booking_number ?? "",
+        r.customer_name ?? "",
+        r.vehicle_name ?? "",
+      ].join(" ").toLowerCase();
+      return hay.includes(q);
+    });
+  }, [rows, query, statusFilter]);
+
   if (authorizing) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -82,8 +106,6 @@ export default function ParceiroComissoes() {
       </div>
     );
   }
-
-  const commissionRows = rows.filter(r => Number(r.commission_amount ?? 0) > 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -94,47 +116,80 @@ export default function ParceiroComissoes() {
           <button onClick={() => navigate("/parceiro")} className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground mb-3 transition-colors">
             <ArrowLeft size={14} /> Voltar ao painel
           </button>
-          <h1 className="text-2xl sm:text-3xl font-semibold">Minhas comissões</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold">Minhas reservas</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Extrato de todas as reservas indicadas pela sua agência.
+            Todas as reservas indicadas pela sua agência, com resumo financeiro de comissão.
           </p>
         </div>
 
         {/* Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-          <SummaryCard
-            icon={<TrendingUp className="h-5 w-5 text-emerald-500" />}
-            label="Total ganho"
-            value={fmtUSD(totals.total)}
-            accent="emerald"
-            hint={`${totals.count} ${totals.count === 1 ? "reserva" : "reservas"}`}
-            loading={loading}
-          />
-          <SummaryCard
-            icon={<Clock className="h-5 w-5 text-amber-500" />}
-            label="Aguardando repasse"
-            value={fmtUSD(totals.pending)}
-            accent="amber"
-            loading={loading}
-          />
-          <SummaryCard
-            icon={<Wallet className="h-5 w-5 text-primary" />}
-            label="Já recebido"
-            value={fmtUSD(totals.paid)}
-            accent="primary"
-            loading={loading}
-          />
-        </div>
+        <section className="space-y-2">
+          <h2 className="text-[10px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">Resumo de comissão</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <SummaryCard
+              icon={<TrendingUp className="h-5 w-5 text-emerald-500" />}
+              label="Total ganho"
+              value={fmtUSD(totals.total)}
+              accent="emerald"
+              hint={`${totals.count} ${totals.count === 1 ? "reserva com comissão" : "reservas com comissão"}`}
+              loading={loading}
+            />
+            <SummaryCard
+              icon={<Clock className="h-5 w-5 text-amber-500" />}
+              label="Aguardando repasse"
+              value={fmtUSD(totals.pending)}
+              accent="amber"
+              loading={loading}
+            />
+            <SummaryCard
+              icon={<Wallet className="h-5 w-5 text-primary" />}
+              label="Já recebido"
+              value={fmtUSD(totals.paid)}
+              accent="primary"
+              loading={loading}
+            />
+          </div>
+        </section>
 
         {/* Table */}
         <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
-          <div className="px-4 sm:px-6 py-3 border-b border-border/40 flex items-center justify-between">
-            <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Extrato</h2>
-            {!loading && commissionRows.length > 0 && (
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                {commissionRows.length} {commissionRows.length === 1 ? "lançamento" : "lançamentos"}
-              </span>
-            )}
+          <div className="px-4 sm:px-6 py-3 border-b border-border/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Histórico completo</h2>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Reserva, cliente ou veículo"
+                  className="pl-8 pr-8 h-9 text-xs w-full sm:w-64"
+                />
+                {query && (
+                  <button
+                    onClick={() => setQuery("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    aria-label="Limpar busca"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="h-9 rounded-md border border-input bg-background px-2 text-xs uppercase tracking-wider"
+              >
+                <option value="all">Todos os status</option>
+                {statusOptions.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+              {!loading && (
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                  {filteredRows.length} {filteredRows.length === 1 ? "reserva" : "reservas"}
+                </span>
+              )}
+            </div>
           </div>
           {loading ? (
             <div className="divide-y divide-border/30">
@@ -148,20 +203,26 @@ export default function ParceiroComissoes() {
                 </div>
               ))}
             </div>
-          ) : commissionRows.length === 0 ? (
+          ) : filteredRows.length === 0 ? (
             <div className="p-10 flex flex-col items-center text-center gap-3">
               <div className="h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
                 <Inbox className="h-7 w-7 text-emerald-500" />
               </div>
               <div>
-                <h3 className="text-base font-semibold">Nenhuma comissão ainda</h3>
+                <h3 className="text-base font-semibold">
+                  {rows.length === 0 ? "Nenhuma reserva ainda" : "Nenhuma reserva encontrada"}
+                </h3>
                 <p className="text-sm text-muted-foreground mt-1 max-w-md">
-                  Assim que você confirmar sua primeira reserva pela busca, os valores começam a aparecer aqui.
+                  {rows.length === 0
+                    ? "Assim que você confirmar sua primeira reserva pela busca, ela aparecerá aqui."
+                    : "Ajuste a busca ou o filtro de status para encontrar suas reservas."}
                 </p>
               </div>
-              <Button onClick={() => navigate("/parceiro/buscar")} className="gold-gradient text-primary-foreground gap-2 mt-2">
-                <Search size={14} /> Buscar frota agora
-              </Button>
+              {rows.length === 0 && (
+                <Button onClick={() => navigate("/parceiro/buscar")} className="gold-gradient text-primary-foreground gap-2 mt-2">
+                  <Search size={14} /> Buscar frota agora
+                </Button>
+              )}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -170,6 +231,7 @@ export default function ParceiroComissoes() {
                   <tr>
                     <th className="text-left px-4 py-3 font-semibold">Reserva</th>
                     <th className="text-left px-4 py-3 font-semibold">Datas</th>
+                    <th className="text-left px-4 py-3 font-semibold">Cliente</th>
                     <th className="text-left px-4 py-3 font-semibold">Veículo</th>
                     <th className="text-left px-4 py-3 font-semibold">Locadora</th>
                     <th className="text-left px-4 py-3 font-semibold">Status</th>
@@ -179,28 +241,36 @@ export default function ParceiroComissoes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {commissionRows.map((r) => (
-                    <tr key={r.id} className="border-t border-border/30 hover:bg-muted/20 transition-colors">
-                      <td className="px-4 py-3 font-mono tabular-nums text-xs">{r.booking_number ?? r.id.slice(0, 8)}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground tabular-nums">
-                        {format(parseDateOnly(r.pickup_date), "dd MMM", { locale: pt })} → {format(parseDateOnly(r.return_date), "dd MMM yy", { locale: pt })}
-                      </td>
-                      <td className="px-4 py-3 truncate max-w-[220px]">{r.vehicle_name ?? "—"}</td>
-                      <td className="px-4 py-3 truncate max-w-[180px] text-muted-foreground">{r.locadora_name ?? "—"}</td>
-                      <td className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">{r.status}</td>
-                      <td className="px-4 py-3 text-right tabular-nums">{fmtUSD(r.total_price)}</td>
-                      <td className="px-4 py-3 text-right tabular-nums font-semibold text-emerald-600 dark:text-emerald-400">
-                        {r.commission_amount != null ? fmtUSD(r.commission_amount) : "—"}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        {r.commission_payout_status === "paid" ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">Pago</span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400">Pendente</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredRows.map((r) => {
+                    const hasCommission = r.commission_amount != null && Number(r.commission_amount) > 0;
+                    return (
+                      <tr key={r.id} className="border-t border-border/30 hover:bg-muted/20 transition-colors">
+                        <td className="px-4 py-3 font-mono tabular-nums text-xs">{r.booking_number ?? r.id.slice(0, 8)}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground tabular-nums">
+                          {format(parseDateOnly(r.pickup_date), "dd MMM", { locale: pt })} → {format(parseDateOnly(r.return_date), "dd MMM yy", { locale: pt })}
+                        </td>
+                        <td className="px-4 py-3 truncate max-w-[180px]">{r.customer_name ? formatPersonName(r.customer_name) : "—"}</td>
+                        <td className="px-4 py-3 truncate max-w-[220px]">{r.vehicle_name ?? "—"}</td>
+                        <td className="px-4 py-3 truncate max-w-[180px] text-muted-foreground">{r.locadora_name ?? "—"}</td>
+                        <td className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">{r.status}</td>
+                        <td className="px-4 py-3 text-right tabular-nums">{fmtUSD(r.total_price)}</td>
+                        <td className="px-4 py-3 text-right tabular-nums font-semibold text-emerald-600 dark:text-emerald-400">
+                          {hasCommission ? fmtUSD(r.commission_amount) : <span className="text-muted-foreground font-normal">—</span>}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {hasCommission ? (
+                            r.commission_payout_status === "paid" ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">Pago</span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400">Pendente</span>
+                            )
+                          ) : (
+                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
 
                 </tbody>
               </table>
