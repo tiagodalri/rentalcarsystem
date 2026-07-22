@@ -240,6 +240,7 @@ export default function ParceiroComissoes() {
                     <th className="text-right px-4 py-3 font-semibold">Total</th>
                     <th className="text-right px-4 py-3 font-semibold">Comissão</th>
                     <th className="text-center px-4 py-3 font-semibold">Repasse</th>
+                    <th className="w-8 px-2 py-3" />
                   </tr>
                 </thead>
                 <tbody>
