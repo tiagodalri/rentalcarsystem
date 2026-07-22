@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, UsersRound, ScrollText, ChevronRight, FileSignature, FileWarning, Building2 } from "lucide-react";
+import { Lock, UsersRound, ScrollText, ChevronRight, FileSignature, FileWarning, Building2, Percent } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import ChangePasswordDialog from "@/components/admin/ChangePasswordDialog";
 import WhatsAppSettingsSection from "@/components/admin/whatsapp/WhatsAppSettingsSection";
