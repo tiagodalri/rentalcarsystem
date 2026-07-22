@@ -17,6 +17,7 @@ import {
   Clock,
   Kanban,
   Link2,
+  CircleDot,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -1005,6 +1006,12 @@ export default function AdminWhatsApp() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
+          <Link to="/admin/whatsapp/status">
+            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+              <CircleDot className="w-3.5 h-3.5" />
+              Status
+            </Button>
+          </Link>
           <Link to="/admin/whatsapp/pipeline">
             <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
               <Kanban className="w-3.5 h-3.5" />

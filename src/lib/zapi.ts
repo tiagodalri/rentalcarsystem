@@ -16,6 +16,10 @@ export type ZapiAction =
   | "send-sticker"
   | "send-location"
   | "send-contact"
+  | "send-text-status"
+  | "send-image-status"
+  | "send-video-status"
+  | "reply-status-text"
   | "list-chats"
   | "list-contacts"
   | "read-message"
@@ -204,3 +208,34 @@ export async function runWhatsAppHeartbeat(): Promise<ZapiResponse<{ connected: 
   if (error) return { ok: false, error: error.message };
   return (data as ZapiResponse<{ connected: boolean; phone: string | null }>) ?? { ok: false };
 }
+
+// -------- Status (Stories) --------
+export interface StatusSendResult {
+  externalId?: string;
+  messageId?: string;
+  zaapId?: string;
+  id?: string;
+}
+
+export const sendStatusText = (
+  text: string,
+  backgroundColor?: string,
+  font?: string,
+) => callProxy<StatusSendResult>("send-text-status", { text, backgroundColor, font });
+
+export const sendStatusImage = (
+  image: string,
+  caption?: string,
+) => callProxy<StatusSendResult>("send-image-status", { imageUrl: image, caption });
+
+export const sendStatusVideo = (
+  video: string,
+  caption?: string,
+) => callProxy<StatusSendResult>("send-video-status", { videoUrl: video, caption });
+
+export const replyStatusText = (
+  phone: string,
+  message: string,
+  statusMessageId: string,
+  conversationId?: string,
+) => callProxy("reply-status-text", { phone, message, statusMessageId, conversationId });
