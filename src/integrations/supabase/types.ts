@@ -2996,6 +2996,95 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_status_views: {
+        Row: {
+          id: string
+          status_id: string
+          viewed_at: string
+          viewer_name: string | null
+          viewer_phone: string | null
+        }
+        Insert: {
+          id?: string
+          status_id: string
+          viewed_at?: string
+          viewer_name?: string | null
+          viewer_phone?: string | null
+        }
+        Update: {
+          id?: string
+          status_id?: string
+          viewed_at?: string
+          viewer_name?: string | null
+          viewer_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_status_views_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_statuses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_statuses: {
+        Row: {
+          background_color: string | null
+          caption: string | null
+          created_at: string
+          expires_at: string
+          external_status_id: string | null
+          external_zaap_id: string | null
+          font: string | null
+          id: string
+          is_mine: boolean
+          media_url: string | null
+          posted_at: string
+          posted_by: string | null
+          posted_by_name: string | null
+          status_type: string
+          text_content: string | null
+          view_count: number
+        }
+        Insert: {
+          background_color?: string | null
+          caption?: string | null
+          created_at?: string
+          expires_at?: string
+          external_status_id?: string | null
+          external_zaap_id?: string | null
+          font?: string | null
+          id?: string
+          is_mine?: boolean
+          media_url?: string | null
+          posted_at?: string
+          posted_by?: string | null
+          posted_by_name?: string | null
+          status_type: string
+          text_content?: string | null
+          view_count?: number
+        }
+        Update: {
+          background_color?: string | null
+          caption?: string | null
+          created_at?: string
+          expires_at?: string
+          external_status_id?: string | null
+          external_zaap_id?: string | null
+          font?: string | null
+          id?: string
+          is_mine?: boolean
+          media_url?: string | null
+          posted_at?: string
+          posted_by?: string | null
+          posted_by_name?: string | null
+          status_type?: string
+          text_content?: string | null
+          view_count?: number
+        }
+        Relationships: []
+      }
       zapi_config: {
         Row: {
           client_token: string | null
@@ -3307,6 +3396,7 @@ export type Database = {
       record_last_login: { Args: never; Returns: undefined }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      whatsapp_status_cleanup_expired: { Args: never; Returns: number }
     }
     Enums: {
       app_role:
