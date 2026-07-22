@@ -246,40 +246,127 @@ export default function ParceiroComissoes() {
                   {filteredRows.map((r) => {
                     const hasCommission = r.commission_amount != null && Number(r.commission_amount) > 0;
                     return (
-                      <tr key={r.id} className="border-t border-border/30 hover:bg-muted/20 transition-colors">
-                        <td className="px-4 py-3 font-mono tabular-nums text-xs">{r.booking_number ?? r.id.slice(0, 8)}</td>
-                        <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground tabular-nums">
+                      <tr
+                        key={r.id}
+                        onClick={() => setSelected(r)}
+                        className="border-t border-border/30 hover:bg-muted/30 transition-colors cursor-pointer"
+                      >
+                        <td className="px-4 py-4 font-mono tabular-nums text-xs whitespace-nowrap align-middle">{r.booking_number ?? r.id.slice(0, 8)}</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-xs text-muted-foreground tabular-nums align-middle">
                           {format(parseDateOnly(r.pickup_date), "dd MMM", { locale: pt })} → {format(parseDateOnly(r.return_date), "dd MMM yy", { locale: pt })}
                         </td>
-                        <td className="px-4 py-3 truncate max-w-[180px]">{r.customer_name ? formatPersonName(r.customer_name) : "—"}</td>
-                        <td className="px-4 py-3 truncate max-w-[220px]">{r.vehicle_name ?? "—"}</td>
-                        <td className="px-4 py-3 truncate max-w-[180px] text-muted-foreground">{r.locadora_name ?? "—"}</td>
-                        <td className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">{r.status}</td>
-                        <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{fmtUSD(r.total_price)}</td>
-                        <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap font-semibold text-emerald-600 dark:text-emerald-400">
+                        <td className="px-4 py-4 align-middle">
+                          <div className="truncate max-w-[180px]">{r.customer_name ? formatPersonName(r.customer_name) : "—"}</div>
+                        </td>
+                        <td className="px-4 py-4 align-middle">
+                          <div className="truncate max-w-[220px]">{r.vehicle_name ?? "—"}</div>
+                        </td>
+                        <td className="px-4 py-4 align-middle text-muted-foreground">
+                          <div className="truncate max-w-[160px]">{r.locadora_name ?? "—"}</div>
+                        </td>
+                        <td className="px-4 py-4 text-xs uppercase tracking-wider text-muted-foreground whitespace-nowrap align-middle">{r.status}</td>
+                        <td className="px-4 py-4 text-right tabular-nums whitespace-nowrap align-middle">{fmtUSD(r.total_price)}</td>
+                        <td className="px-4 py-4 text-right tabular-nums whitespace-nowrap font-semibold text-emerald-600 dark:text-emerald-400 align-middle">
                           {hasCommission ? fmtUSD(r.commission_amount) : <span className="text-muted-foreground font-normal">—</span>}
                         </td>
-                        <td className="px-4 py-3 text-center whitespace-nowrap">
+                        <td className="px-4 py-4 text-center whitespace-nowrap align-middle">
                           {hasCommission ? (
                             r.commission_payout_status === "paid" ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 whitespace-nowrap">Pago</span>
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 whitespace-nowrap">Pago</span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 whitespace-nowrap">Pendente</span>
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 whitespace-nowrap">Pendente</span>
                             )
                           ) : (
                             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">—</span>
                           )}
                         </td>
+                        <td className="px-3 py-4 text-right align-middle">
+                          <ChevronRight className="h-4 w-4 text-muted-foreground/60" />
+                        </td>
                       </tr>
                     );
                   })}
-
                 </tbody>
               </table>
             </div>
           )}
         </div>
       </main>
+
+      <BookingDetailDialog row={selected} onClose={() => setSelected(null)} onOpenFull={(id) => navigate(`/admin/bookings/${id}`)} />
+    </div>
+  );
+}
+
+function BookingDetailDialog({ row, onClose, onOpenFull }: { row: Row | null; onClose: () => void; onOpenFull: (id: string) => void }) {
+  const open = !!row;
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        {row && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <span className="font-mono text-sm tabular-nums text-muted-foreground">{row.booking_number ?? row.id.slice(0, 8)}</span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-muted text-muted-foreground whitespace-nowrap">{row.status}</span>
+              </DialogTitle>
+              <DialogDescription>Resumo da reserva indicada pela sua agência.</DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3 py-2">
+              <DetailLine icon={<User className="h-4 w-4" />} label="Cliente" value={row.customer_name ? formatPersonName(row.customer_name) : "—"} />
+              <DetailLine icon={<Car className="h-4 w-4" />} label="Veículo" value={row.vehicle_name ?? "—"} sub={row.vehicle_category ?? undefined} />
+              <DetailLine icon={<Building2 className="h-4 w-4" />} label="Locadora" value={row.locadora_name ?? "—"} />
+              <DetailLine
+                icon={<Calendar className="h-4 w-4" />}
+                label="Período"
+                value={`${format(parseDateOnly(row.pickup_date), "dd MMM yy", { locale: pt })} → ${format(parseDateOnly(row.return_date), "dd MMM yy", { locale: pt })}`}
+              />
+
+              <div className="rounded-xl border border-border/40 bg-muted/20 p-4 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground inline-flex items-center gap-2"><Receipt className="h-4 w-4" /> Total da reserva</span>
+                  <span className="tabular-nums font-medium">{fmtUSD(row.total_price)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Sua comissão</span>
+                  <span className="tabular-nums font-semibold text-emerald-600 dark:text-emerald-400">
+                    {row.commission_amount != null && Number(row.commission_amount) > 0 ? fmtUSD(row.commission_amount) : "—"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs pt-1 border-t border-border/40">
+                  <span className="text-muted-foreground uppercase tracking-wider">Status de repasse</span>
+                  {row.commission_payout_status === "paid" ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">Pago</span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400">Pendente</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-2">
+              <Button variant="ghost" onClick={onClose}>Fechar</Button>
+              <Button onClick={() => onOpenFull(row.id)} className="gold-gradient text-primary-foreground gap-2">
+                Ver reserva completa <ExternalLink className="h-4 w-4" />
+              </Button>
+            </DialogFooter>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DetailLine({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: string; sub?: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 text-muted-foreground">{icon}</div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+        <div className="text-sm font-medium truncate">{value}</div>
+        {sub && <div className="text-xs text-muted-foreground truncate">{sub}</div>}
+      </div>
     </div>
   );
 }
