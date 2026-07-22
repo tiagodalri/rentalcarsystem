@@ -405,7 +405,7 @@ export default function AdminFleetReport({
       </div>
 
       {/* KPI Cards — row 2: revenue by channel */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { Icon: Car, label: "Turo", value: `$${turoRevenue.toLocaleString()}`, tone: "primary" as const },
           { Icon: Users, label: "Parceiros", value: `$${partnerRevenue.toLocaleString()}`, tone: "emerald" as const },
