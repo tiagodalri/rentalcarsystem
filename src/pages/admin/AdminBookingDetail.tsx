@@ -529,6 +529,11 @@ export default function AdminBookingDetail() {
                 </a>
               )}
               <Badge className={`${sc.color} border text-[10px] px-3 py-1 font-semibold whitespace-nowrap`}>{sc.label}</Badge>
+              {partnerName && (
+                <Badge variant="outline" className="text-[10px] px-2 py-1 border-primary/40 text-primary whitespace-nowrap">
+                  Via parceiro · {partnerName}
+                </Badge>
+              )}
               {(() => {
                 const cs = contractStatusConfig[booking.contract_status || "not_sent"] || contractStatusConfig.not_sent;
                 const badge = (
