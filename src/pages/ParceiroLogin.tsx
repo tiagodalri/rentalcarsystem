@@ -165,6 +165,16 @@ export default function ParceiroLogin() {
             </button>
           </form>
 
+          <div className="mt-6 rounded-xl border border-border/40 bg-muted/30 p-4 text-center">
+            <p className="text-xs text-muted-foreground mb-2">Ainda não é parceiro?</p>
+            <a
+              href="/parceiro/cadastro"
+              className="text-sm font-semibold text-primary hover:underline inline-flex items-center gap-1"
+            >
+              Cadastre sua agência
+            </a>
+          </div>
+
           <p className="text-[10px] text-center text-muted-foreground/70 mt-4 uppercase tracking-[0.2em]">
             Acesso somente para agências autorizadas
           </p>
