@@ -104,6 +104,7 @@ const AdminWhatsAppPipeline = lazy(() => import("./pages/admin/AdminWhatsAppPipe
 const AdminWhatsAppLinks = lazy(() => import("./pages/admin/AdminWhatsAppLinks.tsx"));
 const AdminWhatsAppStatus = lazy(() => import("./pages/admin/AdminWhatsAppStatus.tsx"));
 const AdminPlatformLocadoras = lazy(() => import("./pages/admin/AdminPlatformLocadoras.tsx"));
+const AdminCommissions = lazy(() => import("./pages/admin/AdminCommissions.tsx"));
 const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect.tsx"));
 const ParceiroLogin = lazy(() => import("./pages/ParceiroLogin.tsx"));
 const ParceiroDashboard = lazy(() => import("./pages/ParceiroDashboard.tsx"));
@@ -330,6 +331,7 @@ const App = () => (
                 <Route path="whatsapp/links" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppLinks /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp/status" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppStatus /></AdminSuspense></RequireRole>} />
                 <Route path="platform/locadoras" element={<RequireRole roles={["platform_admin"]}><AdminSuspense><AdminPlatformLocadoras /></AdminSuspense></RequireRole>} />
+                <Route path="commissions" element={<RequireRole roles={["admin","operations","finance","platform_admin"]}><AdminSuspense><AdminCommissions /></AdminSuspense></RequireRole>} />
               </Route>
 
 

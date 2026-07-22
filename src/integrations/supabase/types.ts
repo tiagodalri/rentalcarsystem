@@ -125,6 +125,11 @@ export type Database = {
           cancelled_by: string | null
           clicksign_document_key: string | null
           clicksign_envelope_id: string | null
+          commission_amount: number | null
+          commission_locked_at: string | null
+          commission_rule_id: string | null
+          commission_type: string | null
+          commission_value: number | null
           contract_error: string | null
           contract_sent_at: string | null
           contract_signed_at: string | null
@@ -172,6 +177,11 @@ export type Database = {
           cancelled_by?: string | null
           clicksign_document_key?: string | null
           clicksign_envelope_id?: string | null
+          commission_amount?: number | null
+          commission_locked_at?: string | null
+          commission_rule_id?: string | null
+          commission_type?: string | null
+          commission_value?: number | null
           contract_error?: string | null
           contract_sent_at?: string | null
           contract_signed_at?: string | null
@@ -219,6 +229,11 @@ export type Database = {
           cancelled_by?: string | null
           clicksign_document_key?: string | null
           clicksign_envelope_id?: string | null
+          commission_amount?: number | null
+          commission_locked_at?: string | null
+          commission_rule_id?: string | null
+          commission_type?: string | null
+          commission_value?: number | null
           contract_error?: string | null
           contract_sent_at?: string | null
           contract_signed_at?: string | null
@@ -259,6 +274,13 @@ export type Database = {
           vehicle_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "bookings_commission_rule_id_fkey"
+            columns: ["commission_rule_id"]
+            isOneToOne: false
+            referencedRelation: "commission_rules"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bookings_customer_id_fkey"
             columns: ["customer_id"]
@@ -396,6 +418,76 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      commission_rules: {
+        Row: {
+          commission_type: string
+          commission_value: number
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          locadora_id: string
+          partner_id: string | null
+          scope: string
+          valid_from: string | null
+          valid_until: string | null
+          vehicle_category: string | null
+          vehicle_id: string | null
+        }
+        Insert: {
+          commission_type: string
+          commission_value: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          locadora_id: string
+          partner_id?: string | null
+          scope: string
+          valid_from?: string | null
+          valid_until?: string | null
+          vehicle_category?: string | null
+          vehicle_id?: string | null
+        }
+        Update: {
+          commission_type?: string
+          commission_value?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          locadora_id?: string
+          partner_id?: string | null
+          scope?: string
+          valid_from?: string | null
+          valid_until?: string | null
+          vehicle_category?: string | null
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commission_rules_locadora_id_fkey"
+            columns: ["locadora_id"]
+            isOneToOne: false
+            referencedRelation: "locadoras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_rules_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commission_rules_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contract_templates: {
         Row: {
@@ -3485,6 +3577,19 @@ export type Database = {
         }[]
       }
       record_last_login: { Args: never; Returns: undefined }
+      resolve_commission: {
+        Args: {
+          p_at?: string
+          p_locadora_id: string
+          p_partner_id?: string
+          p_vehicle_id: string
+        }
+        Returns: {
+          commission_type: string
+          commission_value: number
+          rule_id: string
+        }[]
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       whatsapp_status_cleanup_expired: { Args: never; Returns: number }
