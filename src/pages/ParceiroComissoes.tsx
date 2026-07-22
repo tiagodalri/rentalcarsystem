@@ -20,20 +20,17 @@ type Row = {
   commission_value: number | null;
   commission_payout_status: string;
   status: string;
-  locadora_id: string | null;
-  vehicle_id: string | null;
+  customer_name: string | null;
+  vehicle_name: string | null;
+  vehicle_category: string | null;
+  locadora_name: string | null;
 };
-
-type VehicleMap = Record<string, { name: string }>;
-type LocadoraMap = Record<string, { name: string }>;
 
 export default function ParceiroComissoes() {
   const navigate = useNavigate();
   const [authorizing, setAuthorizing] = useState(true);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
-  const [vehicles, setVehicles] = useState<VehicleMap>({});
-  const [locadoras, setLocadoras] = useState<LocadoraMap>({});
 
   useEffect(() => {
     (async () => {
@@ -52,34 +49,19 @@ export default function ParceiroComissoes() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const { data: bookings, error } = await supabase
-        .from("bookings")
-        .select("id, booking_number, pickup_date, return_date, total_price, commission_amount, commission_type, commission_value, commission_payout_status, status, locadora_id, vehicle_id")
-        .order("pickup_date", { ascending: false })
-        .limit(500);
+      const { data, error } = await supabase.functions.invoke("partner-booking-history", { body: {} });
       if (error) throw error;
-      const list = (bookings ?? []) as Row[];
-      setRows(list);
-
-      const vIds = Array.from(new Set(list.map(r => r.vehicle_id).filter(Boolean))) as string[];
-      const lIds = Array.from(new Set(list.map(r => r.locadora_id).filter(Boolean))) as string[];
-
-      if (vIds.length) {
-        const { data: vs } = await supabase.from("vehicles").select("id, name").in("id", vIds);
-        const map: VehicleMap = {};
-        (vs ?? []).forEach((v: { id: string; name: string }) => { map[v.id] = { name: v.name }; });
-        setVehicles(map);
-      }
-      if (lIds.length) {
-        const { data: ls } = await supabase.from("locadoras").select("id, name").in("id", lIds);
-        const map: LocadoraMap = {};
-        (ls ?? []).forEach((l: { id: string; name: string }) => { map[l.id] = { name: l.name }; });
-        setLocadoras(map);
-      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res = data as any;
+      if (!res?.ok) throw new Error(res?.error || "Falha ao carregar histórico");
+      setRows((res.results ?? []) as Row[]);
+    } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
+
 
   const totals = useMemo(() => {
     let total = 0, paid = 0, pending = 0, count = 0;
@@ -190,6 +172,7 @@ export default function ParceiroComissoes() {
                     <th className="text-left px-4 py-3 font-semibold">Datas</th>
                     <th className="text-left px-4 py-3 font-semibold">Veículo</th>
                     <th className="text-left px-4 py-3 font-semibold">Locadora</th>
+                    <th className="text-left px-4 py-3 font-semibold">Status</th>
                     <th className="text-right px-4 py-3 font-semibold">Total</th>
                     <th className="text-right px-4 py-3 font-semibold">Comissão</th>
                     <th className="text-center px-4 py-3 font-semibold">Repasse</th>
@@ -202,8 +185,9 @@ export default function ParceiroComissoes() {
                       <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground tabular-nums">
                         {format(parseDateOnly(r.pickup_date), "dd MMM", { locale: pt })} → {format(parseDateOnly(r.return_date), "dd MMM yy", { locale: pt })}
                       </td>
-                      <td className="px-4 py-3 truncate max-w-[220px]">{r.vehicle_id ? (vehicles[r.vehicle_id]?.name ?? "—") : "—"}</td>
-                      <td className="px-4 py-3 truncate max-w-[180px] text-muted-foreground">{r.locadora_id ? (locadoras[r.locadora_id]?.name ?? "—") : "—"}</td>
+                      <td className="px-4 py-3 truncate max-w-[220px]">{r.vehicle_name ?? "—"}</td>
+                      <td className="px-4 py-3 truncate max-w-[180px] text-muted-foreground">{r.locadora_name ?? "—"}</td>
+                      <td className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">{r.status}</td>
                       <td className="px-4 py-3 text-right tabular-nums">{fmtUSD(r.total_price)}</td>
                       <td className="px-4 py-3 text-right tabular-nums font-semibold text-emerald-600 dark:text-emerald-400">
                         {r.commission_amount != null ? fmtUSD(r.commission_amount) : "—"}
@@ -217,6 +201,7 @@ export default function ParceiroComissoes() {
                       </td>
                     </tr>
                   ))}
+
                 </tbody>
               </table>
             </div>

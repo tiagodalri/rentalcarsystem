@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Handshake } from "lucide-react";
+import { Loader2, Plus, Handshake, ChevronDown, ChevronRight, UserPlus, User } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 
@@ -19,6 +19,14 @@ interface Partner {
   created_at: string;
 }
 
+interface PartnerUser {
+  user_id: string;
+  email: string | null;
+  full_name: string | null;
+  created_at: string;
+  last_sign_in_at: string | null;
+}
+
 const emptyForm = {
   agency_name: "",
   contact_name: "",
@@ -30,12 +38,19 @@ const emptyForm = {
   user_password: "",
 };
 
+const emptyUserForm = { user_full_name: "", user_email: "", user_password: "" };
+
 export default function AdminPlatformPartners() {
   const [items, setItems] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [users, setUsers] = useState<Record<string, PartnerUser[]>>({});
+  const [loadingUsers, setLoadingUsers] = useState<Record<string, boolean>>({});
+  const [userForm, setUserForm] = useState(emptyUserForm);
+  const [addingUser, setAddingUser] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -86,6 +101,64 @@ export default function AdminPlatformPartners() {
   const upd = (k: keyof typeof emptyForm) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const updUser = (k: keyof typeof emptyUserForm) => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => setUserForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const loadUsers = async (partnerId: string) => {
+    setLoadingUsers((s) => ({ ...s, [partnerId]: true }));
+    try {
+      const { data, error } = await supabase.functions.invoke("platform-list-partner-users", {
+        body: { partner_id: partnerId },
+      });
+      if (error) throw error;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res = data as any;
+      if (!res?.ok) throw new Error(res?.error || "Falha ao listar usuários");
+      setUsers((u) => ({ ...u, [partnerId]: (res.users ?? []) as PartnerUser[] }));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setLoadingUsers((s) => ({ ...s, [partnerId]: false }));
+    }
+  };
+
+  const toggle = (id: string) => {
+    if (expandedId === id) { setExpandedId(null); return; }
+    setExpandedId(id);
+    setUserForm(emptyUserForm);
+    if (!users[id]) loadUsers(id);
+  };
+
+  const addUser = async (partnerId: string) => {
+    if (!userForm.user_email.trim() || !userForm.user_password || !userForm.user_full_name.trim()) {
+      toast.error("Preencha nome, e-mail e senha");
+      return;
+    }
+    setAddingUser(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("platform-add-partner-user", {
+        body: {
+          partner_id: partnerId,
+          user_full_name: userForm.user_full_name.trim(),
+          user_email: userForm.user_email.trim(),
+          user_password: userForm.user_password,
+        },
+      });
+      if (error) throw error;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res = data as any;
+      if (!res?.ok) throw new Error(res?.error || "Falha ao adicionar usuário");
+      toast.success("Usuário vinculado");
+      setUserForm(emptyUserForm);
+      loadUsers(partnerId);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : String(e));
+    } finally {
+      setAddingUser(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -167,25 +240,87 @@ export default function AdminPlatformPartners() {
             <div className="py-12 text-center text-sm text-muted-foreground">Nenhum parceiro ainda.</div>
           ) : (
             <div className="divide-y divide-border/40">
-              {items.map((p) => (
-                <div key={p.id} className="flex items-center gap-3 py-3">
-                  <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Handshake className="h-4.5 w-4.5 text-primary" />
+              {items.map((p) => {
+                const isOpen = expandedId === p.id;
+                const list = users[p.id] ?? [];
+                const busy = loadingUsers[p.id];
+                return (
+                  <div key={p.id}>
+                    <button
+                      onClick={() => toggle(p.id)}
+                      className="w-full flex items-center gap-3 py-3 text-left hover:bg-muted/20 -mx-2 px-2 rounded-md transition-colors"
+                    >
+                      {isOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />}
+                      <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <Handshake className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{p.agency_name}</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {p.contact_name || p.contact_email || p.contact_phone || "—"}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground">{p.status}</p>
+                        <p className="text-[11px] text-muted-foreground/70 tabular-nums">
+                          {new Date(p.created_at).toLocaleDateString("pt-BR")}
+                        </p>
+                      </div>
+                    </button>
+
+                    {isOpen && (
+                      <div className="ml-9 mb-4 pl-4 border-l border-border/40 space-y-4">
+                        <div>
+                          <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold mb-2">
+                            Usuários vinculados
+                          </p>
+                          {busy ? (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground py-3">
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" /> Carregando…
+                            </div>
+                          ) : list.length === 0 ? (
+                            <p className="text-xs text-muted-foreground py-2">Nenhum usuário vinculado ainda.</p>
+                          ) : (
+                            <ul className="space-y-1.5">
+                              {list.map((u) => (
+                                <li key={u.user_id} className="flex items-center gap-2 text-sm">
+                                  <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                  <span className="truncate">{u.full_name || u.email || u.user_id}</span>
+                                  {u.email && u.full_name && (
+                                    <span className="text-xs text-muted-foreground truncate">· {u.email}</span>
+                                  )}
+                                  {u.last_sign_in_at && (
+                                    <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground/70 shrink-0">
+                                      último acesso {new Date(u.last_sign_in_at).toLocaleDateString("pt-BR")}
+                                    </span>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+
+                        <div className="rounded-lg border border-dashed border-border/60 p-3 bg-muted/10">
+                          <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
+                            <UserPlus className="h-3 w-3" /> Adicionar novo usuário
+                          </p>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <Input placeholder="Nome completo" value={userForm.user_full_name} onChange={updUser("user_full_name")} />
+                            <Input type="email" placeholder="E-mail" value={userForm.user_email} onChange={updUser("user_email")} />
+                            <Input type="password" placeholder="Senha" value={userForm.user_password} onChange={updUser("user_password")} />
+                          </div>
+                          <div className="flex justify-end mt-2">
+                            <Button size="sm" disabled={addingUser} onClick={() => addUser(p.id)} className="gap-2">
+                              {addingUser && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                              Vincular usuário
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{p.agency_name}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {p.contact_name || p.contact_email || p.contact_phone || "—"}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground">{p.status}</p>
-                    <p className="text-[11px] text-muted-foreground/70 tabular-nums">
-                      {new Date(p.created_at).toLocaleDateString("pt-BR")}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>
