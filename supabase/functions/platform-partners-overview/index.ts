@@ -36,6 +36,16 @@ Deno.serve(async (req) => {
     const nowIso = new Date().toISOString();
     const monthAgoIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
+    // Build the last-6-months window (inclusive of current month)
+    const now = new Date();
+    const monthKeys: string[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+      const k = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+      monthKeys.push(k);
+    }
+    const sixMonthsStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1)).toISOString();
+
     // Active partners
     const { count: activePartners } = await admin
       .from("partners")
@@ -49,6 +59,7 @@ Deno.serve(async (req) => {
       .not("partner_id", "is", null)
       .is("deleted_at", null);
     if (bErr) return json(500, { ok: false, error: bErr.message });
+
 
     const bookings = bookingsAll ?? [];
     const totalBookings = bookings.length;
