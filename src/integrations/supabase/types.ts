@@ -192,7 +192,7 @@ export type Database = {
           franchise_amount?: number | null
           hold_expires_at?: string | null
           id?: string
-          locadora_id: string
+          locadora_id?: string
           notes?: string | null
           paid_at?: string | null
           payment_method?: string | null
@@ -660,7 +660,7 @@ export type Database = {
           full_name: string
           house_number?: string | null
           id?: string
-          locadora_id: string
+          locadora_id?: string
           nationality?: string | null
           notes?: string | null
           phone?: string | null
@@ -2611,7 +2611,7 @@ export type Database = {
           last_service_date?: string | null
           license_plate?: string | null
           listed_on_turo?: boolean
-          locadora_id: string
+          locadora_id?: string
           manufacture_year?: number | null
           model?: string | null
           model_year?: number | null
