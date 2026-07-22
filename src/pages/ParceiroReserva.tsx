@@ -2,14 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { ArrowLeft, Loader2, Building2, Calendar as CalIcon, CheckCircle2, Handshake, LogOut, User } from "lucide-react";
+import { ArrowLeft, Loader2, Building2, Calendar as CalIcon, CheckCircle2, User } from "lucide-react";
 import CommissionCallout from "@/components/parceiro/CommissionCallout";
+import PartnerHeader from "@/components/parceiro/PartnerHeader";
 import { supabase } from "@/integrations/supabase/client";
-import BrandLogo from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { getCoverImage } from "@/data/vehicleImages";
 import { parseDateOnly } from "@/lib/dateOnly";
+import { fmtUSD, fmtUSDCompact } from "@/lib/partnerFormat";
+
 
 type NavState = {
   vehicle: {
