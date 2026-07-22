@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { appUrl, sendPartnerEmail } from "../_shared/partnerEmails.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -59,6 +60,52 @@ Deno.serve(async (req) => {
       .update(patch)
       .eq("id", awardId);
     if (uErr) return json(500, { ok: false, error: uErr.message });
+
+    // Notify partner when bonus is marked paid — non-fatal
+    if (status === "paid") {
+      try {
+        const { data: award } = await admin
+          .from("partner_bonus_awards")
+          .select("id, paid_at, partner_id, tier_id")
+          .eq("id", awardId)
+          .maybeSingle();
+        if (award?.partner_id) {
+          const [{ data: partner }, { data: tier }] = await Promise.all([
+            admin.from("partners").select("agency_name, contact_email").eq("id", award.partner_id).maybeSingle(),
+            award.tier_id
+              ? admin.from("partner_bonus_tiers").select("threshold_bookings, bonus_amount, name").eq("id", award.tier_id).maybeSingle()
+              : Promise.resolve({ data: null }),
+          ]);
+          if (partner?.contact_email) {
+            const amountStr =
+              tier && typeof tier.bonus_amount === "number"
+                ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "USD" }).format(tier.bonus_amount)
+                : "—";
+            const tierLabel = tier
+              ? tier.name ?? `Missão ${tier.threshold_bookings ?? "—"} reservas`
+              : "Missão concluída";
+            const paidAtStr = award.paid_at
+              ? new Date(award.paid_at).toLocaleString("pt-BR")
+              : new Date().toLocaleString("pt-BR");
+            await sendPartnerEmail({
+              templateName: "partner-payout-processed",
+              recipientEmail: partner.contact_email,
+              idempotencyKey: `bonus-paid-${awardId}-${award.paid_at ?? "now"}`,
+              templateData: {
+                agencyName: partner.agency_name,
+                payoutKind: "Bônus",
+                amount: amountStr,
+                reference: tierLabel,
+                paidAt: paidAtStr,
+                dashboardUrl: appUrl("/parceiro/comissoes"),
+              },
+            });
+          }
+        }
+      } catch (e) {
+        console.error("[mark-bonus-paid] notify failed:", e);
+      }
+    }
 
     return json(200, { ok: true, award_id: awardId, payout_status: status });
   } catch (e) {
