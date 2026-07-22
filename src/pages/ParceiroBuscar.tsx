@@ -313,7 +313,7 @@ export default function ParceiroBuscar() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div key={sortMode} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in duration-300">
               {sortedResults.map((v) => {
                 const totalRental = v.daily_price_usd * days;
                 return (
@@ -354,25 +354,36 @@ export default function ParceiroBuscar() {
                         size="sm"
                       />
 
-                      <div className="flex items-end justify-between pt-2 mt-auto border-t border-border/30">
-                        <div>
-                          <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Total {days}d</p>
-                          <p className="text-base font-semibold text-primary tabular-nums leading-tight">{fmtUSDCompact(totalRental)}</p>
+                      <div className="pt-2 mt-auto border-t border-border/30 space-y-2">
+                        <div className="flex items-end justify-between">
+                          <div>
+                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Total {days}d</p>
+                            <p className="text-base font-semibold text-primary tabular-nums leading-tight">{fmtUSDCompact(totalRental)}</p>
+                          </div>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-8 text-xs"
-                          onClick={() => navigate("/parceiro/reserva", {
-                            state: {
-                              vehicle: v,
-                              pickup_date: format(pickupDate!, "yyyy-MM-dd"),
-                              return_date: format(returnDate!, "yyyy-MM-dd"),
-                            },
-                          })}
-                        >
-                          Reservar
-                        </Button>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 text-[11px] gap-1"
+                            onClick={() => setProposalFor(v)}
+                          >
+                            <Send size={11} /> Proposta
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="h-8 text-[11px] gold-gradient text-primary-foreground font-semibold"
+                            onClick={() => navigate("/parceiro/reserva", {
+                              state: {
+                                vehicle: v,
+                                pickup_date: format(pickupDate!, "yyyy-MM-dd"),
+                                return_date: format(returnDate!, "yyyy-MM-dd"),
+                              },
+                            })}
+                          >
+                            Reservar
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
