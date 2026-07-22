@@ -408,6 +408,16 @@ export default function ParceiroBuscar() {
           </div>
         )}
       </main>
+
+      {proposalFor && pickupDate && returnDate && (
+        <ProposalModal
+          open={!!proposalFor}
+          onClose={() => setProposalFor(null)}
+          vehicle={{ id: proposalFor.id, name: proposalFor.name, locadora_name: proposalFor.locadora_name }}
+          pickup_date={format(pickupDate, "yyyy-MM-dd")}
+          return_date={format(returnDate, "yyyy-MM-dd")}
+        />
+      )}
     </div>
   );
 }
