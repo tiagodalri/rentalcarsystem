@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { ArrowLeft, Loader2, Building2, Calendar as CalIcon, CheckCircle2, Handshake, LogOut, Percent, User } from "lucide-react";
+import { ArrowLeft, Loader2, Building2, Calendar as CalIcon, CheckCircle2, Handshake, LogOut, User } from "lucide-react";
+import CommissionCallout from "@/components/parceiro/CommissionCallout";
 import { supabase } from "@/integrations/supabase/client";
 import BrandLogo from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
@@ -85,14 +86,7 @@ export default function ParceiroReserva() {
     return Math.round(state.vehicle.daily_price_usd * days);
   }, [state, days]);
 
-  const commissionLabel = useMemo(() => {
-    if (!state?.vehicle.commission_type || state.vehicle.commission_value == null) return "—";
-    if (state.vehicle.commission_type === "percent") {
-      const est = Math.round((total * Number(state.vehicle.commission_value)) / 100);
-      return `${state.vehicle.commission_value}% (~US$ ${est})`;
-    }
-    return `US$ ${Number(state.vehicle.commission_value).toFixed(2)} (fixo)`;
-  }, [state, total]);
+  // commission rendering handled by CommissionCallout
 
   const handleSubmit = async () => {
     if (!state) return;

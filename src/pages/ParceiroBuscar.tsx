@@ -106,15 +106,7 @@ export default function ParceiroBuscar() {
     ? Math.max(1, Math.ceil((returnDate.getTime() - pickupDate.getTime()) / 86400000))
     : 1;
 
-  const commissionLabel = (v: SearchResult) => {
-    if (!v.commission_type || v.commission_value == null) return "Comissão: —";
-    const total = v.daily_price_usd * days;
-    if (v.commission_type === "percent") {
-      const est = Math.round((total * Number(v.commission_value)) / 100);
-      return `Comissão: ${v.commission_value}% (~US$ ${est})`;
-    }
-    return `Comissão: US$ ${Number(v.commission_value).toFixed(2)} (fixo)`;
-  };
+  // commission label handled by CommissionCallout component
 
   if (authorizing) {
     return (
@@ -280,11 +272,14 @@ export default function ParceiroBuscar() {
                           <span className="font-medium">Locadora:</span>
                           <span className="text-muted-foreground truncate">{v.locadora_name}</span>
                         </div>
-                        <div className="flex items-center gap-1.5 text-foreground">
-                          <Percent size={12} className="text-primary" />
-                          <span className="text-muted-foreground">{commissionLabel(v)}</span>
-                        </div>
                       </div>
+
+                      <CommissionCallout
+                        commissionType={v.commission_type}
+                        commissionValue={v.commission_value}
+                        bookingTotal={totalRental}
+                        size="sm"
+                      />
 
                       <div className="flex items-end justify-between pt-2 mt-auto border-t border-border/30">
                         <div>
