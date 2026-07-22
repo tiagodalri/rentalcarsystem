@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { User } from "@supabase/supabase-js";
 
-export type AppRole = "admin" | "finance" | "operations" | "support" | "driver";
+export type AppRole = "admin" | "finance" | "operations" | "support" | "driver" | "platform_admin" | "partner";
 
 // Module-level cache of roles per user
 let cachedRoles: { userId: string; roles: AppRole[] } | null = null;
@@ -61,7 +61,8 @@ export function useAdminAuth() {
         const rs = ((data || []) as { role: AppRole }[])
           .map((r) => r.role)
           .filter((r): r is AppRole =>
-            r === "admin" || r === "finance" || r === "operations" || r === "support" || r === "driver"
+            r === "admin" || r === "finance" || r === "operations" || r === "support" ||
+            r === "driver" || r === "platform_admin" || r === "partner"
           );
 
         cachedRoles = { userId: currentUser.id, roles: rs };

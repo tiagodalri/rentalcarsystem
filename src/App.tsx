@@ -103,6 +103,7 @@ const AdminWhatsAppScheduled = lazy(() => import("./pages/admin/AdminWhatsAppSch
 const AdminWhatsAppPipeline = lazy(() => import("./pages/admin/AdminWhatsAppPipeline.tsx"));
 const AdminWhatsAppLinks = lazy(() => import("./pages/admin/AdminWhatsAppLinks.tsx"));
 const AdminWhatsAppStatus = lazy(() => import("./pages/admin/AdminWhatsAppStatus.tsx"));
+const AdminPlatformLocadoras = lazy(() => import("./pages/admin/AdminPlatformLocadoras.tsx"));
 const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect.tsx"));
 
 
@@ -322,6 +323,7 @@ const App = () => (
                 <Route path="whatsapp/pipeline" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppPipeline /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp/links" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppLinks /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp/status" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppStatus /></AdminSuspense></RequireRole>} />
+                <Route path="platform/locadoras" element={<RequireRole roles={["platform_admin"]}><AdminSuspense><AdminPlatformLocadoras /></AdminSuspense></RequireRole>} />
               </Route>
 
 

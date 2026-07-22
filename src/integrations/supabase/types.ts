@@ -1554,6 +1554,7 @@ export type Database = {
           is_active: boolean
           job_title_id: string | null
           last_login_at: string | null
+          locadora_id: string
           notes: string | null
           permissions: Json | null
           phone: string | null
@@ -1571,6 +1572,7 @@ export type Database = {
           is_active?: boolean
           job_title_id?: string | null
           last_login_at?: string | null
+          locadora_id?: string
           notes?: string | null
           permissions?: Json | null
           phone?: string | null
@@ -1588,6 +1590,7 @@ export type Database = {
           is_active?: boolean
           job_title_id?: string | null
           last_login_at?: string | null
+          locadora_id?: string
           notes?: string | null
           permissions?: Json | null
           phone?: string | null
@@ -1602,6 +1605,13 @@ export type Database = {
             columns: ["job_title_id"]
             isOneToOne: false
             referencedRelation: "job_titles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_members_locadora_id_fkey"
+            columns: ["locadora_id"]
+            isOneToOne: false
+            referencedRelation: "locadoras"
             referencedColumns: ["id"]
           },
         ]
