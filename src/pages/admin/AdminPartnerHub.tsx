@@ -18,12 +18,17 @@ import {
 } from "@/components/ui/select";
 import {
   Handshake, Users, Car, DollarSign, TrendingUp, Loader2, Trophy,
-  Check, Undo2, Send, CheckCircle2, XCircle, Clock, Inbox, ThumbsUp, ThumbsDown,
+  Check, Undo2, Send, CheckCircle2, XCircle, Clock, Inbox, ThumbsUp, ThumbsDown, Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { fmtUSD, fmtUSDCompact } from "@/lib/partnerFormat";
 import { format } from "date-fns";
 import { formatCnpj, formatBrPhone } from "@/lib/brValidators";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { darkTooltipProps } from "@/components/admin/ChartTooltip";
+import Papa from "papaparse";
+import PartnerDetailSheet from "@/components/admin/partners/PartnerDetailSheet";
+
 
 const AdminPlatformPartners = lazy(() => import("./AdminPlatformPartners"));
 const AdminPlatformBonusTiers = lazy(() => import("./AdminPlatformBonusTiers"));
