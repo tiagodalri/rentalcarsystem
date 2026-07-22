@@ -17,6 +17,7 @@ import {
   Clock,
   Kanban,
   Link2,
+  CircleDot,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
