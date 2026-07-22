@@ -282,7 +282,9 @@ export default function AdminPlatformPartners() {
                     </button>
 
                     {isOpen && (
-                      <div className="ml-9 mb-4 pl-4 border-l border-border/40 space-y-4">
+                      <div className="ml-9 mb-4 pl-4 border-l border-border/40 space-y-5">
+                        <RegistrationBlock partner={p} />
+                        <BankBlock partner={p} />
                         <div>
                           <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold mb-2">
                             Usuários vinculados
