@@ -2,10 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { Loader2, Search, CalendarIcon, MapPin, Users, Briefcase, Settings2, Fuel, Building2, ArrowLeft, SearchX, Sparkles } from "lucide-react";
+import { Loader2, Search, CalendarIcon, MapPin, Users, Briefcase, Settings2, Fuel, Building2, ArrowLeft, SearchX, Sparkles, ArrowUpDown, Send } from "lucide-react";
 import CommissionCallout from "@/components/parceiro/CommissionCallout";
 import VehicleCardSkeleton from "@/components/parceiro/VehicleCardSkeleton";
 import PartnerHeader from "@/components/parceiro/PartnerHeader";
+import ProposalModal from "@/components/parceiro/ProposalModal";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -50,6 +51,8 @@ export default function ParceiroBuscar() {
   const [returnDate, setReturnDate] = useState<Date>();
   const [category, setCategory] = useState<string>("");
   const [openPicker, setOpenPicker] = useState<null | "pickup" | "return">(null);
+  const [sortMode, setSortMode] = useState<"price_asc" | "price_desc" | "commission_amount" | "commission_pct">("price_asc");
+  const [proposalFor, setProposalFor] = useState<SearchResult | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResult[] | null>(null);
@@ -108,8 +111,38 @@ export default function ParceiroBuscar() {
 
   const sortedResults = useMemo(() => {
     if (!results) return null;
-    return [...results].sort((a, b) => a.daily_price_usd - b.daily_price_usd);
-  }, [results]);
+    const withCommission = (v: SearchResult) => {
+      if (v.commission_type === "percent" && v.commission_value != null) {
+        return (v.daily_price_usd * days * Number(v.commission_value)) / 100;
+      }
+      if (v.commission_type === "fixed" && v.commission_value != null) return Number(v.commission_value);
+      return null;
+    };
+    const arr = [...results];
+    if (sortMode === "price_asc") arr.sort((a, b) => a.daily_price_usd - b.daily_price_usd);
+    else if (sortMode === "price_desc") arr.sort((a, b) => b.daily_price_usd - a.daily_price_usd);
+    else if (sortMode === "commission_amount") {
+      arr.sort((a, b) => {
+        const ca = withCommission(a); const cb = withCommission(b);
+        if (ca == null && cb == null) return a.daily_price_usd - b.daily_price_usd;
+        if (ca == null) return 1;
+        if (cb == null) return -1;
+        return cb - ca;
+      });
+    } else if (sortMode === "commission_pct") {
+      arr.sort((a, b) => {
+        const totalA = a.daily_price_usd * days; const totalB = b.daily_price_usd * days;
+        const ca = withCommission(a); const cb = withCommission(b);
+        const pctA = ca != null && totalA > 0 ? (ca / totalA) * 100 : null;
+        const pctB = cb != null && totalB > 0 ? (cb / totalB) * 100 : null;
+        if (pctA == null && pctB == null) return a.daily_price_usd - b.daily_price_usd;
+        if (pctA == null) return 1;
+        if (pctB == null) return -1;
+        return pctB - pctA;
+      });
+    }
+    return arr;
+  }, [results, sortMode, days]);
 
   if (authorizing) {
     return (
@@ -259,12 +292,28 @@ export default function ParceiroBuscar() {
                 {" · "}
                 <span className="tabular-nums">{days}</span> {days === 1 ? "diária" : "diárias"}
               </p>
-              <p className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-400 font-semibold">
-                <Sparkles size={11} /> Comissão calculada em cada card
-              </p>
+              <div className="flex items-center gap-3 flex-wrap">
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-border/60 bg-card hover:border-primary/40 transition-colors cursor-pointer">
+                  <ArrowUpDown size={13} className="text-primary" />
+                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Ordenar</span>
+                  <select
+                    value={sortMode}
+                    onChange={(e) => setSortMode(e.target.value as typeof sortMode)}
+                    className="bg-transparent text-sm text-foreground outline-none cursor-pointer font-medium"
+                  >
+                    <option value="price_asc">Menor preço</option>
+                    <option value="price_desc">Maior preço</option>
+                    <option value="commission_amount">Maior comissão (US$)</option>
+                    <option value="commission_pct">Maior comissão (%)</option>
+                  </select>
+                </label>
+                <p className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <Sparkles size={11} /> Comissão calculada em cada card
+                </p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div key={sortMode} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in duration-300">
               {sortedResults.map((v) => {
                 const totalRental = v.daily_price_usd * days;
                 return (
@@ -305,25 +354,36 @@ export default function ParceiroBuscar() {
                         size="sm"
                       />
 
-                      <div className="flex items-end justify-between pt-2 mt-auto border-t border-border/30">
-                        <div>
-                          <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Total {days}d</p>
-                          <p className="text-base font-semibold text-primary tabular-nums leading-tight">{fmtUSDCompact(totalRental)}</p>
+                      <div className="pt-2 mt-auto border-t border-border/30 space-y-2">
+                        <div className="flex items-end justify-between">
+                          <div>
+                            <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Total {days}d</p>
+                            <p className="text-base font-semibold text-primary tabular-nums leading-tight">{fmtUSDCompact(totalRental)}</p>
+                          </div>
                         </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-8 text-xs"
-                          onClick={() => navigate("/parceiro/reserva", {
-                            state: {
-                              vehicle: v,
-                              pickup_date: format(pickupDate!, "yyyy-MM-dd"),
-                              return_date: format(returnDate!, "yyyy-MM-dd"),
-                            },
-                          })}
-                        >
-                          Reservar
-                        </Button>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 text-[11px] gap-1"
+                            onClick={() => setProposalFor(v)}
+                          >
+                            <Send size={11} /> Proposta
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="h-8 text-[11px] gold-gradient text-primary-foreground font-semibold"
+                            onClick={() => navigate("/parceiro/reserva", {
+                              state: {
+                                vehicle: v,
+                                pickup_date: format(pickupDate!, "yyyy-MM-dd"),
+                                return_date: format(returnDate!, "yyyy-MM-dd"),
+                              },
+                            })}
+                          >
+                            Reservar
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -348,6 +408,16 @@ export default function ParceiroBuscar() {
           </div>
         )}
       </main>
+
+      {proposalFor && pickupDate && returnDate && (
+        <ProposalModal
+          open={!!proposalFor}
+          onClose={() => setProposalFor(null)}
+          vehicle={{ id: proposalFor.id, name: proposalFor.name, locadora_name: proposalFor.locadora_name }}
+          pickup_date={format(pickupDate, "yyyy-MM-dd")}
+          return_date={format(returnDate, "yyyy-MM-dd")}
+        />
+      )}
     </div>
   );
 }

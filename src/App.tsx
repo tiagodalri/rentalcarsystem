@@ -113,6 +113,7 @@ const ParceiroBuscar = lazy(() => import("./pages/ParceiroBuscar.tsx"));
 const ParceiroReserva = lazy(() => import("./pages/ParceiroReserva.tsx"));
 const ParceiroComissoes = lazy(() => import("./pages/ParceiroComissoes.tsx"));
 const ParceiroPerfil = lazy(() => import("./pages/ParceiroPerfil.tsx"));
+const PublicProposal = lazy(() => import("./pages/PublicProposal.tsx"));
 
 
 
@@ -269,6 +270,7 @@ const App = () => (
               <Route path="/share/track/:token" element={<PublicSuspense><PublicTrack /></PublicSuspense>} />
               <Route path="/share/inspection/:token" element={<PublicSuspense><PublicInspection /></PublicSuspense>} />
               <Route path="/l/:slug" element={<PublicSuspense><PublicWhatsAppRedirect /></PublicSuspense>} />
+              <Route path="/proposta/:token" element={<PublicSuspense><PublicProposal /></PublicSuspense>} />
 
               <Route path="/sobre-nos" element={<PublicSuspense><AboutUs /></PublicSuspense>} />
               <Route path="/frota" element={<PublicSuspense><Frota /></PublicSuspense>} />

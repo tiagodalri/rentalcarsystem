@@ -1389,6 +1389,127 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_proposals: {
+        Row: {
+          accepted_booking_id: string | null
+          commission_amount: number | null
+          commission_type: string | null
+          commission_value: number | null
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string | null
+          expires_at: string
+          id: string
+          locadora_id: string
+          message: string | null
+          partner_id: string
+          pickup_date: string
+          pickup_location: string | null
+          pickup_time: string | null
+          return_date: string
+          return_location: string | null
+          return_time: string | null
+          status: string
+          token: string
+          total_price: number
+          vehicle_id: string
+        }
+        Insert: {
+          accepted_booking_id?: string | null
+          commission_amount?: number | null
+          commission_type?: string | null
+          commission_value?: number | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone?: string | null
+          expires_at?: string
+          id?: string
+          locadora_id: string
+          message?: string | null
+          partner_id: string
+          pickup_date: string
+          pickup_location?: string | null
+          pickup_time?: string | null
+          return_date: string
+          return_location?: string | null
+          return_time?: string | null
+          status?: string
+          token: string
+          total_price: number
+          vehicle_id: string
+        }
+        Update: {
+          accepted_booking_id?: string | null
+          commission_amount?: number | null
+          commission_type?: string | null
+          commission_value?: number | null
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string | null
+          expires_at?: string
+          id?: string
+          locadora_id?: string
+          message?: string | null
+          partner_id?: string
+          pickup_date?: string
+          pickup_location?: string | null
+          pickup_time?: string | null
+          return_date?: string
+          return_location?: string | null
+          return_time?: string | null
+          status?: string
+          token?: string
+          total_price?: number
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_proposals_accepted_booking_id_fkey"
+            columns: ["accepted_booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_proposals_locadora_id_fkey"
+            columns: ["locadora_id"]
+            isOneToOne: false
+            referencedRelation: "locadoras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_proposals_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_proposals_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_proposals_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_proposals_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partners: {
         Row: {
           agency_name: string
