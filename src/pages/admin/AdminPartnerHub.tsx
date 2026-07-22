@@ -326,6 +326,34 @@ function PayoutsTab() {
     setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, commission_payout_status: next, commission_paid_at: data.booking.commission_paid_at } : x)));
   };
 
+  const exportCsv = () => {
+    if (rows.length === 0) {
+      toast.info("Nenhuma linha para exportar");
+      return;
+    }
+    const data = rows.map((r) => ({
+      parceiro: r.partners?.agency_name ?? "",
+      veiculo: r.vehicles?.name ?? "",
+      locadora: r.locadoras?.name ?? "",
+      data_retirada: r.pickup_date ?? "",
+      valor_total_usd: Number(r.total_price ?? 0).toFixed(2),
+      tipo_comissao: r.commission_type ?? "",
+      valor_comissao_usd: Number(r.commission_amount ?? 0).toFixed(2),
+      status_repasse: r.commission_payout_status ?? "pending",
+      data_pagamento: r.commission_paid_at ? format(new Date(r.commission_paid_at), "yyyy-MM-dd") : "",
+    }));
+    const csv = Papa.unparse(data);
+    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `repasses-parceiros-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <AdminSection>
       <div className="flex flex-wrap items-center gap-3">
@@ -350,10 +378,21 @@ function PayoutsTab() {
             </SelectContent>
           </Select>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={exportCsv}
+          disabled={loading || rows.length === 0}
+          className="gap-2"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Exportar CSV
+        </Button>
         <div className="ml-auto text-xs text-muted-foreground">
           {loading ? "Carregando…" : `${rows.length} reserva${rows.length === 1 ? "" : "s"}`}
         </div>
       </div>
+
 
       <Card>
         <CardContent className="p-0 overflow-x-auto">
