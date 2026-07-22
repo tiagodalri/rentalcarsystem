@@ -217,7 +217,6 @@ export default function AdminFleetReport({
     return turoFilter === "listed" ? !!v?.listed_on_turo : !v?.listed_on_turo;
   }).length;
   const avgOccupancy = visibleReport.length ? Math.round(visibleReport.reduce((s, r) => s + r.occupancyPct, 0) / visibleReport.length) : 0;
-  const totalDamages = visibleReport.reduce((s, r) => s + r.damageCount, 0);
 
   // Revenue by channel (revenue recognition by pickup date, excluding cancelled)
   const channelRevenue = (predicate: (b: any) => boolean) => {
