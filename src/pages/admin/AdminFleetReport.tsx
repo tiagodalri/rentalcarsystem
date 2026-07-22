@@ -14,7 +14,7 @@ import {
 import { darkTooltipProps } from "@/components/admin/ChartTooltip";
 import {
   Loader2, TrendingUp, DollarSign, AlertTriangle, Car, CalendarDays,
-  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart, CalendarRange, X
+  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, User, Sparkles, FileBarChart, CalendarRange, X
 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import DonutChart from "@/components/admin/DonutChart";
