@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Handshake, ChevronDown, ChevronRight, UserPlus, User, Eye, EyeOff, Building2, Landmark } from "lucide-react";
+import { Loader2, Plus, Handshake, ChevronDown, ChevronRight, UserPlus, User, Eye, EyeOff, Building2, Landmark, ExternalLink } from "lucide-react";
+import PartnerDetailSheet from "@/components/admin/partners/PartnerDetailSheet";
+
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { formatCnpj, formatCpfCnpj, maskTail } from "@/lib/brValidators";
