@@ -355,7 +355,10 @@ export default function AdminPlatformPartners() {
           )}
         </CardContent>
       </Card>
+
+      <PartnerDetailSheet partnerId={detailId} open={detailOpen} onOpenChange={setDetailOpen} />
     </div>
+
   );
 }
 
