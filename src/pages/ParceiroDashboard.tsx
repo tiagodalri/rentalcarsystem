@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, LogOut, Handshake } from "lucide-react";
+import { Loader2, LogOut, Handshake, Search, ArrowRight } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
+import { Button } from "@/components/ui/button";
+
 
 export default function ParceiroDashboard() {
   const navigate = useNavigate();
@@ -63,13 +65,27 @@ export default function ParceiroDashboard() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border/40 bg-card p-8 text-center">
-          <Handshake className="h-10 w-10 text-primary mx-auto mb-3" />
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Seu canal de parceria está sendo preparado. Em breve você verá aqui suas reservas indicadas,
-            comissões e materiais de venda.
-          </p>
+        <div className="rounded-2xl border border-border/40 bg-card p-8">
+          <div className="flex flex-col items-center text-center gap-4">
+            <Search className="h-10 w-10 text-primary" />
+            <div>
+              <h2 className="text-lg font-semibold">Buscar frota disponível</h2>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1">
+                Consulte a disponibilidade em tempo real em todas as locadoras da rede, com comissão calculada por veículo.
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate("/parceiro/buscar")}
+              className="gold-gradient text-primary-foreground font-bold uppercase tracking-wider gap-2"
+            >
+              Buscar frota <ArrowRight size={16} />
+            </Button>
+            <p className="text-[11px] text-muted-foreground mt-2">
+              Reservas indicadas e comissões aparecem aqui nas próximas fases.
+            </p>
+          </div>
         </div>
+
       </main>
     </div>
   );

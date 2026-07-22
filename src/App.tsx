@@ -109,6 +109,8 @@ const AdminCommissions = lazy(() => import("./pages/admin/AdminCommissions.tsx")
 const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect.tsx"));
 const ParceiroLogin = lazy(() => import("./pages/ParceiroLogin.tsx"));
 const ParceiroDashboard = lazy(() => import("./pages/ParceiroDashboard.tsx"));
+const ParceiroBuscar = lazy(() => import("./pages/ParceiroBuscar.tsx"));
+
 
 
 const queryClient = new QueryClient({
@@ -285,6 +287,9 @@ const App = () => (
               {/* Partner portal */}
               <Route path="/parceiro/login" element={<PublicSuspense><ParceiroLogin /></PublicSuspense>} />
               <Route path="/parceiro" element={<PublicSuspense><ParceiroDashboard /></PublicSuspense>} />
+              <Route path="/parceiro/buscar" element={<PublicSuspense><ParceiroBuscar /></PublicSuspense>} />
+
+
 
               {/* Admin routes */}
               <Route path="/admin/login" element={<PublicSuspense><AdminLogin /></PublicSuspense>} />
