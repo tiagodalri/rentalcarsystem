@@ -428,6 +428,207 @@ async function handleSendContact(
   return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
 }
 
+// ============================================================
+// STATUS (Stories) actions — real Z-API status endpoints
+// ============================================================
+
+type StatusType = "text" | "image" | "video";
+
+async function recordStatusRow(
+  svc: SupabaseClient,
+  input: {
+    type: StatusType;
+    userId: string | null;
+    senderName: string | null;
+    externalStatusId: string | null;
+    externalZaapId: string | null;
+    text?: string | null;
+    backgroundColor?: string | null;
+    font?: string | null;
+    mediaUrl?: string | null;
+    caption?: string | null;
+  },
+) {
+  const now = new Date().toISOString();
+  const { data, error } = await svc.from("whatsapp_statuses").insert({
+    status_type: input.type,
+    text_content: input.text ?? null,
+    background_color: input.backgroundColor ?? null,
+    font: input.font ?? null,
+    media_url: input.mediaUrl ?? null,
+    caption: input.caption ?? null,
+    is_mine: true,
+    posted_by: input.userId,
+    posted_by_name: input.senderName,
+    external_status_id: input.externalStatusId,
+    external_zaap_id: input.externalZaapId,
+    posted_at: now,
+  }).select("id").single();
+  if (error) console.warn("[zapi-proxy] failed to record status", error.message);
+  return (data as { id: string } | null)?.id ?? null;
+}
+
+async function handleSendTextStatus(
+  cfg: ZapiConfig | null,
+  svc: SupabaseClient,
+  payload: Record<string, unknown>,
+  userId: string,
+  senderName: string | null,
+): Promise<SendResult> {
+  const text = String(payload.text || "").trim();
+  const backgroundColor = payload.backgroundColor ? String(payload.backgroundColor) : null;
+  const font = payload.font ? String(payload.font) : null;
+  if (!text) return { ok: false, status: 400, data: { error: "missing_fields" } };
+
+  if (!cfg) {
+    const externalId = `demo-${crypto.randomUUID()}`;
+    await recordStatusRow(svc, {
+      type: "text", userId, senderName,
+      externalStatusId: externalId, externalZaapId: null,
+      text, backgroundColor, font,
+    });
+    return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
+  }
+
+  const res = await callZapi(cfg, "/send-text-status", {
+    method: "POST",
+    body: JSON.stringify({ message: text }),
+  });
+  if (res.ok) {
+    const d = (res.data ?? {}) as { messageId?: string; zaapId?: string; id?: string };
+    const externalId = d.messageId || d.id || d.zaapId || `sent-${crypto.randomUUID()}`;
+    await recordStatusRow(svc, {
+      type: "text", userId, senderName,
+      externalStatusId: externalId, externalZaapId: d.zaapId ?? null,
+      text, backgroundColor, font,
+    });
+  }
+  return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
+}
+
+async function handleSendImageStatus(
+  cfg: ZapiConfig | null,
+  svc: SupabaseClient,
+  payload: Record<string, unknown>,
+  userId: string,
+  senderName: string | null,
+): Promise<SendResult> {
+  const image = String(payload.imageUrl || payload.imageBase64 || payload.image || "");
+  const caption = payload.caption ? String(payload.caption) : null;
+  if (!image) return { ok: false, status: 400, data: { error: "missing_fields" } };
+
+  if (!cfg) {
+    const externalId = `demo-${crypto.randomUUID()}`;
+    await recordStatusRow(svc, {
+      type: "image", userId, senderName,
+      externalStatusId: externalId, externalZaapId: null,
+      mediaUrl: image, caption,
+    });
+    return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
+  }
+
+  const res = await callZapi(cfg, "/send-image-status", {
+    method: "POST",
+    body: JSON.stringify({ image, caption: caption ?? undefined }),
+  });
+  if (res.ok) {
+    const d = (res.data ?? {}) as { messageId?: string; zaapId?: string; id?: string };
+    const externalId = d.messageId || d.id || d.zaapId || `sent-${crypto.randomUUID()}`;
+    await recordStatusRow(svc, {
+      type: "image", userId, senderName,
+      externalStatusId: externalId, externalZaapId: d.zaapId ?? null,
+      mediaUrl: image, caption,
+    });
+  }
+  return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
+}
+
+async function handleSendVideoStatus(
+  cfg: ZapiConfig | null,
+  svc: SupabaseClient,
+  payload: Record<string, unknown>,
+  userId: string,
+  senderName: string | null,
+): Promise<SendResult> {
+  const videoUrl = payload.videoUrl ? String(payload.videoUrl) : "";
+  const videoBase64 = payload.videoBase64 ? String(payload.videoBase64) : "";
+  const video = videoUrl || videoBase64 || String(payload.video || "");
+  const caption = payload.caption ? String(payload.caption) : null;
+  if (!video) return { ok: false, status: 400, data: { error: "missing_fields" } };
+
+  // 10MB limit for base64 payloads (NatLeva pattern)
+  if (videoBase64 && videoBase64.length * 0.75 > 10 * 1024 * 1024) {
+    return { ok: false, status: 400, data: { error: "Video exceeds 10MB limit" } };
+  }
+
+  if (!cfg) {
+    const externalId = `demo-${crypto.randomUUID()}`;
+    await recordStatusRow(svc, {
+      type: "video", userId, senderName,
+      externalStatusId: externalId, externalZaapId: null,
+      mediaUrl: video, caption,
+    });
+    return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
+  }
+
+  const res = await callZapi(cfg, "/send-video-status", {
+    method: "POST",
+    body: JSON.stringify({ video, caption: caption ?? undefined }),
+  });
+  if (res.ok) {
+    const d = (res.data ?? {}) as { messageId?: string; zaapId?: string; id?: string };
+    const externalId = d.messageId || d.id || d.zaapId || `sent-${crypto.randomUUID()}`;
+    await recordStatusRow(svc, {
+      type: "video", userId, senderName,
+      externalStatusId: externalId, externalZaapId: d.zaapId ?? null,
+      mediaUrl: video, caption,
+    });
+  }
+  return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
+}
+
+async function handleReplyStatusText(
+  cfg: ZapiConfig | null,
+  svc: SupabaseClient,
+  payload: Record<string, unknown>,
+  senderName: string | null,
+): Promise<SendResult> {
+  const phone = normalizePhone(String(payload.phone || ""));
+  const message = String(payload.message || "");
+  const statusMessageId = String(payload.statusMessageId || "");
+  const conversationId = (payload.conversationId as string) || null;
+  if (!phone || !message || !statusMessageId) {
+    return { ok: false, status: 400, data: { error: "missing_fields" } };
+  }
+
+  if (!cfg) {
+    const externalId = `demo-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content: message, externalId,
+      status: "sent", messageType: "text", senderName,
+      replyToMessageId: statusMessageId, forwardedFromMessageId: null,
+    });
+    return { ok: true, simulated: true, reason: "not_configured", data: { externalId } };
+  }
+
+  const res = await callZapi(cfg, "/reply-status-text", {
+    method: "POST",
+    body: JSON.stringify({ phone, message, statusMessageId }),
+  });
+  if (res.ok) {
+    const d = (res.data ?? {}) as { messageId?: string; zaapId?: string };
+    const externalId = d.messageId || d.zaapId || `sent-${crypto.randomUUID()}`;
+    await recordOutboundMessage(svc, {
+      conversationId, phone, content: message, externalId,
+      status: "sent", messageType: "text", senderName,
+      replyToMessageId: statusMessageId, forwardedFromMessageId: null,
+    });
+  }
+  return { ok: res.ok, status: res.status, data: res.data, reason: res.reason };
+}
+
+
+
 async function routeReadOnly(action: Action, payload: Record<string, unknown>, cfg: ZapiConfig) {
   switch (action) {
     case "get-qrcode":
