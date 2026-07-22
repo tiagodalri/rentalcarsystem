@@ -36,6 +36,7 @@ export default function ParceiroComissoes() {
   const [rows, setRows] = useState<Row[]>([]);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selected, setSelected] = useState<Row | null>(null);
 
   useEffect(() => {
     (async () => {
