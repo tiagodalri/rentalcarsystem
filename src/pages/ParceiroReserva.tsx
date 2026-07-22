@@ -183,15 +183,25 @@ export default function ParceiroReserva() {
               <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Número da reserva</span>
               <span className="text-xl font-semibold tabular-nums">{confirmed.number}</span>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
-              <span>Total: <span className="text-foreground font-medium tabular-nums">US$ {confirmed.total.toFixed(2)}</span></span>
-              {confirmed.commission != null && (
-                <span>Sua comissão: <span className="text-primary font-medium tabular-nums">US$ {confirmed.commission.toFixed(2)}</span></span>
-              )}
+
+            {confirmed.commission != null && confirmed.commission > 0 && (
+              <div className="max-w-sm mx-auto">
+                <CommissionCallout
+                  commissionType={state.vehicle.commission_type}
+                  commissionValue={state.vehicle.commission_value}
+                  bookingTotal={confirmed.total}
+                  size="lg"
+                  label="Comissão desta reserva"
+                />
+              </div>
+            )}
+
+            <div className="text-xs text-muted-foreground">
+              Total: <span className="text-foreground font-medium tabular-nums">US$ {confirmed.total.toFixed(2)}</span>
             </div>
             <div className="flex items-center justify-center gap-2 pt-2">
               <Button onClick={() => navigate("/parceiro/buscar")} variant="outline">Nova busca</Button>
-              <Button onClick={() => navigate("/parceiro")} className="gold-gradient text-primary-foreground">Ir ao painel</Button>
+              <Button onClick={() => navigate("/parceiro/comissoes")} className="gold-gradient text-primary-foreground">Ver minhas comissões</Button>
             </div>
           </div>
         ) : (
@@ -283,11 +293,15 @@ export default function ParceiroReserva() {
                       Diária: <span className="tabular-nums">US$ {state.vehicle.daily_price_usd.toFixed(2)}</span>
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-foreground">
-                    <Percent size={12} className="text-primary" />
-                    <span className="text-muted-foreground">Comissão: {commissionLabel}</span>
-                  </div>
                 </div>
+
+                <CommissionCallout
+                  commissionType={state.vehicle.commission_type}
+                  commissionValue={state.vehicle.commission_value}
+                  bookingTotal={total}
+                  size="md"
+                  label="Você vai ganhar"
+                />
 
                 <div className="pt-3 border-t border-border/30 flex items-end justify-between">
                   <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Total estimado</span>
