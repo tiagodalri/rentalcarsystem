@@ -1389,6 +1389,91 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_bonus_awards: {
+        Row: {
+          created_at: string
+          earned_at: string
+          id: string
+          paid_at: string | null
+          partner_id: string
+          payout_status: string
+          tier_id: string
+        }
+        Insert: {
+          created_at?: string
+          earned_at?: string
+          id?: string
+          paid_at?: string | null
+          partner_id: string
+          payout_status?: string
+          tier_id: string
+        }
+        Update: {
+          created_at?: string
+          earned_at?: string
+          id?: string
+          paid_at?: string | null
+          partner_id?: string
+          payout_status?: string
+          tier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_bonus_awards_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_bonus_awards_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_bonus_awards_tier_id_fkey"
+            columns: ["tier_id"]
+            isOneToOne: false
+            referencedRelation: "partner_bonus_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_bonus_tiers: {
+        Row: {
+          bonus_amount: number
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          sort_order: number
+          threshold_bookings: number
+          updated_at: string
+        }
+        Insert: {
+          bonus_amount: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          sort_order?: number
+          threshold_bookings: number
+          updated_at?: string
+        }
+        Update: {
+          bonus_amount?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          sort_order?: number
+          threshold_bookings?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       partner_proposals: {
         Row: {
           accepted_booking_id: string | null
