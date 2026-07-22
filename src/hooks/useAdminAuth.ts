@@ -61,7 +61,8 @@ export function useAdminAuth() {
         const rs = ((data || []) as { role: AppRole }[])
           .map((r) => r.role)
           .filter((r): r is AppRole =>
-            r === "admin" || r === "finance" || r === "operations" || r === "support" || r === "driver"
+            r === "admin" || r === "finance" || r === "operations" || r === "support" ||
+            r === "driver" || r === "platform_admin" || r === "partner"
           );
 
         cachedRoles = { userId: currentUser.id, roles: rs };
