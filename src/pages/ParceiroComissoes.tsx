@@ -253,16 +253,16 @@ export default function ParceiroComissoes() {
                         <td className="px-4 py-3 truncate max-w-[220px]">{r.vehicle_name ?? "—"}</td>
                         <td className="px-4 py-3 truncate max-w-[180px] text-muted-foreground">{r.locadora_name ?? "—"}</td>
                         <td className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">{r.status}</td>
-                        <td className="px-4 py-3 text-right tabular-nums">{fmtUSD(r.total_price)}</td>
-                        <td className="px-4 py-3 text-right tabular-nums font-semibold text-emerald-600 dark:text-emerald-400">
+                        <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{fmtUSD(r.total_price)}</td>
+                        <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap font-semibold text-emerald-600 dark:text-emerald-400">
                           {hasCommission ? fmtUSD(r.commission_amount) : <span className="text-muted-foreground font-normal">—</span>}
                         </td>
-                        <td className="px-4 py-3 text-center">
+                        <td className="px-4 py-3 text-center whitespace-nowrap">
                           {hasCommission ? (
                             r.commission_payout_status === "paid" ? (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">Pago</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 whitespace-nowrap">Pago</span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400">Pendente</span>
+                              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] uppercase tracking-wider font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 whitespace-nowrap">Pendente</span>
                             )
                           ) : (
                             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">—</span>
