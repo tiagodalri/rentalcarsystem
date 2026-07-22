@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { appUrl, sendPartnerEmail } from "../_shared/partnerEmails.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -83,6 +84,51 @@ Deno.serve(async (req) => {
       .from("partner_proposals")
       .update({ status: "accepted", accepted_booking_id: inserted.id })
       .eq("id", p.id);
+
+    // Notify partner — non-fatal
+    try {
+      const [{ data: partner }, { data: vehicle }] = await Promise.all([
+        p.partner_id
+          ? admin.from("partners").select("agency_name, contact_email").eq("id", p.partner_id).maybeSingle()
+          : Promise.resolve({ data: null }),
+        p.vehicle_id
+          ? admin.from("vehicles").select("name, brand, model").eq("id", p.vehicle_id).maybeSingle()
+          : Promise.resolve({ data: null }),
+      ]);
+
+      const partnerEmail = partner?.contact_email;
+      if (partnerEmail) {
+        const vehicleName = vehicle
+          ? (vehicle.name ?? [vehicle.brand, vehicle.model].filter(Boolean).join(" ")) || "—"
+          : "—";
+        const totalPriceStr =
+          typeof p.total_price === "number"
+            ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "USD" }).format(p.total_price)
+            : String(p.total_price ?? "—");
+
+        await sendPartnerEmail({
+          templateName: "partner-proposal-accepted",
+          recipientEmail: partnerEmail,
+          idempotencyKey: `proposal-accepted-${p.id}`,
+          templateData: {
+            agencyName: partner?.agency_name ?? null,
+            customerName: p.customer_name ?? null,
+            vehicleName,
+            pickupDate: p.pickup_date ?? null,
+            pickupTime: p.pickup_time ?? null,
+            pickupLocation: p.pickup_location ?? null,
+            returnDate: p.return_date ?? null,
+            returnTime: p.return_time ?? null,
+            returnLocation: p.return_location ?? null,
+            bookingNumber: inserted.booking_number ?? null,
+            totalPrice: totalPriceStr,
+            dashboardUrl: appUrl("/parceiro/dashboard"),
+          },
+        });
+      }
+    } catch (e) {
+      console.error("[public-accept-proposal] partner notify failed:", e);
+    }
 
     return json(200, {
       ok: true,
