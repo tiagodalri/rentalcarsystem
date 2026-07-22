@@ -108,6 +108,8 @@ function proposalBadge(status: string) {
 function OverviewTab() {
   const [loading, setLoading] = useState(true);
   const [ov, setOv] = useState<Overview | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -124,6 +126,18 @@ function OverviewTab() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  const openDetail = (id: string) => { setDetailId(id); setDetailOpen(true); };
+
+  const monthlyFmt = useMemo(() => {
+    if (!ov?.monthly) return [];
+    return ov.monthly.map((m) => {
+      const [y, mm] = m.month.split("-");
+      const d = new Date(Number(y), Number(mm) - 1, 1);
+      const label = d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "");
+      return { ...m, label };
+    });
+  }, [ov]);
 
   if (loading) {
     return (
@@ -152,6 +166,51 @@ function OverviewTab() {
           icon={TrendingUp}
         />
       </AdminKpiGrid>
+
+      {/* Monthly trend charts */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              Reservas por mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-56 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyFmt} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip {...darkTooltipProps} formatter={(v: number) => [v, "Reservas"]} />
+                  <Bar dataKey="bookings" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              Comissão gerada por mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-56 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={monthlyFmt} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${Math.round(Number(v)).toLocaleString("en-US")}`} width={70} />
+                  <Tooltip {...darkTooltipProps} formatter={(v: number) => [fmtUSD(Number(v)), "Comissão"]} />
+                  <Line type="monotone" dataKey="commission" stroke="hsl(158 64% 40%)" strokeWidth={2.5} dot={{ r: 3, fill: "hsl(158 64% 40%)" }} activeDot={{ r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
@@ -186,27 +245,35 @@ function OverviewTab() {
                 Nenhuma comissão registrada ainda.
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {ov.top_partners.map((t, i) => (
-                  <div key={t.partner_id} className="flex items-center justify-between gap-3 py-1.5 border-b border-border/40 last:border-0">
+                  <button
+                    key={t.partner_id}
+                    onClick={() => openDetail(t.partner_id)}
+                    className="w-full flex items-center justify-between gap-3 py-1.5 px-2 -mx-2 rounded-md border-b border-border/40 last:border-0 hover:bg-muted/40 transition-colors text-left"
+                  >
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-xs font-semibold tabular-nums text-muted-foreground w-4">{i + 1}</span>
-                      <span className="text-sm font-medium truncate">{t.agency_name ?? "—"}</span>
+                      <span className="text-sm font-medium truncate text-primary hover:underline">{t.agency_name ?? "—"}</span>
                     </div>
                     <div className="flex items-center gap-3 shrink-0 text-xs tabular-nums">
                       <span className="text-muted-foreground">{t.bookings} res.</span>
                       <span className="font-semibold">{fmtUSD(t.commission)}</span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
       </div>
+
+      <PartnerDetailSheet partnerId={detailId} open={detailOpen} onOpenChange={setDetailOpen} />
     </AdminSection>
   );
 }
+
+
 
 // ============ Payouts tab ============
 function PayoutsTab() {
