@@ -384,19 +384,15 @@ export default function AdminFleetReport({
       {/* KPI Cards — row 1: core metrics */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { Icon: DollarSign, label: usingCustom ? "Receita do Período" : "Receita do Mês", value: `$${totalRevenue.toLocaleString()}`, tone: "primary" as const },
-          { Icon: CalendarDays, label: "Reservas", value: String(totalBookings), tone: "primary" as const },
-          { Icon: Percent, label: "Ocupação Média", value: `${avgOccupancy}%`, tone: "primary" as const },
-        ].map(({ Icon, label, value, tone }) => (
+          { Icon: DollarSign, label: usingCustom ? "Receita do Período" : "Receita do Mês", value: `$${totalRevenue.toLocaleString()}` },
+          { Icon: CalendarDays, label: "Reservas", value: String(totalBookings) },
+          { Icon: Percent, label: "Ocupação Média", value: `${avgOccupancy}%` },
+        ].map(({ Icon, label, value }) => (
           <Card key={label} className="border-border/40 h-full">
             <CardContent className="!p-4 h-full flex items-center">
               <div className="flex items-center gap-3.5 w-full">
-                <div
-                  className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${
-                    tone === "destructive" ? "bg-destructive/10" : "bg-primary/[0.07]"
-                  }`}
-                >
-                  <Icon size={20} strokeWidth={1.8} className={tone === "destructive" ? "text-destructive" : "text-primary"} />
+                <div className="shrink-0 h-11 w-11 rounded-xl flex items-center justify-center bg-primary/[0.07]">
+                  <Icon size={20} strokeWidth={1.8} className="text-primary" />
                 </div>
                 <div className="min-w-0 flex flex-col justify-center gap-1">
                   <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">{label}</p>
