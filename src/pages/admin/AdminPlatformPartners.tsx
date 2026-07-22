@@ -70,7 +70,7 @@ export default function AdminPlatformPartners() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from("partners")
-      .select("id, agency_name, contact_name, contact_email, contact_phone, status, created_at")
+      .select("*")
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     else setItems((data ?? []) as Partner[]);
