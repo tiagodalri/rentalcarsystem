@@ -104,6 +104,7 @@ const AdminWhatsAppPipeline = lazy(() => import("./pages/admin/AdminWhatsAppPipe
 const AdminWhatsAppLinks = lazy(() => import("./pages/admin/AdminWhatsAppLinks.tsx"));
 const AdminWhatsAppStatus = lazy(() => import("./pages/admin/AdminWhatsAppStatus.tsx"));
 const AdminPlatformLocadoras = lazy(() => import("./pages/admin/AdminPlatformLocadoras.tsx"));
+const AdminCommissions = lazy(() => import("./pages/admin/AdminCommissions.tsx"));
 const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect.tsx"));
 const ParceiroLogin = lazy(() => import("./pages/ParceiroLogin.tsx"));
 const ParceiroDashboard = lazy(() => import("./pages/ParceiroDashboard.tsx"));
