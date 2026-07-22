@@ -1006,6 +1006,12 @@ export default function AdminWhatsApp() {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-wrap">
+          <Link to="/admin/whatsapp/status">
+            <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
+              <CircleDot className="w-3.5 h-3.5" />
+              Status
+            </Button>
+          </Link>
           <Link to="/admin/whatsapp/pipeline">
             <Button variant="outline" size="sm" className="h-8 text-xs gap-1.5">
               <Kanban className="w-3.5 h-3.5" />
