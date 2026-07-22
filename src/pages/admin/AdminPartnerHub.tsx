@@ -415,25 +415,26 @@ function PayoutsTab() {
               ) : rows.length === 0 ? (
                 <tr><td colSpan={8} className="py-10 text-center text-muted-foreground">Nenhuma reserva encontrada.</td></tr>
               ) : rows.map((r) => (
-                <tr key={r.id} className="border-t border-border/40">
-                  <td className="px-4 py-2.5 font-medium">{r.partners?.agency_name ?? "—"}</td>
-                  <td className="px-4 py-2.5">
+                <tr key={r.id} className="border-t border-border/40 odd:bg-muted/20 hover:bg-muted/40 transition-colors">
+                  <td className="px-4 py-3 font-medium whitespace-nowrap">{r.partners?.agency_name ?? "—"}</td>
+                  <td className="px-4 py-3">
                     <div className="truncate max-w-[200px]">{r.vehicles?.name ?? "—"}</div>
                     <div className="text-[11px] text-muted-foreground">{r.vehicles?.category ?? ""}</div>
                   </td>
-                  <td className="px-4 py-2.5">{r.locadoras?.name ?? "—"}</td>
-                  <td className="px-4 py-2.5 tabular-nums">{r.pickup_date ? format(new Date(r.pickup_date), "dd/MM/yyyy") : "—"}</td>
-                  <td className="px-4 py-2.5 text-right tabular-nums whitespace-nowrap">{fmtUSD(Number(r.total_price ?? 0))}</td>
-                  <td className="px-4 py-2.5 text-right tabular-nums whitespace-nowrap">
+                  <td className="px-4 py-3 whitespace-nowrap">{r.locadoras?.name ?? "—"}</td>
+                  <td className="px-4 py-3 tabular-nums whitespace-nowrap">{r.pickup_date ? format(new Date(r.pickup_date), "dd/MM/yyyy") : "—"}</td>
+                  <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{fmtUSD(Number(r.total_price ?? 0))}</td>
+                  <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">
                     <div className="font-semibold">{fmtUSD(Number(r.commission_amount ?? 0))}</div>
                     <div className="text-[10px] text-muted-foreground">
                       {r.commission_type === "percent" ? `${Number(r.commission_value ?? 0)}%` : r.commission_type === "fixed" ? "fixa" : "—"}
                     </div>
                   </td>
-                  <td className="px-4 py-2.5 text-center">{payoutBadge(r.commission_payout_status)}</td>
-                  <td className="px-4 py-2.5 text-right">
+                  <td className="px-4 py-3 text-center whitespace-nowrap">{payoutBadge(r.commission_payout_status)}</td>
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
                     <Button
                       size="sm"
+                      className="min-w-[112px] justify-center"
                       variant={r.commission_payout_status === "paid" ? "outline" : "default"}
                       disabled={updatingId === r.id}
                       onClick={() => toggle(r)}
@@ -538,17 +539,17 @@ function ProposalsTab() {
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={7} className="py-10 text-center text-muted-foreground">Nenhuma proposta encontrada.</td></tr>
               ) : filtered.map((r) => (
-                <tr key={r.id} className="border-t border-border/40">
-                  <td className="px-4 py-2.5 font-medium">{r.partners?.agency_name ?? "—"}</td>
-                  <td className="px-4 py-2.5">
-                    <div>{r.customer_name ?? "—"}</div>
+                <tr key={r.id} className="border-t border-border/40 odd:bg-muted/20 hover:bg-muted/40 transition-colors">
+                  <td className="px-4 py-3 font-medium whitespace-nowrap">{r.partners?.agency_name ?? "—"}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium whitespace-nowrap">{r.customer_name ?? "—"}</div>
                     <div className="text-[11px] text-muted-foreground">{r.customer_email ?? ""}</div>
                   </td>
-                  <td className="px-4 py-2.5">{r.vehicles?.name ?? "—"}</td>
-                  <td className="px-4 py-2.5 text-right tabular-nums whitespace-nowrap">{fmtUSD(Number(r.total_price ?? 0))}</td>
-                  <td className="px-4 py-2.5 text-center">{proposalBadge(r.status)}</td>
-                  <td className="px-4 py-2.5 tabular-nums">{format(new Date(r.created_at), "dd/MM/yyyy")}</td>
-                  <td className="px-4 py-2.5 tabular-nums">{r.expires_at ? format(new Date(r.expires_at), "dd/MM/yyyy") : "—"}</td>
+                  <td className="px-4 py-3 truncate max-w-[200px]">{r.vehicles?.name ?? "—"}</td>
+                  <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{fmtUSD(Number(r.total_price ?? 0))}</td>
+                  <td className="px-4 py-3 text-center whitespace-nowrap">{proposalBadge(r.status)}</td>
+                  <td className="px-4 py-3 tabular-nums whitespace-nowrap">{format(new Date(r.created_at), "dd/MM/yyyy")}</td>
+                  <td className="px-4 py-3 tabular-nums whitespace-nowrap">{r.expires_at ? format(new Date(r.expires_at), "dd/MM/yyyy") : "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -716,30 +717,30 @@ function ApplicationsTab({ onCountChange }: { onCountChange: (n: number) => void
                   <div>Nenhuma solicitação {statusFilter === "pending" ? "pendente" : ""}.</div>
                 </td></tr>
               ) : rows.map((r) => (
-                <tr key={r.id} className="border-t border-border/40 align-top">
-                  <td className="px-4 py-2.5">
-                    <div className="font-medium">{r.agency_name}</div>
+                <tr key={r.id} className="border-t border-border/40 odd:bg-muted/20 hover:bg-muted/40 transition-colors align-top">
+                  <td className="px-4 py-3">
+                    <div className="font-medium whitespace-nowrap">{r.agency_name}</div>
                     {r.legal_name && <div className="text-[11px] text-muted-foreground">{r.legal_name}</div>}
                     {r.message && <div className="text-[11px] text-muted-foreground mt-1 line-clamp-2 max-w-[280px]">{r.message}</div>}
                   </td>
-                  <td className="px-4 py-2.5">
-                    <div>{r.contact_name}</div>
+                  <td className="px-4 py-3">
+                    <div className="font-medium whitespace-nowrap">{r.contact_name}</div>
                     <div className="text-[11px] text-muted-foreground">{r.contact_email}</div>
                     <div className="text-[11px] text-muted-foreground tabular-nums">{formatBrPhone(r.contact_phone)}</div>
                   </td>
-                  <td className="px-4 py-2.5 tabular-nums text-[12px]">{r.cnpj ? formatCnpj(r.cnpj) : "—"}</td>
-                  <td className="px-4 py-2.5 text-[12px]">
+                  <td className="px-4 py-3 tabular-nums text-[12px] whitespace-nowrap">{r.cnpj ? formatCnpj(r.cnpj) : "—"}</td>
+                  <td className="px-4 py-3 text-[12px] whitespace-nowrap">
                     {r.address_city || r.address_state ? `${r.address_city ?? ""}${r.address_city && r.address_state ? "/" : ""}${r.address_state ?? ""}` : "—"}
                   </td>
-                  <td className="px-4 py-2.5 tabular-nums text-[12px]">{format(new Date(r.created_at), "dd/MM/yyyy HH:mm")}</td>
-                  <td className="px-4 py-2.5 text-center">{statusBadge(r.status)}</td>
-                  <td className="px-4 py-2.5 text-right">
+                  <td className="px-4 py-3 tabular-nums text-[12px] whitespace-nowrap">{format(new Date(r.created_at), "dd/MM/yyyy HH:mm")}</td>
+                  <td className="px-4 py-3 text-center whitespace-nowrap">{statusBadge(r.status)}</td>
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
                     {r.status === "pending" ? (
                       <div className="flex justify-end gap-2">
-                        <Button size="sm" variant="outline" onClick={() => setRejecting(r)}>
+                        <Button size="sm" variant="outline" className="min-w-[96px] justify-center" onClick={() => setRejecting(r)}>
                           <ThumbsDown className="h-3.5 w-3.5 mr-1" /> Rejeitar
                         </Button>
-                        <Button size="sm" onClick={() => openApprove(r)}>
+                        <Button size="sm" className="min-w-[96px] justify-center" onClick={() => openApprove(r)}>
                           <ThumbsUp className="h-3.5 w-3.5 mr-1" /> Aprovar
                         </Button>
                       </div>
