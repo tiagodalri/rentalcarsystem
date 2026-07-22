@@ -2,14 +2,16 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { ArrowLeft, Loader2, Building2, Calendar as CalIcon, CheckCircle2, Handshake, LogOut, User } from "lucide-react";
+import { ArrowLeft, Loader2, Building2, Calendar as CalIcon, CheckCircle2, User } from "lucide-react";
 import CommissionCallout from "@/components/parceiro/CommissionCallout";
+import PartnerHeader from "@/components/parceiro/PartnerHeader";
 import { supabase } from "@/integrations/supabase/client";
-import BrandLogo from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { getCoverImage } from "@/data/vehicleImages";
 import { parseDateOnly } from "@/lib/dateOnly";
+import { fmtUSD, fmtUSDCompact } from "@/lib/partnerFormat";
+
 
 type NavState = {
   vehicle: {
@@ -69,10 +71,7 @@ export default function ParceiroReserva() {
     })();
   }, [navigate]);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/parceiro/login", { replace: true });
-  };
+
 
   const days = useMemo(() => {
     if (!state) return 1;
@@ -147,20 +146,8 @@ export default function ParceiroReserva() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/40 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <BrandLogo className="h-7 shrink-0" />
-          <span className="hidden sm:inline text-xs uppercase tracking-[0.22em] text-muted-foreground items-center gap-1.5">
-            <Handshake size={13} className="text-primary inline mr-1" /> Parceiro
-          </span>
-        </div>
-        <button
-          onClick={signOut}
-          className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground"
-        >
-          <LogOut size={14} /> Sair
-        </button>
-      </header>
+      <PartnerHeader />
+
 
       <main className="max-w-4xl mx-auto p-4 sm:p-8 space-y-6">
         <button
@@ -197,7 +184,7 @@ export default function ParceiroReserva() {
             )}
 
             <div className="text-xs text-muted-foreground">
-              Total: <span className="text-foreground font-medium tabular-nums">US$ {confirmed.total.toFixed(2)}</span>
+              Total: <span className="text-foreground font-medium tabular-nums">{fmtUSD(confirmed.total)}</span>
             </div>
             <div className="flex items-center justify-center gap-2 pt-2">
               <Button onClick={() => navigate("/parceiro/buscar")} variant="outline">Nova busca</Button>
@@ -290,7 +277,7 @@ export default function ParceiroReserva() {
                   <div className="flex items-center gap-1.5 text-foreground">
                     <User size={12} className="text-primary" />
                     <span className="text-muted-foreground">
-                      Diária: <span className="tabular-nums">US$ {state.vehicle.daily_price_usd.toFixed(2)}</span>
+                      Diária: <span className="tabular-nums">{fmtUSD(state.vehicle.daily_price_usd)}</span>
                     </span>
                   </div>
                 </div>
@@ -305,7 +292,7 @@ export default function ParceiroReserva() {
 
                 <div className="pt-3 border-t border-border/30 flex items-end justify-between">
                   <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Total estimado</span>
-                  <span className="text-lg font-semibold text-primary tabular-nums">US$ {total}</span>
+                  <span className="text-lg font-semibold text-primary tabular-nums">{fmtUSDCompact(total)}</span>
                 </div>
                 <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
                   Valor final calculado e travado no servidor no momento da confirmação.

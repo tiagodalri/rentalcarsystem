@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { ArrowLeft, Handshake, Loader2, LogOut, TrendingUp, Wallet, Clock } from "lucide-react";
-import BrandLogo from "@/components/BrandLogo";
+import { ArrowLeft, Loader2, TrendingUp, Wallet, Clock, Inbox, Search } from "lucide-react";
+import PartnerHeader from "@/components/parceiro/PartnerHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { parseDateOnly } from "@/lib/dateOnly";
+import { Button } from "@/components/ui/button";
+import { fmtUSD } from "@/lib/partnerFormat";
 
 type Row = {
   id: string;
@@ -65,23 +67,18 @@ export default function ParceiroComissoes() {
       if (vIds.length) {
         const { data: vs } = await supabase.from("vehicles").select("id, name").in("id", vIds);
         const map: VehicleMap = {};
-        (vs ?? []).forEach((v: any) => { map[v.id] = { name: v.name }; });
+        (vs ?? []).forEach((v: { id: string; name: string }) => { map[v.id] = { name: v.name }; });
         setVehicles(map);
       }
       if (lIds.length) {
         const { data: ls } = await supabase.from("locadoras").select("id, name").in("id", lIds);
         const map: LocadoraMap = {};
-        (ls ?? []).forEach((l: any) => { map[l.id] = { name: l.name }; });
+        (ls ?? []).forEach((l: { id: string; name: string }) => { map[l.id] = { name: l.name }; });
         setLocadoras(map);
       }
     } finally {
       setLoading(false);
     }
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/parceiro/login", { replace: true });
   };
 
   const totals = useMemo(() => {
@@ -104,23 +101,15 @@ export default function ParceiroComissoes() {
     );
   }
 
+  const commissionRows = rows.filter(r => Number(r.commission_amount ?? 0) > 0);
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/40 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <BrandLogo className="h-7 shrink-0" />
-          <span className="hidden sm:inline text-xs uppercase tracking-[0.22em] text-muted-foreground items-center gap-1.5">
-            <Handshake size={13} className="text-primary inline mr-1" /> Parceiro
-          </span>
-        </div>
-        <button onClick={signOut} className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground">
-          <LogOut size={14} /> Sair
-        </button>
-      </header>
+      <PartnerHeader />
 
       <main className="max-w-6xl mx-auto p-4 sm:p-8 space-y-6">
         <div>
-          <button onClick={() => navigate("/parceiro")} className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground mb-3">
+          <button onClick={() => navigate("/parceiro")} className="inline-flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground mb-3 transition-colors">
             <ArrowLeft size={14} /> Voltar ao painel
           </button>
           <h1 className="text-2xl sm:text-3xl font-semibold">Minhas comissões</h1>
@@ -130,43 +119,72 @@ export default function ParceiroComissoes() {
         </div>
 
         {/* Summary */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
           <SummaryCard
             icon={<TrendingUp className="h-5 w-5 text-emerald-500" />}
             label="Total ganho"
-            value={`US$ ${totals.total.toFixed(2)}`}
+            value={fmtUSD(totals.total)}
             accent="emerald"
             hint={`${totals.count} ${totals.count === 1 ? "reserva" : "reservas"}`}
+            loading={loading}
           />
           <SummaryCard
             icon={<Clock className="h-5 w-5 text-amber-500" />}
             label="Aguardando repasse"
-            value={`US$ ${totals.pending.toFixed(2)}`}
+            value={fmtUSD(totals.pending)}
             accent="amber"
+            loading={loading}
           />
           <SummaryCard
             icon={<Wallet className="h-5 w-5 text-primary" />}
             label="Já recebido"
-            value={`US$ ${totals.paid.toFixed(2)}`}
+            value={fmtUSD(totals.paid)}
             accent="primary"
+            loading={loading}
           />
         </div>
 
         {/* Table */}
         <div className="rounded-2xl border border-border/40 bg-card overflow-hidden">
-          <div className="px-4 sm:px-6 py-3 border-b border-border/40">
-            <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">Extrato</h2>
+          <div className="px-4 sm:px-6 py-3 border-b border-border/40 flex items-center justify-between">
+            <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Extrato</h2>
+            {!loading && commissionRows.length > 0 && (
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                {commissionRows.length} {commissionRows.length === 1 ? "lançamento" : "lançamentos"}
+              </span>
+            )}
           </div>
           {loading ? (
-            <div className="p-10 flex items-center justify-center"><Loader2 className="h-5 w-5 animate-spin text-primary" /></div>
-          ) : rows.length === 0 ? (
-            <div className="p-10 text-center text-sm text-muted-foreground">
-              Nenhuma reserva indicada ainda. Comece pela busca de frota.
+            <div className="divide-y divide-border/30">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="px-4 sm:px-6 py-4 flex items-center gap-4 animate-pulse">
+                  <div className="h-3 w-20 bg-muted/60 rounded" />
+                  <div className="h-3 w-28 bg-muted/50 rounded" />
+                  <div className="h-3 flex-1 bg-muted/40 rounded" />
+                  <div className="h-3 w-20 bg-muted/60 rounded" />
+                  <div className="h-5 w-16 bg-muted/60 rounded-full" />
+                </div>
+              ))}
+            </div>
+          ) : commissionRows.length === 0 ? (
+            <div className="p-10 flex flex-col items-center text-center gap-3">
+              <div className="h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                <Inbox className="h-7 w-7 text-emerald-500" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold">Nenhuma comissão ainda</h3>
+                <p className="text-sm text-muted-foreground mt-1 max-w-md">
+                  Assim que você confirmar sua primeira reserva pela busca, os valores começam a aparecer aqui.
+                </p>
+              </div>
+              <Button onClick={() => navigate("/parceiro/buscar")} className="gold-gradient text-primary-foreground gap-2 mt-2">
+                <Search size={14} /> Buscar frota agora
+              </Button>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="text-xs uppercase tracking-wider text-muted-foreground bg-muted/30">
+                <thead className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground bg-muted/30">
                   <tr>
                     <th className="text-left px-4 py-3 font-semibold">Reserva</th>
                     <th className="text-left px-4 py-3 font-semibold">Datas</th>
@@ -178,17 +196,17 @@ export default function ParceiroComissoes() {
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.id} className="border-t border-border/30 hover:bg-muted/20">
+                  {commissionRows.map((r) => (
+                    <tr key={r.id} className="border-t border-border/30 hover:bg-muted/20 transition-colors">
                       <td className="px-4 py-3 font-mono tabular-nums text-xs">{r.booking_number ?? r.id.slice(0, 8)}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground">
+                      <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground tabular-nums">
                         {format(parseDateOnly(r.pickup_date), "dd MMM", { locale: pt })} → {format(parseDateOnly(r.return_date), "dd MMM yy", { locale: pt })}
                       </td>
                       <td className="px-4 py-3 truncate max-w-[220px]">{r.vehicle_id ? (vehicles[r.vehicle_id]?.name ?? "—") : "—"}</td>
                       <td className="px-4 py-3 truncate max-w-[180px] text-muted-foreground">{r.locadora_id ? (locadoras[r.locadora_id]?.name ?? "—") : "—"}</td>
-                      <td className="px-4 py-3 text-right tabular-nums">US$ {Number(r.total_price ?? 0).toFixed(2)}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">{fmtUSD(r.total_price)}</td>
                       <td className="px-4 py-3 text-right tabular-nums font-semibold text-emerald-600 dark:text-emerald-400">
-                        {r.commission_amount != null ? `US$ ${Number(r.commission_amount).toFixed(2)}` : "—"}
+                        {r.commission_amount != null ? fmtUSD(r.commission_amount) : "—"}
                       </td>
                       <td className="px-4 py-3 text-center">
                         {r.commission_payout_status === "paid" ? (
@@ -209,7 +227,10 @@ export default function ParceiroComissoes() {
   );
 }
 
-function SummaryCard({ icon, label, value, hint, accent }: { icon: React.ReactNode; label: string; value: string; hint?: string; accent: "emerald" | "amber" | "primary" }) {
+function SummaryCard({ icon, label, value, hint, accent, loading }: {
+  icon: React.ReactNode; label: string; value: string; hint?: string;
+  accent: "emerald" | "amber" | "primary"; loading?: boolean;
+}) {
   const border = accent === "emerald" ? "border-emerald-500/40" : accent === "amber" ? "border-amber-500/40" : "border-primary/40";
   const bg = accent === "emerald"
     ? "bg-gradient-to-br from-emerald-500/15 via-emerald-500/10 to-emerald-600/5"
@@ -222,8 +243,12 @@ function SummaryCard({ icon, label, value, hint, accent }: { icon: React.ReactNo
         {icon}
         <span className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground">{label}</span>
       </div>
-      <p className="mt-2 text-2xl font-bold tabular-nums">{value}</p>
-      {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
+      {loading ? (
+        <div className="mt-2.5 h-7 w-32 bg-muted/50 rounded animate-pulse" />
+      ) : (
+        <p className="mt-2 text-2xl font-bold tabular-nums">{value}</p>
+      )}
+      {hint && !loading && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
     </div>
   );
 }
