@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { appUrl, sendPartnerEmail } from "../_shared/partnerEmails.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -48,10 +49,45 @@ Deno.serve(async (req) => {
       .from("bookings")
       .update(patch)
       .eq("id", bookingId)
-      .select("id, commission_payout_status, commission_paid_at")
+      .select("id, booking_number, commission_payout_status, commission_paid_at, commission_amount, partner_id")
       .maybeSingle();
     if (error) return json(500, { ok: false, error: error.message });
     if (!data) return json(404, { ok: false, error: "Booking not found" });
+
+    // Notify partner when marked as paid — non-fatal
+    if (status === "paid" && data.partner_id) {
+      try {
+        const { data: partner } = await admin
+          .from("partners")
+          .select("agency_name, contact_email")
+          .eq("id", data.partner_id)
+          .maybeSingle();
+        if (partner?.contact_email) {
+          const amountStr =
+            typeof data.commission_amount === "number"
+              ? new Intl.NumberFormat("pt-BR", { style: "currency", currency: "USD" }).format(data.commission_amount)
+              : "—";
+          const paidAtStr = data.commission_paid_at
+            ? new Date(data.commission_paid_at).toLocaleString("pt-BR")
+            : new Date().toLocaleString("pt-BR");
+          await sendPartnerEmail({
+            templateName: "partner-payout-processed",
+            recipientEmail: partner.contact_email,
+            idempotencyKey: `commission-paid-${bookingId}-${data.commission_paid_at ?? "now"}`,
+            templateData: {
+              agencyName: partner.agency_name,
+              payoutKind: "Comissão",
+              amount: amountStr,
+              reference: `Reserva ${data.booking_number ?? bookingId}`,
+              paidAt: paidAtStr,
+              dashboardUrl: appUrl("/parceiro/comissoes"),
+            },
+          });
+        }
+      } catch (e) {
+        console.error("[platform-mark-commission-paid] notify failed:", e);
+      }
+    }
 
     return json(200, { ok: true, booking: data });
   } catch (e) {
