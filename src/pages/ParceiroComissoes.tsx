@@ -20,20 +20,17 @@ type Row = {
   commission_value: number | null;
   commission_payout_status: string;
   status: string;
-  locadora_id: string | null;
-  vehicle_id: string | null;
+  customer_name: string | null;
+  vehicle_name: string | null;
+  vehicle_category: string | null;
+  locadora_name: string | null;
 };
-
-type VehicleMap = Record<string, { name: string }>;
-type LocadoraMap = Record<string, { name: string }>;
 
 export default function ParceiroComissoes() {
   const navigate = useNavigate();
   const [authorizing, setAuthorizing] = useState(true);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
-  const [vehicles, setVehicles] = useState<VehicleMap>({});
-  const [locadoras, setLocadoras] = useState<LocadoraMap>({});
 
   useEffect(() => {
     (async () => {
@@ -52,34 +49,19 @@ export default function ParceiroComissoes() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const { data: bookings, error } = await supabase
-        .from("bookings")
-        .select("id, booking_number, pickup_date, return_date, total_price, commission_amount, commission_type, commission_value, commission_payout_status, status, locadora_id, vehicle_id")
-        .order("pickup_date", { ascending: false })
-        .limit(500);
+      const { data, error } = await supabase.functions.invoke("partner-booking-history", { body: {} });
       if (error) throw error;
-      const list = (bookings ?? []) as Row[];
-      setRows(list);
-
-      const vIds = Array.from(new Set(list.map(r => r.vehicle_id).filter(Boolean))) as string[];
-      const lIds = Array.from(new Set(list.map(r => r.locadora_id).filter(Boolean))) as string[];
-
-      if (vIds.length) {
-        const { data: vs } = await supabase.from("vehicles").select("id, name").in("id", vIds);
-        const map: VehicleMap = {};
-        (vs ?? []).forEach((v: { id: string; name: string }) => { map[v.id] = { name: v.name }; });
-        setVehicles(map);
-      }
-      if (lIds.length) {
-        const { data: ls } = await supabase.from("locadoras").select("id, name").in("id", lIds);
-        const map: LocadoraMap = {};
-        (ls ?? []).forEach((l: { id: string; name: string }) => { map[l.id] = { name: l.name }; });
-        setLocadoras(map);
-      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const res = data as any;
+      if (!res?.ok) throw new Error(res?.error || "Falha ao carregar histórico");
+      setRows((res.results ?? []) as Row[]);
+    } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
+
 
   const totals = useMemo(() => {
     let total = 0, paid = 0, pending = 0, count = 0;
