@@ -331,6 +331,7 @@ const App = () => (
                 <Route path="whatsapp/links" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppLinks /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp/status" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppStatus /></AdminSuspense></RequireRole>} />
                 <Route path="platform/locadoras" element={<RequireRole roles={["platform_admin"]}><AdminSuspense><AdminPlatformLocadoras /></AdminSuspense></RequireRole>} />
+                <Route path="commissions" element={<RequireRole roles={["admin","operations","finance","platform_admin"]}><AdminSuspense><AdminCommissions /></AdminSuspense></RequireRole>} />
               </Route>
 
 
