@@ -140,15 +140,16 @@ export default function ParceiroDashboard() {
               <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
             </div>
             <div>
-              <h2 className="text-base font-semibold">Minhas comissões</h2>
+              <h2 className="text-base font-semibold">Minhas reservas</h2>
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                Extrato completo com valores pendentes e já repassados.
+                Histórico completo das reservas indicadas, com comissões e status de repasse.
               </p>
             </div>
             <div className="text-[10px] uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-400 font-semibold inline-flex items-center gap-1.5">
-              <TrendingUp size={11} /> Acompanhe seus ganhos
+              <TrendingUp size={11} /> Reservas e comissões
             </div>
           </button>
+
         </div>
       </main>
     </div>
