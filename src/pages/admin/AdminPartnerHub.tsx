@@ -46,7 +46,7 @@ type BookingRow = {
   total_price: number | null;
   commission_type: string | null;
   commission_value: number | null;
-  commission_amount_usd: number | null;
+  commission_amount: number | null;
   commission_payout_status: "paid" | "pending" | null;
   commission_paid_at: string | null;
   partner_id: string | null;
@@ -306,7 +306,7 @@ function PayoutsTab() {
                   <td className="px-4 py-2.5 tabular-nums">{r.pickup_date ? format(new Date(r.pickup_date), "dd/MM/yyyy") : "—"}</td>
                   <td className="px-4 py-2.5 text-right tabular-nums whitespace-nowrap">{fmtUSD(Number(r.total_price ?? 0))}</td>
                   <td className="px-4 py-2.5 text-right tabular-nums whitespace-nowrap">
-                    <div className="font-semibold">{fmtUSD(Number(r.commission_amount_usd ?? 0))}</div>
+                    <div className="font-semibold">{fmtUSD(Number(r.commission_amount ?? 0))}</div>
                     <div className="text-[10px] text-muted-foreground">
                       {r.commission_type === "percent" ? `${Number(r.commission_value ?? 0)}%` : r.commission_type === "fixed" ? "fixa" : "—"}
                     </div>
