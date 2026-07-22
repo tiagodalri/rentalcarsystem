@@ -153,6 +153,7 @@ export type Database = {
           locadora_id: string
           notes: string | null
           paid_at: string | null
+          partner_id: string | null
           payment_method: string | null
           payment_status: string
           pickup_date: string
@@ -205,6 +206,7 @@ export type Database = {
           locadora_id?: string
           notes?: string | null
           paid_at?: string | null
+          partner_id?: string | null
           payment_method?: string | null
           payment_status?: string
           pickup_date: string
@@ -257,6 +259,7 @@ export type Database = {
           locadora_id?: string
           notes?: string | null
           paid_at?: string | null
+          partner_id?: string | null
           payment_method?: string | null
           payment_status?: string
           pickup_date?: string
@@ -293,6 +296,20 @@ export type Database = {
             columns: ["locadora_id"]
             isOneToOne: false
             referencedRelation: "locadoras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
             referencedColumns: ["id"]
           },
           {
@@ -1890,6 +1907,13 @@ export type Database = {
             referencedRelation: "partners"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_roles_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       vehicle_diagnostics: {
@@ -3374,6 +3398,21 @@ export type Database = {
       }
     }
     Views: {
+      partners_public: {
+        Row: {
+          agency_name: string | null
+          id: string | null
+        }
+        Insert: {
+          agency_name?: string | null
+          id?: string | null
+        }
+        Update: {
+          agency_name?: string | null
+          id?: string | null
+        }
+        Relationships: []
+      }
       vehicles_public: {
         Row: {
           bags: number | null
