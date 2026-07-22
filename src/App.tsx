@@ -109,6 +109,7 @@ const AdminPlatformBonusTiers = lazy(() => import("./pages/admin/AdminPlatformBo
 const AdminCommissions = lazy(() => import("./pages/admin/AdminCommissions.tsx"));
 const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect.tsx"));
 const ParceiroLogin = lazy(() => import("./pages/ParceiroLogin.tsx"));
+const ParceiroCadastro = lazy(() => import("./pages/ParceiroCadastro.tsx"));
 const ParceiroDashboard = lazy(() => import("./pages/ParceiroDashboard.tsx"));
 const ParceiroBuscar = lazy(() => import("./pages/ParceiroBuscar.tsx"));
 const ParceiroReserva = lazy(() => import("./pages/ParceiroReserva.tsx"));
