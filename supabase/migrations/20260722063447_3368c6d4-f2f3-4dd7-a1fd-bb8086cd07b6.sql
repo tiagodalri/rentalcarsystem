@@ -1,0 +1,1 @@
+UPDATE public.vehicles SET image_url = NULL WHERE image_url ILIKE '%imagin.studio%' OR image_url ILIKE '%cdn.imagin%';
