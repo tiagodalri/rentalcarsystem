@@ -1,4 +1,4 @@
-import { Handshake, LogOut } from "lucide-react";
+import { Handshake, LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import BrandLogo from "@/components/BrandLogo";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +25,12 @@ export default function PartnerHeader({ email }: { email?: string | null }) {
           <span className="hidden md:inline text-xs text-muted-foreground truncate max-w-[220px]">{email}</span>
         )}
         <button
+          onClick={() => navigate("/parceiro/perfil")}
+          className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-muted/40"
+        >
+          <User size={13} /> Perfil
+        </button>
+        <button
           onClick={signOut}
           className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-md hover:bg-muted/40"
         >
@@ -34,3 +40,4 @@ export default function PartnerHeader({ email }: { email?: string | null }) {
     </header>
   );
 }
+
