@@ -44,7 +44,9 @@ type Overview = {
   proposals_accepted: number;
   conversion_pct: number;
   top_partners: Array<{ partner_id: string; agency_name: string | null; bookings: number; commission: number }>;
+  monthly: Array<{ month: string; bookings: number; commission: number }>;
 };
+
 
 type PartnerLite = { id: string; agency_name: string };
 
