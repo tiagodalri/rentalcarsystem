@@ -217,6 +217,21 @@ export default function AdminFleetReport({
   const avgOccupancy = visibleReport.length ? Math.round(visibleReport.reduce((s, r) => s + r.occupancyPct, 0) / visibleReport.length) : 0;
   const totalDamages = visibleReport.reduce((s, r) => s + r.damageCount, 0);
 
+  // Revenue by channel (revenue recognition by pickup date, excluding cancelled)
+  const channelRevenue = (predicate: (b: any) => boolean) => {
+    return bookings
+      .filter((b) => {
+        if (!predicate(b)) return false;
+        const p = parseISO(b.pickup_date).getTime();
+        return p >= periodStartMs && p < periodEndMs;
+      })
+      .reduce((s, b) => s + (Number(b.total_price) || 0), 0);
+  };
+
+  const turoRevenue = channelRevenue((b) => !!b.turo_reservation_code);
+  const partnerRevenue = channelRevenue((b) => !!b.partner_id && !b.turo_reservation_code);
+  const directRevenue = channelRevenue((b) => !b.turo_reservation_code && !b.partner_id);
+
   // Chart data
   const revenueChartData = visibleReport
     .filter((r) => r.totalRevenue > 0)
