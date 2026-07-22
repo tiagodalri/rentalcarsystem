@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Globe, Home, Sun, Moon, User, Shield, Maximize, Minimize } from "lucide-react";
+import { Menu, X, Globe, Home, Sun, Moon, User, Shield, Maximize, Minimize, Handshake } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { useLanguage } from "@/i18n/LanguageContext";
@@ -191,39 +191,7 @@ const Navbar = () => {
 
               <div className="my-1.5 border-t border-border/40" />
 
-              {/* Conta */}
-              <DropdownMenuItem
-                onClick={() => navigate(isLoggedIn ? "/minha-conta" : "/login")}
-                className="cursor-pointer gap-2 px-2 py-2"
-              >
-                {isLoggedIn && user ? (
-                  <>
-                    <span className="w-5 h-5 rounded-full gold-gradient flex items-center justify-center text-primary-foreground text-[9px] font-bold">
-                      {user.name.charAt(0)}
-                    </span>
-                    <span className="text-xs font-medium tracking-wider uppercase">
-                      {user.name.split(" ")[0]}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <User size={15} />
-                    <span className="text-xs font-medium tracking-wider uppercase">
-                      {t.nav.myBookings}
-                    </span>
-                  </>
-                )}
-              </DropdownMenuItem>
-
-              {/* Tema */}
-              <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer gap-2 px-2 py-2">
-                {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
-                <span className="text-xs font-medium tracking-wider uppercase">
-                  {theme === "dark" ? "Modo claro" : "Modo escuro"}
-                </span>
-              </DropdownMenuItem>
-
-              {/* Idioma. submenu in-place */}
+              {/* 1. Idioma */}
               <div className="px-2 py-1.5">
                 <div className="flex items-center gap-2 text-[10px] font-semibold tracking-[0.18em] uppercase text-muted-foreground mb-1.5">
                   <Globe size={12} /> Idioma
@@ -247,7 +215,7 @@ const Navbar = () => {
                 </div>
               </div>
 
-              {/* Moeda */}
+              {/* 2. Moeda */}
               <div className="px-2 py-1.5">
                 <div className="text-[10px] font-semibold tracking-[0.18em] uppercase text-muted-foreground mb-1.5">
                   Moeda
@@ -269,15 +237,54 @@ const Navbar = () => {
                 </div>
               </div>
 
+              {/* 3. Modo escuro */}
+              <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer gap-2 px-2 py-2">
+                {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+                <span className="text-xs font-medium tracking-wider uppercase">
+                  {theme === "dark" ? "Modo claro" : "Modo escuro"}
+                </span>
+              </DropdownMenuItem>
+
               <div className="my-1.5 border-t border-border/40" />
 
-              {/* Admin discreto no rodapé */}
+              {/* 4. Portal Cliente */}
+              <DropdownMenuItem
+                onClick={() => navigate(isLoggedIn ? "/minha-conta" : "/login")}
+                className="cursor-pointer gap-2 px-2 py-2"
+              >
+                {isLoggedIn && user ? (
+                  <>
+                    <span className="w-5 h-5 rounded-full gold-gradient flex items-center justify-center text-primary-foreground text-[9px] font-bold">
+                      {user.name.charAt(0)}
+                    </span>
+                    <span className="text-xs font-medium tracking-wider uppercase">
+                      {user.name.split(" ")[0]}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <User size={15} />
+                    <span className="text-xs font-medium tracking-wider uppercase">Portal Cliente</span>
+                  </>
+                )}
+              </DropdownMenuItem>
+
+              {/* 5. Portal Admin */}
               <DropdownMenuItem
                 onClick={() => navigate("/admin/login")}
-                className="cursor-pointer gap-2 px-2 py-2 text-muted-foreground/70"
+                className="cursor-pointer gap-2 px-2 py-2"
               >
-                <Shield size={14} />
-                <span className="text-[11px] tracking-wider uppercase">Admin</span>
+                <Shield size={15} />
+                <span className="text-xs font-medium tracking-wider uppercase">Portal Admin</span>
+              </DropdownMenuItem>
+
+              {/* 6. Portal Parceiros */}
+              <DropdownMenuItem
+                onClick={() => navigate("/parceiro/login")}
+                className="cursor-pointer gap-2 px-2 py-2"
+              >
+                <Handshake size={15} />
+                <span className="text-xs font-medium tracking-wider uppercase">Portal Parceiros</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
