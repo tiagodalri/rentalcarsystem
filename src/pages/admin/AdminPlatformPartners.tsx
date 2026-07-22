@@ -66,6 +66,9 @@ export default function AdminPlatformPartners() {
   const [loadingUsers, setLoadingUsers] = useState<Record<string, boolean>>({});
   const [userForm, setUserForm] = useState(emptyUserForm);
   const [addingUser, setAddingUser] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+
 
   const load = async () => {
     setLoading(true);
