@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { isValidCnpj, onlyDigits } from "../_shared/cnpj.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -57,28 +58,6 @@ const BR_UFS = new Set([
   "PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
 ]);
 
-function onlyDigits(s: string): string {
-  return (s || "").replace(/\D+/g, "");
-}
-
-// Standard CNPJ verifier digit algorithm
-function isValidCnpj(raw: string): boolean {
-  const cnpj = onlyDigits(raw);
-  if (cnpj.length !== 14) return false;
-  if (/^(\d)\1{13}$/.test(cnpj)) return false;
-  const calc = (base: string) => {
-    const weights = base.length === 12
-      ? [5,4,3,2,9,8,7,6,5,4,3,2]
-      : [6,5,4,3,2,9,8,7,6,5,4,3,2];
-    let sum = 0;
-    for (let i = 0; i < base.length; i++) sum += parseInt(base[i], 10) * weights[i];
-    const mod = sum % 11;
-    return mod < 2 ? 0 : 11 - mod;
-  };
-  const d1 = calc(cnpj.slice(0, 12));
-  const d2 = calc(cnpj.slice(0, 12) + d1);
-  return d1 === parseInt(cnpj[12], 10) && d2 === parseInt(cnpj[13], 10);
-}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });

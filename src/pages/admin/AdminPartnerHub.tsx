@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, Suspense, lazy } from "react";
+import { useEffect, useMemo, useState, Suspense, lazy, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminPage, AdminSection, AdminKpiGrid } from "@/components/admin/layout/AdminPage";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -8,16 +8,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
 } from "@/components/ui/select";
 import {
   Handshake, Users, Car, DollarSign, TrendingUp, Loader2, Trophy,
-  Check, Undo2, Send, CheckCircle2, XCircle, Clock,
+  Check, Undo2, Send, CheckCircle2, XCircle, Clock, Inbox, ThumbsUp, ThumbsDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { fmtUSD, fmtUSDCompact } from "@/lib/partnerFormat";
 import { format } from "date-fns";
+import { formatCnpj, formatBrPhone } from "@/lib/brValidators";
 
 const AdminPlatformPartners = lazy(() => import("./AdminPlatformPartners"));
 const AdminPlatformBonusTiers = lazy(() => import("./AdminPlatformBonusTiers"));
@@ -440,8 +446,264 @@ function ProposalsTab() {
   );
 }
 
+// ============ Applications tab (public onboarding queue) ============
+type ApplicationRow = {
+  id: string;
+  agency_name: string;
+  legal_name: string | null;
+  cnpj: string | null;
+  contact_name: string;
+  contact_role: string | null;
+  contact_email: string;
+  contact_phone: string;
+  address_city: string | null;
+  address_state: string | null;
+  message: string | null;
+  status: "pending" | "approved" | "rejected";
+  review_notes: string | null;
+  reviewed_at: string | null;
+  created_partner_id: string | null;
+  created_at: string;
+};
+
+function statusBadge(status: string) {
+  if (status === "approved") return <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/30 whitespace-nowrap">Aprovada</Badge>;
+  if (status === "rejected") return <Badge className="bg-red-500/15 text-red-700 border-red-500/30 whitespace-nowrap">Rejeitada</Badge>;
+  return <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/30 whitespace-nowrap">Pendente</Badge>;
+}
+
+function ApplicationsTab({ onCountChange }: { onCountChange: (n: number) => void }) {
+  const [rows, setRows] = useState<ApplicationRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<string>("pending");
+  const [approving, setApproving] = useState<ApplicationRow | null>(null);
+  const [rejecting, setRejecting] = useState<ApplicationRow | null>(null);
+  const [rejectNotes, setRejectNotes] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPass, setUserPass] = useState("");
+  const [userName, setUserName] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase.functions.invoke("platform-list-partner-applications", {
+      body: statusFilter === "all" ? {} : { status: statusFilter },
+    });
+    if (error || !data?.ok) {
+      toast.error(error?.message || data?.error || "Erro ao carregar solicitações");
+      setRows([]);
+    } else {
+      setRows(data.rows as ApplicationRow[]);
+    }
+    setLoading(false);
+
+    // Atualiza contador global (pendentes) independente do filtro atual.
+    if (statusFilter !== "pending") {
+      const { data: p } = await supabase.functions.invoke("platform-list-partner-applications", { body: { status: "pending" } });
+      onCountChange(p?.ok ? (p.rows?.length ?? 0) : 0);
+    } else if (data?.ok) {
+      onCountChange(data.rows?.length ?? 0);
+    }
+  }, [statusFilter, onCountChange]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const openApprove = (r: ApplicationRow) => {
+    setApproving(r);
+    setUserEmail(r.contact_email);
+    setUserPass("");
+    setUserName(r.contact_name);
+  };
+
+  const submitApprove = async (withUser: boolean) => {
+    if (!approving) return;
+    if (withUser) {
+      if (!userEmail.trim() || !userPass || userPass.length < 8 || !userName.trim()) {
+        toast.error("Preencha nome, e-mail e senha (mínimo 8 caracteres) do primeiro usuário.");
+        return;
+      }
+    }
+    setBusy(true);
+    const body: Record<string, unknown> = {
+      application_id: approving.id,
+      decision: "approve",
+    };
+    if (withUser) {
+      body.user_email = userEmail.trim();
+      body.user_password = userPass;
+      body.user_full_name = userName.trim();
+    }
+    const { data, error } = await supabase.functions.invoke("platform-review-partner-application", { body });
+    setBusy(false);
+    if (error || !data?.ok) {
+      toast.error(error?.message || data?.error || "Erro ao aprovar solicitação");
+      return;
+    }
+    toast.success(withUser ? "Parceiro aprovado e login criado." : "Parceiro aprovado. Vincule o login pelo Diretório quando desejar.");
+    setApproving(null);
+    load();
+  };
+
+  const submitReject = async () => {
+    if (!rejecting) return;
+    setBusy(true);
+    const { data, error } = await supabase.functions.invoke("platform-review-partner-application", {
+      body: { application_id: rejecting.id, decision: "reject", review_notes: rejectNotes.trim() || null },
+    });
+    setBusy(false);
+    if (error || !data?.ok) {
+      toast.error(error?.message || data?.error || "Erro ao rejeitar solicitação");
+      return;
+    }
+    toast.success("Solicitação rejeitada.");
+    setRejecting(null);
+    setRejectNotes("");
+    load();
+  };
+
+  return (
+    <AdminSection>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="min-w-[200px]">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pending">Pendentes</SelectItem>
+              <SelectItem value="approved">Aprovadas</SelectItem>
+              <SelectItem value="rejected">Rejeitadas</SelectItem>
+              <SelectItem value="all">Todas</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="ml-auto text-xs text-muted-foreground">
+          {loading ? "Carregando…" : `${rows.length} solicitaç${rows.length === 1 ? "ão" : "ões"}`}
+        </div>
+      </div>
+
+      <Card>
+        <CardContent className="p-0 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40 text-[11px] uppercase tracking-wider text-muted-foreground">
+              <tr>
+                <th className="text-left px-4 py-2.5">Agência</th>
+                <th className="text-left px-4 py-2.5">Contato</th>
+                <th className="text-left px-4 py-2.5">CNPJ</th>
+                <th className="text-left px-4 py-2.5">Cidade/UF</th>
+                <th className="text-left px-4 py-2.5">Recebida</th>
+                <th className="text-center px-4 py-2.5">Status</th>
+                <th className="text-right px-4 py-2.5">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={7} className="py-10 text-center"><Loader2 className="h-5 w-5 animate-spin inline text-primary" /></td></tr>
+              ) : rows.length === 0 ? (
+                <tr><td colSpan={7} className="py-10 text-center text-muted-foreground">
+                  <Inbox className="h-6 w-6 inline mb-2 opacity-50" />
+                  <div>Nenhuma solicitação {statusFilter === "pending" ? "pendente" : ""}.</div>
+                </td></tr>
+              ) : rows.map((r) => (
+                <tr key={r.id} className="border-t border-border/40 align-top">
+                  <td className="px-4 py-2.5">
+                    <div className="font-medium">{r.agency_name}</div>
+                    {r.legal_name && <div className="text-[11px] text-muted-foreground">{r.legal_name}</div>}
+                    {r.message && <div className="text-[11px] text-muted-foreground mt-1 line-clamp-2 max-w-[280px]">{r.message}</div>}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <div>{r.contact_name}</div>
+                    <div className="text-[11px] text-muted-foreground">{r.contact_email}</div>
+                    <div className="text-[11px] text-muted-foreground tabular-nums">{formatBrPhone(r.contact_phone)}</div>
+                  </td>
+                  <td className="px-4 py-2.5 tabular-nums text-[12px]">{r.cnpj ? formatCnpj(r.cnpj) : "—"}</td>
+                  <td className="px-4 py-2.5 text-[12px]">
+                    {r.address_city || r.address_state ? `${r.address_city ?? ""}${r.address_city && r.address_state ? "/" : ""}${r.address_state ?? ""}` : "—"}
+                  </td>
+                  <td className="px-4 py-2.5 tabular-nums text-[12px]">{format(new Date(r.created_at), "dd/MM/yyyy HH:mm")}</td>
+                  <td className="px-4 py-2.5 text-center">{statusBadge(r.status)}</td>
+                  <td className="px-4 py-2.5 text-right">
+                    {r.status === "pending" ? (
+                      <div className="flex justify-end gap-2">
+                        <Button size="sm" variant="outline" onClick={() => setRejecting(r)}>
+                          <ThumbsDown className="h-3.5 w-3.5 mr-1" /> Rejeitar
+                        </Button>
+                        <Button size="sm" onClick={() => openApprove(r)}>
+                          <ThumbsUp className="h-3.5 w-3.5 mr-1" /> Aprovar
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-muted-foreground">
+                        {r.reviewed_at ? format(new Date(r.reviewed_at), "dd/MM/yyyy") : ""}
+                        {r.review_notes && <div className="italic mt-0.5 max-w-[220px] line-clamp-2">{r.review_notes}</div>}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </CardContent>
+      </Card>
+
+      {/* Approve dialog */}
+      <Dialog open={!!approving} onOpenChange={(o) => !o && setApproving(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Aprovar “{approving?.agency_name}”</DialogTitle>
+            <DialogDescription>
+              Você pode criar o primeiro usuário do parceiro agora ou aprovar sem login e vincular depois pelo Diretório.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">Nome completo</Label>
+              <Input value={userName} onChange={(e) => setUserName(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">E-mail de acesso</Label>
+              <Input type="email" value={userEmail} onChange={(e) => setUserEmail(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">Senha inicial (mínimo 8)</Label>
+              <Input type="text" value={userPass} onChange={(e) => setUserPass(e.target.value)} placeholder="ex.: mude-depois-2026" />
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => submitApprove(false)} disabled={busy}>
+              Aprovar sem login
+            </Button>
+            <Button onClick={() => submitApprove(true)} disabled={busy}>
+              {busy && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
+              Aprovar e criar login
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject dialog */}
+      <Dialog open={!!rejecting} onOpenChange={(o) => !o && (setRejecting(null), setRejectNotes(""))}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Rejeitar “{rejecting?.agency_name}”</DialogTitle>
+            <DialogDescription>Registre um motivo interno (opcional). Não é enviado ao solicitante.</DialogDescription>
+          </DialogHeader>
+          <Textarea rows={4} value={rejectNotes} onChange={(e) => setRejectNotes(e.target.value)} placeholder="Motivo da recusa…" />
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => { setRejecting(null); setRejectNotes(""); }} disabled={busy}>Cancelar</Button>
+            <Button variant="destructive" onClick={submitReject} disabled={busy}>
+              {busy && <Loader2 className="h-4 w-4 animate-spin mr-1.5" />}
+              Confirmar rejeição
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </AdminSection>
+  );
+}
+
 // ============ Main page ============
 export default function AdminPartnerHub() {
+  const [pendingCount, setPendingCount] = useState<number | null>(null);
+
   return (
     <AdminPage>
       <AdminPageHeader
@@ -450,8 +712,16 @@ export default function AdminPartnerHub() {
         subtitle="Gestão completa da rede de agências parceiras GoDalz."
       />
 
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto">
+      <Tabs defaultValue={pendingCount && pendingCount > 0 ? "applications" : "overview"} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 h-auto">
+          <TabsTrigger value="applications" className="gap-1.5">
+            Solicitações
+            {pendingCount !== null && pendingCount > 0 && (
+              <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold bg-amber-500 text-white tabular-nums">
+                {pendingCount}
+              </span>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="overview">Visão geral</TabsTrigger>
           <TabsTrigger value="directory">Diretório</TabsTrigger>
           <TabsTrigger value="payouts">Repasses</TabsTrigger>
@@ -459,6 +729,9 @@ export default function AdminPartnerHub() {
           <TabsTrigger value="missions">Missões</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="applications" className="mt-4">
+          <ApplicationsTab onCountChange={setPendingCount} />
+        </TabsContent>
         <TabsContent value="overview" className="mt-4"><OverviewTab /></TabsContent>
         <TabsContent value="directory" className="mt-4">
           <Suspense fallback={<div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>}>

@@ -109,6 +109,7 @@ const AdminPlatformBonusTiers = lazy(() => import("./pages/admin/AdminPlatformBo
 const AdminCommissions = lazy(() => import("./pages/admin/AdminCommissions.tsx"));
 const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect.tsx"));
 const ParceiroLogin = lazy(() => import("./pages/ParceiroLogin.tsx"));
+const ParceiroCadastro = lazy(() => import("./pages/ParceiroCadastro.tsx"));
 const ParceiroDashboard = lazy(() => import("./pages/ParceiroDashboard.tsx"));
 const ParceiroBuscar = lazy(() => import("./pages/ParceiroBuscar.tsx"));
 const ParceiroReserva = lazy(() => import("./pages/ParceiroReserva.tsx"));
@@ -292,6 +293,7 @@ const App = () => (
 
               {/* Partner portal */}
               <Route path="/parceiro/login" element={<PublicSuspense><ParceiroLogin /></PublicSuspense>} />
+              <Route path="/parceiro/cadastro" element={<PublicSuspense><ParceiroCadastro /></PublicSuspense>} />
               <Route path="/parceiro" element={<PublicSuspense><ParceiroDashboard /></PublicSuspense>} />
               <Route path="/parceiro/buscar" element={<PublicSuspense><ParceiroBuscar /></PublicSuspense>} />
               <Route path="/parceiro/reserva" element={<PublicSuspense><ParceiroReserva /></PublicSuspense>} />

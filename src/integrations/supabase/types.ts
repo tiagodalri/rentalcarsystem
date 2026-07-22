@@ -1392,6 +1392,99 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_applications: {
+        Row: {
+          address_city: string | null
+          address_complement: string | null
+          address_neighborhood: string | null
+          address_number: string | null
+          address_state: string | null
+          address_street: string | null
+          address_zip: string | null
+          agency_name: string
+          cnpj: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          contact_role: string | null
+          created_at: string
+          created_partner_id: string | null
+          id: string
+          legal_name: string | null
+          message: string | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          state_registration: string | null
+          status: string
+        }
+        Insert: {
+          address_city?: string | null
+          address_complement?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          agency_name: string
+          cnpj?: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          contact_role?: string | null
+          created_at?: string
+          created_partner_id?: string | null
+          id?: string
+          legal_name?: string | null
+          message?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state_registration?: string | null
+          status?: string
+        }
+        Update: {
+          address_city?: string | null
+          address_complement?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
+          agency_name?: string
+          cnpj?: string | null
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string
+          contact_role?: string | null
+          created_at?: string
+          created_partner_id?: string | null
+          id?: string
+          legal_name?: string | null
+          message?: string | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          state_registration?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_applications_created_partner_id_fkey"
+            columns: ["created_partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_applications_created_partner_id_fkey"
+            columns: ["created_partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_bonus_awards: {
         Row: {
           created_at: string
