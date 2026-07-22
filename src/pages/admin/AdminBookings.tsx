@@ -612,9 +612,10 @@ function AdminBookingsDesktop() {
 
   const load = async () => {
     setLoading(true);
-    const [bRes, vRes] = await Promise.all([
-      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, deposit_amount, deposit_refund_days, franchise_amount, vehicle_id, plan_id, addons, notes, created_at, customer_id").is("deleted_at", null).order("created_at", { ascending: false }).limit(1000),
+    const [bRes, vRes, pRes] = await Promise.all([
+      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, deposit_amount, deposit_refund_days, franchise_amount, vehicle_id, plan_id, addons, notes, created_at, customer_id, partner_id").is("deleted_at", null).order("created_at", { ascending: false }).limit(1000),
       supabase.from("vehicles").select("id, name, image_url, photos").is("deleted_at", null),
+      supabase.from("partners_public").select("id, agency_name"),
     ]);
     const vehicleMap: Record<string, { name: string; image: string }> = {};
     (vRes.data || []).forEach((v: any) => {
@@ -624,10 +625,13 @@ function AdminBookingsDesktop() {
       const image = firstPhoto || coverImageMap[v.name] || externalImg || "";
       vehicleMap[v.id] = { name: v.name, image };
     });
+    const partnerMap: Record<string, string> = {};
+    (pRes.data || []).forEach((p: any) => { partnerMap[p.id] = p.agency_name; });
     setBookings((bRes.data || []).map((b: any) => ({
       ...b,
       vehicle_name: b.vehicle_id ? vehicleMap[b.vehicle_id]?.name || "" : "",
       vehicle_image: b.vehicle_id ? vehicleMap[b.vehicle_id]?.image || "" : "",
+      partner_name: b.partner_id ? partnerMap[b.partner_id] || null : null,
     })));
     setLoading(false);
   };
