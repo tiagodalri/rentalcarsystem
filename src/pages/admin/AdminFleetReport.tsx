@@ -113,6 +113,8 @@ export default function AdminFleetReport({
   const monthStart = periodStart;
   const monthEnd = periodEnd;
   const daysInMonth = Math.max(1, differenceInDays(monthEnd, monthStart) + 1);
+  const periodStartMs = monthStart.getTime();
+  const periodEndMs = monthEnd.getTime() + 24 * 60 * 60 * 1000;
 
   useEffect(() => {
     loadData();
