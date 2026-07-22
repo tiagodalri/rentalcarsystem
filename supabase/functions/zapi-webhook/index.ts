@@ -194,6 +194,47 @@ serve(async (req) => {
           PLAYED: "read",
         };
         const mapped = map[rawStatus];
+
+        // Real status (Stories) view tracking: Z-API delivers READ events on
+        // status@broadcast. Match against whatsapp_statuses first — if the
+        // external_message_id belongs to a Status we posted, record a view
+        // (deduped by unique(status_id, viewer_phone)) and skip the messages
+        // update entirely.
+        if (mapped === "read" && externalMessageId) {
+          const chatId = pickString(payload, "chatId") || "";
+          const isBroadcast =
+            chatId.includes("status@broadcast") || chatId.endsWith("@broadcast");
+
+          const { data: statusRow } = await supabase
+            .from("whatsapp_statuses")
+            .select("id")
+            .or(`external_status_id.eq.${externalMessageId},external_zaap_id.eq.${externalMessageId}`)
+            .maybeSingle();
+
+          if (statusRow?.id) {
+            const viewerPhone = phone || null;
+            const viewerName = pickString(payload, "senderName", "chatName") || null;
+            await supabase
+              .from("whatsapp_status_views")
+              .upsert(
+                {
+                  status_id: (statusRow as { id: string }).id,
+                  viewer_phone: viewerPhone,
+                  viewer_name: viewerName,
+                  viewed_at: new Date().toISOString(),
+                },
+                { onConflict: "status_id,viewer_phone", ignoreDuplicates: true },
+              );
+            await markProcessed();
+            return json({ ok: true, type: "status_view" });
+          }
+          // Broadcast READ that doesn't match a known status — safe to ignore
+          if (isBroadcast) {
+            await markProcessed();
+            return json({ ok: true, type: "status_view_unknown" });
+          }
+        }
+
         if (mapped && externalMessageId) {
           await supabase
             .from("whatsapp_messages")
