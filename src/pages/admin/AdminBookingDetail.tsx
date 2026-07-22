@@ -153,6 +153,7 @@ export default function AdminBookingDetail() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [inspections, setInspections] = useState<Inspection[]>([]);
+  const [partnerName, setPartnerName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState<{ items: { url: string; label?: string }[]; index: number } | null>(null);
   const [editOpen, setEditOpen] = useState(false);
