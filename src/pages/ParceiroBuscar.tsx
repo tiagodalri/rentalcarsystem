@@ -51,6 +51,8 @@ export default function ParceiroBuscar() {
   const [returnDate, setReturnDate] = useState<Date>();
   const [category, setCategory] = useState<string>("");
   const [openPicker, setOpenPicker] = useState<null | "pickup" | "return">(null);
+  const [sortMode, setSortMode] = useState<"price_asc" | "price_desc" | "commission_amount" | "commission_pct">("price_asc");
+  const [proposalFor, setProposalFor] = useState<SearchResult | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResult[] | null>(null);
