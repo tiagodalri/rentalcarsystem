@@ -149,20 +149,8 @@ export default function ParceiroReserva() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border/40 px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0">
-          <BrandLogo className="h-7 shrink-0" />
-          <span className="hidden sm:inline text-xs uppercase tracking-[0.22em] text-muted-foreground items-center gap-1.5">
-            <Handshake size={13} className="text-primary inline mr-1" /> Parceiro
-          </span>
-        </div>
-        <button
-          onClick={signOut}
-          className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground"
-        >
-          <LogOut size={14} /> Sair
-        </button>
-      </header>
+      <PartnerHeader />
+
 
       <main className="max-w-4xl mx-auto p-4 sm:p-8 space-y-6">
         <button
