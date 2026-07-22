@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Handshake, ChevronDown, ChevronRight, UserPlus, User } from "lucide-react";
+import { Loader2, Plus, Handshake, ChevronDown, ChevronRight, UserPlus, User, Eye, EyeOff, Building2, Landmark } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { formatCnpj, formatCpfCnpj, maskTail } from "@/lib/brValidators";
 
 interface Partner {
   id: string;
@@ -17,6 +18,18 @@ interface Partner {
   contact_phone: string | null;
   status: string;
   created_at: string;
+  legal_name: string | null;
+  cnpj: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  bank_name: string | null;
+  bank_agency: string | null;
+  bank_account: string | null;
+  bank_account_type: string | null;
+  bank_account_holder_name: string | null;
+  bank_account_holder_document: string | null;
+  pix_key_type: string | null;
+  pix_key: string | null;
 }
 
 interface PartnerUser {
@@ -57,7 +70,7 @@ export default function AdminPlatformPartners() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase as any)
       .from("partners")
-      .select("id, agency_name, contact_name, contact_email, contact_phone, status, created_at")
+      .select("*")
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     else setItems((data ?? []) as Partner[]);
@@ -269,7 +282,9 @@ export default function AdminPlatformPartners() {
                     </button>
 
                     {isOpen && (
-                      <div className="ml-9 mb-4 pl-4 border-l border-border/40 space-y-4">
+                      <div className="ml-9 mb-4 pl-4 border-l border-border/40 space-y-5">
+                        <RegistrationBlock partner={p} />
+                        <BankBlock partner={p} />
                         <div>
                           <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold mb-2">
                             Usuários vinculados
@@ -325,6 +340,84 @@ export default function AdminPlatformPartners() {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function InfoRow({ label, value, mono }: { label: string; value: string | null | undefined; mono?: boolean }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-[10px] uppercase tracking-wider text-muted-foreground/80">{label}</span>
+      <span className={`text-sm ${mono ? "tabular-nums font-mono" : ""} ${value ? "" : "text-muted-foreground/60"}`}>
+        {value || "—"}
+      </span>
+    </div>
+  );
+}
+
+function RegistrationBlock({ partner }: { partner: Partner }) {
+  const addr = [partner.address_city, partner.address_state].filter(Boolean).join(" / ");
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold mb-3 flex items-center gap-1.5">
+        <Building2 className="h-3 w-3" /> Dados cadastrais
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-lg border border-border/40 bg-muted/10 p-3">
+        <InfoRow label="Razão social" value={partner.legal_name} />
+        <InfoRow label="CNPJ" value={partner.cnpj ? formatCnpj(partner.cnpj) : null} mono />
+        <InfoRow label="Cidade / UF" value={addr || null} />
+      </div>
+    </div>
+  );
+}
+
+function BankBlock({ partner }: { partner: Partner }) {
+  const [reveal, setReveal] = useState(false);
+  const has = Boolean(
+    partner.bank_name || partner.bank_agency || partner.bank_account ||
+    partner.pix_key || partner.bank_account_holder_name
+  );
+  if (!has) {
+    return (
+      <div>
+        <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
+          <Landmark className="h-3 w-3" /> Dados bancários
+        </p>
+        <p className="text-xs text-muted-foreground italic">Parceiro ainda não preencheu dados bancários.</p>
+      </div>
+    );
+  }
+  const account = reveal ? (partner.bank_account || "—") : maskTail(partner.bank_account);
+  const agency = reveal ? (partner.bank_agency || "—") : maskTail(partner.bank_agency, 3);
+  const pix = reveal ? (partner.pix_key || "—") : maskTail(partner.pix_key, 4);
+  const doc = reveal && partner.bank_account_holder_document
+    ? formatCpfCnpj(partner.bank_account_holder_document)
+    : maskTail(partner.bank_account_holder_document, 3);
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold flex items-center gap-1.5">
+          <Landmark className="h-3 w-3" /> Dados bancários
+        </p>
+        <button
+          type="button"
+          onClick={() => setReveal((s) => !s)}
+          className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-muted/40 transition-colors"
+        >
+          {reveal ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+          {reveal ? "Ocultar" : "Revelar"}
+        </button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-lg border border-border/40 bg-muted/10 p-3">
+        <InfoRow label="Banco" value={partner.bank_name} />
+        <InfoRow label="Agência" value={agency} mono />
+        <InfoRow label="Conta" value={account} mono />
+        <InfoRow label="Tipo" value={partner.bank_account_type === "poupanca" ? "Poupança" : partner.bank_account_type === "corrente" ? "Corrente" : null} />
+        <InfoRow label="Titular" value={partner.bank_account_holder_name} />
+        <InfoRow label="CPF/CNPJ titular" value={doc} mono />
+        <InfoRow label="Tipo chave PIX" value={partner.pix_key_type ? partner.pix_key_type.toUpperCase() : null} />
+        <InfoRow label="Chave PIX" value={pix} mono />
+      </div>
     </div>
   );
 }

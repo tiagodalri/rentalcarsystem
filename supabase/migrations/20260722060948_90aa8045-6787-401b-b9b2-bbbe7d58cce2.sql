@@ -1,0 +1,21 @@
+
+ALTER TABLE public.partners
+  ADD COLUMN IF NOT EXISTS legal_name text,
+  ADD COLUMN IF NOT EXISTS cnpj text,
+  ADD COLUMN IF NOT EXISTS state_registration text,
+  ADD COLUMN IF NOT EXISTS contact_role text,
+  ADD COLUMN IF NOT EXISTS address_zip text,
+  ADD COLUMN IF NOT EXISTS address_street text,
+  ADD COLUMN IF NOT EXISTS address_number text,
+  ADD COLUMN IF NOT EXISTS address_complement text,
+  ADD COLUMN IF NOT EXISTS address_neighborhood text,
+  ADD COLUMN IF NOT EXISTS address_city text,
+  ADD COLUMN IF NOT EXISTS address_state text,
+  ADD COLUMN IF NOT EXISTS bank_name text,
+  ADD COLUMN IF NOT EXISTS bank_agency text,
+  ADD COLUMN IF NOT EXISTS bank_account text,
+  ADD COLUMN IF NOT EXISTS bank_account_type text,
+  ADD COLUMN IF NOT EXISTS bank_account_holder_name text,
+  ADD COLUMN IF NOT EXISTS bank_account_holder_document text,
+  ADD COLUMN IF NOT EXISTS pix_key_type text,
+  ADD COLUMN IF NOT EXISTS pix_key text;
