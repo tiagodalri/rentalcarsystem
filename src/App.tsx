@@ -321,6 +321,7 @@ const App = () => (
                 <Route path="whatsapp/agendadas" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppScheduled /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp/pipeline" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppPipeline /></AdminSuspense></RequireRole>} />
                 <Route path="whatsapp/links" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppLinks /></AdminSuspense></RequireRole>} />
+                <Route path="whatsapp/status" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppStatus /></AdminSuspense></RequireRole>} />
               </Route>
 
 
