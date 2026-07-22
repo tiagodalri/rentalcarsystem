@@ -19,6 +19,9 @@ export default function AdminSettings() {
     ...(hasAny(["platform_admin"])
       ? [{ title: "Locadoras", url: "/admin/platform/locadoras", icon: Building2, desc: "Gerencie locadoras parceiras da plataforma" }]
       : []),
+    ...(hasAny(["admin","operations","finance","platform_admin"])
+      ? [{ title: "Comissões", url: "/admin/commissions", icon: Percent, desc: "Regras de comissão por escopo e vigência" }]
+      : []),
     ...(hasAny(["admin","operations","finance"])
       ? [{ title: "Pendências", url: "/admin/pendencias", icon: FileWarning, desc: "Informações faltantes no cadastro da frota" }]
       : []),
