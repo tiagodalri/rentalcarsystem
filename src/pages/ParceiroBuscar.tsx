@@ -292,9 +292,25 @@ export default function ParceiroBuscar() {
                 {" · "}
                 <span className="tabular-nums">{days}</span> {days === 1 ? "diária" : "diárias"}
               </p>
-              <p className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-400 font-semibold">
-                <Sparkles size={11} /> Comissão calculada em cada card
-              </p>
+              <div className="flex items-center gap-3 flex-wrap">
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-border/60 bg-card hover:border-primary/40 transition-colors cursor-pointer">
+                  <ArrowUpDown size={13} className="text-primary" />
+                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">Ordenar</span>
+                  <select
+                    value={sortMode}
+                    onChange={(e) => setSortMode(e.target.value as typeof sortMode)}
+                    className="bg-transparent text-sm text-foreground outline-none cursor-pointer font-medium"
+                  >
+                    <option value="price_asc">Menor preço</option>
+                    <option value="price_desc">Maior preço</option>
+                    <option value="commission_amount">Maior comissão (US$)</option>
+                    <option value="commission_pct">Maior comissão (%)</option>
+                  </select>
+                </label>
+                <p className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <Sparkles size={11} /> Comissão calculada em cada card
+                </p>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
