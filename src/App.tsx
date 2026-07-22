@@ -293,6 +293,7 @@ const App = () => (
 
               {/* Partner portal */}
               <Route path="/parceiro/login" element={<PublicSuspense><ParceiroLogin /></PublicSuspense>} />
+              <Route path="/parceiro/cadastro" element={<PublicSuspense><ParceiroCadastro /></PublicSuspense>} />
               <Route path="/parceiro" element={<PublicSuspense><ParceiroDashboard /></PublicSuspense>} />
               <Route path="/parceiro/buscar" element={<PublicSuspense><ParceiroBuscar /></PublicSuspense>} />
               <Route path="/parceiro/reserva" element={<PublicSuspense><ParceiroReserva /></PublicSuspense>} />
