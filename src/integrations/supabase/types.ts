@@ -3406,6 +3406,8 @@ export type Database = {
         | "operations"
         | "support"
         | "driver"
+        | "platform_admin"
+        | "partner"
       epass_toll_status: "matched" | "no_vehicle" | "no_booking" | "ignored"
       expense_type:
         | "maintenance"
@@ -3552,7 +3554,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "finance", "operations", "support", "driver"],
+      app_role: [
+        "admin",
+        "user",
+        "finance",
+        "operations",
+        "support",
+        "driver",
+        "platform_admin",
+        "partner",
+      ],
       epass_toll_status: ["matched", "no_vehicle", "no_booking", "ignored"],
       expense_type: [
         "maintenance",
