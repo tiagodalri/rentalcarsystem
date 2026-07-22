@@ -787,6 +787,10 @@ serve(async (req) => {
         case "send-sticker":  res = await handleSendSticker(cfg, svc, payload, senderName); break;
         case "send-location": res = await handleSendLocation(cfg, svc, payload, senderName); break;
         case "send-contact":  res = await handleSendContact(cfg, svc, payload, senderName); break;
+        case "send-text-status":  res = await handleSendTextStatus(cfg, svc, payload, authCheck.userId, senderName); break;
+        case "send-image-status": res = await handleSendImageStatus(cfg, svc, payload, authCheck.userId, senderName); break;
+        case "send-video-status": res = await handleSendVideoStatus(cfg, svc, payload, authCheck.userId, senderName); break;
+        case "reply-status-text": res = await handleReplyStatusText(cfg, svc, payload, senderName); break;
         default:              res = { ok: false, status: 400, data: { error: "unknown_send_action" } };
       }
       if (res.reason === "device_offline") {
