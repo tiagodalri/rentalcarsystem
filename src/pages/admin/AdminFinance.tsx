@@ -5,6 +5,7 @@ import { OverviewTab } from "@/components/admin/finance/OverviewTab";
 import { TransactionsTab } from "@/components/admin/finance/TransactionsTab";
 import { CategoriesTab } from "@/components/admin/finance/CategoriesTab";
 import { AccountsTab } from "@/components/admin/finance/AccountsTab";
+import { PartnerPayoutsTab } from "@/components/admin/finance/PartnerPayoutsTab";
 import { useIsMobileApp } from "@/hooks/useIsMobileApp";
 import MobileFinance from "./mobile/MobileFinance";
 
@@ -35,13 +36,16 @@ export default function AdminFinance() {
           <TabsTrigger value="transactions">Lançamentos</TabsTrigger>
           <TabsTrigger value="categories">Categorias</TabsTrigger>
           <TabsTrigger value="accounts">Contas</TabsTrigger>
+          <TabsTrigger value="partner-payouts">Repasses a parceiros</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview"><OverviewTab /></TabsContent>
         <TabsContent value="transactions"><TransactionsTab /></TabsContent>
         <TabsContent value="categories"><CategoriesTab /></TabsContent>
         <TabsContent value="accounts"><AccountsTab /></TabsContent>
+        <TabsContent value="partner-payouts"><PartnerPayoutsTab /></TabsContent>
       </Tabs>
     </div>
   );
 }
+

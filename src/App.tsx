@@ -111,6 +111,7 @@ const ParceiroLogin = lazy(() => import("./pages/ParceiroLogin.tsx"));
 const ParceiroDashboard = lazy(() => import("./pages/ParceiroDashboard.tsx"));
 const ParceiroBuscar = lazy(() => import("./pages/ParceiroBuscar.tsx"));
 const ParceiroReserva = lazy(() => import("./pages/ParceiroReserva.tsx"));
+const ParceiroComissoes = lazy(() => import("./pages/ParceiroComissoes.tsx"));
 
 
 
@@ -290,6 +291,7 @@ const App = () => (
               <Route path="/parceiro" element={<PublicSuspense><ParceiroDashboard /></PublicSuspense>} />
               <Route path="/parceiro/buscar" element={<PublicSuspense><ParceiroBuscar /></PublicSuspense>} />
               <Route path="/parceiro/reserva" element={<PublicSuspense><ParceiroReserva /></PublicSuspense>} />
+              <Route path="/parceiro/comissoes" element={<PublicSuspense><ParceiroComissoes /></PublicSuspense>} />
 
 
 

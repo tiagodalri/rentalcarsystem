@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, LogOut, Handshake, Search, ArrowRight } from "lucide-react";
+import { Loader2, LogOut, Handshake, Search, ArrowRight, Wallet } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 import { Button } from "@/components/ui/button";
 
@@ -65,13 +65,13 @@ export default function ParceiroDashboard() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border/40 bg-card p-8">
-          <div className="flex flex-col items-center text-center gap-4">
-            <Search className="h-10 w-10 text-primary" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-border/40 bg-card p-6 flex flex-col items-center text-center gap-3">
+            <Search className="h-9 w-9 text-primary" />
             <div>
-              <h2 className="text-lg font-semibold">Buscar frota disponível</h2>
-              <p className="text-sm text-muted-foreground max-w-md mx-auto mt-1">
-                Consulte a disponibilidade em tempo real em todas as locadoras da rede, com comissão calculada por veículo.
+              <h2 className="text-base font-semibold">Buscar frota disponível</h2>
+              <p className="text-xs text-muted-foreground max-w-xs mx-auto mt-1">
+                Disponibilidade em tempo real em todas as locadoras da rede.
               </p>
             </div>
             <Button
@@ -80,9 +80,23 @@ export default function ParceiroDashboard() {
             >
               Buscar frota <ArrowRight size={16} />
             </Button>
-            <p className="text-[11px] text-muted-foreground mt-2">
-              Reservas indicadas e comissões aparecem aqui nas próximas fases.
-            </p>
+          </div>
+
+          <div className="rounded-2xl border border-emerald-500/40 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent p-6 flex flex-col items-center text-center gap-3">
+            <Wallet className="h-9 w-9 text-emerald-500" />
+            <div>
+              <h2 className="text-base font-semibold">Minhas comissões</h2>
+              <p className="text-xs text-muted-foreground max-w-xs mx-auto mt-1">
+                Extrato completo com valores pendentes e já repassados.
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate("/parceiro/comissoes")}
+              variant="outline"
+              className="border-emerald-500/50 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 font-bold uppercase tracking-wider gap-2"
+            >
+              Ver extrato <ArrowRight size={16} />
+            </Button>
           </div>
         </div>
 
