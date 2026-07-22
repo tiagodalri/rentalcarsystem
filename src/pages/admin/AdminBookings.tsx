@@ -1487,7 +1487,14 @@ function AdminBookingsDesktop() {
                           <td className="px-5 py-3.5 whitespace-nowrap min-w-[200px]">
                             <div className="flex items-center gap-2.5">
                               <PersonAvatar name={b.customer_name} size="sm" />
-                              <p className="text-foreground font-medium text-[13px] truncate max-w-[220px]">{formatName(b.customer_name)}</p>
+                              <div className="min-w-0">
+                                <p className="text-foreground font-medium text-[13px] truncate max-w-[220px]">{formatName(b.customer_name)}</p>
+                                {b.partner_name && (
+                                  <p className="text-[10px] text-primary/80 uppercase tracking-wider truncate max-w-[220px]" title={`Via parceiro: ${b.partner_name}`}>
+                                    Via parceiro · {b.partner_name}
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">
