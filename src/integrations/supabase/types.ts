@@ -1597,38 +1597,95 @@ export type Database = {
       }
       partners: {
         Row: {
+          address_city: string | null
+          address_complement: string | null
+          address_neighborhood: string | null
+          address_number: string | null
+          address_state: string | null
+          address_street: string | null
+          address_zip: string | null
           agency_name: string
+          bank_account: string | null
+          bank_account_holder_document: string | null
+          bank_account_holder_name: string | null
+          bank_account_type: string | null
+          bank_agency: string | null
+          bank_name: string | null
+          cnpj: string | null
           contact_email: string | null
           contact_name: string | null
           contact_phone: string | null
+          contact_role: string | null
           created_at: string
           created_by: string | null
           id: string
+          legal_name: string | null
           notes: string | null
+          pix_key: string | null
+          pix_key_type: string | null
+          state_registration: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          address_city?: string | null
+          address_complement?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
           agency_name: string
+          bank_account?: string | null
+          bank_account_holder_document?: string | null
+          bank_account_holder_name?: string | null
+          bank_account_type?: string | null
+          bank_agency?: string | null
+          bank_name?: string | null
+          cnpj?: string | null
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          contact_role?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
+          legal_name?: string | null
           notes?: string | null
+          pix_key?: string | null
+          pix_key_type?: string | null
+          state_registration?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          address_city?: string | null
+          address_complement?: string | null
+          address_neighborhood?: string | null
+          address_number?: string | null
+          address_state?: string | null
+          address_street?: string | null
+          address_zip?: string | null
           agency_name?: string
+          bank_account?: string | null
+          bank_account_holder_document?: string | null
+          bank_account_holder_name?: string | null
+          bank_account_type?: string | null
+          bank_agency?: string | null
+          bank_name?: string | null
+          cnpj?: string | null
           contact_email?: string | null
           contact_name?: string | null
           contact_phone?: string | null
+          contact_role?: string | null
           created_at?: string
           created_by?: string | null
           id?: string
+          legal_name?: string | null
           notes?: string | null
+          pix_key?: string | null
+          pix_key_type?: string | null
+          state_registration?: string | null
           status?: string
           updated_at?: string
         }
