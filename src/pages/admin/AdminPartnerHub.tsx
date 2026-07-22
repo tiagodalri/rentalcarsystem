@@ -439,7 +439,7 @@ function ProposalsTab() {
                     <div className="text-[11px] text-muted-foreground">{r.customer_email ?? ""}</div>
                   </td>
                   <td className="px-4 py-2.5">{r.vehicles?.name ?? "—"}</td>
-                  <td className="px-4 py-2.5 text-right tabular-nums whitespace-nowrap">{fmtUSD(Number(r.locked_price_usd ?? 0))}</td>
+                  <td className="px-4 py-2.5 text-right tabular-nums whitespace-nowrap">{fmtUSD(Number(r.total_price ?? 0))}</td>
                   <td className="px-4 py-2.5 text-center">{proposalBadge(r.status)}</td>
                   <td className="px-4 py-2.5 tabular-nums">{format(new Date(r.created_at), "dd/MM/yyyy")}</td>
                   <td className="px-4 py-2.5 tabular-nums">{r.expires_at ? format(new Date(r.expires_at), "dd/MM/yyyy") : "—"}</td>
