@@ -278,6 +278,15 @@ export default function AdminPlatformPartners() {
                           {p.contact_name || p.contact_email || p.contact_phone || "—"}
                         </p>
                       </div>
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => { e.stopPropagation(); setDetailId(p.id); setDetailOpen(true); }}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setDetailId(p.id); setDetailOpen(true); } }}
+                        className="inline-flex items-center gap-1 text-[11px] uppercase tracking-wider text-primary hover:underline shrink-0 cursor-pointer px-2 py-1 rounded-md hover:bg-primary/10"
+                      >
+                        <ExternalLink className="h-3 w-3" /> Detalhes
+                      </span>
                       <div className="text-right shrink-0">
                         <p className="text-xs uppercase tracking-wider text-muted-foreground">{p.status}</p>
                         <p className="text-[11px] text-muted-foreground/70 tabular-nums">
@@ -285,6 +294,7 @@ export default function AdminPlatformPartners() {
                         </p>
                       </div>
                     </button>
+
 
                     {isOpen && (
                       <div className="ml-9 mb-4 pl-4 border-l border-border/40 space-y-5">
