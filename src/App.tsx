@@ -105,6 +105,8 @@ const AdminWhatsAppLinks = lazy(() => import("./pages/admin/AdminWhatsAppLinks.t
 const AdminWhatsAppStatus = lazy(() => import("./pages/admin/AdminWhatsAppStatus.tsx"));
 const AdminPlatformLocadoras = lazy(() => import("./pages/admin/AdminPlatformLocadoras.tsx"));
 const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect.tsx"));
+const ParceiroLogin = lazy(() => import("./pages/ParceiroLogin.tsx"));
+const ParceiroDashboard = lazy(() => import("./pages/ParceiroDashboard.tsx"));
 
 
 const queryClient = new QueryClient({
@@ -277,6 +279,10 @@ const App = () => (
               <Route path="/minha-conta" element={<RequireAuth><ClientSuspense><MyAccount /></ClientSuspense></RequireAuth>} />
               <Route path="/minha-conta/reserva/:bookingId" element={<RequireAuth><ClientSuspense><BookingDetailClient /></ClientSuspense></RequireAuth>} />
               <Route path="/completar-perfil" element={<RequireAuth><ClientSuspense><CompleteProfile /></ClientSuspense></RequireAuth>} />
+
+              {/* Partner portal */}
+              <Route path="/parceiro/login" element={<PublicSuspense><ParceiroLogin /></PublicSuspense>} />
+              <Route path="/parceiro" element={<PublicSuspense><ParceiroDashboard /></PublicSuspense>} />
 
               {/* Admin routes */}
               <Route path="/admin/login" element={<PublicSuspense><AdminLogin /></PublicSuspense>} />
