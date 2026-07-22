@@ -110,6 +110,7 @@ const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect
 const ParceiroLogin = lazy(() => import("./pages/ParceiroLogin.tsx"));
 const ParceiroDashboard = lazy(() => import("./pages/ParceiroDashboard.tsx"));
 const ParceiroBuscar = lazy(() => import("./pages/ParceiroBuscar.tsx"));
+const ParceiroReserva = lazy(() => import("./pages/ParceiroReserva.tsx"));
 
 
 
@@ -288,6 +289,7 @@ const App = () => (
               <Route path="/parceiro/login" element={<PublicSuspense><ParceiroLogin /></PublicSuspense>} />
               <Route path="/parceiro" element={<PublicSuspense><ParceiroDashboard /></PublicSuspense>} />
               <Route path="/parceiro/buscar" element={<PublicSuspense><ParceiroBuscar /></PublicSuspense>} />
+              <Route path="/parceiro/reserva" element={<PublicSuspense><ParceiroReserva /></PublicSuspense>} />
 
 
 

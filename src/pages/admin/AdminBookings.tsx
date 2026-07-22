@@ -51,6 +51,8 @@ type Booking = {
   booking_number?: string | null;
   vehicle_name?: string;
   vehicle_image?: string;
+  partner_id?: string | null;
+  partner_name?: string | null;
 };
 
 
@@ -610,9 +612,10 @@ function AdminBookingsDesktop() {
 
   const load = async () => {
     setLoading(true);
-    const [bRes, vRes] = await Promise.all([
-      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, deposit_amount, deposit_refund_days, franchise_amount, vehicle_id, plan_id, addons, notes, created_at, customer_id").is("deleted_at", null).order("created_at", { ascending: false }).limit(1000),
+    const [bRes, vRes, pRes] = await Promise.all([
+      supabase.from("bookings").select("id, booking_number, customer_name, customer_email, customer_phone, status, pickup_date, return_date, pickup_time, return_time, pickup_location, return_location, total_price, deposit_amount, deposit_refund_days, franchise_amount, vehicle_id, plan_id, addons, notes, created_at, customer_id, partner_id").is("deleted_at", null).order("created_at", { ascending: false }).limit(1000),
       supabase.from("vehicles").select("id, name, image_url, photos").is("deleted_at", null),
+      supabase.from("partners_public").select("id, agency_name"),
     ]);
     const vehicleMap: Record<string, { name: string; image: string }> = {};
     (vRes.data || []).forEach((v: any) => {
@@ -622,10 +625,13 @@ function AdminBookingsDesktop() {
       const image = firstPhoto || coverImageMap[v.name] || externalImg || "";
       vehicleMap[v.id] = { name: v.name, image };
     });
+    const partnerMap: Record<string, string> = {};
+    (pRes.data || []).forEach((p: any) => { partnerMap[p.id] = p.agency_name; });
     setBookings((bRes.data || []).map((b: any) => ({
       ...b,
       vehicle_name: b.vehicle_id ? vehicleMap[b.vehicle_id]?.name || "" : "",
       vehicle_image: b.vehicle_id ? vehicleMap[b.vehicle_id]?.image || "" : "",
+      partner_name: b.partner_id ? partnerMap[b.partner_id] || null : null,
     })));
     setLoading(false);
   };
@@ -1481,7 +1487,14 @@ function AdminBookingsDesktop() {
                           <td className="px-5 py-3.5 whitespace-nowrap min-w-[200px]">
                             <div className="flex items-center gap-2.5">
                               <PersonAvatar name={b.customer_name} size="sm" />
-                              <p className="text-foreground font-medium text-[13px] truncate max-w-[220px]">{formatName(b.customer_name)}</p>
+                              <div className="min-w-0">
+                                <p className="text-foreground font-medium text-[13px] truncate max-w-[220px]">{formatName(b.customer_name)}</p>
+                                {b.partner_name && (
+                                  <p className="text-[10px] text-primary/80 uppercase tracking-wider truncate max-w-[220px]" title={`Via parceiro: ${b.partner_name}`}>
+                                    Via parceiro · {b.partner_name}
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td className="px-3 py-3.5 text-muted-foreground tabular-nums text-xs whitespace-nowrap border-l-2 border-border/60 pl-5">

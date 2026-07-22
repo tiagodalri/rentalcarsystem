@@ -153,6 +153,7 @@ export default function AdminBookingDetail() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [vehicle, setVehicle] = useState<Vehicle | null>(null);
   const [inspections, setInspections] = useState<Inspection[]>([]);
+  const [partnerName, setPartnerName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState<{ items: { url: string; label?: string }[]; index: number } | null>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -230,6 +231,16 @@ export default function AdminBookingDetail() {
       setCustomer(c ?? null);
       setVehicle(v ?? null);
       setInspections(insp ?? []);
+      if (bookingRow.partner_id) {
+        const { data: p } = await supabase
+          .from("partners_public")
+          .select("agency_name")
+          .eq("id", bookingRow.partner_id)
+          .maybeSingle();
+        setPartnerName((p as any)?.agency_name ?? null);
+      } else {
+        setPartnerName(null);
+      }
       setLoading(false);
       // Pre-warm signed URLs for all inspection photos in one batched call.
       try {
@@ -518,6 +529,11 @@ export default function AdminBookingDetail() {
                 </a>
               )}
               <Badge className={`${sc.color} border text-[10px] px-3 py-1 font-semibold whitespace-nowrap`}>{sc.label}</Badge>
+              {partnerName && (
+                <Badge variant="outline" className="text-[10px] px-2 py-1 border-primary/40 text-primary whitespace-nowrap">
+                  Via parceiro · {partnerName}
+                </Badge>
+              )}
               {(() => {
                 const cs = contractStatusConfig[booking.contract_status || "not_sent"] || contractStatusConfig.not_sent;
                 const badge = (

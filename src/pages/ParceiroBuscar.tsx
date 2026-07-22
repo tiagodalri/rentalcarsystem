@@ -293,7 +293,13 @@ export default function ParceiroBuscar() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => toast({ title: "Em breve", description: "Reserva de parceiro chega na próxima fase — em breve!" })}
+                          onClick={() => navigate("/parceiro/reserva", {
+                            state: {
+                              vehicle: v,
+                              pickup_date: format(pickupDate!, "yyyy-MM-dd"),
+                              return_date: format(returnDate!, "yyyy-MM-dd"),
+                            },
+                          })}
                         >
                           Solicitar reserva
                         </Button>
