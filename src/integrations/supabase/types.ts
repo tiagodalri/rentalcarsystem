@@ -1369,6 +1369,45 @@ export type Database = {
         }
         Relationships: []
       }
+      partners: {
+        Row: {
+          agency_name: string
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agency_name: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agency_name?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payment_requests: {
         Row: {
           amount_usd: number | null
@@ -1816,6 +1855,7 @@ export type Database = {
           created_at: string
           id: string
           locadora_id: string | null
+          partner_id: string | null
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
@@ -1823,6 +1863,7 @@ export type Database = {
           created_at?: string
           id?: string
           locadora_id?: string | null
+          partner_id?: string | null
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
@@ -1830,6 +1871,7 @@ export type Database = {
           created_at?: string
           id?: string
           locadora_id?: string | null
+          partner_id?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
@@ -1839,6 +1881,13 @@ export type Database = {
             columns: ["locadora_id"]
             isOneToOne: false
             referencedRelation: "locadoras"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
             referencedColumns: ["id"]
           },
         ]
@@ -3480,6 +3529,7 @@ export type Database = {
       get_occupancy_rate: { Args: never; Returns: number }
       get_scheduled_messages_secret: { Args: never; Returns: string }
       get_user_locadora_id: { Args: { uid: string }; Returns: string }
+      get_user_partner_id: { Args: { _user_id: string }; Returns: string }
       get_vehicle_basic: {
         Args: { p_vehicle_id: string }
         Returns: {
