@@ -2,12 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
-import { ArrowLeft, Loader2, TrendingUp, Wallet, Clock, Inbox, Search, X } from "lucide-react";
+import { ArrowLeft, Loader2, TrendingUp, Wallet, Clock, Inbox, Search, X, ExternalLink, Calendar, User, Car, Building2, Receipt, ChevronRight } from "lucide-react";
 import PartnerHeader from "@/components/parceiro/PartnerHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { parseDateOnly } from "@/lib/dateOnly";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { formatPersonName } from "@/lib/formatName";
 import { fmtUSD } from "@/lib/partnerFormat";
 
