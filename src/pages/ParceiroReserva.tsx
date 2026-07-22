@@ -71,10 +71,7 @@ export default function ParceiroReserva() {
     })();
   }, [navigate]);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/parceiro/login", { replace: true });
-  };
+
 
   const days = useMemo(() => {
     if (!state) return 1;
@@ -187,7 +184,7 @@ export default function ParceiroReserva() {
             )}
 
             <div className="text-xs text-muted-foreground">
-              Total: <span className="text-foreground font-medium tabular-nums">US$ {confirmed.total.toFixed(2)}</span>
+              Total: <span className="text-foreground font-medium tabular-nums">{fmtUSD(confirmed.total)}</span>
             </div>
             <div className="flex items-center justify-center gap-2 pt-2">
               <Button onClick={() => navigate("/parceiro/buscar")} variant="outline">Nova busca</Button>
@@ -280,7 +277,7 @@ export default function ParceiroReserva() {
                   <div className="flex items-center gap-1.5 text-foreground">
                     <User size={12} className="text-primary" />
                     <span className="text-muted-foreground">
-                      Diária: <span className="tabular-nums">US$ {state.vehicle.daily_price_usd.toFixed(2)}</span>
+                      Diária: <span className="tabular-nums">{fmtUSD(state.vehicle.daily_price_usd)}</span>
                     </span>
                   </div>
                 </div>
@@ -295,7 +292,7 @@ export default function ParceiroReserva() {
 
                 <div className="pt-3 border-t border-border/30 flex items-end justify-between">
                   <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Total estimado</span>
-                  <span className="text-lg font-semibold text-primary tabular-nums">US$ {total}</span>
+                  <span className="text-lg font-semibold text-primary tabular-nums">{fmtUSDCompact(total)}</span>
                 </div>
                 <p className="text-[10px] text-muted-foreground/70 leading-relaxed">
                   Valor final calculado e travado no servidor no momento da confirmação.
