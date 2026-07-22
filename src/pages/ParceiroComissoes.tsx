@@ -172,6 +172,7 @@ export default function ParceiroComissoes() {
                     <th className="text-left px-4 py-3 font-semibold">Datas</th>
                     <th className="text-left px-4 py-3 font-semibold">Veículo</th>
                     <th className="text-left px-4 py-3 font-semibold">Locadora</th>
+                    <th className="text-left px-4 py-3 font-semibold">Status</th>
                     <th className="text-right px-4 py-3 font-semibold">Total</th>
                     <th className="text-right px-4 py-3 font-semibold">Comissão</th>
                     <th className="text-center px-4 py-3 font-semibold">Repasse</th>
@@ -184,8 +185,9 @@ export default function ParceiroComissoes() {
                       <td className="px-4 py-3 whitespace-nowrap text-xs text-muted-foreground tabular-nums">
                         {format(parseDateOnly(r.pickup_date), "dd MMM", { locale: pt })} → {format(parseDateOnly(r.return_date), "dd MMM yy", { locale: pt })}
                       </td>
-                      <td className="px-4 py-3 truncate max-w-[220px]">{r.vehicle_id ? (vehicles[r.vehicle_id]?.name ?? "—") : "—"}</td>
-                      <td className="px-4 py-3 truncate max-w-[180px] text-muted-foreground">{r.locadora_id ? (locadoras[r.locadora_id]?.name ?? "—") : "—"}</td>
+                      <td className="px-4 py-3 truncate max-w-[220px]">{r.vehicle_name ?? "—"}</td>
+                      <td className="px-4 py-3 truncate max-w-[180px] text-muted-foreground">{r.locadora_name ?? "—"}</td>
+                      <td className="px-4 py-3 text-xs uppercase tracking-wider text-muted-foreground">{r.status}</td>
                       <td className="px-4 py-3 text-right tabular-nums">{fmtUSD(r.total_price)}</td>
                       <td className="px-4 py-3 text-right tabular-nums font-semibold text-emerald-600 dark:text-emerald-400">
                         {r.commission_amount != null ? fmtUSD(r.commission_amount) : "—"}
@@ -199,6 +201,7 @@ export default function ParceiroComissoes() {
                       </td>
                     </tr>
                   ))}
+
                 </tbody>
               </table>
             </div>
