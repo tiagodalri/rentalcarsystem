@@ -100,6 +100,21 @@ Deno.serve(async (req) => {
     const propAccepted = proposals.filter((p) => p.status === "accepted").length;
     const conversion = propTotal > 0 ? (propAccepted / propTotal) * 100 : 0;
 
+    // Monthly trend (last 6 months, zero-filled)
+    const monthAgg = new Map<string, { bookings: number; commission: number }>();
+    for (const k of monthKeys) monthAgg.set(k, { bookings: 0, commission: 0 });
+    for (const b of bookings) {
+      const ca = b.created_at ?? "";
+      if (!ca || ca < sixMonthsStart) continue;
+      const d = new Date(ca);
+      const k = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+      const cur = monthAgg.get(k);
+      if (!cur) continue;
+      cur.bookings += 1;
+      cur.commission += Number(b.commission_amount ?? 0);
+    }
+    const monthly = monthKeys.map((k) => ({ month: k, ...(monthAgg.get(k) ?? { bookings: 0, commission: 0 }) }));
+
     return json(200, {
       ok: true,
       overview: {
@@ -113,6 +128,7 @@ Deno.serve(async (req) => {
         proposals_accepted: propAccepted,
         conversion_pct: conversion,
         top_partners: topPartners,
+        monthly,
         generated_at: nowIso,
       },
     });
