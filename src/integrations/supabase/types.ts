@@ -127,6 +127,7 @@ export type Database = {
           clicksign_envelope_id: string | null
           commission_amount: number | null
           commission_locked_at: string | null
+          commission_paid_at: string | null
           commission_payout_status: string
           commission_rule_id: string | null
           commission_type: string | null
@@ -181,6 +182,7 @@ export type Database = {
           clicksign_envelope_id?: string | null
           commission_amount?: number | null
           commission_locked_at?: string | null
+          commission_paid_at?: string | null
           commission_payout_status?: string
           commission_rule_id?: string | null
           commission_type?: string | null
@@ -235,6 +237,7 @@ export type Database = {
           clicksign_envelope_id?: string | null
           commission_amount?: number | null
           commission_locked_at?: string | null
+          commission_paid_at?: string | null
           commission_payout_status?: string
           commission_rule_id?: string | null
           commission_type?: string | null
