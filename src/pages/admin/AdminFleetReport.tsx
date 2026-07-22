@@ -14,7 +14,7 @@ import {
 import { darkTooltipProps } from "@/components/admin/ChartTooltip";
 import {
   Loader2, TrendingUp, DollarSign, AlertTriangle, Car, CalendarDays,
-  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, Sparkles, FileBarChart, CalendarRange, X
+  ChevronLeft, ChevronRight, Percent, Shield, Baby, Radio, Users, User, Sparkles, FileBarChart, CalendarRange, X
 } from "lucide-react";
 import { EmptyState } from "@/components/admin/EmptyState";
 import DonutChart from "@/components/admin/DonutChart";
@@ -113,6 +113,8 @@ export default function AdminFleetReport({
   const monthStart = periodStart;
   const monthEnd = periodEnd;
   const daysInMonth = Math.max(1, differenceInDays(monthEnd, monthStart) + 1);
+  const periodStartMs = monthStart.getTime();
+  const periodEndMs = monthEnd.getTime() + 24 * 60 * 60 * 1000;
 
   useEffect(() => {
     loadData();
@@ -215,7 +217,21 @@ export default function AdminFleetReport({
     return turoFilter === "listed" ? !!v?.listed_on_turo : !v?.listed_on_turo;
   }).length;
   const avgOccupancy = visibleReport.length ? Math.round(visibleReport.reduce((s, r) => s + r.occupancyPct, 0) / visibleReport.length) : 0;
-  const totalDamages = visibleReport.reduce((s, r) => s + r.damageCount, 0);
+
+  // Revenue by channel (revenue recognition by pickup date, excluding cancelled)
+  const channelRevenue = (predicate: (b: any) => boolean) => {
+    return bookings
+      .filter((b) => {
+        if (!predicate(b)) return false;
+        const p = parseISO(b.pickup_date).getTime();
+        return p >= periodStartMs && p < periodEndMs;
+      })
+      .reduce((s, b) => s + (Number(b.total_price) || 0), 0);
+  };
+
+  const turoRevenue = channelRevenue((b) => !!b.turo_reservation_code);
+  const partnerRevenue = channelRevenue((b) => !!b.partner_id && !b.turo_reservation_code);
+  const directRevenue = channelRevenue((b) => !b.turo_reservation_code && !b.partner_id);
 
   // Chart data
   const revenueChartData = visibleReport
@@ -364,23 +380,18 @@ export default function AdminFleetReport({
         )}
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* KPI Cards — row 1: core metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { Icon: DollarSign, label: usingCustom ? "Receita do Período" : "Receita do Mês", value: `$${totalRevenue.toLocaleString()}`, tone: "primary" as const },
-          { Icon: CalendarDays, label: "Reservas", value: String(totalBookings), tone: "primary" as const },
-          { Icon: Percent, label: "Ocupação Média", value: `${avgOccupancy}%`, tone: "primary" as const },
-          { Icon: AlertTriangle, label: "Avarias", value: String(totalDamages), tone: "destructive" as const },
-        ].map(({ Icon, label, value, tone }) => (
+          { Icon: DollarSign, label: usingCustom ? "Receita do Período" : "Receita do Mês", value: `$${totalRevenue.toLocaleString()}` },
+          { Icon: CalendarDays, label: "Reservas", value: String(totalBookings) },
+          { Icon: Percent, label: "Ocupação Média", value: `${avgOccupancy}%` },
+        ].map(({ Icon, label, value }) => (
           <Card key={label} className="border-border/40 h-full">
             <CardContent className="!p-4 h-full flex items-center">
               <div className="flex items-center gap-3.5 w-full">
-                <div
-                  className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${
-                    tone === "destructive" ? "bg-destructive/10" : "bg-primary/[0.07]"
-                  }`}
-                >
-                  <Icon size={20} strokeWidth={1.8} className={tone === "destructive" ? "text-destructive" : "text-primary"} />
+                <div className="shrink-0 h-11 w-11 rounded-xl flex items-center justify-center bg-primary/[0.07]">
+                  <Icon size={20} strokeWidth={1.8} className="text-primary" />
                 </div>
                 <div className="min-w-0 flex flex-col justify-center gap-1">
                   <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">{label}</p>
@@ -390,6 +401,37 @@ export default function AdminFleetReport({
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* KPI Cards — row 2: revenue by channel */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          { Icon: Car, label: "Turo", value: `$${turoRevenue.toLocaleString()}`, tone: "primary" as const },
+          { Icon: Users, label: "Parceiros", value: `$${partnerRevenue.toLocaleString()}`, tone: "emerald" as const },
+          { Icon: User, label: "Particulares", value: `$${directRevenue.toLocaleString()}`, tone: "blue" as const },
+        ].map(({ Icon, label, value, tone }) => {
+          const toneClasses = {
+            primary: "bg-primary/[0.07] text-primary",
+            emerald: "bg-emerald-700/10 text-emerald-700",
+            blue: "bg-blue-600/10 text-blue-600",
+            destructive: "bg-destructive/10 text-destructive",
+          };
+          return (
+            <Card key={label} className="border-border/40 h-full">
+              <CardContent className="!p-4 h-full flex items-center">
+                <div className="flex items-center gap-3.5 w-full">
+                  <div className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${toneClasses[tone]}`}>
+                    <Icon size={20} strokeWidth={1.8} className={toneClasses[tone].split(" ")[1]} />
+                  </div>
+                  <div className="min-w-0 flex flex-col justify-center gap-1">
+                    <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">{label}</p>
+                    <p className="admin-h1 text-[22px] tabular-nums leading-none">{value}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <p className="text-[11px] text-muted-foreground/70 -mt-2 flex items-center gap-1.5">
