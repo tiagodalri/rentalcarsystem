@@ -103,6 +103,7 @@ const AdminWhatsAppScheduled = lazy(() => import("./pages/admin/AdminWhatsAppSch
 const AdminWhatsAppPipeline = lazy(() => import("./pages/admin/AdminWhatsAppPipeline.tsx"));
 const AdminWhatsAppLinks = lazy(() => import("./pages/admin/AdminWhatsAppLinks.tsx"));
 const AdminWhatsAppStatus = lazy(() => import("./pages/admin/AdminWhatsAppStatus.tsx"));
+const AdminPlatformLocadoras = lazy(() => import("./pages/admin/AdminPlatformLocadoras.tsx"));
 const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect.tsx"));
 
 
