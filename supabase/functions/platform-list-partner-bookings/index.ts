@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       .from("bookings")
       .select(`
         id, booking_number, pickup_date, return_date, customer_name, total_price,
-        commission_type, commission_value, commission_amount_usd, commission_payout_status, commission_paid_at,
+        commission_type, commission_value, commission_amount, commission_payout_status, commission_paid_at,
         partner_id, vehicle_id, locadora_id,
         vehicles:vehicle_id ( name, category ),
         locadoras:locadora_id ( name ),

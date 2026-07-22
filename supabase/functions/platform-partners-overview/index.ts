@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     // Bookings with partner
     const { data: bookingsAll, error: bErr } = await admin
       .from("bookings")
-      .select("id, partner_id, total_price, commission_amount_usd, commission_payout_status, commission_paid_at, created_at")
+      .select("id, partner_id, total_price, commission_amount, commission_payout_status, commission_paid_at, created_at")
       .not("partner_id", "is", null)
       .is("deleted_at", null);
     if (bErr) return json(500, { ok: false, error: bErr.message });
@@ -56,10 +56,10 @@ Deno.serve(async (req) => {
     const revenue = bookings.reduce((s, b) => s + Number(b.total_price ?? 0), 0);
     const commissionPaid = bookings
       .filter((b) => b.commission_payout_status === "paid")
-      .reduce((s, b) => s + Number(b.commission_amount_usd ?? 0), 0);
+      .reduce((s, b) => s + Number(b.commission_amount ?? 0), 0);
     const commissionPending = bookings
       .filter((b) => b.commission_payout_status !== "paid")
-      .reduce((s, b) => s + Number(b.commission_amount_usd ?? 0), 0);
+      .reduce((s, b) => s + Number(b.commission_amount ?? 0), 0);
 
     // Top 5 by commission (paid + pending)
     const byPartner = new Map<string, { partner_id: string; bookings: number; commission: number }>();
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
       const pid = b.partner_id as string;
       const cur = byPartner.get(pid) ?? { partner_id: pid, bookings: 0, commission: 0 };
       cur.bookings += 1;
-      cur.commission += Number(b.commission_amount_usd ?? 0);
+      cur.commission += Number(b.commission_amount ?? 0);
       byPartner.set(pid, cur);
     }
     const topArr = [...byPartner.values()].sort((a, b) => b.commission - a.commission).slice(0, 5);
