@@ -105,6 +105,7 @@ const AdminWhatsAppLinks = lazy(() => import("./pages/admin/AdminWhatsAppLinks.t
 const AdminWhatsAppStatus = lazy(() => import("./pages/admin/AdminWhatsAppStatus.tsx"));
 const AdminPlatformLocadoras = lazy(() => import("./pages/admin/AdminPlatformLocadoras.tsx"));
 const AdminPlatformPartners = lazy(() => import("./pages/admin/AdminPlatformPartners.tsx"));
+const AdminPlatformBonusTiers = lazy(() => import("./pages/admin/AdminPlatformBonusTiers.tsx"));
 const AdminCommissions = lazy(() => import("./pages/admin/AdminCommissions.tsx"));
 const PublicWhatsAppRedirect = lazy(() => import("./pages/PublicWhatsAppRedirect.tsx"));
 const ParceiroLogin = lazy(() => import("./pages/ParceiroLogin.tsx"));
@@ -346,6 +347,7 @@ const App = () => (
                 <Route path="whatsapp/status" element={<RequireRole roles={["admin","operations","support"]}><AdminSuspense><AdminWhatsAppStatus /></AdminSuspense></RequireRole>} />
                 <Route path="platform/locadoras" element={<RequireRole roles={["platform_admin"]}><AdminSuspense><AdminPlatformLocadoras /></AdminSuspense></RequireRole>} />
                 <Route path="platform/partners" element={<RequireRole roles={["platform_admin"]}><AdminSuspense><AdminPlatformPartners /></AdminSuspense></RequireRole>} />
+                <Route path="platform/bonus-tiers" element={<RequireRole roles={["platform_admin"]}><AdminSuspense><AdminPlatformBonusTiers /></AdminSuspense></RequireRole>} />
                 <Route path="commissions" element={<RequireRole roles={["admin","operations","finance","platform_admin"]}><AdminSuspense><AdminCommissions /></AdminSuspense></RequireRole>} />
               </Route>
 

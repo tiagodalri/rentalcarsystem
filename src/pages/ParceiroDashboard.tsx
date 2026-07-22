@@ -5,6 +5,7 @@ import { Loader2, Search, ArrowRight, Wallet, TrendingUp, Clock, Sparkles } from
 import PartnerHeader from "@/components/parceiro/PartnerHeader";
 import { Button } from "@/components/ui/button";
 import { fmtUSD } from "@/lib/partnerFormat";
+import MissionsPanel from "@/components/parceiro/MissionsPanel";
 
 type CommRow = { commission_amount: number | null; commission_payout_status: string };
 
@@ -104,6 +105,11 @@ export default function ParceiroDashboard() {
               </Button>
             </div>
           </div>
+        </div>
+
+        {/* Missions / bonus program */}
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <MissionsPanel />
         </div>
 
         {/* Actions */}

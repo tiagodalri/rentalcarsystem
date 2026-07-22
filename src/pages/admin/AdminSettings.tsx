@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, UsersRound, ScrollText, ChevronRight, FileSignature, FileWarning, Building2, Percent, Handshake } from "lucide-react";
+import { Lock, UsersRound, ScrollText, ChevronRight, FileSignature, FileWarning, Building2, Percent, Handshake, Trophy } from "lucide-react";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import ChangePasswordDialog from "@/components/admin/ChangePasswordDialog";
 import WhatsAppSettingsSection from "@/components/admin/whatsapp/WhatsAppSettingsSection";
@@ -20,6 +20,7 @@ export default function AdminSettings() {
       ? [
           { title: "Locadoras", url: "/admin/platform/locadoras", icon: Building2, desc: "Gerencie locadoras parceiras da plataforma" },
           { title: "Parceiros", url: "/admin/platform/partners", icon: Handshake, desc: "Gerencie agências parceiras cross-tenant" },
+          { title: "Bônus de parceiros", url: "/admin/platform/bonus-tiers", icon: Trophy, desc: "Programa de missões, patamares e pagamentos" },
         ]
       : []),
     ...(hasAny(["admin","operations","finance","platform_admin"])
