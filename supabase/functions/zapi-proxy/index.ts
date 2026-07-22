@@ -29,6 +29,10 @@ type Action =
   | "send-sticker"
   | "send-location"
   | "send-contact"
+  | "send-text-status"
+  | "send-image-status"
+  | "send-video-status"
+  | "reply-status-text"
   | "list-chats"
   | "list-contacts"
   | "read-message"
@@ -46,7 +50,9 @@ const ADMIN_ACTIONS = new Set<Action>(["save-config", "get-config-status"]);
 const SEND_ACTIONS = new Set<Action>([
   "send-text", "send-image", "send-video", "send-document",
   "send-audio", "send-sticker", "send-location", "send-contact",
+  "send-text-status", "send-image-status", "send-video-status", "reply-status-text",
 ]);
+
 
 function jsonResponse(body: unknown, init: ResponseInit, corsHeaders: Record<string, string>) {
   return new Response(JSON.stringify(body), {
