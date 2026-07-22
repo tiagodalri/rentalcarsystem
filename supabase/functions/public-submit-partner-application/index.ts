@@ -7,6 +7,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { isValidCnpj, onlyDigits } from "../_shared/cnpj.ts";
+import { appUrl, listPlatformAdminEmails, sendPartnerEmail } from "../_shared/partnerEmails.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -139,6 +140,33 @@ Deno.serve(async (req) => {
       .select("id")
       .single();
     if (error) return json(500, { ok: false, error: error.message });
+
+    // Notify platform admins — non-fatal
+    try {
+      const admins = await listPlatformAdminEmails(admin);
+      const reviewUrl = appUrl("/admin/platform/parceiros");
+      await Promise.all(
+        admins.map((email) =>
+          sendPartnerEmail({
+            templateName: "partner-application-received",
+            recipientEmail: email,
+            idempotencyKey: `partner-app-${data.id}-${email}`,
+            templateData: {
+              agencyName: agency_name,
+              contactName: contact_name,
+              contactEmail: contact_email,
+              contactPhone: contact_phone_raw,
+              cnpj: cnpj ?? null,
+              city: normStr(body?.address_city) ?? null,
+              state: address_state,
+              reviewUrl,
+            },
+          }),
+        ),
+      );
+    } catch (e) {
+      console.error("[public-submit-partner-application] notify admins failed:", e);
+    }
 
     return json(200, { ok: true, application_id: data.id });
   } catch (e) {

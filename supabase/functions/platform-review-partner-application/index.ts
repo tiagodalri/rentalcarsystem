@@ -2,6 +2,7 @@
 // On approve: creates the partners row (from application snapshot) and, if creds provided,
 // creates the auth user + user_roles(partner) — reusing the same pattern as platform-create-partner.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { appUrl, sendPartnerEmail } from "../_shared/partnerEmails.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -149,6 +150,22 @@ Deno.serve(async (req) => {
       })
       .eq("id", application_id);
     if (upErr) return json(500, { ok: false, error: upErr.message });
+
+    // Welcome email — only when a new partner user was actually created — non-fatal
+    if (partnerUserId && user_email && user_password && user_full_name) {
+      await sendPartnerEmail({
+        templateName: "partner-welcome",
+        recipientEmail: user_email.trim().toLowerCase(),
+        idempotencyKey: `partner-welcome-${partner_id}-${partnerUserId}`,
+        templateData: {
+          agencyName: app.agency_name,
+          userFullName: user_full_name.trim(),
+          userEmail: user_email.trim().toLowerCase(),
+          temporaryPassword: user_password,
+          loginUrl: appUrl("/parceiro/login"),
+        },
+      });
+    }
 
     return json(200, { ok: true, partner_id, user_id: partnerUserId });
   } catch (e) {
