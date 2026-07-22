@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, Suspense, lazy } from "react";
+import { useEffect, useMemo, useState, Suspense, lazy, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminPage, AdminSection, AdminKpiGrid } from "@/components/admin/layout/AdminPage";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -8,16 +8,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
 } from "@/components/ui/select";
 import {
   Handshake, Users, Car, DollarSign, TrendingUp, Loader2, Trophy,
-  Check, Undo2, Send, CheckCircle2, XCircle, Clock,
+  Check, Undo2, Send, CheckCircle2, XCircle, Clock, Inbox, ThumbsUp, ThumbsDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { fmtUSD, fmtUSDCompact } from "@/lib/partnerFormat";
 import { format } from "date-fns";
+import { formatCnpj, formatBrPhone } from "@/lib/brValidators";
 
 const AdminPlatformPartners = lazy(() => import("./AdminPlatformPartners"));
 const AdminPlatformBonusTiers = lazy(() => import("./AdminPlatformBonusTiers"));
