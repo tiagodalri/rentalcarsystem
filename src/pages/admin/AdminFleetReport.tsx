@@ -382,7 +382,7 @@ export default function AdminFleetReport({
       </div>
 
       {/* KPI Cards — row 1: core metrics */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { Icon: DollarSign, label: usingCustom ? "Receita do Período" : "Receita do Mês", value: `$${totalRevenue.toLocaleString()}` },
           { Icon: CalendarDays, label: "Reservas", value: String(totalBookings) },
