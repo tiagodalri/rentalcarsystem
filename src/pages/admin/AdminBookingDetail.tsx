@@ -231,6 +231,16 @@ export default function AdminBookingDetail() {
       setCustomer(c ?? null);
       setVehicle(v ?? null);
       setInspections(insp ?? []);
+      if (bookingRow.partner_id) {
+        const { data: p } = await supabase
+          .from("partners_public")
+          .select("agency_name")
+          .eq("id", bookingRow.partner_id)
+          .maybeSingle();
+        setPartnerName((p as any)?.agency_name ?? null);
+      } else {
+        setPartnerName(null);
+      }
       setLoading(false);
       // Pre-warm signed URLs for all inspection photos in one batched call.
       try {
