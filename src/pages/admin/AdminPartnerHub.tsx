@@ -75,7 +75,7 @@ type ProposalRow = {
   expires_at: string | null;
   customer_name: string | null;
   customer_email: string | null;
-  locked_price_usd: number | null;
+  total_price: number | null;
   partners: { agency_name: string | null } | null;
   vehicles: { name: string | null } | null;
 };
