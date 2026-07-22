@@ -145,6 +145,7 @@ export type Database = {
           franchise_amount: number | null
           hold_expires_at: string | null
           id: string
+          locadora_id: string
           notes: string | null
           paid_at: string | null
           payment_method: string | null
@@ -191,6 +192,7 @@ export type Database = {
           franchise_amount?: number | null
           hold_expires_at?: string | null
           id?: string
+          locadora_id: string
           notes?: string | null
           paid_at?: string | null
           payment_method?: string | null
@@ -237,6 +239,7 @@ export type Database = {
           franchise_amount?: number | null
           hold_expires_at?: string | null
           id?: string
+          locadora_id?: string
           notes?: string | null
           paid_at?: string | null
           payment_method?: string | null
@@ -261,6 +264,13 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_locadora_id_fkey"
+            columns: ["locadora_id"]
+            isOneToOne: false
+            referencedRelation: "locadoras"
             referencedColumns: ["id"]
           },
           {
@@ -621,6 +631,7 @@ export type Database = {
           full_name: string
           house_number: string | null
           id: string
+          locadora_id: string
           nationality: string | null
           notes: string | null
           phone: string | null
@@ -649,6 +660,7 @@ export type Database = {
           full_name: string
           house_number?: string | null
           id?: string
+          locadora_id: string
           nationality?: string | null
           notes?: string | null
           phone?: string | null
@@ -677,6 +689,7 @@ export type Database = {
           full_name?: string
           house_number?: string | null
           id?: string
+          locadora_id?: string
           nationality?: string | null
           notes?: string | null
           phone?: string | null
@@ -688,7 +701,15 @@ export type Database = {
           welcome_sent?: boolean
           zip_code?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "customers_locadora_id_fkey"
+            columns: ["locadora_id"]
+            isOneToOne: false
+            referencedRelation: "locadoras"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       demo_presentation_state: {
         Row: {
@@ -1220,6 +1241,42 @@ export type Database = {
         }
         Relationships: []
       }
+      locadoras: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          legal_name: string | null
+          logo_url: string | null
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          legal_name?: string | null
+          logo_url?: string | null
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          legal_name?: string | null
+          logo_url?: string | null
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payment_requests: {
         Row: {
           amount_usd: number | null
@@ -1656,22 +1713,33 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          locadora_id: string | null
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
+          locadora_id?: string | null
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
+          locadora_id?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_locadora_id_fkey"
+            columns: ["locadora_id"]
+            isOneToOne: false
+            referencedRelation: "locadoras"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vehicle_diagnostics: {
         Row: {
@@ -2488,6 +2556,7 @@ export type Database = {
           last_service_date: string | null
           license_plate: string | null
           listed_on_turo: boolean
+          locadora_id: string
           manufacture_year: number | null
           model: string | null
           model_year: number | null
@@ -2542,6 +2611,7 @@ export type Database = {
           last_service_date?: string | null
           license_plate?: string | null
           listed_on_turo?: boolean
+          locadora_id: string
           manufacture_year?: number | null
           model?: string | null
           model_year?: number | null
@@ -2596,6 +2666,7 @@ export type Database = {
           last_service_date?: string | null
           license_plate?: string | null
           listed_on_turo?: boolean
+          locadora_id?: string
           manufacture_year?: number | null
           model?: string | null
           model_year?: number | null
@@ -2617,7 +2688,15 @@ export type Database = {
           vin?: string | null
           year?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_locadora_id_fkey"
+            columns: ["locadora_id"]
+            isOneToOne: false
+            referencedRelation: "locadoras"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       whatsapp_connection_status: {
         Row: {
@@ -3298,6 +3377,7 @@ export type Database = {
       }
       get_occupancy_rate: { Args: never; Returns: number }
       get_scheduled_messages_secret: { Args: never; Returns: string }
+      get_user_locadora_id: { Args: { uid: string }; Returns: string }
       get_vehicle_basic: {
         Args: { p_vehicle_id: string }
         Returns: {
@@ -3359,6 +3439,7 @@ export type Database = {
         Args: { p_id: string }
         Returns: undefined
       }
+      is_platform_admin: { Args: { uid: string }; Returns: boolean }
       list_vehicles_basic: {
         Args: never
         Returns: {
