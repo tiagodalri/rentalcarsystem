@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, LogOut, Handshake } from "lucide-react";
+import { Loader2, LogOut, Handshake, Search, ArrowRight } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
+import { Button } from "@/components/ui/button";
+
 
 export default function ParceiroDashboard() {
   const navigate = useNavigate();
