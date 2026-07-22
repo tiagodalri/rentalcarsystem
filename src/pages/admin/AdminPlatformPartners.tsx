@@ -343,3 +343,81 @@ export default function AdminPlatformPartners() {
     </div>
   );
 }
+
+function InfoRow({ label, value, mono }: { label: string; value: string | null | undefined; mono?: boolean }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-[10px] uppercase tracking-wider text-muted-foreground/80">{label}</span>
+      <span className={`text-sm ${mono ? "tabular-nums font-mono" : ""} ${value ? "" : "text-muted-foreground/60"}`}>
+        {value || "—"}
+      </span>
+    </div>
+  );
+}
+
+function RegistrationBlock({ partner }: { partner: Partner }) {
+  const addr = [partner.address_city, partner.address_state].filter(Boolean).join(" / ");
+  return (
+    <div>
+      <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold mb-3 flex items-center gap-1.5">
+        <Building2 className="h-3 w-3" /> Dados cadastrais
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-lg border border-border/40 bg-muted/10 p-3">
+        <InfoRow label="Razão social" value={partner.legal_name} />
+        <InfoRow label="CNPJ" value={partner.cnpj ? formatCnpj(partner.cnpj) : null} mono />
+        <InfoRow label="Cidade / UF" value={addr || null} />
+      </div>
+    </div>
+  );
+}
+
+function BankBlock({ partner }: { partner: Partner }) {
+  const [reveal, setReveal] = useState(false);
+  const has = Boolean(
+    partner.bank_name || partner.bank_agency || partner.bank_account ||
+    partner.pix_key || partner.bank_account_holder_name
+  );
+  if (!has) {
+    return (
+      <div>
+        <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
+          <Landmark className="h-3 w-3" /> Dados bancários
+        </p>
+        <p className="text-xs text-muted-foreground italic">Parceiro ainda não preencheu dados bancários.</p>
+      </div>
+    );
+  }
+  const account = reveal ? (partner.bank_account || "—") : maskTail(partner.bank_account);
+  const agency = reveal ? (partner.bank_agency || "—") : maskTail(partner.bank_agency, 3);
+  const pix = reveal ? (partner.pix_key || "—") : maskTail(partner.pix_key, 4);
+  const doc = reveal && partner.bank_account_holder_document
+    ? formatCpfCnpj(partner.bank_account_holder_document)
+    : maskTail(partner.bank_account_holder_document, 3);
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground font-semibold flex items-center gap-1.5">
+          <Landmark className="h-3 w-3" /> Dados bancários
+        </p>
+        <button
+          type="button"
+          onClick={() => setReveal((s) => !s)}
+          className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground hover:text-foreground px-2 py-1 rounded-md hover:bg-muted/40 transition-colors"
+        >
+          {reveal ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+          {reveal ? "Ocultar" : "Revelar"}
+        </button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-lg border border-border/40 bg-muted/10 p-3">
+        <InfoRow label="Banco" value={partner.bank_name} />
+        <InfoRow label="Agência" value={agency} mono />
+        <InfoRow label="Conta" value={account} mono />
+        <InfoRow label="Tipo" value={partner.bank_account_type === "poupanca" ? "Poupança" : partner.bank_account_type === "corrente" ? "Corrente" : null} />
+        <InfoRow label="Titular" value={partner.bank_account_holder_name} />
+        <InfoRow label="CPF/CNPJ titular" value={doc} mono />
+        <InfoRow label="Tipo chave PIX" value={partner.pix_key_type ? partner.pix_key_type.toUpperCase() : null} />
+        <InfoRow label="Chave PIX" value={pix} mono />
+      </div>
+    </div>
+  );
+}
