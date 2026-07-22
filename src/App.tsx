@@ -65,7 +65,7 @@ const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.tsx"));
 const AdminPainel = lazy(() => import("./pages/admin/AdminPainel.tsx"));
 const AiSimulador = lazy(() => import("./pages/admin/AiSimulador.tsx"));
 const AdminFrotaInteligente = lazy(() => import("./pages/admin/AdminFrotaInteligente.tsx"));
-const AdminGodalzRent = lazy(() => import("./pages/admin/AdminGodalzRent.tsx"));
+const AdminPartnerHub = lazy(() => import("./pages/admin/AdminPartnerHub.tsx"));
 const BrainAccessGate = lazy(() => import("./components/admin/ai-studio/BrainAccessGate.tsx"));
 const AdminBookings = lazy(() => import("./pages/admin/AdminBookings.tsx"));
 const AdminFleet = lazy(() => import("./pages/admin/AdminFleet.tsx"));
@@ -306,7 +306,7 @@ const App = () => (
                 <Route index element={<RequireRole roles={["admin","finance","operations","support","driver"]}><AdminSuspense><AdminPainel /></AdminSuspense></RequireRole>} />
                 <Route path="ai-studio/simulador" element={<RequireRole roles={["admin","finance","operations"]}><AdminSuspense><BrainAccessGate><AiSimulador /></BrainAccessGate></AdminSuspense></RequireRole>} />
                 <Route path="frota-inteligente" element={<RequireRole roles={["admin","operations","finance","support"]}><AdminSuspense><AdminFrotaInteligente /></AdminSuspense></RequireRole>} />
-                <Route path="godalz-rent" element={<RequireRole roles={["admin","operations","finance","support"]}><AdminSuspense><AdminGodalzRent /></AdminSuspense></RequireRole>} />
+                <Route path="platform/parceiros" element={<RequireRole roles={["platform_admin"]}><AdminSuspense><AdminPartnerHub /></AdminSuspense></RequireRole>} />
                 <Route path="bookings" element={<RequireRole roles={["admin","operations","support","driver"]}><AdminSuspense><AdminBookings /></AdminSuspense></RequireRole>} />
                 <Route path="bookings/:bookingId" element={<RequireRole roles={["admin","operations","support","driver"]}><AdminSuspense><AdminBookingDetail /></AdminSuspense></RequireRole>} />
                 <Route path="live" element={<RequireRole roles={["admin","operations"]}><AdminSuspense><AdminLive /></AdminSuspense></RequireRole>} />

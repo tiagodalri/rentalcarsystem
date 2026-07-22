@@ -102,9 +102,9 @@ const menuSections: MenuSection[] = [
     ],
   },
   {
-    label: "GoDalz Rent",
+    label: "Parceiros",
     items: [
-      { title: "GoDalz Rent", url: "/admin/godalz-rent", icon: Handshake, allowedRoles: ["admin","operations","finance","support"], highlight: "emerald", badge: "Novo" },
+      { title: "Central de Parceiros", url: "/admin/platform/parceiros", icon: Handshake, allowedRoles: ["platform_admin"], highlight: "emerald", badge: "Novo" },
     ],
   },
   {
