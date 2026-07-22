@@ -381,13 +381,12 @@ export default function AdminFleetReport({
         )}
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* KPI Cards — row 1: core metrics */}
+      <div className="grid grid-cols-3 gap-4">
         {[
           { Icon: DollarSign, label: usingCustom ? "Receita do Período" : "Receita do Mês", value: `$${totalRevenue.toLocaleString()}`, tone: "primary" as const },
           { Icon: CalendarDays, label: "Reservas", value: String(totalBookings), tone: "primary" as const },
           { Icon: Percent, label: "Ocupação Média", value: `${avgOccupancy}%`, tone: "primary" as const },
-          { Icon: AlertTriangle, label: "Avarias", value: String(totalDamages), tone: "destructive" as const },
         ].map(({ Icon, label, value, tone }) => (
           <Card key={label} className="border-border/40 h-full">
             <CardContent className="!p-4 h-full flex items-center">
@@ -407,6 +406,37 @@ export default function AdminFleetReport({
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* KPI Cards — row 2: revenue by channel */}
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          { Icon: Car, label: "Turo", value: `$${turoRevenue.toLocaleString()}`, tone: "primary" as const },
+          { Icon: Users, label: "Parceiros", value: `$${partnerRevenue.toLocaleString()}`, tone: "emerald" as const },
+          { Icon: User, label: "Particulares", value: `$${directRevenue.toLocaleString()}`, tone: "blue" as const },
+        ].map(({ Icon, label, value, tone }) => {
+          const toneClasses = {
+            primary: "bg-primary/[0.07] text-primary",
+            emerald: "bg-emerald-700/10 text-emerald-700",
+            blue: "bg-blue-600/10 text-blue-600",
+            destructive: "bg-destructive/10 text-destructive",
+          };
+          return (
+            <Card key={label} className="border-border/40 h-full">
+              <CardContent className="!p-4 h-full flex items-center">
+                <div className="flex items-center gap-3.5 w-full">
+                  <div className={`shrink-0 h-11 w-11 rounded-xl flex items-center justify-center ${toneClasses[tone]}`}>
+                    <Icon size={20} strokeWidth={1.8} className={toneClasses[tone].split(" ")[1]} />
+                  </div>
+                  <div className="min-w-0 flex flex-col justify-center gap-1">
+                    <p className="text-[11px] text-muted-foreground/80 uppercase tracking-[0.12em] truncate leading-none">{label}</p>
+                    <p className="admin-h1 text-[22px] tabular-nums leading-none">{value}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <p className="text-[11px] text-muted-foreground/70 -mt-2 flex items-center gap-1.5">
