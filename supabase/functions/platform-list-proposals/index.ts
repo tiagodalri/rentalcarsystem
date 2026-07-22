@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
       .from("partner_proposals")
       .select(`
         id, status, created_at, expires_at, customer_name, customer_email,
-        locked_price_usd, partner_id, vehicle_id,
+        total_price, partner_id, vehicle_id,
         partners:partner_id ( agency_name ),
         vehicles:vehicle_id ( name )
       `, { count: "exact" })

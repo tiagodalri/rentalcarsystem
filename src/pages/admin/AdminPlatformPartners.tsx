@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Handshake, ChevronDown, ChevronRight, UserPlus, User, Eye, EyeOff, Building2, Landmark } from "lucide-react";
+import { Loader2, Plus, Handshake, ChevronDown, ChevronRight, UserPlus, User, Eye, EyeOff, Building2, Landmark, ExternalLink } from "lucide-react";
+import PartnerDetailSheet from "@/components/admin/partners/PartnerDetailSheet";
+
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { formatCnpj, formatCpfCnpj, maskTail } from "@/lib/brValidators";
@@ -64,6 +66,9 @@ export default function AdminPlatformPartners() {
   const [loadingUsers, setLoadingUsers] = useState<Record<string, boolean>>({});
   const [userForm, setUserForm] = useState(emptyUserForm);
   const [addingUser, setAddingUser] = useState(false);
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+
 
   const load = async () => {
     setLoading(true);
@@ -273,6 +278,15 @@ export default function AdminPlatformPartners() {
                           {p.contact_name || p.contact_email || p.contact_phone || "—"}
                         </p>
                       </div>
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => { e.stopPropagation(); setDetailId(p.id); setDetailOpen(true); }}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); setDetailId(p.id); setDetailOpen(true); } }}
+                        className="inline-flex items-center gap-1 text-[11px] uppercase tracking-wider text-primary hover:underline shrink-0 cursor-pointer px-2 py-1 rounded-md hover:bg-primary/10"
+                      >
+                        <ExternalLink className="h-3 w-3" /> Detalhes
+                      </span>
                       <div className="text-right shrink-0">
                         <p className="text-xs uppercase tracking-wider text-muted-foreground">{p.status}</p>
                         <p className="text-[11px] text-muted-foreground/70 tabular-nums">
@@ -280,6 +294,7 @@ export default function AdminPlatformPartners() {
                         </p>
                       </div>
                     </button>
+
 
                     {isOpen && (
                       <div className="ml-9 mb-4 pl-4 border-l border-border/40 space-y-5">
@@ -340,7 +355,10 @@ export default function AdminPlatformPartners() {
           )}
         </CardContent>
       </Card>
+
+      <PartnerDetailSheet partnerId={detailId} open={detailOpen} onOpenChange={setDetailOpen} />
     </div>
+
   );
 }
 

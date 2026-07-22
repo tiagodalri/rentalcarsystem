@@ -18,12 +18,17 @@ import {
 } from "@/components/ui/select";
 import {
   Handshake, Users, Car, DollarSign, TrendingUp, Loader2, Trophy,
-  Check, Undo2, Send, CheckCircle2, XCircle, Clock, Inbox, ThumbsUp, ThumbsDown,
+  Check, Undo2, Send, CheckCircle2, XCircle, Clock, Inbox, ThumbsUp, ThumbsDown, Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { fmtUSD, fmtUSDCompact } from "@/lib/partnerFormat";
 import { format } from "date-fns";
 import { formatCnpj, formatBrPhone } from "@/lib/brValidators";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { darkTooltipProps } from "@/components/admin/ChartTooltip";
+import Papa from "papaparse";
+import PartnerDetailSheet from "@/components/admin/partners/PartnerDetailSheet";
+
 
 const AdminPlatformPartners = lazy(() => import("./AdminPlatformPartners"));
 const AdminPlatformBonusTiers = lazy(() => import("./AdminPlatformBonusTiers"));
@@ -39,7 +44,9 @@ type Overview = {
   proposals_accepted: number;
   conversion_pct: number;
   top_partners: Array<{ partner_id: string; agency_name: string | null; bookings: number; commission: number }>;
+  monthly: Array<{ month: string; bookings: number; commission: number }>;
 };
+
 
 type PartnerLite = { id: string; agency_name: string };
 
@@ -68,7 +75,7 @@ type ProposalRow = {
   expires_at: string | null;
   customer_name: string | null;
   customer_email: string | null;
-  locked_price_usd: number | null;
+  total_price: number | null;
   partners: { agency_name: string | null } | null;
   vehicles: { name: string | null } | null;
 };
@@ -101,6 +108,8 @@ function proposalBadge(status: string) {
 function OverviewTab() {
   const [loading, setLoading] = useState(true);
   const [ov, setOv] = useState<Overview | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,6 +126,18 @@ function OverviewTab() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  const openDetail = (id: string) => { setDetailId(id); setDetailOpen(true); };
+
+  const monthlyFmt = useMemo(() => {
+    if (!ov?.monthly) return [];
+    return ov.monthly.map((m) => {
+      const [y, mm] = m.month.split("-");
+      const d = new Date(Number(y), Number(mm) - 1, 1);
+      const label = d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", "");
+      return { ...m, label };
+    });
+  }, [ov]);
 
   if (loading) {
     return (
@@ -145,6 +166,51 @@ function OverviewTab() {
           icon={TrendingUp}
         />
       </AdminKpiGrid>
+
+      {/* Monthly trend charts */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              Reservas por mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-56 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyFmt} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} allowDecimals={false} />
+                  <Tooltip {...darkTooltipProps} formatter={(v: number) => [v, "Reservas"]} />
+                  <Bar dataKey="bookings" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+              Comissão gerada por mês
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-56 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={monthlyFmt} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.3)" vertical={false} />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${Math.round(Number(v)).toLocaleString("en-US")}`} width={70} />
+                  <Tooltip {...darkTooltipProps} formatter={(v: number) => [fmtUSD(Number(v)), "Comissão"]} />
+                  <Line type="monotone" dataKey="commission" stroke="hsl(158 64% 40%)" strokeWidth={2.5} dot={{ r: 3, fill: "hsl(158 64% 40%)" }} activeDot={{ r: 5 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
@@ -179,27 +245,35 @@ function OverviewTab() {
                 Nenhuma comissão registrada ainda.
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {ov.top_partners.map((t, i) => (
-                  <div key={t.partner_id} className="flex items-center justify-between gap-3 py-1.5 border-b border-border/40 last:border-0">
+                  <button
+                    key={t.partner_id}
+                    onClick={() => openDetail(t.partner_id)}
+                    className="w-full flex items-center justify-between gap-3 py-1.5 px-2 -mx-2 rounded-md border-b border-border/40 last:border-0 hover:bg-muted/40 transition-colors text-left"
+                  >
                     <div className="flex items-center gap-2 min-w-0">
                       <span className="text-xs font-semibold tabular-nums text-muted-foreground w-4">{i + 1}</span>
-                      <span className="text-sm font-medium truncate">{t.agency_name ?? "—"}</span>
+                      <span className="text-sm font-medium truncate text-primary hover:underline">{t.agency_name ?? "—"}</span>
                     </div>
                     <div className="flex items-center gap-3 shrink-0 text-xs tabular-nums">
                       <span className="text-muted-foreground">{t.bookings} res.</span>
                       <span className="font-semibold">{fmtUSD(t.commission)}</span>
                     </div>
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
       </div>
+
+      <PartnerDetailSheet partnerId={detailId} open={detailOpen} onOpenChange={setDetailOpen} />
     </AdminSection>
   );
 }
+
+
 
 // ============ Payouts tab ============
 function PayoutsTab() {
@@ -252,6 +326,34 @@ function PayoutsTab() {
     setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, commission_payout_status: next, commission_paid_at: data.booking.commission_paid_at } : x)));
   };
 
+  const exportCsv = () => {
+    if (rows.length === 0) {
+      toast.info("Nenhuma linha para exportar");
+      return;
+    }
+    const data = rows.map((r) => ({
+      parceiro: r.partners?.agency_name ?? "",
+      veiculo: r.vehicles?.name ?? "",
+      locadora: r.locadoras?.name ?? "",
+      data_retirada: r.pickup_date ?? "",
+      valor_total_usd: Number(r.total_price ?? 0).toFixed(2),
+      tipo_comissao: r.commission_type ?? "",
+      valor_comissao_usd: Number(r.commission_amount ?? 0).toFixed(2),
+      status_repasse: r.commission_payout_status ?? "pending",
+      data_pagamento: r.commission_paid_at ? format(new Date(r.commission_paid_at), "yyyy-MM-dd") : "",
+    }));
+    const csv = Papa.unparse(data);
+    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `repasses-parceiros-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <AdminSection>
       <div className="flex flex-wrap items-center gap-3">
@@ -276,10 +378,21 @@ function PayoutsTab() {
             </SelectContent>
           </Select>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={exportCsv}
+          disabled={loading || rows.length === 0}
+          className="gap-2"
+        >
+          <Download className="h-3.5 w-3.5" />
+          Exportar CSV
+        </Button>
         <div className="ml-auto text-xs text-muted-foreground">
           {loading ? "Carregando…" : `${rows.length} reserva${rows.length === 1 ? "" : "s"}`}
         </div>
       </div>
+
 
       <Card>
         <CardContent className="p-0 overflow-x-auto">
@@ -432,7 +545,7 @@ function ProposalsTab() {
                     <div className="text-[11px] text-muted-foreground">{r.customer_email ?? ""}</div>
                   </td>
                   <td className="px-4 py-2.5">{r.vehicles?.name ?? "—"}</td>
-                  <td className="px-4 py-2.5 text-right tabular-nums whitespace-nowrap">{fmtUSD(Number(r.locked_price_usd ?? 0))}</td>
+                  <td className="px-4 py-2.5 text-right tabular-nums whitespace-nowrap">{fmtUSD(Number(r.total_price ?? 0))}</td>
                   <td className="px-4 py-2.5 text-center">{proposalBadge(r.status)}</td>
                   <td className="px-4 py-2.5 tabular-nums">{format(new Date(r.created_at), "dd/MM/yyyy")}</td>
                   <td className="px-4 py-2.5 tabular-nums">{r.expires_at ? format(new Date(r.expires_at), "dd/MM/yyyy") : "—"}</td>

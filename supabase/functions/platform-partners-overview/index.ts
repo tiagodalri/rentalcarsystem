@@ -36,6 +36,16 @@ Deno.serve(async (req) => {
     const nowIso = new Date().toISOString();
     const monthAgoIso = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
+    // Build the last-6-months window (inclusive of current month)
+    const now = new Date();
+    const monthKeys: string[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+      const k = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+      monthKeys.push(k);
+    }
+    const sixMonthsStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1)).toISOString();
+
     // Active partners
     const { count: activePartners } = await admin
       .from("partners")
@@ -49,6 +59,7 @@ Deno.serve(async (req) => {
       .not("partner_id", "is", null)
       .is("deleted_at", null);
     if (bErr) return json(500, { ok: false, error: bErr.message });
+
 
     const bookings = bookingsAll ?? [];
     const totalBookings = bookings.length;
@@ -89,6 +100,21 @@ Deno.serve(async (req) => {
     const propAccepted = proposals.filter((p) => p.status === "accepted").length;
     const conversion = propTotal > 0 ? (propAccepted / propTotal) * 100 : 0;
 
+    // Monthly trend (last 6 months, zero-filled)
+    const monthAgg = new Map<string, { bookings: number; commission: number }>();
+    for (const k of monthKeys) monthAgg.set(k, { bookings: 0, commission: 0 });
+    for (const b of bookings) {
+      const ca = b.created_at ?? "";
+      if (!ca || ca < sixMonthsStart) continue;
+      const d = new Date(ca);
+      const k = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+      const cur = monthAgg.get(k);
+      if (!cur) continue;
+      cur.bookings += 1;
+      cur.commission += Number(b.commission_amount ?? 0);
+    }
+    const monthly = monthKeys.map((k) => ({ month: k, ...(monthAgg.get(k) ?? { bookings: 0, commission: 0 }) }));
+
     return json(200, {
       ok: true,
       overview: {
@@ -102,6 +128,7 @@ Deno.serve(async (req) => {
         proposals_accepted: propAccepted,
         conversion_pct: conversion,
         top_partners: topPartners,
+        monthly,
         generated_at: nowIso,
       },
     });
