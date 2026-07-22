@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Plus, Handshake, ChevronDown, ChevronRight, UserPlus, User } from "lucide-react";
+import { Loader2, Plus, Handshake, ChevronDown, ChevronRight, UserPlus, User, Eye, EyeOff, Building2, Landmark } from "lucide-react";
 import { toast } from "sonner";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { formatCnpj, formatCpfCnpj, maskTail } from "@/lib/brValidators";
 
 interface Partner {
   id: string;
@@ -17,6 +18,18 @@ interface Partner {
   contact_phone: string | null;
   status: string;
   created_at: string;
+  legal_name: string | null;
+  cnpj: string | null;
+  address_city: string | null;
+  address_state: string | null;
+  bank_name: string | null;
+  bank_agency: string | null;
+  bank_account: string | null;
+  bank_account_type: string | null;
+  bank_account_holder_name: string | null;
+  bank_account_holder_document: string | null;
+  pix_key_type: string | null;
+  pix_key: string | null;
 }
 
 interface PartnerUser {
