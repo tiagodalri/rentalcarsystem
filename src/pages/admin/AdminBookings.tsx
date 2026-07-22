@@ -51,6 +51,8 @@ type Booking = {
   booking_number?: string | null;
   vehicle_name?: string;
   vehicle_image?: string;
+  partner_id?: string | null;
+  partner_name?: string | null;
 };
 
 
