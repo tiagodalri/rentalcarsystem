@@ -374,53 +374,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* Conta */}
-            <button
-              onClick={() => { navigate(isLoggedIn ? "/minha-conta" : "/login"); setMobileOpen(false); }}
-              className="w-full h-14 px-4 rounded-2xl bg-muted border border-border/40 active:bg-background/60 flex items-center gap-3 text-sm font-medium tracking-wider uppercase text-foreground transition-colors"
-            >
-              {isLoggedIn && user ? (
-                <>
-                  <span className="w-8 h-8 rounded-full gold-gradient flex items-center justify-center text-primary-foreground text-xs font-bold">
-                    {user.name.charAt(0)}
-                  </span>
-                  <span>{user.name.split(" ")[0]}</span>
-                </>
-              ) : (
-                <>
-                  <User size={18} />
-                  <span>{t.nav.myBookings}</span>
-                </>
-              )}
-            </button>
-
-            {/* Preferências: Tema + Moeda lado a lado */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={toggleTheme}
-                className="h-14 rounded-2xl bg-muted border border-border/40 active:bg-background/60 flex flex-col items-center justify-center gap-1 text-foreground transition-colors"
-              >
-                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-                <span className="text-[10px] font-semibold tracking-wider uppercase">
-                  {theme === "dark" ? "Claro" : "Escuro"}
-                </span>
-              </button>
-              <div className="h-14 rounded-2xl bg-muted border border-border/40 grid grid-cols-2 overflow-hidden">
-                {(["USD", "BRL"] as const).map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => { if (currency !== c) toggleCurrency(); }}
-                    className={`flex items-center justify-center text-xs font-bold uppercase tracking-wider transition-colors ${
-                      currency === c ? "bg-primary/15 text-primary" : "text-muted-foreground active:bg-background/60"
-                    }`}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Idioma */}
+            {/* 1. Idioma */}
             <div>
               <div className="text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-foreground/70 px-1 mb-2 flex items-center gap-1.5">
                 <Globe size={11} /> Idioma
@@ -443,13 +397,71 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* Admin. visível, ao final */}
+            {/* 2. Moeda */}
+            <div>
+              <div className="text-[10px] font-semibold tracking-[0.22em] uppercase text-muted-foreground/70 px-1 mb-2">
+                Moeda
+              </div>
+              <div className="h-14 rounded-2xl bg-muted border border-border/40 grid grid-cols-2 overflow-hidden">
+                {(["USD", "BRL"] as const).map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => { if (currency !== c) toggleCurrency(); }}
+                    className={`flex items-center justify-center text-xs font-bold uppercase tracking-wider transition-colors ${
+                      currency === c ? "bg-primary/15 text-primary" : "text-muted-foreground active:bg-background/60"
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 3. Modo escuro */}
+            <button
+              onClick={toggleTheme}
+              className="w-full h-14 px-4 rounded-2xl bg-muted border border-border/40 active:bg-background/60 flex items-center gap-3 text-sm font-medium tracking-wider uppercase text-foreground transition-colors"
+            >
+              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              <span>{theme === "dark" ? "Modo claro" : "Modo escuro"}</span>
+            </button>
+
+            {/* 4. Portal Cliente */}
+            <button
+              onClick={() => { navigate(isLoggedIn ? "/minha-conta" : "/login"); setMobileOpen(false); }}
+              className="w-full h-14 px-4 rounded-2xl bg-muted border border-border/40 active:bg-background/60 flex items-center gap-3 text-sm font-medium tracking-wider uppercase text-foreground transition-colors"
+            >
+              {isLoggedIn && user ? (
+                <>
+                  <span className="w-8 h-8 rounded-full gold-gradient flex items-center justify-center text-primary-foreground text-xs font-bold">
+                    {user.name.charAt(0)}
+                  </span>
+                  <span>{user.name.split(" ")[0]}</span>
+                </>
+              ) : (
+                <>
+                  <User size={18} />
+                  <span>Portal Cliente</span>
+                </>
+              )}
+            </button>
+
+            {/* 5. Portal Admin */}
             <button
               onClick={() => { navigate("/admin/login"); setMobileOpen(false); }}
-              className="w-full h-12 flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/5 text-[11px] font-semibold tracking-[0.22em] uppercase text-primary active:bg-primary/15 transition-colors"
+              className="w-full h-14 px-4 rounded-2xl bg-muted border border-border/40 active:bg-background/60 flex items-center gap-3 text-sm font-medium tracking-wider uppercase text-foreground transition-colors"
             >
-              <Shield size={14} />
-              Admin
+              <Shield size={18} />
+              <span>Portal Admin</span>
+            </button>
+
+            {/* 6. Portal Parceiros */}
+            <button
+              onClick={() => { navigate("/parceiro/login"); setMobileOpen(false); }}
+              className="w-full h-14 px-4 rounded-2xl bg-muted border border-border/40 active:bg-background/60 flex items-center gap-3 text-sm font-medium tracking-wider uppercase text-foreground transition-colors"
+            >
+              <Handshake size={18} />
+              <span>Portal Parceiros</span>
             </button>
           </div>
         </div>
