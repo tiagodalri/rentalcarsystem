@@ -22,6 +22,7 @@ import { format, startOfMonth, endOfMonth, subMonths, addMonths, parseISO, diffe
 import { ptBR } from "date-fns/locale";
 import { aggregateAddons, calcVehicleOccupancyPct } from "@/lib/fleetMetrics";
 import { getVehicleDisplayName, detectVehicleColor, detectVehicleColorName } from "@/lib/vehicleDisplay";
+import { TuroLogo, ParceirosLogo, ParticularesLogo } from "@/components/admin/ChannelLogo";
 
 // Custom YAxis tick: colored dot + single-line vehicle name + tooltip
 const VehicleTick = (props: any) => {
