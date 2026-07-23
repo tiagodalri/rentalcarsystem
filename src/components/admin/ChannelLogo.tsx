@@ -38,64 +38,84 @@ export function TuroLogo({ size = 44, className }: Props) {
   );
 }
 
+/**
+ * Wordmark plates for Parceiros and Particulares — sized to match Turo's
+ * 88x32 horizontal plate so all three channel cards share the same visual
+ * weight. Each mark uses its own palette + glyph to feel like a real brand:
+ *  - Parceiros: dark plate, gold "link" glyph + gold wordmark
+ *  - Particulares: ivory plate, graphite wordmark + gold monogram badge
+ */
 export function ParceirosLogo({ size = 44, className }: Props) {
   return (
-    <svg
-      viewBox="0 0 44 44"
-      width={size}
-      height={size}
+    <div
       className={className}
+      style={{ width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center" }}
       aria-label="Parceiros"
       role="img"
     >
-      <defs>
-        <linearGradient id="parcBg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.92" />
-          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.72" />
-        </linearGradient>
-      </defs>
-      <rect width="44" height="44" rx="12" fill="url(#parcBg)" />
-      {/* Two interlocking rings — partnership mark */}
-      <circle cx="17.5" cy="22" r="7.5" fill="none" stroke="#1A1A1A" strokeWidth="2.2" />
-      <circle cx="26.5" cy="22" r="7.5" fill="none" stroke="#1A1A1A" strokeWidth="2.2" />
-      <path
-        d="M20.2 16.5c1.1-.7 2.5-.7 3.6 0"
-        stroke="#1A1A1A"
-        strokeWidth="2.2"
-        strokeLinecap="round"
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 132 32"
+        width={size}
+        height={(size * 32) / 132}
         fill="none"
-      />
-    </svg>
+      >
+        <rect width="132" height="32" rx="6" fill="#121214" />
+        {/* Interlocking chain-link glyph */}
+        <g transform="translate(8 8)" stroke="hsl(var(--primary))" strokeWidth="2.2" fill="none" strokeLinecap="round">
+          <rect x="0.5" y="4.5" width="9" height="7" rx="3.5" />
+          <rect x="6.5" y="4.5" width="9" height="7" rx="3.5" />
+        </g>
+        <text
+          x="30"
+          y="21"
+          fontFamily="Poppins, Inter, system-ui, sans-serif"
+          fontSize="12"
+          fontWeight="700"
+          letterSpacing="1.6"
+          fill="#FFFFFF"
+        >
+          PARCEIROS
+        </text>
+      </svg>
+    </div>
   );
 }
 
 export function ParticularesLogo({ size = 44, className }: Props) {
   return (
-    <svg
-      viewBox="0 0 44 44"
-      width={size}
-      height={size}
+    <div
       className={className}
+      style={{ width: size, height: size, display: "flex", alignItems: "center", justifyContent: "center" }}
       aria-label="Particulares"
       role="img"
     >
-      <defs>
-        <linearGradient id="partBg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#111827" />
-          <stop offset="100%" stopColor="#2A3547" />
-        </linearGradient>
-        <linearGradient id="partGlyph" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#F7F5F0" />
-          <stop offset="100%" stopColor="hsl(var(--primary))" />
-        </linearGradient>
-      </defs>
-      <rect width="44" height="44" rx="12" fill="url(#partBg)" />
-      {/* Monogram "P" with keyhole void — private / individual */}
-      <path
-        d="M15 11h9.5c4.4 0 7.5 3 7.5 7.2 0 4.3-3.1 7.3-7.6 7.3H20V33h-5V11z"
-        fill="url(#partGlyph)"
-      />
-      <circle cx="24.2" cy="18.4" r="2.4" fill="#111827" />
-    </svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 148 32"
+        width={size}
+        height={(size * 32) / 148}
+        fill="none"
+      >
+        <rect width="148" height="32" rx="6" fill="#F7F5F0" stroke="#1A1A1A" strokeWidth="1" />
+        {/* Gold monogram badge with "P" */}
+        <rect x="4" y="4" width="24" height="24" rx="5" fill="#1A1A1A" />
+        <path
+          d="M12 9h5.2c2.5 0 4.3 1.7 4.3 4.1 0 2.4-1.8 4.1-4.4 4.1H14V23h-2V9z"
+          fill="hsl(var(--primary))"
+        />
+        <text
+          x="34"
+          y="21"
+          fontFamily="Poppins, Inter, system-ui, sans-serif"
+          fontSize="12"
+          fontWeight="700"
+          letterSpacing="1.4"
+          fill="#121214"
+        >
+          PARTICULARES
+        </text>
+      </svg>
+    </div>
   );
 }
